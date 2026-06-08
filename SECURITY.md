@@ -1,0 +1,46 @@
+# Security policy
+
+> Product name TBD. This project does **risk reduction**, not guaranteed protection.
+> See [docs/threat-model.md](docs/threat-model.md) for scope and explicit limitations.
+
+## Reporting a vulnerability
+
+Please report security issues **privately** — do not open a public issue for a
+vulnerability.
+
+- Preferred: open a private security advisory via GitHub
+  ("Security" → "Report a vulnerability").
+- Alternative: email the maintainer at the address listed on the project profile.
+
+Please include: affected version/commit, a clear description, reproduction steps or a
+proof of concept, and the impact you observed.
+
+## What to expect
+
+- Acknowledgement of your report within a reasonable time.
+- An assessment and, where applicable, a fix and coordinated disclosure.
+- Credit for the finding if you would like it.
+
+> These are good-faith targets for an early-stage open-source project, not a contractual SLA.
+
+## Scope
+
+**In scope:** vulnerabilities in this project's own code — the gateway, scanners,
+detectors, policy engine, admin/proxy API, and audit logging.
+
+**Out of scope** (by design — see the threat model):
+
+- Detector **false negatives** (a missed prompt injection, PII token, or leak) are
+  tracked as **detection-quality** issues — **unless** they bypass a documented
+  deterministic guarantee or cause unsafe gateway behavior, in which case they are
+  in-scope security issues. The project does not claim to catch every injection; novel
+  evasions are expected.
+- Weaknesses in the underlying LLM provider or model.
+- Host / OS compromise, or attacks assuming database access.
+- Treating the system prompt as a secret store — it is **not** a security boundary.
+
+## Safe harbor
+
+We support good-faith security research. If you make a genuine effort to comply with this
+policy, avoid privacy violations and service disruption, and give us reasonable time to
+respond before disclosure, we will not pursue action against you for that research.
