@@ -1,118 +1,88 @@
 # Roadmap
 
-Versioning is feature-gated, not date-gated. Each version is shippable. Detector
-precision/recall (including **false-negative rate**) is measured against the attack
-corpus and published per release.
+Harness-first. Versioning is feature-gated, not date-gated; each version is shippable.
+Detector precision/recall — **including the false-negative rate** — is measured against the
+attack corpus and published per release. The gateway is the **reference defense** and
+arrives later as a replay target.
 
 ---
 
-## v0.1 — Scanning core + CLI (no proxy)
+## v0.1 — Harness core (mock target)
 
-**Scope is deliberately narrow: a scanning core and a CLI. There is no network proxy
-and no provider call in this version.**
+- **Goal:** prove the loop *pattern → trace → scorecard* end to end on a mock agent.
+- **Features:** an **attack corpus** (seed [defensive test patterns](harness.md#attack-pattern-taxonomy)),
+  a **trace schema** (incl. the data-envelope fields), a **simple runner**, and a
+  **scorecard** — all run against a **mock agent** target. The deterministic scanner core
+  is reused as the detectors/oracles.
+- **Out of scope:** real targets, MCP, multi-agent, multimodal, the reference gateway.
+- **Done when:** running the corpus against the mock agent emits one trace per chain,
+  scorecard is derived deterministically, ruff/mypy clean, CI green on 3.11/3.12.
+- **Tests:** benign chain → no finding; each seed pattern → expected trace + finding;
+  scorecard regenerates deterministically from the same traces.
 
-- **Goal:** prove the scanning core works on text, end to end, with tests.
+## v0.2 — Real agent adapter + cross-target replay
+
+- **Goal:** drive a real (authorized) LLM agent and compare targets.
+- **Features:** an **LLM-agent target adapter** (OpenAI-compatible); expanded sanitized
+  patterns; **cross-target replay** — run the same trace set against two targets and diff
+  the scorecards.
+- **Done when:** the same traces run against two targets produce comparable scorecards;
+  provider calls are mocked in CI.
+- **Tests:** adapter contract; replay determinism; scorecard diff correctness.
+
+## v0.3 — Tools & MCP
+
+- **Goal:** cover the tools/permissions layer of the graph.
+- **Features:** **MCP / tool-chain target adapter**; **MCP / tool-permission scanner**
+  (static analysis of tools, permissions, and tool schemas); tool-permission-abuse and
+  MCP/tool-schema-deception patterns.
+- **Done when:** the scanner emits the tools/permissions graph layer; the two patterns
+  produce findings against a mock MCP target.
+- **Tests:** permission-graph extraction; schema-deception pattern; dangerous-argument detection.
+
+## v0.4 — Multi-agent, memory & data boundary
+
+- **Goal:** the agentic-specific failure modes, including **data-boundary survival**.
+- **Features:** **multi-agent workflow adapter**; **cross-agent contamination** and
+  **memory poisoning** patterns; **data-boundary / recipient-control** patterns —
+  data-envelope checks, **sleeping prompt / delayed injection**, **classification
+  mutation**, **memory no-store / TTL violation**, and **handoff label stripping**.
+- **Done when:** a contamination chain across two mock agents is captured with a clear
+  break point; a data item's envelope is shown to be violated (e.g. label stripped at a
+  handoff) in a trace.
+- **Tests:** contamination propagation; memory persistence across turns; envelope-survival
+  checks (recipient, store/forward, TTL, classification immutability).
+
+## v0.5 — Multimodal & reference defense
+
+- **Goal:** the full signal path, and measured risk reduction.
 - **Features:**
-  - CLI `scan` takes text → runs deterministic scanners (injection signatures,
-    encoding tricks) + **regex-based** PII/secrets detection → returns a verdict
-    (`ALLOW`/`WARN`/`REDACT`/`BLOCK`) and findings JSON.
-  - Simple rule-based policy with fixed precedence.
-  - **Normal** SQLite audit logging (append-only rows; no hash chain yet).
-- **PII/secrets:** lightweight regex only (emails, cards via Luhn, phones, common
-  API-key/token/private-key formats). **Microsoft Presidio is an optional extra
-  (`pip install .[pii]`)**, never a core dependency.
-- **Technical tasks:** project scaffold, `pyproject.toml`, Pydantic v2 models
-  (`CanonicalText`, `Finding`, `Decision`), `Scanner` protocol + registry, normalizer,
-  SQLite audit writer.
-- **Done when:** `aisg scan "..."` returns a verdict; audit row persisted; ruff + mypy
-  (on `core`/`scanners`) clean; CI green on 3.11/3.12.
-- **Tests:** normal prompt → `ALLOW`; known injection → `BLOCK`; base64 injection
-  decoded → `BLOCK`; zero-width injection caught; PII detected; secret detected;
-  REDACT masks output; audit row created.
+  - **Voice / multimodal target adapter** — **sanitized, pre-recorded ASR/OCR fixtures**
+    only; sensor-to-agent path; trace captures the `modality` fields. **No ultrasonic /
+    adversarial-audio generation** (out of scope by design).
+  - **Reference gateway as a defense target** + **policy engine** + **measured
+    risk-reduction replay** (baseline vs gateway-protected scorecards).
+- **Done when:** a multimodal chain runs from a sanitized fixture to an observed agent
+  action; replay through the reference gateway yields a measured delta.
+- **Tests:** ASR-fixture pattern; modality fields populated; risk-reduction delta computed.
 
-## v0.2 — Non-streaming OpenAI-compatible proxy
+## v1.0 — Production-ready
 
-- **Goal:** put the gateway in the request path. **Non-streaming only.**
-- **Features:** FastAPI server exposing `POST /v1/chat/completions` (OpenAI-compatible,
-  **request/response, no SSE streaming**), one provider adapter (OpenAI), request +
-  response scanning, `GET /health`, `GET /metrics`. Decisions: `ALLOW`/`BLOCK`/`WARN`/`REDACT`.
-- **Out of scope (deferred):** **streaming** (see v1.0), quarantine (v0.3),
-  declarative policy (v0.5).
-- **Technical tasks:** request normalizer (provider → canonical), `ProviderAdapter`
-  protocol, async `httpx` client with timeouts/retries, provider-shaped error envelopes,
-  structured logging.
-- **Done when:** an unmodified OpenAI SDK pointed at the gateway gets correct
-  (non-streamed) completions; an injected prompt is blocked with a provider-shaped
-  error; latency overhead measured and documented.
-- **Tests:** provider **mocked** (no real API calls in CI); passthrough; block path
-  error shape; REDACT rewrites the outbound payload; egress leak detection.
-
-## v0.3 — Quarantine (async) + dashboard
-
-- **Goal:** humans in the loop; visibility.
-- **Features:** `QUARANTINE` status with the **async `quarantine_id` + retry/approve
-  workflow** (see [architecture.md](architecture.md#quarantine-workflow-async--no-indefinitely-held-http-request));
-  quarantine store; admin API (`/admin/events`, `/admin/quarantine`, approve/reject);
-  read-only web dashboard (event feed, quarantine queue, decision stats).
-- **Technical tasks:** quarantine schema + state machine (`pending → approved/rejected`),
-  worker that processes approved items, result retrieval by id, dashboard
-  (dependency-light: HTMX/Jinja), event pagination/filtering.
-- **Done when:** a borderline request returns `202` + `quarantine_id` without holding
-  the connection; an operator approves it; the client retrieves the stored result;
-  reject path returns a clean denial.
-- **Tests:** full quarantine flow (hold → approve → result retrievable;
-  hold → reject → blocked); admin authz; dashboard renders.
-
-## v0.4 — Cost / token optimization
-
-- **Goal:** make the gateway pay for itself.
-- **Features:** per-request token counting, per-key/per-route budgets with enforcement,
-  exact-match response cache (Redis optional), optional semantic cache, model-downgrade
-  policy hooks, cost reporting in the dashboard.
-- **Technical tasks:** tokenizer integration, budget store, cache layer with TTL +
-  invalidation, cost attribution by key/route, Prometheus cost metrics.
-- **Done when:** exceeding a budget blocks with a clear error; a cache hit avoids a
-  provider call; the dashboard shows spend by key.
-- **Tests:** budget enforcement; cache hit/miss; token accounting vs fixtures.
-
-## v0.5 — Policy engine
-
-- **Goal:** declarative, auditable, hot-reloadable rules.
-- **Features:** YAML/JSON policy files (conditions on findings/route/key/content;
-  actions `ALLOW`/`WARN`/`REDACT`/`QUARANTINE`/`BLOCK`; precedence), policy validation +
-  **dry-run** mode, per-route binding, optional **LLM threat classifier** as a scanner
-  feeding the engine (cached, circuit-breakered).
-- **Technical tasks:** policy schema (Pydantic), evaluator with deterministic precedence,
-  hot reload + versioning, `policy test` (replay events against a policy).
-- **Done when:** a policy change takes effect without restart; dry-run shows what
-  *would* happen; conflicting rules resolve deterministically.
-- **Tests:** precedence; dry-run correctness; bad policy rejected at load; classifier mocked.
-
-## v1.0 — Production-ready self-hosted release
-
-- **Goal:** something a platform team can actually run.
-- **Features:**
-  - PostgreSQL backend; multi-provider adapters (OpenAI + Anthropic + local/Ollama);
-    API-key auth + RBAC for admin; rate limiting.
-  - **Streaming support** (`stream: true` / SSE) — deferred to here on purpose:
-    streaming and full egress scanning are in tension (you cannot fully scan a
-    response you are emitting token-by-token), so streaming ships with an explicit,
-    documented buffering/partial-scan policy rather than silently weakening egress checks.
-  - **Tamper-evident audit log** (hash-chained integrity) — earlier versions use
-    normal append-only logging; the hash chain is introduced here.
-  - Helm chart / hardened Docker Compose; SBOM + dependency scanning in CI; published
-    performance budget; semantic-versioned API; finalized threat model.
-- **Done when:** deploy via Compose/Helm; survives a load test at the documented p95
-  overhead; audit log tamper-evident; security disclosure process live.
-- **Tests:** full integration suite, attack corpus, load/soak, migration, RBAC matrix,
-  audit-integrity verification.
+- **Goal:** something a platform / security team can run.
+- **Features:** hardened harness + reference gateway; **PostgreSQL** trace store;
+  **trace integrity (hash chaining)** — earlier versions use normal append-only storage;
+  **streaming** support in the reference gateway (deferred to here on purpose — streaming
+  and full egress scanning are in tension); CI + SBOM/dependency scanning; published
+  performance budget; finalized threat model.
+- **Done when:** deploy via Compose/Helm; load-tested at a documented overhead; trace log
+  tamper-evident; security disclosure live.
+- **Tests:** full integration + attack corpus, load/soak, migration, audit-integrity.
 
 ---
 
 ## A note on self-learning
 
-**The MVP does not self-learn.** The gateway never mutates its own rules or thresholds
-automatically. Approve/reject decisions and reviewed `WARN`s produce **feedback labels**
-that are stored only. Any adaptive rules built from those labels are a **future,
-explicitly human-reviewed** step — a security control that silently rewrites itself is
-hard to audit and hard to trust. Predictability is a feature here.
+**The harness does not self-learn.** It never mutates its own patterns, thresholds, or
+detectors at runtime. Findings and reviewed results produce **labels** that are stored
+only; any adaptive rules built from them are a **future, explicitly human-reviewed** step.
+A security tool that silently rewrites itself is hard to audit — predictability is a feature.

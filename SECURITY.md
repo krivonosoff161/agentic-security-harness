@@ -3,6 +3,25 @@
 > Product name TBD. This project does **risk reduction**, not guaranteed protection.
 > See [docs/threat-model.md](docs/threat-model.md) for scope and explicit limitations.
 
+## Responsible use
+
+This project is an **authorized defensive testing harness**, not a hacking tool. It ships
+sanitized offensive **test content** so you can find agentic failure modes in systems you
+own or are explicitly authorized to test.
+
+By using the harness you agree to:
+
+- run it **only** against **mock / demo / your own / authorized** targets — never against
+  third-party systems without written permission;
+- keep payloads **sanitized** — "sensitive" data in tests are **synthetic markers**, never
+  real credentials or secrets;
+- treat multimodal / sensor patterns as defensive testing of systems that accept
+  voice / image / audio — **not** signal weaponization. The project provides **no
+  instructions for generating ultrasonic / adversarial audio**, and none for abusing
+  third-party systems.
+
+The harness measures risk; it does not authorize attacking anyone.
+
 ## Reporting a vulnerability
 
 Please report security issues **privately** — do not open a public issue for a
@@ -25,8 +44,9 @@ proof of concept, and the impact you observed.
 
 ## Scope
 
-**In scope:** vulnerabilities in this project's own code — the gateway, scanners,
-detectors, policy engine, admin/proxy API, and audit logging.
+**In scope:** vulnerabilities in this project's own code — the harness (runner, trace
+store, scorecard), scanners / detectors, and the reference gateway (policy engine,
+admin / proxy API, audit logging).
 
 **Out of scope** (by design — see the threat model):
 

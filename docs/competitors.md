@@ -1,52 +1,99 @@
 # Competitive landscape
 
-> **Verification status:** partially verified — **last reviewed: 2026-06-08.**
-> Rebuff, Protect AI, Prompt Security, and the OWASP numbering are verified with primary
-> sources (see the table and link footnotes). Trylon, Lakera, NeMo Guardrails, and
-> Presidio specifics are still pending.
-> This document must be re-checked against each project's live state (features, license,
-> ownership, pricing) before it is relied on. Claims that are not directly verified are
-> marked **needs verification**. Do not present anything here as fact until confirmed
-> with a primary source.
+> **Verification status:** verified **2026-06-08** against primary sources (inline
+> footnotes). A point-in-time snapshot — features, licensing, and ownership change;
+> re-check before relying on any single claim. Pricing is intentionally not quoted.
+> **No uniqueness claims** are made anywhere in this project.
 
 ## How to read this
 
-The goal is honest positioning, not marketing. Where this project's scope overlaps a
-tool, that tool is "complementary" (an integration target) or "competing" (same problem,
-same form factor). Several listed tools are things this gateway would **integrate**, not
-displace.
+There are two relevant categories:
 
-## Landscape
+- **(A) Agentic security testing / red-teaming** — the project's **primary** category.
+  It is **crowded and active**. Several tools overlap our intent; we name them honestly.
+- **(B) Gateways / firewalls** — the context for the **reference defense** component only.
 
-| Project | Form factor | Focus (as understood) | Relation | Verification |
-|---|---|---|---|---|
-| **Rebuff** | OSS library/SDK | Prompt-injection detection (heuristics, LLM, vector DB of known attacks, canary tokens) | Reference only — the concept is complementary, but the repo is **archived/read-only**, so not a live dependency | ✅ Archived by owner 2025-05-16 ([repo][rebuff]) |
-| **Trylon Gateway** | Vendor (gateway/guardrails) | LLM guardrails | Unclear overlap | **Low confidence — needs verification of scope/features before any comparison** |
-| **Guardrails AI** | OSS Python framework + Hub | In-process validators ("guards") on input/output | Complementary — in-process, app-embedded; this gateway is the network/enforcement layer and can wrap validators | Confirm current API/Hub details |
-| **LiteLLM** | OSS proxy + SDK | Unify many providers; routing, logging, budgets; some guardrail hooks | Closest *infrastructural* analog (an LLM gateway), but security is **not** its primary lens — routing/cost/observability is | Confirm current guardrail capabilities |
-| **Lakera (Guard)** | Commercial SaaS/API | Prompt-injection & content moderation API; red-teaming | Commercial, API-based; could be called as an optional scanner | Confirm product scope/pricing |
-| **Protect AI** | Vendor; OSS pieces (LLM Guard, Rebuff) | AI security platform | LLM Guard is an OSS scanner toolkit we can integrate (note the ownership change) | ✅ Acquisition by Palo Alto Networks **completed 2025-07-22** ([source][protectai]) |
-| **Prompt Security** | Commercial | Enterprise GenAI security gateway/proxy | Architecturally similar (proxy), but closed-source | ⚠️ SentinelOne announced **intent to acquire** 2025-08-05 (expected close Q3 FY2026; **not** confirmed completed) ([source][promptsec]) |
-| **Microsoft Presidio** | OSS library | PII detection / anonymization | Complementary — we **integrate** it (optional `[pii]` extra), not compete | Confirm current detector coverage |
+Tools we would **integrate** (wrap as detectors/oracles) are marked complementary.
 
-Also worth naming when this is finalized: **NVIDIA NeMo Guardrails** (OSS, in-process,
-dialog rails) and **Protect AI LLM Guard** (OSS scanner set) — both complementary
-integration targets, not competitors. **Both need verification.**
+---
+
+## (A) Agentic security testing / red-teaming
+
+> ⚠️ **Closest combined prior art — BotGuard.** [BotGuard][botguard] is an open-source
+> red-teaming **+** firewall for AI agents: it scans an endpoint with 70+ OWASP-aligned
+> scenarios and returns a **scored report with reproduction steps**, plus a real-time
+> "Shield" firewall; it covers AI agents, MCP integrations, and RAG. That combination
+> (harness + reference defense + MCP/RAG + reproducible findings) is **very close to this
+> project's shape** and must be acknowledged up front.
+
+| Project | What it is (verified) | Relation | Source |
+|---|---|---|---|
+| **BotGuard** | OSS + platform: Scan (70+ OWASP scenarios → scored report **with reproduction steps**) + Shield (real-time firewall) + Fix; covers agents, MCP, RAG; Py/Node SDKs | **Closest combined prior art** — overlaps harness *and* reference defense | [repo][botguard] |
+| **Repello / ARTEMIS** | Commercial automated AI red-teaming; agentic systems, MCP, RAG, multi-agent; OWASP/NIST/MITRE ATLAS | Overlapping (commercial, closed) | [site][repello] |
+| **garak** (NVIDIA) | OSS LLM vulnerability scanner; probes / detectors / generators (injection, jailbreak, leakage) | Established OSS; complementary (could supply probes) | [repo][garak] |
+| **PyRIT** (Microsoft) | OSS GenAI red-team framework; multi-turn strategies (Crescendo/TAP/Skeleton Key), orchestration, scoring | Established OSS; strong overlap on multi-turn | [docs][pyrit] |
+| **promptfoo** | OSS (MIT) test + red-team for prompts/agents/RAG; OWASP LLM Top 10; declarative YAML, CI/CD | Established OSS; strong overlap on agent testing | [repo][promptfoo] |
+
+> Four tools named in early discussion — *AgentSeal, PwnClaw, Inkog Red, OrchSec* — could
+> **not** be verified (no product or repo found) and are **omitted** rather than asserted.
+
+---
+
+## (B) Gateways / firewalls (reference-defense context)
+
+> **Closest gateway prior art — Trylon.** [Trylon Gateway][trylon] is an open-source,
+> self-hosted, FastAPI LLM-firewall gateway (multi-provider proxy + guardrails). It is the
+> closest prior art for **our reference-defense component** (not the harness).
+
+| Project | What it is (verified) | Relation | Source |
+|---|---|---|---|
+| **Trylon Gateway** | OSS FastAPI LLM-firewall gateway; multi-provider proxy + guardrails (PII redaction, toxicity, leakage) | Closest **gateway** prior art | [repo][trylon] |
+| **LiteLLM** | OSS proxy + SDK; routing/budgets/logging + **native guardrails framework** (Presidio, Lakera, Aporia, Pillar, PromptGuard, Bedrock, OpenAI moderation) | Gateway with real guardrails; routing-first vs security-first | [docs][litellm] |
+| **Lakera (Guard)** | Commercial API; prompt injection/jailbreak, content moderation, PII/data-leakage | Commercial detector; could be an optional scanner | [docs][lakera] |
+| **LLM Guard** (Protect AI) | OSS (MIT) scanner toolkit; 15 input + 20 output scanners | Complementary — integration target; owner now Palo Alto | [site][llmguard] |
+| **Guardrails AI** | OSS framework + Hub (100+ validators) | Complementary — in-process; we can wrap validators | [repo][guardrails] |
+| **NeMo Guardrails** (NVIDIA) | OSS (Apache-2.0); Colang DSL; 5 rail types | Complementary — in-process, dialog-centric | [repo][nemo] |
+| **Microsoft Presidio** | OSS PII detect/anonymize (Analyzer + Anonymizer) | Complementary — we **integrate** it (optional `[pii]`) | [repo][presidio] |
+| **Rebuff** | OSS prompt-injection detector | Reference only — repo **archived/read-only** | [repo][rebuff] |
+
+### Ownership notes (verified)
+- **Rebuff** — archived (read-only) by owner **2025-05-16**. [repo][rebuff]
+- **Protect AI** (owns LLM Guard) — acquired by **Palo Alto Networks, completed 2025-07-22**. [source][protectai]
+- **Prompt Security** — SentinelOne announced **intent to acquire** **2025-08-05** (expected close Q3 FY2026; **not** confirmed completed). [source][promptsec]
+
+---
 
 ## Positioning
 
-The intended wedge: **open-source + self-hosted + _gateway_ form factor + first-class
-quarantine, audit, and cost control.**
+The category is occupied, and **this project claims no uniqueness**. It does **not** try to
+compete on "more attacks." The narrow angle is:
 
-- Commercial gateways (e.g. Prompt Security, Lakera) are closed-source.
-- The OSS tools (Guardrails AI, NeMo Guardrails, LLM Guard, Rebuff, Presidio) are mostly
-  in-process libraries or single-purpose detectors.
-- The OSS infra gateway (LiteLLM) is not security-first.
+1. **portable, machine-readable exploit traces** (replayable artifacts, not just reports);
+2. a **practical attack graph** for agent / tool chains;
+3. **reproducible cross-target comparison** (replay the same traces against different
+   targets / defenses, measure the delta);
+4. **cross-agent contamination** in multi-agent workflows;
+5. the **full signal path** including pre-LLM sensor channels (e.g. audio → ASR);
+6. **agentic data-boundary / recipient control** — whether sensitivity labels, recipients,
+   and storage / forwarding rules survive agent handling (the lead wedge).
 
-That intersection — an open, self-hosted, security-first gateway with quarantine and
-audit — is the gap this project targets. **This positioning claim itself depends on the
-verifications above; revisit it whenever the landscape shifts.**
+BotGuard is the closest combined prior art and is named honestly; garak / PyRIT / promptfoo
+are established and overlap on red-teaming/eval; Trylon is the closest gateway prior art for
+the reference defense. The honest framing is **"a focused, open, trace-first take,"** not a
+new category — and the wedge above should be re-checked against these tools as they evolve.
 
+[botguard]: https://github.com/botguardai/BotGuard
+[repello]: https://repello.ai/
+[garak]: https://github.com/NVIDIA/garak/
+[pyrit]: https://microsoft.github.io/PyRIT/
+[promptfoo]: https://github.com/promptfoo/promptfoo
+[trylon]: https://github.com/trylonai/gateway
+[litellm]: https://docs.litellm.ai/docs/proxy/guardrails/quick_start
+[lakera]: https://docs.lakera.ai/docs/prompt-defense
+[llmguard]: https://protectai.com/llm-guard
+[guardrails]: https://github.com/guardrails-ai/guardrails
+[nemo]: https://github.com/NVIDIA-NeMo/Guardrails
+[presidio]: https://github.com/microsoft/presidio
 [rebuff]: https://github.com/protectai/rebuff
 [protectai]: https://www.paloaltonetworks.com/company/press/2025/palo-alto-networks-completes-acquisition-of-protect-ai
 [promptsec]: https://www.sentinelone.com/press/sentinelone-to-acquire-prompt-security-to-advance-genai-security/

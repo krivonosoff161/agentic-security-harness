@@ -1,10 +1,13 @@
-# API reference
+# Reference gateway API
 
-> Product name TBD. Endpoints are annotated with the version they first appear in.
-> Until then, treat them as design intent.
+> Product name TBD. This documents the **reference gateway** — the optional
+> [defense component](harness.md#reference-defense-replay), not the harness. The harness
+> has **no published API or CLI**; its core artifacts are
+> [traces](harness.md#exploit-trace-format). Endpoints are annotated with the version they
+> first appear in; treat them as design intent.
 
-Two surfaces: the **proxy API** (OpenAI-compatible, for apps) and the **admin API**
-(for operators).
+The reference gateway exposes two surfaces: the **proxy API** (OpenAI-compatible, for apps
+and as a replay defense target) and the **admin API** (for operators).
 
 ## Auth
 
@@ -21,7 +24,7 @@ Accepts the standard OpenAI chat-completions body (`model`, `messages`, `tools`,
 response shape.
 
 > **`v0.2` is non-streaming only.** `stream: true` is rejected with a clear error until
-> streaming ships in **v1.0** (see [roadmap](roadmap.md#v10--production-ready-self-hosted-release)
+> streaming ships in **v1.0** (see [roadmap](roadmap.md)
 > for why it is deferred).
 
 Differences are additive and non-breaking:
@@ -87,7 +90,7 @@ List quarantined items (status, findings, snippet, `created_at`). Auth: admin.
 Approve a held request → a worker forwards it to the provider; the result is stored
 against the id and retrieved as above. Records who/when. Idempotent. *(Quarantine
 currently targets ingress; egress quarantine is not yet designed — see the architecture
-[version & scope note](architecture.md#data-flow).)*
+[reference-gateway notes](architecture.md#reference-gateway-optional-defense-target).)*
 
 ## `POST /admin/quarantine/{id}/reject` *(v0.3)*
 

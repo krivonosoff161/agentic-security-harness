@@ -3,7 +3,8 @@
 > Product name TBD. Thanks for considering a contribution.
 
 This is an early-stage project. The most valuable contributions right now are new
-**attack cases**, scanner improvements, and honest measurement of detector quality.
+**sanitized defensive test patterns**, target adapters, and honest measurement of detector
+quality (including false negatives).
 
 ## Getting started
 
@@ -17,11 +18,13 @@ See [docs/development.md](docs/development.md) for the full layout and extension
 
 ## Ways to contribute
 
-- **Add an attack** to `tests/attacks/` — a new injection variant, encoding trick, or
-  leak case. New detection work should start with a failing test here.
-- **Add or improve a scanner** — implement the `Scanner` protocol; keep it deterministic
-  and fast. A scanner returns findings; it does not decide (the policy engine does).
-- **Add a provider adapter** — implement `ProviderAdapter`; isolate provider quirks.
+- **Add a defensive test pattern** to the attack library (`tests/attacks/`) — sanitized,
+  with expected vulnerable behavior + mitigation + OWASP/MITRE mapping. Start with a
+  failing pattern.
+- **Add a target adapter** — LLM agent, MCP / tool chain, multi-agent, voice / multimodal
+  (sanitized fixtures), or an AI gateway.
+- **Add a trace detector / scanner** — deterministic; returns findings, does not decide.
+- **Reference gateway** — provider adapters, policy, and related defense code.
 - **Docs** — clarity, accuracy, and removing any overclaiming.
 
 ## Ground rules
@@ -34,6 +37,10 @@ See [docs/development.md](docs/development.md) for the full layout and extension
 - **No secrets in code or config** — provider keys come from env only.
 - **No self-learning shortcuts** — rules do not mutate at runtime; feedback labels are
   collected for future, human-reviewed adaptive rules only.
+- **Responsible use** — patterns are sanitized and run only against mock / authorized
+  targets; no real credentials, no third-party abuse ([policy](SECURITY.md#responsible-use)).
+- **Study, don't copy** — you may study and cite other open-source projects, but don't
+  copy code blindly; respect licenses, cite sources, implement our own minimal adapters/tests.
 
 ## Pull requests
 

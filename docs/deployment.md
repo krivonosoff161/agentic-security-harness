@@ -1,8 +1,9 @@
 # Deployment
 
-> Product name TBD. **Current reality:** `v0.1` is a CLI + scanning core — there is no
-> server to deploy yet. The server/Docker workflow below is design intent for `v0.2`+.
-> Sections are marked accordingly.
+> Product name TBD. **Current reality:** `v0.1` is the **harness core** (runner + trace
+> schema + corpus + scorecard on a mock target) — nothing to deploy as a server yet, and
+> **no CLI is published**. The reference-gateway server / Docker workflow below is design
+> intent for later versions. Sections are marked accordingly.
 
 ## Design principle
 
@@ -10,15 +11,14 @@ The simple path must work with **zero extra services**: `docker compose up` with
 no Redis, no LLM classifier. Production features (PostgreSQL, Redis, RBAC, streaming,
 tamper-evident audit) are **additive**, not required.
 
-## CLI (`v0.1`, available first)
+## Harness (`v0.1`, available first)
 
-```bash
-pip install -e ".[dev]"            # core, regex PII/secrets
-# pip install -e ".[dev,pii]"      # optional: Microsoft Presidio
-aisg scan "some prompt text"
-```
+The harness runs locally against a **mock target**: it executes the defensive test
+patterns, writes one [trace](harness.md#exploit-trace-format) per chain, and derives a
+[scorecard](harness.md#scorecard). **No CLI is published yet** — the usage flow lives in
+[harness.md](harness.md). Optional Presidio-based PII detection is an extra (`[pii]`).
 
-## Server (`v0.2`+, planned)
+## Reference gateway server (later, planned)
 
 ```bash
 cp .env.example .env               # set provider key + admin token
@@ -31,7 +31,7 @@ docker compose up                  # default profile: gateway + SQLite
 - **Dockerfile:** multi-stage (builder installs deps into a venv; slim runtime on
   `python:3.11-slim` — 3.11 is the runtime baseline while CI also tests 3.12),
     **non-root** user, runtime artifacts only. Entry point runs the
-  ASGI server (or `aisg serve`). `HEALTHCHECK` hits `/health`.
+  ASGI server. `HEALTHCHECK` hits `/health`.
 - **docker-compose.yml** services:
   - `gateway` — the app; reads `.env`.
   - `db` — PostgreSQL (`prod` profile); the `default` profile uses SQLite and skips it.

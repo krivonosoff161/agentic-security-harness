@@ -32,8 +32,25 @@ rate** — is recorded per release; do not hide misses.
 
 ## Extension points
 
-The project is built around two protocols so contributors can extend it without touching
-the core pipeline.
+The project is built around a few small protocols so contributors can extend it without
+touching the core runner.
+
+### Add an attack chain (defensive test pattern)
+
+Add a **sanitized** pattern to the attack library (seeded from `tests/attacks/`): expected
+vulnerable behavior, mitigation, and OWASP / MITRE-style mapping. New detection work starts
+with a failing pattern here. Payloads stay sanitized — synthetic markers, never real secrets.
+
+### Add a target adapter
+
+Implement the target-adapter contract (drive a system under test, return observations the
+runner records into a trace): LLM agent, MCP / tool chain, multi-agent workflow,
+voice / multimodal (sanitized ASR/OCR fixtures), or an AI gateway.
+
+### Add a trace detector / oracle
+
+A detector decides whether an observation is a finding. Keep it deterministic; it returns
+findings, it does not mutate state.
 
 ### Add a scanner
 
@@ -63,3 +80,8 @@ rest of the pipeline stays provider-agnostic.
   ([why](threat-model.md#why-the-system-prompt-is-not-a-security-boundary)).
 - No self-learning: rules do not mutate at runtime; feedback labels are collected for
   future human-reviewed adaptive rules only.
+- **Study, don't copy.** We may study and cite other open-source projects, but do not copy
+  code blindly — respect licenses, cite sources, and implement our own minimal, compatible
+  adapters / tests.
+- **Responsible use:** patterns are sanitized and run only against mock / authorized
+  targets ([policy](../SECURITY.md#responsible-use)).
