@@ -1,6 +1,6 @@
 # Architecture
 
-> Product name TBD. Repository name remains `ai-security-gateway`; the gateway is the
+> Product name TBD. Repository: `agentic-security-harness`; the gateway is the
 > **reference defense** component, not the main product. Core concepts live in
 > **[harness.md](harness.md)**.
 

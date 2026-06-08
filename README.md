@@ -1,6 +1,6 @@
 # Agentic Security Harness
 
-> **Repository:** `ai-security-gateway` · **Product name:** _TBD_
+> **Repository:** `agentic-security-harness` · **Product name:** _TBD_
 
 **An open-source harness for reproducing and measuring agentic exploit chains through
 portable traces, attack graphs, and security scorecards.**
@@ -10,8 +10,8 @@ multi-agent workflow, or an AI gateway, records each run as a **portable, machin
 trace**, and derives a **scorecard**. Because traces are portable, you can **replay** them
 against a defended target and **measure the risk reduction** instead of claiming it.
 
-> Repository name remains `ai-security-gateway` for now. The project is being repositioned
-> around **Agentic Security Harness**; the gateway is the **reference defense** component.
+> The repository is **`agentic-security-harness`**; the product / brand name is still
+> **TBD**. The gateway is the **reference defense** component, not the main product.
 
 ---
 
@@ -120,9 +120,9 @@ tests are synthetic markers. Full policy: [SECURITY.md](SECURITY.md#responsible-
 
 ## Naming
 
-Product name is **TBD**. "Agentic Security Harness" is the working title. The repository
-stays `ai-security-gateway` for now to avoid churn while the positioning stabilizes; the
-gateway is the reference-defense component, not the main product.
+Product / brand name is **TBD**. "Agentic Security Harness" is the working title. The
+repository is `agentic-security-harness`; the gateway is the reference-defense component,
+not the main product.
 
 ## Contributing & security
 

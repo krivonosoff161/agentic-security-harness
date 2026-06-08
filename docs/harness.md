@@ -1,6 +1,6 @@
 # Agentic Security Harness
 
-> Product name TBD. Repository name remains `ai-security-gateway` for now (the gateway is
+> Product name TBD. Repository: `agentic-security-harness` (the gateway is
 > the [reference defense](#reference-defense-replay) component).
 >
 > **One line:** *An open-source harness for reproducing and measuring agentic exploit

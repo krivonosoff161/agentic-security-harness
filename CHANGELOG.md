@@ -23,8 +23,8 @@ All notable changes to this project are documented here. The format follows
   **scorecard**. The OpenAI-compatible gateway is now the **reference defense** component,
   not the main product. Added an **agentic data-boundary / recipient-control** class (data
   envelope) and a sanitized **multimodal / sensor-to-agent (audio → ASR)** class, a new
-  **problem–solution catalog**, and a **responsible-use** policy. Repository name unchanged
-  for now.
+  **problem–solution catalog**, and a **responsible-use** policy. Renamed the repository to
+  `agentic-security-harness`.
 
 ### Notes
 - No application code yet. The first implementation target is `v0.1` — the **harness core**

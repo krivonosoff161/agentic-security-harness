@@ -6,7 +6,7 @@
 
 ```bash
 git clone <repo>
-cd ai-security-gateway
+cd agentic-security-harness
 python -m venv .venv && . .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"        # add ,pii for optional Presidio-based PII
 ```
