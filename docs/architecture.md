@@ -1,6 +1,6 @@
 # Architecture
 
-> Product name TBD. Repository: `agentic-security-harness`; the gateway is the
+> **Agentic Security Harness** (repository `agentic-security-harness`). The gateway is the
 > **reference defense** component, not the main product. Core concepts live in
 > **[harness.md](harness.md)**.
 
@@ -21,7 +21,7 @@ each run as a **portable trace**, and derives a **scorecard**. The gateway is on
 | **MCP / tool-permission scanner** | Static analysis of an agent's tools/permissions and MCP tool schemas → the tools/permissions layer of the attack graph. | later |
 | **Data-boundary checker** | Verifies the [data envelope](harness.md#agentic-data-boundary-and-recipient-control) survives handoffs, memory, tools, and provider routing (classification mutation, recipient confusion, label stripping, leakage). | later |
 | **Reference gateway** | OpenAI-compatible proxy = optional **defense target** + reference defense implementation (normalizer, scanners, policy, quarantine, audit). | later |
-| **CLI / admin** | Run patterns, inspect traces, render scorecards. *(No CLI published yet.)* | later |
+| **CLI / admin** | `ash run` / `ash compare` ship now (run patterns, write traces and scorecards); admin tooling later. | now / later |
 
 ## Attack graph
 

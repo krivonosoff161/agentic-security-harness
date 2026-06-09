@@ -7,6 +7,9 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- **Corpus manifest + coverage matrix:** `src/agentic_security_harness/corpus.py` (curated
+  machine-readable metadata for the 7 implemented patterns) and `docs/corpus.md`; plus a
+  `NOTICE` file.
 - Expanded the local defensive corpus to **7 deterministic seed patterns** (v0.4): added
   data-boundary classification mutation, handoff label stripping, tool-permission abuse, and
   provider-boundary leakage (sanitized) on top of the original three. The vulnerable
@@ -45,6 +48,11 @@ All notable changes to this project are documented here. The format follows
   by SentinelOne; OWASP LLM Top 10 2025 numbering.
 
 ### Changed
+- Strengthened public positioning and attribution: named **Agentic Security Harness**
+  (dropped "Product name TBD" headers), replaced "no uniqueness claims" headlines with
+  confident honest wording (not first/only; competes on trace portability, corpus clarity,
+  data-boundary measurement, and deterministic replay), README now leads as a trace-first
+  defensive benchmark, and added a Brand-and-attribution section.
 - Repositioned the project as an **Agentic Security Harness** — an open-source harness for
   reproducible, portable agentic exploit **traces**, an **attack graph**, and a
   **scorecard**. The OpenAI-compatible gateway is now the **reference defense** component,

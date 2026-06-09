@@ -1,6 +1,6 @@
 # Agentic Security Harness
 
-> Product name TBD. Repository: `agentic-security-harness` (the gateway is
+> **Agentic Security Harness** (repository `agentic-security-harness`). The gateway is
 > the [reference defense](#reference-defense-replay) component).
 >
 > **One line:** *An open-source harness for reproducing and measuring agentic exploit
@@ -257,7 +257,7 @@ delta** a defense produces against reproducible traces.
 
 ## Relation to prior art
 
-This space is **not empty**, and the harness makes **no uniqueness claims**. The closest
+This space is **not empty**, and this project does **not** claim to be first or only. The closest
 combined prior art and the established tools are named honestly in
 [competitors.md](competitors.md). The intended angle is narrow and specific — **portable
 traces + a practical attack graph + reproducible cross-target replay + cross-agent

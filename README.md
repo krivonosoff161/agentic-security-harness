@@ -1,17 +1,21 @@
 # Agentic Security Harness
 
-> **Repository:** `agentic-security-harness` · **Product name:** _TBD_
+> **Agentic Security Harness** · open-source · Apache-2.0 · repository `agentic-security-harness`
 
-**An open-source defensive harness and learning lab for reproducing and measuring agentic
-AI failure modes through portable traces, attack graphs, scorecards, and data-boundary tests.**
+**A trace-first defensive benchmark for agentic AI failure modes.** It reproduces how LLM
+agents, tool chains, and data boundaries fail, captures each run as a **portable failure
+trace**, and **measures risk reduction** by replaying a baseline target against a protected one.
 
-It runs **defensive test patterns** against an LLM agent, an MCP / tool chain, a
-multi-agent workflow, or an AI gateway, records each run as a **portable, machine-readable
-trace**, and derives a **scorecard**. Because traces are portable, you can **replay** them
-against a defended target and **measure the risk reduction** instead of claiming it.
+- **Trace-first** — every run is a portable, machine-readable failure trace, not just pass/fail.
+- **Data-boundary / recipient-control corpus** — 7 deterministic seed patterns for how
+  sensitivity labels, recipients, storage, and forwarding rules break in agentic systems.
+- **Baseline vs protected replay** — a vulnerable demo agent vs a controlled one, on
+  deterministic **local** targets, with a measured before/after scorecard.
 
-> The repository is **`agentic-security-harness`**; the product / brand name is still
-> **TBD**. The gateway is the **reference defense** component, not the main product.
+No network, no LLM / provider calls, no real targets — synthetic, sanitized, reproducible.
+
+> The **gateway** is an optional **reference defense** component used as a replay target —
+> not the main product.
 
 ---
 
@@ -41,15 +45,16 @@ deterministic tests · honest residual risk. Full rules:
 
 ## Status
 
-**Pre-release.** The `v0.1` harness core is implemented (see *What exists today* below);
-real target adapters, MCP, multi-agent, multimodal, and the reference gateway come later.
+**Pre-release, working.** The harness runs a **7-pattern data-boundary corpus** against
+deterministic local targets, with baseline-vs-protected replay (see *What exists today*).
+Real target adapters, MCP, multi-agent, multimodal, and the reference gateway come later.
 See [docs/roadmap.md](docs/roadmap.md).
 
 ![status](https://img.shields.io/badge/status-pre--release-orange)
 ![python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![license](https://img.shields.io/badge/license-Apache--2.0-green)
 
-## What exists today (`v0.1` core)
+## What exists today
 
 - **Pydantic v2 models** — `DataEnvelope` (a policy label, **not** encryption), `Finding`,
   `TraceStep`, `TargetDescriptor`, `ExploitTrace`, `DefensivePattern`.
@@ -183,19 +188,21 @@ baseline fails all 7 patterns (7 findings) and the protected agent passes all 7 
 > Educational and synthetic: risk reduction is measured from deterministic mock traces,
 > **not** a guarantee of real-world protection.
 
-## Prior art (no uniqueness claims)
+## Prior art
 
-This space is not empty. The closest **combined** prior art is **BotGuard** (open-source
-red-teaming + firewall for AI agents), and **garak**, **PyRIT**, and **promptfoo** are
-established red-team / eval tools. For gateways, **Trylon Gateway** is the closest prior
-art. The intended angle is narrow — **portable traces + attack graph + reproducible
-replay + cross-agent contamination**, not "more attacks." Honest comparison:
+This project does **not** claim to be the first or only tool in the category. Prior art
+exists — **BotGuard** (open-source red-teaming + firewall for AI agents) is the closest
+combined work; **garak**, **PyRIT**, and **promptfoo** are established red-team / eval tools;
+**Trylon Gateway** is the closest gateway. Its focus is an **opinionated, trace-first
+benchmark** for agentic **data-boundary and recipient-control** failures, with portable
+traces and deterministic baseline-vs-protected replay. Honest comparison:
 [docs/competitors.md](docs/competitors.md).
 
 ## Documentation
 
 - **[Harness](docs/harness.md)** — flagship: trace format, attack graph, test patterns, scorecard, replay.
 - **[Problem–solution catalog](docs/problem-solution-catalog.md)** — problem → detection → mitigation → harness test → reference control → residual risk.
+- **[Corpus coverage matrix](docs/corpus.md)** — the 7 implemented seed patterns, baseline vs protected, and what each touches.
 - **[Mission](docs/mission.md)** · **[Safe research rules](docs/research-rules.md)** — what this is for, and how to research safely.
 - **Learning** — [agentic security basics](docs/learning/01-agentic-security-basics.md) · [data-boundary failures](docs/learning/02-data-boundary-failures.md).
 - [Architecture](docs/architecture.md) — components and data flow.
@@ -211,11 +218,13 @@ The harness ships **sanitized defensive test content**. Use it only against syst
 or are authorized to test. Payloads are sanitized; "sensitive" data in tests are synthetic
 markers. Full policy: [SECURITY.md](SECURITY.md#responsible-use).
 
-## Naming
+## Brand and attribution
 
-Product / brand name is **TBD**. "Agentic Security Harness" is the working title. The
-repository is `agentic-security-harness`; the gateway is the reference-defense component,
-not the main product.
+The project is **Agentic Security Harness** (repository `agentic-security-harness`).
+
+- **Code** is licensed under [Apache-2.0](LICENSE).
+- The **project name, logos, and branding** are not granted as trademarks.
+- Please **preserve attribution** when referencing the project or its corpus — see [NOTICE](NOTICE).
 
 ## Contributing & security
 

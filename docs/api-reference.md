@@ -1,8 +1,9 @@
 # Reference gateway API
 
-> Product name TBD. This documents the **reference gateway** — the optional
+> **Agentic Security Harness.** This documents the **reference gateway** — the optional
 > [defense component](harness.md#reference-defense-replay), not the harness. The harness
-> has **no published API or CLI**; its core artifacts are
+> has **no published HTTP API** (the `ash` CLI is documented in the [README](../README.md));
+> its core artifacts are
 > [traces](harness.md#exploit-trace-format). Endpoints are annotated with the version they
 > first appear in; treat them as design intent.
 

@@ -4,6 +4,7 @@ Pipeline: ``pattern -> target -> trace -> scorecard``. No real LLM calls, no net
 no gateway. A ``DataEnvelope`` is a policy label, not encryption.
 """
 
+from agentic_security_harness.corpus import CorpusEntry, corpus_manifest
 from agentic_security_harness.demo_adapter import DemoAgentTarget, run_scenarios
 from agentic_security_harness.demo_agent import DemoAgent
 from agentic_security_harness.mock_target import MockTarget
@@ -52,6 +53,8 @@ __all__ = [
     "ScorecardSummary",
     "build_scorecard",
     "seed_patterns",
+    "CorpusEntry",
+    "corpus_manifest",
     "write_reports",
     "write_comparison",
     "build_summary_md",

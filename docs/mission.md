@@ -1,6 +1,6 @@
 # Mission
 
-> Product name TBD. This is a **defensive education + measurement** project — not offensive
+> **Agentic Security Harness** — a **defensive education + measurement** project, not offensive
 > tooling. See [Responsible use](../SECURITY.md#responsible-use) and
 > [Safe research rules](research-rules.md).
 
@@ -36,4 +36,4 @@ to measure against — not the product.
 - No offensive exploitation of real systems.
 - No live-target testing.
 - No weaponized payloads or abuse instructions.
-- No claim of being unique, first, or complete protection.
+- No claim of being the first or only tool in the category, or of providing complete protection.

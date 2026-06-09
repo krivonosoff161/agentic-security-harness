@@ -1,6 +1,6 @@
 # Safe research rules
 
-> Product name TBD. These rules apply to all contributions, patterns, fixtures, and research
+> **Agentic Security Harness.** These rules apply to all contributions, patterns, fixtures, and research
 > in this repository. They complement [Responsible use](../SECURITY.md#responsible-use) and
 > the [mission](mission.md).
 

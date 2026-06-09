@@ -3,7 +3,8 @@
 > **Verification status:** verified **2026-06-08** against primary sources (inline
 > footnotes). A point-in-time snapshot — features, licensing, and ownership change;
 > re-check before relying on any single claim. Pricing is intentionally not quoted.
-> **No uniqueness claims** are made anywhere in this project.
+> This project does not claim to be the first or only tool in the category; it competes on
+> trace portability, corpus clarity, data-boundary measurement, and deterministic replay.
 
 ## How to read this
 
@@ -65,10 +66,10 @@ Tools we would **integrate** (wrap as detectors/oracles) are marked complementar
 
 ## Positioning
 
-The category is occupied, and **this project claims no uniqueness**. It does **not** try to
-compete on "more attacks." The narrow angle is:
+The category is occupied. This project does **not** claim to be the first or only tool, and
+does **not** compete on "more attacks." It competes on:
 
-1. **portable, machine-readable exploit traces** (replayable artifacts, not just reports);
+1. **portable, machine-readable failure traces** (replayable artifacts, not just reports);
 2. a **practical attack graph** for agent / tool chains;
 3. **reproducible cross-target comparison** (replay the same traces against different
    targets / defenses, measure the delta);

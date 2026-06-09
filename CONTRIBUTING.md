@@ -1,6 +1,6 @@
 # Contributing
 
-> Product name TBD. Thanks for considering a contribution.
+> **Agentic Security Harness.** Thanks for considering a contribution.
 
 This is an early-stage project. The most valuable contributions right now are new
 **sanitized defensive test patterns**, target adapters, and honest measurement of detector

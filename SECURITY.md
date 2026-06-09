@@ -1,6 +1,6 @@
 # Security policy
 
-> Product name TBD. This project does **risk reduction**, not guaranteed protection.
+> **Agentic Security Harness.** This project does **risk reduction**, not guaranteed protection.
 > See [docs/threat-model.md](docs/threat-model.md) for scope and explicit limitations.
 
 ## Responsible use

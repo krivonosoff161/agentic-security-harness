@@ -1,6 +1,6 @@
 # Development
 
-> Product name TBD. This describes how the project is built and extended.
+> **Agentic Security Harness.** This describes how the project is built and extended.
 
 ## Setup
 
@@ -97,6 +97,5 @@ These apply to every contribution and to any agent working in this repo (see als
 - **No real target adapters** without explicit docs **and** an authorization model — until
   then, only mock / demo targets.
 - **Keep the trace schema portable and sanitized** — no host-specific data, no real payloads.
-- **Self-review checklist before commit:** no secrets; no overclaiming (unique / first /
-  complete); no unsafe or abuse wording; scope matches the approved roadmap version;
+- **Self-review checklist before commit:** no secrets; no overclaiming (no first/only/complete-protection claims); no unsafe or abuse wording; scope matches the approved roadmap version;
   `pytest` + `ruff` + `mypy` green; internal files not tracked; `git diff` only the expected files.

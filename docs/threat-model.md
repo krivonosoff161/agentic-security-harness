@@ -1,6 +1,6 @@
 # Threat model
 
-> Product name TBD. This threat model covers both roles: the **harness** that *probes*
+> **Agentic Security Harness.** This threat model covers both roles: the **harness** that *probes*
 > these risks (recording each as a [trace](harness.md#exploit-trace-format)) and the
 > **reference gateway** that *mitigates* them.
 > The honest framing: **risk reduction, observability, and measurement — not 100%

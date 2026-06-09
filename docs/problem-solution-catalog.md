@@ -1,6 +1,6 @@
 # Problem–solution catalog
 
-> Product name TBD. This is the **central map** from a real agentic problem to a defensive
+> **Agentic Security Harness.** This is the **central map** from a real agentic problem to a defensive
 > test and a control. It ties together the [harness](harness.md), the
 > [threat model](threat-model.md), and the [reference defense](architecture.md).
 >
@@ -29,7 +29,8 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 > deterministic, sanitized seed patterns in the harness — recipient confusion, memory
 > poisoning, data reclassification (classification mutation), handoff label stripping,
 > tool-permission abuse, provider-boundary leakage, plus indirect prompt injection via tool
-> output. Run them with `ash run --target demo-agent` and `ash compare`.
+> output. Run them with `ash run --target demo-agent` and `ash compare`; full matrix in the
+> [corpus coverage matrix](corpus.md).
 
 ## 1. Sensitive data in shared AI chats
 
@@ -167,5 +168,5 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 
 > This catalog is the project's backbone: each problem should map to a **harness test
 > pattern** (so it is reproducible) and, where applicable, a **reference control** (so risk
-> reduction can be *measured*, not asserted). No uniqueness claims — see
+> reduction can be *measured*, not asserted). It does not claim to be first or only — see
 > [competitors.md](competitors.md).

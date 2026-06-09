@@ -1,9 +1,9 @@
 # Deployment
 
-> Product name TBD. **Current reality:** `v0.1` is the **harness core** (runner + trace
-> schema + corpus + scorecard on a mock target) — nothing to deploy as a server yet, and
-> **no CLI is published**. The reference-gateway server / Docker workflow below is design
-> intent for later versions. Sections are marked accordingly.
+> **Agentic Security Harness.** **Current reality:** the local harness and the `ash` CLI run
+> a deterministic 7-pattern corpus against mock/demo targets and write reports — there is no
+> server to deploy yet. The reference-gateway server / Docker workflow below is design intent
+> for later versions. Sections are marked accordingly.
 
 ## Design principle
 
@@ -11,12 +11,13 @@ The simple path must work with **zero extra services**: `docker compose up` with
 no Redis, no LLM classifier. Production features (PostgreSQL, Redis, RBAC, streaming,
 tamper-evident audit) are **additive**, not required.
 
-## Harness (`v0.1`, available first)
+## Harness CLI (available now)
 
-The harness runs locally against a **mock target**: it executes the defensive test
-patterns, writes one [trace](harness.md#exploit-trace-format) per chain, and derives a
-[scorecard](harness.md#scorecard). **No CLI is published yet** — the usage flow lives in
-[harness.md](harness.md). Optional Presidio-based PII detection is an extra (`[pii]`).
+The `ash` CLI runs locally against mock/demo targets: it executes the defensive test
+patterns, writes one [trace](harness.md#exploit-trace-format) per chain, derives a
+[scorecard](harness.md#scorecard), and can `compare` a baseline vs a protected target.
+Usage is in the [README](../README.md) and [harness.md](harness.md). Optional Presidio-based
+PII detection is an extra (`[pii]`).
 
 ## Reference gateway server (later, planned)
 
