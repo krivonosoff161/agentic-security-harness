@@ -7,6 +7,10 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- v0.1 harness core scaffold (code): Pydantic v2 models (`DataEnvelope`, `Finding`,
+  `TraceStep`, `TargetDescriptor`, `ExploitTrace`, `DefensivePattern`), three sanitized seed
+  patterns, a deterministic mock target, the runner (`pattern -> trace`), and the scorecard —
+  with unit tests. No LLM, network, gateway, or CLI.
 - Project blueprint and documentation set: README, harness (flagship), problem–solution
   catalog, architecture, roadmap, threat model, API reference, deployment, development, and
   competitive-landscape docs.
@@ -27,6 +31,6 @@ All notable changes to this project are documented here. The format follows
   `agentic-security-harness`.
 
 ### Notes
-- No application code yet. The first implementation target is `v0.1` — the **harness core**
-  (attack corpus + trace schema + runner + scorecard on a mock agent). See
+- The `v0.1` harness core (code) is implemented — see *Added*. Next milestones (real target
+  adapters, MCP, multi-agent, multimodal, reference gateway) are in
   [docs/roadmap.md](docs/roadmap.md).
