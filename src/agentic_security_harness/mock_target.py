@@ -1,4 +1,4 @@
-"""Deterministic mock target for v0.1 — no LLM, no network.
+"""Deterministic mock target for v0.1 - no LLM, no network.
 
 The mock target is vulnerable *by design* for the seed patterns so the harness can produce
 traces and a scorecard end to end. It accepts a ``DefensivePattern`` and returns observations.

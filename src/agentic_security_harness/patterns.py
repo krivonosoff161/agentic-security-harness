@@ -1,6 +1,6 @@
 """Sanitized seed defensive test patterns for v0.1.
 
-All payloads are sanitized placeholders — no real exploit text and no instructions for
+All payloads are sanitized placeholders - no real exploit text and no instructions for
 abusing any system. These describe *what is probed* and the mitigation, not weaponized steps.
 """
 

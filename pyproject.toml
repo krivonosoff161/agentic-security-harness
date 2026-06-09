@@ -20,6 +20,9 @@ dev = [
     "mypy>=1.8",
 ]
 
+[project.scripts]
+ash = "agentic_security_harness.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

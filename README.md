@@ -58,9 +58,12 @@ See [docs/roadmap.md](docs/roadmap.md).
 - **Deterministic mock target** — vulnerable-by-design demo target; no LLM, no network.
 - **Runner** — `pattern → mock target → trace`.
 - **Scorecard** — a deterministic aggregate derived from traces.
-- **Unit tests** — covering models, runner, and scorecard.
+- **Demo CLI (`ash`)** — `ash run --target mock --out <dir>` writes `traces.json`,
+  `scorecard.json`, and `summary.md` (see Quickstart). A committed example lives in
+  [`examples/demo-report/`](examples/demo-report/).
+- **Unit tests** — models, runner, scorecard, reporting determinism, and a CLI smoke test.
 
-No gateway, CLI, provider calls, network, or real payloads.
+No gateway, provider calls, network, or real payloads.
 
 ### Verify locally
 
@@ -72,7 +75,7 @@ python -m mypy src tests
 
 ## Core capabilities
 
-- **Portable exploit traces** — machine-readable, replayable records of an attack chain.
+- **Portable defensive traces** — machine-readable, replayable records of a test run.
 - **Agentic data-boundary testing** — verifies whether sensitivity labels, recipients,
   storage rules, and forwarding rules survive agent handoffs, memory writes, tools, and
   provider routing.
@@ -115,15 +118,28 @@ request path it produces one of five decisions:
 
 See [docs/architecture.md](docs/architecture.md) and [docs/api-reference.md](docs/api-reference.md).
 
-## Quickstart (conceptual, `v0.1` target)
+## Quickstart — one-command demo
 
-> No CLI is published yet. This describes the intended flow.
+```bash
+pip install -e .
+ash run --target mock --out reports/demo
+```
 
-1. Point the harness at a **mock agent** target.
-2. It runs the defensive test patterns and emits one **trace** per chain.
-3. It derives a **scorecard** from the traces.
-4. Put the target behind the **reference gateway** and **replay** the same traces to
-   compare scorecards — the measured risk-reduction delta.
+This writes three artifacts:
+
+```text
+reports/demo/
+├── traces.json       # portable, machine-readable traces (one per pattern)
+├── scorecard.json    # deterministic aggregate
+└── summary.md        # human-readable summary table
+```
+
+A committed example output lives in [`examples/demo-report/`](examples/demo-report/)
+(see [summary.md](examples/demo-report/summary.md)) — no install needed to see what it
+produces.
+
+> Mock-only, deterministic, no network or LLM calls. The reference-gateway replay
+> (measuring risk reduction) is a later milestone.
 
 ## Prior art (no uniqueness claims)
 

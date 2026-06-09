@@ -13,6 +13,9 @@ venv/
 *.db
 *.sqlite3
 
+# Generated demo reports (a curated example is committed under examples/demo-report/)
+reports/
+
 # Tooling caches
 .pytest_cache/
 .mypy_cache/

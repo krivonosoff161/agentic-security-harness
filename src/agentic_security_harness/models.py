@@ -1,7 +1,7 @@
 """Pydantic v2 models for the v0.1 harness core.
 
 A ``DataEnvelope`` is a *policy label* that must survive transformation across agent
-handoffs, memory writes, tool calls, and provider routing. It is **NOT encryption** —
+handoffs, memory writes, tool calls, and provider routing. It is **NOT encryption** -
 encryption protects transport/storage and does not solve prompt injection.
 """
 

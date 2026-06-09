@@ -7,6 +7,9 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Demo CLI (`ash`) and deterministic report artifacts: `ash run --target mock --out <dir>`
+  writes `traces.json`, `scorecard.json`, and `summary.md`; a curated example is committed
+  under `examples/demo-report/`. Mock-only, no network.
 - v0.1 harness core scaffold (code): Pydantic v2 models (`DataEnvelope`, `Finding`,
   `TraceStep`, `TargetDescriptor`, `ExploitTrace`, `DefensivePattern`), three sanitized seed
   patterns, a deterministic mock target, the runner (`pattern -> trace`), and the scorecard —
