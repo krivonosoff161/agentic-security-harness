@@ -6,8 +6,12 @@ reproduces the same traces.
 
 import hashlib
 
-from agentic_security_harness.mock_target import MockTarget
-from agentic_security_harness.models import DefensivePattern, ExploitTrace, TargetDescriptor
+from agentic_security_harness.models import (
+    DefensivePattern,
+    ExploitTrace,
+    Target,
+    TargetDescriptor,
+)
 
 
 def _trace_id(pattern_id: str, target_name: str) -> str:
@@ -18,7 +22,7 @@ def _trace_id(pattern_id: str, target_name: str) -> str:
 class HarnessRunner:
     """Runs defensive patterns against a target and emits one trace per pattern."""
 
-    def __init__(self, target: MockTarget) -> None:
+    def __init__(self, target: Target) -> None:
         self.target = target
 
     def run(self, pattern: DefensivePattern) -> ExploitTrace:

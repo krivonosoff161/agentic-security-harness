@@ -1,15 +1,19 @@
 """Agentic Security Harness - v0.1 core.
 
-Pipeline: ``pattern -> mock target -> trace -> scorecard``. No real LLM calls, no network,
+Pipeline: ``pattern -> target -> trace -> scorecard``. No real LLM calls, no network,
 no gateway. A ``DataEnvelope`` is a policy label, not encryption.
 """
 
-from agentic_security_harness.mock_target import MockTarget, Observation
+from agentic_security_harness.demo_adapter import DemoAgentTarget
+from agentic_security_harness.demo_agent import DemoAgent
+from agentic_security_harness.mock_target import MockTarget
 from agentic_security_harness.models import (
     DataEnvelope,
     DefensivePattern,
     ExploitTrace,
     Finding,
+    Observation,
+    Target,
     TargetDescriptor,
     TraceStep,
 )
@@ -28,10 +32,13 @@ __all__ = [
     "DefensivePattern",
     "ExploitTrace",
     "Finding",
+    "Observation",
+    "Target",
     "TargetDescriptor",
     "TraceStep",
     "MockTarget",
-    "Observation",
+    "DemoAgent",
+    "DemoAgentTarget",
     "HarnessRunner",
     "ScorecardSummary",
     "build_scorecard",

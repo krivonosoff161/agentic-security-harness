@@ -7,6 +7,10 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Local **demo-agent** target (v0.2): a deterministic, synthetic local agent (in-memory
+  memory, mock tool calls, data-envelope propagation, recipient-control checks) exposed via
+  a target adapter; `ash run --target demo-agent --out <dir>`; committed example under
+  `examples/demo-agent-report/`. No network, no LLM, sanitized data only.
 - Demo CLI (`ash`) and deterministic report artifacts: `ash run --target mock --out <dir>`
   writes `traces.json`, `scorecard.json`, and `summary.md`; a curated example is committed
   under `examples/demo-report/`. Mock-only, no network.

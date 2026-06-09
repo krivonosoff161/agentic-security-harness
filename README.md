@@ -56,11 +56,15 @@ See [docs/roadmap.md](docs/roadmap.md).
 - **Three sanitized seed patterns** — indirect prompt injection (via tool output),
   data-boundary recipient confusion, memory poisoning.
 - **Deterministic mock target** — vulnerable-by-design demo target; no LLM, no network.
-- **Runner** — `pattern → mock target → trace`.
+- **Local demo agent (`demo-agent`)** — a deterministic, synthetic agent (in-memory memory,
+  mock tool calls, data-envelope propagation, recipient-control checks); intentionally
+  vulnerable for the seed patterns. No network, no LLM.
+- **Runner** — `pattern → target → trace` (mock or demo-agent).
 - **Scorecard** — a deterministic aggregate derived from traces.
-- **Demo CLI (`ash`)** — `ash run --target mock --out <dir>` writes `traces.json`,
-  `scorecard.json`, and `summary.md` (see Quickstart). A committed example lives in
-  [`examples/demo-report/`](examples/demo-report/).
+- **Demo CLI (`ash`)** — `ash run --target {mock,demo-agent} --out <dir>` writes
+  `traces.json`, `scorecard.json`, and `summary.md` (see Quickstart). Committed examples:
+  [`examples/demo-report/`](examples/demo-report/) and
+  [`examples/demo-agent-report/`](examples/demo-agent-report/).
 - **Unit tests** — models, runner, scorecard, reporting determinism, and a CLI smoke test.
 
 No gateway, provider calls, network, or real payloads.
@@ -122,10 +126,15 @@ See [docs/architecture.md](docs/architecture.md) and [docs/api-reference.md](doc
 
 ```bash
 pip install -e .
+
+# simple deterministic mock target
 ash run --target mock --out reports/demo
+
+# local demo agent: synthetic, closer to real agent mechanics
+ash run --target demo-agent --out reports/demo-agent
 ```
 
-This writes three artifacts:
+Each run writes three artifacts:
 
 ```text
 reports/demo/
@@ -134,11 +143,15 @@ reports/demo/
 └── summary.md        # human-readable summary table
 ```
 
-A committed example output lives in [`examples/demo-report/`](examples/demo-report/)
-(see [summary.md](examples/demo-report/summary.md)) — no install needed to see what it
-produces.
+`demo-agent` is a deterministic **local, synthetic** agent (in-memory memory, mock tool
+calls, data-envelope propagation, recipient-control checks) — still no network, no LLM, and
+no real targets — but closer to real agent behavior than `mock`.
 
-> Mock-only, deterministic, no network or LLM calls. The reference-gateway replay
+Committed example outputs (no install needed to view):
+[`examples/demo-report/`](examples/demo-report/) (mock) and
+[`examples/demo-agent-report/`](examples/demo-agent-report/) (demo-agent).
+
+> Local / synthetic, deterministic, no network or LLM calls. The reference-gateway replay
 > (measuring risk reduction) is a later milestone.
 
 ## Prior art (no uniqueness claims)

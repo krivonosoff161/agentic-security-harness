@@ -6,7 +6,9 @@ Mock-only, deterministic, no network and no LLM/provider calls.
 import argparse
 from pathlib import Path
 
+from agentic_security_harness.demo_adapter import DemoAgentTarget
 from agentic_security_harness.mock_target import MockTarget
+from agentic_security_harness.models import Target
 from agentic_security_harness.patterns import seed_patterns
 from agentic_security_harness.reporting import write_reports
 from agentic_security_harness.runner import HarnessRunner
@@ -22,9 +24,9 @@ def build_parser() -> argparse.ArgumentParser:
     run_p = sub.add_parser("run", help="run the seed patterns against a target and write reports")
     run_p.add_argument(
         "--target",
-        choices=["mock"],
+        choices=["mock", "demo-agent"],
         default="mock",
-        help="target to test (only 'mock' is available in v0.1)",
+        help="target to test: 'mock' or 'demo-agent' (both local, synthetic, no network)",
     )
     run_p.add_argument(
         "--out",
@@ -35,10 +37,15 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _make_target(target: str) -> Target:
+    # Both targets are local, deterministic, and make no network or LLM calls.
+    if target == "mock":
+        return MockTarget()
+    return DemoAgentTarget()
+
+
 def _run(target: str, out: Path) -> int:
-    # v0.1: the only target is the deterministic mock (no LLM, no network).
-    assert target == "mock"
-    traces = HarnessRunner(MockTarget()).run_many(seed_patterns())
+    traces = HarnessRunner(_make_target(target)).run_many(seed_patterns())
     scorecard = build_scorecard(traces)
     write_reports(traces, scorecard, out)
     print(f"wrote traces.json, scorecard.json, summary.md to {out.as_posix()}")

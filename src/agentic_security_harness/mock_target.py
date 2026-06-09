@@ -4,20 +4,13 @@ The mock target is vulnerable *by design* for the seed patterns so the harness c
 traces and a scorecard end to end. It accepts a ``DefensivePattern`` and returns observations.
 """
 
-from pydantic import BaseModel, ConfigDict, Field
-
-from agentic_security_harness.models import DefensivePattern, Finding, Severity, TraceStep
-
-
-class Observation(BaseModel):
-    """What a target reports back to the runner for one pattern run."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    steps: list[TraceStep]
-    observed_behavior: str
-    findings: list[Finding] = Field(default_factory=list)
-
+from agentic_security_harness.models import (
+    DefensivePattern,
+    Finding,
+    Observation,
+    Severity,
+    TraceStep,
+)
 
 # Deterministic per-pattern outcome: (severity, broke_at, observed_behavior).
 _OUTCOMES: dict[str, tuple[Severity, str, str]] = {
