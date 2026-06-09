@@ -85,3 +85,71 @@ def write_reports(
     paths["scorecard"].write_text(scorecard_to_json(scorecard), encoding="utf-8", newline="\n")
     paths["summary"].write_text(build_summary_md(scorecard, traces), encoding="utf-8", newline="\n")
     return paths
+
+
+def _total_findings(card: ScorecardSummary) -> int:
+    return sum(card.findings_by_severity.values())
+
+
+def build_comparison_md(baseline: ScorecardSummary, protected: ScorecardSummary) -> str:
+    """Deterministic markdown comparing a baseline scorecard against a protected one."""
+    b_total = _total_findings(baseline)
+    p_total = _total_findings(protected)
+    severities = [
+        sev
+        for sev in _SEVERITY_ORDER
+        if sev in baseline.findings_by_severity or sev in protected.findings_by_severity
+    ]
+    lines: list[str] = [
+        "# Agentic Security Harness - risk-reduction comparison",
+        "",
+        "| | Baseline | Protected |",
+        "|---|---|---|",
+        f"| Target | `{baseline.target_name}` | `{protected.target_name}` |",
+        f"| Patterns failed | {len(baseline.failed_patterns)} | {len(protected.failed_patterns)} |",
+        f"| Patterns passed | {len(baseline.passed_patterns)} | {len(protected.passed_patterns)} |",
+        f"| Total findings | {b_total} | {p_total} |",
+        "",
+        "## Findings by severity",
+        "",
+        "| Severity | Baseline | Protected |",
+        "|---|---|---|",
+    ]
+    if severities:
+        for sev in severities:
+            base_n = baseline.findings_by_severity.get(sev, 0)
+            prot_n = protected.findings_by_severity.get(sev, 0)
+            lines.append(f"| {sev} | {base_n} | {prot_n} |")
+    else:
+        lines.append("| (none) | 0 | 0 |")
+    lines += [
+        "",
+        f"Findings reduced: {b_total} -> {p_total} (-{b_total - p_total}).",
+        "",
+        "> Risk reduction is measured from deterministic synthetic traces; "
+        "not a guarantee of real-world protection.",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def write_comparison(
+    out_dir: Path,
+    baseline_traces: list[ExploitTrace],
+    baseline_card: ScorecardSummary,
+    protected_traces: list[ExploitTrace],
+    protected_card: ScorecardSummary,
+) -> dict[str, Path]:
+    """Write baseline/ and protected/ report dirs plus comparison.md into ``out_dir``."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    write_reports(baseline_traces, baseline_card, out_dir / "baseline")
+    write_reports(protected_traces, protected_card, out_dir / "protected")
+    comparison_path = out_dir / "comparison.md"
+    comparison_path.write_text(
+        build_comparison_md(baseline_card, protected_card), encoding="utf-8", newline="\n"
+    )
+    return {
+        "baseline": out_dir / "baseline",
+        "protected": out_dir / "protected",
+        "comparison": comparison_path,
+    }

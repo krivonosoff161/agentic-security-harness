@@ -59,12 +59,13 @@ See [docs/roadmap.md](docs/roadmap.md).
 - **Local demo agent (`demo-agent`)** — a deterministic, synthetic agent (in-memory memory,
   mock tool calls, data-envelope propagation, recipient-control checks); intentionally
   vulnerable for the seed patterns. No network, no LLM.
+- **Protected demo agent (`protected-demo-agent`)** — the same agent with simple deterministic
+  controls; passes all three seed patterns. `ash compare` measures the reduction in findings.
 - **Runner** — `pattern → target → trace` (mock or demo-agent).
 - **Scorecard** — a deterministic aggregate derived from traces.
-- **Demo CLI (`ash`)** — `ash run --target {mock,demo-agent} --out <dir>` writes
-  `traces.json`, `scorecard.json`, and `summary.md` (see Quickstart). Committed examples:
-  [`examples/demo-report/`](examples/demo-report/) and
-  [`examples/demo-agent-report/`](examples/demo-agent-report/).
+- **Demo CLI (`ash`)** — `ash run --target {mock,demo-agent,protected-demo-agent}` and
+  `ash compare --baseline ... --protected ...` write deterministic reports (see Quickstart).
+  Committed examples under [`examples/`](examples/).
 - **Unit tests** — models, runner, scorecard, reporting determinism, and a CLI smoke test.
 
 No gateway, provider calls, network, or real payloads.
@@ -132,6 +133,9 @@ ash run --target mock --out reports/demo
 
 # local demo agent: synthetic, closer to real agent mechanics
 ash run --target demo-agent --out reports/demo-agent
+
+# protected variant: same agent with simple deterministic controls
+ash run --target protected-demo-agent --out reports/protected-demo-agent
 ```
 
 Each run writes three artifacts:
@@ -151,8 +155,32 @@ Committed example outputs (no install needed to view):
 [`examples/demo-report/`](examples/demo-report/) (mock) and
 [`examples/demo-agent-report/`](examples/demo-agent-report/) (demo-agent).
 
-> Local / synthetic, deterministic, no network or LLM calls. The reference-gateway replay
-> (measuring risk reduction) is a later milestone.
+> Local / synthetic, deterministic, no network or LLM calls.
+
+## Measure risk reduction
+
+`demo-agent` is **vulnerable by design**; `protected-demo-agent` is the same agent with
+**simple deterministic controls** (untrusted tool output is not acted on, recipients outside
+the data envelope are blocked, `can_store=false` is honored). The `compare` command runs both
+against the same patterns and writes a side-by-side report:
+
+```bash
+ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison
+```
+
+```text
+reports/comparison/
+  baseline/      traces.json, scorecard.json, summary.md
+  protected/     traces.json, scorecard.json, summary.md
+  comparison.md
+```
+
+In the committed example
+([`examples/comparison-report/comparison.md`](examples/comparison-report/comparison.md)) the
+baseline fails all 3 patterns (3 findings) and the protected agent passes all 3 (0 findings).
+
+> Educational and synthetic: risk reduction is measured from deterministic mock traces,
+> **not** a guarantee of real-world protection.
 
 ## Prior art (no uniqueness claims)
 

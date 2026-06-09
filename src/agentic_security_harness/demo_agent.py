@@ -55,10 +55,12 @@ class DemoAgent:
         self.tool_calls.append((tool, arg))
         self.log("tool_call", "agent", f"called tool '{tool}' with arg '{arg}'")
 
-    def act_on_tool_output(self) -> None:
+    def act_on_tool_output(self) -> bool:
+        """Act on an instruction from tool output. Returns True if it acted unsafely."""
         # Vulnerable: treats an instruction embedded in tool output as a trusted command.
         self.log("agent_decision", "agent", "treated tool output as a trusted instruction")
         self.call_tool("send_message", "attacker-chosen-recipient")
+        return True
 
     def write_memory(self, key: str, value: str, envelope: DataEnvelope) -> bool:
         """Store an item. Returns True if this violated the envelope (can_store=false)."""
@@ -76,8 +78,12 @@ class DemoAgent:
     def use_memory_later(self, key: str) -> bool:
         """Read a planted item on a later turn. Returns True if it influenced a decision."""
         influenced = key in self.memory
-        if influenced:
-            self.log("later_turn", "agent", "a later decision was influenced by planted memory")
+        detail = (
+            "a later decision was influenced by planted memory"
+            if influenced
+            else "later turn: no planted state was retained"
+        )
+        self.log("later_turn", "agent", detail)
         return influenced
 
     def route(self, recipient: str, envelope: DataEnvelope) -> bool:

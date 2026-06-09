@@ -7,6 +7,13 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Protected **demo-agent** target + risk-reduction comparison (v0.3): a
+  `protected-demo-agent` (the same local agent with simple deterministic controls that
+  mitigate the three seed patterns -> PASS) and an `ash compare --baseline ... --protected
+  ... --out ...` command that writes `baseline/`, `protected/`, and a `comparison.md`
+  showing the reduction in findings. Committed examples under
+  `examples/protected-demo-agent-report/` and `examples/comparison-report/`. Local,
+  deterministic, no network, sanitized data only.
 - Local **demo-agent** target (v0.2): a deterministic, synthetic local agent (in-memory
   memory, mock tool calls, data-envelope propagation, recipient-control checks) exposed via
   a target adapter; `ash run --target demo-agent --out <dir>`; committed example under
