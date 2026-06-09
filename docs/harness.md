@@ -3,10 +3,10 @@
 > **Agentic Security Harness** (repository `agentic-security-harness`). The gateway is
 > the [reference defense](#reference-defense-replay) component).
 >
-> **One line:** *An open-source harness for reproducing and measuring agentic exploit
+> **One line:** *An open-source harness for reproducing and measuring agentic failure
 > chains through portable traces, attack graphs, and security scorecards.*
 
-This is the flagship document. It defines the **exploit trace format**, the **attack
+This is the flagship document. It defines the **failure trace format**, the **attack
 graph**, the **defensive test patterns**, the **scorecard**, and **reference-defense
 replay**.
 
@@ -40,16 +40,17 @@ a defense **repeatably**.
 
 Given a **target** and a set of **defensive test patterns**, the runner produces:
 
-1. **Traces** — one machine-readable, portable record per attack chain (the core artifact).
+1. **Traces** — one machine-readable, portable failure trace per attack chain (the core artifact).
 2. **A scorecard** — an aggregate derived from a set of traces.
 
 Both are data, not prose, so they can be diffed, version-controlled, and replayed.
 
 ---
 
-## Exploit trace format
+## Failure trace format
 
-A **trace** is the central artifact. It is:
+A **trace** is the central artifact (the model class is `ExploitTrace` in
+`src/agentic_security_harness/models.py`). It is:
 
 - **machine-readable** — structured data (JSON/YAML), not a log line;
 - **portable** — describes the target abstractly, so the same trace can be **replayed
@@ -149,7 +150,10 @@ targets you own or are authorized to test.
 
 Each pattern is a **defensive test pattern** (sanitized, with expected vulnerable
 behavior + mitigation + mapping). The **v0.4 local demo corpus implements 7 of these as
-deterministic, sanitized seed patterns** (run with `ash run` / `ash compare`). Taxonomy:
+deterministic, sanitized seed patterns** (run with `ash run` / `ash compare`); **v0.5
+additionally validates the committed artifacts** against the corpus manifest (`ash
+validate`). The corpus is defined in `src/agentic_security_harness/corpus.py` and its
+coverage matrix is documented in [corpus.md](corpus.md). Taxonomy:
 
 | Pattern | What it probes |
 |---|---|
@@ -237,6 +241,11 @@ A **scorecard** is derived **from a set of traces** for a target. It reports, pe
 - reproducibility (deterministic vs flaky).
 
 It is a derived artifact — regenerating it from the same traces is deterministic.
+
+**Benchmark-artifact integrity.** The committed examples under `examples/` are validated
+artifacts. `ash validate` checks them against the corpus manifest
+(`src/agentic_security_harness/corpus.py`, coverage matrix in [corpus.md](corpus.md)) so
+the committed traces and scorecards stay consistent with the declared pattern set.
 
 ---
 

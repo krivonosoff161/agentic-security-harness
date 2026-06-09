@@ -8,62 +8,64 @@
 git clone <repo>
 cd agentic-security-harness
 python -m venv .venv && . .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -e ".[dev]"        # add ,pii for optional Presidio-based PII
+pip install -e ".[dev]"
 ```
 
 ## Quality gates
 
 ```bash
-ruff check . && ruff format --check .
-mypy app                       # strict on app/core and app/scanners first
-pytest                         # provider always mocked in CI — no real API calls
+python -m pytest
+python -m ruff check .
+python -m mypy src tests
+ash validate examples/
+git diff --check
 ```
 
-CI runs ruff + mypy + pytest on Python 3.11 and 3.12. The **attack corpus**
-(`tests/attacks/`) must pass. Detector precision/recall — **including the false-negative
-rate** — is recorded per release; do not hide misses.
+Run these gates locally on Python 3.11+ before every commit. The 7-pattern corpus and
+the full test suite must pass. The false-negative count (patterns a target fails to
+defend) is recorded honestly per release; do not hide misses.
 
 ## Test layout
 
-- `tests/unit/` — scanners, detectors, policy precedence, redaction.
-- `tests/integration/` — proxy passthrough, error shapes, quarantine flow (provider mocked).
-- `tests/attacks/` — versioned red-team corpus: direct / base64 / zero-width / homoglyph
-  injections, PII, secrets, plus a benign control set. New attacks are added here first.
+Shared fixtures live in `tests/conftest.py`. Each module under test has a matching
+test file:
+
+- `tests/test_models.py` - Pydantic v2 models.
+- `tests/test_runner.py` - pattern -> target -> trace runner.
+- `tests/test_scorecard.py` - scorecard scoring.
+- `tests/test_cli.py` - the `ash` CLI commands.
+- `tests/test_demo_agent.py` - the vulnerable-by-design demo agent.
+- `tests/test_protected.py` - the protected demo agent (passes all 7).
+- `tests/test_corpus.py` - corpus manifest consistency.
+- `tests/test_reporting.py` - report generation.
+- `tests/test_validation.py` - the `ash validate` checks.
 
 ## Extension points
 
-The project is built around a few small protocols so contributors can extend it without
-touching the core runner.
+The project is local, deterministic, and synthetic - no network, no LLM calls, no real
+targets, no real secrets. These extension points keep that design.
 
-### Add an attack chain (defensive test pattern)
+### How to add a pattern
 
-Add a **sanitized** pattern to the attack library (seeded from `tests/attacks/`): expected
-vulnerable behavior, mitigation, and OWASP / MITRE-style mapping. New detection work starts
-with a failing pattern here. Payloads stay sanitized — synthetic markers, never real secrets.
+A pattern is a sanitized defensive test case. Adding one touches a fixed set of files:
+
+1. Add the pattern in `patterns.py` (expected vulnerable behavior, mitigation, and the
+   OWASP / MITRE-style mapping). Use synthetic markers, never real secrets.
+2. Add the vulnerable primitive in `demo_agent.py` (the behavior the pattern exercises).
+3. Wire the scenario in `demo_adapter.py` so the runner can drive it.
+4. Add the protected override in `protected_demo_agent.py` so the protected target defends.
+5. Add the mock outcome in `mock_target.py`.
+6. Add a corpus entry in `corpus.py` (keep the manifest consistent with `docs/corpus.md`).
+7. Add tests for the new behavior.
+8. Regenerate the committed examples under `examples/`.
+9. Run `ash validate examples/` to confirm artifacts and corpus stay consistent.
 
 ### Add a target adapter
 
-Implement the target-adapter contract (drive a system under test, return observations the
-runner records into a trace): LLM agent, MCP / tool chain, multi-agent workflow,
-voice / multimodal (sanitized ASR/OCR fixtures), or an AI gateway.
-
-### Add a trace detector / oracle
-
-A detector decides whether an observation is a finding. Keep it deterministic; it returns
-findings, it does not mutate state.
-
-### Add a scanner
-
-Implement the `Scanner` protocol (`scan(...) -> list[Finding]`) and register it. Keep
-scanners **deterministic and fast**; anything LLM-backed goes behind the classifier path
-with a circuit breaker and cache. A scanner returns findings; it does **not** decide —
-the policy engine owns the decision.
-
-### Add a provider adapter
-
-Implement the `ProviderAdapter` protocol: translate a canonical request to the provider
-call and the provider response back to canonical. Isolate provider quirks here so the
-rest of the pipeline stays provider-agnostic.
+Implement the target-adapter contract: drive a local / synthetic system under test and
+return observations the runner records into a trace. Today the targets are `mock`,
+`demo-agent` (vulnerable by design), and `protected-demo-agent`. New adapters stay
+local and deterministic - no real provider, gateway, or network calls.
 
 ## Conventions
 

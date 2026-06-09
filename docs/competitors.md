@@ -54,7 +54,7 @@ Tools we would **integrate** (wrap as detectors/oracles) are marked complementar
 | **LLM Guard** (Protect AI) | OSS (MIT) scanner toolkit; 15 input + 20 output scanners | Complementary — integration target; owner now Palo Alto | [site][llmguard] |
 | **Guardrails AI** | OSS framework + Hub (100+ validators) | Complementary — in-process; we can wrap validators | [repo][guardrails] |
 | **NeMo Guardrails** (NVIDIA) | OSS (Apache-2.0); Colang DSL; 5 rail types | Complementary — in-process, dialog-centric | [repo][nemo] |
-| **Microsoft Presidio** | OSS PII detect/anonymize (Analyzer + Anonymizer) | Complementary — we **integrate** it (optional `[pii]`) | [repo][presidio] |
+| **Microsoft Presidio** | OSS PII detect/anonymize (Analyzer + Anonymizer) | Complementary - a planned reference-gateway integration | [repo][presidio] |
 | **Rebuff** | OSS prompt-injection detector | Reference only — repo **archived/read-only** | [repo][rebuff] |
 
 ### Ownership notes (verified)

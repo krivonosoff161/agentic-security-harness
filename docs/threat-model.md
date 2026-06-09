@@ -1,7 +1,7 @@
 # Threat model
 
 > **Agentic Security Harness.** This threat model covers both roles: the **harness** that *probes*
-> these risks (recording each as a [trace](harness.md#exploit-trace-format)) and the
+> these risks (recording each as a [trace](harness.md#failure-trace-format)) and the
 > **reference gateway** that *mitigates* them.
 > The honest framing: **risk reduction, observability, and measurement — not 100%
 > protection.** The harness only tests **mock / demo / authorized** targets (see
@@ -15,8 +15,8 @@
   store / forward rules, TTL) survives agent handoffs, memory writes, tools, and provider
   routing.
 - **Safety** of agent actions — gate dangerous tool calls before side effects.
-- **Accountability** — a comprehensive audit trail of requests, findings, and decisions
-  (hash-chain integrity hardening lands in v1.0; see [Residual risk](#residual-risk)).
+- **Accountability** — an audit trail of requests, findings, and decisions
+  (future trace integrity via hash-chain hardening; see [Residual risk](#residual-risk)).
 - **Cost** — token/spend budgets.
 
 ## Who / what we protect against
@@ -46,12 +46,12 @@ crossing to the provider.
 
 ## Attacks we aim to cover (with caveats)
 
-- Direct prompt injection (known patterns; classifier from v0.5).
+- Direct prompt injection (known patterns; future classifier).
 - Indirect / second-order injection (flag completions driven by untrusted content; quarantine).
 - Encoding-based evasion: base64, zero-width Unicode, homoglyphs (normalizer + encoding scanner).
 - PII / secret exfiltration outbound; secret / system-prompt leakage inbound.
 - Dangerous tool calls (argument inspection + policy).
-- Cost abuse (budgets, from v0.4).
+- Cost abuse (future reference gateway budgets).
 
 ## Attacks we do NOT cover
 
@@ -75,9 +75,9 @@ least-privilege tool design regardless.
 
 Two deliberate limitations to call out:
 
-- **Audit integrity:** through v0.5 the audit log is normal append-only logging.
-  **Tamper-evidence (hash chaining) arrives in v1.0.** Until then, audit integrity
-  depends on the host's access controls.
+- **Audit integrity:** the current release records normal append-only traces.
+  **Future trace integrity (tamper-evidence via hash chaining) is planned.** Until then,
+  audit integrity depends on the host's access controls.
 - **No self-learning:** the harness does not adapt its own patterns or detectors at
   runtime. This is a deliberate trade — a self-mutating security tool is hard to audit.
   Feedback labels are collected for future, human-reviewed adaptive rules only.
@@ -104,7 +104,7 @@ Each risk is **probed** by the harness as a reproducible trace and, where applic
 
 | OWASP LLM (2025) | Coverage — harness probes / reference gateway mitigates |
 |---|---|
-| **LLM01 Prompt Injection** | Deterministic + classifier scanners; quarantine for indirect injection. *(Primary focus.)* |
+| **LLM01 Prompt Injection** | Deterministic patterns now; future classifier and quarantine for indirect injection. *(Primary focus.)* |
 | **LLM02 Sensitive Information Disclosure** | PII/secret detection + `REDACT` inbound; leakage detection outbound. |
 | **LLM03 Supply Chain** | Out of scope at runtime; we provide SBOM/dependency scanning for the project itself. |
 | **LLM04 Data & Model Poisoning** | Out of scope (training-time); the project is runtime. |

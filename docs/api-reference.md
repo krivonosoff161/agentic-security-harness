@@ -1,11 +1,14 @@
 # Reference gateway API
 
-> **Agentic Security Harness.** This documents the **reference gateway** — the optional
-> [defense component](harness.md#reference-defense-replay), not the harness. The harness
-> has **no published HTTP API** (the `ash` CLI is documented in the [README](../README.md));
-> its core artifacts are
-> [traces](harness.md#exploit-trace-format). Endpoints are annotated with the version they
-> first appear in; treat them as design intent.
+> **Planned reference-gateway API - NOT implemented in the current benchmark release.**
+> This is a forward-looking design sketch, not shipped code.
+
+> **Agentic Security Harness.** This documents the **planned reference gateway** — the
+> optional [defense component](harness.md#reference-defense-replay), not the harness. The
+> harness has **no published HTTP API** (the `ash` CLI is documented in the
+> [README](../README.md)); its core artifacts are
+> [traces](harness.md#failure-trace-format). Endpoints are annotated as planned for the
+> future reference gateway; treat them as design intent only.
 
 The reference gateway exposes two surfaces: the **proxy API** (OpenAI-compatible, for apps
 and as a replay defense target) and the **admin API** (for operators).
@@ -13,20 +16,20 @@ and as a replay defense target) and the **admin API** (for operators).
 ## Auth
 
 - **Proxy API:** per-client API keys issued by the gateway, mapped to routes/budgets.
-- **Admin API:** a separate admin bearer token; RBAC from v1.0.
+- **Admin API:** a separate admin bearer token; RBAC planned for a later milestone.
 - Provider credentials are held by the gateway and never returned to clients.
 
 ---
 
-## `POST /v1/chat/completions` — OpenAI-compatible *(v0.2)*
+## `POST /v1/chat/completions` — OpenAI-compatible *(planned)*
 
 Accepts the standard OpenAI chat-completions body (`model`, `messages`, `tools`,
-`temperature`, …). On the happy path it behaves like the provider and returns the same
+`temperature`, …). On the happy path it would behave like the provider and return the same
 response shape.
 
-> **`v0.2` is non-streaming only.** `stream: true` is rejected with a clear error until
-> streaming ships in **v1.0** (see [roadmap](roadmap.md)
-> for why it is deferred).
+> **The planned first iteration is non-streaming only.** `stream: true` would be rejected
+> with a clear error until streaming is added in a later milestone (see
+> [roadmap](roadmap.md) for why it is deferred).
 
 Differences are additive and non-breaking:
 
@@ -36,7 +39,7 @@ Differences are additive and non-breaking:
                "message": "Request blocked by policy.", "request_id": "req_..." } }
   ```
 - **REDACT** → the request is sanitized before forwarding (recorded in the audit log).
-- **QUARANTINE** *(v0.3)* → `202 Accepted` with:
+- **QUARANTINE** *(planned)* → `202 Accepted` with:
   ```json
   { "quarantine_id": "qz_...", "status": "pending", "retry_after": 30 }
   ```
@@ -49,7 +52,7 @@ plus gateway-issued credentials. It is **not** fully transparent: clients still 
 handle gateway-specific behavior — the quarantine `202` + `quarantine_id` flow, auth,
 and the streaming restriction (see those sections).
 
-### Quarantine retrieval *(v0.3)*
+### Quarantine retrieval *(planned)*
 
 The async workflow avoids holding the HTTP connection open for human review.
 
@@ -63,36 +66,36 @@ The async workflow avoids holding the HTTP connection open for human review.
 
 ---
 
-## `GET /health` *(v0.2)*
+## `GET /health` *(planned)*
 
 Liveness/readiness plus dependency checks.
 
 ```json
-{ "status": "ok", "version": "0.2.0",
+{ "status": "ok", "version": "planned",
   "checks": { "db": "ok", "provider": "reachable" } }
 ```
 
-## `GET /metrics` *(v0.2)*
+## `GET /metrics` *(planned)*
 
 Prometheus exposition: request counts by decision, scanner latencies, classifier calls,
-tokens/cost by key *(v0.4)*, quarantine queue depth *(v0.3)*, cache hit rate *(v0.4)*.
+tokens/cost by key, quarantine queue depth, cache hit rate *(all planned)*.
 
-## `GET /admin/events` *(v0.3)*
+## `GET /admin/events` *(planned)*
 
 Paginated audit feed. Filters: time range, decision, route, key, finding type.
 Auth: admin token. Read-only.
 
-## `GET /admin/quarantine` *(v0.3)*
+## `GET /admin/quarantine` *(planned)*
 
 List quarantined items (status, findings, snippet, `created_at`). Auth: admin.
 
-## `POST /admin/quarantine/{id}/approve` *(v0.3)*
+## `POST /admin/quarantine/{id}/approve` *(planned)*
 
 Approve a held request → a worker forwards it to the provider; the result is stored
 against the id and retrieved as above. Records who/when. Idempotent. *(Quarantine
 currently targets ingress; egress quarantine is not yet designed — see the architecture
 [reference-gateway notes](architecture.md#reference-gateway-optional-defense-target).)*
 
-## `POST /admin/quarantine/{id}/reject` *(v0.3)*
+## `POST /admin/quarantine/{id}/reject` *(planned)*
 
 Reject → permanent `BLOCK`; records reason. Idempotent.

@@ -98,11 +98,11 @@ ash validate examples/        # validate committed benchmark artifacts
   memory → external data → attack chain → observed behavior → finding → mitigation`.
 - **Reproducible cross-target comparison** — replay the same traces against different
   targets / defenses.
-- **Cross-agent contamination** — explicit tests for multi-agent workflows (one agent
-  poisoning another).
-- **MCP / tool-permission scanning** — the tools/permissions layer of the graph.
-- **Full signal path** — tests the pre-LLM sensor / input channel (e.g. audio → ASR →
-  agent action) that text-only gateways typically do not see.
+- **Cross-agent contamination** (planned) - explicit tests for multi-agent workflows (one
+  agent poisoning another).
+- **MCP / tool-permission scanning** (planned) - the tools/permissions layer of the graph.
+- **Full signal path** (planned) - tests the pre-LLM sensor / input channel (e.g. audio ->
+  ASR -> agent action) that text-only gateways typically do not see.
 - **Scorecard from traces** — a derived, deterministic aggregate.
 - **Reference gateway** — an **optional defense target** you can replay traces against.
 
@@ -116,6 +116,9 @@ context flooding / instruction overload · indirect prompt injection via RAG / t
 deception · simulated data-exfiltration · budget exhaustion / loop abuse · multi-turn
 policy bypass · multimodal / sensor-to-agent (audio → ASR) injection · agentic
 data-boundary / recipient-control.
+
+Seven of these are implemented today (the data-boundary / recipient-control corpus);
+the rest are on the [roadmap](docs/roadmap.md).
 
 ## Reference defense (optional)
 
@@ -213,7 +216,7 @@ traces and deterministic baseline-vs-protected replay. Honest comparison:
 - **[Mission](docs/mission.md)** · **[Safe research rules](docs/research-rules.md)** — what this is for, and how to research safely.
 - **Learning** — [agentic security basics](docs/learning/01-agentic-security-basics.md) · [data-boundary failures](docs/learning/02-data-boundary-failures.md).
 - [Architecture](docs/architecture.md) — components and data flow.
-- [Roadmap](docs/roadmap.md) — `v0.1` → `v1.0`.
+- [Roadmap](docs/roadmap.md) — the current benchmark roadmap, `v0.1` -> `v1.0`.
 - [Threat model](docs/threat-model.md) — what we cover, what we don't, OWASP mapping.
 - [Competitors](docs/competitors.md) — landscape (verified, with sources).
 - [API reference](docs/api-reference.md) — reference-gateway API.

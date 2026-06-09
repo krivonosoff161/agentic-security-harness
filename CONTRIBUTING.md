@@ -11,16 +11,20 @@ quality (including false negatives).
 ```bash
 python -m venv .venv && . .venv/bin/activate    # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
-ruff check . && mypy app && pytest
+python -m pytest
+python -m ruff check .
+python -m mypy src tests
+ash validate examples/
 ```
 
 See [docs/development.md](docs/development.md) for the full layout and extension points.
 
 ## Ways to contribute
 
-- **Add a defensive test pattern** to the attack library (`tests/attacks/`) — sanitized,
-  with expected vulnerable behavior + mitigation + OWASP/MITRE mapping. Start with a
-  failing pattern.
+- **Add a sanitized defensive test pattern** via `patterns.py` + `corpus.py` + tests —
+  with expected vulnerable behavior + mitigation + OWASP/MITRE mapping. The mock target
+  is expected to fail the new pattern, and the protected override is expected to pass it.
+  Then regenerate the committed examples and run `ash validate examples/`.
 - **Add a target adapter** — LLM agent, MCP / tool chain, multi-agent, voice / multimodal
   (sanitized fixtures), or an AI gateway.
 - **Add a trace detector / scanner** — deterministic; returns findings, does not decide.
@@ -45,7 +49,10 @@ See [docs/development.md](docs/development.md) for the full layout and extension
 ## Pull requests
 
 - One logical change per PR; conventional commit style (`feat:`, `fix:`, `docs:`, `test:`).
-- Include tests; keep `ruff`, `mypy`, and `pytest` green.
+- Include tests; keep `python -m pytest`, `python -m ruff check .`, and
+  `python -m mypy src tests` green.
+- Keep the committed examples synchronized — if your change affects output, regenerate
+  the examples and confirm `ash validate examples/` passes.
 - Update `CHANGELOG.md` under `[Unreleased]`.
 - For anything security-sensitive, see [SECURITY.md](SECURITY.md) — do not disclose
   vulnerabilities in a public PR.

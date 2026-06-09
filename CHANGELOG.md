@@ -69,6 +69,14 @@ All notable changes to this project are documented here. The format follows
   description and README lead now read "agentic AI failure modes" rather than "exploit
   chains" (no functional change).
 
+### Docs
+- Realigned the documentation set with the v0.5 benchmark roadmap and current project
+  structure (roadmap, development, architecture, harness, deployment, threat-model,
+  api-reference, CONTRIBUTING). Removed stale gateway-era references (`tests/attacks`,
+  `tests/unit`, `tests/integration`, `mypy app`) and reframed the reference gateway and real
+  adapters as planned/future. Synced the quality gates to `pytest` / `ruff` / `mypy` /
+  `ash validate`.
+
 ### Fixed
 - **Comparison reduction line uses a signed delta** (surfaced by the v0.5 validator):
   `build_comparison_md` now formats the findings delta as a single signed quantity
@@ -78,6 +86,7 @@ All notable changes to this project are documented here. The format follows
   byte-identical (the normal baseline-vs-protected case still reads `(-7)`).
 
 ### Notes
-- The `v0.1` harness core (code) is implemented — see *Added*. Next milestones (real target
-  adapters, MCP, multi-agent, multimodal, reference gateway) are in
+- The `v0.1` harness core (code) is implemented — see *Added*. Next milestones are corpus
+  expansion, local adapter examples, report quality, mapping/standardization, and a stable
+  benchmark release; real adapters/reference gateway remain future tracks. See
   [docs/roadmap.md](docs/roadmap.md).

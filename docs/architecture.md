@@ -10,18 +10,35 @@ each run as a **portable trace**, and derives a **scorecard**. The gateway is on
 
 ## Components
 
-| Component | Responsibility | First appears |
+### Current (implemented)
+
+| Component | Responsibility | Module |
 |---|---|---|
-| **Runner** | Executes attack chains (defensive test patterns) against a target via an adapter; emits one trace per chain. | v0.1 |
-| **Target adapters** | Drive a system under test: LLM agent, MCP / tool chain, multi-agent workflow, **voice / multimodal target** (sanitized ASR/OCR fixtures), AI gateway. Mock/demo adapters first. | v0.1 (mock) / later (real) |
-| **Attack library** | Versioned, sanitized defensive test patterns (the [taxonomy](harness.md#attack-pattern-taxonomy)); seeded from `tests/attacks/`. | v0.1 |
-| **Trace store** | Persists [traces](harness.md#exploit-trace-format) — machine-readable, portable, replayable. Normal append-only storage; integrity hardening is v1.0. | v0.1 |
-| **Scorecard generator** | Derives a deterministic aggregate from a set of traces. | v0.1 |
-| **Scanner core (reused)** | Deterministic checks — injection signatures, encoding tricks, PII/secret (regex; Presidio optional `[pii]`), **tool-call / tool-permission inspection**. Used as harness **detectors/oracles** *and* as detection inside the reference gateway. | v0.1 |
-| **MCP / tool-permission scanner** | Static analysis of an agent's tools/permissions and MCP tool schemas → the tools/permissions layer of the attack graph. | later |
-| **Data-boundary checker** | Verifies the [data envelope](harness.md#agentic-data-boundary-and-recipient-control) survives handoffs, memory, tools, and provider routing (classification mutation, recipient confusion, label stripping, leakage). | later |
-| **Reference gateway** | OpenAI-compatible proxy = optional **defense target** + reference defense implementation (normalizer, scanners, policy, quarantine, audit). | later |
-| **CLI / admin** | `ash run` / `ash compare` ship now (run patterns, write traces and scorecards); admin tooling later. | now / later |
+| **Corpus manifest** | Versioned, machine-readable index of the defensive test patterns (the [taxonomy](harness.md#attack-pattern-taxonomy)) and the coverage matrix. | `corpus.py` |
+| **Seed patterns** | The deterministic, sanitized defensive test patterns themselves, defined in code with explicit metadata. | `patterns.py` |
+| **Target adapters** | Drive a system under test. Current adapters are local and synthetic: mock target, demo-agent (vulnerable by design), protected-demo-agent (passes all patterns). | `mock_target.py`, `demo_agent.py` / `demo_adapter.py`, `protected_demo_agent.py` |
+| **Runner** | Executes a pattern against a target via an adapter; emits one trace per run. | `runner.py` |
+| **Trace model** | The portable, machine-readable [trace](harness.md#failure-trace-format) and envelope data structures. | `models.py` |
+| **Scorecard generator** | Derives a deterministic aggregate from a set of traces. | `scorecard.py` |
+| **Reporting** | Renders traces and scorecards into committed report artifacts. | `reporting.py` |
+| **Validation layer** | Validates committed benchmark artifacts and corpus consistency (`ash validate`). | `validation.py` |
+| **CLI** | `ash run` / `ash compare` / `ash validate` (run patterns, write traces and scorecards, validate artifacts). | `cli.py` |
+| **Committed examples** | Reproducible report artifacts checked into the repo for replay and inspection. | `examples/` |
+
+### Planned (future, not current)
+
+| Component | Responsibility | Status |
+|---|---|---|
+| **MCP / tool-permission adapter** | Static analysis of an agent's tools/permissions and MCP tool schemas -> the tools/permissions layer of the attack graph. | planned |
+| **Real LLM adapter** | Drive a live LLM agent target (vs. the current local synthetic adapters). | planned |
+| **Multimodal adapter** | Voice / image target via sanitized ASR/OCR fixtures (the pre-LLM channel text-only gateways typically do not see). | planned |
+| **Reference gateway** | OpenAI-compatible proxy = optional **defense target** + reference defense implementation (normalizer, scanners, policy, quarantine, audit). | planned |
+| **Trace store / integrity** | Persistent trace storage with integrity hardening (hash chaining). | planned |
+
+Note on data-boundary checks: the current local checks that verify the
+[data envelope](harness.md#agentic-data-boundary-and-recipient-control) (classification
+mutation, recipient confusion, label stripping, leakage) already live inside the demo and
+protected target adapters. A generalized, standalone data-boundary checker is planned later.
 
 ## Attack graph
 
@@ -42,23 +59,32 @@ Each trace is a path through this graph; the finding records **where it broke**.
 ## Data flow (harness)
 
 ```
- defensive test pattern ┐
-                        ├─► Runner ──► Target adapter ──► system under test
- target descriptor ─────┘                │                  (mock agent / MCP /
-                                         │                   multi-agent / gateway)
-                                         ▼
-                                   Trace (portable, machine-readable)
-                                         │
-                          ┌──────────────┼───────────────┐
-                          ▼              ▼                ▼
-                    Trace store    Scorecard      Replay against a
-                                   (derived)      defended target  ──► risk-reduction Δ
+ defensive test pattern -+
+                          +--> Runner --> Target adapter --> system under test
+ target descriptor -------+                 |                  (mock / demo-agent /
+                                            |                   protected-demo-agent)
+                                            v
+                                      Trace (portable, machine-readable)
+                                            |
+                             +--------------+---------------+
+                             v              v               v
+                        Scorecard      Reporting      Replay against a
+                        (derived)      (artifacts)    protected target  --> risk-reduction delta
+                             |              |
+                             +------+-------+
+                                    v
+                              ash validate (over the resulting artifacts)
 ```
 
-The honest core: the harness does not assert protection — it **measures the delta** a
-defense produces against the **same** reproducible traces.
+The pipeline is: pattern -> target adapter -> runner -> trace -> scorecard -> reporting,
+with `ash validate` checking the resulting artifacts. The honest core: the harness does not
+assert protection - it **measures the delta** a defense produces against the **same**
+reproducible traces.
 
 ## Reference gateway (optional defense target)
+
+> Planned - not implemented in the current benchmark release. This section describes the
+> intended design of the optional reference gateway.
 
 When a target is put behind the reference gateway, the gateway inspects requests/responses
 and emits one of five decisions — `ALLOW / WARN / REDACT / QUARANTINE / BLOCK` — with
@@ -79,7 +105,8 @@ fixed precedence `BLOCK > QUARANTINE > REDACT > WARN > ALLOW`.
 - **Quarantine is async:** on `QUARANTINE` the gateway returns `202` + `quarantine_id`
   immediately (no held connection); the client polls or re-submits after approve/reject.
 - **Classifier** (optional LLM threat classifier) and **declarative policy** are later
-  milestones; the v0.1-reused scanner core is deterministic.
+  milestones; the planned gateway's deterministic checks are derived from the same seed
+  patterns (`patterns.py`).
 - **Credentials:** provider credentials are never exposed to clients; they are used only
   for upstream provider calls and are not returned across the client boundary.
 
@@ -97,9 +124,10 @@ boundary 1 is hostile by default — including **sensor inputs** (audio/image), 
 
 ## Storage
 
-- **v0.1–early:** SQLite / files (zero-ops; traces + scorecards).
-- **v1.0:** PostgreSQL for trace retention; **trace integrity hardening (hash chaining)**
-  is introduced here, not earlier.
-- **Redis:** optional later (caching/budgets in the reference gateway).
+- **Current release:** local files (traces + scorecards written under the output dir;
+  committed examples under `examples/`). Zero-ops, no database.
+- **Future tracks:** a persistent trace store (PostgreSQL) with trace integrity hardening
+  (hash chaining), and optional Redis (caching / budgets in the reference gateway). These
+  are post-v1.0 and not part of the current benchmark release.
 
 See [roadmap.md](roadmap.md) and [threat-model.md](threat-model.md).
