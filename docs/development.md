@@ -98,4 +98,4 @@ These apply to every contribution and to any agent working in this repo (see als
   then, only mock / demo targets.
 - **Keep the trace schema portable and sanitized** — no host-specific data, no real payloads.
 - **Self-review checklist before commit:** no secrets; no overclaiming (no first/only/complete-protection claims); no unsafe or abuse wording; scope matches the approved roadmap version;
-  `pytest` + `ruff` + `mypy` green; internal files not tracked; `git diff` only the expected files.
+  `pytest` + `ruff` + `mypy` + `ash validate examples/` green; internal files not tracked; `git diff` only the expected files.

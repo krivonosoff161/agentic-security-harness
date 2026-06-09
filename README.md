@@ -69,10 +69,13 @@ See [docs/roadmap.md](docs/roadmap.md).
   controls; passes all seven seed patterns. `ash compare` measures the reduction in findings.
 - **Runner** — `pattern → target → trace` (mock or demo-agent).
 - **Scorecard** — a deterministic aggregate derived from traces.
-- **Demo CLI (`ash`)** — `ash run --target {mock,demo-agent,protected-demo-agent}` and
-  `ash compare --baseline ... --protected ...` write deterministic reports (see Quickstart).
-  Committed examples under [`examples/`](examples/).
-- **Unit tests** — models, runner, scorecard, reporting determinism, and a CLI smoke test.
+- **Demo CLI (`ash`)** — `ash run --target {mock,demo-agent,protected-demo-agent}`,
+  `ash compare --baseline ... --protected ...`, and `ash validate <path>` write/validate
+  deterministic reports (see Quickstart). Committed examples under [`examples/`](examples/).
+- **Validation (`ash validate examples/`)** — checks committed benchmark artifacts (traces,
+  scorecards, summaries, comparison) and corpus consistency, and scans for forbidden
+  markers; the examples are **validated benchmark artifacts**, not loose output.
+- **Unit tests** — models, runner, scorecard, reporting, validation, and CLI smoke tests.
 
 No gateway, provider calls, network, or real payloads.
 
@@ -82,6 +85,7 @@ No gateway, provider calls, network, or real payloads.
 python -m pytest
 python -m ruff check .
 python -m mypy src tests
+ash validate examples/        # validate committed benchmark artifacts
 ```
 
 ## Core capabilities
@@ -142,6 +146,9 @@ ash run --target demo-agent --out reports/demo-agent
 
 # protected variant: same agent with simple deterministic controls
 ash run --target protected-demo-agent --out reports/protected-demo-agent
+
+# validate the committed benchmark artifacts (or your own runs)
+ash validate examples/
 ```
 
 Each run writes three artifacts:

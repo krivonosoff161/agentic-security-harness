@@ -7,6 +7,11 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- **Validation layer + `ash validate`** (v0.5): `src/agentic_security_harness/validation.py`
+  validates report dirs (traces / scorecard / summary), comparison dirs (baseline / protected
+  + comparison.md), and corpus consistency against the manifest, with a conservative
+  forbidden-marker scan and a structured `{ok, errors, warnings}` result. `ash validate
+  examples/` runs as a benchmark check. Deterministic, stdlib + Pydantic only, no new deps.
 - **Corpus manifest + coverage matrix:** `src/agentic_security_harness/corpus.py` (curated
   machine-readable metadata for the 7 implemented patterns) and `docs/corpus.md`; plus a
   `NOTICE` file.
@@ -63,6 +68,14 @@ All notable changes to this project are documented here. The format follows
 - Softened public positioning to a **defensive education + measurement lab** — the repo
   description and README lead now read "agentic AI failure modes" rather than "exploit
   chains" (no functional change).
+
+### Fixed
+- **Comparison reduction line uses a signed delta** (surfaced by the v0.5 validator):
+  `build_comparison_md` now formats the findings delta as a single signed quantity
+  (`(-7)` / `(+3)` / `(+0)`) instead of a literal `-` prefix that produced a malformed
+  `(--3)` when the protected target had *more* findings than baseline. The validator parses
+  the signed value, so producer and validator stay in lockstep. Committed examples are
+  byte-identical (the normal baseline-vs-protected case still reads `(-7)`).
 
 ### Notes
 - The `v0.1` harness core (code) is implemented — see *Added*. Next milestones (real target

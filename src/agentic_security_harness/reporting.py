@@ -124,7 +124,7 @@ def build_comparison_md(baseline: ScorecardSummary, protected: ScorecardSummary)
         lines.append("| (none) | 0 | 0 |")
     lines += [
         "",
-        f"Findings reduced: {b_total} -> {p_total} (-{b_total - p_total}).",
+        f"Findings reduced: {b_total} -> {p_total} ({p_total - b_total:+d}).",
         "",
         "> Risk reduction is measured from deterministic synthetic traces; "
         "not a guarantee of real-world protection.",

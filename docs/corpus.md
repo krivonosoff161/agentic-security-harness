@@ -1,7 +1,8 @@
 # Corpus coverage matrix
 
 > **Agentic Security Harness.** The local defensive corpus is **7 deterministic, sanitized
-> seed patterns**, run by `ash run` (per target) and `ash compare` (baseline vs protected).
+> seed patterns**, run by `ash run` (per target) and `ash compare` (baseline vs protected),
+> and validated by `ash validate examples/` against this corpus.
 > The machine-readable manifest is
 > [`src/agentic_security_harness/corpus.py`](../src/agentic_security_harness/corpus.py).
 >

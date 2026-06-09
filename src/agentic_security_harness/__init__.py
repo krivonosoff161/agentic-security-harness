@@ -33,6 +33,7 @@ from agentic_security_harness.reporting import (
 )
 from agentic_security_harness.runner import HarnessRunner
 from agentic_security_harness.scorecard import ScorecardSummary, build_scorecard
+from agentic_security_harness.validation import ValidationResult, validate_path
 
 __all__ = [
     "DataEnvelope",
@@ -61,6 +62,8 @@ __all__ = [
     "build_comparison_md",
     "traces_to_json",
     "scorecard_to_json",
+    "ValidationResult",
+    "validate_path",
 ]
 
 __version__ = "0.1.0"

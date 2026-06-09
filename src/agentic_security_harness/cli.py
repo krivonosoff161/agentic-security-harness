@@ -18,6 +18,7 @@ from agentic_security_harness.protected_demo_agent import ProtectedDemoAgentTarg
 from agentic_security_harness.reporting import write_comparison, write_reports
 from agentic_security_harness.runner import HarnessRunner
 from agentic_security_harness.scorecard import build_scorecard
+from agentic_security_harness.validation import validate_path
 
 _TARGETS = ["mock", "demo-agent", "protected-demo-agent"]
 
@@ -64,6 +65,17 @@ def build_parser() -> argparse.ArgumentParser:
     cmp_p.add_argument(
         "--out", type=Path, default=Path("reports/comparison"), help="output directory"
     )
+
+    val_p = sub.add_parser(
+        "validate", help="validate committed benchmark artifacts against the corpus"
+    )
+    val_p.add_argument(
+        "path",
+        type=Path,
+        nargs="?",
+        default=Path("examples"),
+        help="report dir, comparison dir, or a directory of such dirs (default: examples)",
+    )
     return parser
 
 
@@ -96,12 +108,32 @@ def _compare(baseline: str, protected: str, out: Path) -> int:
     return 0
 
 
+def _validate(path: Path) -> int:
+    result = validate_path(path)
+    print(
+        f"validated {len(result.report_dirs)} report dir(s), "
+        f"{len(result.comparison_dirs)} comparison dir(s)"
+    )
+    print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
+    for warning in result.warnings:
+        print(f"  warning: {warning}")
+    for error in result.errors:
+        print(f"  error: {error}")
+    if result.ok:
+        print("OK: artifacts conform to the corpus manifest and contain no forbidden markers")
+    else:
+        print("FAILED: see errors above")
+    return 0 if result.ok else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command == "run":
         return _run(args.target, args.out)
     if args.command == "compare":
         return _compare(args.baseline, args.protected, args.out)
+    if args.command == "validate":
+        return _validate(args.path)
     return 1
 
 
