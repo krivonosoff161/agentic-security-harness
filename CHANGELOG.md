@@ -7,6 +7,11 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Expanded the local defensive corpus to **7 deterministic seed patterns** (v0.4): added
+  data-boundary classification mutation, handoff label stripping, tool-permission abuse, and
+  provider-boundary leakage (sanitized) on top of the original three. The vulnerable
+  `demo-agent` and `mock` fail all 7; `protected-demo-agent` passes all 7; `ash compare` now
+  shows findings reduced 7 -> 0. Committed examples regenerated. Local, no network, sanitized.
 - Protected **demo-agent** target + risk-reduction comparison (v0.3): a
   `protected-demo-agent` (the same local agent with simple deterministic controls that
   mitigate the three seed patterns -> PASS) and an `ash compare --baseline ... --protected

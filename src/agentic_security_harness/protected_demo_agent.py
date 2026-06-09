@@ -45,6 +45,42 @@ class ProtectedDemoAgent(DemoAgent):
         self.log("recipient_check", "agent", f"routed to allowed recipient '{recipient}'")
         return False
 
+    def attempt_relabel(self, envelope: DataEnvelope, new_class: str, source: str) -> bool:
+        if not envelope.classification_mutable and source != envelope.classification_source:
+            self.log(
+                "classification_check", "agent", "control: refused relabel from untrusted source"
+            )
+            return False
+        self.log(
+            "classification_check", "agent", f"classification changed to '{new_class}' (authorized)"
+        )
+        return False
+
+    def handoff_to_peer(self, envelope: DataEnvelope) -> bool:
+        self.log("handoff", "agent", "handed off the item to a peer agent")
+        self.log("label_check", "agent", "control: envelope propagated to peer (labels preserved)")
+        return False
+
+    def call_tool_for_purpose(self, tool: str, purpose: str, envelope: DataEnvelope) -> bool:
+        if purpose not in envelope.allowed_purpose:
+            self.log(
+                "tool_permission_check", "agent", f"control: '{purpose}' not in allowed_purpose"
+            )
+            self.log("tool_call", "agent", "control: tool call blocked (out of purpose)")
+            return False
+        self.tool_calls.append((tool, purpose))
+        self.log("tool_permission_check", "agent", f"purpose '{purpose}' allowed")
+        self.log("tool_call", "agent", f"called '{tool}' for '{purpose}'")
+        return False
+
+    def route_to_provider(self, envelope: DataEnvelope) -> bool:
+        self.log("provider_routing", "agent", "routing the item to a mock external provider")
+        if not envelope.can_forward:
+            self.log("forward_check", "agent", "control: can_forward=false; forwarding blocked")
+            return False
+        self.log("forward_check", "agent", "can_forward=true; item forwarded")
+        return False
+
 
 class ProtectedDemoAgentTarget:
     """Target adapter that runs defensive patterns against the ProtectedDemoAgent."""

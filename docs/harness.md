@@ -148,7 +148,8 @@ targets you own or are authorized to test.
 ## Attack pattern taxonomy
 
 Each pattern is a **defensive test pattern** (sanitized, with expected vulnerable
-behavior + mitigation + mapping). Initial taxonomy:
+behavior + mitigation + mapping). The **v0.4 local demo corpus implements 7 of these as
+deterministic, sanitized seed patterns** (run with `ash run` / `ash compare`). Taxonomy:
 
 | Pattern | What it probes |
 |---|---|

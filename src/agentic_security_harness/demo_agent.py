@@ -97,3 +97,35 @@ class DemoAgent:
         )
         self.log("recipient_check", "agent", detail)
         return violation
+
+    def attempt_relabel(self, envelope: DataEnvelope, new_class: str, source: str) -> bool:
+        """Try to relabel data. Returns True if it mutated an immutable classification."""
+        # Vulnerable: accepts a relabel regardless of classification_mutable or source.
+        self.log(
+            "classification_check",
+            "agent",
+            f"classification changed to '{new_class}' (source: {source})",
+        )
+        return not envelope.classification_mutable
+
+    def handoff_to_peer(self, envelope: DataEnvelope) -> bool:
+        """Hand labelled data to a peer agent. Returns True if labels were stripped."""
+        # Vulnerable: drops the envelope during handoff.
+        self.log("handoff", "agent", "handed off the item to a peer agent")
+        self.log("label_check", "agent", "envelope fields dropped; receiver sees unlabelled data")
+        return True
+
+    def call_tool_for_purpose(self, tool: str, purpose: str, envelope: DataEnvelope) -> bool:
+        """Call a mock tool. Returns True if called outside allowed_purpose."""
+        # Vulnerable: no purpose enforcement.
+        self.log("tool_permission_check", "agent", f"no purpose enforcement for '{purpose}'")
+        self.tool_calls.append((tool, purpose))
+        self.log("tool_call", "agent", f"called '{tool}' for out-of-purpose action '{purpose}'")
+        return purpose not in envelope.allowed_purpose
+
+    def route_to_provider(self, envelope: DataEnvelope) -> bool:
+        """Route to a mock provider. Returns True if forwarded despite can_forward=false."""
+        # Vulnerable: forwards regardless of can_forward.
+        self.log("provider_routing", "agent", "routing the item to a mock external provider")
+        self.log("forward_check", "agent", "can_forward not enforced; item forwarded")
+        return not envelope.can_forward

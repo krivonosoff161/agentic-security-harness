@@ -25,6 +25,12 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 
 ---
 
+> **Local demo corpus (v0.4):** seven of these failure modes are implemented as
+> deterministic, sanitized seed patterns in the harness — recipient confusion, memory
+> poisoning, data reclassification (classification mutation), handoff label stripping,
+> tool-permission abuse, provider-boundary leakage, plus indirect prompt injection via tool
+> output. Run them with `ash run --target demo-agent` and `ash compare`.
+
 ## 1. Sensitive data in shared AI chats
 
 - **What goes wrong:** sensitive data pasted into shared/team AI chats persists in history/memory and reaches unintended readers or downstream tools.

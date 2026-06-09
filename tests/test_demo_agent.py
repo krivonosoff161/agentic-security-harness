@@ -20,6 +20,10 @@ SEED_IDS = {
     "indirect_prompt_injection_via_tool_output",
     "data_boundary_recipient_confusion",
     "memory_poisoning_sanitized",
+    "data_boundary_classification_mutation",
+    "data_boundary_handoff_label_stripping",
+    "tool_permission_abuse_sanitized",
+    "provider_boundary_leakage_sanitized",
 }
 
 
@@ -39,6 +43,10 @@ def test_demo_agent_handles_all_seed_patterns() -> None:
         "indirect_prompt_injection_via_tool_output": "agent_decision",
         "data_boundary_recipient_confusion": "recipient_check",
         "memory_poisoning_sanitized": "memory_write",
+        "data_boundary_classification_mutation": "classification_check",
+        "data_boundary_handoff_label_stripping": "label_check",
+        "tool_permission_abuse_sanitized": "tool_permission_check",
+        "provider_boundary_leakage_sanitized": "forward_check",
     }
     target = by_id["memory_poisoning_sanitized"].target
     assert target.adapter == "local"
@@ -70,7 +78,7 @@ def test_no_network(monkeypatch: pytest.MonkeyPatch) -> None:
         raise AssertionError("network call attempted")
 
     monkeypatch.setattr(socket, "socket", _boom)
-    assert len(_traces()) == 3
+    assert len(_traces()) == 7
 
 
 def test_demo_traces_deterministic() -> None:
@@ -80,7 +88,7 @@ def test_demo_traces_deterministic() -> None:
 def test_scorecard_matches_expected() -> None:
     card = build_scorecard(_traces())
     assert card.target_name == "demo-local-agent"
-    assert card.findings_by_severity == {"high": 2, "medium": 1}
+    assert card.findings_by_severity == {"high": 6, "medium": 1}
     assert set(card.failed_patterns) == SEED_IDS
     assert card.passed_patterns == []
 

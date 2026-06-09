@@ -2,17 +2,19 @@ from agentic_security_harness.mock_target import MockTarget
 from agentic_security_harness.patterns import seed_patterns
 from agentic_security_harness.runner import HarnessRunner
 
-SEED_IDS = {
+SEED_ORDER = [
     "indirect_prompt_injection_via_tool_output",
     "data_boundary_recipient_confusion",
     "memory_poisoning_sanitized",
-}
+    "data_boundary_classification_mutation",
+    "data_boundary_handoff_label_stripping",
+    "tool_permission_abuse_sanitized",
+    "provider_boundary_leakage_sanitized",
+]
 
 
-def test_load_seed_patterns() -> None:
-    patterns = seed_patterns()
-    assert len(patterns) == 3
-    assert {p.pattern_id for p in patterns} == SEED_IDS
+def test_load_seed_patterns_in_stable_order() -> None:
+    assert [p.pattern_id for p in seed_patterns()] == SEED_ORDER
 
 
 def test_runner_one_trace_per_pattern() -> None:

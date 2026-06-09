@@ -88,8 +88,9 @@ sanitized and mock-only:
 - **Mission docs** — [mission](mission.md), [safe research rules](research-rules.md). *(done)*
 - **Learning modules** — [agentic security basics](learning/01-agentic-security-basics.md),
   [data-boundary failures](learning/02-data-boundary-failures.md); more modules later.
-- **Safe scenario catalog** — sanitized scenarios mapped to harness test patterns, seeded by
-  the [problem–solution catalog](problem-solution-catalog.md).
+- **Safe scenario catalog** *(expanded v0.4)* — **7 deterministic sanitized seed patterns**
+  (data-boundary / tool / memory) with baseline-vs-protected comparison; seeded by the
+  [problem–solution catalog](problem-solution-catalog.md).
 - **Demo notebooks / examples** *(later)* — runnable walkthroughs against **mock targets only**.
 
 ---

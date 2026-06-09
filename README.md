@@ -53,14 +53,15 @@ See [docs/roadmap.md](docs/roadmap.md).
 
 - **Pydantic v2 models** — `DataEnvelope` (a policy label, **not** encryption), `Finding`,
   `TraceStep`, `TargetDescriptor`, `ExploitTrace`, `DefensivePattern`.
-- **Three sanitized seed patterns** — indirect prompt injection (via tool output),
-  data-boundary recipient confusion, memory poisoning.
+- **Seven sanitized seed patterns** — indirect prompt injection, data-boundary recipient
+  confusion, memory poisoning, classification mutation, handoff label stripping,
+  tool-permission abuse, and provider-boundary leakage.
 - **Deterministic mock target** — vulnerable-by-design demo target; no LLM, no network.
 - **Local demo agent (`demo-agent`)** — a deterministic, synthetic agent (in-memory memory,
   mock tool calls, data-envelope propagation, recipient-control checks); intentionally
   vulnerable for the seed patterns. No network, no LLM.
 - **Protected demo agent (`protected-demo-agent`)** — the same agent with simple deterministic
-  controls; passes all three seed patterns. `ash compare` measures the reduction in findings.
+  controls; passes all seven seed patterns. `ash compare` measures the reduction in findings.
 - **Runner** — `pattern → target → trace` (mock or demo-agent).
 - **Scorecard** — a deterministic aggregate derived from traces.
 - **Demo CLI (`ash`)** — `ash run --target {mock,demo-agent,protected-demo-agent}` and
@@ -177,7 +178,7 @@ reports/comparison/
 
 In the committed example
 ([`examples/comparison-report/comparison.md`](examples/comparison-report/comparison.md)) the
-baseline fails all 3 patterns (3 findings) and the protected agent passes all 3 (0 findings).
+baseline fails all 7 patterns (7 findings) and the protected agent passes all 7 (0 findings).
 
 > Educational and synthetic: risk reduction is measured from deterministic mock traces,
 > **not** a guarantee of real-world protection.
