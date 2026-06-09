@@ -2,8 +2,8 @@
 
 > **Repository:** `agentic-security-harness` · **Product name:** _TBD_
 
-**An open-source harness for reproducing and measuring agentic exploit chains through
-portable traces, attack graphs, and security scorecards.**
+**An open-source defensive harness and learning lab for reproducing and measuring agentic
+AI failure modes through portable traces, attack graphs, scorecards, and data-boundary tests.**
 
 It runs **defensive test patterns** against an LLM agent, an MCP / tool chain, a
 multi-agent workflow, or an AI gateway, records each run as a **portable, machine-readable
@@ -27,15 +27,48 @@ against a defended target and **measure the risk reduction** instead of claiming
 
 ---
 
+## Mission
+
+Make agentic AI failure modes **visible, reproducible, measurable, and teachable** — a
+defensive **education + measurement lab**, not an offensive toolkit. Full mission:
+[docs/mission.md](docs/mission.md).
+
+## Safe research rules
+
+Authorized / mock / demo targets only · synthetic secrets only · no real exfiltration ·
+deterministic tests · honest residual risk. Full rules:
+[docs/research-rules.md](docs/research-rules.md).
+
 ## Status
 
-**Pre-release — building `v0.1`.** `v0.1` is the harness core: an **attack corpus +
-trace schema + a simple runner + a scorecard**, run against a **mock agent**. The
-reference gateway and real target adapters come later. See [docs/roadmap.md](docs/roadmap.md).
+**Pre-release.** The `v0.1` harness core is implemented (see *What exists today* below);
+real target adapters, MCP, multi-agent, multimodal, and the reference gateway come later.
+See [docs/roadmap.md](docs/roadmap.md).
 
 ![status](https://img.shields.io/badge/status-pre--release-orange)
 ![python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![license](https://img.shields.io/badge/license-Apache--2.0-green)
+
+## What exists today (`v0.1` core)
+
+- **Pydantic v2 models** — `DataEnvelope` (a policy label, **not** encryption), `Finding`,
+  `TraceStep`, `TargetDescriptor`, `ExploitTrace`, `DefensivePattern`.
+- **Three sanitized seed patterns** — indirect prompt injection (via tool output),
+  data-boundary recipient confusion, memory poisoning.
+- **Deterministic mock target** — vulnerable-by-design demo target; no LLM, no network.
+- **Runner** — `pattern → mock target → trace`.
+- **Scorecard** — a deterministic aggregate derived from traces.
+- **Unit tests** — covering models, runner, and scorecard.
+
+No gateway, CLI, provider calls, network, or real payloads.
+
+### Verify locally
+
+```bash
+python -m pytest
+python -m ruff check .
+python -m mypy src tests
+```
 
 ## Core capabilities
 
@@ -105,6 +138,8 @@ replay + cross-agent contamination**, not "more attacks." Honest comparison:
 
 - **[Harness](docs/harness.md)** — flagship: trace format, attack graph, test patterns, scorecard, replay.
 - **[Problem–solution catalog](docs/problem-solution-catalog.md)** — problem → detection → mitigation → harness test → reference control → residual risk.
+- **[Mission](docs/mission.md)** · **[Safe research rules](docs/research-rules.md)** — what this is for, and how to research safely.
+- **Learning** — [agentic security basics](docs/learning/01-agentic-security-basics.md) · [data-boundary failures](docs/learning/02-data-boundary-failures.md).
 - [Architecture](docs/architecture.md) — components and data flow.
 - [Roadmap](docs/roadmap.md) — `v0.1` → `v1.0`.
 - [Threat model](docs/threat-model.md) — what we cover, what we don't, OWASP mapping.
@@ -114,9 +149,9 @@ replay + cross-agent contamination**, not "more attacks." Honest comparison:
 
 ## Responsible use
 
-The harness ships offensive **test content** for defensive purposes. Use it only against
-systems you own or are authorized to test. Payloads are sanitized; "sensitive" data in
-tests are synthetic markers. Full policy: [SECURITY.md](SECURITY.md#responsible-use).
+The harness ships **sanitized defensive test content**. Use it only against systems you own
+or are authorized to test. Payloads are sanitized; "sensitive" data in tests are synthetic
+markers. Full policy: [SECURITY.md](SECURITY.md#responsible-use).
 
 ## Naming
 

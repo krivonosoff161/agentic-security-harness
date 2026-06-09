@@ -85,3 +85,18 @@ rest of the pipeline stays provider-agnostic.
   adapters / tests.
 - **Responsible use:** patterns are sanitized and run only against mock / authorized
   targets ([policy](../SECURITY.md#responsible-use)).
+
+## Coding & agent rules (safe research)
+
+These apply to every contribution and to any agent working in this repo (see also the
+[safe research rules](research-rules.md)):
+
+- **Deterministic tests** — same inputs → same trace / scorecard; no flakiness.
+- **No network or LLM calls in unit tests** — providers and targets are mocked.
+- **No real secrets** — synthetic markers only, never real credentials or keys.
+- **No real target adapters** without explicit docs **and** an authorization model — until
+  then, only mock / demo targets.
+- **Keep the trace schema portable and sanitized** — no host-specific data, no real payloads.
+- **Self-review checklist before commit:** no secrets; no overclaiming (unique / first /
+  complete); no unsafe or abuse wording; scope matches the approved roadmap version;
+  `pytest` + `ruff` + `mypy` green; internal files not tracked; `git diff` only the expected files.

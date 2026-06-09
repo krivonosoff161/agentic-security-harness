@@ -80,6 +80,20 @@ arrives later as a replay target.
 
 ---
 
+## Education track (parallel)
+
+Alongside the version milestones, an education + measurement track grows in step — all
+sanitized and mock-only:
+
+- **Mission docs** — [mission](mission.md), [safe research rules](research-rules.md). *(done)*
+- **Learning modules** — [agentic security basics](learning/01-agentic-security-basics.md),
+  [data-boundary failures](learning/02-data-boundary-failures.md); more modules later.
+- **Safe scenario catalog** — sanitized scenarios mapped to harness test patterns, seeded by
+  the [problem–solution catalog](problem-solution-catalog.md).
+- **Demo notebooks / examples** *(later)* — runnable walkthroughs against **mock targets only**.
+
+---
+
 ## A note on self-learning
 
 **The harness does not self-learn.** It never mutates its own patterns, thresholds, or

@@ -11,6 +11,10 @@ All notable changes to this project are documented here. The format follows
   `TraceStep`, `TargetDescriptor`, `ExploitTrace`, `DefensivePattern`), three sanitized seed
   patterns, a deterministic mock target, the runner (`pattern -> trace`), and the scorecard —
   with unit tests. No LLM, network, gateway, or CLI.
+- Education + safe-research docs: `docs/mission.md`, `docs/research-rules.md`, and learning
+  modules (`docs/learning/01-agentic-security-basics.md`,
+  `docs/learning/02-data-boundary-failures.md`); README "Mission", "Safe research rules",
+  and "What exists today" sections.
 - Project blueprint and documentation set: README, harness (flagship), problem–solution
   catalog, architecture, roadmap, threat model, API reference, deployment, development, and
   competitive-landscape docs.
@@ -29,6 +33,9 @@ All notable changes to this project are documented here. The format follows
   envelope) and a sanitized **multimodal / sensor-to-agent (audio → ASR)** class, a new
   **problem–solution catalog**, and a **responsible-use** policy. Renamed the repository to
   `agentic-security-harness`.
+- Softened public positioning to a **defensive education + measurement lab** — the repo
+  description and README lead now read "agentic AI failure modes" rather than "exploit
+  chains" (no functional change).
 
 ### Notes
 - The `v0.1` harness core (code) is implemented — see *Added*. Next milestones (real target
