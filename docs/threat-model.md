@@ -1,8 +1,9 @@
 # Threat model
 
-> **Agentic Security Harness.** This threat model covers both roles: the **harness** that *probes*
-> these risks (recording each as a [trace](harness.md#failure-trace-format)) and the
-> **reference gateway** that *mitigates* them.
+> **Agentic Security Harness.** This threat model covers two roles: the **current harness**
+> that *probes* these risks (recording each as a [trace](harness.md#failure-trace-format))
+> and the **planned reference gateway** that may later *mitigate* them as an optional
+> defense target.
 > The honest framing: **risk reduction, observability, and measurement — not 100%
 > protection.** The harness only tests **mock / demo / authorized** targets (see
 > [Responsible use](../SECURITY.md#responsible-use)).
@@ -35,14 +36,14 @@ malicious LLM provider. These are different trust domains.
 [ untrusted: user input, sensors (audio/image), RAG docs, tool outputs ] ─► boundary 1 ─►
 [ target under test: agent / tool chain / multi-agent workflow ]          ─► boundary 2 ─►
 [ harness control plane: runner + traces + scorecard ]                    ─► boundary 3 ─►
-[ optional defense: reference gateway ]  ─►  [ external: LLM provider ]
+[ future optional defense: reference gateway ]  ─►  [ external: LLM provider ]
 ```
 
 Boundary 1 is the critical one — everything to its left is hostile by default, **including
 sensor inputs**, not just text. The harness drives only **mock / demo / authorized**
-targets (boundary 2). The reference gateway, when present, sits between the target and the
-provider — it is where envelope / redaction enforcement happens and what it minimizes
-crossing to the provider.
+targets (boundary 2). The planned reference gateway, when implemented, would sit between
+the target and the provider — it is the future place for envelope / redaction enforcement
+and for minimizing what crosses to the provider.
 
 ## Attacks we aim to cover (with caveats)
 
@@ -68,10 +69,10 @@ crossing to the provider.
 
 ## Residual risk
 
-The harness **measures** these risks and the reference gateway **reduces** them; neither
-eliminates them. Treat the reference gateway as **one defense-in-depth layer**. Detector
-precision/recall is measured and published per release. Keep application-level authz and
-least-privilege tool design regardless.
+The current harness **measures** these risks. The planned reference gateway is one future
+place to **reduce** them, but neither role eliminates risk. Treat any gateway as one
+defense-in-depth layer. Detector precision/recall is measured and published per release.
+Keep application-level authz and least-privilege tool design regardless.
 
 Two deliberate limitations to call out:
 
@@ -90,9 +91,9 @@ revealing, or contradicting it (this is exactly LLM07 below). Therefore:
 
 - **Never** put secrets, credentials, or access-control logic in the system prompt.
 - The system prompt is **UX / behavior shaping**, not enforcement.
-- Real boundaries are enforced **outside** the model: in the reference gateway's
-  deterministic policy, in the app's authz, in tool permissions. The reference gateway can
-  *detect* system-prompt leakage as a signal, but the correct fix is "don't rely on it being secret."
+- Real boundaries are enforced **outside** the model: in application authz, tool
+  permissions, and future gateway policy. A gateway can *detect* system-prompt leakage as
+  a signal, but the correct fix is "don't rely on it being secret."
 
 ## Mapping to OWASP Top 10 for LLM Applications
 
@@ -100,17 +101,17 @@ revealing, or contradicting it (this is exactly LLM07 below). Therefore:
 > the LLM01–LLM10 codes and titles below match the official 2025 list (last checked 2026-06-08).
 
 Each risk is **probed** by the harness as a reproducible trace and, where applicable,
-**mitigated** by the reference gateway:
+mapped to a planned reference-gateway mitigation:
 
-| OWASP LLM (2025) | Coverage — harness probes / reference gateway mitigates |
+| OWASP LLM (2025) | Coverage — current harness probes / planned gateway mitigates |
 |---|---|
-| **LLM01 Prompt Injection** | Deterministic patterns now; future classifier and quarantine for indirect injection. *(Primary focus.)* |
-| **LLM02 Sensitive Information Disclosure** | PII/secret detection + `REDACT` inbound; leakage detection outbound. |
-| **LLM03 Supply Chain** | Out of scope at runtime; we provide SBOM/dependency scanning for the project itself. |
+| **LLM01 Prompt Injection** | Current: deterministic indirect-injection pattern. Planned: classifier and quarantine for indirect injection. *(Primary focus.)* |
+| **LLM02 Sensitive Information Disclosure** | Current: provider-boundary leakage and data-envelope patterns. Planned: PII/secret detection and `REDACT` controls. |
+| **LLM03 Supply Chain** | Out of scope at runtime; use normal dependency review for this project. |
 | **LLM04 Data & Model Poisoning** | Out of scope (training-time); the project is runtime. |
-| **LLM05 Improper Output Handling** | Response scanner + tool-call gating before side effects. |
-| **LLM06 Excessive Agency** | Tool-call inspection + policy gate on dangerous arguments. *(Core feature.)* |
-| **LLM07 System Prompt Leakage** | Detect leakage as a signal — **and** the design stance above (don't treat it as a boundary). |
-| **LLM08 Vector & Embedding Weaknesses** | Partial — flag untrusted RAG content; not a vector-store fix. |
+| **LLM05 Improper Output Handling** | Current: tool-permission abuse pattern. Planned: response scanner and tool-call gating before side effects. |
+| **LLM06 Excessive Agency** | Current: tool-permission pattern and protected local control. Planned: broader policy gate on dangerous arguments. |
+| **LLM07 System Prompt Leakage** | Current: design stance above (do not treat it as a boundary). Planned: leakage detection as a signal. |
+| **LLM08 Vector & Embedding Weaknesses** | Partial future track: untrusted RAG content patterns; not a vector-store fix. |
 | **LLM09 Misinformation** | Out of scope (no factuality verification); the audit trail aids review. |
-| **LLM10 Unbounded Consumption** | Token/cost budgets + rate limiting. *(Core feature.)* |
+| **LLM10 Unbounded Consumption** | Planned: token/cost budgets and rate limiting; not implemented in the current benchmark release. |

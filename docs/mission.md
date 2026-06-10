@@ -28,8 +28,8 @@ agentic systems **they own or are authorized to test**.
 ## Scope
 
 Defensive testing and education only, against **mock / demo / authorized** systems, with
-**synthetic** data and **sanitized** fixtures. The reference gateway is an optional defense
-to measure against — not the product.
+**synthetic** data and **sanitized** fixtures. The planned reference gateway is a future
+optional defense to measure against — not the product and not current shipped code.
 
 ## Non-goals
 

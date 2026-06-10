@@ -43,6 +43,14 @@ Authorized / mock / demo targets only · synthetic secrets only · no real exfil
 deterministic tests · honest residual risk. Full rules:
 [docs/research-rules.md](docs/research-rules.md).
 
+## How to read this repository
+
+- New to the project? Start with the [project map](docs/project-map.md).
+- Evaluating it for an AI/security team? Read [use cases](docs/use-cases.md) and the
+  [comparison example](examples/comparison-report/README.md).
+- Adding a new idea? Convert it into the safe structure in
+  [project map](docs/project-map.md#how-to-add-a-new-research-idea-safely) before coding.
+
 ## Status
 
 **Pre-release, working.** The harness runs a **7-pattern data-boundary corpus** against
@@ -183,7 +191,9 @@ no real targets — but closer to real agent behavior than `mock`.
 
 Committed example outputs (no install needed to view):
 [`examples/demo-report/`](examples/demo-report/) (mock) and
-[`examples/demo-agent-report/`](examples/demo-agent-report/) (demo-agent).
+[`examples/demo-agent-report/`](examples/demo-agent-report/) (demo-agent). The main
+before/after example is explained in
+[`examples/comparison-report/README.md`](examples/comparison-report/README.md).
 
 > Local / synthetic, deterministic, no network or LLM calls.
 
@@ -225,6 +235,8 @@ traces and deterministic baseline-vs-protected replay. Honest comparison:
 ## Documentation
 
 - **[Harness](docs/harness.md)** — flagship: trace format, attack graph, test patterns, scorecard, replay.
+- **[Project map](docs/project-map.md)** — plain-language guide for reviewers and maintainers.
+- **[Use cases](docs/use-cases.md)** — how AI/security teams can evaluate and apply the benchmark.
 - **[Problem–solution catalog](docs/problem-solution-catalog.md)** — problem → detection → mitigation → harness test → reference control → residual risk.
 - **[Corpus coverage matrix](docs/corpus.md)** — the 7 implemented seed patterns, baseline vs protected, and what each touches.
 - **[Mission](docs/mission.md)** · **[Safe research rules](docs/research-rules.md)** — what this is for, and how to research safely.

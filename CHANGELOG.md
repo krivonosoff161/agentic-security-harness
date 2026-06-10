@@ -7,6 +7,8 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Plain-language project map, company-facing use cases, and a comparison-report README to
+  make the benchmark easier to review without reading the source code first.
 - GitHub Actions CI for `pytest`, `ruff`, `mypy`, and `ash validate examples/` on Python
   3.11 and 3.12.
 - **Validation layer + `ash validate`** (v0.5): `src/agentic_security_harness/validation.py`
