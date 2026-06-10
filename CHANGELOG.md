@@ -7,6 +7,8 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- GitHub Actions CI for `pytest`, `ruff`, `mypy`, and `ash validate examples/` on Python
+  3.11 and 3.12.
 - **Validation layer + `ash validate`** (v0.5): `src/agentic_security_harness/validation.py`
   validates report dirs (traces / scorecard / summary), comparison dirs (baseline / protected
   + comparison.md), and corpus consistency against the manifest, with a conservative
@@ -70,6 +72,9 @@ All notable changes to this project are documented here. The format follows
   chains" (no functional change).
 
 ### Docs
+- Clarified current-vs-planned boundaries in README and gateway-related docs: the current
+  release is CLI-only with local synthetic targets; the reference gateway/API remain
+  planned design, not shipped runtime.
 - Realigned the documentation set with the v0.5 benchmark roadmap and current project
   structure (roadmap, development, architecture, harness, deployment, threat-model,
   api-reference, CONTRIBUTING). Removed stale gateway-era references (`tests/attacks`,

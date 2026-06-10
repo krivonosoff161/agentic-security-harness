@@ -13,7 +13,7 @@
 Each entry follows the same shape:
 
 - **What goes wrong** · **Defensive scenario** · **Detection signals** ·
-  **Mitigation controls** · **Harness test pattern** · **Reference implementation idea** ·
+  **Mitigation controls** · **Harness test pattern** · **Planned reference-control idea** ·
   **Human / process controls** · **Residual risk**
 
 Several entries use the **data envelope**
@@ -39,7 +39,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Detection signals:** a sensitive `data_class` appearing for a recipient not in `allowed_recipients`; `can_store=false` data persisted.
 - **Mitigation controls:** data envelope, egress redaction, no-store enforcement, per-recipient scoping.
 - **Harness test pattern:** `data_boundary.recipient_scope`.
-- **Reference implementation idea:** gateway `REDACT` / `BLOCK` on egress to non-allowed recipients.
+- **Planned reference-control idea:** gateway `REDACT` / `BLOCK` on egress to non-allowed recipients.
 - **Human / process controls:** data-handling policy, training, channel segregation.
 - **Residual risk:** labels can be missing/wrong; users can exfiltrate manually; detection has false negatives.
 
@@ -50,7 +50,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Detection signals:** instruction-like content surfacing from stored/retrieved data; behavior change correlated with a prior write.
 - **Mitigation controls:** provenance tracking, treat stored/retrieved content as untrusted, `ttl`, re-scan at read time.
 - **Harness test pattern:** `sleeping_prompt.delayed_activation`.
-- **Reference implementation idea:** gateway re-scans retrieved/memory content at read time; quarantine instruction-like retrieved content.
+- **Planned reference-control idea:** gateway re-scans retrieved/memory content at read time; quarantine instruction-like retrieved content.
 - **Human / process controls:** review of long-lived memory; periodic memory hygiene.
 - **Residual risk:** novel encodings evade scanning; benign vs malicious instructions hard to separate.
 
@@ -61,7 +61,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Detection signals:** classification changing from a non-trusted `classification_source`; downgrade events.
 - **Mitigation controls:** trusted `classification_source` only; `classification_mutable=false`; relabel requires authority; log all changes.
 - **Harness test pattern:** `data_boundary.classification_mutation`.
-- **Reference implementation idea:** gateway rejects relabels from untrusted sources; envelope immutability.
+- **Planned reference-control idea:** gateway rejects relabels from untrusted sources; envelope immutability.
 - **Human / process controls:** classification governance; dual-control for downgrades.
 - **Residual risk:** wrong initial label; compromise of a trusted source.
 
@@ -72,7 +72,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Detection signals:** send/forward to a recipient not in `allowed_recipients`; `can_forward=false` forwarded.
 - **Mitigation controls:** recipient allow-list, forward gate, `requires_confirmation` for external sends.
 - **Harness test pattern:** `data_boundary.recipient_confusion`.
-- **Reference implementation idea:** gateway `BLOCK` / `QUARANTINE` on out-of-envelope recipient.
+- **Planned reference-control idea:** gateway `BLOCK` / `QUARANTINE` on out-of-envelope recipient.
 - **Human / process controls:** confirmation step for external sends.
 - **Residual risk:** recipient identity can be spoofed; label gaps.
 
@@ -83,7 +83,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Detection signals:** decisions diverging after an untrusted memory write; `can_store` violations.
 - **Mitigation controls:** untrusted-by-default memory, provenance, `ttl`, no-store for untrusted, read-time scan.
 - **Harness test pattern:** `memory_poisoning.persistent_state`.
-- **Reference implementation idea:** gateway tags memory provenance; quarantine instruction-like writes.
+- **Planned reference-control idea:** gateway tags memory provenance; quarantine instruction-like writes.
 - **Human / process controls:** memory review / expiry.
 - **Residual risk:** subtle semantic poisoning; detection gaps.
 
@@ -94,7 +94,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Detection signals:** tool call outside `allowed_purpose`; dangerous arguments; permission > need.
 - **Mitigation controls:** least-privilege tools, argument inspection, `requires_confirmation`, purpose binding.
 - **Harness test pattern:** `tool_permission.abuse`.
-- **Reference implementation idea:** gateway tool-call gate + MCP / tool-permission scanner.
+- **Planned reference-control idea:** gateway tool-call gate + MCP / tool-permission scanner.
 - **Human / process controls:** tool-permission review; confirmations.
 - **Residual risk:** legitimate-but-misused tools; over-permissioned by design.
 
@@ -105,7 +105,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Detection signals:** envelope fields dropped at handoff; B treating A's untrusted content as trusted.
 - **Mitigation controls:** envelope propagation across handoffs, provenance, per-agent trust.
 - **Harness test pattern:** `cross_agent.contamination` / `data_boundary.handoff_label_stripping`.
-- **Reference implementation idea:** a broker/gateway enforces the envelope on inter-agent messages.
+- **Planned reference-control idea:** a broker/gateway enforces the envelope on inter-agent messages.
 - **Human / process controls:** workflow review.
 - **Residual risk:** trusted-agent compromise; emergent multi-agent behavior.
 
@@ -116,7 +116,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Detection signals:** ASR/OCR transcript with instruction-like content; low `human_perceptibility`; anomaly/spectral flag; tool exec without confirmation.
 - **Mitigation controls:** treat sensor transcripts as untrusted; confirmation for sensor-triggered actions; anomaly flags.
 - **Harness test pattern:** `multimodal.sensor_to_agent` (audio → ASR).
-- **Reference implementation idea:** gateway scans ASR/OCR output as untrusted input; require confirmation.
+- **Planned reference-control idea:** gateway scans ASR/OCR output as untrusted input; require confirmation.
 - **Human / process controls:** confirm voice-triggered actions.
 - **Residual risk:** novel signal attacks; ASR ambiguity. *(No ultrasonic / adversarial-audio generation guidance is provided.)*
 
@@ -127,7 +127,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Detection signals:** agent generating persuasion toward privileged actions; approval requests lacking justification.
 - **Mitigation controls:** out-of-band confirmation; human-in-the-loop with full context; rate limits on approval asks.
 - **Harness test pattern:** `social_engineering.approval_pressure`.
-- **Reference implementation idea:** gateway flags/holds privileged-action prompts for review.
+- **Planned reference-control idea:** gateway flags/holds privileged-action prompts for review.
 - **Human / process controls:** approval policy; skepticism training; dual-control.
 - **Residual risk:** humans remain fallible; persuasion is hard to detect.
 
@@ -138,7 +138,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Detection signals:** step/token count beyond budget; repeated identical calls.
 - **Mitigation controls:** per-run budgets, loop/step caps, rate limits.
 - **Harness test pattern:** `budget.loop_abuse`.
-- **Reference implementation idea:** gateway token/cost budgets + rate limiting.
+- **Planned reference-control idea:** gateway token/cost budgets + rate limiting.
 - **Human / process controls:** cost alerts; kill-switch.
 - **Residual risk:** legitimate expensive tasks; budget tuning.
 
@@ -149,7 +149,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Detection signals:** label downgrades on audited events; events missing from the trail; label from an untrusted source.
 - **Mitigation controls:** non-bypassable audit; labels never suppress logging; trusted `classification_source`; append-only.
 - **Harness test pattern:** `audit.spam_label_abuse`.
-- **Reference implementation idea:** gateway logs all decisions regardless of label; tamper-evident audit (v1.0).
+- **Planned reference-control idea:** gateway logs all decisions regardless of label; tamper-evident audit.
 - **Human / process controls:** audit review; anomaly alerts.
 - **Residual risk:** operator with DB access; no tamper-evidence before v1.0.
 
@@ -160,7 +160,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Detection signals:** `can_forward=false` data crossing to a provider; sensitive `data_class` in the upstream payload.
 - **Mitigation controls:** egress envelope check, redaction before the provider, local-model routing for restricted classes.
 - **Harness test pattern:** `data_boundary.provider_leakage`.
-- **Reference implementation idea:** gateway `REDACT` / `BLOCK` on egress to a provider; route restricted classes to a local model.
+- **Planned reference-control idea:** gateway `REDACT` / `BLOCK` on egress to a provider; route restricted classes to a local model.
 - **Human / process controls:** data-residency policy; provider DPA review.
 - **Residual risk:** provider trust; redaction misses; metadata leakage.
 

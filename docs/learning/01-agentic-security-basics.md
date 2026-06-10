@@ -46,5 +46,6 @@ attack chain -> observed behavior -> finding -> mitigation`. Each trace is a pat
 A deterministic summary derived from a set of traces — what failed, at what severity, and where.
 
 ## Reference defense
-An optional defense (here, an OpenAI-compatible gateway) you can place in front of a target
-and re-run the harness against, to **measure** risk reduction. Not the main product.
+An optional defense you can place in front of a target and re-run the harness against, to
+**measure** risk reduction. In this project, the OpenAI-compatible gateway is a planned
+reference-defense design, not current shipped code and not the main product.

@@ -10,6 +10,9 @@
 > [traces](harness.md#failure-trace-format). Endpoints are annotated as planned for the
 > future reference gateway; treat them as design intent only.
 
+Current repository status: there is no gateway server package, Dockerfile, database,
+provider adapter, or HTTP runtime in this release.
+
 The reference gateway exposes two surfaces: the **proxy API** (OpenAI-compatible, for apps
 and as a replay defense target) and the **admin API** (for operators).
 

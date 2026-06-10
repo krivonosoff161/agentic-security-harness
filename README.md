@@ -15,7 +15,7 @@ trace**, and **measures risk reduction** by replaying a baseline target against 
 No network, no LLM / provider calls, no real targets — synthetic, sanitized, reproducible.
 
 > The **gateway** is an optional **reference defense** component used as a replay target —
-> not the main product.
+> not the main product, and not implemented in the current release.
 
 ---
 
@@ -51,6 +51,7 @@ Real target adapters, MCP, multi-agent, multimodal, and the reference gateway co
 See [docs/roadmap.md](docs/roadmap.md).
 
 ![status](https://img.shields.io/badge/status-pre--release-orange)
+![ci](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/ci.yml/badge.svg)
 ![python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![license](https://img.shields.io/badge/license-Apache--2.0-green)
 
@@ -79,9 +80,20 @@ See [docs/roadmap.md](docs/roadmap.md).
 
 No gateway, provider calls, network, or real payloads.
 
+## Current vs planned
+
+| Area | Current release | Planned / future track |
+|---|---|---|
+| Benchmark | 7-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus, mappings, report quality. |
+| Targets | `mock`, `demo-agent`, `protected-demo-agent` only. | Local toy adapters first, then explicitly authorized real adapters. |
+| Runtime | CLI-only (`ash run`, `ash compare`, `ash validate`). | Optional HTTP reference gateway after the benchmark stabilizes. |
+| Network / providers | None. | Future adapters only with explicit authorization and docs. |
+| Storage | Local report files and committed examples. | Optional persistent trace store after v1.0. |
+
 ### Verify locally
 
 ```bash
+pip install -e ".[dev]"
 python -m pytest
 python -m ruff check .
 python -m mypy src tests
@@ -104,7 +116,7 @@ ash validate examples/        # validate committed benchmark artifacts
 - **Full signal path** (planned) - tests the pre-LLM sensor / input channel (e.g. audio ->
   ASR -> agent action) that text-only gateways typically do not see.
 - **Scorecard from traces** — a derived, deterministic aggregate.
-- **Reference gateway** — an **optional defense target** you can replay traces against.
+- **Reference gateway** (planned) — an optional defense target design for future replay.
 
 Full design: **[docs/harness.md](docs/harness.md)** (flagship document).
 
@@ -120,11 +132,12 @@ data-boundary / recipient-control.
 Seven of these are implemented today (the data-boundary / recipient-control corpus);
 the rest are on the [roadmap](docs/roadmap.md).
 
-## Reference defense (optional)
+## Reference defense (planned optional component)
 
 The repository's original component is an OpenAI-compatible **gateway** — now positioned
-as a **reference defense implementation** and a **defense target** for replay. When in the
-request path it produces one of five decisions:
+as a planned **reference defense implementation** and a future **defense target** for
+replay. It is not shipped in the current release; the current release is CLI-only. When
+implemented in the request path, it is expected to produce one of five decisions:
 
 | Status | Meaning |
 |---|---|
@@ -134,7 +147,8 @@ request path it produces one of five decisions:
 | `QUARANTINE` | Hold; return a `quarantine_id`; await approve/reject (async). |
 | `BLOCK` | Reject; return a provider-shaped error. |
 
-See [docs/architecture.md](docs/architecture.md) and [docs/api-reference.md](docs/api-reference.md).
+See [docs/architecture.md](docs/architecture.md) and the planned
+[reference-gateway API design](docs/api-reference.md).
 
 ## Quickstart — one-command demo
 
@@ -219,7 +233,7 @@ traces and deterministic baseline-vs-protected replay. Honest comparison:
 - [Roadmap](docs/roadmap.md) — the current benchmark roadmap, `v0.1` -> `v1.0`.
 - [Threat model](docs/threat-model.md) — what we cover, what we don't, OWASP mapping.
 - [Competitors](docs/competitors.md) — landscape (verified, with sources).
-- [API reference](docs/api-reference.md) — reference-gateway API.
+- [API reference](docs/api-reference.md) — planned reference-gateway API design.
 - [Deployment](docs/deployment.md) · [Development](docs/development.md).
 
 ## Responsible use

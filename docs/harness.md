@@ -252,7 +252,8 @@ the committed traces and scorecards stay consistent with the declared pattern se
 ## Reference-defense replay
 
 The reference gateway (this repo's original component, now **optional**) is one **defense
-target**. The replay loop is where traces pay off:
+target design** for a later release; it is not implemented in the current benchmark
+release. The replay loop is where traces pay off:
 
 1. Run a trace set against a **baseline** target → record findings.
 2. Put the target **behind a defense** (the reference gateway, or any other gateway you
