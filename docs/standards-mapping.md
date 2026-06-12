@@ -2,7 +2,7 @@
 
 > Last reviewed: 2026-06-12.
 >
-> Scope: implemented local corpus only. This page maps the seven deterministic seed
+> Scope: implemented local corpus only. This page maps the ten deterministic seed
 > patterns to external security frameworks at a coarse defensive level. The mapping helps
 > reviewers understand what each pattern exercises; it does **not** imply certification,
 > complete coverage, or real-world protection.
@@ -30,6 +30,9 @@
 | `data_boundary_handoff_label_stripping` | ASI03, ASI07 | Data labels are lost during an agent handoff. |
 | `tool_permission_abuse_sanitized` | ASI02, ASI03 | The agent calls a tool outside the data envelope's allowed purpose. |
 | `provider_boundary_leakage_sanitized` | ASI03, ASI04 | Restricted data crosses a provider or supply-chain boundary despite `can_forward=false`. |
+| `sleeping_prompt.delayed_activation` | ASI01, ASI06 | A stored dormant instruction redirects the agent on a later turn after provenance is lost. |
+| `audit.spam_label_abuse` | ASI03 | An untrusted label tries to bypass an oversight control on labeled data. |
+| `budget.loop_abuse` | ASI02 | Repeated tool/action steps run without budget or loop-guard enforcement. |
 
 ## Why the project focuses on label propagation
 

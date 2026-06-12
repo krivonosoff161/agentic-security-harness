@@ -4,9 +4,19 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project aims to follow
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.6.0] - 2026-06-12
 
 ### Added
+- **Corpus expansion to 10 deterministic seed patterns (v0.6):** added
+  `sleeping_prompt.delayed_activation` (a sanitized dormant-instruction placeholder must
+  not be trusted on a later turn; provenance/TTL enforced at read time),
+  `audit.spam_label_abuse` (an untrusted spam/ignore label must never suppress an audit
+  entry), and `budget.loop_abuse` (a synthetic loop marker against a deterministic step
+  counter; a loop guard must stop at the step budget). Baseline `demo-agent`/`mock` fail
+  all 10 (high: 8, medium: 2); `protected-demo-agent` passes all 10; `ash compare` shows
+  findings reduced 10 -> 0. Committed examples regenerated and validated. All scenarios
+  remain synthetic, sanitized, local-only - no network, no real payloads, no real
+  resource consumption.
 - Standards mapping page for the implemented local corpus, with coarse OWASP Agentic
   Security Initiative mappings and explicit verification gates for OWASP LLM / MITRE ATLAS.
 - Release packaging checks in CI: build sdist/wheel, run `twine check`, smoke the installed

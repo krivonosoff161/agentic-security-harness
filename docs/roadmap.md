@@ -15,13 +15,15 @@ provider calls, no real targets, no real secrets.
   (`corpus.py`), coverage matrix ([docs/corpus.md](corpus.md)).
 - **v0.5 - validation layer:** `ash validate`, benchmark-artifact validation, corpus
   consistency checks.
+- **v0.6 - corpus expansion (first slice):** sleeping-prompt delayed activation,
+  audit / spam-label abuse, budget / loop abuse - 10 deterministic patterns total.
 
 ---
 
 ## Next
 
-- **v0.6 - corpus expansion:** cross-agent contamination, MCP / tool-schema deception,
-  budget / loop abuse, approval pressure, audit / spam-label abuse.
+- **v0.6.x - corpus expansion (continued):** cross-agent contamination, MCP / tool-schema
+  deception, approval pressure.
 - **v0.7 - local adapter examples:** toy RAG app, toy MCP server, toy multi-agent handoff.
   Still local / synthetic only.
 - **v0.8 - report quality:** better Markdown / HTML audit report, executive summary,

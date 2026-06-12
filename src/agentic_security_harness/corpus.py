@@ -1,6 +1,6 @@
 """Machine-readable manifest for the implemented local defensive corpus.
 
-Curated metadata for the 7 deterministic seed patterns (see ``patterns.py``). Simple Python
+Curated metadata for the 10 deterministic seed patterns (see ``patterns.py``). Simple Python
 data structures only - no database, no YAML. Tests keep it in sync with the actual patterns
 and scorecards. OWASP Agentic mapping is intentionally coarse and defensive; OWASP LLM and
 MITRE ATLAS mappings remain empty until each ID is verified against primary sources.
@@ -110,9 +110,48 @@ _CORPUS: list[CorpusEntry] = [
         mitigation="enforce can_forward before provider routing; redact restricted data",
         owasp_agentic=["ASI03", "ASI04"],
     ),
+    CorpusEntry(
+        pattern_id="sleeping_prompt.delayed_activation",
+        name="Sleeping prompt delayed activation (sanitized)",
+        category="sleeping_prompt",
+        severity="high",
+        broke_at="provenance_check",
+        data_boundary_fields_used=["can_store", "ttl_seconds", "classification_source"],
+        mitigation=(
+            "preserve provenance and TTL on stored content; treat retrieved memory "
+            "as untrusted; re-check at read time"
+        ),
+        owasp_agentic=["ASI01", "ASI06"],
+    ),
+    CorpusEntry(
+        pattern_id="audit.spam_label_abuse",
+        name="Audit bypass via spam-label abuse (sanitized)",
+        category="audit_bypass",
+        severity="high",
+        broke_at="audit_check",
+        data_boundary_fields_used=["data_class", "classification_source"],
+        mitigation=(
+            "labels never suppress audit; log every sensitive event regardless of "
+            "label or label source"
+        ),
+        owasp_agentic=["ASI03"],
+    ),
+    CorpusEntry(
+        pattern_id="budget.loop_abuse",
+        name="Budget exhaustion via loop abuse (sanitized)",
+        category="budget_exhaustion",
+        severity="medium",
+        broke_at="budget_check",
+        data_boundary_fields_used=[],
+        mitigation=(
+            "enforce per-run step budgets and loop guards; stop at the cap and "
+            "surface the overrun"
+        ),
+        owasp_agentic=["ASI02"],
+    ),
 ]
 
 
 def corpus_manifest() -> list[CorpusEntry]:
-    """Return the curated corpus manifest (7 implemented patterns, stable order)."""
+    """Return the curated corpus manifest (10 implemented patterns, stable order)."""
     return list(_CORPUS)

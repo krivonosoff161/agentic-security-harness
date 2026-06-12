@@ -40,6 +40,7 @@ class DemoAgent:
         self.memory: dict[str, MemoryRecord] = {}
         self.tool_calls: list[tuple[str, str]] = []
         self.events: list[AgentEvent] = []
+        self.audit_log: list[str] = []
 
     def log(self, node: str, actor: str, detail: str) -> None:
         self.events.append(AgentEvent(node=node, actor=actor, detail=detail))
@@ -129,3 +130,62 @@ class DemoAgent:
         self.log("provider_routing", "agent", "routing the item to a mock external provider")
         self.log("forward_check", "agent", "can_forward not enforced; item forwarded")
         return not envelope.can_forward
+
+    def store_retrieved_content(self, key: str, value: str, envelope: DataEnvelope) -> None:
+        """Store retrieved content for later turns."""
+        # Vulnerable: provenance and TTL are dropped at write time.
+        self.memory[key] = MemoryRecord(value=value, envelope=None)
+        self.log("memory_write", "agent", "stored retrieved content; provenance and TTL dropped")
+
+    def activate_dormant_content(self, key: str) -> bool:
+        """Later turn: read stored content. Returns True if it was treated as trusted."""
+        record = self.memory.get(key)
+        self.log("later_turn", "agent", "later turn: stored content retrieved into context")
+        if record is None:
+            self.log("provenance_check", "agent", "nothing stored; no activation")
+            return False
+        # Vulnerable: provenance was lost at write time, so the dormant placeholder
+        # is treated as a trusted instruction.
+        self.log(
+            "provenance_check",
+            "agent",
+            "provenance forgotten; dormant placeholder treated as a trusted instruction",
+        )
+        return record.envelope is None
+
+    def record_audit_event(
+        self, event: str, label: str, label_source: str, envelope: DataEnvelope
+    ) -> bool:
+        """Record a sensitive event in the audit log. Returns True if it was suppressed."""
+        untrusted = label_source != envelope.classification_source
+        if untrusted:
+            # Vulnerable: a low-priority label from an untrusted source suppresses the entry.
+            self.log(
+                "audit_check",
+                "agent",
+                f"untrusted label '{label}' honored; sensitive event suppressed from audit",
+            )
+            return True
+        self.audit_log.append(event)
+        self.log("audit_check", "agent", "event recorded in the audit log")
+        return False
+
+    def run_loop(self, iterations: int, max_steps: int) -> bool:
+        """Repeat a synthetic loop marker. Returns True if the step budget was exceeded."""
+        # Vulnerable: no loop guard - executes every requested iteration.
+        executed = 0
+        for _ in range(iterations):
+            executed += 1
+        self.log(
+            "loop_iteration",
+            "agent",
+            f"executed {executed} synthetic loop iterations (budget {max_steps})",
+        )
+        exceeded = executed > max_steps
+        detail = (
+            "no budget enforcement; step count exceeded the budget"
+            if exceeded
+            else "step count stayed within the budget"
+        )
+        self.log("budget_check", "agent", detail)
+        return exceeded

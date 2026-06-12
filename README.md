@@ -7,8 +7,9 @@ agents, tool chains, and data boundaries fail, captures each run as a **portable
 trace**, and **measures risk reduction** by replaying a baseline target against a protected one.
 
 - **Trace-first** — every run is a portable, machine-readable failure trace, not just pass/fail.
-- **Data-boundary / recipient-control corpus** — 7 deterministic seed patterns for how
-  sensitivity labels, recipients, storage, and forwarding rules break in agentic systems.
+- **Data-boundary / recipient-control corpus** — 10 deterministic seed patterns for how
+  sensitivity labels, recipients, storage, forwarding, audit, and budget rules break in
+  agentic systems.
 - **Baseline vs protected replay** — a vulnerable demo agent vs a controlled one, on
   deterministic **local** targets, with a measured before/after scorecard.
 - **Standards-aware corpus** - implemented patterns include coarse OWASP Agentic Security
@@ -57,7 +58,7 @@ deterministic tests · honest residual risk. Full rules:
 
 ## Status
 
-**Pre-release, working.** The harness runs a **7-pattern local corpus centered on
+**Pre-release, working.** The harness runs a **10-pattern local corpus centered on
 data-boundary / recipient-control behavior** against deterministic local targets, with
 baseline-vs-protected replay (see *What exists today*).
 Real target adapters, MCP, multi-agent, multimodal, and the reference gateway come later.
@@ -72,15 +73,16 @@ See [docs/roadmap.md](docs/roadmap.md).
 
 - **Pydantic v2 models** — `DataEnvelope` (a policy label, **not** encryption), `Finding`,
   `TraceStep`, `TargetDescriptor`, `ExploitTrace`, `DefensivePattern`.
-- **Seven sanitized seed patterns** — indirect prompt injection, data-boundary recipient
+- **Ten sanitized seed patterns** — indirect prompt injection, data-boundary recipient
   confusion, memory poisoning, classification mutation, handoff label stripping,
-  tool-permission abuse, and provider-boundary leakage.
+  tool-permission abuse, provider-boundary leakage, sleeping-prompt delayed activation,
+  audit spam-label abuse, and budget loop abuse.
 - **Deterministic mock target** — vulnerable-by-design demo target; no LLM, no network.
 - **Local demo agent (`demo-agent`)** — a deterministic, synthetic agent (in-memory memory,
   mock tool calls, data-envelope propagation, recipient-control checks); intentionally
   vulnerable for the seed patterns. No network, no LLM.
 - **Protected demo agent (`protected-demo-agent`)** — the same agent with simple deterministic
-  controls; passes all seven seed patterns. `ash compare` measures the reduction in findings.
+  controls; passes all ten seed patterns. `ash compare` measures the reduction in findings.
 - **Runner** — `pattern → target → trace` (mock or demo-agent).
 - **Scorecard** — a deterministic aggregate derived from traces.
 - **Demo CLI (`ash`)** — `ash run --target {mock,demo-agent,protected-demo-agent}`,
@@ -97,7 +99,7 @@ No gateway, provider calls, network, or real payloads.
 
 | Area | Current release | Planned / future track |
 |---|---|---|
-| Benchmark | 7-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus, mappings, report quality. |
+| Benchmark | 10-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus, mappings, report quality. |
 | Targets | `mock`, `demo-agent`, `protected-demo-agent` only. | Local toy adapters first, then explicitly authorized real adapters. |
 | Runtime | CLI-only (`ash run`, `ash compare`, `ash validate`). | Optional HTTP reference gateway after the benchmark stabilizes. |
 | Network / providers | None. | Future adapters only with explicit authorization and docs. |
@@ -144,9 +146,10 @@ deception · simulated data-exfiltration · budget exhaustion / loop abuse · mu
 policy bypass · multimodal / sensor-to-agent (audio → ASR) injection · agentic
 data-boundary / recipient-control.
 
-Seven local seed patterns are implemented today: six data-boundary / recipient-control
-patterns plus one indirect tool-output injection seed. The rest are on the
-[roadmap](docs/roadmap.md).
+Ten local seed patterns are implemented today: six data-boundary / recipient-control
+patterns, one indirect tool-output injection seed, and three v0.6 additions
+(sleeping-prompt delayed activation, audit spam-label abuse, budget loop abuse). The
+rest are on the [roadmap](docs/roadmap.md).
 
 ## Reference defense (planned optional component)
 
@@ -225,7 +228,7 @@ reports/comparison/
 
 In the committed example
 ([`examples/comparison-report/comparison.md`](examples/comparison-report/comparison.md)) the
-baseline fails all 7 patterns (7 findings) and the protected agent passes all 7 (0 findings).
+baseline fails all 10 patterns (10 findings) and the protected agent passes all 10 (0 findings).
 
 > Educational and synthetic: risk reduction is measured from deterministic mock traces,
 > **not** a guarantee of real-world protection.
@@ -246,7 +249,7 @@ traces and deterministic baseline-vs-protected replay. Honest comparison:
 - **[Project map](docs/project-map.md)** — plain-language guide for reviewers and maintainers.
 - **[Use cases](docs/use-cases.md)** — how AI/security teams can evaluate and apply the benchmark.
 - **[Problem–solution catalog](docs/problem-solution-catalog.md)** — problem → detection → mitigation → harness test → reference control → residual risk.
-- **[Corpus coverage matrix](docs/corpus.md)** — the 7 implemented seed patterns, baseline vs protected, and what each touches.
+- **[Corpus coverage matrix](docs/corpus.md)** — the 10 implemented seed patterns, baseline vs protected, and what each touches.
 - **[Mission](docs/mission.md)** · **[Safe research rules](docs/research-rules.md)** — what this is for, and how to research safely.
 - **Learning** — [agentic security basics](docs/learning/01-agentic-security-basics.md) · [data-boundary failures](docs/learning/02-data-boundary-failures.md).
 - [Architecture](docs/architecture.md) — components and data flow.

@@ -81,6 +81,51 @@ class ProtectedDemoAgent(DemoAgent):
         self.log("forward_check", "agent", "can_forward=true; item forwarded")
         return False
 
+    def store_retrieved_content(self, key: str, value: str, envelope: DataEnvelope) -> None:
+        # Control: keep the envelope (provenance + TTL) attached to the stored record.
+        self.memory[key] = MemoryRecord(value=value, envelope=envelope)
+        self.log(
+            "memory_write", "agent", "stored retrieved content with provenance and TTL preserved"
+        )
+
+    def activate_dormant_content(self, key: str) -> bool:
+        # Control: retrieved memory stays untrusted; a dormant instruction never activates.
+        self.log("later_turn", "agent", "later turn: stored content retrieved into context")
+        self.log(
+            "provenance_check",
+            "agent",
+            "control: provenance preserved; retrieved content treated as untrusted; "
+            "activation blocked",
+        )
+        return False
+
+    def record_audit_event(
+        self, event: str, label: str, label_source: str, envelope: DataEnvelope
+    ) -> bool:
+        # Control: labels never suppress audit; the event is logged regardless of source.
+        self.audit_log.append(event)
+        self.log(
+            "audit_check",
+            "agent",
+            f"control: label '{label}' ignored for audit; event logged regardless of source",
+        )
+        return False
+
+    def run_loop(self, iterations: int, max_steps: int) -> bool:
+        # Control: a loop guard stops the run at the step budget.
+        executed = 0
+        for _ in range(iterations):
+            if executed >= max_steps:
+                break
+            executed += 1
+        self.log(
+            "loop_iteration",
+            "agent",
+            f"executed {executed} synthetic loop iterations (budget {max_steps})",
+        )
+        self.log("budget_check", "agent", "control: loop guard stopped the run at the budget")
+        return False
+
 
 class ProtectedDemoAgentTarget:
     """Target adapter that runs defensive patterns against the ProtectedDemoAgent."""

@@ -25,11 +25,12 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 
 ---
 
-> **Implemented local demo corpus:** seven of these failure modes are implemented as
+> **Implemented local demo corpus:** ten of these failure modes are implemented as
 > deterministic, sanitized seed patterns in the harness — recipient confusion, memory
 > poisoning, data reclassification (classification mutation), handoff label stripping,
-> tool-permission abuse, provider-boundary leakage, plus indirect prompt injection via tool
-> output. Run them with `ash run --target demo-agent` and `ash compare`; full matrix in the
+> tool-permission abuse, provider-boundary leakage, indirect prompt injection via tool
+> output, sleeping-prompt delayed activation, audit spam-label abuse, and budget loop
+> abuse. Run them with `ash run --target demo-agent` and `ash compare`; full matrix in the
 > [corpus coverage matrix](corpus.md).
 
 ## 1. Sensitive data in shared AI chats
@@ -50,8 +51,8 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Defensive scenario:** store a benign doc containing a **sanitized dormant-instruction placeholder**; run later turns; observe activation.
 - **Detection signals:** instruction-like content surfacing from stored/retrieved data; behavior change correlated with a prior write.
 - **Mitigation controls:** provenance tracking, treat stored/retrieved content as untrusted, `ttl`, re-scan at read time.
-- **Status:** planned. Related current coverage: `memory_poisoning_sanitized`.
-- **Harness test pattern:** planned ID `sleeping_prompt.delayed_activation`.
+- **Status:** current (sanitized dormant-instruction placeholder; provenance/TTL enforced at read time). Related coverage: `memory_poisoning_sanitized`.
+- **Harness test pattern:** `sleeping_prompt.delayed_activation`.
 - **Planned reference-control idea:** gateway re-scans retrieved/memory content at read time; quarantine instruction-like retrieved content.
 - **Human / process controls:** review of long-lived memory; periodic memory hygiene.
 - **Residual risk:** novel encodings evade scanning; benign vs malicious instructions hard to separate.
@@ -146,8 +147,8 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Defensive scenario:** induce a loop on a mock target; observe token/step growth.
 - **Detection signals:** step/token count beyond budget; repeated identical calls.
 - **Mitigation controls:** per-run budgets, loop/step caps, rate limits.
-- **Status:** planned, not implemented in the current CLI release.
-- **Harness test pattern:** planned ID `budget.loop_abuse`.
+- **Status:** current (synthetic loop marker against a deterministic step counter; no real resource use).
+- **Harness test pattern:** `budget.loop_abuse`.
 - **Planned reference-control idea:** gateway token/cost budgets + rate limiting.
 - **Human / process controls:** cost alerts; kill-switch.
 - **Residual risk:** legitimate expensive tasks; budget tuning.
@@ -158,8 +159,8 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Defensive scenario:** attempt to mark a sensitive/malicious event as low-priority; verify it is **still audited**.
 - **Detection signals:** label downgrades on audited events; events missing from the trail; label from an untrusted source.
 - **Mitigation controls:** non-bypassable audit; labels never suppress logging; trusted `classification_source`; append-only.
-- **Status:** planned, not implemented in the current CLI release.
-- **Harness test pattern:** planned ID `audit.spam_label_abuse`.
+- **Status:** current (synthetic label-abuse attempt; labels never suppress the audit entry).
+- **Harness test pattern:** `audit.spam_label_abuse`.
 - **Planned reference-control idea:** gateway logs all decisions regardless of label; tamper-evident audit.
 - **Human / process controls:** audit review; anomaly alerts.
 - **Residual risk:** operator with DB access; no tamper-evidence before v1.0.
