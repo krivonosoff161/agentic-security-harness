@@ -1,18 +1,21 @@
 # Competitive landscape
 
-> **Verification status:** verified **2026-06-08** against primary sources (inline
+> **Verification status:** verified **2026-06-12** against primary sources (inline
 > footnotes). A point-in-time snapshot — features, licensing, and ownership change;
 > re-check before relying on any single claim. Pricing is intentionally not quoted.
 > This project does not claim to be the first or only tool in the category; it competes on
-> trace portability, corpus clarity, data-boundary measurement, and deterministic replay.
+> trace portability, corpus clarity, data-boundary / label-propagation measurement, and
+> deterministic replay.
 
 ## How to read this
 
-There are two relevant categories:
+There are three relevant categories:
 
-- **(A) Agentic security testing / red-teaming** — the project's **primary** category.
+- **(A) Agentic security testing / red-teaming** — the closest crowded category.
   It is **crowded and active**. Several tools overlap our intent; we name them honestly.
-- **(B) Gateways / firewalls** — the context for the **reference defense** component only.
+- **(B) Information-flow / label-propagation defenses** — the most important adjacent
+  category for the project's current data-boundary wedge.
+- **(C) Gateways / firewalls** — the context for the **reference defense** component only.
 
 Tools we would **integrate** (wrap as detectors/oracles) are marked complementary.
 
@@ -20,27 +23,40 @@ Tools we would **integrate** (wrap as detectors/oracles) are marked complementar
 
 ## (A) Agentic security testing / red-teaming
 
-> ⚠️ **Closest combined prior art — BotGuard.** [BotGuard][botguard] is an open-source
-> red-teaming **+** firewall for AI agents: it scans an endpoint with 70+ OWASP-aligned
-> scenarios and returns a **scored report with reproduction steps**, plus a real-time
-> "Shield" firewall; it covers AI agents, MCP integrations, and RAG. That combination
-> (harness + reference defense + MCP/RAG + reproducible findings) is **very close to this
-> project's shape** and must be acknowledged up front.
+> ⚠️ **Crowded category.** General red-team scanning and live LLM vulnerability testing are
+> already well served by established tools. This project should not compete on "more
+> attacks." Its narrower wedge is deterministic, local measurement of whether data-envelope
+> labels survive agent handoffs, memory writes, tool calls, and provider-boundary hops.
 
 | Project | What it is (verified) | Relation | Source |
 |---|---|---|---|
-| **BotGuard** | OSS + platform: Scan (70+ OWASP scenarios → scored report **with reproduction steps**) + Shield (real-time firewall) + Fix; covers agents, MCP, RAG; Py/Node SDKs | **Closest combined prior art** — overlaps harness *and* reference defense | [repo][botguard] |
+| **BotGuard** | OSS + platform: Scan + Shield + Fix for AI agents | Overlapping combined shape, but less important than mature scanner / benchmark ecosystems for our current wedge | [repo][botguard] |
 | **Repello / ARTEMIS** | Commercial automated AI red-teaming; agentic systems, MCP, RAG, multi-agent; OWASP/NIST/MITRE ATLAS | Overlapping (commercial, closed) | [site][repello] |
 | **garak** (NVIDIA) | OSS LLM vulnerability scanner; probes / detectors / generators (injection, jailbreak, leakage) | Established OSS; complementary (could supply probes) | [repo][garak] |
 | **PyRIT** (Microsoft) | OSS GenAI red-team framework; multi-turn strategies (Crescendo/TAP/Skeleton Key), orchestration, scoring | Established OSS; strong overlap on multi-turn | [docs][pyrit] |
 | **promptfoo** | OSS (MIT) test + red-team for prompts/agents/RAG; OWASP LLM Top 10; declarative YAML, CI/CD | Established OSS; strong overlap on agent testing | [repo][promptfoo] |
+| **AgentDojo** | MIT benchmark environment for attacks and defenses for LLM agents | Academic benchmark adjacent to our trace format; useful interop target | [repo][agentdojo] |
 
 > Four tools named in early discussion — *AgentSeal, PwnClaw, Inkog Red, OrchSec* — could
 > **not** be verified (no product or repo found) and are **omitted** rather than asserted.
 
 ---
 
-## (B) Gateways / firewalls (reference-defense context)
+## (B) Information-flow / label-propagation defenses
+
+This is the strategically important adjacent category. CaMeL and FIDES are defenses, not
+benchmarks that ship this repository's trace format. Their existence validates the
+importance of information-flow control and label propagation for agents; it does not remove
+the need for a small framework-neutral conformance-style benchmark.
+
+| Project | What it is (verified) | Relation | Source |
+|---|---|---|---|
+| **CaMeL** | Defense that separates control and data flows around an LLM agent and enforces security policies | Validates the data-flow / label-propagation direction; not a competing benchmark artifact | [paper][camel] |
+| **FIDES** (Microsoft Agent Framework) | Information-flow control middleware; content carries integrity/confidentiality labels that propagate through tool calls and are checked before sensitive tools run | Strong validation of the label-propagation wedge; a defense that a neutral harness could test | [docs][fides] |
+
+---
+
+## (C) Gateways / firewalls (reference-defense context)
 
 > **Closest gateway prior art — Trylon.** [Trylon Gateway][trylon] is an open-source,
 > self-hosted, FastAPI LLM-firewall gateway (multi-provider proxy + guardrails). It is the
@@ -70,26 +86,31 @@ The category is occupied. This project does **not** claim to be the first or onl
 does **not** compete on "more attacks." It competes on:
 
 1. **portable, machine-readable failure traces** (replayable artifacts, not just reports);
-2. a **practical attack graph** for agent / tool chains;
+2. **data-envelope / label-propagation measurement** across memory, tools, handoffs, and
+   provider boundaries;
 3. **reproducible cross-target comparison** (replay the same traces against different
    targets / defenses, measure the delta);
-4. **cross-agent contamination** in multi-agent workflows;
-5. **agentic data-boundary / recipient control** — whether sensitivity labels, recipients,
-   and storage / forwarding rules survive agent handling (the lead wedge).
+4. a **practical attack graph** for agent / tool chains;
+5. **cross-agent contamination** in multi-agent workflows.
 
 Planned differentiators include the **full signal path** including pre-LLM sensor channels
 (for example audio → ASR). That track is not implemented in the current CLI release.
 
-BotGuard is the closest combined prior art and is named honestly; garak / PyRIT / promptfoo
-are established and overlap on red-teaming/eval; Trylon is the closest gateway prior art for
-the reference defense. The honest framing is **"a focused, open, trace-first take,"** not a
-new category — and the wedge above should be re-checked against these tools as they evolve.
+garak / PyRIT / promptfoo are established and overlap on red-teaming/eval; AgentDojo is a
+strong benchmark adjacent; CaMeL and FIDES validate the information-flow / label-propagation
+direction; Trylon is the closest gateway prior art for the reference defense. The honest
+framing is **"a focused, open, trace-first conformance-style benchmark for data-boundary
+failures,"** not a new category — and the wedge above should be re-checked as these tools
+evolve.
 
 [botguard]: https://github.com/botguardai/BotGuard
 [repello]: https://repello.ai/
 [garak]: https://github.com/NVIDIA/garak/
 [pyrit]: https://microsoft.github.io/PyRIT/
 [promptfoo]: https://github.com/promptfoo/promptfoo
+[agentdojo]: https://github.com/ethz-spylab/agentdojo
+[camel]: https://arxiv.org/abs/2503.18813
+[fides]: https://learn.microsoft.com/en-us/agent-framework/agents/security
 [trylon]: https://github.com/trylonai/gateway
 [litellm]: https://docs.litellm.ai/docs/proxy/guardrails/quick_start
 [lakera]: https://docs.lakera.ai/docs/prompt-defense

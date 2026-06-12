@@ -41,3 +41,11 @@ def test_baseline_and_protected_outcomes_match_manifest() -> None:
         assert entry.protected_expected == "PASS"
         assert entry.pattern_id in base.failed_patterns
         assert entry.pattern_id in prot.passed_patterns
+
+
+def test_agentic_standards_mapping_is_present_for_implemented_patterns() -> None:
+    for entry in corpus_manifest():
+        assert entry.owasp_agentic
+        assert all(item.startswith("ASI") for item in entry.owasp_agentic)
+        assert entry.owasp_llm == []
+        assert entry.mitre_atlas == []

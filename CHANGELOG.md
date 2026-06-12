@@ -6,7 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
-No unreleased changes.
+### Added
+- Standards mapping page for the implemented local corpus, with coarse OWASP Agentic
+  Security Initiative mappings and explicit verification gates for OWASP LLM / MITRE ATLAS.
+
+### Changed
+- Strengthened the data-boundary / label-propagation positioning and refreshed the
+  competitive landscape with CaMeL, FIDES, and AgentDojo as key adjacent references.
 
 ## [0.5.0] - 2026-06-12
 

@@ -11,6 +11,8 @@ trace**, and **measures risk reduction** by replaying a baseline target against 
   sensitivity labels, recipients, storage, and forwarding rules break in agentic systems.
 - **Baseline vs protected replay** — a vulnerable demo agent vs a controlled one, on
   deterministic **local** targets, with a measured before/after scorecard.
+- **Standards-aware corpus** - implemented patterns include coarse OWASP Agentic Security
+  Initiative mappings; OWASP LLM and MITRE ATLAS mappings remain verification-gated.
 
 No network, no LLM / provider calls, no real targets — synthetic, sanitized, reproducible.
 
@@ -48,6 +50,8 @@ deterministic tests · honest residual risk. Full rules:
 - New to the project? Start with the [project map](docs/project-map.md).
 - Evaluating it for an AI/security team? Read [use cases](docs/use-cases.md) and the
   [comparison example](examples/comparison-report/README.md).
+- Reviewing standards coverage? Read the [standards mapping](docs/standards-mapping.md)
+  and [corpus matrix](docs/corpus.md).
 - Adding a new idea? Convert it into the safe structure in
   [project map](docs/project-map.md#how-to-add-a-new-research-idea-safely) before coding.
 
@@ -114,6 +118,8 @@ ash validate examples/        # validate committed benchmark artifacts
 - **Agentic data-boundary testing** — verifies whether sensitivity labels, recipients,
   storage rules, and forwarding rules survive agent handoffs, memory writes, tools, and
   provider routing.
+- **Label-propagation measurement** - a conformance-oriented view of whether data-envelope
+  fields survive known handoff, memory, tool, and provider-boundary failure shapes.
 - **Practical attack graph** — `target → exposed inputs → agents → tools → permissions →
   memory → external data → attack chain → observed behavior → finding → mitigation`.
 - **Reproducible cross-target comparison** — replay the same traces against different

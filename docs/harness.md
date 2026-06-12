@@ -24,8 +24,9 @@ Attack chains here are documented as **defensive test patterns**. Every pattern 
   systems you do not own or have written permission to test;
 - documented with its **expected vulnerable behavior**;
 - documented with a **mitigation**;
-- prepared for **OWASP LLM Top 10 / MITRE ATLAS-style** references where applicable
-  (implemented mappings are still TBD).
+- prepared for standards references where applicable. The implemented corpus currently
+  includes coarse **OWASP Agentic Security Initiative** mappings; OWASP LLM and MITRE ATLAS
+  fields remain verification-gated.
 
 The harness contains **no real credential theft, no live exploitation, and no
 instructions for abusing third-party systems.** See [SECURITY.md](../SECURITY.md#responsible-use)
@@ -65,8 +66,7 @@ A **trace** is the central artifact (the model class is `ExploitTrace` in
 > sanitized placeholders. The implemented schema is the `ExploitTrace` model in
 > `src/agentic_security_harness/models.py`; the current committed artifacts use
 > `pattern_id`, indexed `steps`, and a `findings` list. The `mapping` block below is
-> contextual documentation only; implemented OWASP / MITRE metadata is planned for the
-> corpus manifest when available.
+> contextual documentation only; implemented standards metadata lives in the corpus manifest.
 
 ```json
 {
@@ -74,7 +74,7 @@ A **trace** is the central artifact (the model class is `ExploitTrace` in
   "schema_version": "0.0-illustrative",
   "pattern": "indirect_prompt_injection_via_tool_output",
   "target": { "type": "mock_agent", "name": "demo-rag-agent", "adapter": "mock" },
-  "mapping": { "owasp_llm": ["LLM01"], "mitre_atlas": ["AML.T0051"] },
+  "mapping": { "owasp_agentic": ["ASI01", "ASI02"], "owasp_llm": [], "mitre_atlas": [] },
   "graph_path": [
     "exposed_input:rag_document",
     "external_data:retrieved_chunk",
@@ -154,7 +154,8 @@ targets you own or are authorized to test.
 ## Attack pattern taxonomy
 
 Each pattern is a **defensive test pattern** (sanitized, with expected vulnerable
-behavior + mitigation; OWASP/MITRE mapping is still TBD). The **local demo corpus
+behavior + mitigation; coarse OWASP Agentic mapping is available in
+[corpus.md](corpus.md)). The **local demo corpus
 implements 7 of these as deterministic, sanitized seed patterns** (run with `ash run` /
 `ash compare`); **v0.5
 additionally validates the committed artifacts** against the corpus manifest (`ash
