@@ -10,7 +10,7 @@ SANITIZED_PLACEHOLDER = "<sanitized hidden instruction placeholder>"
 
 
 def seed_patterns() -> list[DefensivePattern]:
-    """Return the three sanitized seed patterns (stable order)."""
+    """Return the seven sanitized seed patterns (stable order)."""
     return [
         DefensivePattern(
             pattern_id="indirect_prompt_injection_via_tool_output",

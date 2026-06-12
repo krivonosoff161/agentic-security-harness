@@ -27,3 +27,14 @@ htmlcov/
 .DS_Store
 .idea/
 .vscode/
+.mimocode/
+
+# Local-only agent memory / handoff files
+CLAUDE.md
+SESSION.md
+INTERNAL_MEMORY.md
+docs/AI_CONTEXT_INTERNAL.md
+docs/AI_COLLABORATION_INTERNAL.md
+.claude/
+.codex/
+.internal/

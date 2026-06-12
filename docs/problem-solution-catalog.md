@@ -25,7 +25,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 
 ---
 
-> **Local demo corpus (v0.4):** seven of these failure modes are implemented as
+> **Implemented local demo corpus:** seven of these failure modes are implemented as
 > deterministic, sanitized seed patterns in the harness — recipient confusion, memory
 > poisoning, data reclassification (classification mutation), handoff label stripping,
 > tool-permission abuse, provider-boundary leakage, plus indirect prompt injection via tool

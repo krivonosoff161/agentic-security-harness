@@ -71,8 +71,9 @@ and for minimizing what crosses to the provider.
 
 The current harness **measures** these risks. The planned reference gateway is one future
 place to **reduce** them, but neither role eliminates risk. Treat any gateway as one
-defense-in-depth layer. Detector precision/recall is measured and published per release.
-Keep application-level authz and least-privilege tool design regardless.
+defense-in-depth layer. Current validation checks artifact consistency and conservative
+forbidden-marker patterns; detector precision/recall should be measured when detector
+components ship. Keep application-level authz and least-privilege tool design regardless.
 
 Two deliberate limitations to call out:
 

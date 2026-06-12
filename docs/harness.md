@@ -24,7 +24,8 @@ Attack chains here are documented as **defensive test patterns**. Every pattern 
   systems you do not own or have written permission to test;
 - documented with its **expected vulnerable behavior**;
 - documented with a **mitigation**;
-- mapped to **OWASP LLM Top 10 / MITRE ATLAS-style** references where applicable.
+- prepared for **OWASP LLM Top 10 / MITRE ATLAS-style** references where applicable
+  (implemented mappings are still TBD).
 
 The harness contains **no real credential theft, no live exploitation, and no
 instructions for abusing third-party systems.** See [SECURITY.md](../SECURITY.md#responsible-use)
@@ -64,8 +65,8 @@ A **trace** is the central artifact (the model class is `ExploitTrace` in
 > sanitized placeholders. The implemented schema is the `ExploitTrace` model in
 > `src/agentic_security_harness/models.py`; the current committed artifacts use
 > `pattern_id`, indexed `steps`, and a `findings` list. The `mapping` block below is
-> contextual documentation only; implemented OWASP / MITRE metadata lives in the corpus
-> manifest when available.
+> contextual documentation only; implemented OWASP / MITRE metadata is planned for the
+> corpus manifest when available.
 
 ```json
 {
@@ -102,7 +103,7 @@ The format is deliberately small: a target descriptor, a path through the attack
 the steps, the expected vs observed behavior, the finding (with **where it broke**), the
 mitigation, and a reproducibility anchor.
 
-Sensor / multimodal targets add a `modality` block to the trace — see
+Future sensor / multimodal targets would add a `modality` block to the trace — see
 [Multimodal and sensor-to-agent injection](#multimodal-and-sensor-to-agent-injection).
 
 ---
@@ -122,7 +123,7 @@ e.g. a chain that flows `exposed_input → external_data(retrieval) → agent_de
 tool_call` and breaks at `agent_decision` tells you the agent failed to separate
 untrusted content from instructions — which points directly at the mitigation.
 
-**Sensor / multimodal targets extend the front of the graph** — an `external signal →
+**Planned sensor / multimodal targets extend the front of the graph** — an `external signal →
 input channel → ASR / OCR transcript` prefix sits before `exposed inputs` (see
 [Multimodal and sensor-to-agent injection](#multimodal-and-sensor-to-agent-injection)).
 
@@ -153,8 +154,9 @@ targets you own or are authorized to test.
 ## Attack pattern taxonomy
 
 Each pattern is a **defensive test pattern** (sanitized, with expected vulnerable
-behavior + mitigation + mapping). The **v0.4 local demo corpus implements 7 of these as
-deterministic, sanitized seed patterns** (run with `ash run` / `ash compare`); **v0.5
+behavior + mitigation; OWASP/MITRE mapping is still TBD). The **local demo corpus
+implements 7 of these as deterministic, sanitized seed patterns** (run with `ash run` /
+`ash compare`); **v0.5
 additionally validates the committed artifacts** against the corpus manifest (`ash
 validate`). The corpus is defined in `src/agentic_security_harness/corpus.py` and its
 coverage matrix is documented in [corpus.md](corpus.md). Taxonomy:
@@ -179,8 +181,8 @@ markers**, not real credentials.
 ### Multimodal and sensor-to-agent injection
 
 Most LLM gateways only see **text / API traffic** and typically do not see the **pre-LLM
-sensor / input channels**. This harness tests the **full path from external signal to
-agent action**:
+sensor / input channels**. A future harness track should test the **full path from
+external signal to agent action**:
 
 ```
 external signal (audio / image) → input channel (e.g. microphone) → ASR / OCR transcript
@@ -241,7 +243,7 @@ A **scorecard** is derived **from a set of traces** for a target. It reports, pe
 
 - which patterns produced a finding, and at what severity;
 - **where** chains broke (which graph node);
-- OWASP / MITRE-style coverage;
+- corpus coverage by implemented pattern;
 - reproducibility (deterministic vs flaky).
 
 It is a derived artifact — regenerating it from the same traces is deterministic.

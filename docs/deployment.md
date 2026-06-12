@@ -30,11 +30,9 @@ Usage is in the [README](../README.md) and [harness.md](harness.md).
 
 ## Reference gateway server (later, planned)
 
-```bash
-cp .env.example .env               # set provider key + admin token
-docker compose up                  # default profile: gateway + SQLite
-# point your client at http://localhost:8080/v1
-```
+The reference gateway is design intent only. This repository does not currently ship a
+server entry point, Dockerfile, or Compose stack. `.env.example` is a gateway sketch, not
+configuration required by the current `ash` CLI.
 
 ### Docker (planned)
 
@@ -64,7 +62,7 @@ docker compose up                  # default profile: gateway + SQLite
 | `GATEWAY_POLICY_PATH` | path to the active policy file |
 | `GATEWAY_LOG_LEVEL` | structured log level |
 
-See [`.env.example`](../.env.example) for a ready-to-copy template.
+See [`.env.example`](../.env.example) for a planned gateway configuration sketch.
 
 ## Healthcheck
 

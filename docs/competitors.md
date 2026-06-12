@@ -74,9 +74,11 @@ does **not** compete on "more attacks." It competes on:
 3. **reproducible cross-target comparison** (replay the same traces against different
    targets / defenses, measure the delta);
 4. **cross-agent contamination** in multi-agent workflows;
-5. the **full signal path** including pre-LLM sensor channels (e.g. audio → ASR);
-6. **agentic data-boundary / recipient control** — whether sensitivity labels, recipients,
+5. **agentic data-boundary / recipient control** — whether sensitivity labels, recipients,
    and storage / forwarding rules survive agent handling (the lead wedge).
+
+Planned differentiators include the **full signal path** including pre-LLM sensor channels
+(for example audio → ASR). That track is not implemented in the current CLI release.
 
 BotGuard is the closest combined prior art and is named honestly; garak / PyRIT / promptfoo
 are established and overlap on red-teaming/eval; Trylon is the closest gateway prior art for
