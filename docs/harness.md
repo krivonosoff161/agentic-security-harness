@@ -61,7 +61,11 @@ A **trace** is the central artifact (the model class is `ExploitTrace` in
 ### Illustrative example
 
 > ⚠️ **Illustrative, not the final spec.** Field names and shape will change. Payloads are
-> sanitized placeholders.
+> sanitized placeholders. The implemented schema is the `ExploitTrace` model in
+> `src/agentic_security_harness/models.py`; the current committed artifacts use
+> `pattern_id`, indexed `steps`, and a `findings` list. The `mapping` block below is
+> contextual documentation only; implemented OWASP / MITRE metadata lives in the corpus
+> manifest when available.
 
 ```json
 {

@@ -1,4 +1,4 @@
-"""Agentic Security Harness - v0.1 core.
+"""Agentic Security Harness - defensive benchmark core.
 
 Pipeline: ``pattern -> target -> trace -> scorecard``. No real LLM calls, no network,
 no gateway. A ``DataEnvelope`` is a policy label, not encryption.
@@ -66,4 +66,4 @@ __all__ = [
     "validate_path",
 ]
 
-__version__ = "0.1.0"
+__version__ = "0.5.0"

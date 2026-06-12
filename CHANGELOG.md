@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+No unreleased changes.
+
+## [0.5.0] - 2026-06-12
+
 ### Added
 - Plain-language project map, company-facing use cases, and a comparison-report README to
   make the benchmark easier to review without reading the source code first.
