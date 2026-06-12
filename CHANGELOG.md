@@ -9,10 +9,26 @@ All notable changes to this project are documented here. The format follows
 ### Added
 - Standards mapping page for the implemented local corpus, with coarse OWASP Agentic
   Security Initiative mappings and explicit verification gates for OWASP LLM / MITRE ATLAS.
+- Release packaging checks in CI: build sdist/wheel, run `twine check`, smoke the installed
+  wheel, verify `py.typed`, and run `ash validate examples/` from the wheel install.
 
 ### Changed
 - Strengthened the data-boundary / label-propagation positioning and refreshed the
   competitive landscape with CaMeL, FIDES, and AgentDojo as key adjacent references.
+- Tightened public wording around current vs planned capabilities: multimodal, cross-agent,
+  gateway, OWASP LLM, and MITRE ATLAS coverage are explicitly marked as planned or
+  verification-gated where they are not implemented.
+- Updated package metadata with author, classifiers, keywords, URLs, SPDX license syntax,
+  and license-file declarations.
+- Corrected the Prompt Security ownership note after verifying SentinelOne's acquisition
+  completion in an SEC filing.
+
+### Fixed
+- Hardened `ash validate` so a report must include every implemented corpus pattern exactly
+  once, and trace fields must match the canonical seed pattern graph, expected behavior,
+  data envelope, and finding category.
+- Clarified the problem-solution catalog with current/planned status and exact implemented
+  pattern IDs where available.
 
 ## [0.5.0] - 2026-06-12
 
@@ -63,8 +79,8 @@ All notable changes to this project are documented here. The format follows
 - Competitive landscape (all listed tools) and OWASP claims verified against primary
   sources with inline links — incl. Trylon Gateway (closest prior art), LiteLLM
   guardrails, Guardrails AI, NeMo Guardrails, LLM Guard, Presidio, Lakera; Rebuff
-  archived; Protect AI acquired by Palo Alto Networks; Prompt Security intent-to-acquire
-  by SentinelOne; OWASP LLM Top 10 2025 numbering.
+  archived; Protect AI acquired by Palo Alto Networks; Prompt Security acquired by
+  SentinelOne; OWASP LLM Top 10 2025 numbering.
 
 ### Changed
 - Strengthened public positioning and attribution: named **Agentic Security Harness**

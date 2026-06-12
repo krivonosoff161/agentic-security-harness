@@ -57,8 +57,9 @@ deterministic tests · honest residual risk. Full rules:
 
 ## Status
 
-**Pre-release, working.** The harness runs a **7-pattern data-boundary corpus** against
-deterministic local targets, with baseline-vs-protected replay (see *What exists today*).
+**Pre-release, working.** The harness runs a **7-pattern local corpus centered on
+data-boundary / recipient-control behavior** against deterministic local targets, with
+baseline-vs-protected replay (see *What exists today*).
 Real target adapters, MCP, multi-agent, multimodal, and the reference gateway come later.
 See [docs/roadmap.md](docs/roadmap.md).
 
@@ -143,8 +144,9 @@ deception · simulated data-exfiltration · budget exhaustion / loop abuse · mu
 policy bypass · multimodal / sensor-to-agent (audio → ASR) injection · agentic
 data-boundary / recipient-control.
 
-Seven of these are implemented today (the data-boundary / recipient-control corpus);
-the rest are on the [roadmap](docs/roadmap.md).
+Seven local seed patterns are implemented today: six data-boundary / recipient-control
+patterns plus one indirect tool-output injection seed. The rest are on the
+[roadmap](docs/roadmap.md).
 
 ## Reference defense (planned optional component)
 

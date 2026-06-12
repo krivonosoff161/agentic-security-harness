@@ -88,6 +88,26 @@ def test_unknown_pattern_id_fails(tmp_path: Path) -> None:
     assert _has(result, "not in corpus")
 
 
+def test_missing_corpus_pattern_fails(tmp_path: Path) -> None:
+    report = _copy("demo-agent-report", tmp_path)
+    data = _load(report / "traces.json")
+    data = [trace for trace in data if trace["pattern_id"] != "memory_poisoning_sanitized"]
+    _dump(report / "traces.json", data)
+    result = validate_path(report)
+    assert not result.ok
+    assert _has(result, "missing corpus pattern")
+
+
+def test_duplicate_pattern_id_fails(tmp_path: Path) -> None:
+    report = _copy("demo-agent-report", tmp_path)
+    data = _load(report / "traces.json")
+    data[1]["pattern_id"] = data[0]["pattern_id"]
+    _dump(report / "traces.json", data)
+    result = validate_path(report)
+    assert not result.ok
+    assert _has(result, "duplicate pattern_id")
+
+
 def test_duplicate_trace_id_fails(tmp_path: Path) -> None:
     report = _copy("demo-agent-report", tmp_path)
     data = _load(report / "traces.json")
@@ -301,6 +321,47 @@ def test_broke_at_mismatch_fails(tmp_path: Path) -> None:
     result = validate_path(report)
     assert not result.ok
     assert _has(result, "broke_at")
+
+
+def test_graph_path_mismatch_fails(tmp_path: Path) -> None:
+    report = _copy("demo-agent-report", tmp_path)
+    data = _load(report / "traces.json")
+    data[0]["graph_path"] = ["wrong_node"]
+    _dump(report / "traces.json", data)
+    result = validate_path(report)
+    assert not result.ok
+    assert _has(result, "graph_path")
+
+
+def test_expected_behavior_mismatch_fails(tmp_path: Path) -> None:
+    report = _copy("demo-agent-report", tmp_path)
+    data = _load(report / "traces.json")
+    data[0]["expected_vulnerable_behavior"] = "tampered expectation"
+    _dump(report / "traces.json", data)
+    result = validate_path(report)
+    assert not result.ok
+    assert _has(result, "expected_vulnerable_behavior")
+
+
+def test_data_envelope_mismatch_fails(tmp_path: Path) -> None:
+    report = _copy("demo-agent-report", tmp_path)
+    data = _load(report / "traces.json")
+    by_id = {t["pattern_id"]: t for t in data}
+    by_id["data_boundary_recipient_confusion"]["data_envelope"]["can_forward"] = True
+    _dump(report / "traces.json", data)
+    result = validate_path(report)
+    assert not result.ok
+    assert _has(result, "data_envelope")
+
+
+def test_finding_code_mismatch_fails(tmp_path: Path) -> None:
+    report = _copy("demo-agent-report", tmp_path)
+    data = _load(report / "traces.json")
+    data[0]["findings"][0]["code"] = "wrong_category"
+    _dump(report / "traces.json", data)
+    result = validate_path(report)
+    assert not result.ok
+    assert _has(result, "finding code")
 
 
 # ---- scorecard recompute-and-compare ---------------------------------------------------

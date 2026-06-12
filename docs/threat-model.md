@@ -59,9 +59,9 @@ and for minimizing what crosses to the provider.
 - Novel / obfuscated injections that defeat current detectors — **false negatives are expected.**
 - Semantic attacks that are individually benign but harmful in aggregate.
 - **Generating** adversarial / ultrasonic audio or other weaponized signals — out of
-  scope by design. (The harness *does* test multimodal / sensor-to-agent injection, but
-  only with **sanitized, pre-recorded fixtures** — see
-  [harness.md](harness.md#multimodal-and-sensor-to-agent-injection).)
+  scope by design. Multimodal / sensor-to-agent testing is a future track and, when
+  implemented, must use **sanitized, pre-recorded fixtures** only — see
+  [harness.md](harness.md#multimodal-and-sensor-to-agent-injection).
 - Provider-side or model-weights compromise; training-time poisoning.
 - Host / OS compromise; an insider with database access.
 - Anything requiring the model to be *correct* — the project does not fix
@@ -101,8 +101,11 @@ revealing, or contradicting it (this is exactly LLM07 below). Therefore:
 > ✅ Verified against the [OWASP Top 10 for LLM Applications 2025](https://genai.owasp.org/llm-top-10/):
 > the LLM01–LLM10 codes and titles below match the official 2025 list (last checked 2026-06-08).
 
-Each risk is **probed** by the harness as a reproducible trace and, where applicable,
-mapped to a planned reference-gateway mitigation:
+This table is an **orientation map**, not a machine-readable per-pattern coverage claim.
+Rows marked **Current** correspond to implemented local traces or an explicit current design
+stance. Rows marked **Planned** or **Out of scope** do not imply shipped coverage.
+Per-pattern OWASP LLM IDs remain verification-gated; see
+[standards-mapping.md](standards-mapping.md).
 
 | OWASP LLM (2025) | Coverage — current harness probes / planned gateway mitigates |
 |---|---|

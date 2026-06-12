@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,10 +8,36 @@ version = "0.5.0"
 description = "Open-source defensive harness and learning lab for reproducing and measuring agentic AI failure modes with portable traces, attack graphs, scorecards, and data-boundary tests."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{ name = "Dmitry Krivonosov" }]
+keywords = [
+    "ai-security",
+    "agentic-ai",
+    "benchmark",
+    "llm-security",
+    "prompt-injection",
+    "red-team",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Typing :: Typed",
+]
 dependencies = [
     "pydantic>=2,<3",
 ]
+
+[project.urls]
+Homepage = "https://github.com/krivonosoff161/agentic-security-harness"
+Repository = "https://github.com/krivonosoff161/agentic-security-harness"
+Issues = "https://github.com/krivonosoff161/agentic-security-harness/issues"
+Changelog = "https://github.com/krivonosoff161/agentic-security-harness/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [

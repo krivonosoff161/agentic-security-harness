@@ -11,8 +11,8 @@
 
 There are three relevant categories:
 
-- **(A) Agentic security testing / red-teaming** — the closest crowded category.
-  It is **crowded and active**. Several tools overlap our intent; we name them honestly.
+- **(A) Agentic security testing / red-teaming** — the closest active category.
+  Several tools overlap our intent; we name them explicitly.
 - **(B) Information-flow / label-propagation defenses** — the most important adjacent
   category for the project's current data-boundary wedge.
 - **(C) Gateways / firewalls** — the context for the **reference defense** component only.
@@ -23,7 +23,7 @@ Tools we would **integrate** (wrap as detectors/oracles) are marked complementar
 
 ## (A) Agentic security testing / red-teaming
 
-> ⚠️ **Crowded category.** General red-team scanning and live LLM vulnerability testing are
+> ⚠️ **Active category.** General red-team scanning and live LLM vulnerability testing are
 > already well served by established tools. This project should not compete on "more
 > attacks." Its narrower wedge is deterministic, local measurement of whether data-envelope
 > labels survive agent handoffs, memory writes, tool calls, and provider-boundary hops.
@@ -76,7 +76,7 @@ the need for a small framework-neutral conformance-style benchmark.
 ### Ownership notes (verified)
 - **Rebuff** — archived (read-only) by owner **2025-05-16**. [repo][rebuff]
 - **Protect AI** (owns LLM Guard) — acquired by **Palo Alto Networks, completed 2025-07-22**. [source][protectai]
-- **Prompt Security** — SentinelOne announced **intent to acquire** **2025-08-05** (expected close Q3 FY2026; **not** confirmed completed). [source][promptsec]
+- **Prompt Security** — acquired by **SentinelOne**, completed **2025-09-05**. [source][promptsec]
 
 ---
 
@@ -90,17 +90,17 @@ does **not** compete on "more attacks." It competes on:
    provider boundaries;
 3. **reproducible cross-target comparison** (replay the same traces against different
    targets / defenses, measure the delta);
-4. a **practical attack graph** for agent / tool chains;
-5. **cross-agent contamination** in multi-agent workflows.
+4. a **practical attack graph** for agent / tool chains.
 
-Planned differentiators include the **full signal path** including pre-LLM sensor channels
-(for example audio → ASR). That track is not implemented in the current CLI release.
+Planned differentiators include **cross-agent contamination** in multi-agent workflows and
+the **full signal path** including pre-LLM sensor channels (for example audio → ASR). Those
+tracks are not implemented in the current CLI release.
 
 garak / PyRIT / promptfoo are established and overlap on red-teaming/eval; AgentDojo is a
 strong benchmark adjacent; CaMeL and FIDES validate the information-flow / label-propagation
-direction; Trylon is the closest gateway prior art for the reference defense. The honest
-framing is **"a focused, open, trace-first conformance-style benchmark for data-boundary
-failures,"** not a new category — and the wedge above should be re-checked as these tools
+direction; Trylon is the closest gateway prior art for the reference defense. The public
+positioning is **"a focused, open, trace-first conformance-style benchmark for data-boundary
+and label-propagation failures,"** not a new category — and the wedge above should be re-checked as these tools
 evolve.
 
 [botguard]: https://github.com/botguardai/BotGuard
@@ -120,4 +120,4 @@ evolve.
 [presidio]: https://github.com/microsoft/presidio
 [rebuff]: https://github.com/protectai/rebuff
 [protectai]: https://www.paloaltonetworks.com/company/press/2025/palo-alto-networks-completes-acquisition-of-protect-ai
-[promptsec]: https://www.sentinelone.com/press/sentinelone-to-acquire-prompt-security-to-advance-genai-security/
+[promptsec]: https://www.sec.gov/Archives/edgar/data/1583708/000158370825000159/s-20251031.htm

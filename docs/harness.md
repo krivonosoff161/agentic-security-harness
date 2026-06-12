@@ -1,7 +1,7 @@
 # Agentic Security Harness
 
-> **Agentic Security Harness** (repository `agentic-security-harness`). The gateway is
-> the [reference defense](#reference-defense-replay) component).
+> **Agentic Security Harness** (repository `agentic-security-harness`). The gateway is a
+> planned [reference defense](#reference-defense-replay), not the current runtime.
 >
 > **One line:** *An open-source harness for reproducing and measuring agentic failure
 > chains through portable traces, attack graphs, and security scorecards.*
@@ -200,7 +200,7 @@ Audio-to-agent is the primary case:
 - This is **defensive testing of systems that accept voice / image / audio inputs** — not
   signal weaponization.
 
-For these targets the trace captures additional `modality` fields: `modality`,
+For these future targets the trace should capture additional `modality` fields: `modality`,
 `source_channel`, `human_perceptibility`, `asr_transcript`, `asr_confidence` (if
 available), `anomaly_or_spectral_flag` (if available),
 `tool_execution_required_confirmation`, `observed_side_effect`, `mitigation`.
@@ -277,5 +277,5 @@ delta** a defense produces against reproducible traces.
 This space is **not empty**, and this project does **not** claim to be first or only. The closest
 combined prior art and the established tools are named honestly in
 [competitors.md](competitors.md). The intended angle is narrow and specific — **portable
-traces + a practical attack graph + reproducible cross-target replay + cross-agent
-contamination**, not "more attacks."
+traces + a practical attack graph + reproducible cross-target replay + data-boundary /
+label-propagation measurement**, not "more attacks."

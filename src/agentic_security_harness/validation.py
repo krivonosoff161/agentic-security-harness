@@ -18,6 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from agentic_security_harness.corpus import corpus_manifest
 from agentic_security_harness.models import ExploitTrace, TargetDescriptor
+from agentic_security_harness.patterns import seed_patterns
 from agentic_security_harness.reporting import (
     _SEVERITY_RANK,
     build_comparison_md,
@@ -166,6 +167,7 @@ def _validate_traces(
     traces: list[ExploitTrace], path: Path, root: Path, result: ValidationResult
 ) -> None:
     corpus = {entry.pattern_id: entry for entry in corpus_manifest()}
+    canonical = {pattern.pattern_id: pattern for pattern in seed_patterns()}
     rel = _rel(path, root)
     target_names = sorted({trace.target.name for trace in traces})
     if len(target_names) > 1:
@@ -177,8 +179,10 @@ def _validate_traces(
     if len(target_types) > 1:
         result._err(f"{rel}: traces mix multiple target types: {target_types}")
     seen: dict[str, int] = {}
+    pattern_counts: dict[str, int] = {}
     for i, trace in enumerate(traces):
         prefix = f"{rel}[{i}] {trace.pattern_id}"
+        pattern_counts[trace.pattern_id] = pattern_counts.get(trace.pattern_id, 0) + 1
         if trace.schema_version != _SCHEMA_VERSION:
             result._err(
                 f"{prefix}: schema_version '{trace.schema_version}' != '{_SCHEMA_VERSION}'"
@@ -197,11 +201,28 @@ def _validate_traces(
         if entry is None:
             result._err(f"{prefix}: pattern_id not in corpus")
             continue
+        pattern = canonical.get(trace.pattern_id)
+        if pattern is None:
+            result._err(f"{prefix}: pattern_id not in seed patterns")
+            continue
+        if trace.graph_path != pattern.graph_path:
+            result._err(f"{prefix}: graph_path does not match the seed pattern")
+        if trace.expected_vulnerable_behavior != pattern.expected_vulnerable_behavior:
+            result._err(
+                f"{prefix}: expected_vulnerable_behavior does not match the seed pattern"
+            )
+        if trace.data_envelope != pattern.data_envelope:
+            result._err(f"{prefix}: data_envelope does not match the seed pattern")
         protected = _is_protected(trace.target)
         if trace.findings:
             if protected:
                 result._err(f"{prefix}: protected target should PASS but has findings")
             top = max(trace.findings, key=lambda f: _SEVERITY_RANK.get(f.severity, -1))
+            if top.code != pattern.category:
+                result._err(
+                    f"{prefix}: finding code '{top.code}' != pattern category "
+                    f"'{pattern.category}'"
+                )
             if top.severity != entry.severity:
                 result._err(
                     f"{prefix}: finding severity '{top.severity}' != corpus '{entry.severity}'"
@@ -212,6 +233,17 @@ def _validate_traces(
                 )
         elif not protected:
             result._err(f"{prefix}: no findings but baseline target expects FAIL")
+    expected_ids = set(corpus)
+    actual_ids = set(pattern_counts)
+    missing = sorted(expected_ids - actual_ids)
+    extra = sorted(actual_ids - expected_ids)
+    duplicates = sorted(pid for pid, count in pattern_counts.items() if count > 1)
+    if missing:
+        result._err(f"{rel}: missing corpus pattern(s): {missing}")
+    if extra:
+        result._err(f"{rel}: extra non-corpus pattern(s): {extra}")
+    if duplicates:
+        result._err(f"{rel}: duplicate pattern_id(s): {duplicates}")
 
 
 def _validate_scorecard(

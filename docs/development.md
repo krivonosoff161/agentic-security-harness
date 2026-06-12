@@ -49,13 +49,15 @@ targets, no real secrets. These extension points keep that design.
 
 A pattern is a sanitized defensive test case. Adding one touches a fixed set of files:
 
-1. Add the pattern in `patterns.py` (expected vulnerable behavior, mitigation, and the
-   OWASP / MITRE-style mapping). Use synthetic markers, never real secrets.
+1. Add the pattern in `patterns.py` (expected vulnerable behavior and mitigation).
+   Use synthetic markers, never real secrets.
 2. Add the vulnerable primitive in `demo_agent.py` (the behavior the pattern exercises).
 3. Wire the scenario in `demo_adapter.py` so the runner can drive it.
 4. Add the protected override in `protected_demo_agent.py` so the protected target defends.
 5. Add the mock outcome in `mock_target.py`.
 6. Add a corpus entry in `corpus.py` (keep the manifest consistent with `docs/corpus.md`).
+   Add standards mappings only after checking the current primary source; leave a field
+   empty rather than guessing.
 7. Add tests for the new behavior.
 8. Regenerate the committed examples under `examples/`.
 9. Run `ash validate examples/` to confirm artifacts and corpus stay consistent.
@@ -77,7 +79,8 @@ local and deterministic - no real provider, gateway, or network calls.
 
 ## Design rules
 
-- The simple path needs **zero extra services** (SQLite, no Redis, no classifier).
+- The simple path needs **zero extra services**: local files only, no server, no Redis,
+  no classifier, and no database.
 - The system prompt is **not** a security boundary — never store secrets there
   ([why](threat-model.md#why-the-system-prompt-is-not-a-security-boundary)).
 - No self-learning: rules do not mutate at runtime; feedback labels are collected for
