@@ -74,7 +74,8 @@ Start here:
    demonstration.
 4. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,
    mitigations, and planned reference controls.
-5. [Roadmap](roadmap.md) - what is current, next, and future.
+5. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
+6. [Roadmap](roadmap.md) - what is current, next, and future.
 
 Then run:
 

@@ -55,6 +55,8 @@ agent stack preserves the relevant labels in known failure shapes.
 ## Mapping rules
 
 - Prefer a small number of framework IDs per pattern.
+- Use [research-roadmap.md](research-roadmap.md) for planned ideas; keep this page focused
+  on implemented corpus mappings.
 - Do not add MITRE ATLAS IDs until they are checked against the current official ATLAS
   technique pages.
 - Do not add standards mappings for planned patterns before the pattern exists in code.

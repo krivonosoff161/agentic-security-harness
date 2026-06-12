@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project aims to follow
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- Research roadmap for future defensive benchmark patterns, turning external agentic
+  security research into a safe implementation queue with current coverage, sources,
+  priority, and explicit out-of-scope boundaries.
+
 ## [0.6.0] - 2026-06-12
 
 ### Added

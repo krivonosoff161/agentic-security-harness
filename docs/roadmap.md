@@ -22,13 +22,16 @@ provider calls, no real targets, no real secrets.
 
 ## Next
 
-- **v0.6.x - corpus expansion (continued):** cross-agent contamination, MCP / tool-schema
-  deception, approval pressure.
-- **v0.7 - local adapter examples:** toy RAG app, toy MCP server, toy multi-agent handoff.
+- **v0.7 - authority and integrity slice:** capability delegation-chain drift,
+  MCP / tool-schema deception on a mock MCP-like target, and hash-chain audit / trace
+  tamper detection. See [research-roadmap.md](research-roadmap.md).
+- **v0.8 - ambient authority and semantic invariants:** synthetic ambient-capability
+  escalation and narrow deterministic semantic-invariant fixtures.
+- **v0.9 - local adapter examples:** toy RAG app, toy MCP server, toy multi-agent handoff.
   Still local / synthetic only.
-- **v0.8 - report quality:** better Markdown / HTML audit report, executive summary,
+- **v0.10 - report quality:** better Markdown / HTML audit report, executive summary,
   mitigation checklist, before/after score.
-- **v0.9 - mapping and standardization:** OWASP LLM mapping, MITRE ATLAS mapping, severity
+- **v0.11 - mapping and standardization:** OWASP LLM mapping, MITRE ATLAS mapping, severity
   rationale, pattern versioning policy.
 - **v1.0 - stable benchmark release:** stable trace schema, stable corpus manifest, stable
   CLI, validated examples, coherent docs, public tag.
@@ -44,8 +47,8 @@ release scope until the core above is stable:
 - **Real LLM adapters** - drive authorized live agents instead of local synthetic targets.
 - **Multimodal / audio-ASR** - sanitized, pre-recorded ASR / OCR fixtures for the
   sensor-to-agent path.
-- **Postgres / hash-chain trace integrity** - durable trace store with tamper-evident
-  append-only logging.
+- **Postgres trace store** - durable trace storage after the local hash-chain validation
+  story is proven in the file-based benchmark.
 
 ---
 

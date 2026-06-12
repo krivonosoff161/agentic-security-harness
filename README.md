@@ -55,6 +55,7 @@ deterministic tests · honest residual risk. Full rules:
   and [corpus matrix](docs/corpus.md).
 - Adding a new idea? Convert it into the safe structure in
   [project map](docs/project-map.md#how-to-add-a-new-research-idea-safely) before coding.
+- Prioritizing future patterns? Read the [research roadmap](docs/research-roadmap.md).
 
 ## Status
 
@@ -250,6 +251,7 @@ traces and deterministic baseline-vs-protected replay. Honest comparison:
 - **[Use cases](docs/use-cases.md)** — how AI/security teams can evaluate and apply the benchmark.
 - **[Problem–solution catalog](docs/problem-solution-catalog.md)** — problem → detection → mitigation → harness test → reference control → residual risk.
 - **[Corpus coverage matrix](docs/corpus.md)** — the 10 implemented seed patterns, baseline vs protected, and what each touches.
+- **[Research roadmap](docs/research-roadmap.md)** - cleaned intake map for future benchmark patterns.
 - **[Mission](docs/mission.md)** · **[Safe research rules](docs/research-rules.md)** — what this is for, and how to research safely.
 - **Learning** — [agentic security basics](docs/learning/01-agentic-security-basics.md) · [data-boundary failures](docs/learning/02-data-boundary-failures.md).
 - [Architecture](docs/architecture.md) — components and data flow.
