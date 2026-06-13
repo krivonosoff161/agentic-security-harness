@@ -8,8 +8,11 @@ Commands:
   ash scenarios [--verbose]
   ash run-matrix  --target <target> --scenario <scenario> --out <dir>
                   [--max-variants N] [--variant VARIANT_ID]
+  ash run-external --adapter openai-compatible --base-url URL --model MODEL
+                   --scenario <scenario> --out <dir> [--repeats N] [--dry-run]
 
-All targets are local, deterministic, and make no network or LLM/provider calls.
+All built-in targets are local, deterministic, and make no network or LLM calls.
+External runs require explicit user action and make network calls only when invoked.
 """
 
 import argparse
@@ -129,6 +132,77 @@ def build_parser() -> argparse.ArgumentParser:
         "--list-variants",
         action="store_true",
         help="list available variants for the scenario and exit",
+    )
+
+    ext_p = sub.add_parser(
+        "run-external",
+        help="run an experimental external model evaluation",
+    )
+    ext_p.add_argument(
+        "--adapter",
+        default="openai-compatible",
+        help="adapter type (default: openai-compatible)",
+    )
+    ext_p.add_argument(
+        "--base-url",
+        required=True,
+        help="OpenAI-compatible API base URL (e.g. http://localhost:8000/v1)",
+    )
+    ext_p.add_argument(
+        "--model",
+        required=True,
+        help="model name to use (e.g. deepseek-chat)",
+    )
+    ext_p.add_argument(
+        "--scenario",
+        choices=scenario_ids(),
+        default="data-boundary",
+        help="scenario id to evaluate (default: data-boundary)",
+    )
+    ext_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path("reports/external"),
+        help="output directory",
+    )
+    ext_p.add_argument(
+        "--repeats",
+        type=int,
+        default=1,
+        help="number of repeats per pattern-variant (default: 1, max: 10)",
+    )
+    ext_p.add_argument(
+        "--temperature",
+        type=float,
+        default=0.0,
+        help="model temperature (default: 0.0)",
+    )
+    ext_p.add_argument(
+        "--timeout",
+        type=int,
+        default=30,
+        help="request timeout in seconds (default: 30)",
+    )
+    ext_p.add_argument(
+        "--api-key-env",
+        default="",
+        help="environment variable name containing the API key",
+    )
+    ext_p.add_argument(
+        "--max-variants",
+        type=int,
+        default=1,
+        help="maximum number of variants to evaluate (default: 1)",
+    )
+    ext_p.add_argument(
+        "--variant",
+        default=None,
+        help="evaluate exactly one variant by id",
+    )
+    ext_p.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="show what would be run without making network calls",
     )
 
     return parser
@@ -279,6 +353,64 @@ def _run_matrix(
     return 0
 
 
+def _run_external(
+    base_url: str,
+    model: str,
+    scenario_id: str,
+    out: Path,
+    repeats: int,
+    temperature: float,
+    timeout: int,
+    api_key_env: str,
+    max_variants: int,
+    variant_id: str | None,
+    dry_run: bool,
+    adapter: str,
+) -> int:
+    from agentic_security_harness.external_runner import run_external
+    from agentic_security_harness.run_config import _MAX_REPEATS
+
+    if repeats < 1 or repeats > _MAX_REPEATS:
+        print(f"Error: repeats must be between 1 and {_MAX_REPEATS}")
+        return 1
+
+    if adapter != "openai-compatible":
+        print(f"Error: unsupported adapter '{adapter}'. Only 'openai-compatible' is supported.")
+        return 1
+
+    try:
+        summary = run_external(
+            base_url=base_url,
+            model=model,
+            scenario_id=scenario_id,
+            out_dir=out,
+            repeats=repeats,
+            temperature=temperature,
+            timeout_seconds=timeout,
+            api_key_env=api_key_env,
+            max_variants=max_variants,
+            only_variant_id=variant_id,
+            dry_run=dry_run,
+        )
+    except KeyError as exc:
+        print(f"Error: {exc}")
+        return 1
+
+    if dry_run:
+        return 0
+
+    print(f"wrote external report artifacts to {out.as_posix()}")
+    print(
+        f"model: {summary.model}  "
+        f"scenario: {summary.scenario_id}  "
+        f"checks: {summary.total_checks}  "
+        f"repeats: {summary.total_repeats}  "
+        f"findings: {len(summary.patterns_with_findings)}  "
+        f"flaky: {len(summary.flaky_patterns)}"
+    )
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command == "run":
@@ -299,6 +431,21 @@ def main(argv: list[str] | None = None) -> int:
             args.max_variants,
             args.variant,
             args.list_variants,
+        )
+    if args.command == "run-external":
+        return _run_external(
+            args.base_url,
+            args.model,
+            args.scenario,
+            args.out,
+            args.repeats,
+            args.temperature,
+            args.timeout,
+            args.api_key_env,
+            args.max_variants,
+            args.variant,
+            args.dry_run,
+            args.adapter,
         )
     return 1
 
