@@ -19,7 +19,7 @@ secrets, or third-party systems.
 | High findings | 8 | 0 |
 | Medium findings | 2 | 0 |
 
-Findings reduced: **10 -> 0**.
+Findings reduced: **13 -> 0**.
 
 This means the protected local demo target handles the current synthetic corpus better
 than the vulnerable local demo target. It does not guarantee real-world protection.

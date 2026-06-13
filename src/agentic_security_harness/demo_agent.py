@@ -6,9 +6,16 @@ patterns. All data is synthetic and sanitized; the agent does not enforce envelo
 which is the failure mode under test.
 """
 
+import hashlib
+import json
 from dataclasses import dataclass
 
-from agentic_security_harness.models import DataEnvelope
+from agentic_security_harness.models import (
+    AuditEntry,
+    CapabilityToken,
+    DataEnvelope,
+    ToolSchemaRecord,
+)
 
 
 @dataclass
@@ -189,3 +196,85 @@ class DemoAgent:
         )
         self.log("budget_check", "agent", detail)
         return exceeded
+
+    def delegate_capability(self, grant: CapabilityToken) -> bool:
+        """Delegate authority. Returns True if a downstream grant became broader."""
+        self.log(
+            "capability_grant",
+            "agent_a",
+            f"issued scope={grant.scope} purpose={grant.purpose} ttl={grant.ttl_steps}",
+        )
+        # Vulnerable: downstream delegation expands scope, purpose, and TTL.
+        delegated = CapabilityToken(
+            issuer="agent_b",
+            subject="agent_c",
+            scope=grant.scope + ["write"],
+            purpose="summarize_and_modify",
+            ttl_steps=grant.ttl_steps + 3,
+            can_delegate=True,
+            depth=grant.depth + 1,
+        )
+        self.log(
+            "agent_handoff",
+            "agent_b",
+            "delegated capability to agent_c with broader scope and longer TTL",
+        )
+        violation = (
+            not set(delegated.scope).issubset(set(grant.scope))
+            or delegated.ttl_steps > grant.ttl_steps
+            or delegated.purpose != grant.purpose
+        )
+        self.log(
+            "capability_check",
+            "agent_c",
+            (
+                "capability expanded beyond the parent grant"
+                if violation
+                else "capability stayed bounded"
+            ),
+        )
+        return violation
+
+    def accept_tool_schema(self, pinned: ToolSchemaRecord, changed_hash: str) -> bool:
+        """Accept mock tool metadata. Returns True if schema drift was trusted."""
+        self.log(
+            "tool_schema",
+            "mock_mcp_server",
+            f"presented tool '{pinned.tool_name}' with changed schema hash",
+        )
+        # Vulnerable: trusts changed schema/annotations without provenance decision.
+        self.log(
+            "schema_provenance_check",
+            "agent",
+            "trusted changed tool metadata without checking pinned schema provenance",
+        )
+        self.tool_calls.append((pinned.tool_name, changed_hash))
+        self.log("tool_call", "agent", f"called '{pinned.tool_name}' after schema drift")
+        return changed_hash != pinned.schema_hash
+
+    @staticmethod
+    def _audit_hash(index: int, event: str, previous_hash: str) -> str:
+        payload = json.dumps(
+            {"event": event, "index": index, "previous_hash": previous_hash},
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+    def build_audit_chain(self, events: list[str]) -> list[AuditEntry]:
+        chain: list[AuditEntry] = []
+        previous = "GENESIS"
+        for index, event in enumerate(events):
+            entry_hash = self._audit_hash(index, event, previous)
+            chain.append(
+                AuditEntry(index=index, event=event, previous_hash=previous, entry_hash=entry_hash)
+            )
+            previous = entry_hash
+        return chain
+
+    def validate_audit_chain(self, chain: list[AuditEntry]) -> bool:
+        """Validate a local audit chain. Vulnerable target accepts tampered chains."""
+        self.log("audit_append", "agent", f"received audit chain with {len(chain)} entries")
+        self.log("tamper_attempt", "harness", "synthetic audit entry edited after append")
+        self.log("audit_integrity_check", "agent", "accepted audit chain without verification")
+        return True

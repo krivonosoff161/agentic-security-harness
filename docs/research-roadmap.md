@@ -21,7 +21,7 @@ Every candidate below must follow the same project rules:
 
 ## Current coverage baseline
 
-The current local corpus has 10 deterministic seed patterns:
+The current local corpus has 13 deterministic seed patterns:
 
 1. `indirect_prompt_injection_via_tool_output`
 2. `data_boundary_recipient_confusion`
@@ -33,6 +33,9 @@ The current local corpus has 10 deterministic seed patterns:
 8. `sleeping_prompt.delayed_activation`
 9. `audit.spam_label_abuse`
 10. `budget.loop_abuse`
+11. `capability.delegation_chain_drift`
+12. `mcp.tool_schema_deception`
+13. `audit.hash_chain_tamper`
 
 The important distinction for future work:
 
@@ -73,13 +76,13 @@ Use these as research anchors, not as certification claims:
 
 | Priority | Candidate pattern | Current coverage | Why it matters | Safe implementation shape |
 |---|---|---|---|---|
-| P0 | `capability.delegation_chain_drift` | Not covered; existing handoff pattern is label-only. | Multi-agent systems pass authority, not only data. Scope, TTL, issuer, delegatee, and revocation can drift across handoffs. | Mock agents A -> B -> C; A issues a scoped capability; B attempts to re-delegate with broader scope; protected target enforces most-restrictive scope and TTL. |
-| P0 | `mcp.tool_schema_deception` | Not covered; existing tool pattern checks purpose, not schema provenance. | MCP clients rely on tool metadata, schemas, annotations, and server trust. A deceptive or changed schema can steer an agent into the wrong call. | Mock MCP-like server; schema changes or misleading annotations are presented; protected target pins schema provenance and rejects drift / untrusted annotations. |
-| P0 | `audit.hash_chain_tamper` | Partially covered; current audit pattern only tests label-based suppression. | Portable traces need integrity checks: deletion, reorder, and edit attempts should be detectable. | Append-only trace/audit entries with `previous_hash`; vulnerable target accepts reorder/delete/edit; protected target detects chain break. |
+| Done | `capability.delegation_chain_drift` | Current in v0.7. | Multi-agent systems pass authority, not only data. Scope, TTL, issuer, delegatee, and revocation can drift across handoffs. | Mock capability token; a delegated hop attempts broader scope/purpose/TTL; protected target preserves the original authority envelope. |
+| Done | `mcp.tool_schema_deception` | Current in v0.7 for a mock schema record. | MCP clients rely on tool metadata, schemas, annotations, and server trust. A deceptive or changed schema can steer an agent into the wrong call. | Mock MCP-like schema record; schema hash changes; protected target pins schema provenance and rejects drift / untrusted annotations. |
+| Done | `audit.hash_chain_tamper` | Current in v0.7. | Portable traces need integrity checks: deletion, reorder, and edit attempts should be detectable. | Append-only audit entries with `previous_hash`; vulnerable target accepts edit; protected target detects chain break. |
 | P1 | `ambient_authority.escalation` | Not covered. | Agents can inherit host, runtime, file, or tool authority beyond the declared data envelope. | Synthetic host capability only; no real credentials. Protected target requires explicit capability binding and rejects unscoped ambient authority. |
 | P1 | `semantic.policy_letter_vs_spirit` | Not covered beyond explicit envelope fields. | A model may satisfy the literal policy while reconstructing or transforming sensitive content in a way that violates the policy intent. | Deterministic semantic invariant fixtures; protected target checks invariant rules such as minimization, recipient, purpose, and reconstruction limits. |
 
-## P0 candidate details
+## Implemented v0.7 details
 
 ### `capability.delegation_chain_drift`
 
@@ -224,15 +227,15 @@ invariants before adding any model-judged semantics.
 
 ## Implementation order
 
-### v0.7 - authority and integrity slice
+### v0.7 - authority and integrity slice (done)
 
-1. Add a minimal `CapabilityToken` / authority-envelope model.
-2. Implement `capability.delegation_chain_drift`.
-3. Implement `mcp.tool_schema_deception` with a mock MCP-like target, not a live MCP
-   adapter.
-4. Implement `audit.hash_chain_tamper` as trace/audit integrity validation.
-5. Regenerate examples and require `ash validate examples/` to catch missing patterns and
-   tamper cases.
+Implemented in the local 13-pattern corpus:
+
+- minimal `CapabilityToken` / authority-envelope model;
+- `capability.delegation_chain_drift`;
+- `mcp.tool_schema_deception` with a mock MCP-like schema record, not a live MCP adapter;
+- `audit.hash_chain_tamper` as local audit-chain integrity validation;
+- regenerated examples validated by `ash validate examples/`.
 
 ### v0.8 - ambient authority and semantic invariants
 
@@ -261,4 +264,3 @@ invariants before adding any model-judged semantics.
 - Does `corpus.py` include only mappings that were checked?
 - Were examples regenerated rather than hand-edited?
 - Does `ash validate examples/` pass?
-

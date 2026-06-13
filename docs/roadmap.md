@@ -17,14 +17,14 @@ provider calls, no real targets, no real secrets.
   consistency checks.
 - **v0.6 - corpus expansion (first slice):** sleeping-prompt delayed activation,
   audit / spam-label abuse, budget / loop abuse - 10 deterministic patterns total.
+- **v0.7 - authority and integrity slice:** capability delegation-chain drift,
+  mock MCP / tool-schema deception, and hash-chain audit tamper detection - 13
+  deterministic patterns total.
 
 ---
 
 ## Next
 
-- **v0.7 - authority and integrity slice:** capability delegation-chain drift,
-  MCP / tool-schema deception on a mock MCP-like target, and hash-chain audit / trace
-  tamper detection. See [research-roadmap.md](research-roadmap.md).
 - **v0.8 - ambient authority and semantic invariants:** synthetic ambient-capability
   escalation and narrow deterministic semantic-invariant fixtures.
 - **v0.9 - local adapter examples:** toy RAG app, toy MCP server, toy multi-agent handoff.

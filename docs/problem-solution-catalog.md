@@ -25,12 +25,13 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 
 ---
 
-> **Implemented local demo corpus:** ten of these failure modes are implemented as
+> **Implemented local demo corpus:** thirteen of these failure modes are implemented as
 > deterministic, sanitized seed patterns in the harness — recipient confusion, memory
 > poisoning, data reclassification (classification mutation), handoff label stripping,
 > tool-permission abuse, provider-boundary leakage, indirect prompt injection via tool
 > output, sleeping-prompt delayed activation, audit spam-label abuse, and budget loop
-> abuse. Run them with `ash run --target demo-agent` and `ash compare`; full matrix in the
+> abuse, capability delegation drift, mock tool-schema deception, and audit hash-chain
+> tampering. Run them with `ash run --target demo-agent` and `ash compare`; full matrix in the
 > [corpus coverage matrix](corpus.md).
 
 ## 1. Sensitive data in shared AI chats
@@ -176,6 +177,42 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Planned reference-control idea:** gateway `REDACT` / `BLOCK` on egress to a provider; route restricted classes to a local model.
 - **Human / process controls:** data-residency policy; provider DPA review.
 - **Residual risk:** provider trust; redaction misses; metadata leakage.
+
+## 13. Capability delegation drift
+
+- **What goes wrong:** delegated authority expands across agent handoffs: scope widens, purpose changes, TTL grows, or chain provenance disappears.
+- **Defensive scenario:** a synthetic capability grants `read` for a narrow purpose; a delegated agent attempts to broaden it before handing it off.
+- **Detection signals:** child scope is not a subset of parent scope; TTL expands; issuer/subject chain missing; delegation depth not enforced.
+- **Mitigation controls:** most-restrictive-scope-wins, bounded delegation depth, TTL cannot expand, issuer/subject recorded in the trace.
+- **Status:** current (synthetic capability token only; no real host or cloud authority).
+- **Harness test pattern:** `capability.delegation_chain_drift`.
+- **Planned reference-control idea:** authority-envelope enforcement at agent handoff and tool-call boundaries.
+- **Human / process controls:** least-privilege agent design; explicit review of delegated capabilities.
+- **Residual risk:** a real integration can still over-grant authority before the harness sees it.
+
+## 14. MCP / tool-schema deception
+
+- **What goes wrong:** an agent trusts changed or misleading tool metadata without checking schema provenance.
+- **Defensive scenario:** a mock MCP-like tool record is pinned as read-only; a later schema hash changes and the target decides whether to trust it.
+- **Detection signals:** schema hash drift; untrusted annotations treated as authoritative; tool output no longer matches the declared schema.
+- **Mitigation controls:** schema hash pinning, provenance records, explicit trust decision on tool-list changes, output validation.
+- **Status:** current for a mock schema record; live MCP adapter is not implemented.
+- **Harness test pattern:** `mcp.tool_schema_deception`.
+- **Planned reference-control idea:** reference defense rejects schema drift unless an authorized trust decision exists.
+- **Human / process controls:** tool registry review; change-management around MCP servers and tool descriptions.
+- **Residual risk:** real MCP implementations have transport/auth concerns outside this local mock pattern.
+
+## 15. Audit hash-chain tampering
+
+- **What goes wrong:** an audit trail is edited, reordered, truncated, or accepted without integrity checks.
+- **Defensive scenario:** a local append-only audit chain uses `previous_hash` and `entry_hash`; one event is edited while the old hash remains.
+- **Detection signals:** non-contiguous indexes; previous-hash mismatch; entry hash mismatch; missing required event for a finding.
+- **Mitigation controls:** append-only audit entries, local hash-chain validation, required-event checks for findings.
+- **Status:** current (local deterministic hash-chain fixture; no cryptographic signing).
+- **Harness test pattern:** `audit.hash_chain_tamper`.
+- **Planned reference-control idea:** future persistent trace store with stronger integrity hardening after the file-based story is stable.
+- **Human / process controls:** audit export review; protected storage for committed reports.
+- **Residual risk:** local hash chains show tampering but do not prove who made the change.
 
 ---
 

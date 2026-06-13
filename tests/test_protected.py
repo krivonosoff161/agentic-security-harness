@@ -30,6 +30,9 @@ SEED_IDS = {
     "sleeping_prompt.delayed_activation",
     "audit.spam_label_abuse",
     "budget.loop_abuse",
+    "capability.delegation_chain_drift",
+    "mcp.tool_schema_deception",
+    "audit.hash_chain_tamper",
 }
 
 
@@ -56,16 +59,16 @@ def test_protected_handles_all_seed_patterns_with_no_findings() -> None:
 def test_protected_scorecard_all_passed() -> None:
     card = build_scorecard(_protected_traces())
     assert card.target_name == "protected-demo-agent"
-    assert len(card.passed_patterns) == 10
+    assert len(card.passed_patterns) == 13
     assert card.failed_patterns == []
     assert card.findings_by_severity == {}
 
 
 def test_baseline_still_fails() -> None:
     card = build_scorecard(_baseline_traces())
-    assert len(card.failed_patterns) == 10
+    assert len(card.failed_patterns) == 13
     assert card.passed_patterns == []
-    assert card.findings_by_severity == {"high": 8, "medium": 2}
+    assert card.findings_by_severity == {"high": 11, "medium": 2}
 
 
 def test_compare_creates_full_structure(tmp_path: Path) -> None:
@@ -115,7 +118,7 @@ def test_no_network(monkeypatch: pytest.MonkeyPatch) -> None:
         raise AssertionError("network call attempted")
 
     monkeypatch.setattr(socket, "socket", _boom)
-    assert len(_protected_traces()) == 10
+    assert len(_protected_traces()) == 13
 
 
 def test_no_real_secret_markers() -> None:

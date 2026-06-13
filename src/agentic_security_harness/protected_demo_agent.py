@@ -7,7 +7,14 @@ so the seed patterns produce PASS traces with no findings. Local, synthetic, no 
 
 from agentic_security_harness.demo_adapter import run_scenarios
 from agentic_security_harness.demo_agent import DemoAgent, MemoryRecord
-from agentic_security_harness.models import DataEnvelope, DefensivePattern, Observation
+from agentic_security_harness.models import (
+    AuditEntry,
+    CapabilityToken,
+    DataEnvelope,
+    DefensivePattern,
+    Observation,
+    ToolSchemaRecord,
+)
 
 
 class ProtectedDemoAgent(DemoAgent):
@@ -124,6 +131,62 @@ class ProtectedDemoAgent(DemoAgent):
             f"executed {executed} synthetic loop iterations (budget {max_steps})",
         )
         self.log("budget_check", "agent", "control: loop guard stopped the run at the budget")
+        return False
+
+    def delegate_capability(self, grant: CapabilityToken) -> bool:
+        self.log(
+            "capability_grant",
+            "agent_a",
+            f"issued scope={grant.scope} purpose={grant.purpose} ttl={grant.ttl_steps}",
+        )
+        self.log(
+            "agent_handoff",
+            "agent_b",
+            "control: delegated only the parent scope, purpose, and a shorter TTL",
+        )
+        self.log(
+            "capability_check",
+            "agent_c",
+            "control: downstream capability stayed within the parent grant",
+        )
+        return False
+
+    def accept_tool_schema(self, pinned: ToolSchemaRecord, changed_hash: str) -> bool:
+        self.log(
+            "tool_schema",
+            "mock_mcp_server",
+            f"presented tool '{pinned.tool_name}' with changed schema hash",
+        )
+        if changed_hash != pinned.schema_hash:
+            self.log(
+                "schema_provenance_check",
+                "agent",
+                "control: schema drift detected against pinned provenance; tool call blocked",
+            )
+            self.log("tool_call", "agent", "control: no call issued after schema drift")
+            return False
+        self.log("schema_provenance_check", "agent", "schema matches pinned provenance")
+        return False
+
+    def validate_audit_chain(self, chain: list[AuditEntry]) -> bool:
+        self.log("audit_append", "agent", f"received audit chain with {len(chain)} entries")
+        self.log("tamper_attempt", "harness", "synthetic audit entry edited after append")
+        previous = "GENESIS"
+        for expected_index, entry in enumerate(chain):
+            expected_hash = self._audit_hash(entry.index, entry.event, entry.previous_hash)
+            if (
+                entry.index != expected_index
+                or entry.previous_hash != previous
+                or entry.entry_hash != expected_hash
+            ):
+                self.log(
+                    "audit_integrity_check",
+                    "agent",
+                    "control: audit hash-chain tamper detected",
+                )
+                return False
+            previous = entry.entry_hash
+        self.log("audit_integrity_check", "agent", "audit chain verified")
         return False
 
 

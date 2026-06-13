@@ -14,6 +14,9 @@ SEED_IDS = {
     "sleeping_prompt.delayed_activation",
     "audit.spam_label_abuse",
     "budget.loop_abuse",
+    "capability.delegation_chain_drift",
+    "mcp.tool_schema_deception",
+    "audit.hash_chain_tamper",
 }
 
 
@@ -24,13 +27,13 @@ def _traces() -> list:
 def test_total_traces_matches() -> None:
     traces = _traces()
     card = build_scorecard(traces)
-    assert card.total_traces == len(traces) == 10
+    assert card.total_traces == len(traces) == 13
     assert card.target_name == "demo-mock-agent"
 
 
 def test_severity_counts() -> None:
     card = build_scorecard(_traces())
-    assert card.findings_by_severity.get("high") == 8
+    assert card.findings_by_severity.get("high") == 11
     assert card.findings_by_severity.get("medium") == 2
 
 

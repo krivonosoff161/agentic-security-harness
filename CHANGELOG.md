@@ -11,6 +11,23 @@ All notable changes to this project are documented here. The format follows
   security research into a safe implementation queue with current coverage, sources,
   priority, and explicit out-of-scope boundaries.
 
+## [0.7.0] - 2026-06-13
+
+### Added
+- **Authority and integrity corpus slice:** added
+  `capability.delegation_chain_drift` (synthetic capability delegation must not widen
+  scope, purpose, or TTL), `mcp.tool_schema_deception` (mock tool-schema hash drift must
+  be rejected unless provenance is trusted), and `audit.hash_chain_tamper` (local
+  append-only audit entries must detect edits via hash-chain validation). Baseline
+  `demo-agent` / `mock` fail all 13 (high: 11, medium: 2); `protected-demo-agent` passes
+  all 13; `ash compare` shows findings reduced 13 -> 0.
+- Minimal local models for `CapabilityToken`, `ToolSchemaRecord`, and `AuditEntry`.
+
+### Changed
+- Regenerated and revalidated all committed benchmark examples for the 13-pattern corpus.
+- Updated corpus, standards mapping, research roadmap, project map, and problem-solution
+  catalog to distinguish current v0.7 mock coverage from future live MCP / real-adapter work.
+
 ## [0.6.0] - 2026-06-12
 
 ### Added

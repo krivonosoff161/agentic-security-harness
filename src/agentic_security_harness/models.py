@@ -28,6 +28,43 @@ class DataEnvelope(BaseModel):
     classification_mutable: bool = False
 
 
+class CapabilityToken(BaseModel):
+    """Synthetic authority grant used by delegation-chain tests."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    issuer: str
+    subject: str
+    scope: list[str] = Field(default_factory=list)
+    purpose: str
+    ttl_steps: int
+    can_delegate: bool = False
+    depth: int = 0
+
+
+class ToolSchemaRecord(BaseModel):
+    """Pinned mock tool-schema metadata for schema-provenance tests."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    tool_name: str
+    schema_hash: str
+    source: str
+    read_only: bool = True
+    annotations_trusted: bool = False
+
+
+class AuditEntry(BaseModel):
+    """Append-only local audit/trace entry with a hash-chain link."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    index: int
+    event: str
+    previous_hash: str
+    entry_hash: str
+
+
 class Finding(BaseModel):
     """A single observed violation in a trace."""
 

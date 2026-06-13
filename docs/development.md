@@ -21,7 +21,7 @@ ash validate examples/
 git diff --check
 ```
 
-Run these gates locally on Python 3.11+ before every commit. The 10-pattern corpus and
+Run these gates locally on Python 3.11+ before every commit. The 13-pattern corpus and
 the full test suite must pass. The false-negative count (patterns a target fails to
 defend) is recorded honestly per release; do not hide misses.
 
@@ -35,7 +35,7 @@ test file:
 - `tests/test_scorecard.py` - scorecard scoring.
 - `tests/test_cli.py` - the `ash` CLI commands.
 - `tests/test_demo_agent.py` - the vulnerable-by-design demo agent.
-- `tests/test_protected.py` - the protected demo agent (passes all 10).
+- `tests/test_protected.py` - the protected demo agent (passes all 13).
 - `tests/test_corpus.py` - corpus manifest consistency.
 - `tests/test_reporting.py` - report generation.
 - `tests/test_validation.py` - the `ash validate` checks.

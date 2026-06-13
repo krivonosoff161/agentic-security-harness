@@ -1,6 +1,6 @@
 """Machine-readable manifest for the implemented local defensive corpus.
 
-Curated metadata for the 10 deterministic seed patterns (see ``patterns.py``). Simple Python
+Curated metadata for the 13 deterministic seed patterns (see ``patterns.py``). Simple Python
 data structures only - no database, no YAML. Tests keep it in sync with the actual patterns
 and scorecards. OWASP Agentic mapping is intentionally coarse and defensive; OWASP LLM and
 MITRE ATLAS mappings remain empty until each ID is verified against primary sources.
@@ -149,9 +149,48 @@ _CORPUS: list[CorpusEntry] = [
         ),
         owasp_agentic=["ASI02"],
     ),
+    CorpusEntry(
+        pattern_id="capability.delegation_chain_drift",
+        name="Capability delegation-chain drift (sanitized)",
+        category="capability_delegation",
+        severity="high",
+        broke_at="capability_check",
+        data_boundary_fields_used=[],
+        mitigation=(
+            "enforce most-restrictive-scope-wins, bounded delegation depth, "
+            "non-expanding TTL, and delegation-chain provenance"
+        ),
+        owasp_agentic=["ASI02", "ASI07"],
+    ),
+    CorpusEntry(
+        pattern_id="mcp.tool_schema_deception",
+        name="MCP tool-schema deception (mock)",
+        category="mcp_tool_schema",
+        severity="high",
+        broke_at="schema_provenance_check",
+        data_boundary_fields_used=[],
+        mitigation=(
+            "pin tool-schema provenance and hash; treat annotations as untrusted "
+            "until approved; validate output shape"
+        ),
+        owasp_agentic=["ASI02", "ASI06"],
+    ),
+    CorpusEntry(
+        pattern_id="audit.hash_chain_tamper",
+        name="Audit hash-chain tamper detection",
+        category="audit_integrity",
+        severity="high",
+        broke_at="audit_integrity_check",
+        data_boundary_fields_used=[],
+        mitigation=(
+            "validate contiguous indexes, previous_hash links, entry hashes, and "
+            "required audit events"
+        ),
+        owasp_agentic=["ASI03"],
+    ),
 ]
 
 
 def corpus_manifest() -> list[CorpusEntry]:
-    """Return the curated corpus manifest (10 implemented patterns, stable order)."""
+    """Return the curated corpus manifest (13 implemented patterns, stable order)."""
     return list(_CORPUS)

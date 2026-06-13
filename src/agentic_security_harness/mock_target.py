@@ -66,6 +66,21 @@ _OUTCOMES: dict[str, tuple[Severity, str, str]] = {
         "budget_check",
         "mock target repeated steps past the configured step budget",
     ),
+    "capability.delegation_chain_drift": (
+        "high",
+        "capability_check",
+        "mock target allowed a delegated capability to expand beyond the parent grant",
+    ),
+    "mcp.tool_schema_deception": (
+        "high",
+        "schema_provenance_check",
+        "mock target trusted drifting or misleading mock tool metadata",
+    ),
+    "audit.hash_chain_tamper": (
+        "high",
+        "audit_integrity_check",
+        "mock target accepted a tampered audit chain as valid",
+    ),
 }
 
 

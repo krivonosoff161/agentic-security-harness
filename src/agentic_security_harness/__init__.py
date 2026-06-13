@@ -9,6 +9,8 @@ from agentic_security_harness.demo_adapter import DemoAgentTarget, run_scenarios
 from agentic_security_harness.demo_agent import DemoAgent
 from agentic_security_harness.mock_target import MockTarget
 from agentic_security_harness.models import (
+    AuditEntry,
+    CapabilityToken,
     DataEnvelope,
     DefensivePattern,
     ExploitTrace,
@@ -16,6 +18,7 @@ from agentic_security_harness.models import (
     Observation,
     Target,
     TargetDescriptor,
+    ToolSchemaRecord,
     TraceStep,
 )
 from agentic_security_harness.patterns import seed_patterns
@@ -37,6 +40,9 @@ from agentic_security_harness.validation import ValidationResult, validate_path
 
 __all__ = [
     "DataEnvelope",
+    "CapabilityToken",
+    "ToolSchemaRecord",
+    "AuditEntry",
     "DefensivePattern",
     "ExploitTrace",
     "Finding",
@@ -66,4 +72,4 @@ __all__ = [
     "validate_path",
 ]
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"

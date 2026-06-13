@@ -32,7 +32,7 @@ If those six points hold, the benchmark is coherent.
 
 | Piece | What it does | Where to look |
 |---|---|---|
-| Corpus | The 10 implemented defensive patterns and their expected outcomes. | [corpus.md](corpus.md), `src/agentic_security_harness/corpus.py` |
+| Corpus | The 13 implemented defensive patterns and their expected outcomes. | [corpus.md](corpus.md), `src/agentic_security_harness/corpus.py` |
 | Patterns | Sanitized test cases the runner sends to targets. | `src/agentic_security_harness/patterns.py` |
 | Targets | Local systems under test: `mock`, `demo-agent`, `protected-demo-agent`. | `src/agentic_security_harness/*agent*.py`, `mock_target.py` |
 | Runner | Converts `pattern + target` into traces. | `src/agentic_security_harness/runner.py` |
@@ -69,8 +69,8 @@ These are roadmap or future-track items. They should not be described as shipped
 Start here:
 
 1. [README](../README.md) - current status, commands, and high-level positioning.
-2. [Corpus coverage matrix](corpus.md) - the 10 implemented patterns.
-3. [Comparison example](../examples/comparison-report/README.md) - the visible 10 -> 0
+2. [Corpus coverage matrix](corpus.md) - the 13 implemented patterns.
+3. [Comparison example](../examples/comparison-report/README.md) - the visible 13 -> 0
    demonstration.
 4. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,
    mitigations, and planned reference controls.
@@ -85,7 +85,7 @@ ash compare --baseline demo-agent --protected protected-demo-agent --out reports
 ash validate reports/comparison
 ```
 
-Expected current result: baseline has 10 findings; protected has 0 findings.
+Expected current result: baseline has 13 findings; protected has 0 findings.
 
 ## How to add a new research idea safely
 

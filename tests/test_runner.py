@@ -13,6 +13,9 @@ SEED_ORDER = [
     "sleeping_prompt.delayed_activation",
     "audit.spam_label_abuse",
     "budget.loop_abuse",
+    "capability.delegation_chain_drift",
+    "mcp.tool_schema_deception",
+    "audit.hash_chain_tamper",
 ]
 
 

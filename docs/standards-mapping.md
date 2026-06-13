@@ -2,7 +2,7 @@
 
 > Last reviewed: 2026-06-12.
 >
-> Scope: implemented local corpus only. This page maps the ten deterministic seed
+> Scope: implemented local corpus only. This page maps the thirteen deterministic seed
 > patterns to external security frameworks at a coarse defensive level. The mapping helps
 > reviewers understand what each pattern exercises; it does **not** imply certification,
 > complete coverage, or real-world protection.
@@ -33,6 +33,9 @@
 | `sleeping_prompt.delayed_activation` | ASI01, ASI06 | A stored dormant instruction redirects the agent on a later turn after provenance is lost. |
 | `audit.spam_label_abuse` | ASI03 | An untrusted label tries to bypass an oversight control on labeled data. |
 | `budget.loop_abuse` | ASI02 | Repeated tool/action steps run without budget or loop-guard enforcement. |
+| `capability.delegation_chain_drift` | ASI02, ASI07 | Delegated authority expands across agent hops instead of preserving least privilege and chain provenance. |
+| `mcp.tool_schema_deception` | ASI02, ASI06 | Changed tool metadata is trusted without schema provenance or hash checks. |
+| `audit.hash_chain_tamper` | ASI03 | Edited audit entries are accepted instead of being rejected by integrity validation. |
 
 ## Why the project focuses on label propagation
 
