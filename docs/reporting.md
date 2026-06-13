@@ -19,17 +19,19 @@ Each `ash run` writes:
 
 - `traces.json` - portable machine-readable traces;
 - `scorecard.json` - deterministic aggregate;
-- `summary.md` - human-readable pattern table;
-- `executive.md` - concise scope, severity, top-failure, and residual-risk view.
+- `summary.md` - human-readable table;
+- `executive.md` - concise executive view with control families;
+- `remediation.json` - structured control recommendations (when findings exist);
+- `remediation.md` - human-readable remediation report (when findings exist).
 
 `ash compare` writes:
 
-- `baseline/` artifacts;
+- `baseline/` artifacts (including remediation if findings exist);
 - `protected/` artifacts;
-- `comparison.md`.
+- `comparison.md` with control priorities section.
 
 `ash validate` checks that committed artifacts match the corpus manifest and contain no
-forbidden markers.
+forbidden markers, including `remediation.json` and `remediation.md`.
 
 ## Executive report shape
 
@@ -121,3 +123,19 @@ The current `executive.md` is intentionally lightweight. The next report-quality
 coverage visualization, standards matrices, mitigation checklists, and adapter metadata.
 They should improve how the 22-pattern corpus is reviewed without changing the benchmark
 semantics.
+
+## Remediation layer (v0.10)
+
+The remediation layer produces structured control recommendations from findings.
+Each recommendation maps a finding to:
+
+- **control family** (e.g. `provenance`, `memory_governance`, `tool_selection`)
+- **priority** (p0/p1/p2/p3 based on finding severity)
+- **quick fix** - immediate action
+- **engineering fix** - implementation-level change
+- **architecture fix** - stronger architectural design
+- **verification** - how to confirm the fix works
+- **residual risk** - what remains after the fix
+
+The remediation artifacts (`remediation.json`, `remediation.md`) are deterministic,
+synthetic, and local. They do not imply complete protection.

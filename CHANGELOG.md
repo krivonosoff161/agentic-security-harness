@@ -6,6 +6,36 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-06-13
+
+### Added
+- **Remediation layer** — structured control recommendations for every finding:
+  - `ControlRecommendation` model with control family, priority (p0-p3), quick fix,
+    engineering fix, architecture fix, verification, and residual risk.
+  - `RemediationReport` aggregation model.
+  - 11 control families: provenance, data_boundary, memory_governance, tool_selection,
+    capability_control, approval_context, audit_completeness, budget_control,
+    perception_boundary, provider_boundary, adapter_metadata.
+  - Deterministic mapping from 22 patterns to control families.
+- **Remediation report artifacts:**
+  - `remediation.json` — machine-readable control recommendations.
+  - `remediation.md` — human-readable remediation report with priorities, quick fixes,
+    engineering fixes, architecture fixes, verification steps, and residual risk.
+- **Executive report integration** — `executive.md` now shows top control families needed.
+- **Comparison report integration** — `comparison.md` includes a "Recommended control
+  priorities" section referencing baseline remediation.
+- **Validation of remediation artifacts** — `ash validate` checks `remediation.json` and
+  `remediation.md` against rebuilt recommendations; scans for forbidden markers.
+- **Known limitations documentation** — `docs/threat-model.md` now documents 7 known
+  limitations (covert channels, stochastic behavior, adaptive attacks, standards gaps,
+  real adapter requirements, cross-app contamination, audit context completeness).
+
+### Changed
+- `write_reports()` now emits `remediation.json` and `remediation.md` when findings exist.
+- `build_executive_md()` includes top control families in the executive view.
+- `build_comparison_md()` includes a "Recommended control priorities" section.
+- `__version__` updated to `0.10.0`.
+
 ## [0.9.0] - 2026-06-13
 
 ### Added

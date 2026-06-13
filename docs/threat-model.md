@@ -85,6 +85,41 @@ Two deliberate limitations to call out:
   runtime. This is a deliberate trade — a self-mutating security tool is hard to audit.
   Feedback labels are collected for future, human-reviewed adaptive rules only.
 
+## Known limitations (v0.10)
+
+The following are **documented known limitations**, not current patterns. They represent
+areas where the benchmark does not yet test, and where real-world agent systems may face
+risks that are not captured by the current corpus.
+
+1. **Covert inter-agent communication.** Research (Vaikuntanathan-Zamir, 2604.04757)
+   demonstrates that two agents can conduct parallel secret conversations while producing
+   transcripts computationally indistinguishable from honest interactions. Transcript
+   auditing alone cannot detect this. The current audit patterns test suppression and
+   tamper-evidence, not covert channels.
+
+2. **Stochastic real-model behavior.** Real LLM agents produce non-deterministic outputs.
+   The current corpus is deterministic; stochastic adapters require repeat-run reporting
+   and confidence intervals. This is a future adapter-contract requirement, not a corpus gap.
+
+3. **Adaptive / RL-based attacks.** Research (PISmith, 2603.13026) shows that RL-trained
+   attacks consistently outperform static defenses. The current synthetic patterns are
+   deterministic and may underestimate adaptive adversary risk.
+
+4. **Standards mappings remain verification-gated.** OWASP LLM and MITRE ATLAS per-pattern
+   mappings are not yet filled. The `owasp_llm` and `mitre_atlas` fields in `corpus.py`
+   are empty until each ID is verified against primary sources.
+
+5. **Real adapters require authorization, redaction, and metadata.** Non-synthetic adapters
+   must pass safety gates (no live exploitation, no real secrets, authorization model,
+   default offline mode, redaction) before being merged. No real adapters exist today.
+
+6. **Cross-app contamination not yet tested.** Data/instructions from one application
+  surface leaking into another is a planned pattern (v0.10.x), not yet implemented.
+
+7. **Audit context completeness not yet tested.** Audit entries that omit decision
+   context, data envelope, or policy rules are a planned pattern (v0.10.x), not yet
+   implemented.
+
 ## Why the system prompt is not a security boundary
 
 The system prompt is sent **to the model** alongside user input and shapes behavior

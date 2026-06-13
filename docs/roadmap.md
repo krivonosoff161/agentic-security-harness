@@ -29,12 +29,16 @@ provider calls, no real targets, no real secrets.
   unintentional cross-user contamination, recursive execution amplification,
   tool-selection manipulation, multi-turn indirect instruction escalation -
   22 deterministic patterns total.
+- **v0.10 - remediation layer and report depth:** structured control
+  recommendations (`ControlRecommendation` model), `remediation.json` and
+  `remediation.md` artifacts, executive report integration, remediation
+  validation in `ash validate`.
 
 ---
 
 ## Next
 
-- **v0.9.x - cross-app contamination and audit context split:** cross-surface data
+- **v0.10.x - cross-app contamination and audit context split:** cross-surface data
   instruction contamination and action-audit divergence tests.
 - **v0.10 - local adapter examples:** toy RAG app, toy MCP server, toy multi-agent handoff.
   Still local / synthetic only.
