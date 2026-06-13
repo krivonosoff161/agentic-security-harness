@@ -97,6 +97,11 @@ See [docs/roadmap.md](docs/roadmap.md).
 - **Demo CLI (`ash`)** — `ash run --target {mock,demo-agent,protected-demo-agent}`,
   `ash compare --baseline ... --protected ...`, and `ash validate <path>` write/validate
   deterministic reports (see Quickstart). Committed examples under [`examples/`](examples/).
+- **Adapter registry** — `ash targets` lists built-in targets; `ash scenarios` lists
+  scenario families. Target lookup is centralized through `make_target()`.
+- **Scenario matrix** — `ash run-matrix --target <target> --scenario <scenario>` runs a
+  scenario subset with variant metadata and writes `matrix.json` plus standard report
+  artifacts. Scenarios group the 22 patterns into defensive boundary families.
 - **Validation (`ash validate examples/`)** — checks committed benchmark artifacts (traces,
   scorecards, summaries, comparison) and corpus consistency, and scans for forbidden
   markers; the examples are **validated benchmark artifacts**, not loose output.
@@ -201,6 +206,13 @@ ash run --target demo-agent --out reports/demo-agent
 # protected variant: same agent with simple deterministic controls
 ash run --target protected-demo-agent --out reports/protected-demo-agent
 
+# list registered targets and scenario families
+ash targets
+ash scenarios
+
+# run a scenario matrix (subset of patterns with variant metadata)
+ash run-matrix --target demo-agent --scenario data-boundary --out reports/matrix-demo
+
 # validate the committed benchmark artifacts (or your own runs)
 ash validate examples/
 ```
@@ -214,6 +226,9 @@ reports/demo/
 ├── summary.md        # human-readable summary table
 └── executive.md      # concise scope, severity, top-failure, and residual-risk view
 ```
+
+`run-matrix` additionally writes `matrix.json` (variant metadata) and `matrix.md`
+(scenario-specific summary).
 
 `demo-agent` is a deterministic **local, synthetic** agent (in-memory memory, mock tool
 calls, data-envelope propagation, recipient-control checks) — still no network, no LLM, and

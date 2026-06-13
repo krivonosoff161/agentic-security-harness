@@ -93,6 +93,10 @@ Before a non-synthetic adapter can be merged or used publicly, it must pass:
 ### Current built-in targets
 
 ```bash
+# List registered targets and scenario families
+ash targets
+ash scenarios
+
 # Fastest: deterministic mock target
 ash run --target mock --out reports/demo
 
@@ -104,6 +108,9 @@ ash run --target protected-demo-agent --out reports/protected-demo-agent
 
 # Compare baseline vs protected
 ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison
+
+# Run a scenario matrix (subset of patterns with variant metadata)
+ash run-matrix --target demo-agent --scenario data-boundary --out reports/matrix-demo
 ```
 
 ### Future custom target path
@@ -142,6 +149,13 @@ Each `ash run` produces:
 | `executive.md` | Executive view: scope, headline result, top control families, residual risk. |
 | `remediation.json` | Structured control recommendations (when findings exist). |
 | `remediation.md` | Human-readable remediation report (when findings exist). |
+
+`ash run-matrix` additionally produces:
+
+| Artifact | Purpose |
+|---|---|
+| `matrix.json` | Variant metadata: target, scenario, selected patterns, variant knobs. |
+| `matrix.md` | Scenario-specific summary with variant details and pattern results. |
 
 `ash compare` produces:
 
