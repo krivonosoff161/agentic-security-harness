@@ -106,9 +106,10 @@ See [docs/roadmap.md](docs/roadmap.md).
 - **External adapter (experimental)** — `ash run-external --adapter openai-compatible
   --base-url URL --model MODEL --scenario SCENARIO` evaluates an authorized
   OpenAI-compatible endpoint with safe synthetic prompts. Supports repeats, dry-run,
-  and variant selection. Network calls only when explicitly invoked. In the
-  current release, these knobs are deterministic replay metadata; they do not mutate
-  the underlying pattern content yet.
+  and variant selection. Network calls only when explicitly invoked. Variant knobs are
+  passed to the external prompt as scenario context, but do not yet mutate the
+  underlying pattern content; for the local `run-matrix` path they remain replay
+  metadata only.
 - **Validation (`ash validate examples/`)** — checks committed benchmark artifacts (traces,
   scorecards, summaries, comparison, and external-run reports) and corpus consistency,
   and scans for forbidden markers; the examples are **validated benchmark artifacts**,
@@ -244,13 +245,13 @@ ash external-check --adapter openai-compatible \
   --scenario data-boundary
 
 # actual run (makes network calls)
-export ASH_API_KEY=your_key_here
+export ASH_EXTERNAL_API_KEY=your_key_here
 ash run-external --adapter openai-compatible \
   --base-url http://localhost:8000/v1 \
   --model deepseek-chat \
   --scenario data-boundary \
   --repeats 3 \
-  --api-key-env ASH_API_KEY \
+  --api-key-env ASH_EXTERNAL_API_KEY \
   --out reports/external-demo
 ```
 
@@ -268,10 +269,16 @@ reports/demo/
 (scenario-specific summary).
 
 `run-external` writes:
-- `run_config.json` — run configuration (API key env name only, never the value)
-- `external_results.json` — per-pattern evaluation results
-- `external_summary.json` — aggregated repeat summaries
-- `external_report.md` — human-readable external run report
+- `run_config.json` — run configuration incl. `request_count` (API key env name only, never the value)
+- `external_results.json` — per-pattern evaluation results with structured errors
+- `external_summary.json` — aggregated repeat summaries + `findings_by_control_family`
+- `external_report.md` — human-readable report with a control-family table and
+  **control recommendations** (quick / engineering / architecture fix, verification,
+  residual risk) for any finding
+
+`run-external` refuses to start if the estimated request count
+(`patterns × variants × repeats`) exceeds `--max-requests` (default 50); raise it
+explicitly for larger runs. `ash validate` checks external artifacts too.
 
 > **External runs are experimental.** They evaluate model decision boundaries
 > with synthetic prompts, not full agent execution. No tools are called.

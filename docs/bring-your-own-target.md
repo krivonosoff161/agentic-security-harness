@@ -132,13 +132,13 @@ ash run-external --adapter openai-compatible \
   --dry-run
 
 # Actual run (makes network calls)
-export ASH_API_KEY=your_key_here
+export ASH_EXTERNAL_API_KEY=your_key_here
 ash run-external --adapter openai-compatible \
   --base-url http://localhost:8000/v1 \
   --model deepseek-chat \
   --scenario data-boundary \
   --repeats 3 \
-  --api-key-env ASH_API_KEY \
+  --api-key-env ASH_EXTERNAL_API_KEY \
   --out reports/external-demo
 ```
 

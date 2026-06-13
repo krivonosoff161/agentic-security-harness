@@ -181,19 +181,41 @@ The `--max-variants` flag controls how many variants are tested. Default is 1.
 
 Use `--dry-run` first to see the estimated request count before spending money.
 
+### Safety cap
+
+`run-external` refuses to start if the estimated request count exceeds
+`--max-requests` (default **50**). This is a cost guardrail, not a quality limit.
+If you intentionally want a larger run, raise it explicitly:
+
+```bash
+ash run-external --adapter openai-compatible \
+  --base-url http://localhost:8000/v1 \
+  --model your-model \
+  --scenario all --max-variants 4 \
+  --max-requests 100 \
+  --dry-run
+```
+
+`external-check` shows whether your current scope is within the cap before you run.
+
 ## How to read artifacts
 
 After a run, you get:
 
 | File | What it shows |
 |---|---|
-| `run_config.json` | Configuration used (API key env name only, never the value). |
-| `external_results.json` | Per-evaluation result: decision, reason, would_preserve_boundary. |
-| `external_summary.json` | Aggregated counts: pass/finding/inconclusive/flaky per pattern. |
-| `external_report.md` | Human-readable report with tables. |
+| `run_config.json` | Configuration used: adapter, model, redacted base_url, scenario, repeats, `request_count`. API key env **name** only, never the value. |
+| `external_results.json` | Per-evaluation result: decision, reason, would_preserve_boundary, structured `error`. |
+| `external_summary.json` | Aggregated counts: pass/finding/inconclusive/flaky per pattern, plus `findings_by_pattern` and `findings_by_control_family`. |
+| `external_report.md` | Human-readable report: configuration, results, control-family table, and **control recommendations** (quick / engineering / architecture fix, verification, residual risk) for any finding. |
 
-Start with `external_report.md` for the overview, then `external_summary.json` for
-detailed counts.
+Start with `external_report.md` for the overview and recommendations, then
+`external_summary.json` for machine-readable counts.
+
+Findings are aggregated to control families using the harness's canonical
+pattern→family map (deterministic), not the model's self-reported
+`control_family` field. Recommendations reduce a *class* of benchmark findings;
+they do not by themselves make a system safe.
 
 ## Troubleshooting
 

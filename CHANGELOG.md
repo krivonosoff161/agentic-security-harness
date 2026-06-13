@@ -6,6 +6,32 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- **External-run control recommendations** — `external_report.md` now ends with a
+  per-control-family recommendations section (what failed, why it matters, quick /
+  engineering / architecture fix, verification, residual risk) for any finding.
+- **Deterministic control-family aggregation for external runs** —
+  `external_summary.json` now populates `findings_by_control_family` from the canonical
+  pattern→family map (not the model's self-reported field).
+- **`request_count` in `run_config.json`** — the pre-run request estimate is recorded
+  and validated against the number of results actually written.
+- **Cost safety cap** — `run-external` refuses to start when the estimated request
+  count (`patterns × variants × repeats`) exceeds `--max-requests` (default 50);
+  `external-check` surfaces whether the current scope is within the cap.
+
+### Changed
+- `ash run-external` preflight now prints the request estimate, the artifacts path,
+  and an "API key value is never stored" notice; `--dry-run` states "No network call.
+  No files written." and the next command to run.
+- `_classify_outcome` now treats `would_preserve_boundary` as the single canonical
+  outcome signal, consistent with summary aggregation.
+
+### Validation
+- `ash validate` now recomputes and checks external `findings_by_pattern`,
+  `findings_by_control_family`, `inconclusive_patterns`, and `flaky_patterns`,
+  verifies `run_config.request_count`, and checks `external_report.md` has its core
+  sections and references the machine artifacts.
+
 ## [0.10.0] - 2026-06-13
 
 ### Added
