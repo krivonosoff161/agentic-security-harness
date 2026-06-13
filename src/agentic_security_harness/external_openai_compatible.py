@@ -29,7 +29,8 @@ def _get_api_key(env_name: str) -> str | None:
     if not value:
         raise ExternalAPIError(
             f"API key environment variable '{env_name}' is not set. "
-            f"Set it with: export {env_name}=your_key"
+            f"Set it first - bash: export {env_name}=your_key  |  "
+            f"PowerShell: $env:{env_name}='your_key'"
         )
     return value
 

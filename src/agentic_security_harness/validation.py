@@ -487,6 +487,8 @@ def _validate_external_dir(path: Path, root: Path, result: ValidationResult) -> 
     report_md = path / "external_report.md"
     if not report_md.exists():
         result._err(f"{_rel(report_md, root)}: missing")
+    else:
+        _validate_external_report_md(report_md, root, result)
 
     config: RunConfig | None = None
     summary: ExternalSummary | None = None
@@ -533,6 +535,13 @@ def _validate_external_dir(path: Path, root: Path, result: ValidationResult) -> 
             result._err(
                 f"{_rel(path / 'run_config.json', root)}: api_key_env looks like a key value"
             )
+        # request_count is the pre-run estimate; once results exist it must match
+        # the number of normalized results actually written.
+        if results is not None and config.request_count != len(results):
+            result._err(
+                f"{_rel(path / 'run_config.json', root)}: request_count "
+                f"{config.request_count} != external_results count {len(results)}"
+            )
     if results is not None:
         _validate_external_results(path, root, results, result)
     if config is not None and summary is not None:
@@ -561,6 +570,33 @@ def _validate_external_dir(path: Path, root: Path, result: ValidationResult) -> 
         "external_report.md",
     ):
         _scan_secrets(path / name, root, result)
+
+
+def _validate_external_report_md(
+    path: Path, root: Path, result: ValidationResult
+) -> None:
+    """Light structural check: the human report has its core sections and points
+    back to the machine artifacts. Not a byte-for-byte rebuild (the report can
+    carry model-dependent prose)."""
+    rel = _rel(path, root)
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        result._err(f"{rel}: unreadable")
+        return
+    required = [
+        "## Configuration",
+        "## Results",
+        "## Control recommendations",
+        "## Related artifacts",
+    ]
+    for section in required:
+        if section not in text:
+            result._err(f"{rel}: missing section '{section}'")
+    if "run_config.json" not in text or "external_summary.json" not in text:
+        result._err(
+            f"{rel}: does not reference run_config.json / external_summary.json"
+        )
 
 
 def _validate_external_results(
@@ -592,6 +628,10 @@ def _validate_external_summary(
     summary: "ExternalSummary",
     result: ValidationResult,
 ) -> None:
+    from collections import defaultdict
+
+    from agentic_security_harness.remediation import _FAMILY_MAP
+
     rel = _rel(path / "external_summary.json", root)
     total_checks = len({(r.pattern_id, r.variant_id) for r in results})
     if summary.total_repeats != len(results):
@@ -604,16 +644,64 @@ def _validate_external_summary(
             f"{rel}: total_checks {summary.total_checks} != "
             f"unique pattern/variant checks {total_checks}"
         )
-    patterns_with_findings = sorted({
-        r.pattern_id
-        for r in results
-        if not r.error and r.would_preserve_boundary is False
-    })
+
+    # Recompute per-pattern aggregates from results to catch tampered/stale summaries.
+    finding_results = [
+        r for r in results if not r.error and r.would_preserve_boundary is False
+    ]
+    findings_by_pattern: dict[str, int] = defaultdict(int)
+    for r in finding_results:
+        findings_by_pattern[r.pattern_id] += 1
+
+    patterns_with_findings = sorted(set(findings_by_pattern))
     if summary.patterns_with_findings != patterns_with_findings:
         result._err(f"{rel}: patterns_with_findings does not match external_results")
+
+    if dict(summary.findings_by_pattern) != dict(findings_by_pattern):
+        result._err(f"{rel}: findings_by_pattern does not match external_results")
+
+    findings_by_control_family: dict[str, int] = defaultdict(int)
+    for pid, count in findings_by_pattern.items():
+        family = _FAMILY_MAP.get(pid, "provenance")
+        findings_by_control_family[family] += count
+    if dict(summary.findings_by_control_family) != dict(findings_by_control_family):
+        result._err(
+            f"{rel}: findings_by_control_family does not match external_results"
+        )
+
     error_patterns = sorted({r.pattern_id for r in results if r.error})
     if summary.error_patterns != error_patterns:
         result._err(f"{rel}: error_patterns does not match external_results")
+
+    # inconclusive_patterns: had an inconclusive result and no finding for that pattern.
+    inconclusive_pids = {
+        r.pattern_id
+        for r in results
+        if not r.error and r.would_preserve_boundary is None
+    }
+    expected_inconclusive = sorted(
+        pid for pid in inconclusive_pids if pid not in findings_by_pattern
+    )
+    if summary.inconclusive_patterns != expected_inconclusive:
+        result._err(f"{rel}: inconclusive_patterns does not match external_results")
+
+    # flaky_patterns: a (pattern, variant) group with >1 non-error outcome.
+    groups: dict[tuple[str, str], set[str]] = defaultdict(set)
+    for r in results:
+        if r.error:
+            outcome = "error"
+        elif r.would_preserve_boundary is True:
+            outcome = "pass"
+        elif r.would_preserve_boundary is False:
+            outcome = "finding"
+        else:
+            outcome = "inconclusive"
+        groups[(r.pattern_id, r.variant_id)].add(outcome)
+    flaky_pids = sorted({
+        pid for (pid, _vid), outs in groups.items() if len(outs - {"error"}) > 1
+    })
+    if summary.flaky_patterns != flaky_pids:
+        result._err(f"{rel}: flaky_patterns does not match external_results")
 
 
 def _validate_comparison_md(

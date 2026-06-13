@@ -21,6 +21,7 @@ from pathlib import Path
 from agentic_security_harness.adapters import list_targets, make_target, target_ids
 from agentic_security_harness.patterns import seed_patterns
 from agentic_security_harness.reporting import write_comparison, write_reports
+from agentic_security_harness.run_config import _MAX_REPEATS, _MAX_TOTAL_REQUESTS
 from agentic_security_harness.runner import HarnessRunner
 from agentic_security_harness.scenarios import list_scenarios, scenario_ids
 from agentic_security_harness.scorecard import build_scorecard
@@ -200,9 +201,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="evaluate exactly one variant by id",
     )
     ext_p.add_argument(
+        "--max-requests",
+        type=int,
+        default=_MAX_TOTAL_REQUESTS,
+        help=(
+            "safety cap on total requests "
+            f"(patterns x variants x repeats; default: {_MAX_TOTAL_REQUESTS})"
+        ),
+    )
+    ext_p.add_argument(
         "--dry-run",
         action="store_true",
-        help="show what would be run without making network calls",
+        help="preview request count and config; makes no network call, writes no files",
     )
 
     check_p = sub.add_parser(
@@ -246,6 +256,12 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=1,
         help="maximum number of variants (default: 1)",
+    )
+    check_p.add_argument(
+        "--max-requests",
+        type=int,
+        default=_MAX_TOTAL_REQUESTS,
+        help=f"safety cap on total requests (default: {_MAX_TOTAL_REQUESTS})",
     )
     check_p.add_argument(
         "--live",
@@ -415,17 +431,63 @@ def _run_external(
     variant_id: str | None,
     dry_run: bool,
     adapter: str,
+    max_requests: int,
 ) -> int:
     from agentic_security_harness.external_runner import run_external
-    from agentic_security_harness.run_config import _MAX_REPEATS
+    from agentic_security_harness.scenarios import get_scenario, get_variants
 
     if repeats < 1 or repeats > _MAX_REPEATS:
         print(f"Error: repeats must be between 1 and {_MAX_REPEATS}")
         return 1
 
     if adapter != "openai-compatible":
-        print(f"Error: unsupported adapter '{adapter}'. Only 'openai-compatible' is supported.")
+        print(
+            f"Error: unsupported adapter '{adapter}'. "
+            "Only 'openai-compatible' is supported."
+        )
         return 1
+
+    # Estimate request count and enforce the cost safety cap before any call.
+    try:
+        scenario = get_scenario(scenario_id)
+        variants = get_variants(scenario_id, max_variants, variant_id)
+    except KeyError as exc:
+        print(f"Error: {exc}")
+        return 1
+    estimate = len(scenario.pattern_ids) * len(variants) * repeats
+    if estimate > max_requests:
+        print(
+            f"Error: estimated {estimate} requests "
+            f"({len(scenario.pattern_ids)} patterns x {len(variants)} variants "
+            f"x {repeats} repeats) exceeds the safety cap of {max_requests}."
+        )
+        print(f"  Raise it with --max-requests {estimate}, or reduce scope.")
+        print("  Use --dry-run first to preview without spending anything.")
+        return 1
+
+    if dry_run:
+        run_external(
+            base_url=base_url,
+            model=model,
+            scenario_id=scenario_id,
+            out_dir=out,
+            repeats=repeats,
+            temperature=temperature,
+            timeout_seconds=timeout,
+            api_key_env=api_key_env,
+            max_variants=max_variants,
+            only_variant_id=variant_id,
+            dry_run=True,
+        )
+        print("No network call. No files written. (dry run)")
+        if api_key_env:
+            print(f"  Set the key first: $env:{api_key_env}='...' (PowerShell)")
+        print("Next: re-run without --dry-run to execute.")
+        return 0
+
+    print(f"Estimated requests: {estimate}  (cap: {max_requests})")
+    print(f"Artifacts will be written to {out.as_posix()}")
+    print("API key value is never stored; only the env var name is recorded.")
 
     try:
         summary = run_external(
@@ -439,14 +501,11 @@ def _run_external(
             api_key_env=api_key_env,
             max_variants=max_variants,
             only_variant_id=variant_id,
-            dry_run=dry_run,
+            dry_run=False,
         )
     except KeyError as exc:
         print(f"Error: {exc}")
         return 1
-
-    if dry_run:
-        return 0
 
     print(f"wrote external report artifacts to {out.as_posix()}")
     print(
@@ -457,6 +516,12 @@ def _run_external(
         f"findings: {len(summary.patterns_with_findings)}  "
         f"flaky: {len(summary.flaky_patterns)}"
     )
+    if summary.error_patterns:
+        print(
+            f"  {len(summary.error_patterns)} pattern(s) errored "
+            "(see external_results.json for structured errors)."
+        )
+    print("Next: ash validate " + out.as_posix())
     return 0
 
 
@@ -469,6 +534,7 @@ def _external_check(
     repeats: int,
     max_variants: int,
     live: bool,
+    max_requests: int,
 ) -> int:
     from agentic_security_harness.run_config import _redact_url
     from agentic_security_harness.scenarios import get_scenario, get_variants
@@ -512,6 +578,14 @@ def _external_check(
     total = len(scenario.pattern_ids) * len(variants) * repeats
     print(f"  Estimated requests: {total} ({len(scenario.pattern_ids)} patterns x "
           f"{len(variants)} variants x {repeats} repeats)")
+    if total > max_requests:
+        print(
+            f"  Cost cap: {total} exceeds the safety cap of {max_requests} -- "
+            f"run-external will refuse. Raise with --max-requests {total} or "
+            "reduce scope."
+        )
+    else:
+        print(f"  Cost cap: {max_requests} (within budget)")
 
     # Check API key env
     if api_key_env:
@@ -598,6 +672,7 @@ def main(argv: list[str] | None = None) -> int:
             args.variant,
             args.dry_run,
             args.adapter,
+            args.max_requests,
         )
     if args.command == "external-check":
         return _external_check(
@@ -609,6 +684,7 @@ def main(argv: list[str] | None = None) -> int:
             args.repeats,
             args.max_variants,
             getattr(args, "live", False),
+            args.max_requests,
         )
     return 1
 

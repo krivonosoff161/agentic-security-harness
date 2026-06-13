@@ -12,6 +12,7 @@
   "selected_variants": [
     "base-envelope"
   ],
+  "request_count": 4,
   "deterministic": false,
   "network_mode": "explicit-external",
   "api_key_env": "",

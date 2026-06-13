@@ -39,6 +39,7 @@ class RunConfig(BaseModel):
     scenario_id: str = ""
     max_variants: int = 1
     selected_variants: list[str] = Field(default_factory=list)
+    request_count: int = 0
     deterministic: bool = False
     network_mode: str = "explicit-external"
     api_key_env: str = ""
