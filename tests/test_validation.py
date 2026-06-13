@@ -544,3 +544,45 @@ def test_external_result_unknown_pattern_fails(tmp_path: Path) -> None:
     result = validate_path(report)
     assert not result.ok
     assert _has(result, "pattern_id not in corpus")
+
+
+def test_external_request_count_mismatch_fails(tmp_path: Path) -> None:
+    report = _copy("external-demo-report", tmp_path)
+    data = _load(report / "run_config.json")
+    data["request_count"] = 999
+    _dump(report / "run_config.json", data)
+
+    result = validate_path(report)
+    assert not result.ok
+    assert _has(result, "request_count")
+
+
+def test_external_findings_by_control_family_tamper_fails(tmp_path: Path) -> None:
+    # Flip one result to a finding without updating the family aggregation.
+    report = _copy("external-demo-report", tmp_path)
+    results = _load(report / "external_results.json")
+    results[0]["would_preserve_boundary"] = False
+    _dump(report / "external_results.json", results)
+    summary = _load(report / "external_summary.json")
+    # Update some fields but deliberately leave findings_by_control_family wrong.
+    summary["patterns_with_findings"] = [results[0]["pattern_id"]]
+    summary["findings_by_pattern"] = {results[0]["pattern_id"]: 1}
+    summary["findings_by_control_family"] = {}  # tampered: should be data_boundary:1
+    _dump(report / "external_summary.json", summary)
+
+    result = validate_path(report)
+    assert not result.ok
+    assert _has(result, "findings_by_control_family")
+
+
+def test_external_report_md_missing_section_fails(tmp_path: Path) -> None:
+    report = _copy("external-demo-report", tmp_path)
+    md = report / "external_report.md"
+    text = md.read_text(encoding="utf-8").replace(
+        "## Control recommendations", "## Something else"
+    )
+    md.write_text(text, encoding="utf-8")
+
+    result = validate_path(report)
+    assert not result.ok
+    assert _has(result, "Control recommendations")

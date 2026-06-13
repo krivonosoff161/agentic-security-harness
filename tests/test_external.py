@@ -348,6 +348,70 @@ def test_run_external_finding_result(tmp_path: Path) -> None:
     assert len(summary.patterns_with_findings) == 4
 
 
+def test_classify_outcome_allow_but_preserve_is_pass() -> None:
+    # would_preserve_boundary is the canonical signal; a mixed decision must not
+    # silently downgrade a preserved boundary to inconclusive.
+    parsed = {"decision": "allow", "would_preserve_boundary": True}
+    outcome, _ = _classify_outcome(parsed)
+    assert outcome == "pass"
+
+
+def test_run_external_writes_request_count(tmp_path: Path) -> None:
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps({
+        "choices": [{"message": {"content":
+            '{"decision": "block", "would_preserve_boundary": true}'
+        }}]
+    }).encode()
+    mock_response.__enter__ = lambda s: s
+    mock_response.__exit__ = MagicMock(return_value=False)
+
+    with patch("urllib.request.urlopen", return_value=mock_response):
+        run_external(
+            base_url="http://localhost:8000/v1",
+            model="test",
+            scenario_id="data-boundary",
+            out_dir=tmp_path / "ext",
+            repeats=1,
+            max_variants=1,
+        )
+
+    config = json.loads((tmp_path / "ext" / "run_config.json").read_text())
+    assert config["request_count"] == 4  # 4 patterns x 1 variant x 1 repeat
+
+
+def test_run_external_findings_control_family_and_recommendations(
+    tmp_path: Path,
+) -> None:
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps({
+        "choices": [{"message": {"content":
+            '{"decision": "allow", "would_preserve_boundary": false}'
+        }}]
+    }).encode()
+    mock_response.__enter__ = lambda s: s
+    mock_response.__exit__ = MagicMock(return_value=False)
+
+    with patch("urllib.request.urlopen", return_value=mock_response):
+        summary = run_external(
+            base_url="http://localhost:8000/v1",
+            model="test",
+            scenario_id="data-boundary",
+            out_dir=tmp_path / "ext",
+            repeats=1,
+        )
+
+    # data-boundary patterns map to data_boundary + provider_boundary families.
+    assert summary.findings_by_control_family.get("data_boundary", 0) == 3
+    assert summary.findings_by_control_family.get("provider_boundary", 0) == 1
+
+    report = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
+    assert "## Control recommendations" in report
+    assert "### data_boundary" in report
+    assert "Quick fix:" in report
+    assert "Residual risk:" in report
+
+
 def test_run_external_api_error(tmp_path: Path) -> None:
     with patch("urllib.request.urlopen", side_effect=ExternalAPIError("timeout")):
         summary = run_external(
@@ -492,6 +556,63 @@ def test_cli_run_external_unsupported_adapter() -> None:
         "--dry-run",
     ])
     assert rc == 1
+
+
+def test_cli_run_external_exceeds_request_cap(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from agentic_security_harness import cli
+
+    # 22 patterns x 4 variants x 1 repeat = 88 > default cap 50. The cap is
+    # checked before any network call, even with --dry-run.
+    with patch("urllib.request.urlopen") as mock_open:
+        rc = cli.main([
+            "run-external",
+            "--base-url", "http://localhost:8000/v1",
+            "--model", "test",
+            "--scenario", "all",
+            "--max-variants", "4",
+            "--dry-run",
+        ])
+        assert rc == 1
+        mock_open.assert_not_called()
+    assert "exceeds the safety cap" in capsys.readouterr().out
+
+
+def test_cli_run_external_dry_run_reports_no_files(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from agentic_security_harness import cli
+
+    with patch("urllib.request.urlopen") as mock_open:
+        rc = cli.main([
+            "run-external",
+            "--base-url", "http://localhost:8000/v1",
+            "--model", "test",
+            "--scenario", "data-boundary",
+            "--dry-run",
+        ])
+        assert rc == 0
+        mock_open.assert_not_called()
+    out = capsys.readouterr().out
+    assert "Estimated requests: 4" in out
+    assert "No network call. No files written." in out
+
+
+def test_cli_external_check_shows_cost_cap(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from agentic_security_harness import cli
+
+    rc = cli.main([
+        "external-check",
+        "--base-url", "http://localhost:8000/v1",
+        "--model", "test",
+        "--scenario", "all",
+        "--max-variants", "4",
+    ])
+    assert rc == 0
+    assert "exceeds the safety cap" in capsys.readouterr().out
 
 
 def _wait_port(host: str, port: int, timeout_s: float = 5.0) -> None:
