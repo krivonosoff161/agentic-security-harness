@@ -20,6 +20,11 @@ SEED_ORDER = [
     "ambient_authority.environmental_privilege_escalation",
     "approval_laundering.underjustified_confirmation",
     "memory_governance.unscoped_memory_persistence",
+    "memory_governance.environment_injected_poisoning",
+    "memory_governance.unintentional_cross_user",
+    "budget.recursive_execution_amplification",
+    "mcp.tool_selection_manipulation",
+    "indirect_instruction.multi_turn_escalation",
 ]
 
 

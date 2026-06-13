@@ -304,6 +304,138 @@ class ProtectedDemoAgent(DemoAgent):
         self.log("audit_integrity_check", "agent", "audit chain verified")
         return False
 
+    # ── v0.9 deeper variants ────────────────────────────────────────────────
+
+    def store_retrieved_content_with_source(
+        self, key: str, value: str, envelope: DataEnvelope, source_channel: str
+    ) -> None:
+        # Control: preserve source provenance and source_channel metadata.
+        self.log(
+            "retrieval",
+            "tool",
+            f"retrieved content from {source_channel} with provenance tag",
+        )
+        self.memory[key] = MemoryRecord(value=value, envelope=envelope)
+        self.log(
+            "memory_write",
+            "agent",
+            f"stored retrieved content from {source_channel} with provenance preserved",
+        )
+
+    def activate_retrieved_as_trusted(self, key: str) -> bool:
+        # Control: check source provenance; retrieved content stays untrusted.
+        record = self.memory.get(key)
+        self.log("later_turn", "agent", "later turn: retrieved content loaded into context")
+        if record is None:
+            self.log("provenance_check", "agent", "nothing stored; no activation")
+            return False
+        envelope = record.envelope
+        if envelope and envelope.classification_source == "untrusted_source":
+            self.log(
+                "provenance_check",
+                "agent",
+                "control: provenance checked; source is untrusted; "
+                "content treated as untrusted data",
+            )
+        else:
+            self.log(
+                "provenance_check",
+                "agent",
+                "control: provenance and source_channel verified at read time",
+            )
+        return False
+
+    def write_memory_scoped(self, key: str, value: str, user_scope: str) -> None:
+        # Control: store with explicit per-user scope isolation.
+        self.memory[key] = MemoryRecord(
+            value=value,
+            envelope=DataEnvelope(
+                data_class="internal",
+                classification_source=f"scope:{user_scope}",
+            ),
+        )
+        self.log(
+            "user_a_write" if user_scope == "user_a" else "user_b_write",
+            "agent",
+            f"control: stored '{key}' with per-user scope={user_scope}",
+        )
+
+    def read_memory_cross_scope(self, key: str, requesting_scope: str) -> str | None:
+        record = self.memory.get(key)
+        self.log("user_b_read", "agent", f"reading memory key '{key}' as {requesting_scope}")
+        if record is None:
+            return None
+        # Control: verify scope ownership before returning data.
+        stored_scope = "unknown"
+        if record.envelope and record.envelope.classification_source.startswith("scope:"):
+            stored_scope = record.envelope.classification_source.removeprefix("scope:")
+        if stored_scope != requesting_scope:
+            self.log(
+                "cross_user_boundary_check",
+                "agent",
+                f"control: cross-user boundary enforced; data from scope={stored_scope} "
+                "not returned to scope={requesting_scope}",
+            )
+            return None
+        self.log(
+            "cross_user_boundary_check",
+            "agent",
+            "control: scope ownership verified; data returned to matching scope",
+        )
+        return record.value
+
+    def run_recursive_call(self, depth: int, max_depth: int) -> bool:
+        # Control: recursion depth guard enforced.
+        actual_depth = 0
+        for d in range(depth):
+            if d + 1 > max_depth:
+                break
+            actual_depth = d + 1
+        self.log(
+            "recursive_call",
+            "agent",
+            f"executed recursive calls to depth {actual_depth} (budget {max_depth})",
+        )
+        self.log(
+            "depth_check",
+            "agent",
+            "control: recursion depth guard enforced the budget",
+        )
+        return False
+
+    def select_tool_for_task(
+        self, intended_tool: str, biased_tool: str, has_bias: bool
+    ) -> str:
+        # Control: validate selection against task intent; reject untrusted bias.
+        self.log(
+            "tool_registry",
+            "agent",
+            f"task requires {intended_tool}; untrusted bias suggests {biased_tool}",
+        )
+        self.log(
+            "selection_integrity_check",
+            "agent",
+            f"control: selected tool {intended_tool} validated against task intent; "
+            f"untrusted bias ignored",
+        )
+        self.log("tool_call", "agent", f"called tool '{intended_tool}'")
+        return intended_tool
+
+    def process_multi_turn(self, turns: list[str]) -> bool:
+        # Control: validate each turn independently; detect escalation.
+        for i, turn in enumerate(turns):
+            self.log(
+                f"turn_{i + 1}_context",
+                "agent",
+                f"turn {i + 1}: processed '{turn}' into context",
+            )
+        self.log(
+            "per_turn_check",
+            "agent",
+            "control: each turn validated independently; escalation detected across turns",
+        )
+        return False
+
 
 class ProtectedDemoAgentTarget:
     """Target adapter that runs defensive patterns against the ProtectedDemoAgent."""

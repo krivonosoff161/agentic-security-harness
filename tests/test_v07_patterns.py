@@ -21,11 +21,12 @@ def _baseline_by_id() -> dict[str, ExploitTrace]:
 
 def test_v07_patterns_are_present_in_stable_order() -> None:
     ids = [pattern.pattern_id for pattern in seed_patterns()]
-    assert ids[-4:] == [
-        "perception_boundary.sensor_command_confusion",
-        "ambient_authority.environmental_privilege_escalation",
-        "approval_laundering.underjustified_confirmation",
-        "memory_governance.unscoped_memory_persistence",
+    assert ids[-5:] == [
+        "memory_governance.environment_injected_poisoning",
+        "memory_governance.unintentional_cross_user",
+        "budget.recursive_execution_amplification",
+        "mcp.tool_selection_manipulation",
+        "indirect_instruction.multi_turn_escalation",
     ]
 
 

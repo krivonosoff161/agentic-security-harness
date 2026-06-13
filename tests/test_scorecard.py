@@ -21,6 +21,11 @@ SEED_IDS = {
     "ambient_authority.environmental_privilege_escalation",
     "approval_laundering.underjustified_confirmation",
     "memory_governance.unscoped_memory_persistence",
+    "memory_governance.environment_injected_poisoning",
+    "memory_governance.unintentional_cross_user",
+    "budget.recursive_execution_amplification",
+    "mcp.tool_selection_manipulation",
+    "indirect_instruction.multi_turn_escalation",
 }
 
 
@@ -31,13 +36,13 @@ def _traces() -> list:
 def test_total_traces_matches() -> None:
     traces = _traces()
     card = build_scorecard(traces)
-    assert card.total_traces == len(traces) == 17
+    assert card.total_traces == len(traces) == 22
     assert card.target_name == "demo-mock-agent"
 
 
 def test_severity_counts() -> None:
     card = build_scorecard(_traces())
-    assert card.findings_by_severity.get("high") == 15
+    assert card.findings_by_severity.get("high") == 20
     assert card.findings_by_severity.get("medium") == 2
 
 

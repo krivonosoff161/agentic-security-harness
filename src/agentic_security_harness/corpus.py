@@ -1,6 +1,6 @@
 """Machine-readable manifest for the implemented local defensive corpus.
 
-Curated metadata for the 17 deterministic seed patterns (see ``patterns.py``). Simple Python
+Curated metadata for the 22 deterministic seed patterns (see ``patterns.py``). Simple Python
 data structures only - no database, no YAML. Tests keep it in sync with the actual patterns
 and scorecards. OWASP Agentic mapping is intentionally coarse and defensive; OWASP LLM and
 MITRE ATLAS mappings remain empty until each ID is verified against primary sources.
@@ -240,9 +240,77 @@ _CORPUS: list[CorpusEntry] = [
         ),
         owasp_agentic=["ASI01", "ASI03", "ASI06"],
     ),
+    # ── v0.9 deeper variants ────────────────────────────────────────────────
+    CorpusEntry(
+        pattern_id="memory_governance.environment_injected_poisoning",
+        name="Memory governance: environment-injected poisoning (sanitized)",
+        category="memory_governance",
+        severity="high",
+        broke_at="provenance_check",
+        data_boundary_fields_used=["can_store", "ttl_seconds", "classification_source"],
+        mitigation=(
+            "preserve source provenance and trust level on memory writes; "
+            "treat retrieved content as untrusted at read time; enforce TTL"
+        ),
+        owasp_agentic=["ASI01", "ASI06"],
+    ),
+    CorpusEntry(
+        pattern_id="memory_governance.unintentional_cross_user",
+        name="Memory governance: unintentional cross-user contamination (sanitized)",
+        category="memory_governance",
+        severity="high",
+        broke_at="cross_user_boundary_check",
+        data_boundary_fields_used=["classification_source"],
+        mitigation=(
+            "enforce per-user memory isolation; scope-based access control; "
+            "provenance tracking per user/session"
+        ),
+        owasp_agentic=["ASI03", "ASI06"],
+    ),
+    CorpusEntry(
+        pattern_id="budget.recursive_execution_amplification",
+        name="Budget: recursive execution amplification (sanitized)",
+        category="budget_exhaustion",
+        severity="high",
+        broke_at="recursion_depth_check",
+        data_boundary_fields_used=[],
+        mitigation=(
+            "enforce recursion depth limits and cycle checks; detect recursive "
+            "call patterns; apply call-graph energy budget"
+        ),
+        owasp_agentic=["ASI02"],
+    ),
+    CorpusEntry(
+        pattern_id="mcp.tool_selection_manipulation",
+        name="MCP: tool-selection manipulation (sanitized)",
+        category="mcp_tool_schema",
+        severity="high",
+        broke_at="selection_integrity_check",
+        data_boundary_fields_used=["allowed_purpose"],
+        mitigation=(
+            "validate selected tool against task intent and least privilege; "
+            "pin tool selection provenance; reject selection influenced by "
+            "untrusted content"
+        ),
+        owasp_agentic=["ASI02"],
+    ),
+    CorpusEntry(
+        pattern_id="indirect_instruction.multi_turn_escalation",
+        name="Indirect instruction: multi-turn escalation (sanitized)",
+        category="indirect_prompt_injection",
+        severity="high",
+        broke_at="per_turn_check",
+        data_boundary_fields_used=[],
+        mitigation=(
+            "validate each turn independently; detect escalation patterns "
+            "across turns; isolate context between turns; no defense "
+            "relaxation after prior turns"
+        ),
+        owasp_agentic=["ASI01"],
+    ),
 ]
 
 
 def corpus_manifest() -> list[CorpusEntry]:
-    """Return the curated corpus manifest (17 implemented patterns, stable order)."""
+    """Return the curated corpus manifest (22 implemented patterns, stable order)."""
     return list(_CORPUS)
