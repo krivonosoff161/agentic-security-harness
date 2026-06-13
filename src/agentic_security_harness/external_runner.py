@@ -379,7 +379,7 @@ def _build_external_report_md(
         "## Results",
         "",
         f"- Total checks: {summary.total_checks}",
-        f"- Total repeats: {summary.total_repeats}",
+        f"- Total requests: {summary.total_repeats}",
         f"- Patterns with findings: {len(summary.patterns_with_findings)}",
         f"- Flaky patterns: {len(summary.flaky_patterns)}",
         f"- Inconclusive patterns: {len(summary.inconclusive_patterns)}",

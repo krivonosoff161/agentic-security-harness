@@ -2,6 +2,10 @@
 
 import json
 import os
+import socket
+import subprocess
+import sys
+import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -407,6 +411,53 @@ def test_cli_dry_run_no_network() -> None:
         mock_open.assert_not_called()
 
 
+def test_cli_external_check_no_live_no_network(capsys: pytest.CaptureFixture[str]) -> None:
+    from agentic_security_harness import cli
+
+    with patch("urllib.request.urlopen") as mock_open:
+        rc = cli.main([
+            "external-check",
+            "--adapter", "openai-compatible",
+            "--base-url", "http://localhost:8000/v1",
+            "--model", "test",
+            "--scenario", "data-boundary",
+            "--api-key-env", "ASH_TEST_KEY_NOT_SET",
+            "--repeats", "2",
+            "--max-variants", "2",
+        ])
+        assert rc == 0
+        mock_open.assert_not_called()
+
+    out = capsys.readouterr().out
+    assert "Estimated requests: 16" in out
+    assert "Linux/macOS: export ASH_TEST_KEY_NOT_SET=your_key" in out
+    assert "PowerShell:  $env:ASH_TEST_KEY_NOT_SET='your_key'" in out
+
+
+def test_cli_external_check_live_success(capsys: pytest.CaptureFixture[str]) -> None:
+    from agentic_security_harness import cli
+
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps({
+        "model": "fake-model",
+        "choices": [{"message": {"content": "pong"}}],
+    }).encode()
+    mock_response.__enter__ = lambda s: s
+    mock_response.__exit__ = MagicMock(return_value=False)
+
+    with patch("urllib.request.urlopen", return_value=mock_response):
+        rc = cli.main([
+            "external-check",
+            "--adapter", "openai-compatible",
+            "--base-url", "http://localhost:8000/v1",
+            "--model", "fake-model",
+            "--live",
+        ])
+
+    assert rc == 0
+    assert "Live request: SUCCESS" in capsys.readouterr().out
+
+
 def test_cli_run_external_missing_base_url() -> None:
     from agentic_security_harness import cli
 
@@ -441,6 +492,48 @@ def test_cli_run_external_unsupported_adapter() -> None:
         "--dry-run",
     ])
     assert rc == 1
+
+
+def _wait_port(host: str, port: int, timeout_s: float = 5.0) -> None:
+    deadline = time.time() + timeout_s
+    last_error: OSError | None = None
+    while time.time() < deadline:
+        try:
+            with socket.create_connection((host, port), timeout=0.2):
+                return
+        except OSError as exc:
+            last_error = exc
+            time.sleep(0.05)
+    raise AssertionError(f"server did not listen on {host}:{port}: {last_error}")
+
+
+def test_fake_openai_server_responds_to_chat_completion() -> None:
+    fake_server = Path(__file__).resolve().parent.parent / "examples" / "fake_openai_server.py"
+    proc = subprocess.Popen(
+        [sys.executable, str(fake_server)],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    try:
+        _wait_port("127.0.0.1", 8766)
+        resp = chat_completion(
+            base_url="http://127.0.0.1:8766/v1",
+            model="fake-model",
+            messages=[{"role": "user", "content": "ping"}],
+            timeout_seconds=5,
+        )
+        content = extract_content(resp)
+        parsed = json.loads(content)
+        assert parsed["decision"] == "block"
+        assert parsed["would_preserve_boundary"] is True
+    finally:
+        proc.terminate()
+        try:
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait(timeout=5)
 
 
 # --- Regression tests ---

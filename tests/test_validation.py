@@ -46,6 +46,7 @@ def test_validate_examples_root_ok() -> None:
     assert result.ok
     assert len(result.report_dirs) == 5
     assert len(result.comparison_dirs) == 1
+    assert len(result.external_dirs) == 1
 
 
 def test_cli_validate_examples_returns_zero() -> None:
@@ -512,3 +513,34 @@ def test_cli_success_line_is_not_overclaiming(capsys: Any) -> None:
     assert "OK: artifacts conform to the corpus manifest" in out
     for bad in ("secure", "guaranteed", "SECRET DETECTED"):
         assert bad not in out
+
+
+# ---- external run artifacts ------------------------------------------------------------
+
+
+def test_validate_external_report_dir_ok() -> None:
+    result = validate_path(EXAMPLES / "external-demo-report")
+    assert result.ok, result.errors
+    assert result.external_dirs == ["external-demo-report"]
+
+
+def test_external_summary_count_mismatch_fails(tmp_path: Path) -> None:
+    report = _copy("external-demo-report", tmp_path)
+    data = _load(report / "external_summary.json")
+    data["total_repeats"] += 1
+    _dump(report / "external_summary.json", data)
+
+    result = validate_path(report)
+    assert not result.ok
+    assert _has(result, "total_repeats")
+
+
+def test_external_result_unknown_pattern_fails(tmp_path: Path) -> None:
+    report = _copy("external-demo-report", tmp_path)
+    data = _load(report / "external_results.json")
+    data[0]["pattern_id"] = "not_in_corpus"
+    _dump(report / "external_results.json", data)
+
+    result = validate_path(report)
+    assert not result.ok
+    assert _has(result, "pattern_id not in corpus")

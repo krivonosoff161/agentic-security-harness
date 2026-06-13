@@ -12,7 +12,7 @@ contain no forbidden marker patterns - NOT that any system is secure.
 import json
 import re
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
@@ -26,6 +26,9 @@ from agentic_security_harness.reporting import (
     build_summary_md,
 )
 from agentic_security_harness.scorecard import ScorecardSummary, build_scorecard
+
+if TYPE_CHECKING:
+    from agentic_security_harness.run_config import ExternalResult, ExternalSummary
 
 _SCHEMA_VERSION = "0.1"
 _PROTECTED_TYPES = {"protected_demo_agent"}
@@ -49,6 +52,7 @@ class ValidationResult(BaseModel):
     warnings: list[str] = Field(default_factory=list)
     report_dirs: list[str] = Field(default_factory=list)
     comparison_dirs: list[str] = Field(default_factory=list)
+    external_dirs: list[str] = Field(default_factory=list)
 
     def _err(self, msg: str) -> None:
         self.errors.append(msg)
@@ -76,6 +80,13 @@ def _is_comparison_dir(path: Path) -> bool:
     )
 
 
+def _is_external_dir(path: Path) -> bool:
+    return (path / "run_config.json").exists() or (
+        (path / "external_results.json").exists()
+        and (path / "external_summary.json").exists()
+    )
+
+
 def validate_path(path: Path) -> ValidationResult:
     """Validate a report dir, a comparison dir, or a directory of such dirs."""
     result = ValidationResult()
@@ -93,6 +104,9 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
     if _is_comparison_dir(path):
         result.comparison_dirs.append(_rel(path, root))
         _validate_comparison_dir(path, root, result)
+    elif _is_external_dir(path):
+        result.external_dirs.append(_rel(path, root))
+        _validate_external_dir(path, root, result)
     elif (path / "traces.json").exists():
         result.report_dirs.append(_rel(path, root))
         _validate_report_dir(path, root, result)
@@ -461,7 +475,145 @@ def _validate_comparison_dir(path: Path, root: Path, result: ValidationResult) -
     if comparison_md.exists() and base_card is not None and prot_card is not None:
         _validate_comparison_md(comparison_md, root, base_card, prot_card, result)
     elif comparison_md.exists():
-        _scan_secrets(comparison_md, root, result)
+            _scan_secrets(comparison_md, root, result)
+
+
+def _validate_external_dir(path: Path, root: Path, result: ValidationResult) -> None:
+    from agentic_security_harness.run_config import ExternalResult, ExternalSummary, RunConfig
+
+    config_raw = _load_json(path / "run_config.json", root, result)
+    results_raw = _load_json(path / "external_results.json", root, result)
+    summary_raw = _load_json(path / "external_summary.json", root, result)
+    report_md = path / "external_report.md"
+    if not report_md.exists():
+        result._err(f"{_rel(report_md, root)}: missing")
+
+    config: RunConfig | None = None
+    summary: ExternalSummary | None = None
+    results: list[ExternalResult] | None = None
+
+    if config_raw is not None:
+        try:
+            config = RunConfig.model_validate(config_raw)
+        except ValidationError as exc:
+            result._err(f"{_rel(path / 'run_config.json', root)}: schema: {_fmt_error(exc)}")
+    if summary_raw is not None:
+        try:
+            summary = ExternalSummary.model_validate(summary_raw)
+        except ValidationError as exc:
+            result._err(
+                f"{_rel(path / 'external_summary.json', root)}: schema: {_fmt_error(exc)}"
+            )
+    if results_raw is not None:
+        if not isinstance(results_raw, list):
+            result._err(f"{_rel(path / 'external_results.json', root)}: expected list")
+        else:
+            parsed: list[ExternalResult] = []
+            ok = True
+            for i, item in enumerate(results_raw):
+                try:
+                    parsed.append(ExternalResult.model_validate(item))
+                except ValidationError as exc:
+                    result._err(
+                        f"{_rel(path / 'external_results.json', root)}[{i}]: "
+                        f"schema: {_fmt_error(exc)}"
+                    )
+                    ok = False
+            results = parsed if ok else None
+
+    if config is not None:
+        if config.adapter_type != "openai-compatible":
+            result._err(
+                f"{_rel(path / 'run_config.json', root)}: unsupported adapter_type "
+                f"'{config.adapter_type}'"
+            )
+        if config.api_key_env and any(
+            token in config.api_key_env.lower() for token in ("sk-", "key=")
+        ):
+            result._err(
+                f"{_rel(path / 'run_config.json', root)}: api_key_env looks like a key value"
+            )
+    if results is not None:
+        _validate_external_results(path, root, results, result)
+    if config is not None and summary is not None:
+        if summary.adapter_type != config.adapter_type:
+            result._err(
+                f"{_rel(path / 'external_summary.json', root)}: adapter_type "
+                "does not match run_config"
+            )
+        if summary.model != config.model:
+            result._err(
+                f"{_rel(path / 'external_summary.json', root)}: model "
+                "does not match run_config"
+            )
+        if summary.scenario_id != config.scenario_id:
+            result._err(
+                f"{_rel(path / 'external_summary.json', root)}: scenario_id "
+                "does not match run_config"
+            )
+    if results is not None and summary is not None:
+        _validate_external_summary(path, root, results, summary, result)
+
+    for name in (
+        "run_config.json",
+        "external_results.json",
+        "external_summary.json",
+        "external_report.md",
+    ):
+        _scan_secrets(path / name, root, result)
+
+
+def _validate_external_results(
+    path: Path, root: Path, results: list["ExternalResult"], result: ValidationResult
+) -> None:
+    rel = _rel(path / "external_results.json", root)
+    corpus_ids = {entry.pattern_id for entry in corpus_manifest()}
+    seen: set[str] = set()
+    for i, item in enumerate(results):
+        prefix = f"{rel}[{i}] {item.pattern_id}"
+        if item.result_id in seen:
+            result._err(f"{rel}: duplicate result_id '{item.result_id}'")
+        seen.add(item.result_id)
+        if item.pattern_id not in corpus_ids:
+            result._err(f"{prefix}: pattern_id not in corpus")
+        if item.error and (
+            item.decision != "unclear"
+            or item.reason
+            or item.control_family
+            or item.would_preserve_boundary is not None
+        ):
+            result._err(f"{prefix}: error result should not also carry a decision")
+
+
+def _validate_external_summary(
+    path: Path,
+    root: Path,
+    results: list["ExternalResult"],
+    summary: "ExternalSummary",
+    result: ValidationResult,
+) -> None:
+    rel = _rel(path / "external_summary.json", root)
+    total_checks = len({(r.pattern_id, r.variant_id) for r in results})
+    if summary.total_repeats != len(results):
+        result._err(
+            f"{rel}: total_repeats {summary.total_repeats} != "
+            f"external_results count {len(results)}"
+        )
+    if summary.total_checks != total_checks:
+        result._err(
+            f"{rel}: total_checks {summary.total_checks} != "
+            f"unique pattern/variant checks {total_checks}"
+        )
+    patterns_with_findings = sorted({
+        r.pattern_id
+        for r in results
+        if not r.error and r.would_preserve_boundary is False
+    })
+    if summary.patterns_with_findings != patterns_with_findings:
+        result._err(f"{rel}: patterns_with_findings does not match external_results")
+    error_patterns = sorted({r.pattern_id for r in results if r.error})
+    if summary.error_patterns != error_patterns:
+        result._err(f"{rel}: error_patterns does not match external_results")
 
 
 def _validate_comparison_md(

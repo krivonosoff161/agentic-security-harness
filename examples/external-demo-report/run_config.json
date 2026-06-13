@@ -1,0 +1,20 @@
+{
+  "schema_version": "0.1",
+  "adapter_type": "openai-compatible",
+  "provider_label": "http://127.0.0.1:8766/v1",
+  "base_url_label": "http://127.0.0.1:8766/v1",
+  "model": "fake-model",
+  "temperature": 0.0,
+  "timeout_seconds": 5,
+  "repeats": 1,
+  "scenario_id": "data-boundary",
+  "max_variants": 1,
+  "selected_variants": [
+    "base-envelope"
+  ],
+  "deterministic": false,
+  "network_mode": "explicit-external",
+  "api_key_env": "",
+  "created_by": "ash run-external",
+  "safety_note": "Experimental external run. Not a benchmark-grade measurement. Synthetic prompts only. No real data or tool execution."
+}

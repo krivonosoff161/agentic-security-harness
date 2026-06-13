@@ -110,20 +110,22 @@ See [docs/roadmap.md](docs/roadmap.md).
   current release, these knobs are deterministic replay metadata; they do not mutate
   the underlying pattern content yet.
 - **Validation (`ash validate examples/`)** — checks committed benchmark artifacts (traces,
-  scorecards, summaries, comparison) and corpus consistency, and scans for forbidden
-  markers; the examples are **validated benchmark artifacts**, not loose output.
+  scorecards, summaries, comparison, and external-run reports) and corpus consistency,
+  and scans for forbidden markers; the examples are **validated benchmark artifacts**,
+  not loose output.
 - **Unit tests** — models, runner, scorecard, reporting, validation, and CLI smoke tests.
 
-No gateway, provider calls, network, or real payloads.
+No gateway, real payloads, or implicit provider calls. External model/runtime calls exist
+only in the experimental `run-external` path and require an explicit command.
 
 ## Current vs planned
 
 | Area | Current release | Planned / future track |
 |---|---|---|
 | Benchmark | 22-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus, mappings, report quality. |
-| Targets | `mock`, `demo-agent`, `protected-demo-agent` only. | Local toy adapters first, then explicitly authorized real adapters. |
-| Runtime | CLI-only (`ash run`, `ash compare`, `ash validate`). | Optional HTTP reference gateway after the benchmark stabilizes. |
-| Network / providers | None. | Future adapters only with explicit authorization and docs. |
+| Targets | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, plus experimental OpenAI-compatible external model checks. | Explicitly authorized real adapters with stronger config UX. |
+| Runtime | CLI-only (`ash run`, `ash compare`, `ash validate`, `ash run-matrix`, `ash run-external`). | Optional HTTP reference gateway after the benchmark stabilizes. |
+| Network / providers | Off by default; `run-external` makes explicit OpenAI-compatible calls only when invoked without `--dry-run`. | More provider presets, config files, and verified local-runtime guides. |
 | Storage | Local report files and committed examples. | Optional persistent trace store after v1.0. |
 
 ### Verify locally
@@ -235,6 +237,12 @@ ash run-external --adapter openai-compatible \
   --scenario data-boundary \
   --dry-run
 
+# check configuration before a real run
+ash external-check --adapter openai-compatible \
+  --base-url http://localhost:8000/v1 \
+  --model deepseek-chat \
+  --scenario data-boundary
+
 # actual run (makes network calls)
 export ASH_API_KEY=your_key_here
 ash run-external --adapter openai-compatible \
@@ -279,6 +287,36 @@ before/after example is explained in
 [`examples/comparison-report/README.md`](examples/comparison-report/README.md).
 
 > Local / synthetic, deterministic, no network or LLM calls.
+
+## Test your own model/runtime (experimental)
+
+The external adapter path lets you evaluate an authorized OpenAI-compatible endpoint
+with safe synthetic prompts. **Network calls only happen when you explicitly run the
+command without `--dry-run`.**
+
+```bash
+# Dry-run first (no network, no money)
+ash run-external --adapter openai-compatible \
+  --base-url http://localhost:8000/v1 \
+  --model your-model \
+  --scenario data-boundary \
+  --dry-run
+
+# Free local demo with fake server
+python examples/fake_openai_server.py &
+ash run-external --adapter openai-compatible \
+  --base-url http://127.0.0.1:8766/v1 \
+  --model fake-model \
+  --scenario data-boundary \
+  --out reports/external-demo
+```
+
+On PowerShell, start the fake server in a second terminal with
+`python examples/fake_openai_server.py` instead of using the trailing `&` form.
+
+> **Experimental.** Prompt-based evaluation only. No tool execution. Not a
+> benchmark-grade vendor comparison. See [docs/test-your-model.md](docs/test-your-model.md)
+> for the full guide (DeepSeek, vLLM, Alibaba examples, troubleshooting).
 
 ## Measure risk reduction
 

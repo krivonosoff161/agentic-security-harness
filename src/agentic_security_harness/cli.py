@@ -205,6 +205,54 @@ def build_parser() -> argparse.ArgumentParser:
         help="show what would be run without making network calls",
     )
 
+    check_p = sub.add_parser(
+        "external-check",
+        help="check external adapter configuration without running a benchmark",
+    )
+    check_p.add_argument(
+        "--adapter",
+        default="openai-compatible",
+        help="adapter type (default: openai-compatible)",
+    )
+    check_p.add_argument(
+        "--base-url",
+        required=True,
+        help="OpenAI-compatible API base URL",
+    )
+    check_p.add_argument(
+        "--model",
+        required=True,
+        help="model name",
+    )
+    check_p.add_argument(
+        "--scenario",
+        choices=scenario_ids(),
+        default="data-boundary",
+        help="scenario id (default: data-boundary)",
+    )
+    check_p.add_argument(
+        "--api-key-env",
+        default="",
+        help="environment variable name containing the API key",
+    )
+    check_p.add_argument(
+        "--repeats",
+        type=int,
+        default=1,
+        help="number of repeats (default: 1)",
+    )
+    check_p.add_argument(
+        "--max-variants",
+        type=int,
+        default=1,
+        help="maximum number of variants (default: 1)",
+    )
+    check_p.add_argument(
+        "--live",
+        action="store_true",
+        help="make one test request to verify connectivity (requires network)",
+    )
+
     return parser
 
 
@@ -255,7 +303,8 @@ def _validate(path: Path) -> int:
     result = validate_path(path)
     print(
         f"validated {len(result.report_dirs)} report dir(s), "
-        f"{len(result.comparison_dirs)} comparison dir(s)"
+        f"{len(result.comparison_dirs)} comparison dir(s), "
+        f"{len(result.external_dirs)} external dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
     for warning in result.warnings:
@@ -404,10 +453,113 @@ def _run_external(
         f"model: {summary.model}  "
         f"scenario: {summary.scenario_id}  "
         f"checks: {summary.total_checks}  "
-        f"repeats: {summary.total_repeats}  "
+        f"requests: {summary.total_repeats}  "
         f"findings: {len(summary.patterns_with_findings)}  "
         f"flaky: {len(summary.flaky_patterns)}"
     )
+    return 0
+
+
+def _external_check(
+    base_url: str,
+    model: str,
+    scenario_id: str,
+    adapter: str,
+    api_key_env: str,
+    repeats: int,
+    max_variants: int,
+    live: bool,
+) -> int:
+    from agentic_security_harness.run_config import _redact_url
+    from agentic_security_harness.scenarios import get_scenario, get_variants
+
+    print("External adapter configuration check")
+    print("=" * 40)
+
+    # Check adapter
+    if adapter != "openai-compatible":
+        print(f"  Adapter: {adapter} -- UNSUPPORTED (only openai-compatible)")
+        return 1
+    print(f"  Adapter: {adapter} -- OK")
+
+    # Check base URL
+    redacted = _redact_url(base_url)
+    print(f"  Base URL: {redacted}")
+
+    # Check model
+    if not model:
+        print("  Model: MISSING -- provide --model")
+        return 1
+    print(f"  Model: {model} -- OK")
+
+    # Check scenario
+    try:
+        scenario = get_scenario(scenario_id)
+    except KeyError as exc:
+        print(f"  Scenario: {exc}")
+        return 1
+    print(f"  Scenario: {scenario_id} -- OK ({len(scenario.pattern_ids)} patterns)")
+
+    # Check variants
+    try:
+        variants = get_variants(scenario_id, max_variants)
+    except KeyError as exc:
+        print(f"  Variants: {exc}")
+        return 1
+    print(f"  Variants: {len(variants)} selected")
+
+    # Estimate requests
+    total = len(scenario.pattern_ids) * len(variants) * repeats
+    print(f"  Estimated requests: {total} ({len(scenario.pattern_ids)} patterns x "
+          f"{len(variants)} variants x {repeats} repeats)")
+
+    # Check API key env
+    if api_key_env:
+        import os
+
+        val = os.environ.get(api_key_env)
+        if val:
+            print(f"  API key env ({api_key_env}): SET (value hidden)")
+        else:
+            print(f"  API key env ({api_key_env}): NOT SET")
+        print(f"    Linux/macOS: export {api_key_env}=your_key")
+        print(f"    PowerShell:  $env:{api_key_env}='your_key'")
+    else:
+        print("  API key env: not specified (local server may not need one)")
+
+    # Check repeats
+    from agentic_security_harness.run_config import _MAX_REPEATS
+
+    if repeats < 1 or repeats > _MAX_REPEATS:
+        print(f"  Repeats: {repeats} -- OUT OF RANGE (max {_MAX_REPEATS})")
+        return 1
+    print(f"  Repeats: {repeats} -- OK")
+
+    # Live mode
+    if live:
+        print("\nLive mode: making one test request...")
+        try:
+            from agentic_security_harness.external_openai_compatible import (
+                chat_completion,
+            )
+
+            resp = chat_completion(
+                base_url=base_url,
+                model=model,
+                messages=[{"role": "user", "content": "ping"}],
+                timeout_seconds=10,
+                api_key_env=api_key_env,
+            )
+            print("  Live request: SUCCESS")
+            print(f"  Response model: {resp.get('model', 'unknown')}")
+        except Exception as exc:
+            print(f"  Live request: FAILED -- {exc}")
+            return 1
+    else:
+        print("\n  Tip: use --live to make one test request and verify connectivity")
+
+    print("\nConfiguration looks valid.")
+    print("Run with --dry-run first to confirm request count before spending money.")
     return 0
 
 
@@ -446,6 +598,17 @@ def main(argv: list[str] | None = None) -> int:
             args.variant,
             args.dry_run,
             args.adapter,
+        )
+    if args.command == "external-check":
+        return _external_check(
+            args.base_url,
+            args.model,
+            args.scenario,
+            args.adapter,
+            args.api_key_env,
+            args.repeats,
+            args.max_variants,
+            getattr(args, "live", False),
         )
     return 1
 
