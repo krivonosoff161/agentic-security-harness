@@ -165,7 +165,11 @@ def _load_scorecard(
 
 
 def _validate_traces(
-    traces: list[ExploitTrace], path: Path, root: Path, result: ValidationResult
+    traces: list[ExploitTrace],
+    path: Path,
+    root: Path,
+    result: ValidationResult,
+    expected_pattern_ids: set[str] | None = None,
 ) -> None:
     corpus = {entry.pattern_id: entry for entry in corpus_manifest()}
     canonical = {pattern.pattern_id: pattern for pattern in seed_patterns()}
@@ -234,7 +238,8 @@ def _validate_traces(
                 )
         elif not protected:
             result._err(f"{prefix}: no findings but baseline target expects FAIL")
-    expected_ids = set(corpus)
+    # For matrix runs, validate against the selected patterns instead of the full corpus
+    expected_ids = expected_pattern_ids if expected_pattern_ids is not None else set(corpus)
     actual_ids = set(pattern_counts)
     missing = sorted(expected_ids - actual_ids)
     extra = sorted(actual_ids - expected_ids)
@@ -379,11 +384,28 @@ def _validate_remediation(
 def _validate_report_dir(
     path: Path, root: Path, result: ValidationResult
 ) -> ScorecardSummary | None:
+    # Check for matrix.json first to determine expected pattern subset
+    matrix_json = path / "matrix.json"
+    expected_pattern_ids: set[str] | None = None
+    if matrix_json.exists():
+        matrix_raw = _load_json(matrix_json, root, result)
+        if matrix_raw is not None:
+            try:
+                from agentic_security_harness.matrix import MatrixReport
+
+                matrix_report = MatrixReport.model_validate(matrix_raw)
+                expected_pattern_ids = set(matrix_report.selected_pattern_ids)
+            except ValidationError:
+                pass
+
     traces = _load_traces(path / "traces.json", root, result)
     committed_card = _load_scorecard(path / "scorecard.json", root, result)
     expected_card: ScorecardSummary | None = None
     if traces is not None:
-        _validate_traces(traces, path / "traces.json", root, result)
+        _validate_traces(
+            traces, path / "traces.json", root, result,
+            expected_pattern_ids=expected_pattern_ids,
+        )
         expected_card = build_scorecard(traces)
     if traces is not None and committed_card is not None and expected_card is not None:
         _validate_scorecard(
@@ -392,10 +414,17 @@ def _validate_report_dir(
         _validate_summary(path / "summary.md", traces, expected_card, root, result)
         _validate_executive(path / "executive.md", traces, expected_card, root, result)
         _validate_remediation(path, traces, expected_card, root, result)
+    # Validate matrix.json if present
+    if matrix_json.exists():
+        _validate_matrix_json(matrix_json, traces, root, result)
     for name in ("traces.json", "scorecard.json", "summary.md", "executive.md"):
         _scan_secrets(path / name, root, result)
     # Scan remediation artifacts if present
     for name in ("remediation.json", "remediation.md"):
+        if (path / name).exists():
+            _scan_secrets(path / name, root, result)
+    # Scan matrix artifacts if present
+    for name in ("matrix.json", "matrix.md"):
         if (path / name).exists():
             _scan_secrets(path / name, root, result)
     return expected_card
@@ -471,4 +500,35 @@ def _scan_secrets(path: Path, root: Path, result: ValidationResult) -> None:
         if pattern.search(text):
             result._err(
                 f"{rel}: possible secret-shaped string (forbidden marker '{name}')"
+            )
+
+
+def _validate_matrix_json(
+    matrix_path: Path,
+    traces: list[ExploitTrace] | None,
+    root: Path,
+    result: ValidationResult,
+) -> None:
+    """Validate matrix.json against traces and corpus."""
+    rel = _rel(matrix_path, root)
+    raw = _load_json(matrix_path, root, result)
+    if raw is None:
+        return
+    try:
+        from agentic_security_harness.matrix import MatrixReport
+
+        report = MatrixReport.model_validate(raw)
+    except ValidationError as exc:
+        result._err(f"{rel}: schema: {_fmt_error(exc)}")
+        return
+    # Validate selected pattern ids exist in corpus
+    corpus = {entry.pattern_id for entry in corpus_manifest()}
+    for pid in report.selected_pattern_ids:
+        if pid not in corpus:
+            result._err(f"{rel}: selected pattern_id '{pid}' not in corpus")
+    # Validate trace count matches if traces are available
+    if traces is not None:
+        if report.total_traces != len(traces):
+            result._err(
+                f"{rel}: total_traces {report.total_traces} != traces in traces.json {len(traces)}"
             )

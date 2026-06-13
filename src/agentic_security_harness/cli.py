@@ -1,8 +1,12 @@
 """Command-line entry point.
 
 Commands:
-  ash run     --target {mock,demo-agent,protected-demo-agent} --out <dir>
-  ash compare --baseline <target> --protected <target> --out <dir>
+  ash run         --target {mock,...} --out <dir>
+  ash compare     --baseline <target> --protected <target> --out <dir>
+  ash validate    <path>
+  ash targets
+  ash scenarios
+  ash run-matrix  --target <target> --scenario <scenario> --out <dir>
 
 All targets are local, deterministic, and make no network or LLM/provider calls.
 """
@@ -10,26 +14,15 @@ All targets are local, deterministic, and make no network or LLM/provider calls.
 import argparse
 from pathlib import Path
 
-from agentic_security_harness.demo_adapter import DemoAgentTarget
-from agentic_security_harness.mock_target import MockTarget
-from agentic_security_harness.models import Target
+from agentic_security_harness.adapters import list_targets, make_target, target_ids
 from agentic_security_harness.patterns import seed_patterns
-from agentic_security_harness.protected_demo_agent import ProtectedDemoAgentTarget
 from agentic_security_harness.reporting import write_comparison, write_reports
 from agentic_security_harness.runner import HarnessRunner
+from agentic_security_harness.scenarios import list_scenarios, scenario_ids
 from agentic_security_harness.scorecard import build_scorecard
 from agentic_security_harness.validation import validate_path
 
-_TARGETS = ["mock", "demo-agent", "protected-demo-agent"]
-
-
-def _make_target(target: str) -> Target:
-    # All targets are local, deterministic, and make no network or LLM calls.
-    if target == "mock":
-        return MockTarget()
-    if target == "demo-agent":
-        return DemoAgentTarget()
-    return ProtectedDemoAgentTarget()
+_TARGETS = target_ids()
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -76,11 +69,35 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("examples"),
         help="report dir, comparison dir, or a directory of such dirs (default: examples)",
     )
+
+    sub.add_parser("targets", help="list registered built-in targets")
+
+    sub.add_parser("scenarios", help="list scenario templates and included pattern counts")
+
+    matrix_p = sub.add_parser(
+        "run-matrix", help="run a scenario matrix against a target and write reports"
+    )
+    matrix_p.add_argument(
+        "--target",
+        choices=_TARGETS,
+        default="mock",
+        help="target to test (all local, synthetic, no network)",
+    )
+    matrix_p.add_argument(
+        "--scenario",
+        choices=scenario_ids(),
+        default="all",
+        help="scenario id to run (default: all)",
+    )
+    matrix_p.add_argument(
+        "--out", type=Path, default=Path("reports/matrix"), help="output directory"
+    )
+
     return parser
 
 
 def _run(target: str, out: Path) -> int:
-    traces = HarnessRunner(_make_target(target)).run_many(seed_patterns())
+    traces = HarnessRunner(make_target(target)).run_many(seed_patterns())
     scorecard = build_scorecard(traces)
     write_reports(traces, scorecard, out)
     from agentic_security_harness.remediation import build_recommendations
@@ -105,9 +122,9 @@ def _run(target: str, out: Path) -> int:
 
 def _compare(baseline: str, protected: str, out: Path) -> int:
     patterns = seed_patterns()
-    base_traces = HarnessRunner(_make_target(baseline)).run_many(patterns)
+    base_traces = HarnessRunner(make_target(baseline)).run_many(patterns)
     base_card = build_scorecard(base_traces)
-    prot_traces = HarnessRunner(_make_target(protected)).run_many(patterns)
+    prot_traces = HarnessRunner(make_target(protected)).run_many(patterns)
     prot_card = build_scorecard(prot_traces)
     write_comparison(out, base_traces, base_card, prot_traces, prot_card)
     print(f"wrote baseline/, protected/, comparison.md to {out.as_posix()}")
@@ -136,6 +153,36 @@ def _validate(path: Path) -> int:
     return 0 if result.ok else 1
 
 
+def _targets() -> int:
+    for info in list_targets():
+        det = "deterministic" if info.deterministic else "stochastic"
+        print(f"{info.target_id:30s} {info.name:30s} {info.type:20s} {det:12s} {info.description}")
+    return 0
+
+
+def _scenarios() -> int:
+    for scenario in list_scenarios():
+        n = len(scenario.pattern_ids)
+        print(f"{scenario.scenario_id:25s} {n:3d} patterns  {scenario.title}")
+    return 0
+
+
+def _run_matrix(target_id: str, scenario_id: str, out: Path) -> int:
+    from agentic_security_harness.matrix import run_matrix
+
+    target = make_target(target_id)
+    report = run_matrix(target, scenario_id, out, target_id=target_id)
+    print(f"wrote matrix artifacts to {out.as_posix()}")
+    print(
+        f"target: {report.target_name}  "
+        f"scenario: {report.scenario_id}  "
+        f"traces: {report.total_traces}  "
+        f"failed: {report.total_failed}  "
+        f"passed: {report.total_passed}"
+    )
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command == "run":
@@ -144,6 +191,12 @@ def main(argv: list[str] | None = None) -> int:
         return _compare(args.baseline, args.protected, args.out)
     if args.command == "validate":
         return _validate(args.path)
+    if args.command == "targets":
+        return _targets()
+    if args.command == "scenarios":
+        return _scenarios()
+    if args.command == "run-matrix":
+        return _run_matrix(args.target, args.scenario, args.out)
     return 1
 
 
