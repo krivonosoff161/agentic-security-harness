@@ -32,7 +32,7 @@ If those six points hold, the benchmark is coherent.
 
 | Piece | What it does | Where to look |
 |---|---|---|
-| Corpus | The 17 implemented defensive patterns and their expected outcomes. | [corpus.md](corpus.md), `src/agentic_security_harness/corpus.py` |
+| Corpus | The 22 implemented defensive patterns and their expected outcomes. | [corpus.md](corpus.md), `src/agentic_security_harness/corpus.py` |
 | Patterns | Sanitized test cases the runner sends to targets. | `src/agentic_security_harness/patterns.py` |
 | Targets | Local systems under test: `mock`, `demo-agent`, `protected-demo-agent`. | `src/agentic_security_harness/*agent*.py`, `mock_target.py` |
 | Runner | Converts `pattern + target` into traces. | `src/agentic_security_harness/runner.py` |
@@ -73,8 +73,8 @@ Start here:
 1. [README](../README.md) - current status, commands, and high-level positioning.
 2. [Positioning](positioning.md) and [boundary model](agentic-boundary-model.md) - the
    operating-environment boundary thesis.
-3. [Corpus coverage matrix](corpus.md) - the 17 implemented patterns.
-4. [Comparison example](../examples/comparison-report/README.md) - the visible 17 -> 0
+3. [Corpus coverage matrix](corpus.md) - the 22 implemented patterns.
+4. [Comparison example](../examples/comparison-report/README.md) - the visible 22 -> 0
    demonstration.
 5. [Adapter contract](adapter-contract.md) - how future targets can implement the benchmark.
 6. [Reporting design](reporting.md) - what reviewers should see in reports.
@@ -91,7 +91,7 @@ ash compare --baseline demo-agent --protected protected-demo-agent --out reports
 ash validate reports/comparison
 ```
 
-Expected current result: baseline has 17 findings; protected has 0 findings.
+Expected current result: baseline has 22 findings; protected has 0 findings.
 
 ## How to add a new research idea safely
 

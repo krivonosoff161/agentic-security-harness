@@ -25,12 +25,16 @@ provider calls, no real targets, no real secrets.
   and memory governance - 17 deterministic patterns total.
 - **v0.8.x - adapter/report foundation:** target metadata contract models and
   lightweight `executive.md` report artifact for deterministic runs.
+- **v0.9 - corpus deepening slice:** environment-injected memory poisoning,
+  unintentional cross-user contamination, recursive execution amplification,
+  tool-selection manipulation, multi-turn indirect instruction escalation -
+  22 deterministic patterns total.
 
 ---
 
 ## Next
 
-- **v0.9 - cross-app contamination and audit context split:** cross-surface data
+- **v0.9.x - cross-app contamination and audit context split:** cross-surface data
   instruction contamination and action-audit divergence tests.
 - **v0.10 - local adapter examples:** toy RAG app, toy MCP server, toy multi-agent handoff.
   Still local / synthetic only.

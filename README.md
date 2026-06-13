@@ -7,7 +7,7 @@ agents, tool chains, and data boundaries fail, captures each run as a **portable
 trace**, and **measures risk reduction** by replaying a baseline target against a protected one.
 
 - **Trace-first** — every run is a portable, machine-readable failure trace, not just pass/fail.
-- **Agentic operating-environment boundary corpus** — 17 deterministic seed patterns for
+- **Agentic operating-environment boundary corpus** — 22 deterministic seed patterns for
   how sensitivity labels, recipients, storage, forwarding, audit, budget, delegated
   authority, tool schemas, perception boundaries, ambient authority, approval context,
   and memory governance break in agentic systems.
@@ -63,7 +63,7 @@ deterministic tests · honest residual risk. Full rules:
 
 ## Status
 
-**Pre-release, working.** The harness runs a **17-pattern local corpus centered on
+**Pre-release, working.** The harness runs a **22-pattern local corpus centered on
 agentic operating-environment boundary failures** — data-boundary, authority, perception,
 memory governance, approval, and audit integrity — against deterministic local targets,
 with baseline-vs-protected replay (see *What exists today*). Cross-app contamination,
@@ -108,7 +108,7 @@ No gateway, provider calls, network, or real payloads.
 
 | Area | Current release | Planned / future track |
 |---|---|---|
-| Benchmark | 17-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus, mappings, report quality. |
+| Benchmark | 22-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus, mappings, report quality. |
 | Targets | `mock`, `demo-agent`, `protected-demo-agent` only. | Local toy adapters first, then explicitly authorized real adapters. |
 | Runtime | CLI-only (`ash run`, `ash compare`, `ash validate`). | Optional HTTP reference gateway after the benchmark stabilizes. |
 | Network / providers | None. | Future adapters only with explicit authorization and docs. |
@@ -244,7 +244,7 @@ reports/comparison/
 
 In the committed example
 ([`examples/comparison-report/comparison.md`](examples/comparison-report/comparison.md)) the
-baseline fails all 17 patterns (17 findings) and the protected agent passes all 17 (0 findings).
+baseline fails all 22 patterns (22 findings) and the protected agent passes all 22 (0 findings).
 
 > Educational and synthetic: risk reduction is measured from deterministic mock traces,
 > **not** a guarantee of real-world protection.
@@ -271,7 +271,7 @@ traces and deterministic baseline-vs-protected replay. Honest comparison:
 - **[Project map](docs/project-map.md)** — plain-language guide for reviewers and maintainers.
 - **[Use cases](docs/use-cases.md)** — how AI/security teams can evaluate and apply the benchmark.
 - **[Problem–solution catalog](docs/problem-solution-catalog.md)** — problem → detection → mitigation → harness test → reference control → residual risk.
-- **[Corpus coverage matrix](docs/corpus.md)** — the 17 implemented seed patterns, baseline vs protected, and what each touches.
+- **[Corpus coverage matrix](docs/corpus.md)** — the 22 implemented seed patterns, baseline vs protected, and what each touches.
 - **[Research roadmap](docs/research-roadmap.md)** - cleaned intake map for future benchmark patterns.
 - **[Mission](docs/mission.md)** · **[Safe research rules](docs/research-rules.md)** — what this is for, and how to research safely.
 - **Learning** — [agentic security basics](docs/learning/01-agentic-security-basics.md) · [data-boundary failures](docs/learning/02-data-boundary-failures.md).

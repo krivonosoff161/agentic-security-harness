@@ -46,10 +46,10 @@ A reviewer should see these first:
 Example:
 
 ```text
-Corpus: 17 local synthetic patterns
-Baseline: demo-agent, 17 findings
+Corpus: 22 local synthetic patterns
+Baseline: demo-agent, 22 findings
 Protected: protected-demo-agent, 0 findings
-Measured delta: 17 -> 0
+Measured delta: 22 -> 0
 Residual risk: local deterministic traces only; no real model/provider/runtime tested
 ```
 
@@ -119,5 +119,5 @@ fields before anything is committed to the public repository.
 
 The current `executive.md` is intentionally lightweight. The next report-quality tasks are
 coverage visualization, standards matrices, mitigation checklists, and adapter metadata.
-They should improve how the 17-pattern corpus is reviewed without changing the benchmark
+They should improve how the 22-pattern corpus is reviewed without changing the benchmark
 semantics.

@@ -21,7 +21,7 @@ Every candidate below must follow the same project rules:
 
 ## Current coverage baseline
 
-The current local corpus has 17 deterministic seed patterns:
+The current local corpus has 22 deterministic seed patterns:
 
 1. `indirect_prompt_injection_via_tool_output`
 2. `data_boundary_recipient_confusion`
@@ -40,6 +40,11 @@ The current local corpus has 17 deterministic seed patterns:
 15. `ambient_authority.environmental_privilege_escalation`
 16. `approval_laundering.underjustified_confirmation`
 17. `memory_governance.unscoped_memory_persistence`
+18. `memory_governance.environment_injected_poisoning`
+19. `memory_governance.unintentional_cross_user`
+20. `budget.recursive_execution_amplification`
+21. `mcp.tool_selection_manipulation`
+22. `indirect_instruction.multi_turn_escalation`
 
 The important distinction for future work:
 
@@ -265,7 +270,7 @@ v0.7 added:
 
 ### v0.8 - perception boundary and ambient authority (done)
 
-Implemented in the 17-pattern corpus:
+Implemented in the 22-pattern corpus:
 
 - `perception_boundary.sensor_command_confusion` with synthetic OCR/ASR/HTML transcripts;
 - `ambient_authority.environmental_privilege_escalation` with synthetic host capability markers;

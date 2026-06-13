@@ -6,12 +6,32 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-06-13
+
 ### Added
+- **v0.9 corpus deepening slice** — 5 deeper variant patterns expanding the corpus
+  from 17 to 22 deterministic seed patterns:
+  - `memory_governance.environment_injected_poisoning`: retrieved content stored as
+    memory without provenance; later treated as trusted policy.
+  - `memory_governance.unintentional_cross_user`: User A data returned to User B
+    from shared memory without per-user scope isolation.
+  - `budget.recursive_execution_amplification`: recursive call-depth budget not
+    enforced; synthetic recursive request structure exceeds depth limit.
+  - `mcp.tool_selection_manipulation`: tool selection follows untrusted bias instead
+    of task intent; read-only task selects write-like mock tool.
+  - `indirect_instruction.multi_turn_escalation`: agent acts on final turn after
+    context-shaping turns soften per-turn defenses.
 - Adapter contract models (`TargetMetadata`, `HealthStatus`, `CapabilityCheckResult`) to
   define reproducibility and safety metadata for future non-synthetic targets.
 - `executive.md` report artifact for `ash run` outputs and comparison subreports.
 
 ### Changed
+- Baseline `demo-agent` / `mock` fail all 22 patterns (high: 20, medium: 2);
+  `protected-demo-agent` passes all 22; `ash compare` shows findings reduced 22 -> 0.
+- Updated corpus, roadmap, standards mapping, research roadmap, and problem-solution
+  catalog for the expanded memory-governance, budget, tool-selection, and
+  multi-turn-instruction coverage.
+- Regenerated and revalidated all committed benchmark examples for the 22-pattern corpus.
 - Updated reporting and adapter documentation to reflect the new metadata/report
   foundation while keeping current targets deterministic and local.
 
