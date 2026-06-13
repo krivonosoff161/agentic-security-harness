@@ -39,6 +39,8 @@ If those six points hold, the benchmark is coherent.
 | Reports | Writes `traces.json`, `scorecard.json`, `summary.md`, and comparison reports. | `src/agentic_security_harness/reporting.py`, `examples/` |
 | Validation | Checks report artifacts against the corpus manifest. | `src/agentic_security_harness/validation.py` |
 | CLI | User-facing commands. | `src/agentic_security_harness/cli.py` |
+| Adapter contract | Rules for future model/provider/runtime adapters. | [adapter-contract.md](adapter-contract.md) |
+| Reporting design | How executive and technical reports should be shaped. | [reporting.md](reporting.md) |
 
 ## What is not implemented today
 
@@ -74,10 +76,12 @@ Start here:
 3. [Corpus coverage matrix](corpus.md) - the 17 implemented patterns.
 4. [Comparison example](../examples/comparison-report/README.md) - the visible 17 -> 0
    demonstration.
-5. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,
+5. [Adapter contract](adapter-contract.md) - how future targets can implement the benchmark.
+6. [Reporting design](reporting.md) - what reviewers should see in reports.
+7. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,
    mitigations, and planned reference controls.
-6. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
-7. [Roadmap](roadmap.md) - what is current, next, and future.
+8. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
+9. [Roadmap](roadmap.md) - what is current, next, and future.
 
 Then run:
 

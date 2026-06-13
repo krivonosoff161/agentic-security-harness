@@ -264,6 +264,9 @@ traces and deterministic baseline-vs-protected replay. Honest comparison:
 - **[Positioning](docs/positioning.md)** — the operating-environment boundary thesis.
 - **[Boundary model](docs/agentic-boundary-model.md)** — the chain from source content to memory/audit.
 - **[How it differs](docs/how-it-differs.md)** — comparison with adjacent tools and defenses.
+- **[Adapter contract](docs/adapter-contract.md)** — how the benchmark can target other
+  agent runtimes later without becoming provider-specific.
+- **[Reporting design](docs/reporting.md)** — executive and technical report shape.
 - **[Project map](docs/project-map.md)** — plain-language guide for reviewers and maintainers.
 - **[Use cases](docs/use-cases.md)** — how AI/security teams can evaluate and apply the benchmark.
 - **[Problem–solution catalog](docs/problem-solution-catalog.md)** — problem → detection → mitigation → harness test → reference control → residual risk.

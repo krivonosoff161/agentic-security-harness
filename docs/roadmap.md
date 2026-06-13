@@ -34,6 +34,8 @@ provider calls, no real targets, no real secrets.
   Still local / synthetic only.
 - **v0.11 - report quality:** better Markdown / HTML audit report, executive summary,
   mitigation checklist, before/after score.
+- **v0.11.x - adapter contract hardening:** target-adapter metadata, stochastic-run
+  reporting rules, and local toy adapter examples before real providers.
 - **v0.12 - mapping and standardization:** OWASP LLM mapping, MITRE ATLAS mapping, severity
   rationale, pattern versioning policy.
 - **v1.0 - stable benchmark release:** stable trace schema, stable corpus manifest, stable

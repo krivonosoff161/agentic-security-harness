@@ -81,6 +81,10 @@ with `ash validate` checking the resulting artifacts. The honest core: the harne
 assert protection - it **measures the delta** a defense produces against the **same**
 reproducible traces.
 
+For future adapters, the stable contract is documented in
+[adapter-contract.md](adapter-contract.md). Report expectations are documented in
+[reporting.md](reporting.md).
+
 ## Reference gateway (optional defense target)
 
 > Planned - not implemented in the current benchmark release. This section describes the
