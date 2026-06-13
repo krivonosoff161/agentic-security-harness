@@ -14,6 +14,10 @@ Target: `protected-demo-agent`
 - Findings present: 0
 - Patterns with no findings: 22
 
+## Recommended control families
+
+- No control recommendations needed (no findings).
+
 ## Boundary categories
 
 - ambient_authority

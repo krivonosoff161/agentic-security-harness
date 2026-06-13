@@ -29,6 +29,14 @@ from agentic_security_harness.protected_demo_agent import (
     ProtectedDemoAgent,
     ProtectedDemoAgentTarget,
 )
+from agentic_security_harness.remediation import (
+    ControlRecommendation,
+    RemediationReport,
+    build_recommendations,
+    build_remediation_md,
+    remediation_to_json,
+    write_remediation,
+)
 from agentic_security_harness.reporting import (
     build_comparison_md,
     build_executive_md,
@@ -78,6 +86,12 @@ __all__ = [
     "scorecard_to_json",
     "ValidationResult",
     "validate_path",
+    "ControlRecommendation",
+    "RemediationReport",
+    "build_recommendations",
+    "build_remediation_md",
+    "remediation_to_json",
+    "write_remediation",
 ]
 
-__version__ = "0.7.0"
+__version__ = "0.10.0"

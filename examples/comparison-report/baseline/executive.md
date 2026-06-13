@@ -14,6 +14,14 @@ Target: `demo-local-agent`
 - Findings present: 22
 - Patterns with no findings: 0
 
+## Recommended control families
+
+- approval_context
+- audit_completeness
+- budget_control
+- capability_control
+- data_boundary
+
 ## Boundary categories
 
 - ambient_authority

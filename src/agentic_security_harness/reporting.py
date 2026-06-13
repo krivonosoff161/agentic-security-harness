@@ -83,6 +83,12 @@ def build_executive_md(scorecard: ScorecardSummary, traces: list[ExploitTrace]) 
             top_failures.append((trace.pattern_id, severity, broke_at))
     top_failures.sort(key=lambda row: (-_SEVERITY_RANK.get(row[1], -1), row[0]))
 
+    # Build remediation summary inline
+    from agentic_security_harness.remediation import build_recommendations
+
+    remediation = build_recommendations(traces, scorecard)
+    top_families = remediation.control_families[:5]
+
     lines: list[str] = [
         "# Agentic Security Harness - executive summary",
         "",
@@ -99,6 +105,17 @@ def build_executive_md(scorecard: ScorecardSummary, traces: list[ExploitTrace]) 
         "",
         f"- Findings present: {failed}",
         f"- Patterns with no findings: {passed}",
+        "",
+        "## Recommended control families",
+        "",
+    ]
+    if top_families:
+        for family in top_families:
+            lines.append(f"- {family}")
+    else:
+        lines.append("- No control recommendations needed (no findings).")
+
+    lines += [
         "",
         "## Boundary categories",
         "",
@@ -144,6 +161,8 @@ def write_reports(
     traces: list[ExploitTrace], scorecard: ScorecardSummary, out_dir: Path
 ) -> dict[str, Path]:
     """Write report artifacts into ``out_dir`` (LF newlines). Returns the paths."""
+    from agentic_security_harness.remediation import build_recommendations, write_remediation
+
     out_dir.mkdir(parents=True, exist_ok=True)
     paths = {
         "traces": out_dir / "traces.json",
@@ -157,6 +176,11 @@ def write_reports(
     paths["executive"].write_text(
         build_executive_md(scorecard, traces), encoding="utf-8", newline="\n"
     )
+    # Write remediation artifacts if there are findings
+    remediation = build_recommendations(traces, scorecard)
+    if remediation.recommendations:
+        rem_paths = write_remediation(remediation, out_dir)
+        paths.update(rem_paths)
     return paths
 
 
@@ -198,6 +222,30 @@ def build_comparison_md(baseline: ScorecardSummary, protected: ScorecardSummary)
     lines += [
         "",
         f"Findings reduced: {b_total} -> {p_total} ({p_total - b_total:+d}).",
+        "",
+    ]
+
+    # Add remediation priorities from baseline
+    # Use a lightweight trace reconstruction from scorecard data
+    # For comparison, we note that remediation is per-trace, so we reference the
+    # baseline subreport's remediation.json if it exists.
+    lines += [
+        "## Recommended control priorities",
+        "",
+        "See `baseline/remediation.md` for the full control recommendation list.",
+        "The baseline findings indicate these control families need attention:",
+        "",
+    ]
+
+    # Deterministic family summary from scorecard categories
+    cats = sorted(baseline.findings_by_category.keys()) if baseline.findings_by_category else []
+    if cats:
+        for cat in cats:
+            lines.append(f"- {cat}")
+    else:
+        lines.append("- (no findings)")
+
+    lines += [
         "",
         "> Risk reduction is measured from deterministic synthetic traces; "
         "not a guarantee of real-world protection.",

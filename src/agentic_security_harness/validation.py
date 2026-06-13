@@ -318,6 +318,64 @@ def _validate_executive(
         result._err(f"{rel}: does not match the executive report rebuilt from scorecard + traces")
 
 
+def _validate_remediation(
+    path: Path,
+    traces: list[ExploitTrace],
+    expected_card: ScorecardSummary,
+    root: Path,
+    result: ValidationResult,
+) -> None:
+    """Validate remediation.json and remediation.md if present."""
+    from agentic_security_harness.remediation import (
+        build_recommendations,
+        build_remediation_md,
+    )
+
+    rem_json = path / "remediation.json"
+    rem_md = path / "remediation.md"
+    expected = build_recommendations(traces, expected_card)
+
+    if not expected.recommendations:
+        # No findings → no remediation artifacts expected; clean up stale ones
+        for p in (rem_json, rem_md):
+            if p.exists():
+                p.unlink()
+        return
+
+    # Validate remediation.json
+    if rem_json.exists():
+        try:
+            raw = json.loads(rem_json.read_text(encoding="utf-8"))
+            from agentic_security_harness.remediation import RemediationReport
+
+            committed = RemediationReport.model_validate(raw)
+            if committed.model_dump(mode="json") != expected.model_dump(mode="json"):
+                result._err(
+                    f"{_rel(rem_json, root)}: does not match remediation rebuilt "
+                    "from traces + scorecard"
+                )
+        except (json.JSONDecodeError, ValidationError) as exc:
+            result._err(f"{_rel(rem_json, root)}: invalid ({type(exc).__name__})")
+    else:
+        result._err(f"{_rel(rem_json, root)}: missing (expected when findings exist)")
+
+    # Validate remediation.md
+    if rem_md.exists():
+        try:
+            actual = rem_md.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            result._err(f"{_rel(rem_md, root)}: unreadable")
+        else:
+            expected_md = build_remediation_md(expected)
+            if actual.replace("\r\n", "\n") != expected_md.replace("\r\n", "\n"):
+                result._err(
+                    f"{_rel(rem_md, root)}: does not match remediation markdown "
+                    "rebuilt from traces + scorecard"
+                )
+    else:
+        result._err(f"{_rel(rem_md, root)}: missing (expected when findings exist)")
+
+
 def _validate_report_dir(
     path: Path, root: Path, result: ValidationResult
 ) -> ScorecardSummary | None:
@@ -333,8 +391,13 @@ def _validate_report_dir(
         )
         _validate_summary(path / "summary.md", traces, expected_card, root, result)
         _validate_executive(path / "executive.md", traces, expected_card, root, result)
+        _validate_remediation(path, traces, expected_card, root, result)
     for name in ("traces.json", "scorecard.json", "summary.md", "executive.md"):
         _scan_secrets(path / name, root, result)
+    # Scan remediation artifacts if present
+    for name in ("remediation.json", "remediation.md"):
+        if (path / name).exists():
+            _scan_secrets(path / name, root, result)
     return expected_card
 
 

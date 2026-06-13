@@ -83,13 +83,23 @@ def _run(target: str, out: Path) -> int:
     traces = HarnessRunner(_make_target(target)).run_many(seed_patterns())
     scorecard = build_scorecard(traces)
     write_reports(traces, scorecard, out)
-    print(f"wrote traces.json, scorecard.json, summary.md, executive.md to {out.as_posix()}")
+    from agentic_security_harness.remediation import build_recommendations
+
+    remediation = build_recommendations(traces, scorecard)
+    rem_files = []
+    if remediation.recommendations:
+        rem_files = ["remediation.json", "remediation.md"]
+    all_files = ["traces.json", "scorecard.json", "summary.md", "executive.md"] + rem_files
+    print(f"wrote {', '.join(all_files)} to {out.as_posix()}")
     print(
         f"target: {scorecard.target_name}  "
         f"traces: {scorecard.total_traces}  "
         f"failed: {len(scorecard.failed_patterns)}  "
         f"passed: {len(scorecard.passed_patterns)}"
     )
+    if remediation.recommendations:
+        families = ", ".join(remediation.control_families[:5])
+        print(f"control families: {families}")
     return 0
 
 

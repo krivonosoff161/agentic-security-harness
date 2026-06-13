@@ -38,7 +38,11 @@ def test_reports_are_deterministic() -> None:
 def test_write_reports_creates_report_files(tmp_path: Path) -> None:
     traces, scorecard = _build()
     paths = write_reports(traces, scorecard, tmp_path / "demo")
-    assert set(paths) == {"traces", "scorecard", "summary", "executive"}
+    # Baseline demo-agent has findings, so remediation artifacts are included
+    assert set(paths) == {
+        "traces", "scorecard", "summary", "executive",
+        "remediation_json", "remediation_md",
+    }
     for path in paths.values():
         assert path.exists() and path.read_text(encoding="utf-8").strip()
     data = json.loads(paths["traces"].read_text(encoding="utf-8"))
