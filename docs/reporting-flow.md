@@ -111,6 +111,10 @@ flowchart LR
   which fail only under some variants (variant_sensitive), and which pass.
 - **Control families** — which families appear across variants, with counts.
 
+In the current release, variant knobs are deterministic replay metadata. They make the
+matrix report useful for grouping and aggregation, but they do not mutate underlying
+pattern content yet.
+
 ## How to interpret the output
 
 ### If you see FAIL patterns

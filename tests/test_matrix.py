@@ -183,3 +183,15 @@ def test_variant_result_has_knobs(tmp_path: Path) -> None:
         assert isinstance(v.knobs, dict)
         assert len(v.knobs) > 0
         assert v.title
+
+
+def test_matrix_markdown_states_variant_scope(tmp_path: Path) -> None:
+    target = make_target("mock")
+    report = run_matrix(
+        target, "data-boundary", tmp_path / "m", target_id="mock",
+    )
+    text = (tmp_path / "m" / "matrix.md").read_text(encoding="utf-8")
+
+    assert report.summary.total_variants == 3
+    assert "Variant knobs in this release are deterministic replay metadata" in text
+    assert "do not mutate the underlying pattern content yet" in text

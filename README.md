@@ -102,7 +102,9 @@ See [docs/roadmap.md](docs/roadmap.md).
 - **Scenario matrix** — `ash run-matrix --target <target> --scenario <scenario>` runs
   multiple safe variants for a scenario, aggregates results, and produces stability
   analysis (`matrix.json` + `matrix.md`). Variants test different benchmark conditions
-  (step depth, memory mode, tool mode, etc.) against the same pattern subset.
+  (step depth, memory mode, tool mode, etc.) against the same pattern subset. In the
+  current release, these knobs are deterministic replay metadata; they do not mutate
+  the underlying pattern content yet.
 - **Validation (`ash validate examples/`)** — checks committed benchmark artifacts (traces,
   scorecards, summaries, comparison) and corpus consistency, and scans for forbidden
   markers; the examples are **validated benchmark artifacts**, not loose output.

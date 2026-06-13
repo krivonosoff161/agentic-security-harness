@@ -161,6 +161,10 @@ Each `ash run` produces:
 | `matrix.json` | Variant metadata: target, scenario, selected patterns, variant knobs. |
 | `matrix.md` | Scenario-specific summary with variant details and pattern results. |
 
+In the current release, matrix variants are deterministic replay metadata. They group
+scenario conditions and aggregate results; they do not mutate the underlying pattern
+content yet.
+
 `ash compare` produces:
 
 | Artifact | Purpose |

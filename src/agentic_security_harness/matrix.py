@@ -381,6 +381,10 @@ def _build_matrix_md(report: MatrixReport, scorecard: ScorecardSummary) -> str:
         "- `remediation.md` - control recommendations per finding",
         "- `traces.json` - portable machine-readable failure traces",
         "",
+        "> Variant knobs in this release are deterministic replay metadata. "
+        "They group and aggregate scenario conditions; they do not mutate the "
+        "underlying pattern content yet.",
+        "",
         "> Matrix artifacts are deterministic and synthetic. "
         "Risk reduction is measured from deterministic mock traces.",
         "",
