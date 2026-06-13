@@ -226,24 +226,13 @@ def build_comparison_md(baseline: ScorecardSummary, protected: ScorecardSummary)
     ]
 
     # Add remediation priorities from baseline
-    # Use a lightweight trace reconstruction from scorecard data
-    # For comparison, we note that remediation is per-trace, so we reference the
-    # baseline subreport's remediation.json if it exists.
     lines += [
         "## Recommended control priorities",
         "",
         "See `baseline/remediation.md` for the full control recommendation list.",
-        "The baseline findings indicate these control families need attention:",
+        "The baseline findings indicate control families need attention.",
         "",
     ]
-
-    # Deterministic family summary from scorecard categories
-    cats = sorted(baseline.findings_by_category.keys()) if baseline.findings_by_category else []
-    if cats:
-        for cat in cats:
-            lines.append(f"- {cat}")
-    else:
-        lines.append("- (no findings)")
 
     lines += [
         "",

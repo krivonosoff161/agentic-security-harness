@@ -80,7 +80,7 @@ See [docs/roadmap.md](docs/roadmap.md).
 
 - **Pydantic v2 models** — `DataEnvelope` (a policy label, **not** encryption), `Finding`,
   `TraceStep`, `TargetDescriptor`, `ExploitTrace`, `DefensivePattern`.
-- **Seventeen sanitized seed patterns** — indirect prompt injection, data-boundary recipient
+- **Twenty-two sanitized seed patterns** — indirect prompt injection, data-boundary recipient
   confusion, memory poisoning, classification mutation, handoff label stripping,
   tool-permission abuse, provider-boundary leakage, sleeping-prompt delayed activation,
   audit spam-label abuse, budget loop abuse, capability delegation drift, mock
@@ -91,7 +91,7 @@ See [docs/roadmap.md](docs/roadmap.md).
   mock tool calls, data-envelope propagation, recipient-control checks); intentionally
   vulnerable for the seed patterns. No network, no LLM.
 - **Protected demo agent (`protected-demo-agent`)** — the same agent with simple deterministic
-  controls; passes all seventeen seed patterns. `ash compare` measures the reduction in findings.
+  controls; passes all twenty-two seed patterns. `ash compare` measures the reduction in findings.
 - **Runner** — `pattern → target → trace` (mock or demo-agent).
 - **Scorecard** — a deterministic aggregate derived from traces.
 - **Demo CLI (`ash`)** — `ash run --target {mock,demo-agent,protected-demo-agent}`,
@@ -157,13 +157,16 @@ leakage · delayed stored-content activation · audit suppression and audit tamp
 budget / loop abuse · capability delegation drift · mock MCP / tool-schema deception ·
 perception-boundary confusion · ambient authority use · approval-context laundering.
 
-Seventeen local seed patterns are implemented today: six data-boundary / recipient-control
+Twenty-two local seed patterns are implemented today: six data-boundary / recipient-control
 patterns, one indirect tool-output injection seed, three v0.6 additions
 (sleeping-prompt delayed activation, audit spam-label abuse, budget loop abuse),
 three v0.7 authority / integrity additions (capability delegation drift, mock
-tool-schema deception, audit hash-chain tampering), and four v0.8 perception /
+tool-schema deception, audit hash-chain tampering), four v0.8 perception /
 authority / governance additions (perception-boundary sensor-command confusion,
-ambient authority escalation, approval laundering, memory governance). The rest are on the
+ambient authority escalation, approval laundering, memory governance), and five
+v0.9 deeper variants (environment-injected memory poisoning, unintentional
+cross-user contamination, recursive execution amplification, tool-selection
+manipulation, multi-turn indirect instruction escalation). The rest are on the
 [roadmap](docs/roadmap.md).
 
 ## Reference defense (planned optional component)
@@ -267,7 +270,11 @@ traces and deterministic baseline-vs-protected replay. Honest comparison:
 - **[How it differs](docs/how-it-differs.md)** — comparison with adjacent tools and defenses.
 - **[Adapter contract](docs/adapter-contract.md)** — how the benchmark can target other
   agent runtimes later without becoming provider-specific.
+- **[Bring your own target](docs/bring-your-own-target.md)** — step-by-step guide for
+  connecting an authorized target adapter.
 - **[Reporting design](docs/reporting.md)** — executive and technical report shape.
+- **[Reporting flow](docs/reporting-flow.md)** — visual diagrams of benchmark and
+  remediation flows (Mermaid).
 - **[Project map](docs/project-map.md)** — plain-language guide for reviewers and maintainers.
 - **[Use cases](docs/use-cases.md)** — how AI/security teams can evaluate and apply the benchmark.
 - **[Problem–solution catalog](docs/problem-solution-catalog.md)** — problem → detection → mitigation → harness test → reference control → residual risk.
