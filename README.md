@@ -202,13 +202,14 @@ ash run --target protected-demo-agent --out reports/protected-demo-agent
 ash validate examples/
 ```
 
-Each run writes three artifacts:
+Each run writes four artifacts:
 
 ```text
 reports/demo/
 ├── traces.json       # portable, machine-readable traces (one per pattern)
 ├── scorecard.json    # deterministic aggregate
-└── summary.md        # human-readable summary table
+├── summary.md        # human-readable summary table
+└── executive.md      # concise scope, severity, top-failure, and residual-risk view
 ```
 
 `demo-agent` is a deterministic **local, synthetic** agent (in-memory memory, mock tool
@@ -236,8 +237,8 @@ ash compare --baseline demo-agent --protected protected-demo-agent --out reports
 
 ```text
 reports/comparison/
-  baseline/      traces.json, scorecard.json, summary.md
-  protected/     traces.json, scorecard.json, summary.md
+  baseline/      traces.json, scorecard.json, summary.md, executive.md
+  protected/     traces.json, scorecard.json, summary.md, executive.md
   comparison.md
 ```
 

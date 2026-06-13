@@ -71,19 +71,92 @@ def build_summary_md(scorecard: ScorecardSummary, traces: list[ExploitTrace]) ->
     return "\n".join(lines)
 
 
+def build_executive_md(scorecard: ScorecardSummary, traces: list[ExploitTrace]) -> str:
+    """Return a concise executive view for one deterministic benchmark run."""
+    failed = len(scorecard.failed_patterns)
+    passed = len(scorecard.passed_patterns)
+    categories = sorted({trace.pattern_id.split(".", 1)[0] for trace in traces})
+    top_failures: list[tuple[str, str, str]] = []
+    for trace in traces:
+        if trace.findings:
+            _, severity, broke_at = _trace_row(trace)
+            top_failures.append((trace.pattern_id, severity, broke_at))
+    top_failures.sort(key=lambda row: (-_SEVERITY_RANK.get(row[1], -1), row[0]))
+
+    lines: list[str] = [
+        "# Agentic Security Harness - executive summary",
+        "",
+        f"Target: `{scorecard.target_name}`",
+        "",
+        "## Scope",
+        "",
+        f"- Corpus patterns: {scorecard.total_traces}",
+        f"- Categories covered: {len(categories)}",
+        "- Run mode: deterministic synthetic local benchmark",
+        "- Network/provider calls: none in the built-in demo targets",
+        "",
+        "## Headline result",
+        "",
+        f"- Findings present: {failed}",
+        f"- Patterns with no findings: {passed}",
+        "",
+        "## Boundary categories",
+        "",
+    ]
+    lines += [f"- {category}" for category in categories] if categories else ["- (none)"]
+    lines += [
+        "",
+        "## Findings by severity",
+        "",
+    ]
+    present = [sev for sev in _SEVERITY_ORDER if sev in scorecard.findings_by_severity]
+    lines += (
+        [f"- {sev}: {scorecard.findings_by_severity[sev]}" for sev in present]
+        if present
+        else ["- (none)"]
+    )
+    lines += [
+        "",
+        "## Highest-priority failures",
+        "",
+    ]
+    if top_failures:
+        lines += [
+            f"- `{pattern_id}`: {severity}, broke_at={broke_at}"
+            for pattern_id, severity, broke_at in top_failures[:5]
+        ]
+    else:
+        lines.append("- No findings in this deterministic run.")
+    lines += [
+        "",
+        "## Residual risk",
+        "",
+        "- This report measures deterministic synthetic scenarios only.",
+        "- Passing the corpus is not evidence of complete real-world protection.",
+        "- Non-synthetic adapters must add authorization, redaction, metadata, "
+        "and repeat-run reporting before public artifacts are shared.",
+        "",
+    ]
+    return "\n".join(lines)
+
+
 def write_reports(
     traces: list[ExploitTrace], scorecard: ScorecardSummary, out_dir: Path
 ) -> dict[str, Path]:
-    """Write the three report artifacts into ``out_dir`` (LF newlines). Returns the paths."""
+    """Write report artifacts into ``out_dir`` (LF newlines). Returns the paths."""
     out_dir.mkdir(parents=True, exist_ok=True)
     paths = {
         "traces": out_dir / "traces.json",
         "scorecard": out_dir / "scorecard.json",
         "summary": out_dir / "summary.md",
+        "executive": out_dir / "executive.md",
     }
     paths["traces"].write_text(traces_to_json(traces), encoding="utf-8", newline="\n")
     paths["scorecard"].write_text(scorecard_to_json(scorecard), encoding="utf-8", newline="\n")
     paths["summary"].write_text(build_summary_md(scorecard, traces), encoding="utf-8", newline="\n")
+    paths["executive"].write_text(
+        build_executive_md(scorecard, traces), encoding="utf-8", newline="\n"
+    )
     return paths
 
 

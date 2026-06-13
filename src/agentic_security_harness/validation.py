@@ -1,8 +1,8 @@
 """Validation layer for committed benchmark artifacts and corpus consistency.
 
 Deterministic, stdlib + Pydantic only - no network, no new dependencies. Validates report
-directories (traces.json / scorecard.json / summary.md) and comparison directories
-(baseline/ + protected/ + comparison.md) against the corpus manifest, and scans for
+directories (traces.json / scorecard.json / summary.md / executive.md) and comparison
+directories (baseline/ + protected/ + comparison.md) against the corpus manifest, and scans for
 forbidden secret-shaped markers.
 
 Passing validation means the artifacts conform to the corpus manifest (schema v0.1) and
@@ -22,6 +22,7 @@ from agentic_security_harness.patterns import seed_patterns
 from agentic_security_harness.reporting import (
     _SEVERITY_RANK,
     build_comparison_md,
+    build_executive_md,
     build_summary_md,
 )
 from agentic_security_harness.scorecard import ScorecardSummary, build_scorecard
@@ -296,6 +297,27 @@ def _validate_summary(
         result._err(f"{rel}: does not match the summary rebuilt from scorecard + traces")
 
 
+def _validate_executive(
+    path: Path,
+    traces: list[ExploitTrace],
+    expected_card: ScorecardSummary,
+    root: Path,
+    result: ValidationResult,
+) -> None:
+    rel = _rel(path, root)
+    if not path.exists():
+        result._err(f"{rel}: missing")
+        return
+    try:
+        actual = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        result._err(f"{rel}: unreadable")
+        return
+    expected = build_executive_md(expected_card, traces)
+    if actual.replace("\r\n", "\n") != expected.replace("\r\n", "\n"):
+        result._err(f"{rel}: does not match the executive report rebuilt from scorecard + traces")
+
+
 def _validate_report_dir(
     path: Path, root: Path, result: ValidationResult
 ) -> ScorecardSummary | None:
@@ -310,7 +332,8 @@ def _validate_report_dir(
             committed_card, expected_card, traces, path / "scorecard.json", root, result
         )
         _validate_summary(path / "summary.md", traces, expected_card, root, result)
-    for name in ("traces.json", "scorecard.json", "summary.md"):
+        _validate_executive(path / "executive.md", traces, expected_card, root, result)
+    for name in ("traces.json", "scorecard.json", "summary.md", "executive.md"):
         _scan_secrets(path / name, root, result)
     return expected_card
 

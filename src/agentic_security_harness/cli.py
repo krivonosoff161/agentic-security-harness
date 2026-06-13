@@ -83,7 +83,7 @@ def _run(target: str, out: Path) -> int:
     traces = HarnessRunner(_make_target(target)).run_many(seed_patterns())
     scorecard = build_scorecard(traces)
     write_reports(traces, scorecard, out)
-    print(f"wrote traces.json, scorecard.json, summary.md to {out.as_posix()}")
+    print(f"wrote traces.json, scorecard.json, summary.md, executive.md to {out.as_posix()}")
     print(
         f"target: {scorecard.target_name}  "
         f"traces: {scorecard.total_traces}  "

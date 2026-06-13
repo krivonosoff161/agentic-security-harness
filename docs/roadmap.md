@@ -23,6 +23,8 @@ provider calls, no real targets, no real secrets.
 - **v0.8 - perception boundary and ambient authority slice:** perception-boundary
   sensor-command confusion, ambient authority escalation, approval laundering,
   and memory governance - 17 deterministic patterns total.
+- **v0.8.x - adapter/report foundation:** target metadata contract models and
+  lightweight `executive.md` report artifact for deterministic runs.
 
 ---
 
@@ -32,9 +34,9 @@ provider calls, no real targets, no real secrets.
   instruction contamination and action-audit divergence tests.
 - **v0.10 - local adapter examples:** toy RAG app, toy MCP server, toy multi-agent handoff.
   Still local / synthetic only.
-- **v0.11 - report quality:** better Markdown / HTML audit report, executive summary,
-  mitigation checklist, before/after score.
-- **v0.11.x - adapter contract hardening:** target-adapter metadata, stochastic-run
+- **v0.11 - report quality:** better Markdown / HTML audit report, coverage heatmap,
+  standards matrix, mitigation checklist, before/after score.
+- **v0.11.x - adapter contract hardening:** adapter metadata emission, stochastic-run
   reporting rules, and local toy adapter examples before real providers.
 - **v0.12 - mapping and standardization:** OWASP LLM mapping, MITRE ATLAS mapping, severity
   rationale, pattern versioning policy.

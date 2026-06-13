@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- Adapter contract models (`TargetMetadata`, `HealthStatus`, `CapabilityCheckResult`) to
+  define reproducibility and safety metadata for future non-synthetic targets.
+- `executive.md` report artifact for `ash run` outputs and comparison subreports.
+
+### Changed
+- Updated reporting and adapter documentation to reflect the new metadata/report
+  foundation while keeping current targets deterministic and local.
+
 ## [0.8.0] - 2026-06-13
 
 ### Added

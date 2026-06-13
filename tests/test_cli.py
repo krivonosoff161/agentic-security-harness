@@ -9,7 +9,7 @@ def test_cli_run_writes_reports(tmp_path: Path) -> None:
     out = tmp_path / "demo"
     rc = cli.main(["run", "--target", "mock", "--out", str(out)])
     assert rc == 0
-    for name in ("traces.json", "scorecard.json", "summary.md"):
+    for name in ("traces.json", "scorecard.json", "summary.md", "executive.md"):
         assert (out / name).exists()
 
 

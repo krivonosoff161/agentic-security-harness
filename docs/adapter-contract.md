@@ -37,6 +37,16 @@ class Target(Protocol):
 The runner wraps that into an `ExploitTrace` with the target descriptor, graph path,
 expected vulnerable behavior, data envelope, and reproducibility metadata.
 
+The repository also ships typed metadata models for future adapters:
+
+- `TargetMetadata` - adapter/runtime/model/network/memory reproducibility metadata;
+- `HealthStatus` - readiness checks before a run;
+- `CapabilityCheckResult` - per-pattern adapter compatibility and safety-gate result.
+
+These models are contract surface, not a requirement for the current local demo targets.
+Future non-synthetic or stochastic adapters must use them before their results are treated
+as comparable to the deterministic examples.
+
 ## Required adapter behavior
 
 A target adapter must:
@@ -64,7 +74,7 @@ A target adapter must:
 ## Runtime metadata to record
 
 Real or semi-real adapters need more reproducibility metadata than the current synthetic
-targets. The trace should include or reference:
+targets. `TargetMetadata` captures the stable fields:
 
 - adapter name and version;
 - target runtime name and version;

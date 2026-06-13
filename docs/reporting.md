@@ -19,7 +19,8 @@ Each `ash run` writes:
 
 - `traces.json` - portable machine-readable traces;
 - `scorecard.json` - deterministic aggregate;
-- `summary.md` - human-readable table.
+- `summary.md` - human-readable pattern table;
+- `executive.md` - concise scope, severity, top-failure, and residual-risk view.
 
 `ash compare` writes:
 
@@ -112,10 +113,11 @@ fields before anything is committed to the public repository.
 ## Current gaps
 
 - No HTML report yet.
-- No executive-summary artifact separate from `comparison.md`.
 - No stochastic-run report for real LLM targets.
 - No adapter metadata block beyond the current `TargetDescriptor`.
 - No visual coverage chart.
 
-These are report-quality tasks, not corpus tasks. They should improve how the 17-pattern
-corpus is reviewed without changing the benchmark semantics.
+The current `executive.md` is intentionally lightweight. The next report-quality tasks are
+coverage visualization, standards matrices, mitigation checklists, and adapter metadata.
+They should improve how the 17-pattern corpus is reviewed without changing the benchmark
+semantics.

@@ -2,10 +2,13 @@ import pytest
 from pydantic import ValidationError
 
 from agentic_security_harness.models import (
+    CapabilityCheckResult,
     DataEnvelope,
     ExploitTrace,
     Finding,
+    HealthStatus,
     TargetDescriptor,
+    TargetMetadata,
     TraceStep,
 )
 
@@ -59,3 +62,37 @@ def test_exploit_trace_accepts_valid_trace_with_envelope() -> None:
     assert trace.data_envelope is not None
     assert trace.data_envelope.classification_mutable is False
     assert trace.findings[0].severity == "high"
+
+
+def test_target_metadata_defaults_are_safe_for_local_demo_adapters() -> None:
+    metadata = TargetMetadata(
+        adapter_name="demo-agent",
+        adapter_version="0.1",
+        run_id="run_demo",
+    )
+    assert metadata.network_mode == "off"
+    assert metadata.provider_calls is False
+    assert metadata.deterministic is True
+    assert metadata.run_count == 1
+    assert metadata.memory_mode == "off"
+
+
+def test_target_metadata_validates_bounded_confidence_level() -> None:
+    with pytest.raises(ValidationError):
+        TargetMetadata(
+            adapter_name="hosted",
+            adapter_version="0.1",
+            run_id="run_demo",
+            confidence_level=1.5,
+        )
+
+
+def test_health_and_capability_check_models_are_strict() -> None:
+    health = HealthStatus(ok=True, status="ready", message="local demo target ready")
+    assert health.checks == {}
+    check = CapabilityCheckResult(
+        pattern_id="demo.pattern",
+        supported=True,
+        safety_gates_passed=True,
+    )
+    assert check.reasons == []

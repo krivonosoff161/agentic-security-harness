@@ -124,6 +124,56 @@ class TargetDescriptor(BaseModel):
     adapter: str
 
 
+class TargetMetadata(BaseModel):
+    """Reproducibility metadata for an adapter/runtime under test.
+
+    Current demo targets do not need to emit this yet. The model defines the stable
+    shape required before non-synthetic or stochastic adapters can be reported.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    adapter_name: str
+    adapter_version: str
+    runtime_name: str | None = None
+    runtime_version: str | None = None
+    model_family: str | None = None
+    model_name: str | None = None
+    model_settings: dict[str, str | int | float | bool | None] = Field(default_factory=dict)
+    tool_registry_hash: str | None = None
+    memory_mode: Literal["off", "session", "persistent", "external"] = "off"
+    permission_model: Literal["none", "prompt-only", "capability-token", "rbac"] = "none"
+    network_mode: Literal["off", "local-only", "authorized-external"] = "off"
+    deterministic: bool = True
+    run_seed: int | None = None
+    run_count: int = Field(default=1, ge=1)
+    confidence_level: float | None = Field(default=None, ge=0.0, le=1.0)
+    provider_calls: bool = False
+    run_id: str
+
+
+class HealthStatus(BaseModel):
+    """Adapter readiness status reported before a benchmark run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    ok: bool
+    status: Literal["ready", "disabled", "misconfigured", "unavailable"]
+    message: str
+    checks: dict[str, bool] = Field(default_factory=dict)
+
+
+class CapabilityCheckResult(BaseModel):
+    """Pre-run compatibility and safety result for a pattern/adapter pair."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    pattern_id: str
+    supported: bool
+    safety_gates_passed: bool
+    reasons: list[str] = Field(default_factory=list)
+
+
 class ExploitTrace(BaseModel):
     """The core artifact: a portable, machine-readable record of one pattern run."""
 

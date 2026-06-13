@@ -10,14 +10,17 @@ from agentic_security_harness.demo_agent import DemoAgent
 from agentic_security_harness.mock_target import MockTarget
 from agentic_security_harness.models import (
     AuditEntry,
+    CapabilityCheckResult,
     CapabilityToken,
     DataEnvelope,
     DefensivePattern,
     ExploitTrace,
     Finding,
+    HealthStatus,
     Observation,
     Target,
     TargetDescriptor,
+    TargetMetadata,
     ToolSchemaRecord,
     TraceStep,
 )
@@ -28,6 +31,7 @@ from agentic_security_harness.protected_demo_agent import (
 )
 from agentic_security_harness.reporting import (
     build_comparison_md,
+    build_executive_md,
     build_summary_md,
     scorecard_to_json,
     traces_to_json,
@@ -41,14 +45,17 @@ from agentic_security_harness.validation import ValidationResult, validate_path
 __all__ = [
     "DataEnvelope",
     "CapabilityToken",
+    "CapabilityCheckResult",
     "ToolSchemaRecord",
     "AuditEntry",
     "DefensivePattern",
     "ExploitTrace",
     "Finding",
+    "HealthStatus",
     "Observation",
     "Target",
     "TargetDescriptor",
+    "TargetMetadata",
     "TraceStep",
     "MockTarget",
     "DemoAgent",
@@ -65,6 +72,7 @@ __all__ = [
     "write_reports",
     "write_comparison",
     "build_summary_md",
+    "build_executive_md",
     "build_comparison_md",
     "traces_to_json",
     "scorecard_to_json",

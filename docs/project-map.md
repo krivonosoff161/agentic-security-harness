@@ -36,10 +36,10 @@ If those six points hold, the benchmark is coherent.
 | Patterns | Sanitized test cases the runner sends to targets. | `src/agentic_security_harness/patterns.py` |
 | Targets | Local systems under test: `mock`, `demo-agent`, `protected-demo-agent`. | `src/agentic_security_harness/*agent*.py`, `mock_target.py` |
 | Runner | Converts `pattern + target` into traces. | `src/agentic_security_harness/runner.py` |
-| Reports | Writes `traces.json`, `scorecard.json`, `summary.md`, and comparison reports. | `src/agentic_security_harness/reporting.py`, `examples/` |
+| Reports | Writes `traces.json`, `scorecard.json`, `summary.md`, `executive.md`, and comparison reports. | `src/agentic_security_harness/reporting.py`, `examples/` |
 | Validation | Checks report artifacts against the corpus manifest. | `src/agentic_security_harness/validation.py` |
 | CLI | User-facing commands. | `src/agentic_security_harness/cli.py` |
-| Adapter contract | Rules for future model/provider/runtime adapters. | [adapter-contract.md](adapter-contract.md) |
+| Adapter contract | Rules and metadata models for future model/provider/runtime adapters. | [adapter-contract.md](adapter-contract.md), `models.py` |
 | Reporting design | How executive and technical reports should be shaped. | [reporting.md](reporting.md) |
 
 ## What is not implemented today
