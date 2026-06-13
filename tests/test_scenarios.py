@@ -1,22 +1,30 @@
-"""Tests for scenario templates."""
+"""Tests for scenario templates and variants."""
 
 import pytest
 
 from agentic_security_harness.corpus import corpus_manifest
-from agentic_security_harness.scenarios import get_scenario, list_scenarios, scenario_ids
+from agentic_security_harness.scenarios import (
+    get_scenario,
+    get_variants,
+    list_scenarios,
+    scenario_ids,
+)
 
 
 def test_list_scenarios_returns_expected_families() -> None:
     scenarios = list_scenarios()
     ids = [s.scenario_id for s in scenarios]
-    assert "data-boundary" in ids
-    assert "memory-governance" in ids
-    assert "tool-selection" in ids
-    assert "authority-control" in ids
-    assert "approval-audit" in ids
-    assert "budget-control" in ids
-    assert "perception-boundary" in ids
-    assert "all" in ids
+    for expected in (
+        "data-boundary",
+        "memory-governance",
+        "tool-selection",
+        "authority-control",
+        "approval-audit",
+        "budget-control",
+        "perception-boundary",
+        "all",
+    ):
+        assert expected in ids
 
 
 def test_scenario_ids_matches_list() -> None:
@@ -70,3 +78,60 @@ def test_non_all_scenarios_are_proper_subsets() -> None:
 def test_no_duplicate_pattern_ids_within_scenario() -> None:
     for scenario in list_scenarios():
         assert len(scenario.pattern_ids) == len(set(scenario.pattern_ids))
+
+
+def test_every_scenario_has_variants() -> None:
+    for scenario in list_scenarios():
+        assert len(scenario.variants) > 0, (
+            f"scenario '{scenario.scenario_id}' has no variants"
+        )
+
+
+def test_variant_ids_unique_within_scenario() -> None:
+    for scenario in list_scenarios():
+        ids = [v.variant_id for v in scenario.variants]
+        assert len(ids) == len(set(ids)), (
+            f"scenario '{scenario.scenario_id}' has duplicate variant ids"
+        )
+
+
+def test_variant_has_required_fields() -> None:
+    for scenario in list_scenarios():
+        for v in scenario.variants:
+            assert v.variant_id
+            assert v.title
+            assert isinstance(v.knobs, dict)
+
+
+def test_get_variants_respects_max() -> None:
+    all_scenario = get_scenario("all")
+    total = len(all_scenario.variants)
+    variants = get_variants("all", max_variants=2)
+    assert len(variants) == 2
+    assert len(variants) <= total
+
+
+def test_get_variants_single_filter() -> None:
+    variants = get_variants("all", only_variant_id="baseline-all")
+    assert len(variants) == 1
+    assert variants[0].variant_id == "baseline-all"
+
+
+def test_get_variants_unknown_filter_raises() -> None:
+    with pytest.raises(KeyError, match="unknown variant"):
+        get_variants("all", only_variant_id="bogus-variant")
+
+
+def test_scenario_variant_counts() -> None:
+    expected = {
+        "data-boundary": 3,
+        "memory-governance": 3,
+        "tool-selection": 3,
+        "authority-control": 2,
+        "approval-audit": 3,
+        "budget-control": 2,
+        "perception-boundary": 2,
+        "all": 4,
+    }
+    for scenario in list_scenarios():
+        assert len(scenario.variants) == expected[scenario.scenario_id]

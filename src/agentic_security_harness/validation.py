@@ -170,6 +170,7 @@ def _validate_traces(
     root: Path,
     result: ValidationResult,
     expected_pattern_ids: set[str] | None = None,
+    is_matrix: bool = False,
 ) -> None:
     corpus = {entry.pattern_id: entry for entry in corpus_manifest()}
     canonical = {pattern.pattern_id: pattern for pattern in seed_patterns()}
@@ -243,7 +244,13 @@ def _validate_traces(
     actual_ids = set(pattern_counts)
     missing = sorted(expected_ids - actual_ids)
     extra = sorted(actual_ids - expected_ids)
-    duplicates = sorted(pid for pid, count in pattern_counts.items() if count > 1)
+    # Matrix runs intentionally have duplicate pattern_ids (one per variant)
+    if not is_matrix:
+        duplicates = sorted(
+            pid for pid, count in pattern_counts.items() if count > 1
+        )
+    else:
+        duplicates = []
     if missing:
         result._err(f"{rel}: missing corpus pattern(s): {missing}")
     if extra:
@@ -401,10 +408,12 @@ def _validate_report_dir(
     traces = _load_traces(path / "traces.json", root, result)
     committed_card = _load_scorecard(path / "scorecard.json", root, result)
     expected_card: ScorecardSummary | None = None
+    is_matrix = expected_pattern_ids is not None
     if traces is not None:
         _validate_traces(
             traces, path / "traces.json", root, result,
             expected_pattern_ids=expected_pattern_ids,
+            is_matrix=is_matrix,
         )
         expected_card = build_scorecard(traces)
     if traces is not None and committed_card is not None and expected_card is not None:
@@ -522,13 +531,50 @@ def _validate_matrix_json(
         result._err(f"{rel}: schema: {_fmt_error(exc)}")
         return
     # Validate selected pattern ids exist in corpus
-    corpus = {entry.pattern_id for entry in corpus_manifest()}
+    corpus = {entry.pattern_id: entry for entry in corpus_manifest()}
     for pid in report.selected_pattern_ids:
         if pid not in corpus:
             result._err(f"{rel}: selected pattern_id '{pid}' not in corpus")
-    # Validate trace count matches if traces are available
+    # Validate unique variant ids
+    variant_ids = [v.variant_id for v in report.variants]
+    if len(variant_ids) != len(set(variant_ids)):
+        dupes = sorted(
+            vid for vid in set(variant_ids) if variant_ids.count(vid) > 1
+        )
+        result._err(f"{rel}: duplicate variant_id(s): {dupes}")
+    # Validate trace ids referenced by variants exist in traces.json
     if traces is not None:
+        trace_id_set = {t.trace_id for t in traces}
+        all_ref_ids: list[str] = []
+        for v in report.variants:
+            all_ref_ids.extend(v.trace_ids)
+        missing_traces = sorted(set(all_ref_ids) - trace_id_set)
+        if missing_traces:
+            result._err(
+                f"{rel}: variant references trace_id(s) not in traces.json: "
+                f"{missing_traces}"
+            )
+        # Validate total traces match
         if report.total_traces != len(traces):
             result._err(
-                f"{rel}: total_traces {report.total_traces} != traces in traces.json {len(traces)}"
+                f"{rel}: total_traces {report.total_traces} "
+                f"!= traces in traces.json {len(traces)}"
             )
+        # Validate summary counts
+        if report.summary:
+            if report.summary.total_variants != len(report.variants):
+                result._err(
+                    f"{rel}: summary.total_variants "
+                    f"{report.summary.total_variants} "
+                    f"!= variants count {len(report.variants)}"
+                )
+            if report.summary.total_traces != report.total_traces:
+                result._err(
+                    f"{rel}: summary.total_traces "
+                    f"{report.summary.total_traces} "
+                    f"!= total_traces {report.total_traces}"
+                )
+    # Validate matrix.md if present
+    matrix_md = matrix_path.parent / "matrix.md"
+    if matrix_md.exists():
+        _scan_secrets(matrix_md, root, result)
