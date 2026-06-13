@@ -102,7 +102,11 @@ See [docs/roadmap.md](docs/roadmap.md).
 - **Scenario matrix** — `ash run-matrix --target <target> --scenario <scenario>` runs
   multiple safe variants for a scenario, aggregates results, and produces stability
   analysis (`matrix.json` + `matrix.md`). Variants test different benchmark conditions
-  (step depth, memory mode, tool mode, etc.) against the same pattern subset. In the
+  (step depth, memory mode, tool mode, etc.) against the same pattern subset.
+- **External adapter (experimental)** — `ash run-external --adapter openai-compatible
+  --base-url URL --model MODEL --scenario SCENARIO` evaluates an authorized
+  OpenAI-compatible endpoint with safe synthetic prompts. Supports repeats, dry-run,
+  and variant selection. Network calls only when explicitly invoked. In the
   current release, these knobs are deterministic replay metadata; they do not mutate
   the underlying pattern content yet.
 - **Validation (`ash validate examples/`)** — checks committed benchmark artifacts (traces,
@@ -222,6 +226,24 @@ ash run-matrix --target mock --scenario all --variant baseline-all --out reports
 
 # validate the committed benchmark artifacts (or your own runs)
 ash validate examples/
+
+# external adapter: test an authorized OpenAI-compatible endpoint
+# (dry-run first - no network calls)
+ash run-external --adapter openai-compatible \
+  --base-url http://localhost:8000/v1 \
+  --model deepseek-chat \
+  --scenario data-boundary \
+  --dry-run
+
+# actual run (makes network calls)
+export ASH_API_KEY=your_key_here
+ash run-external --adapter openai-compatible \
+  --base-url http://localhost:8000/v1 \
+  --model deepseek-chat \
+  --scenario data-boundary \
+  --repeats 3 \
+  --api-key-env ASH_API_KEY \
+  --out reports/external-demo
 ```
 
 Each run writes four artifacts:
@@ -236,6 +258,15 @@ reports/demo/
 
 `run-matrix` additionally writes `matrix.json` (variant metadata) and `matrix.md`
 (scenario-specific summary).
+
+`run-external` writes:
+- `run_config.json` — run configuration (API key env name only, never the value)
+- `external_results.json` — per-pattern evaluation results
+- `external_summary.json` — aggregated repeat summaries
+- `external_report.md` — human-readable external run report
+
+> **External runs are experimental.** They evaluate model decision boundaries
+> with synthetic prompts, not full agent execution. No tools are called.
 
 `demo-agent` is a deterministic **local, synthetic** agent (in-memory memory, mock tool
 calls, data-envelope propagation, recipient-control checks) — still no network, no LLM, and

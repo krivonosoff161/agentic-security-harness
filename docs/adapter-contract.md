@@ -66,6 +66,7 @@ A target adapter must:
 | `mock` | current | Deterministic minimal target used for fast benchmark checks. |
 | `demo-agent` | current | Local vulnerable-by-design synthetic agent. |
 | `protected-demo-agent` | current | Local controlled synthetic agent; demonstrates risk reduction. |
+| `openai-compatible` (external) | experimental | Evaluates an authorized OpenAI-compatible endpoint with synthetic prompts. No tool execution. |
 | Toy RAG adapter | planned | Local fixture-based RAG app with no network and no provider calls. |
 | Toy MCP adapter | planned | Local mock MCP-like server/client pair; no live third-party server. |
 | Toy multi-agent adapter | planned | Local handoff runtime for cross-agent and capability-boundary tests. |

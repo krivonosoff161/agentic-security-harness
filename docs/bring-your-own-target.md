@@ -117,6 +117,35 @@ ash run-matrix --target mock --scenario all --max-variants 2 --out reports/matri
 ash run-matrix --target mock --scenario all --variant baseline-all --out reports/matrix-one
 ```
 
+### External model evaluation (experimental)
+
+The `ash run-external` command evaluates an authorized OpenAI-compatible endpoint
+with safe synthetic prompts. This is useful for testing a local vLLM server, a
+local gateway, or an authorized test endpoint.
+
+```bash
+# Dry run first (no network calls)
+ash run-external --adapter openai-compatible \
+  --base-url http://localhost:8000/v1 \
+  --model deepseek-chat \
+  --scenario data-boundary \
+  --dry-run
+
+# Actual run (makes network calls)
+export ASH_API_KEY=your_key_here
+ash run-external --adapter openai-compatible \
+  --base-url http://localhost:8000/v1 \
+  --model deepseek-chat \
+  --scenario data-boundary \
+  --repeats 3 \
+  --api-key-env ASH_API_KEY \
+  --out reports/external-demo
+```
+
+**Important:** External runs evaluate model decision boundaries with synthetic
+prompts. No tools are executed. This is not a benchmark-grade comparison yet.
+See the [adapter contract](adapter-contract.md) for details.
+
 ### Future custom target path
 
 The current release does **not** support loading arbitrary external adapters via CLI.
