@@ -168,6 +168,121 @@ class ProtectedDemoAgent(DemoAgent):
         self.log("schema_provenance_check", "agent", "schema matches pinned provenance")
         return False
 
+    def process_perception_transcript(self, transcript: str, source: str) -> bool:
+        # Control: perception-channel content is untrusted data, not user intent.
+        self.log(
+            "perception_channel",
+            "agent",
+            f"received {source} transcript into context",
+        )
+        self.log(
+            "agent_context",
+            "agent",
+            "control: perception content tagged as untrusted data",
+        )
+        self.log(
+            "agent_decision",
+            "agent",
+            "control: perception content not treated as user instruction; no action taken",
+        )
+        return False
+
+    def use_ambient_capability(self, envelope: DataEnvelope) -> bool:
+        # Control: ambient capability not in envelope's allowed_purpose; denied.
+        self.log(
+            "ambient_capability_available",
+            "agent",
+            "ambient capability mock_file_read available from host",
+        )
+        self.log(
+            "agent_decision",
+            "agent",
+            "control: ambient capability not bound in envelope; denied",
+        )
+        self.log(
+            "unauthorized_action",
+            "agent",
+            "control: no action taken (ambient authority not granted for this task)",
+        )
+        return False
+
+    def craft_approval_request(self, envelope: DataEnvelope) -> str:
+        # Control: approval request includes full envelope context.
+        self.log(
+            "action_requiring_approval",
+            "agent",
+            "action requires human confirmation",
+        )
+        request = (
+            "Confirm: forward data "
+            f"(data_class={envelope.data_class}, "
+            f"recipients={envelope.allowed_recipients}, "
+            f"purpose={envelope.allowed_purpose}). "
+            "Risk: HIGH. Reject if unsure."
+        )
+        self.log(
+            "approval_request_crafted",
+            "agent",
+            f"approval request with full context: {request}",
+        )
+        return request
+
+    def write_memory_with_governance(
+        self, entries: list[tuple[str, str, str, str, int | None]]
+    ) -> list[bool]:
+        violations = []
+        for key, value, source, trust_level, ttl in entries:
+            if trust_level == "untrusted":
+                # Control: untrusted entries cannot overwrite or be stored alongside trusted data.
+                self.log(
+                    "memory_write_untrusted",
+                    "agent",
+                    f"control: refused to store untrusted '{key}' from {source}",
+                )
+                violations.append(False)
+                continue
+            self.memory[key] = MemoryRecord(
+                value=value,
+                envelope=DataEnvelope(
+                    data_class="internal",
+                    classification_source=source,
+                    ttl_seconds=ttl,
+                ),
+            )
+            self.log(
+                "memory_write_trusted",
+                "agent",
+                f"stored '{key}' from {source} (trust={trust_level}, ttl={ttl})",
+            )
+            violations.append(False)
+        return violations
+
+    def read_memory_with_governance(self, key: str) -> bool:
+        record = self.memory.get(key)
+        self.log("later_read", "agent", f"reading memory key '{key}'")
+        if record is None:
+            self.log(
+                "observed_behavior",
+                "agent",
+                "control: memory key not found; no governance issue",
+            )
+            return False
+        # Control: check trust level and TTL at read time.
+        envelope = record.envelope
+        if envelope and envelope.ttl_seconds is not None:
+            self.log(
+                "observed_behavior",
+                "agent",
+                "control: TTL checked; entry treated with governance constraints",
+            )
+        else:
+            self.log(
+                "observed_behavior",
+                "agent",
+                "control: provenance and trust level checked at read time",
+            )
+        return False
+
     def validate_audit_chain(self, chain: list[AuditEntry]) -> bool:
         self.log("audit_append", "agent", f"received audit chain with {len(chain)} entries")
         self.log("tamper_attempt", "harness", "synthetic audit entry edited after append")

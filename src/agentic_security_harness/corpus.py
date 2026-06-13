@@ -188,6 +188,58 @@ _CORPUS: list[CorpusEntry] = [
         ),
         owasp_agentic=["ASI03"],
     ),
+    CorpusEntry(
+        pattern_id="perception_boundary.sensor_command_confusion",
+        name="Perception-boundary sensor-command confusion (sanitized)",
+        category="perception_boundary",
+        severity="high",
+        broke_at="perception_trust_check",
+        data_boundary_fields_used=["allowed_purpose", "allowed_recipients"],
+        mitigation=(
+            "treat all perception-channel content as untrusted data; "
+            "check provenance before acting; never execute actions from perception transcripts"
+        ),
+        owasp_agentic=["ASI01"],
+    ),
+    CorpusEntry(
+        pattern_id="ambient_authority.environmental_privilege_escalation",
+        name="Ambient authority escalation (sanitized)",
+        category="ambient_authority",
+        severity="high",
+        broke_at="authority_binding_check",
+        data_boundary_fields_used=["allowed_purpose"],
+        mitigation=(
+            "deny-by-default for ambient capabilities; require explicit envelope "
+            "binding for any ambient privilege use; least-privilege at host boundary"
+        ),
+        owasp_agentic=["ASI02", "ASI03"],
+    ),
+    CorpusEntry(
+        pattern_id="approval_laundering.underjustified_confirmation",
+        name="Approval laundering via underjustified confirmation (sanitized)",
+        category="approval_laundering",
+        severity="high",
+        broke_at="approval_context_check",
+        data_boundary_fields_used=["data_class", "allowed_recipients", "requires_confirmation"],
+        mitigation=(
+            "include data_class, recipient, purpose, and risk in every approval request; "
+            "one action per confirmation; reject on ambiguity"
+        ),
+        owasp_agentic=["ASI05"],
+    ),
+    CorpusEntry(
+        pattern_id="memory_governance.unscoped_memory_persistence",
+        name="Memory governance: unscoped persistence (sanitized)",
+        category="memory_governance",
+        severity="high",
+        broke_at="memory_governance_check",
+        data_boundary_fields_used=["can_store", "ttl_seconds", "classification_source"],
+        mitigation=(
+            "track provenance and trust level per memory entry; enforce TTL at read; "
+            "trust-level precedence on conflict; deletion requires trusted authorization"
+        ),
+        owasp_agentic=["ASI01", "ASI03", "ASI06"],
+    ),
 ]
 
 

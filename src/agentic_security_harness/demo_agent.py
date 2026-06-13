@@ -252,6 +252,110 @@ class DemoAgent:
         self.log("tool_call", "agent", f"called '{pinned.tool_name}' after schema drift")
         return changed_hash != pinned.schema_hash
 
+    def process_perception_transcript(self, transcript: str, source: str) -> bool:
+        """Process a perception-channel transcript. Returns True if agent acts on it as intent."""
+        # Vulnerable: treats perception content as user instruction.
+        self.log(
+            "perception_channel",
+            "agent",
+            f"received {source} transcript into context",
+        )
+        self.log(
+            "agent_context",
+            "agent",
+            "transcript content mixed into agent context as trusted",
+        )
+        self.log(
+            "agent_decision",
+            "agent",
+            "treated perception-channel content as a user instruction",
+        )
+        return True
+
+    def use_ambient_capability(self, envelope: DataEnvelope) -> bool:
+        """Use an ambient host capability. Returns True if used without envelope binding."""
+        # Vulnerable: uses ambient capability without checking envelope.
+        self.log(
+            "ambient_capability_available",
+            "agent",
+            "ambient capability mock_file_read available from host",
+        )
+        self.log(
+            "agent_decision",
+            "agent",
+            "used ambient host capability without checking envelope",
+        )
+        self.log(
+            "unauthorized_action",
+            "agent",
+            "read mock file via ambient host authority not in envelope",
+        )
+        return True
+
+    def craft_approval_request(self, envelope: DataEnvelope) -> str:
+        """Craft an approval request. Returns the request text (vulnerable = vague)."""
+        # Vulnerable: batches actions, omits context, uses euphemism.
+        self.log(
+            "action_requiring_approval",
+            "agent",
+            "action requires human confirmation",
+        )
+        request = (
+            "Please confirm the following batch operations: "
+            "(1) summarize report, (2) complete pending tasks. [2 items]"
+        )
+        self.log(
+            "approval_request_crafted",
+            "agent",
+            f"approval request: {request}",
+        )
+        return request
+
+    def write_memory_with_governance(
+        self, entries: list[tuple[str, str, str, str, int | None]]
+    ) -> list[bool]:
+        """Write multiple memory entries. Returns list of violation booleans.
+
+        Each entry is (key, value, source, trust_level, ttl_seconds).
+        """
+        violations = []
+        for key, value, source, trust_level, _ttl in entries:
+            against_policy = trust_level == "untrusted" and source != "trusted_policy"
+            # Vulnerable: writes regardless of trust level; no provenance tracking.
+            self.memory[key] = MemoryRecord(
+                value=value,
+                envelope=DataEnvelope(
+                    data_class="internal",
+                    classification_source=source,
+                ),
+            )
+            self.log(
+                "memory_write_trusted" if trust_level == "high" else "memory_write_untrusted",
+                "agent",
+                f"stored '{key}' from {source} (trust={trust_level})",
+            )
+            violations.append(against_policy)
+        return violations
+
+    def read_memory_with_governance(self, key: str) -> bool:
+        """Read a memory entry. Returns True if it was used despite governance issues."""
+        record = self.memory.get(key)
+        self.log("later_read", "agent", f"reading memory key '{key}'")
+        if record is None:
+            self.log(
+                "observed_behavior",
+                "agent",
+                "memory key not found; no governance issue exercised",
+            )
+            return False
+        # Vulnerable: does not check TTL, trust level, or provenance at read time.
+        self.log(
+            "observed_behavior",
+            "agent",
+            "used memory entry without checking TTL, trust level, or provenance",
+        )
+        return True
+
     @staticmethod
     def _audit_hash(index: int, event: str, previous_hash: str) -> str:
         payload = json.dumps(

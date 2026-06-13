@@ -17,6 +17,10 @@ SEED_IDS = {
     "capability.delegation_chain_drift",
     "mcp.tool_schema_deception",
     "audit.hash_chain_tamper",
+    "perception_boundary.sensor_command_confusion",
+    "ambient_authority.environmental_privilege_escalation",
+    "approval_laundering.underjustified_confirmation",
+    "memory_governance.unscoped_memory_persistence",
 }
 
 
@@ -27,13 +31,13 @@ def _traces() -> list:
 def test_total_traces_matches() -> None:
     traces = _traces()
     card = build_scorecard(traces)
-    assert card.total_traces == len(traces) == 13
+    assert card.total_traces == len(traces) == 17
     assert card.target_name == "demo-mock-agent"
 
 
 def test_severity_counts() -> None:
     card = build_scorecard(_traces())
-    assert card.findings_by_severity.get("high") == 11
+    assert card.findings_by_severity.get("high") == 15
     assert card.findings_by_severity.get("medium") == 2
 
 

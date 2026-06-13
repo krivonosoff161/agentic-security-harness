@@ -30,6 +30,10 @@ SEED_IDS = {
     "capability.delegation_chain_drift",
     "mcp.tool_schema_deception",
     "audit.hash_chain_tamper",
+    "perception_boundary.sensor_command_confusion",
+    "ambient_authority.environmental_privilege_escalation",
+    "approval_laundering.underjustified_confirmation",
+    "memory_governance.unscoped_memory_persistence",
 }
 
 
@@ -59,6 +63,10 @@ def test_demo_agent_handles_all_seed_patterns() -> None:
         "capability.delegation_chain_drift": "capability_check",
         "mcp.tool_schema_deception": "schema_provenance_check",
         "audit.hash_chain_tamper": "audit_integrity_check",
+        "perception_boundary.sensor_command_confusion": "perception_trust_check",
+        "ambient_authority.environmental_privilege_escalation": "authority_binding_check",
+        "approval_laundering.underjustified_confirmation": "approval_context_check",
+        "memory_governance.unscoped_memory_persistence": "memory_governance_check",
     }
     target = by_id["memory_poisoning_sanitized"].target
     assert target.adapter == "local"
@@ -90,7 +98,7 @@ def test_no_network(monkeypatch: pytest.MonkeyPatch) -> None:
         raise AssertionError("network call attempted")
 
     monkeypatch.setattr(socket, "socket", _boom)
-    assert len(_traces()) == 13
+    assert len(_traces()) == 17
 
 
 def test_demo_traces_deterministic() -> None:
@@ -100,7 +108,7 @@ def test_demo_traces_deterministic() -> None:
 def test_scorecard_matches_expected() -> None:
     card = build_scorecard(_traces())
     assert card.target_name == "demo-local-agent"
-    assert card.findings_by_severity == {"high": 11, "medium": 2}
+    assert card.findings_by_severity == {"high": 15, "medium": 2}
     assert set(card.failed_patterns) == SEED_IDS
     assert card.passed_patterns == []
 

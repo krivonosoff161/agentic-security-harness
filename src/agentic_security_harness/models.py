@@ -65,6 +65,31 @@ class AuditEntry(BaseModel):
     entry_hash: str
 
 
+class PerceptionTranscript(BaseModel):
+    """Synthetic perception-channel content with provenance metadata."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_channel: str
+    content: str
+    confidence: float = 1.0
+    human_perceptibility: str = "low"
+
+
+class MemoryEntry(BaseModel):
+    """A memory record with full governance metadata."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    key: str
+    value: str
+    source: str
+    trust_level: str
+    classification_source: str
+    ttl_seconds: int | None = None
+    write_timestamp: int = 0
+
+
 class Finding(BaseModel):
     """A single observed violation in a trace."""
 

@@ -6,10 +6,26 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-06-13
+
 ### Added
-- Research roadmap for future defensive benchmark patterns, turning external agentic
-  security research into a safe implementation queue with current coverage, sources,
-  priority, and explicit out-of-scope boundaries.
+- **Perception boundary and ambient authority corpus slice:** added
+  `perception_boundary.sensor_command_confusion` (perception-channel content must not be
+  treated as user intent or system directive),
+  `ambient_authority.environmental_privilege_escalation` (ambient host capabilities must
+  not be used without explicit envelope binding),
+  `approval_laundering.underjustified_confirmation` (approval requests must include full
+  envelope context for informed consent), and
+  `memory_governance.unscoped_memory_persistence` (memory writes must track provenance,
+  trust level, TTL; untrusted entries must not overwrite trusted ones). Baseline
+  `demo-agent` / `mock` fail all 17 (high: 15, medium: 2); `protected-demo-agent` passes
+  all 17; `ash compare` shows findings reduced 17 -> 0.
+- Minimal local models for `PerceptionTranscript` and `MemoryEntry`.
+
+### Changed
+- Regenerated and revalidated all committed benchmark examples for the 17-pattern corpus.
+- Updated corpus, standards mapping, research roadmap, project map, and problem-solution
+  catalog for the expanded authority / perception / governance coverage.
 
 ## [0.7.0] - 2026-06-13
 

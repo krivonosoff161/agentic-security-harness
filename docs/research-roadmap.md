@@ -21,7 +21,7 @@ Every candidate below must follow the same project rules:
 
 ## Current coverage baseline
 
-The current local corpus has 13 deterministic seed patterns:
+The current local corpus has 17 deterministic seed patterns:
 
 1. `indirect_prompt_injection_via_tool_output`
 2. `data_boundary_recipient_confusion`
@@ -36,6 +36,10 @@ The current local corpus has 13 deterministic seed patterns:
 11. `capability.delegation_chain_drift`
 12. `mcp.tool_schema_deception`
 13. `audit.hash_chain_tamper`
+14. `perception_boundary.sensor_command_confusion`
+15. `ambient_authority.environmental_privilege_escalation`
+16. `approval_laundering.underjustified_confirmation`
+17. `memory_governance.unscoped_memory_persistence`
 
 The important distinction for future work:
 
@@ -44,9 +48,16 @@ The important distinction for future work:
 - `tool_permission_abuse_sanitized` covers **purpose misuse**, not MCP schema honesty.
 - `audit.spam_label_abuse` covers **audit suppression by untrusted labels**, not
   tamper-evident audit-log integrity.
-- No current pattern models ambient host authority.
-- No current pattern tests semantic policy compliance beyond explicit data-envelope
-  fields.
+- `perception_boundary.sensor_command_confusion` covers **perception-to-action confusion**
+  for single-channel transcripts, not cross-modal or multi-channel attacks.
+- `ambient_authority.environmental_privilege_escalation` covers **host privilege use
+  without envelope binding**, not real cloud/OS credential escalation.
+- `approval_laundering.underjustified_confirmation` covers **missing context in approval
+  requests**, not social engineering or phishing-style manipulation.
+- `memory_governance.unscoped_memory_persistence` covers **provenance/TTL/trust-level
+  governance**, not cross-session memory information-flow control.
+- No current pattern models cross-app contamination or semantic policy compliance beyond
+  explicit data-envelope fields.
 
 ## External anchors
 
@@ -193,23 +204,38 @@ A synthetic tamper step deletes, edits, or reorders entries.
 
 ## P1 candidate details
 
-### `ambient_authority.escalation`
+### `cross_app.data_instruction_contamination`
 
-**Problem:** an agent uses ambient host authority that was never granted by the data
-envelope or capability token.
+**Problem:** data, instructions, or behavioral state from one application surface leak
+into the agent's context for a different application surface.
 
-**Safe scenario only:** use a synthetic capability marker such as
-`mock_host_capability:calendar.read` or `mock_runtime_token:demo-only`. Do not include real
-environment variables, real API keys, real files, or real cloud credentials in examples.
+**Safe scenario only:** use synthetic app surface markers (mock_code_editor, mock_browser).
+No real browsers, editors, or applications.
 
 **Detection signal:**
 
-- action uses authority not declared in the envelope / capability;
-- no issuer or purpose binding exists;
-- protected target cannot explain why authority was available.
+- action in Surface B triggered by content from Surface A;
+- different provenance between instruction and current surface;
+- no isolation boundary prevents cross-surface carry-over.
 
-**Mitigation:** explicit authority binding, deny-by-default for ambient capabilities, and
-least privilege at the mock host boundary.
+**Mitigation:** per-surface context isolation, provenance tagging, purpose check against
+current surface's envelope.
+
+### `audit_context_split.action_audit_divergence`
+
+**Problem:** the audit trail records what happened but not why — missing decision context,
+data envelope, or policy rule.
+
+**Safe scenario only:** synthetic audit entries with and without decision context.
+
+**Detection signal:**
+
+- audit entry missing decision context, data envelope, or policy rule;
+- gap in audit trail;
+- internal trace has what audit log lacks.
+
+**Mitigation:** audit entries include decision context, data envelope, and justification;
+no gaps; append-only hash-chained audit.
 
 ### `semantic.policy_letter_vs_spirit`
 
@@ -229,7 +255,7 @@ invariants before adding any model-judged semantics.
 
 ### v0.7 - authority and integrity slice (done)
 
-Implemented in the local 13-pattern corpus:
+Implemented in the 13-pattern corpus:
 
 - minimal `CapabilityToken` / authority-envelope model;
 - `capability.delegation_chain_drift`;
@@ -237,7 +263,18 @@ Implemented in the local 13-pattern corpus:
 - `audit.hash_chain_tamper` as local audit-chain integrity validation;
 - regenerated examples validated by `ash validate examples/`.
 
-### v0.8 - ambient authority and semantic invariants
+### v0.8 - perception boundary and ambient authority (done)
+
+Implemented in the 17-pattern corpus:
+
+- `perception_boundary.sensor_command_confusion` with synthetic OCR/ASR/HTML transcripts;
+- `ambient_authority.environmental_privilege_escalation` with synthetic host capability markers;
+- `approval_laundering.underjustified_confirmation` with mock approval requests;
+- `memory_governance.unscoped_memory_persistence` with mixed-trust memory entries;
+- minimal `PerceptionTranscript` and `MemoryEntry` models;
+- regenerated examples validated by `ash validate examples/`.
+
+### v0.9 - cross-app contamination and audit context split (next)
 
 1. Implement `ambient_authority.escalation` with synthetic host capabilities only.
 2. Add a narrow `semantic.policy_letter_vs_spirit` fixture with deterministic invariant

@@ -21,10 +21,11 @@ def _baseline_by_id() -> dict[str, ExploitTrace]:
 
 def test_v07_patterns_are_present_in_stable_order() -> None:
     ids = [pattern.pattern_id for pattern in seed_patterns()]
-    assert ids[-3:] == [
-        "capability.delegation_chain_drift",
-        "mcp.tool_schema_deception",
-        "audit.hash_chain_tamper",
+    assert ids[-4:] == [
+        "perception_boundary.sensor_command_confusion",
+        "ambient_authority.environmental_privilege_escalation",
+        "approval_laundering.underjustified_confirmation",
+        "memory_governance.unscoped_memory_persistence",
     ]
 
 

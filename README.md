@@ -7,9 +7,10 @@ agents, tool chains, and data boundaries fail, captures each run as a **portable
 trace**, and **measures risk reduction** by replaying a baseline target against a protected one.
 
 - **Trace-first** — every run is a portable, machine-readable failure trace, not just pass/fail.
-- **Data-boundary / authority / integrity corpus** — 13 deterministic seed patterns for
+- **Agentic operating-environment boundary corpus** — 17 deterministic seed patterns for
   how sensitivity labels, recipients, storage, forwarding, audit, budget, delegated
-  authority, and tool schemas break in agentic systems.
+  authority, tool schemas, perception boundaries, ambient authority, approval context,
+  and memory governance break in agentic systems.
 - **Baseline vs protected replay** — a vulnerable demo agent vs a controlled one, on
   deterministic **local** targets, with a measured before/after scorecard.
 - **Standards-aware corpus** - implemented patterns include coarse OWASP Agentic Security
@@ -59,10 +60,11 @@ deterministic tests · honest residual risk. Full rules:
 
 ## Status
 
-**Pre-release, working.** The harness runs a **13-pattern local corpus centered on
-data-boundary / recipient-control, delegated authority, and audit integrity behavior**
-against deterministic local targets, with baseline-vs-protected replay (see *What exists today*).
-Real target adapters, MCP, multi-agent, multimodal, and the reference gateway come later.
+**Pre-release, working.** The harness runs a **17-pattern local corpus centered on
+agentic operating-environment boundary failures** — data-boundary, authority, perception,
+memory governance, approval, and audit integrity — against deterministic local targets,
+with baseline-vs-protected replay (see *What exists today*). Cross-app contamination,
+real target adapters, MCP, multi-agent, multimodal, and the reference gateway come later.
 See [docs/roadmap.md](docs/roadmap.md).
 
 ![status](https://img.shields.io/badge/status-pre--release-orange)
@@ -74,17 +76,18 @@ See [docs/roadmap.md](docs/roadmap.md).
 
 - **Pydantic v2 models** — `DataEnvelope` (a policy label, **not** encryption), `Finding`,
   `TraceStep`, `TargetDescriptor`, `ExploitTrace`, `DefensivePattern`.
-- **Thirteen sanitized seed patterns** — indirect prompt injection, data-boundary recipient
+- **Seventeen sanitized seed patterns** — indirect prompt injection, data-boundary recipient
   confusion, memory poisoning, classification mutation, handoff label stripping,
   tool-permission abuse, provider-boundary leakage, sleeping-prompt delayed activation,
   audit spam-label abuse, budget loop abuse, capability delegation drift, mock
-  tool-schema deception, and audit hash-chain tampering.
+  tool-schema deception, audit hash-chain tampering, perception-boundary sensor-command
+  confusion, ambient authority escalation, approval laundering, and memory governance.
 - **Deterministic mock target** — vulnerable-by-design demo target; no LLM, no network.
 - **Local demo agent (`demo-agent`)** — a deterministic, synthetic agent (in-memory memory,
   mock tool calls, data-envelope propagation, recipient-control checks); intentionally
   vulnerable for the seed patterns. No network, no LLM.
 - **Protected demo agent (`protected-demo-agent`)** — the same agent with simple deterministic
-  controls; passes all thirteen seed patterns. `ash compare` measures the reduction in findings.
+  controls; passes all seventeen seed patterns. `ash compare` measures the reduction in findings.
 - **Runner** — `pattern → target → trace` (mock or demo-agent).
 - **Scorecard** — a deterministic aggregate derived from traces.
 - **Demo CLI (`ash`)** — `ash run --target {mock,demo-agent,protected-demo-agent}`,
@@ -101,7 +104,7 @@ No gateway, provider calls, network, or real payloads.
 
 | Area | Current release | Planned / future track |
 |---|---|---|
-| Benchmark | 13-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus, mappings, report quality. |
+| Benchmark | 17-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus, mappings, report quality. |
 | Targets | `mock`, `demo-agent`, `protected-demo-agent` only. | Local toy adapters first, then explicitly authorized real adapters. |
 | Runtime | CLI-only (`ash run`, `ash compare`, `ash validate`). | Optional HTTP reference gateway after the benchmark stabilizes. |
 | Network / providers | None. | Future adapters only with explicit authorization and docs. |
@@ -120,9 +123,10 @@ ash validate examples/        # validate committed benchmark artifacts
 ## Core capabilities
 
 - **Portable defensive traces** — machine-readable, replayable records of a test run.
-- **Agentic data-boundary testing** — verifies whether sensitivity labels, recipients,
-  storage rules, and forwarding rules survive agent handoffs, memory writes, tools, and
-  provider routing.
+- **Agentic operating-environment boundary testing** — verifies whether data envelopes,
+  authority scopes, perception trust boundaries, memory governance, approval context,
+  and audit integrity survive agent handoffs, memory writes, tool calls, and provider
+  routing.
 - **Label-propagation measurement** - a conformance-oriented view of whether data-envelope
   fields survive known handoff, memory, tool, and provider-boundary failure shapes.
 - **Practical attack graph** — `target → exposed inputs → agents → tools → permissions →
@@ -150,9 +154,11 @@ data-boundary / recipient-control.
 
 Thirteen local seed patterns are implemented today: six data-boundary / recipient-control
 patterns, one indirect tool-output injection seed, three v0.6 additions
-(sleeping-prompt delayed activation, audit spam-label abuse, budget loop abuse), and
+(sleeping-prompt delayed activation, audit spam-label abuse, budget loop abuse),
 three v0.7 authority / integrity additions (capability delegation drift, mock
-tool-schema deception, audit hash-chain tampering). The rest are on the
+tool-schema deception, audit hash-chain tampering), and four v0.8 perception /
+authority / governance additions (perception-boundary sensor-command confusion,
+ambient authority escalation, approval laundering, memory governance). The rest are on the
 [roadmap](docs/roadmap.md).
 
 ## Reference defense (planned optional component)
@@ -232,7 +238,7 @@ reports/comparison/
 
 In the committed example
 ([`examples/comparison-report/comparison.md`](examples/comparison-report/comparison.md)) the
-baseline fails all 13 patterns (13 findings) and the protected agent passes all 13 (0 findings).
+baseline fails all 17 patterns (17 findings) and the protected agent passes all 17 (0 findings).
 
 > Educational and synthetic: risk reduction is measured from deterministic mock traces,
 > **not** a guarantee of real-world protection.
@@ -243,7 +249,7 @@ This project does **not** claim to be the first or only tool in the category. Pr
 exists — **BotGuard** (open-source red-teaming + firewall for AI agents) is the closest
 combined work; **garak**, **PyRIT**, and **promptfoo** are established red-team / eval tools;
 **Trylon Gateway** is the closest gateway. Its focus is an **opinionated, trace-first
-benchmark** for agentic **data-boundary and recipient-control** failures, with portable
+benchmark** for agentic **operating-environment boundary failures**, with portable
 traces and deterministic baseline-vs-protected replay. Honest comparison:
 [docs/competitors.md](docs/competitors.md).
 

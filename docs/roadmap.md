@@ -20,18 +20,21 @@ provider calls, no real targets, no real secrets.
 - **v0.7 - authority and integrity slice:** capability delegation-chain drift,
   mock MCP / tool-schema deception, and hash-chain audit tamper detection - 13
   deterministic patterns total.
+- **v0.8 - perception boundary and ambient authority slice:** perception-boundary
+  sensor-command confusion, ambient authority escalation, approval laundering,
+  and memory governance - 17 deterministic patterns total.
 
 ---
 
 ## Next
 
-- **v0.8 - ambient authority and semantic invariants:** synthetic ambient-capability
-  escalation and narrow deterministic semantic-invariant fixtures.
-- **v0.9 - local adapter examples:** toy RAG app, toy MCP server, toy multi-agent handoff.
+- **v0.9 - cross-app contamination and audit context split:** cross-surface data
+  instruction contamination and action-audit divergence tests.
+- **v0.10 - local adapter examples:** toy RAG app, toy MCP server, toy multi-agent handoff.
   Still local / synthetic only.
-- **v0.10 - report quality:** better Markdown / HTML audit report, executive summary,
+- **v0.11 - report quality:** better Markdown / HTML audit report, executive summary,
   mitigation checklist, before/after score.
-- **v0.11 - mapping and standardization:** OWASP LLM mapping, MITRE ATLAS mapping, severity
+- **v0.12 - mapping and standardization:** OWASP LLM mapping, MITRE ATLAS mapping, severity
   rationale, pattern versioning policy.
 - **v1.0 - stable benchmark release:** stable trace schema, stable corpus manifest, stable
   CLI, validated examples, coherent docs, public tag.
