@@ -41,9 +41,9 @@ recipient confusion, or unwanted storage.
 Compare a baseline target with a protected target. The current demo shows:
 
 ```text
-baseline demo-agent:       7 findings
+baseline demo-agent:       17 findings
 protected demo-agent:      0 findings
-measured reduction:        7 -> 0
+measured reduction:        17 -> 0
 ```
 
 This is synthetic and local, but the workflow is the important part: same corpus, same

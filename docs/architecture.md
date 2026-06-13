@@ -29,11 +29,11 @@ each run as a **portable trace**, and derives a **scorecard**. The gateway is on
 
 | Component | Responsibility | Status |
 |---|---|---|
-| **MCP / tool-permission adapter** | Static analysis of an agent's tools/permissions and MCP tool schemas -> the tools/permissions layer of the attack graph. | planned |
+| **MCP / tool-permission adapter** | Static analysis of an agent's tools/permissions and live MCP tool schemas -> the tools/permissions layer of the attack graph. Current coverage is a local mock schema record only. | planned |
 | **Real LLM adapter** | Drive a live LLM agent target (vs. the current local synthetic adapters). | planned |
-| **Multimodal adapter** | Voice / image target via sanitized ASR/OCR fixtures (the pre-LLM channel text-only gateways typically do not see). | planned |
+| **Multimodal adapter** | Voice / image target via sanitized media fixtures. Current coverage is synthetic OCR / ASR / HTML transcripts only; no live audio/image processing. | planned |
 | **Reference gateway** | OpenAI-compatible proxy = optional **defense target** + reference defense implementation (normalizer, scanners, policy, quarantine, audit). | planned |
-| **Trace store / integrity** | Persistent trace storage with integrity hardening (hash chaining). | planned |
+| **Trace store / integrity** | Persistent trace storage with stronger integrity hardening. Current coverage includes a local hash-chain tamper-detection pattern only. | planned |
 
 Note on data-boundary checks: the current local checks that verify the
 [data envelope](harness.md#agentic-data-boundary-and-recipient-control) (classification
@@ -47,12 +47,12 @@ target → exposed inputs → agents → tools → permissions → memory → ex
        → attack chain → observed behavior → finding → mitigation
 ```
 
-**Sensor / multimodal targets** extend the front with an
-`external signal (audio/image) → input channel → ASR/OCR transcript` prefix before
-`exposed inputs` — the pre-LLM channel text-only gateways typically do not see. A **data
-envelope** (`data_class`, `allowed_recipients`, `can_store`, `can_forward`, `ttl`,
-`classification_mutable=false`) travels alongside the data, and the harness checks it
-**survives** each hop (handoff, memory, tool, provider).
+**Perception-boundary tests** extend the front with an
+`external signal → input channel → transcript` prefix before `exposed inputs`. The current
+release uses synthetic OCR / ASR / HTML transcript fixtures; full media adapters are future
+work. A **data envelope** (`data_class`, `allowed_recipients`, `can_store`, `can_forward`,
+`ttl`, `classification_mutable=false`) travels alongside the data, and the harness checks
+it **survives** each hop (handoff, memory, tool, provider).
 Each trace is a path through this graph; the finding records **where it broke**. Details in
 [harness.md](harness.md#attack-graph).
 
@@ -126,8 +126,9 @@ boundary 1 is hostile by default — including **sensor inputs** (audio/image), 
 
 - **Current release:** local files (traces + scorecards written under the output dir;
   committed examples under `examples/`). Zero-ops, no database.
-- **Future tracks:** a persistent trace store (PostgreSQL) with trace integrity hardening
-  (hash chaining), and optional Redis (caching / budgets in the reference gateway). These
-  are post-v1.0 and not part of the current benchmark release.
+- **Future tracks:** a persistent trace store (PostgreSQL) with stronger integrity
+  controls beyond the current local hash-chain fixture, and optional Redis (caching /
+  budgets in the reference gateway). These are post-v1.0 and not part of the current
+  benchmark release.
 
 See [roadmap.md](roadmap.md) and [threat-model.md](threat-model.md).

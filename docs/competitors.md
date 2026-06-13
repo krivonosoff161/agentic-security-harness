@@ -4,7 +4,7 @@
 > footnotes). A point-in-time snapshot — features, licensing, and ownership change;
 > re-check before relying on any single claim. Pricing is intentionally not quoted.
 > This project does not claim to be the first or only tool in the category; it competes on
-> trace portability, corpus clarity, data-boundary / label-propagation measurement, and
+> trace portability, corpus clarity, operating-environment boundary measurement, and
 > deterministic replay.
 
 ## How to read this
@@ -25,8 +25,9 @@ Tools we would **integrate** (wrap as detectors/oracles) are marked complementar
 
 > ⚠️ **Active category.** General red-team scanning and live LLM vulnerability testing are
 > already well served by established tools. This project should not compete on "more
-> attacks." Its narrower wedge is deterministic, local measurement of whether data-envelope
-> labels survive agent handoffs, memory writes, tool calls, and provider-boundary hops.
+> attacks." Its narrower wedge is deterministic, local measurement of whether agentic
+> operating-environment boundaries survive handoffs, memory writes, tool calls, approvals,
+> audit replay, perception transcripts, provider hops, and delegated authority.
 
 | Project | What it is (verified) | Relation | Source |
 |---|---|---|---|
@@ -86,22 +87,22 @@ The category is occupied. This project does **not** claim to be the first or onl
 does **not** compete on "more attacks." It competes on:
 
 1. **portable, machine-readable failure traces** (replayable artifacts, not just reports);
-2. **data-envelope / label-propagation measurement** across memory, tools, handoffs, and
-   provider boundaries;
+2. **operating-environment boundary measurement** across data envelopes, memory, tools,
+   handoffs, approvals, audit, perception transcripts, and provider boundaries;
 3. **reproducible cross-target comparison** (replay the same traces against different
    targets / defenses, measure the delta);
 4. a **practical attack graph** for agent / tool chains.
 
-Planned differentiators include **cross-agent contamination** in multi-agent workflows and
-the **full signal path** including pre-LLM sensor channels (for example audio → ASR). Those
-tracks are not implemented in the current CLI release.
+Planned differentiators include **cross-app contamination**, richer multi-agent workflows,
+and full multimodal adapters. The current CLI release already includes synthetic perception
+transcripts, but not live audio/image processing.
 
 garak / PyRIT / promptfoo are established and overlap on red-teaming/eval; AgentDojo is a
 strong benchmark adjacent; CaMeL and FIDES validate the information-flow / label-propagation
 direction; Trylon is the closest gateway prior art for the reference defense. The public
-positioning is **"a focused, open, trace-first conformance-style benchmark for data-boundary
-and label-propagation failures,"** not a new category — and the wedge above should be re-checked as these tools
-evolve.
+positioning is **"a focused, open, trace-first conformance-style benchmark for agentic
+operating-environment boundary failures,"** not a new category — and the wedge above should
+be re-checked as these tools evolve.
 
 [botguard]: https://github.com/botguardai/BotGuard
 [repello]: https://repello.ai/

@@ -69,13 +69,15 @@ These are roadmap or future-track items. They should not be described as shipped
 Start here:
 
 1. [README](../README.md) - current status, commands, and high-level positioning.
-2. [Corpus coverage matrix](corpus.md) - the 17 implemented patterns.
-3. [Comparison example](../examples/comparison-report/README.md) - the visible 13 -> 0
+2. [Positioning](positioning.md) and [boundary model](agentic-boundary-model.md) - the
+   operating-environment boundary thesis.
+3. [Corpus coverage matrix](corpus.md) - the 17 implemented patterns.
+4. [Comparison example](../examples/comparison-report/README.md) - the visible 17 -> 0
    demonstration.
-4. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,
+5. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,
    mitigations, and planned reference controls.
-5. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
-6. [Roadmap](roadmap.md) - what is current, next, and future.
+6. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
+7. [Roadmap](roadmap.md) - what is current, next, and future.
 
 Then run:
 
@@ -85,7 +87,7 @@ ash compare --baseline demo-agent --protected protected-demo-agent --out reports
 ash validate reports/comparison
 ```
 
-Expected current result: baseline has 13 findings; protected has 0 findings.
+Expected current result: baseline has 17 findings; protected has 0 findings.
 
 ## How to add a new research idea safely
 

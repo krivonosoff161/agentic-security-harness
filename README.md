@@ -50,6 +50,9 @@ deterministic tests · honest residual risk. Full rules:
 ## How to read this repository
 
 - New to the project? Start with the [project map](docs/project-map.md).
+- Evaluating the thesis? Read [positioning](docs/positioning.md), the
+  [boundary model](docs/agentic-boundary-model.md), and
+  [how it differs](docs/how-it-differs.md).
 - Evaluating it for an AI/security team? Read [use cases](docs/use-cases.md) and the
   [comparison example](examples/comparison-report/README.md).
 - Reviewing standards coverage? Read the [standards mapping](docs/standards-mapping.md)
@@ -64,7 +67,8 @@ deterministic tests · honest residual risk. Full rules:
 agentic operating-environment boundary failures** — data-boundary, authority, perception,
 memory governance, approval, and audit integrity — against deterministic local targets,
 with baseline-vs-protected replay (see *What exists today*). Cross-app contamination,
-real target adapters, MCP, multi-agent, multimodal, and the reference gateway come later.
+real target adapters, live MCP adapters, richer multi-agent tests, full multimodal adapters,
+and the reference gateway come later.
 See [docs/roadmap.md](docs/roadmap.md).
 
 ![status](https://img.shields.io/badge/status-pre--release-orange)
@@ -133,11 +137,12 @@ ash validate examples/        # validate committed benchmark artifacts
   memory → external data → attack chain → observed behavior → finding → mitigation`.
 - **Reproducible cross-target comparison** — replay the same traces against different
   targets / defenses.
-- **Cross-agent contamination** (planned) - explicit tests for multi-agent workflows (one
-  agent poisoning another).
-- **MCP / tool-permission scanning** (planned) - the tools/permissions layer of the graph.
-- **Full signal path** (planned) - tests the pre-LLM sensor / input channel (e.g. audio ->
-  ASR -> agent action) that text-only gateways typically do not see.
+- **Authority and schema-boundary checks** - synthetic capability delegation and mock
+  tool-schema provenance tests for the tools / permissions layer of the graph.
+- **Perception-boundary checks** - synthetic OCR / ASR / HTML transcript fixtures test
+  whether observed content is treated as authority. Full multimodal adapters are planned.
+- **Cross-app and multi-agent contamination** (planned) - explicit tests for workflows
+  where one app surface or agent contaminates another.
 - **Scorecard from traces** — a derived, deterministic aggregate.
 - **Reference gateway** (planned) — an optional defense target design for future replay.
 
@@ -146,11 +151,11 @@ Full design: **[docs/harness.md](docs/harness.md)** (flagship document).
 ## What it helps you test
 
 Agentic failure modes, as sanitized [defensive test patterns](docs/harness.md#attack-pattern-taxonomy):
-context flooding / instruction overload · indirect prompt injection via RAG / tool output
-· cross-agent contamination · memory poisoning · tool-permission abuse · MCP / tool-schema
-deception · simulated data-exfiltration · budget exhaustion / loop abuse · multi-turn
-policy bypass · multimodal / sensor-to-agent (audio → ASR) injection · agentic
-data-boundary / recipient-control.
+indirect prompt injection via tool output · data-boundary / recipient-control failures ·
+memory poisoning and memory-governance failures · tool-permission abuse · provider-boundary
+leakage · delayed stored-content activation · audit suppression and audit tampering ·
+budget / loop abuse · capability delegation drift · mock MCP / tool-schema deception ·
+perception-boundary confusion · ambient authority use · approval-context laundering.
 
 Seventeen local seed patterns are implemented today: six data-boundary / recipient-control
 patterns, one indirect tool-output injection seed, three v0.6 additions
@@ -256,6 +261,9 @@ traces and deterministic baseline-vs-protected replay. Honest comparison:
 ## Documentation
 
 - **[Harness](docs/harness.md)** — flagship: trace format, attack graph, test patterns, scorecard, replay.
+- **[Positioning](docs/positioning.md)** — the operating-environment boundary thesis.
+- **[Boundary model](docs/agentic-boundary-model.md)** — the chain from source content to memory/audit.
+- **[How it differs](docs/how-it-differs.md)** — comparison with adjacent tools and defenses.
 - **[Project map](docs/project-map.md)** — plain-language guide for reviewers and maintainers.
 - **[Use cases](docs/use-cases.md)** — how AI/security teams can evaluate and apply the benchmark.
 - **[Problem–solution catalog](docs/problem-solution-catalog.md)** — problem → detection → mitigation → harness test → reference control → residual risk.

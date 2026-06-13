@@ -25,13 +25,13 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 
 ---
 
-> **Implemented local demo corpus:** thirteen of these failure modes are implemented as
-> deterministic, sanitized seed patterns in the harness — recipient confusion, memory
-> poisoning, data reclassification (classification mutation), handoff label stripping,
-> tool-permission abuse, provider-boundary leakage, indirect prompt injection via tool
-> output, sleeping-prompt delayed activation, audit spam-label abuse, and budget loop
-> abuse, capability delegation drift, mock tool-schema deception, and audit hash-chain
-> tampering. Run them with `ash run --target demo-agent` and `ash compare`; full matrix in the
+> **Implemented local demo corpus:** seventeen of these failure modes are implemented as
+> deterministic, sanitized seed patterns in the harness: data-boundary failures, indirect
+> tool-output injection, memory poisoning and memory governance, tool-permission abuse,
+> provider-boundary leakage, delayed stored-content activation, audit suppression and
+> tampering, budget abuse, capability delegation drift, mock tool-schema deception,
+> perception-boundary confusion, ambient authority use, and approval-context laundering.
+> Run them with `ash run --target demo-agent` and `ash compare`; full matrix in the
 > [corpus coverage matrix](corpus.md).
 
 ## 1. Sensitive data in shared AI chats
@@ -124,8 +124,10 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Defensive scenario:** a **sanitized, pre-recorded** ASR/OCR fixture carries an instruction; observe the agent's action.
 - **Detection signals:** ASR/OCR transcript with instruction-like content; low `human_perceptibility`; anomaly/spectral flag; tool exec without confirmation.
 - **Mitigation controls:** treat sensor transcripts as untrusted; confirmation for sensor-triggered actions; anomaly flags.
-- **Status:** planned, not implemented in the current CLI release.
-- **Harness test pattern:** planned ID `multimodal.sensor_to_agent` (audio → ASR).
+- **Status:** current for synthetic OCR / ASR / HTML transcripts via
+  `perception_boundary.sensor_command_confusion`; full cross-modal adapters remain planned.
+- **Harness test pattern:** `perception_boundary.sensor_command_confusion` now; broader
+  planned ID `multimodal.sensor_to_agent` for richer adapter work.
 - **Planned reference-control idea:** gateway scans ASR/OCR output as untrusted input; require confirmation.
 - **Human / process controls:** confirm voice-triggered actions.
 - **Residual risk:** novel signal attacks; ASR ambiguity. *(No ultrasonic / adversarial-audio generation guidance is provided.)*
@@ -136,8 +138,10 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Defensive scenario:** a scripted scenario steers the agent to request an unjustified approval; observe.
 - **Detection signals:** agent generating persuasion toward privileged actions; approval requests lacking justification.
 - **Mitigation controls:** out-of-band confirmation; human-in-the-loop with full context; rate limits on approval asks.
-- **Status:** planned, not implemented in the current CLI release.
-- **Harness test pattern:** planned ID `social_engineering.approval_pressure`.
+- **Status:** current for underjustified approval requests; broader persuasion-pressure
+  scenarios remain planned.
+- **Harness test pattern:** `approval_laundering.underjustified_confirmation` now; planned
+  ID `social_engineering.approval_pressure` for broader pressure scenarios.
 - **Planned reference-control idea:** gateway flags/holds privileged-action prompts for review.
 - **Human / process controls:** approval policy; skepticism training; dual-control.
 - **Residual risk:** humans remain fallible; persuasion is hard to detect.
@@ -164,7 +168,8 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Harness test pattern:** `audit.spam_label_abuse`.
 - **Planned reference-control idea:** gateway logs all decisions regardless of label; tamper-evident audit.
 - **Human / process controls:** audit review; anomaly alerts.
-- **Residual risk:** operator with DB access; no tamper-evidence before v1.0.
+- **Residual risk:** operator with DB access; local hash-chain checks detect edits but do
+  not prove who made them. Stronger signing / persistent storage is future work.
 
 ## 12. Provider boundary leakage
 

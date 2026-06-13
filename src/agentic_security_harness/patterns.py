@@ -15,7 +15,7 @@ LOOP_STEP_BUDGET = 5
 
 
 def seed_patterns() -> list[DefensivePattern]:
-    """Return the thirteen sanitized seed patterns (stable order)."""
+    """Return the seventeen sanitized seed patterns (stable order)."""
     return [
         DefensivePattern(
             pattern_id="indirect_prompt_injection_via_tool_output",

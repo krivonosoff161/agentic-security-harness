@@ -69,5 +69,6 @@ A trace-first defensive benchmark for agentic operating-environment boundary fai
 ## Complement, not competitor
 
 CaMeL and FIDES implement boundary defenses. We measure whether those boundaries hold.
-A team using CaMeL could use this harness to verify that their defense actually works
-across the 17 boundary failure classes we test.
+A team using an information-flow or capability-based defense could use this harness to
+replay 17 deterministic seed patterns against its own target adapter and compare the result
+with the local baseline/protected examples.

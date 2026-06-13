@@ -28,15 +28,15 @@ implements information-flow control middleware.
 - We are a **benchmark**, not a defense. We measure whether boundaries hold, we don't
   enforce them.
 - We are **framework-agnostic**. Our traces can be replayed against any target.
-- We test **17 boundary failure classes** in a single corpus.
+- We test **17 deterministic seed patterns** across data, authority, perception, approval,
+  memory, audit, budget, and schema-boundary classes.
 
 **We are complementary:** a team using CaMeL could use this harness to verify that their
 defense actually works across our corpus.
 
 ## vs ADR (Uber)
 
-ADR is a **production monitoring system** for MCP agents. Deployed at scale (7,200+
-hosts, 10k+ sessions/day).
+ADR is published work on **production monitoring for MCP agents**.
 
 **We are different because:**
 - We are a **pre-production benchmark**, not a runtime monitor.
@@ -71,4 +71,4 @@ BotGuard is an agent security platform (scan + shield + fix).
 | Deterministic | No | N/A | No | Partially | **Yes** |
 | Trace-first | No | N/A | No | No | **Yes** |
 | Baseline-vs-protected | No | N/A | N/A | Partially | **Yes** |
-| No network | No | N/A | No | No | **Yes** |
+| Local/no-provider default | No | N/A | No | Varies | **Yes** |

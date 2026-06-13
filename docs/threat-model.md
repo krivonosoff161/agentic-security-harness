@@ -16,8 +16,9 @@
   store / forward rules, TTL) survives agent handoffs, memory writes, tools, and provider
   routing.
 - **Safety** of agent actions — gate dangerous tool calls before side effects.
-- **Accountability** — an audit trail of requests, findings, and decisions
-  (future trace integrity via hash-chain hardening; see [Residual risk](#residual-risk)).
+- **Accountability** — an audit trail of requests, findings, and decisions, including
+  current local hash-chain tamper-detection fixtures and future stronger trace-integrity
+  storage (see [Residual risk](#residual-risk)).
 - **Cost** — token/spend budgets.
 
 ## Who / what we protect against
@@ -77,9 +78,9 @@ components ship. Keep application-level authz and least-privilege tool design re
 
 Two deliberate limitations to call out:
 
-- **Audit integrity:** the current release records normal append-only traces.
-  **Future trace integrity (tamper-evidence via hash chaining) is planned.** Until then,
-  audit integrity depends on the host's access controls.
+- **Audit integrity:** the current release includes a local hash-chain tamper-detection
+  pattern and validates benchmark artifacts, but it does not provide cryptographic signing,
+  remote attestation, or a hardened persistent store. Those remain future work.
 - **No self-learning:** the harness does not adapt its own patterns or detectors at
   runtime. This is a deliberate trade — a self-mutating security tool is hard to audit.
   Feedback labels are collected for future, human-reviewed adaptive rules only.
@@ -118,4 +119,4 @@ Per-pattern OWASP LLM IDs remain verification-gated; see
 | **LLM07 System Prompt Leakage** | Current: design stance above (do not treat it as a boundary). Planned: leakage detection as a signal. |
 | **LLM08 Vector & Embedding Weaknesses** | Partial future track: untrusted RAG content patterns; not a vector-store fix. |
 | **LLM09 Misinformation** | Out of scope (no factuality verification); the audit trail aids review. |
-| **LLM10 Unbounded Consumption** | Planned: token/cost budgets and rate limiting; not implemented in the current benchmark release. |
+| **LLM10 Unbounded Consumption** | Current: local budget / loop-abuse seed pattern. Planned: token/cost budgets and rate limiting in the reference gateway. |
