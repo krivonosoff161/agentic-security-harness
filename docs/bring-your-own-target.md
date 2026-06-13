@@ -95,7 +95,7 @@ Before a non-synthetic adapter can be merged or used publicly, it must pass:
 ```bash
 # List registered targets and scenario families
 ash targets
-ash scenarios
+ash scenarios --verbose
 
 # Fastest: deterministic mock target
 ash run --target mock --out reports/demo
@@ -109,8 +109,12 @@ ash run --target protected-demo-agent --out reports/protected-demo-agent
 # Compare baseline vs protected
 ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison
 
-# Run a scenario matrix (subset of patterns with variant metadata)
+# Run a scenario matrix (multiple variants, aggregated results)
 ash run-matrix --target demo-agent --scenario data-boundary --out reports/matrix-demo
+
+# Limit variants or run a specific one
+ash run-matrix --target mock --scenario all --max-variants 2 --out reports/matrix-small
+ash run-matrix --target mock --scenario all --variant baseline-all --out reports/matrix-one
 ```
 
 ### Future custom target path

@@ -98,10 +98,11 @@ See [docs/roadmap.md](docs/roadmap.md).
   `ash compare --baseline ... --protected ...`, and `ash validate <path>` write/validate
   deterministic reports (see Quickstart). Committed examples under [`examples/`](examples/).
 - **Adapter registry** — `ash targets` lists built-in targets; `ash scenarios` lists
-  scenario families. Target lookup is centralized through `make_target()`.
-- **Scenario matrix** — `ash run-matrix --target <target> --scenario <scenario>` runs a
-  scenario subset with variant metadata and writes `matrix.json` plus standard report
-  artifacts. Scenarios group the 22 patterns into defensive boundary families.
+  scenario families with variant counts. Target lookup is centralized through `make_target()`.
+- **Scenario matrix** — `ash run-matrix --target <target> --scenario <scenario>` runs
+  multiple safe variants for a scenario, aggregates results, and produces stability
+  analysis (`matrix.json` + `matrix.md`). Variants test different benchmark conditions
+  (step depth, memory mode, tool mode, etc.) against the same pattern subset.
 - **Validation (`ash validate examples/`)** — checks committed benchmark artifacts (traces,
   scorecards, summaries, comparison) and corpus consistency, and scans for forbidden
   markers; the examples are **validated benchmark artifacts**, not loose output.
@@ -208,10 +209,14 @@ ash run --target protected-demo-agent --out reports/protected-demo-agent
 
 # list registered targets and scenario families
 ash targets
-ash scenarios
+ash scenarios --verbose
 
-# run a scenario matrix (subset of patterns with variant metadata)
+# run a scenario matrix (multiple variants, aggregated results)
 ash run-matrix --target demo-agent --scenario data-boundary --out reports/matrix-demo
+
+# limit variants or run a specific one
+ash run-matrix --target mock --scenario all --max-variants 2 --out reports/matrix-small
+ash run-matrix --target mock --scenario all --variant baseline-all --out reports/matrix-one
 
 # validate the committed benchmark artifacts (or your own runs)
 ash validate examples/

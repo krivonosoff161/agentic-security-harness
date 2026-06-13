@@ -88,7 +88,28 @@ flowchart LR
 | `remediation.json` | JSON | Structured control recommendations | When findings exist |
 | `remediation.md` | Markdown | Human-readable remediation report | When findings exist |
 | `comparison.md` | Markdown | Baseline vs protected risk reduction | `ash compare` only |
+| `matrix.json` | JSON | Variant metadata, stability analysis, aggregated summary | `ash run-matrix` only |
+| `matrix.md` | Markdown | Variant table, pattern stability, control families | `ash run-matrix` only |
 | `adapter-metadata.json` | JSON | Runtime reproducibility metadata | Future (non-synthetic adapters) |
+
+## Matrix flow
+
+```mermaid
+flowchart LR
+    A["Target adapter\n(local synthetic)"] --> B["Scenario variants\n(2-4 per scenario)"]
+    B --> C["Per-variant trace runs\n(patterns x variants)"]
+    C --> D["Matrix aggregation\n(stability, control families)"]
+    D --> E["matrix.json\n(variant results + summary)"]
+    D --> F["matrix.md\n(variant table, stability)"]
+    C --> G["Standard reports\n(traces, scorecard, etc.)"]
+```
+
+**What the matrix shows:**
+
+- **Variant results** — which variant knobs were tested, findings per variant.
+- **Pattern stability** — which patterns fail in every variant (stable_fail),
+  which fail only under some variants (variant_sensitive), and which pass.
+- **Control families** — which families appear across variants, with counts.
 
 ## How to interpret the output
 
