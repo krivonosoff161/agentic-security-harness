@@ -1284,7 +1284,7 @@
         "actor": "agent",
         "action": "cross_user_boundary_check",
         "input_ref": null,
-        "observed": "control: cross-user boundary enforced; data from scope=user_a not returned to scope={requesting_scope}"
+        "observed": "control: cross-user boundary enforced; data from scope=user_a not returned to scope=user_b"
       },
       {
         "index": 4,

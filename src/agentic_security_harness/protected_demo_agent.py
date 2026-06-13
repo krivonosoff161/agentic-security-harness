@@ -374,7 +374,7 @@ class ProtectedDemoAgent(DemoAgent):
                 "cross_user_boundary_check",
                 "agent",
                 f"control: cross-user boundary enforced; data from scope={stored_scope} "
-                "not returned to scope={requesting_scope}",
+                f"not returned to scope={requesting_scope}",
             )
             return None
         self.log(
