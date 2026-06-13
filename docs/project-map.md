@@ -32,7 +32,7 @@ If those six points hold, the benchmark is coherent.
 
 | Piece | What it does | Where to look |
 |---|---|---|
-| Corpus | The 13 implemented defensive patterns and their expected outcomes. | [corpus.md](corpus.md), `src/agentic_security_harness/corpus.py` |
+| Corpus | The 17 implemented defensive patterns and their expected outcomes. | [corpus.md](corpus.md), `src/agentic_security_harness/corpus.py` |
 | Patterns | Sanitized test cases the runner sends to targets. | `src/agentic_security_harness/patterns.py` |
 | Targets | Local systems under test: `mock`, `demo-agent`, `protected-demo-agent`. | `src/agentic_security_harness/*agent*.py`, `mock_target.py` |
 | Runner | Converts `pattern + target` into traces. | `src/agentic_security_harness/runner.py` |
@@ -69,7 +69,7 @@ These are roadmap or future-track items. They should not be described as shipped
 Start here:
 
 1. [README](../README.md) - current status, commands, and high-level positioning.
-2. [Corpus coverage matrix](corpus.md) - the 13 implemented patterns.
+2. [Corpus coverage matrix](corpus.md) - the 17 implemented patterns.
 3. [Comparison example](../examples/comparison-report/README.md) - the visible 13 -> 0
    demonstration.
 4. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,

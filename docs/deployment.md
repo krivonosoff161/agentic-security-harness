@@ -1,7 +1,7 @@
 # Deployment
 
 > **Agentic Security Harness.** **Current reality:** the local harness and the `ash` CLI run
-> a deterministic 13-pattern corpus against mock/demo targets and write reports — there is no
+> a deterministic 17-pattern corpus against mock/demo targets and write reports — there is no
 > server to deploy yet. The reference-gateway server / Docker workflow below is design intent
 > for later versions. Sections are marked accordingly.
 

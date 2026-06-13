@@ -21,7 +21,7 @@ ash validate examples/
 git diff --check
 ```
 
-Run these gates locally on Python 3.11+ before every commit. The 13-pattern corpus and
+Run these gates locally on Python 3.11+ before every commit. The 17-pattern corpus and
 the full test suite must pass. The false-negative count (patterns a target fails to
 defend) is recorded honestly per release; do not hide misses.
 

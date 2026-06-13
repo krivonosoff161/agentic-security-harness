@@ -152,7 +152,7 @@ deception · simulated data-exfiltration · budget exhaustion / loop abuse · mu
 policy bypass · multimodal / sensor-to-agent (audio → ASR) injection · agentic
 data-boundary / recipient-control.
 
-Thirteen local seed patterns are implemented today: six data-boundary / recipient-control
+Seventeen local seed patterns are implemented today: six data-boundary / recipient-control
 patterns, one indirect tool-output injection seed, three v0.6 additions
 (sleeping-prompt delayed activation, audit spam-label abuse, budget loop abuse),
 three v0.7 authority / integrity additions (capability delegation drift, mock
@@ -259,7 +259,7 @@ traces and deterministic baseline-vs-protected replay. Honest comparison:
 - **[Project map](docs/project-map.md)** — plain-language guide for reviewers and maintainers.
 - **[Use cases](docs/use-cases.md)** — how AI/security teams can evaluate and apply the benchmark.
 - **[Problem–solution catalog](docs/problem-solution-catalog.md)** — problem → detection → mitigation → harness test → reference control → residual risk.
-- **[Corpus coverage matrix](docs/corpus.md)** — the 13 implemented seed patterns, baseline vs protected, and what each touches.
+- **[Corpus coverage matrix](docs/corpus.md)** — the 17 implemented seed patterns, baseline vs protected, and what each touches.
 - **[Research roadmap](docs/research-roadmap.md)** - cleaned intake map for future benchmark patterns.
 - **[Mission](docs/mission.md)** · **[Safe research rules](docs/research-rules.md)** — what this is for, and how to research safely.
 - **Learning** — [agentic security basics](docs/learning/01-agentic-security-basics.md) · [data-boundary failures](docs/learning/02-data-boundary-failures.md).

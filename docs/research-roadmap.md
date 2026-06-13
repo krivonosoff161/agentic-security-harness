@@ -90,7 +90,7 @@ Use these as research anchors, not as certification claims:
 | Done | `capability.delegation_chain_drift` | Current in v0.7. | Multi-agent systems pass authority, not only data. Scope, TTL, issuer, delegatee, and revocation can drift across handoffs. | Mock capability token; a delegated hop attempts broader scope/purpose/TTL; protected target preserves the original authority envelope. |
 | Done | `mcp.tool_schema_deception` | Current in v0.7 for a mock schema record. | MCP clients rely on tool metadata, schemas, annotations, and server trust. A deceptive or changed schema can steer an agent into the wrong call. | Mock MCP-like schema record; schema hash changes; protected target pins schema provenance and rejects drift / untrusted annotations. |
 | Done | `audit.hash_chain_tamper` | Current in v0.7. | Portable traces need integrity checks: deletion, reorder, and edit attempts should be detectable. | Append-only audit entries with `previous_hash`; vulnerable target accepts edit; protected target detects chain break. |
-| P1 | `ambient_authority.escalation` | Not covered. | Agents can inherit host, runtime, file, or tool authority beyond the declared data envelope. | Synthetic host capability only; no real credentials. Protected target requires explicit capability binding and rejects unscoped ambient authority. |
+| Done | `ambient_authority.environmental_privilege_escalation` | Current in v0.8 for synthetic host capability markers. | Agents can inherit host, runtime, file, or tool authority beyond the declared data envelope. | Synthetic host capability only; no real credentials. Protected target requires explicit capability binding and rejects unscoped ambient authority. |
 | P1 | `semantic.policy_letter_vs_spirit` | Not covered beyond explicit envelope fields. | A model may satisfy the literal policy while reconstructing or transforming sensitive content in a way that violates the policy intent. | Deterministic semantic invariant fixtures; protected target checks invariant rules such as minimization, recipient, purpose, and reconstruction limits. |
 
 ## Implemented v0.7 details
@@ -255,7 +255,7 @@ invariants before adding any model-judged semantics.
 
 ### v0.7 - authority and integrity slice (done)
 
-Implemented in the 13-pattern corpus:
+v0.7 added:
 
 - minimal `CapabilityToken` / authority-envelope model;
 - `capability.delegation_chain_drift`;
@@ -276,10 +276,11 @@ Implemented in the 17-pattern corpus:
 
 ### v0.9 - cross-app contamination and audit context split (next)
 
-1. Implement `ambient_authority.escalation` with synthetic host capabilities only.
-2. Add a narrow `semantic.policy_letter_vs_spirit` fixture with deterministic invariant
+1. Implement `cross_app.data_instruction_contamination` with synthetic app-surface markers.
+2. Implement `audit_context_split.action_audit_divergence` with synthetic audit entries.
+3. Add a narrow `semantic.policy_letter_vs_spirit` fixture with deterministic invariant
    checks.
-3. Decide whether semantic checks remain code-only or need a separate reviewed evaluator.
+4. Decide whether semantic checks remain code-only or need a separate reviewed evaluator.
 
 ### Future / explicitly out of scope for now
 

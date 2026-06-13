@@ -1,6 +1,6 @@
 """Machine-readable manifest for the implemented local defensive corpus.
 
-Curated metadata for the 13 deterministic seed patterns (see ``patterns.py``). Simple Python
+Curated metadata for the 17 deterministic seed patterns (see ``patterns.py``). Simple Python
 data structures only - no database, no YAML. Tests keep it in sync with the actual patterns
 and scorecards. OWASP Agentic mapping is intentionally coarse and defensive; OWASP LLM and
 MITRE ATLAS mappings remain empty until each ID is verified against primary sources.
@@ -244,5 +244,5 @@ _CORPUS: list[CorpusEntry] = [
 
 
 def corpus_manifest() -> list[CorpusEntry]:
-    """Return the curated corpus manifest (13 implemented patterns, stable order)."""
+    """Return the curated corpus manifest (17 implemented patterns, stable order)."""
     return list(_CORPUS)

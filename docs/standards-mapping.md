@@ -2,7 +2,7 @@
 
 > Last reviewed: 2026-06-12.
 >
-> Scope: implemented local corpus only. This page maps the thirteen deterministic seed
+> Scope: implemented local corpus only. This page maps the seventeen deterministic seed
 > patterns to external security frameworks at a coarse defensive level. The mapping helps
 > reviewers understand what each pattern exercises; it does **not** imply certification,
 > complete coverage, or real-world protection.
@@ -36,6 +36,10 @@
 | `capability.delegation_chain_drift` | ASI02, ASI07 | Delegated authority expands across agent hops instead of preserving least privilege and chain provenance. |
 | `mcp.tool_schema_deception` | ASI02, ASI06 | Changed tool metadata is trusted without schema provenance or hash checks. |
 | `audit.hash_chain_tamper` | ASI03 | Edited audit entries are accepted instead of being rejected by integrity validation. |
+| `perception_boundary.sensor_command_confusion` | ASI01 | Perception-channel content is treated as user intent or action authority instead of untrusted observed data. |
+| `ambient_authority.environmental_privilege_escalation` | ASI02, ASI03 | A synthetic host capability is used without an explicit authority binding to the data envelope. |
+| `approval_laundering.underjustified_confirmation` | ASI05 | A confirmation request omits data class, recipient, purpose, or risk context needed for informed approval. |
+| `memory_governance.unscoped_memory_persistence` | ASI01, ASI03, ASI06 | Memory entries lose provenance, TTL, trust level, or conflict precedence across later reads. |
 
 ## Why the project focuses on label propagation
 
