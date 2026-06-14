@@ -46,6 +46,12 @@ from agentic_security_harness.reporting import (
     write_comparison,
     write_reports,
 )
+from agentic_security_harness.run_manifest import (
+    RunManifest,
+    build_manifest,
+    load_run_manifests,
+    write_run_manifest,
+)
 from agentic_security_harness.runner import HarnessRunner
 from agentic_security_harness.scorecard import ScorecardSummary, build_scorecard
 from agentic_security_harness.validation import ValidationResult, validate_path
@@ -86,6 +92,10 @@ __all__ = [
     "scorecard_to_json",
     "ValidationResult",
     "validate_path",
+    "RunManifest",
+    "build_manifest",
+    "write_run_manifest",
+    "load_run_manifests",
     "ControlRecommendation",
     "RemediationReport",
     "build_recommendations",
@@ -94,4 +104,4 @@ __all__ = [
     "write_remediation",
 ]
 
-__version__ = "0.10.0"
+__version__ = "0.11.0"

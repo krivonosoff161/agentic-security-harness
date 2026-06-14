@@ -16,18 +16,38 @@ External runs require explicit user action and make network calls only when invo
 """
 
 import argparse
+from datetime import UTC, datetime
 from pathlib import Path
 
+from agentic_security_harness import __version__
 from agentic_security_harness.adapters import list_targets, make_target, target_ids
 from agentic_security_harness.patterns import seed_patterns
 from agentic_security_harness.reporting import write_comparison, write_reports
 from agentic_security_harness.run_config import _MAX_REPEATS, _MAX_TOTAL_REQUESTS
+from agentic_security_harness.run_manifest import (
+    build_manifest,
+    load_run_manifests,
+    write_run_manifest,
+)
 from agentic_security_harness.runner import HarnessRunner
 from agentic_security_harness.scenarios import list_scenarios, scenario_ids
 from agentic_security_harness.scorecard import build_scorecard
 from agentic_security_harness.validation import validate_path
 
 _TARGETS = target_ids()
+
+
+def _now_utc() -> str:
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _artifact_names(out: Path) -> list[str]:
+    """Relative file paths under ``out`` (excluding the manifest itself)."""
+    names: list[str] = []
+    for p in sorted(out.rglob("*")):
+        if p.is_file() and p.name != "run_index.json":
+            names.append(p.relative_to(out).as_posix())
+    return names
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -269,6 +289,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="make one test request to verify connectivity (requires network)",
     )
 
+    runs_p = sub.add_parser(
+        "list-runs",
+        help="list run directories (run_index.json) found under a root path",
+    )
+    runs_p.add_argument(
+        "--root",
+        type=Path,
+        default=Path("reports"),
+        help="directory to scan for run manifests (default: reports)",
+    )
+
     return parser
 
 
@@ -285,7 +316,21 @@ def _run(target: str, out: Path) -> int:
     all_files = (
         ["traces.json", "scorecard.json", "summary.md", "executive.md"] + rem_files
     )
-    print(f"wrote {', '.join(all_files)} to {out.as_posix()}")
+    manifest = build_manifest(
+        "run",
+        out,
+        target=scorecard.target_name,
+        scenario="seed-corpus",
+        outcomes={
+            "failed": len(scorecard.failed_patterns),
+            "passed": len(scorecard.passed_patterns),
+        },
+        artifacts=_artifact_names(out),
+        tool_version=__version__,
+        created_at=_now_utc(),
+    )
+    write_run_manifest(out, manifest)
+    print(f"wrote {', '.join(all_files)}, run_index.json to {out.as_posix()}")
     print(
         f"target: {scorecard.target_name}  "
         f"traces: {scorecard.total_traces}  "
@@ -295,6 +340,7 @@ def _run(target: str, out: Path) -> int:
     if remediation.recommendations:
         families = ", ".join(remediation.control_families[:5])
         print(f"control families: {families}")
+    print(f"Start here: {(out / 'executive.md').as_posix()}  (run id {manifest.run_id})")
     return 0
 
 
@@ -305,13 +351,28 @@ def _compare(baseline: str, protected: str, out: Path) -> int:
     prot_traces = HarnessRunner(make_target(protected)).run_many(patterns)
     prot_card = build_scorecard(prot_traces)
     write_comparison(out, base_traces, base_card, prot_traces, prot_card)
-    print(f"wrote baseline/, protected/, comparison.md to {out.as_posix()}")
+    manifest = build_manifest(
+        "compare",
+        out,
+        target=f"{base_card.target_name} vs {prot_card.target_name}",
+        scenario="seed-corpus",
+        outcomes={
+            "baseline_failed": len(base_card.failed_patterns),
+            "protected_failed": len(prot_card.failed_patterns),
+        },
+        artifacts=_artifact_names(out),
+        tool_version=__version__,
+        created_at=_now_utc(),
+    )
+    write_run_manifest(out, manifest)
+    print(f"wrote baseline/, protected/, comparison.md, run_index.json to {out.as_posix()}")
     print(
         f"baseline: {base_card.target_name} "
         f"failed={len(base_card.failed_patterns)}  "
         f"protected: {prot_card.target_name} "
         f"failed={len(prot_card.failed_patterns)}"
     )
+    print(f"Start here: {(out / 'comparison.md').as_posix()}  (run id {manifest.run_id})")
     return 0
 
 
@@ -406,7 +467,23 @@ def _run_matrix(
         return 1
 
     s = report.summary
-    print(f"wrote matrix artifacts to {out.as_posix()}")
+    manifest = build_manifest(
+        "matrix",
+        out,
+        target=report.target_name,
+        scenario=report.scenario_id,
+        variants=[v.variant_id for v in report.variants],
+        outcomes={
+            "failed_variants": s.failed_variants,
+            "passed_variants": s.passed_variants,
+            "total_traces": s.total_traces,
+        },
+        artifacts=_artifact_names(out),
+        tool_version=__version__,
+        created_at=_now_utc(),
+    )
+    write_run_manifest(out, manifest)
+    print(f"wrote matrix artifacts, run_index.json to {out.as_posix()}")
     print(
         f"target: {report.target_name}  "
         f"scenario: {report.scenario_id}  "
@@ -415,6 +492,7 @@ def _run_matrix(
         f"failed variants: {s.failed_variants}  "
         f"passed variants: {s.passed_variants}"
     )
+    print(f"Start here: {(out / 'matrix.md').as_posix()}  (run id {manifest.run_id})")
     return 0
 
 
@@ -507,7 +585,26 @@ def _run_external(
         print(f"Error: {exc}")
         return 1
 
-    print(f"wrote external report artifacts to {out.as_posix()}")
+    manifest = build_manifest(
+        "external",
+        out,
+        model=summary.model,
+        scenario=summary.scenario_id,
+        repeats=repeats,
+        outcomes={
+            "checks": summary.total_checks,
+            "requests": summary.total_repeats,
+            "findings": len(summary.patterns_with_findings),
+            "flaky": len(summary.flaky_patterns),
+            "inconclusive": len(summary.inconclusive_patterns),
+            "errors": len(summary.error_patterns),
+        },
+        artifacts=_artifact_names(out),
+        tool_version=__version__,
+        created_at=_now_utc(),
+    )
+    write_run_manifest(out, manifest)
+    print(f"wrote external report artifacts, run_index.json to {out.as_posix()}")
     print(
         f"model: {summary.model}  "
         f"scenario: {summary.scenario_id}  "
@@ -521,7 +618,28 @@ def _run_external(
             f"  {len(summary.error_patterns)} pattern(s) errored "
             "(see external_results.json for structured errors)."
         )
+    print(f"Start here: {(out / 'external_report.md').as_posix()}  (run id {manifest.run_id})")
     print("Next: ash validate " + out.as_posix())
+    return 0
+
+
+def _list_runs(root: Path) -> int:
+    manifests = load_run_manifests(root)
+    if not manifests:
+        print(f"No runs found under {root.as_posix()}.")
+        print("Run a benchmark first, e.g. ash run --out reports/demo")
+        return 0
+    print(f"Found {len(manifests)} run(s) under {root.as_posix()}:")
+    print(f"{'run_id':14s} {'kind':9s} {'scenario':16s} {'target/model':28s} outcomes")
+    for path, m in manifests:
+        target = (m.target or m.model or "-")[:28]
+        outcomes = "  ".join(f"{k}={v}" for k, v in m.outcomes.items())
+        when = f"  [{m.created_at}]" if m.created_at else ""
+        print(
+            f"{m.run_id:14s} {m.run_kind:9s} {m.scenario[:16]:16s} "
+            f"{target:28s} {outcomes}{when}"
+        )
+        print(f"  -> {path.parent.as_posix()}")
     return 0
 
 
@@ -703,6 +821,8 @@ def main(argv: list[str] | None = None) -> int:
             getattr(args, "live", False),
             args.max_requests,
         )
+    if args.command == "list-runs":
+        return _list_runs(args.root)
     return 1
 
 

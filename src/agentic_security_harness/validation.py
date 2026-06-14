@@ -450,6 +450,7 @@ def _validate_report_dir(
     for name in ("matrix.json", "matrix.md"):
         if (path / name).exists():
             _scan_secrets(path / name, root, result)
+    _validate_run_manifest(path, root, result)
     return expected_card
 
 
@@ -476,6 +477,7 @@ def _validate_comparison_dir(path: Path, root: Path, result: ValidationResult) -
         _validate_comparison_md(comparison_md, root, base_card, prot_card, result)
     elif comparison_md.exists():
             _scan_secrets(comparison_md, root, result)
+    _validate_run_manifest(path, root, result)
 
 
 def _validate_external_dir(path: Path, root: Path, result: ValidationResult) -> None:
@@ -570,6 +572,7 @@ def _validate_external_dir(path: Path, root: Path, result: ValidationResult) -> 
         "external_report.md",
     ):
         _scan_secrets(path / name, root, result)
+    _validate_run_manifest(path, root, result)
 
 
 def _validate_external_report_md(
@@ -736,6 +739,36 @@ def _validate_comparison_md(
                 f"scorecards imply {b_total} -> {p_total} ({p_total - b_total:+d})"
             )
     _scan_secrets(path, root, result)
+
+
+def _validate_run_manifest(dir_path: Path, root: Path, result: ValidationResult) -> None:
+    """Validate ``run_index.json`` inside a run directory, if present.
+
+    Checks structure, run kind, and that every listed artifact exists. The
+    ``created_at`` timestamp is informational and is not rebuilt or compared.
+    """
+    manifest_path = dir_path / "run_index.json"
+    if not manifest_path.exists():
+        return
+    from agentic_security_harness.run_manifest import _RUN_KINDS, RunManifest
+
+    rel = _rel(manifest_path, root)
+    raw = _load_json(manifest_path, root, result)
+    if raw is None:
+        return
+    try:
+        manifest = RunManifest.model_validate(raw)
+    except ValidationError as exc:
+        result._err(f"{rel}: schema: {_fmt_error(exc)}")
+        return
+    if not manifest.run_id:
+        result._err(f"{rel}: run_id is empty")
+    if manifest.run_kind not in _RUN_KINDS:
+        result._err(f"{rel}: unknown run_kind '{manifest.run_kind}'")
+    for art in manifest.artifacts:
+        if not (dir_path / art).exists():
+            result._err(f"{rel}: artifact '{art}' is missing from the run directory")
+    _scan_secrets(manifest_path, root, result)
 
 
 def _scan_secrets(path: Path, root: Path, result: ValidationResult) -> None:
