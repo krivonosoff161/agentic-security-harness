@@ -38,6 +38,15 @@ Open files in this order:
 For comparisons start with `comparison.md`; for matrix runs start with `matrix.md`; for
 external runs start with `external_report.md`.
 
+Or render any example as a single static HTML page (no network):
+
+```bash
+ash report --root examples/comparison-report   # writes examples/comparison-report/report.html
+```
+
+What PASS / FINDING / INCONCLUSIVE / FLAKY / ADAPTER_ERROR mean, and what validation does
+and does not prove, is in [docs/benchmark-semantics.md](../docs/benchmark-semantics.md).
+
 ## Reproduce the external example (free, no API key)
 
 ```bash

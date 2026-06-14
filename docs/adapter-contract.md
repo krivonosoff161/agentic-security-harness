@@ -66,11 +66,13 @@ A target adapter must:
 | `mock` | current | Deterministic minimal target used for fast benchmark checks. |
 | `demo-agent` | current | Local vulnerable-by-design synthetic agent. |
 | `protected-demo-agent` | current | Local controlled synthetic agent; demonstrates risk reduction. |
-| `openai-compatible` (external) | experimental | Evaluates an authorized OpenAI-compatible endpoint with synthetic prompts. No tool execution. |
-| Toy RAG adapter | planned | Local fixture-based RAG app with no network and no provider calls. |
-| Toy MCP adapter | planned | Local mock MCP-like server/client pair; no live third-party server. |
+| `toy-local-function` | current | Toy adapter wrapping a plain Python function; passes every pattern. |
+| `toy-rag` | current | Toy retrieval agent exercising the data/memory/injection surface (no network). |
+| `toy-tools` | current | Toy tool-using agent exercising the tool/authority surface (no network). |
+| `openai-compatible` (external) | experimental | Evaluates an authorized OpenAI-compatible endpoint with synthetic prompts. Opt-in network; no tool execution. |
 | Toy multi-agent adapter | planned | Local handoff runtime for cross-agent and capability-boundary tests. |
-| Real authorized adapter | future | Explicitly authorized company/runtime adapter; never a default path. |
+| Native provider adapter | future | Provider SDK adapter (Anthropic/OpenAI Responses/Google/etc.); never a default path. |
+| Agent-host / tool-use adapter | future | Drives a live agent that actually calls tools; explicitly authorized only. |
 
 ## Runtime metadata to record
 
@@ -108,15 +110,18 @@ Before a non-synthetic adapter can be merged, it needs:
 
 The harness does not ask whether a model is "smart." It asks whether a boundary survived.
 
-- **FAIL** means the target showed the expected vulnerable behavior for that pattern.
+- **FAIL** (a **FINDING**) means the target showed the expected vulnerable behavior.
 - **PASS** means the target did not show that vulnerable behavior under the test.
 - **Adapter error** means the adapter failed to run or observe the target; it is not a PASS.
-- **Inconclusive** is a future report status for stochastic or external targets where a
-  deterministic verdict would be misleading.
+- **Inconclusive** means no usable verdict was produced (e.g. an external model returned
+  non-JSON). For external runs this is shipped today, alongside per-`(pattern, variant)`
+  stochastic statuses (`stable_pass`, `stable_finding`, `flaky`, `inconclusive`,
+  `adapter_error`). See [benchmark-semantics.md](benchmark-semantics.md).
 
-The current scorecard is deterministic because current targets are deterministic. Real
-model adapters must record run count, stochastic settings, and confidence limits before
-their results are compared with local examples.
+Local scorecards are deterministic because local targets are deterministic. The external
+path records repeats and stochastic status; native model adapters would additionally need
+run count, stochastic settings, and confidence limits before their results are compared
+with local examples.
 
 ## Compatibility target
 
@@ -136,8 +141,11 @@ same portable trace structure. The trace is the stable benchmark artifact.
 ## What remains future work
 
 - A plugin/entry-point system for third-party adapters.
-- A stochastic-run report format.
-- A local toy RAG adapter.
-- A local toy MCP adapter.
-- A local multi-agent adapter.
+- A local toy multi-agent handoff adapter (the RAG and tool surfaces already ship as
+  `toy-rag` and `toy-tools`).
+- Native provider SDK adapters and agent-host / tool-use adapters.
 - A policy for publishing sanitized adapter examples without leaking private runtime data.
+
+Shipped since this contract was first written: the toy RAG and tool adapters, the
+experimental OpenAI-compatible external path, adapter metadata in `run_index.json`, and a
+stochastic-run report format for external runs.

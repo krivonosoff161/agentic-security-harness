@@ -16,7 +16,10 @@ trace**, and **measures risk reduction** by replaying a baseline target against 
 - **Standards-aware corpus** - implemented patterns include coarse OWASP Agentic Security
   Initiative mappings; OWASP LLM and MITRE ATLAS mappings remain verification-gated.
 
-No network, no LLM / provider calls, no real targets — synthetic, sanitized, reproducible.
+Built-in/local targets are synthetic, deterministic, and offline — no network, no
+provider calls. The experimental `run-external` path calls an OpenAI-compatible endpoint
+only on explicit opt-in (prompt-only, no tool execution); native provider and agent-host
+adapters are future. See [docs/benchmark-semantics.md](docs/benchmark-semantics.md).
 
 > The **gateway** is an optional **reference defense** component used as a replay target —
 > not the main product, and not implemented in the current release.
@@ -50,7 +53,12 @@ deterministic tests · honest residual risk. Full rules:
 ## How to read this repository
 
 - Want a first result fast? Follow [getting started](docs/getting-started.md)
-  (clone → report in 10–30 minutes, no keys, no network).
+  (clone → report in 10–30 minutes, no keys, no network), or the full
+  [one-path user journey](docs/user-journey.md).
+- Not sure what PASS / FINDING / INCONCLUSIVE / FLAKY / ADAPTER_ERROR mean, or what
+  `ash validate` does and does **not** prove? Read
+  [benchmark semantics](docs/benchmark-semantics.md) and the
+  [capability matrix](docs/capability-matrix.md).
 - New to the project? Start with the [project map](docs/project-map.md).
 - Evaluating the thesis? Read [positioning](docs/positioning.md), the
   [boundary model](docs/agentic-boundary-model.md), and
@@ -270,6 +278,12 @@ ash run-external --adapter openai-compatible \
   --out reports/external-demo
 ```
 
+> The commands above are bash. On **Windows PowerShell**, set the key with
+> `$env:ASH_EXTERNAL_API_KEY = "your_key_here"` and use a backtick `` ` `` for line
+> continuation. Full per-stack PowerShell recipes:
+> [docs/connect-models.md](docs/connect-models.md). Full walkthrough:
+> [docs/user-journey.md](docs/user-journey.md).
+
 Each run writes these artifacts:
 
 ```text
@@ -278,8 +292,12 @@ reports/demo/
 ├── scorecard.json    # deterministic aggregate
 ├── summary.md        # human-readable summary table
 ├── executive.md      # concise scope, severity, top-failure, and residual-risk view
+├── remediation.json  # structured control recommendations (only when findings exist)
+├── remediation.md    # human-readable remediation report (only when findings exist)
 └── run_index.json    # run manifest: run id, kind, target, outcome counts, artifacts
 ```
+
+Render any run directory as a static HTML page with `ash report --root reports/demo`.
 
 Every run records a `run_index.json` manifest, so you can review run history:
 

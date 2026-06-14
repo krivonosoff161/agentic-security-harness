@@ -1,8 +1,10 @@
 # Roadmap
 
 Harness-first and trace-first. Versioning is feature-gated, not date-gated; each version
-is shippable. Everything is local, deterministic, and synthetic: no network, no LLM or
-provider calls, no real targets, no real secrets.
+is shippable. Built-in/local targets are local, deterministic, and synthetic: no network,
+no provider calls, no real secrets. The experimental `run-external` path makes
+OpenAI-compatible calls only on explicit opt-in (prompt-only); native provider and
+agent-host adapters are future.
 
 ---
 
@@ -90,6 +92,15 @@ release scope until the core above is stable:
   cross-model scoreboard until results are reproducible and fair).
 
 ---
+
+## Honest gap lists
+
+Captured but intentionally not built yet:
+
+- [independent-benchmark-gap-list.md](independent-benchmark-gap-list.md) — onboarding/UX,
+  reporting, and reproducibility gaps for a fully self-serve module.
+- [benchmark-positioning-gap-list.md](benchmark-positioning-gap-list.md) — where we win
+  and lag versus common open eval/red-team toolkits.
 
 ## A note on self-learning
 

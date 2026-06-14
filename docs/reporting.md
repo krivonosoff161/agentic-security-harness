@@ -33,6 +33,11 @@ Each `ash run` writes:
 `ash validate` checks that committed artifacts match the corpus manifest and contain no
 forbidden markers, including `remediation.json` and `remediation.md`.
 
+Every run also writes a `run_index.json` manifest (`list-runs` reads it). `run-matrix`
+adds `matrix.json` / `matrix.md`; `run-external` writes `run_config.json`,
+`external_results.json`, `external_summary.json`, and `external_report.md`. `ash report`
+renders any of these into a static `report.html` (see below).
+
 ## Executive report shape
 
 A reviewer should see these first:
@@ -70,33 +75,23 @@ A technical report should show:
 - mitigation expected from a protected target;
 - validation status.
 
-## Suggested future HTML report
+## Static HTML report (shipped)
 
-A future `ash report` command could render a static HTML directory:
+`ash report --root <run-dir> [--out <file>]` renders a single self-contained
+`report.html` (inline CSS, no JavaScript, no CDN, no network, no telemetry). It works for
+run, compare, matrix, and external directories and includes:
 
-```text
-report/
-  index.html
-  patterns/
-    <pattern_id>.html
-  traces/
-    <trace_id>.json
-  assets/
-```
+- executive summary and pass/finding counts;
+- severity distribution;
+- pattern results table;
+- a coverage heatmap (pattern x variant) for matrix runs;
+- a baseline-vs-protected before/after view for comparisons;
+- a stochastic repeat-status view for external runs;
+- run / adapter metadata;
+- a "what this does not prove" section.
 
-Views:
-
-- executive summary;
-- coverage matrix;
-- break-point histogram;
-- severity histogram;
-- baseline-vs-protected comparison;
-- per-pattern trace viewer;
-- residual-risk section;
-- adapter metadata section.
-
-The HTML report must be static and local: no external CDN, no telemetry, no JavaScript that
-loads remote assets.
+JSON and Markdown remain authoritative; the HTML is a view layer. A richer per-pattern
+trace viewer and cross-run trend views remain future work.
 
 ## Report safety rules
 
@@ -114,14 +109,15 @@ fields before anything is committed to the public repository.
 
 ## Current gaps
 
-- No HTML report yet.
-- No stochastic-run report for real LLM targets.
-- No adapter metadata block beyond the current `TargetDescriptor`.
-- No visual coverage chart.
+- No per-pattern HTML trace viewer (the static report is summary-level).
+- No cross-run trend / history view (single-run reports only).
+- No stochastic-run report for **native** model adapters (the external path covers
+  OpenAI-compatible prompt-only runs, with repeats and stochastic status).
+- No mitigation-checklist artifact yet.
 
-The current `executive.md` is intentionally lightweight. The next report-quality tasks are
-coverage visualization, standards matrices, mitigation checklists, and adapter metadata.
-They should improve how the 22-pattern corpus is reviewed without changing the benchmark
+Shipped already: the static HTML report with coverage heatmap, an adapter metadata block
+in `run_index.json`, and the category-level standards mapping. The remaining report-quality
+tasks should improve how the 22-pattern corpus is reviewed without changing the benchmark
 semantics.
 
 ## Remediation layer (v0.10)

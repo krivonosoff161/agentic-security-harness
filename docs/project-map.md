@@ -11,8 +11,10 @@ The project turns an agentic AI failure idea into a safe, reproducible benchmark
 problem idea -> sanitized pattern -> local target -> trace -> scorecard -> validation
 ```
 
-The current release is local and synthetic. It does not call real LLM providers, does not
-test third-party systems, and does not ship the planned reference gateway.
+Built-in/local targets are local, synthetic, deterministic, and offline. There is also an
+experimental, opt-in `run-external` path that evaluates an OpenAI-compatible endpoint with
+synthetic prompts (prompt-only, no tool execution). The release does not ship native
+provider adapters, agent-host/tool-use adapters, or the planned reference gateway.
 
 ## What you need to understand first
 
@@ -34,22 +36,35 @@ If those six points hold, the benchmark is coherent.
 |---|---|---|
 | Corpus | The 22 implemented defensive patterns and their expected outcomes. | [corpus.md](corpus.md), `src/agentic_security_harness/corpus.py` |
 | Patterns | Sanitized test cases the runner sends to targets. | `src/agentic_security_harness/patterns.py` |
-| Targets | Local systems under test: `mock`, `demo-agent`, `protected-demo-agent`. | `src/agentic_security_harness/*agent*.py`, `mock_target.py` |
+| Targets | Local systems under test: `mock`, `demo-agent`, `protected-demo-agent`, and toy adapters `toy-local-function`, `toy-rag`, `toy-tools`. | `src/agentic_security_harness/*agent*.py`, `mock_target.py`, `toy_adapters.py` |
 | Runner | Converts `pattern + target` into traces. | `src/agentic_security_harness/runner.py` |
-| Reports | Writes `traces.json`, `scorecard.json`, `summary.md`, `executive.md`, and comparison reports. | `src/agentic_security_harness/reporting.py`, `examples/` |
-| Validation | Checks report artifacts against the corpus manifest. | `src/agentic_security_harness/validation.py` |
-| CLI | User-facing commands. | `src/agentic_security_harness/cli.py` |
+| Scenario matrix | Runs scenario variants and aggregates stability (`run-matrix`). | `src/agentic_security_harness/matrix.py` |
+| External path | Experimental, opt-in OpenAI-compatible prompt-only model check (`run-external`, `external-check`). | `src/agentic_security_harness/external_runner.py`, [connect-models.md](connect-models.md) |
+| Reports | Writes `traces.json`, `scorecard.json`, `summary.md`, `executive.md`, remediation, comparison, and static HTML (`report`). | `src/agentic_security_harness/reporting.py`, `html_report.py`, `examples/` |
+| Run history | `run_index.json` manifest per run; `list-runs` lists them. | `src/agentic_security_harness/run_manifest.py` |
+| Validation | Checks report/external/manifest artifacts and standards-mapping consistency. | `src/agentic_security_harness/validation.py` |
+| Diagnostics | `doctor` checks the environment (no network by default). | `src/agentic_security_harness/doctor.py` |
+| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `validate`, `report`, `doctor`, `list-runs`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
 | Adapter contract | Rules and metadata models for future model/provider/runtime adapters. | [adapter-contract.md](adapter-contract.md), `models.py` |
 | Reporting design | How executive and technical reports should be shaped. | [reporting.md](reporting.md) |
 
+## Network model (important)
+
+- **Built-in/local targets** (`mock`, `demo-agent`, `protected-demo-agent`, toy adapters)
+  and `run-matrix`: deterministic and **offline** — no network, no provider calls.
+- **`run-external` / `external-check --live`**: make OpenAI-compatible calls, but **only
+  on explicit opt-in** (a real run without `--dry-run`, or `--live`). Prompt-only; no
+  tool execution.
+- Everything is no-network **by default**.
+
 ## What is not implemented today
 
-- No real LLM/provider adapter.
-- No network target.
-- No MCP server adapter.
+- No native provider SDK adapter (the external path is generic OpenAI-compatible only).
+- No agent-host / tool-use adapter (the external path does not execute tools).
+- No streaming, multi-turn agent host, or MCP server adapter.
 - No multimodal/audio generation.
 - No HTTP reference gateway runtime.
-- No database or persistent trace store.
+- No database, persistent trace store, or web dashboard.
 
 These are roadmap or future-track items. They should not be described as shipped behavior.
 
