@@ -16,7 +16,31 @@ def test_doctor_default_no_live_check(tmp_path: Path) -> None:
     assert "python_version" in names
     assert "cli_commands" in names
     assert "external_adapters" in names
+    assert "external_presets" in names
+    assert "reports_writable" in names
     assert "live_local" not in names  # no network by default
+
+
+def test_doctor_presets_check_ok(tmp_path: Path) -> None:
+    report = run_doctor(root=tmp_path)
+    presets = next(c for c in report.checks if c.name == "external_presets")
+    assert presets.ok is True
+    assert "ollama" in presets.detail
+
+
+def test_doctor_reports_writable_ok(tmp_path: Path) -> None:
+    report = run_doctor(root=tmp_path, reports_root=tmp_path / "myreports")
+    rw = next(c for c in report.checks if c.name == "reports_writable")
+    assert rw.ok is True
+    assert (tmp_path / "myreports").is_dir()
+
+
+def test_doctor_presets_check_no_network(tmp_path: Path) -> None:
+    from unittest.mock import patch
+
+    with patch("urllib.request.urlopen") as mock_open:
+        run_doctor(root=tmp_path)
+        mock_open.assert_not_called()
 
 
 def test_doctor_python_check_ok(tmp_path: Path) -> None:

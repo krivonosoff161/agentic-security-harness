@@ -628,8 +628,10 @@ def test_cli_external_check_live_success(capsys: pytest.CaptureFixture[str]) -> 
 def test_cli_run_external_missing_base_url() -> None:
     from agentic_security_harness import cli
 
-    with pytest.raises(SystemExit):
-        cli.main(["run-external", "--model", "test"])
+    # --base-url is now optional (a --preset can fill it); with neither, the handler
+    # returns a clean error (rc 1) instead of an argparse SystemExit.
+    rc = cli.main(["run-external", "--model", "test"])
+    assert rc == 1
 
 
 def test_cli_run_external_repeats_too_high() -> None:

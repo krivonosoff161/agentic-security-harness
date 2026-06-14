@@ -27,6 +27,48 @@ def _assert_self_contained(html: str) -> None:
     assert "does not prove" in html.lower()
 
 
+def test_html_escapes_trace_content(tmp_path: Path) -> None:
+    # Defense-in-depth: untrusted-looking content in a trace must be HTML-escaped,
+    # never emitted as live markup, in the per-pattern detail.
+    import json
+
+    run_dir = tmp_path / "run"
+    cli.main(["run", "--target", "demo-agent", "--out", str(run_dir)])
+    traces = json.loads((run_dir / "traces.json").read_text(encoding="utf-8"))
+    payload = "<script>alert(1)</script>"
+    traces[0]["observed_behavior"] = payload
+    (run_dir / "traces.json").write_text(
+        json.dumps(traces, indent=2) + "\n", encoding="utf-8"
+    )
+    html = render_report(run_dir)
+    assert payload not in html  # not emitted raw
+    assert "&lt;script&gt;" in html  # escaped form present
+
+
+def test_run_report_has_per_pattern_detail() -> None:
+    # demo-agent has findings, so per-pattern detail + remediation fixes appear.
+    html = render_report(EXAMPLES / "demo-agent-report")
+    assert "Findings detail (per pattern)" in html
+    assert "Quick fix" in html
+    assert "Engineering fix" in html
+    assert "Retest" in html
+
+
+def test_diff_report_renders(tmp_path: Path) -> None:
+    cli.main(["run", "--target", "mock", "--out", str(tmp_path / "a")])
+    cli.main(["run", "--target", "protected-demo-agent", "--out", str(tmp_path / "b")])
+    cli.main(["diff-runs", "--left", str(tmp_path / "a"), "--right", str(tmp_path / "b"),
+              "--out", str(tmp_path / "diff")])
+    assert detect_kind(tmp_path / "diff") == "diff"
+    html = render_report(tmp_path / "diff")
+    _assert_self_contained(html)
+    assert "Run diff" in html
+    assert "Changed patterns" in html
+    rc = cli.main(["report", "--root", str(tmp_path / "diff")])
+    assert rc == 0
+    assert (tmp_path / "diff" / "report.html").exists()
+
+
 @pytest.mark.parametrize(
     "name,kind",
     [
