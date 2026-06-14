@@ -7,6 +7,8 @@ no gateway. A ``DataEnvelope`` is a policy label, not encryption.
 from agentic_security_harness.corpus import CorpusEntry, corpus_manifest
 from agentic_security_harness.demo_adapter import DemoAgentTarget, run_scenarios
 from agentic_security_harness.demo_agent import DemoAgent
+from agentic_security_harness.doctor import DoctorReport, run_doctor
+from agentic_security_harness.html_report import render_report, write_html_report
 from agentic_security_harness.mock_target import MockTarget
 from agentic_security_harness.models import (
     AuditEntry,
@@ -54,6 +56,11 @@ from agentic_security_harness.run_manifest import (
 )
 from agentic_security_harness.runner import HarnessRunner
 from agentic_security_harness.scorecard import ScorecardSummary, build_scorecard
+from agentic_security_harness.standards_mapping import (
+    CategoryStandards,
+    standards_mapping,
+    validate_standards_mapping,
+)
 from agentic_security_harness.validation import ValidationResult, validate_path
 
 __all__ = [
@@ -96,6 +103,13 @@ __all__ = [
     "build_manifest",
     "write_run_manifest",
     "load_run_manifests",
+    "render_report",
+    "write_html_report",
+    "run_doctor",
+    "DoctorReport",
+    "CategoryStandards",
+    "standards_mapping",
+    "validate_standards_mapping",
     "ControlRecommendation",
     "RemediationReport",
     "build_recommendations",
@@ -104,4 +118,4 @@ __all__ = [
     "write_remediation",
 ]
 
-__version__ = "0.11.0"
+__version__ = "0.12.0"

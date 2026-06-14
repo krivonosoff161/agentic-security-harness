@@ -19,6 +19,12 @@ ash --help
 
 Requires Python 3.11+. Pure Python; the only runtime dependency is `pydantic`.
 
+Confirm your environment is ready (no network):
+
+```bash
+ash doctor
+```
+
 ## 2. See what is available
 
 ```bash
@@ -36,7 +42,11 @@ ash run --target demo-agent --out reports/demo
 richer vulnerable-by-design agent.) This runs the seed corpus against the local
 `demo-agent` and writes
 a report directory. The command prints a `Start here:` pointer and a run id. Open
-`reports/demo/executive.md` first.
+`reports/demo/executive.md` first, or render a shareable static HTML page (no network):
+
+```bash
+ash report --root reports/demo        # writes reports/demo/report.html
+```
 
 ## 4. Measure risk reduction (baseline vs protected)
 
@@ -68,6 +78,10 @@ python examples/fake_openai_server.py
 ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary
 ash run-external  --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --out reports/external-demo
 ```
+
+On Windows PowerShell, start the fake server in a separate window (no trailing `&`) and
+use `` ` `` for line continuation — see [connect-models.md §5](connect-models.md) for the
+PowerShell recipes.
 
 Then point it at your own stack (vLLM, DeepSeek, Alibaba/Qwen, Ollama, LM Studio, or any
 gateway) using the recipes in [connect-models.md](connect-models.md). `run-external`

@@ -6,6 +6,45 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-06-14
+
+### Added
+- **Static HTML reports** — `ash report --root <dir> [--out <file>]` renders a
+  self-contained `report.html` (inline CSS, no JS, no CDN, no network) for run, compare,
+  matrix, and external directories. Includes an executive summary, severity distribution,
+  pattern table, a **coverage heatmap** (pattern × variant) for matrix runs, a
+  before/after view for comparisons, a stochastic repeat-status view for external runs,
+  control-family summary, run/adapter metadata, and a "what this does not prove" section.
+- **`ash doctor`** — onboarding diagnostics (Python version, package import, CLI commands,
+  examples/fake-server presence, writability, key-env presence (value never read),
+  supported external adapters, next commands). Flags: `--json`, `--live-local`,
+  `--base-url`, `--api-key-env`. No network unless `--live-local`.
+- **Toy adapters** — `toy-rag` (data/memory/injection surface) and `toy-tools`
+  (tool/authority surface): deterministic, local, no network, with corpus-consistent
+  findings and honest partial coverage. Registered in `ash targets`.
+- **Adapter metadata in `run_index.json`** — external runs record an adapter metadata
+  block (adapter_type, model, redacted base_url, scenario, repeats, temperature, timeout,
+  request_count, network_mode, key-env name). Exposed in the HTML report.
+- **Explicit stochastic repeat status** — each external `(pattern, variant)` group gets a
+  `stability_status`: `stable_pass`, `stable_finding`, `flaky`, `inconclusive`, or
+  `adapter_error`. Documented in connect-models.md.
+- **Standards mapping v0.12** — category-level OWASP LLM 2025 and NIST AI RMF function
+  mappings with rationale (`standards_mapping.py`); MITRE ATLAS explicitly deferred.
+- **Release checklist** — `docs/release-checklist.md` with maintainer commands and v1.0
+  blockers.
+
+### Changed
+- **Validation tiers** — target types now validate in three tiers: `baseline`
+  (must FAIL every pattern), `protected` (must PASS), and `neutral` (any other adapter;
+  findings optional but still corpus-consistent). This unblocks toy and arbitrary
+  adapters that legitimately PASS some patterns.
+- `ash validate` runs a corpus-level standards-mapping self-check so docs and code cannot
+  silently drift, and validates external adapter metadata in `run_index.json`.
+
+### Fixed
+- `docs/standards-mapping.md` stale count (said "seventeen") now reflects 22 patterns /
+  14 categories and matches the machine-readable mapping.
+
 ## [0.11.0] - 2026-06-14
 
 ### Added

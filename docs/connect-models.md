@@ -16,6 +16,19 @@ This is **prompt-based evaluation only**: the model receives a synthetic benchma
 scenario and returns a structured JSON verdict. **No tools are executed**, no agent host
 is driven, and no streaming is used. See [What is not supported yet](#13-what-is-not-supported-yet).
 
+### Stochastic models and repeats
+
+A single response is not a verdict. Stochastic models can answer differently each call.
+
+- Use `--temperature 0.0` (the default) for the most repeatable behaviour.
+- Use `--repeats N` (2–10) for stochastic models. Each `(pattern, variant)` group is
+  then summarised with an explicit **status**:
+  `stable_pass`, `stable_finding`, `flaky` (mixed outcomes across repeats),
+  `inconclusive` (no usable JSON verdict), or `adapter_error` (the call failed).
+- Treat `flaky` and `inconclusive` as "needs more data", not as pass or fail.
+- Do **not** compare two models from a single run each — re-run with the same scenario,
+  variants, and repeats, and compare the per-status counts.
+
 ## 2. Safety and cost model
 
 The number of network requests a run makes is exactly:

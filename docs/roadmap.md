@@ -38,23 +38,26 @@ provider calls, no real targets, no real secrets.
   ([docs/connect-models.md](connect-models.md)); run history manifests
   (`run_index.json`) with `ash list-runs` and manifest validation; getting-started
   guide; cross-platform CI (Ubuntu + Windows, Python 3.11-3.13).
+- **v0.12 - report/product depth:** static HTML reports with coverage heatmap
+  (`ash report`); onboarding diagnostics (`ash doctor`); toy adapters (`toy-rag`,
+  `toy-tools`) with a three-tier validation model (baseline/protected/neutral);
+  adapter metadata + explicit stochastic repeat status for external runs; category-level
+  OWASP LLM / NIST standards mapping with a validation self-check; release checklist.
 
 ---
 
 ## Next
 
-- **v0.10.x - cross-app contamination and audit context split:** cross-surface data
-  instruction contamination and action-audit divergence tests.
-- **v0.10 - local adapter examples:** toy RAG app, toy MCP server, toy multi-agent handoff.
-  Still local / synthetic only.
-- **v0.11 - report quality:** better Markdown / HTML audit report, coverage heatmap,
-  standards matrix, mitigation checklist, before/after score.
-- **v0.11.x - adapter contract hardening:** adapter metadata emission, stochastic-run
-  reporting rules, and local toy adapter examples before real providers.
-- **v0.12 - mapping and standardization:** OWASP LLM mapping, MITRE ATLAS mapping, severity
-  rationale, pattern versioning policy.
+- **Cross-app contamination and audit context split:** cross-surface data-instruction
+  contamination and action-audit divergence tests.
+- **Toy multi-agent handoff adapter:** a coordinator/worker delegation surface, adding to
+  the shipped toy adapters (`toy-local-function`, `toy-rag`, `toy-tools`).
+- **MITRE ATLAS verification + pattern versioning:** verify ATLAS technique ids against
+  the official matrix (currently deferred), add a severity-rationale and pattern-version
+  policy. A mitigation checklist artifact can follow the standards mapping.
 - **v1.0 - stable benchmark release:** stable trace schema, stable corpus manifest, stable
-  CLI, validated examples, coherent docs, public tag.
+  CLI, validated examples, coherent docs, public tag (see
+  [release-checklist.md](release-checklist.md)).
 
 ---
 
@@ -71,10 +74,12 @@ release scope until the core above is stable:
 - **Real LLM adapters** - drive authorized live agents instead of local synthetic targets.
 - **Multimodal / audio-ASR** - sanitized, pre-recorded ASR / OCR fixtures for the
   sensor-to-agent path.
-- **Web report viewer / dashboard** - optional static viewer over run manifests; the
-  current product surface is CLI + Markdown/JSON only.
-- **Richer HTML reports + coverage heatmaps** - stdlib-only static HTML rendering, kept
-  out of the core until it earns its complexity; Markdown remains the source of truth.
+- **Web report viewer / dashboard** - an interactive viewer over run manifests. The
+  shipped `ash report` is a single static HTML file per run; a multi-run dashboard is
+  future.
+- **Richer report visualisations** - beyond the shipped static HTML + coverage heatmap:
+  trend views across runs, interactive filtering, and severity drill-downs. Markdown/JSON
+  remain the source of truth.
 - **Persistent result database** - durable run/trace store (e.g. Postgres) after the
   file-based `run_index.json` + hash-chain story is proven.
 - **Docker / devcontainer** - reproducible container image for the toolkit.

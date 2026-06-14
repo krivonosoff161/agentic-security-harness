@@ -112,11 +112,24 @@ See [docs/roadmap.md](docs/roadmap.md).
   passed to the external prompt as scenario context, but do not yet mutate the
   underlying pattern content; for the local `run-matrix` path they remain replay
   metadata only.
+- **Toy adapters** — `toy-rag` and `toy-tools` (plus the trivial pass-all
+  `toy-local-function`): deterministic local stand-ins for agentic systems that exercise
+  *different* surfaces (retrieval/memory vs tool/authority) and so legitimately PASS some
+  patterns and FAIL others. They show the harness can evaluate arbitrary systems, not
+  only the demo agents. No network, no dependencies.
+- **Static HTML reports** — `ash report --root <dir>` renders a self-contained
+  `report.html` (no JS, no CDN, no network) with an executive summary, severity
+  distribution, pattern table, and a coverage heatmap for matrix runs. JSON/Markdown
+  remain authoritative.
+- **Onboarding doctor** — `ash doctor [--json] [--live-local]` checks the environment and
+  prints next steps. **Run history** — `ash list-runs` reads the `run_index.json`
+  manifest written by every run.
 - **Validation (`ash validate examples/`)** — checks committed benchmark artifacts (traces,
-  scorecards, summaries, comparison, and external-run reports) and corpus consistency,
-  and scans for forbidden markers; the examples are **validated benchmark artifacts**,
-  not loose output.
-- **Unit tests** — models, runner, scorecard, reporting, validation, and CLI smoke tests.
+  scorecards, summaries, comparison, external-run reports, and run manifests), corpus and
+  standards-mapping consistency, and scans for forbidden markers; the examples are
+  **validated benchmark artifacts**, not loose output.
+- **Unit tests** — models, runner, scorecard, reporting, validation, CLI, HTML report,
+  doctor, toy adapters, and standards mapping.
 
 No gateway, real payloads, or implicit provider calls. External model/runtime calls exist
 only in the experimental `run-external` path and require an explicit command.
@@ -126,8 +139,8 @@ only in the experimental `run-external` path and require an explicit command.
 | Area | Current release | Planned / future track |
 |---|---|---|
 | Benchmark | 22-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus, mappings, report quality. |
-| Targets | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, plus experimental OpenAI-compatible external model checks. | Explicitly authorized real adapters with stronger config UX. |
-| Runtime | CLI-only (`ash run`, `ash compare`, `ash validate`, `ash run-matrix`, `ash run-external`). | Optional HTTP reference gateway after the benchmark stabilizes. |
+| Targets | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, plus experimental OpenAI-compatible external model checks. | Native provider adapters and agent-host / tool-use adapters. |
+| Runtime | CLI-only (`run`, `compare`, `validate`, `run-matrix`, `run-external`, `external-check`, `list-runs`, `report`, `doctor`). | Optional HTTP reference gateway and a web report viewer after the benchmark stabilizes. |
 | Network / providers | Off by default; `run-external` makes explicit OpenAI-compatible calls only when invoked without `--dry-run`. | More provider presets, config files, and verified local-runtime guides. |
 | Storage | Local report files and committed examples. | Optional persistent trace store after v1.0. |
 
