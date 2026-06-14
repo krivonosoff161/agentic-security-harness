@@ -99,6 +99,8 @@ class RepeatSummary(BaseModel):
     error_count: int = 0
     flaky: bool = False
     dominant_outcome: str = "inconclusive"
+    # One of: stable_pass, stable_finding, flaky, inconclusive, adapter_error.
+    stability_status: str = "inconclusive"
 
 
 class ExternalSummary(BaseModel):

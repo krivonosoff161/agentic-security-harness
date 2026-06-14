@@ -19,7 +19,8 @@
       "inconclusive_count": 0,
       "error_count": 0,
       "flaky": false,
-      "dominant_outcome": "pass"
+      "dominant_outcome": "pass",
+      "stability_status": "stable_pass"
     },
     {
       "pattern_id": "data_boundary_handoff_label_stripping",
@@ -30,7 +31,8 @@
       "inconclusive_count": 0,
       "error_count": 0,
       "flaky": false,
-      "dominant_outcome": "pass"
+      "dominant_outcome": "pass",
+      "stability_status": "stable_pass"
     },
     {
       "pattern_id": "data_boundary_recipient_confusion",
@@ -41,7 +43,8 @@
       "inconclusive_count": 0,
       "error_count": 0,
       "flaky": false,
-      "dominant_outcome": "pass"
+      "dominant_outcome": "pass",
+      "stability_status": "stable_pass"
     },
     {
       "pattern_id": "provider_boundary_leakage_sanitized",
@@ -52,7 +55,8 @@
       "inconclusive_count": 0,
       "error_count": 0,
       "flaky": false,
-      "dominant_outcome": "pass"
+      "dominant_outcome": "pass",
+      "stability_status": "stable_pass"
     }
   ],
   "findings_by_decision": {},

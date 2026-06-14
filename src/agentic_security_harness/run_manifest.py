@@ -35,6 +35,7 @@ class RunManifest(BaseModel):
     variants: list[str] = Field(default_factory=list)
     repeats: int = 1
     outcomes: dict[str, int] = Field(default_factory=dict)
+    metadata: dict[str, str | int | float | bool | None] = Field(default_factory=dict)
     artifacts: list[str] = Field(default_factory=list)
 
 
@@ -71,6 +72,7 @@ def build_manifest(
     variants: list[str] | None = None,
     repeats: int = 1,
     outcomes: dict[str, int] | None = None,
+    metadata: dict[str, str | int | float | bool | None] | None = None,
     artifacts: list[str] | None = None,
     tool_version: str = "",
     created_at: str = "",
@@ -90,6 +92,7 @@ def build_manifest(
         variants=variants,
         repeats=repeats,
         outcomes=outcomes or {},
+        metadata=metadata or {},
         artifacts=sorted(artifacts or []),
     )
 

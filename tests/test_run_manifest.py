@@ -132,6 +132,67 @@ def test_validate_rejects_missing_artifact(tmp_path: Path) -> None:
     assert any("does_not_exist.md" in e for e in result.errors)
 
 
+def test_external_run_writes_metadata(tmp_path: Path) -> None:
+    from unittest.mock import MagicMock, patch
+
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps(
+        {"choices": [{"message": {"content":
+            '{"decision": "block", "would_preserve_boundary": true}'}}]}
+    ).encode()
+    mock_response.__enter__ = lambda s: s
+    mock_response.__exit__ = MagicMock(return_value=False)
+
+    with patch("urllib.request.urlopen", return_value=mock_response):
+        rc = cli.main([
+            "run-external",
+            "--base-url", "http://user:secret@localhost:8000/v1",
+            "--model", "demo-model",
+            "--scenario", "data-boundary",
+            "--api-key-env", "ASH_EXTERNAL_API_KEY",
+            "--out", str(tmp_path / "ext"),
+        ])
+    assert rc == 0
+    data = json.loads((tmp_path / "ext" / "run_index.json").read_text(encoding="utf-8"))
+    meta = data["metadata"]
+    assert meta["adapter_type"] == "openai-compatible"
+    assert meta["model"] == "demo-model"
+    assert meta["network_mode"] == "explicit-external"
+    assert meta["api_key_env"] == "ASH_EXTERNAL_API_KEY"  # name only
+    # The base_url password must be redacted everywhere in the manifest.
+    assert "secret" not in json.dumps(data)
+    assert "[REDACTED]" in meta["base_url_label"]
+    # And the whole external dir still validates with the metadata checks on.
+    result = validate_path(tmp_path / "ext")
+    assert result.ok, result.errors
+
+
+def test_validate_rejects_missing_external_metadata(tmp_path: Path) -> None:
+    from unittest.mock import MagicMock, patch
+
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps(
+        {"choices": [{"message": {"content":
+            '{"decision": "block", "would_preserve_boundary": true}'}}]}
+    ).encode()
+    mock_response.__enter__ = lambda s: s
+    mock_response.__exit__ = MagicMock(return_value=False)
+    with patch("urllib.request.urlopen", return_value=mock_response):
+        cli.main([
+            "run-external", "--base-url", "http://localhost:8000/v1",
+            "--model", "m", "--scenario", "data-boundary",
+            "--out", str(tmp_path / "ext"),
+        ])
+    data = json.loads((tmp_path / "ext" / "run_index.json").read_text(encoding="utf-8"))
+    del data["metadata"]["network_mode"]
+    (tmp_path / "ext" / "run_index.json").write_text(
+        json.dumps(data, indent=2) + "\n", encoding="utf-8"
+    )
+    result = validate_path(tmp_path / "ext")
+    assert not result.ok
+    assert any("metadata missing keys" in e for e in result.errors)
+
+
 def test_validate_rejects_bad_run_kind(tmp_path: Path) -> None:
     run_dir = tmp_path / "run"
     cli.main(["run", "--target", "mock", "--out", str(run_dir)])

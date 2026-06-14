@@ -23,7 +23,11 @@ from agentic_security_harness import __version__
 from agentic_security_harness.adapters import list_targets, make_target, target_ids
 from agentic_security_harness.patterns import seed_patterns
 from agentic_security_harness.reporting import write_comparison, write_reports
-from agentic_security_harness.run_config import _MAX_REPEATS, _MAX_TOTAL_REQUESTS
+from agentic_security_harness.run_config import (
+    _MAX_REPEATS,
+    _MAX_TOTAL_REQUESTS,
+    _redact_url,
+)
 from agentic_security_harness.run_manifest import (
     build_manifest,
     load_run_manifests,
@@ -298,6 +302,46 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("reports"),
         help="directory to scan for run manifests (default: reports)",
+    )
+
+    doctor_p = sub.add_parser(
+        "doctor",
+        help="run onboarding diagnostics (no network unless --live-local)",
+    )
+    doctor_p.add_argument(
+        "--json", action="store_true", help="emit a machine-readable JSON report"
+    )
+    doctor_p.add_argument(
+        "--live-local",
+        action="store_true",
+        help="make one request to a LOCAL endpoint to verify connectivity",
+    )
+    doctor_p.add_argument(
+        "--base-url",
+        default="http://127.0.0.1:8766/v1",
+        help="local endpoint for --live-local (default: fake server)",
+    )
+    doctor_p.add_argument(
+        "--api-key-env",
+        default="ASH_EXTERNAL_API_KEY",
+        help="env var name to check for presence (value never read/printed)",
+    )
+
+    report_p = sub.add_parser(
+        "report",
+        help="render a static HTML report for a run directory (no network)",
+    )
+    report_p.add_argument(
+        "--root",
+        type=Path,
+        required=True,
+        help="run directory (run, compare, matrix, or external) to render",
+    )
+    report_p.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="output HTML file (default: <root>/report.html)",
     )
 
     return parser
@@ -599,6 +643,19 @@ def _run_external(
             "inconclusive": len(summary.inconclusive_patterns),
             "errors": len(summary.error_patterns),
         },
+        metadata={
+            "adapter_type": "openai-compatible",
+            "model": summary.model,
+            "base_url_label": _redact_url(base_url),
+            "scenario": summary.scenario_id,
+            "max_variants": max_variants,
+            "repeats": repeats,
+            "temperature": temperature,
+            "timeout_seconds": timeout,
+            "request_count": summary.total_repeats,
+            "network_mode": "explicit-external",
+            "api_key_env": api_key_env,
+        },
         artifacts=_artifact_names(out),
         tool_version=__version__,
         created_at=_now_utc(),
@@ -620,6 +677,52 @@ def _run_external(
         )
     print(f"Start here: {(out / 'external_report.md').as_posix()}  (run id {manifest.run_id})")
     print("Next: ash validate " + out.as_posix())
+    return 0
+
+
+def _doctor(
+    as_json: bool, live_local: bool, base_url: str, api_key_env: str
+) -> int:
+    import json as _json
+
+    from agentic_security_harness.doctor import run_doctor
+
+    report = run_doctor(
+        live_local=live_local, base_url=base_url, api_key_env=api_key_env
+    )
+    if as_json:
+        print(_json.dumps(report.model_dump(mode="json"), indent=2))
+        return 0 if report.ok else 1
+
+    print("ash doctor - environment diagnostics")
+    print("=" * 40)
+    mark = {True: "OK", False: "!!", None: "--"}
+    for check in report.checks:
+        print(f"  [{mark[check.ok]:2s}] {check.name:20s} {check.detail}")
+    print("")
+    print("Result: ready" if report.ok else "Result: issues found (see [!!] above)")
+    print("Next:")
+    for cmd in report.next_commands:
+        print(f"  {cmd}")
+    return 0 if report.ok else 1
+
+
+def _report(root: Path, out: Path | None) -> int:
+    from agentic_security_harness.html_report import write_html_report
+
+    if not root.exists() or not root.is_dir():
+        print(f"Error: run directory not found: {root.as_posix()}")
+        print("Tip: pass --root <a run/compare/matrix/external output dir>.")
+        return 1
+    target = out if out is not None else root / "report.html"
+    try:
+        path = write_html_report(root, target)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
+    print(f"wrote HTML report to {path.as_posix()}")
+    print("Static, self-contained HTML: no network, no external resources.")
+    print(f"Open it in a browser: {path.as_posix()}")
     return 0
 
 
@@ -823,6 +926,10 @@ def main(argv: list[str] | None = None) -> int:
         )
     if args.command == "list-runs":
         return _list_runs(args.root)
+    if args.command == "report":
+        return _report(args.root, args.out)
+    if args.command == "doctor":
+        return _doctor(args.json, args.live_local, args.base_url, args.api_key_env)
     return 1
 
 

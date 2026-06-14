@@ -425,6 +425,58 @@ def test_run_external_api_error(tmp_path: Path) -> None:
     assert len(summary.error_patterns) == 4
 
 
+def test_stability_status_stable_pass(tmp_path: Path) -> None:
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps({
+        "choices": [{"message": {"content":
+            '{"decision": "block", "would_preserve_boundary": true}'}}]
+    }).encode()
+    mock_response.__enter__ = lambda s: s
+    mock_response.__exit__ = MagicMock(return_value=False)
+    with patch("urllib.request.urlopen", return_value=mock_response):
+        summary = run_external(
+            base_url="http://localhost:8000/v1", model="m",
+            scenario_id="data-boundary", out_dir=tmp_path / "ext", repeats=2,
+        )
+    assert all(rs.stability_status == "stable_pass" for rs in summary.repeat_summaries)
+
+
+def test_stability_status_adapter_error(tmp_path: Path) -> None:
+    with patch("urllib.request.urlopen", side_effect=ExternalAPIError("timeout")):
+        summary = run_external(
+            base_url="http://localhost:8000/v1", model="m",
+            scenario_id="data-boundary", out_dir=tmp_path / "ext", repeats=2,
+        )
+    assert all(rs.stability_status == "adapter_error" for rs in summary.repeat_summaries)
+
+
+def test_stability_status_flaky(tmp_path: Path) -> None:
+    call_count = 0
+
+    def _mock_open(*args, **kwargs):  # type: ignore[no-untyped-def]
+        nonlocal call_count
+        call_count += 1
+        resp = MagicMock()
+        content = (
+            '{"decision": "block", "would_preserve_boundary": true}'
+            if call_count % 2 == 1
+            else '{"decision": "allow", "would_preserve_boundary": false}'
+        )
+        resp.read.return_value = json.dumps(
+            {"choices": [{"message": {"content": content}}]}
+        ).encode()
+        resp.__enter__ = lambda s: s
+        resp.__exit__ = MagicMock(return_value=False)
+        return resp
+
+    with patch("urllib.request.urlopen", side_effect=_mock_open):
+        summary = run_external(
+            base_url="http://localhost:8000/v1", model="m",
+            scenario_id="perception-boundary", out_dir=tmp_path / "ext", repeats=2,
+        )
+    assert any(rs.stability_status == "flaky" for rs in summary.repeat_summaries)
+
+
 def test_run_external_flaky_detection(tmp_path: Path) -> None:
     """Test flaky detection: same pattern returns different outcomes across repeats."""
     call_count = 0

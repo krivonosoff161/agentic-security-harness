@@ -308,6 +308,18 @@ def _build_external_summary(
         else:
             dominant = "error"
 
+        # Explicit stochastic status: a single response is not a verdict.
+        if flaky:
+            stability = "flaky"
+        elif error_count == len(group):
+            stability = "adapter_error"
+        elif finding_count > 0:
+            stability = "stable_finding"
+        elif pass_count > 0:
+            stability = "stable_pass"
+        else:
+            stability = "inconclusive"
+
         repeat_summaries.append(RepeatSummary(
             pattern_id=pid,
             variant_id=vid,
@@ -318,6 +330,7 @@ def _build_external_summary(
             error_count=error_count,
             flaky=flaky,
             dominant_outcome=dominant,
+            stability_status=stability,
         ))
 
     # Aggregate by pattern across all variants
@@ -434,16 +447,18 @@ def _build_external_report_md(
         lines += [
             "## Repeat summaries",
             "",
-            "| Pattern | Variant | Repeats | Pass | Finding | Inconclusive | Error | Flaky |",
+            "Status reflects stochastic behaviour across repeats: `stable_pass`, "
+            "`stable_finding`, `flaky`, `inconclusive`, or `adapter_error`.",
+            "",
+            "| Pattern | Variant | Repeats | Pass | Finding | Inconclusive | Error | Status |",
             "|---|---|---|---|---|---|---|---|",
         ]
         for rs in summary.repeat_summaries:
-            flaky_mark = "yes" if rs.flaky else ""
             lines.append(
                 f"| `{rs.pattern_id}` | `{rs.variant_id}` "
                 f"| {rs.total_repeats} | {rs.pass_count} "
                 f"| {rs.finding_count} | {rs.inconclusive_count} "
-                f"| {rs.error_count} | {flaky_mark} |"
+                f"| {rs.error_count} | {rs.stability_status} |"
             )
         lines.append("")
 
