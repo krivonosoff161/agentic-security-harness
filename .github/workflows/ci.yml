@@ -8,12 +8,17 @@ on:
 
 jobs:
   test:
-    name: Python ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
+    name: Test ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12"]
+        os: [ubuntu-latest]
+        python-version: ["3.11", "3.12", "3.13"]
+        # Back the cross-platform claim with one Windows job (kept lightweight).
+        include:
+          - os: windows-latest
+            python-version: "3.11"
 
     steps:
       - name: Check out repository
