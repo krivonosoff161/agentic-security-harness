@@ -41,6 +41,23 @@ No boundary findings in this run, so no control recommendations are required. In
 - `external_summary.json` - machine-readable aggregated summary
 - `external_results.json` - per-request normalized results
 
+## How to reproduce / validate
+
+Reproduce this run (set the API key env var first if the endpoint needs one):
+
+```bash
+ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --repeats 1 --max-variants 1 \
+  --out reports/external-rerun
+```
+
+Then validate the artifacts:
+
+```bash
+ash validate reports/external-rerun
+```
+
+Stochastic endpoints may differ across runs; increase `--repeats` to surface flaky patterns.
+
 ## Important notes
 
 - This is an **experimental** external run, not a production benchmark.

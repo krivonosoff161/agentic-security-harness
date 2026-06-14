@@ -589,6 +589,7 @@ def _validate_external_report_md(
         "## Results",
         "## Control recommendations",
         "## Related artifacts",
+        "## How to reproduce / validate",
     ]
     for section in required:
         if section not in text:

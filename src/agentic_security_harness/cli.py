@@ -630,10 +630,27 @@ def _external_check(
             print(f"  Live request: FAILED -- {exc}")
             return 1
     else:
-        print("\n  Tip: use --live to make one test request and verify connectivity")
+        print(
+            "\n  Tip: add --live to make exactly one test request "
+            "(verifies connectivity; counts as 1 request)."
+        )
 
     print("\nConfiguration looks valid.")
-    print("Run with --dry-run first to confirm request count before spending money.")
+    print(
+        "Note: external-check and --dry-run make no benchmark network calls; "
+        "only --live and a real run-external do."
+    )
+    # Concrete copy-pasteable next step (dry-run first, then the live run).
+    key_flag = f" --api-key-env {api_key_env}" if api_key_env else ""
+    next_cmd = (
+        f"ash run-external --base-url {redacted} --model {model} "
+        f"--scenario {scenario_id} --repeats {repeats} "
+        f"--max-variants {max_variants}{key_flag}"
+    )
+    print("Next steps:")
+    print(f"  1) dry-run (no network, no files): {next_cmd} --dry-run")
+    print(f"  2) live run:                       {next_cmd} --out reports/external-run")
+    print("  3) validate:                       ash validate reports/external-run")
     return 0
 
 
