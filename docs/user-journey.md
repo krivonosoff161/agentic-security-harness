@@ -100,6 +100,9 @@ ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenar
 
 Prints `No network call. No files written.` and the exact request count.
 
+Tip: `ash external-presets` lists shortcuts that fill the `base_url` for you, e.g.
+`ash run-external --preset fake-local --model fake-model --scenario data-boundary --dry-run`.
+
 ## 10. Live run against the fake server
 
 ```bash

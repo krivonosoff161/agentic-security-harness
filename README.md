@@ -59,6 +59,9 @@ deterministic tests · honest residual risk. Full rules:
   `ash validate` does and does **not** prove? Read
   [benchmark semantics](docs/benchmark-semantics.md) and the
   [capability matrix](docs/capability-matrix.md).
+- Comparing two runs, reading artifact versions, or connecting a provider? See
+  [run diff](docs/run-diff.md), [artifact schemas](docs/artifact-schemas.md), and
+  [connect models](docs/connect-models.md).
 - New to the project? Start with the [project map](docs/project-map.md).
 - Evaluating the thesis? Read [positioning](docs/positioning.md), the
   [boundary model](docs/agentic-boundary-model.md), and
@@ -148,7 +151,7 @@ only in the experimental `run-external` path and require an explicit command.
 |---|---|---|
 | Benchmark | 22-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus, mappings, report quality. |
 | Targets | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, plus experimental OpenAI-compatible external model checks. | Native provider adapters and agent-host / tool-use adapters. |
-| Runtime | CLI-only (`run`, `compare`, `validate`, `run-matrix`, `run-external`, `external-check`, `list-runs`, `report`, `doctor`). | Optional HTTP reference gateway and a web report viewer after the benchmark stabilizes. |
+| Runtime | CLI-only (`run`, `compare`, `validate`, `targets`, `scenarios`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `list-runs`, `index-runs`, `report`, `doctor`). | Optional HTTP reference gateway and a web report viewer after the benchmark stabilizes. |
 | Network / providers | Off by default; `run-external` makes explicit OpenAI-compatible calls only when invoked without `--dry-run`. | More provider presets, config files, and verified local-runtime guides. |
 | Storage | Local report files and committed examples. | Optional persistent trace store after v1.0. |
 

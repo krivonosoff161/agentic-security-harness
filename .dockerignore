@@ -1,0 +1,17 @@
+.git
+.github
+.mypy_cache
+.pytest_cache
+.ruff_cache
+__pycache__
+*.pyc
+build
+dist
+reports
+*.db
+*.sqlite3
+.env
+.venv
+venv
+docs
+tests

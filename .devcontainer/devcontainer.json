@@ -1,0 +1,11 @@
+{
+  "name": "agentic-security-harness",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "postCreateCommand": "python -m pip install -e \".[dev]\" && ash doctor",
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "charliermarsh.ruff"]
+    }
+  },
+  "remoteUser": "vscode"
+}

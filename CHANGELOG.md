@@ -6,6 +6,39 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-06-14
+
+### Added
+- **Schema-version registry** (`schema_versions.py`): a single source of truth for every
+  artifact's `schema_version`. `scorecard.json` and `remediation.json` now carry one too.
+  `ash validate` rejects unknown/future versions with a clear message and catches a missing
+  version where required. Policy documented in `docs/artifact-schemas.md`.
+- **`ash diff-runs --left … --right … --out …`**: compare two run directories of the same
+  kind (run/matrix/external). Writes schema-versioned `run_diff.json` + `run_diff.md` with
+  fixed / new / changed / unchanged / only-left / only-right per pattern. Validated by
+  `ash validate`; rendered by `ash report`. Docs: `docs/run-diff.md`.
+- **HTML report v2**: per-pattern findings detail (category, severity, control family,
+  evidence, quick/engineering/architecture fix, retest hint) on run reports, an explicit
+  "needs more data" (flaky/inconclusive/error) section on external reports, and a run-diff
+  view. Still self-contained: no JS, no CDN, no network.
+- **External connection presets** (`ash external-presets`, `--preset`): fake-local, vllm,
+  ollama, lm-studio, deepseek, alibaba-qwen-compatible, generic-openai-compatible. A preset
+  only fills a default base URL and a key env-var **name**; it adds no SDK and hides no
+  network call. `--base-url` is now optional when `--preset` is given.
+- **doctor v2**: adds a reports-dir writability check and an external-preset validation
+  check (no network). New `--reports-root` flag.
+- **Local run index** (`ash index-runs`, `ash list-runs --db`): a stdlib-only SQLite index
+  of run-manifest **metadata** (no trace bodies, no secrets). Design + scope in
+  `docs/run-database-design.md`.
+- **Packaging readiness**: `Dockerfile` (local/offline CLI + fake-server demo, non-root,
+  no secrets), `.dockerignore`, a minimal `.devcontainer`, and `docs/release-to-pypi.md`.
+
+### Changed
+- Bumped to 0.13.0. Regenerated the committed report examples to include the new
+  `schema_version` fields in `scorecard.json` / `remediation.json`.
+- `run-external` / `external-check`: a clean error (rc 1) instead of an argparse exit when
+  neither `--base-url` nor `--preset` is provided.
+
 ## [0.12.1] - 2026-06-14
 
 ### Added

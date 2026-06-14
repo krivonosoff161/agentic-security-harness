@@ -16,6 +16,24 @@ This is **prompt-based evaluation only**: the model receives a synthetic benchma
 scenario and returns a structured JSON verdict. **No tools are executed**, no agent host
 is driven, and no streaming is used. See [What is not supported yet](#13-what-is-not-supported-yet).
 
+### Presets (optional shortcut)
+
+`ash external-presets` lists connection presets that fill a default `base_url` and suggest
+an API-key env-var **name**. A preset is only a convenience — it does not add a provider
+SDK, change the transport, or hide a network call.
+
+```bash
+ash external-presets
+ash external-check --preset ollama --model llama3.1 --scenario data-boundary
+ash run-external  --preset fake-local --model fake-model --scenario data-boundary --dry-run
+```
+
+Presets: `fake-local`, `vllm`, `ollama`, `lm-studio`, `deepseek`,
+`alibaba-qwen-compatible`, `generic-openai-compatible`. An explicit `--base-url` always
+overrides the preset; `generic-openai-compatible` requires you to pass your own
+`--base-url`. Vendor URLs are starting points — confirm the current value in the
+provider's docs.
+
 ### Stochastic models and repeats
 
 A single response is not a verdict. Stochastic models can answer differently each call.
