@@ -575,6 +575,32 @@ def test_external_findings_by_control_family_tamper_fails(tmp_path: Path) -> Non
     assert _has(result, "findings_by_control_family")
 
 
+def test_external_missing_run_config_fails(tmp_path: Path) -> None:
+    report = _copy("external-demo-report", tmp_path)
+    (report / "run_config.json").unlink()
+
+    result = validate_path(report)
+    assert not result.ok
+    assert _has(result, "run_config.json")
+
+
+def test_external_missing_report_md_fails(tmp_path: Path) -> None:
+    report = _copy("external-demo-report", tmp_path)
+    (report / "external_report.md").unlink()
+
+    result = validate_path(report)
+    assert not result.ok
+    assert _has(result, "external_report.md")
+
+
+def test_external_report_md_has_reproduce_section() -> None:
+    md = (EXAMPLES / "external-demo-report" / "external_report.md").read_text(
+        encoding="utf-8"
+    )
+    assert "## How to reproduce / validate" in md
+    assert "ash validate" in md
+
+
 def test_external_report_md_missing_section_fails(tmp_path: Path) -> None:
     report = _copy("external-demo-report", tmp_path)
     md = report / "external_report.md"

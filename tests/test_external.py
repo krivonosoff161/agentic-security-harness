@@ -615,6 +615,27 @@ def test_cli_external_check_shows_cost_cap(
     assert "exceeds the safety cap" in capsys.readouterr().out
 
 
+def test_cli_external_check_emits_copy_pasteable_next_command(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from agentic_security_harness import cli
+
+    rc = cli.main([
+        "external-check",
+        "--base-url", "http://localhost:8000/v1",
+        "--model", "deepseek-chat",
+        "--scenario", "data-boundary",
+    ])
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "Next steps:" in out
+    # The suggested next command must be a real run-external invocation.
+    assert "ash run-external --base-url http://localhost:8000/v1" in out
+    assert "--model deepseek-chat" in out
+    assert "--dry-run" in out
+    assert "ash validate reports/external-run" in out
+
+
 def _wait_port(host: str, port: int, timeout_s: float = 5.0) -> None:
     deadline = time.time() + timeout_s
     last_error: OSError | None = None
