@@ -1,7 +1,10 @@
 """Agentic Security Harness - defensive benchmark core.
 
-Pipeline: ``pattern -> target -> trace -> scorecard``. No real LLM calls, no network,
-no gateway. A ``DataEnvelope`` is a policy label, not encryption.
+Pipeline: ``pattern -> target -> trace -> scorecard``. Built-in/local targets are
+deterministic and offline (no network, no provider calls). The experimental
+``run-external`` path makes OpenAI-compatible calls only on explicit opt-in; native
+provider and agent-host adapters are future. A ``DataEnvelope`` is a policy label, not
+encryption.
 """
 
 from agentic_security_harness.corpus import CorpusEntry, corpus_manifest
@@ -118,4 +121,4 @@ __all__ = [
     "write_remediation",
 ]
 
-__version__ = "0.12.0"
+__version__ = "0.12.1"

@@ -6,6 +6,34 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.12.1] - 2026-06-14
+
+### Added
+- **docs/benchmark-semantics.md** — what is and is not tested, the meaning of
+  PASS / FINDING / INCONCLUSIVE / FLAKY / ADAPTER_ERROR, what `ash validate` verifies and
+  does **not** prove, and how to compare runs responsibly.
+- **docs/capability-matrix.md** — per-target/mode table (network default, model use,
+  determinism, corpus scope, repeats, variants, manifest, validation, good-for / not-for).
+- **docs/user-journey.md** — one complete happy path (install → local report → validate →
+  fake-server external flow), with Windows PowerShell and Linux/macOS commands.
+- **docs/independent-benchmark-gap-list.md** and **docs/benchmark-positioning-gap-list.md**
+  — honest gap lists (not implemented in this pass).
+
+### Changed
+- **Network scoping clarified** across README, project-map, roadmap, adapter-contract,
+  reporting, and the package docstring: built-in/local targets are offline; the
+  `run-external` path is explicit opt-in OpenAI-compatible; native provider and
+  agent-host adapters are future. Removed broad "no network/no LLM" claims that
+  contradicted the opt-in path.
+- **Stale "future" claims fixed**: `ash report`, toy-rag/toy-tools, adapter metadata, and
+  the stochastic/inconclusive statuses are documented as shipped (were "planned/future").
+- **Fuller external reproduce command** in `external_report.md`: now includes temperature,
+  timeout, repeats, the selected variant or max-variants, the API key env-var **name**
+  (never the value), the redacted base_url, and `--max-requests` only when the cap would
+  block the rerun; notes that `run_config.json` is authoritative.
+- `ash validate` success line now states it is artifact integrity only, not a safety
+  guarantee.
+
 ## [0.12.0] - 2026-06-14
 
 ### Added
