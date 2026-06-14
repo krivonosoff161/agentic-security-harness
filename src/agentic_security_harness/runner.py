@@ -30,7 +30,6 @@ class HarnessRunner:
         type_, name, adapter = self.target.descriptor_fields()
         return ExploitTrace(
             trace_id=_trace_id(pattern.pattern_id, name),
-            schema_version="0.1",
             pattern_id=pattern.pattern_id,
             target=TargetDescriptor(type=type_, name=name, adapter=adapter),
             graph_path=list(pattern.graph_path),

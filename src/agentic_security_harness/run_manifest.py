@@ -16,6 +16,8 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
+
 _RUN_KINDS = frozenset({"run", "compare", "matrix", "external"})
 
 
@@ -24,7 +26,7 @@ class RunManifest(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = "0.1"
+    schema_version: str = SCHEMA_VERSIONS["run_manifest"]
     run_id: str
     run_kind: str
     created_at: str = ""

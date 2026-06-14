@@ -1,4 +1,5 @@
 {
+  "schema_version": "0.1",
   "target_name": "demo-mock-agent",
   "total_patterns": 22,
   "total_findings": 22,

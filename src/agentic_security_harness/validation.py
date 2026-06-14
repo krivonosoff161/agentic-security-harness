@@ -25,12 +25,12 @@ from agentic_security_harness.reporting import (
     build_executive_md,
     build_summary_md,
 )
+from agentic_security_harness.schema_versions import check_schema_version
 from agentic_security_harness.scorecard import ScorecardSummary, build_scorecard
 
 if TYPE_CHECKING:
     from agentic_security_harness.run_config import ExternalResult, ExternalSummary
 
-_SCHEMA_VERSION = "0.1"
 # Three validation tiers by target type:
 #   baseline  -> vulnerable-by-design demo targets; MUST FAIL every pattern.
 #   protected -> controlled demo target; MUST PASS every pattern.
@@ -59,6 +59,7 @@ class ValidationResult(BaseModel):
     report_dirs: list[str] = Field(default_factory=list)
     comparison_dirs: list[str] = Field(default_factory=list)
     external_dirs: list[str] = Field(default_factory=list)
+    run_diff_dirs: list[str] = Field(default_factory=list)
 
     def _err(self, msg: str) -> None:
         self.errors.append(msg)
@@ -121,6 +122,9 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
     elif _is_external_dir(path):
         result.external_dirs.append(_rel(path, root))
         _validate_external_dir(path, root, result)
+    elif (path / "run_diff.json").exists():
+        result.run_diff_dirs.append(_rel(path, root))
+        _validate_run_diff_dir(path, root, result)
     elif (path / "traces.json").exists():
         result.report_dirs.append(_rel(path, root))
         _validate_report_dir(path, root, result)
@@ -147,6 +151,36 @@ def _load_json(path: Path, root: Path, result: ValidationResult) -> Any:
     except json.JSONDecodeError:
         result._err(f"{_rel(path, root)}: invalid JSON")
         return None
+
+
+def _check_schema_version_file(
+    path: Path,
+    kind: str,
+    root: Path,
+    result: ValidationResult,
+    *,
+    required: bool = True,
+    is_list: bool = False,
+) -> None:
+    """Check the ``schema_version`` of an artifact file against the registry.
+
+    Absent files and JSON parse errors are left to the artifact's own loader. A future or
+    unknown version produces a clear, actionable error.
+    """
+    if not path.exists():
+        return
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return
+    items = raw if (is_list and isinstance(raw, list)) else [raw]
+    for i, item in enumerate(items):
+        if not isinstance(item, dict):
+            continue
+        msg = check_schema_version(kind, item.get("schema_version"), required=required)
+        if msg:
+            where = f"[{i}]" if is_list else ""
+            result._err(f"{_rel(path, root)}{where}: {msg}")
 
 
 def _fmt_error(exc: ValidationError) -> str:
@@ -217,10 +251,9 @@ def _validate_traces(
     for i, trace in enumerate(traces):
         prefix = f"{rel}[{i}] {trace.pattern_id}"
         pattern_counts[trace.pattern_id] = pattern_counts.get(trace.pattern_id, 0) + 1
-        if trace.schema_version != _SCHEMA_VERSION:
-            result._err(
-                f"{prefix}: schema_version '{trace.schema_version}' != '{_SCHEMA_VERSION}'"
-            )
+        msg = check_schema_version("trace", trace.schema_version)
+        if msg:
+            result._err(f"{prefix}: {msg}")
         indices = [step.index for step in trace.steps]
         if indices != list(range(len(indices))):
             result._err(f"{prefix}: step indices not sequential from 0: {indices}")
@@ -467,6 +500,14 @@ def _validate_report_dir(
     for name in ("matrix.json", "matrix.md"):
         if (path / name).exists():
             _scan_secrets(path / name, root, result)
+    # Schema-version checks (registry-aware: rejects unknown/future, catches missing).
+    _check_schema_version_file(path / "traces.json", "trace", root, result, is_list=True)
+    _check_schema_version_file(path / "scorecard.json", "scorecard", root, result)
+    _check_schema_version_file(
+        path / "remediation.json", "remediation", root, result
+    )
+    if matrix_json.exists():
+        _check_schema_version_file(matrix_json, "matrix", root, result)
     _validate_run_manifest(path, root, result)
     return expected_card
 
@@ -589,6 +630,10 @@ def _validate_external_dir(path: Path, root: Path, result: ValidationResult) -> 
         "external_report.md",
     ):
         _scan_secrets(path / name, root, result)
+    _check_schema_version_file(path / "run_config.json", "run_config", root, result)
+    _check_schema_version_file(
+        path / "external_summary.json", "external_summary", root, result
+    )
     _validate_run_manifest(path, root, result)
 
 
@@ -758,6 +803,45 @@ def _validate_comparison_md(
     _scan_secrets(path, root, result)
 
 
+def _validate_run_diff_dir(path: Path, root: Path, result: ValidationResult) -> None:
+    """Validate a run-diff directory (run_diff.json + run_diff.md)."""
+    from agentic_security_harness.run_diff import RunDiff
+
+    diff_json = path / "run_diff.json"
+    _check_schema_version_file(diff_json, "run_diff", root, result)
+    raw = _load_json(diff_json, root, result)
+    if raw is None:
+        return
+    try:
+        diff = RunDiff.model_validate(raw)
+    except ValidationError as exc:
+        result._err(f"{_rel(diff_json, root)}: schema: {_fmt_error(exc)}")
+        return
+    rel = _rel(diff_json, root)
+    if diff.kind not in {"run", "matrix", "external"}:
+        result._err(f"{rel}: unknown diff kind '{diff.kind}'")
+    valid_changes = {"fixed", "new", "changed", "unchanged", "only_left", "only_right"}
+    counts = {c: 0 for c in valid_changes}
+    for entry in diff.entries:
+        if entry.change not in valid_changes:
+            result._err(f"{rel}: entry '{entry.pattern_id}' has bad change '{entry.change}'")
+        else:
+            counts[entry.change] += 1
+        if not entry.pattern_id:
+            result._err(f"{rel}: entry with empty pattern_id")
+    declared = {
+        "fixed": diff.fixed, "new": diff.new, "changed": diff.changed,
+        "unchanged": diff.unchanged, "only_left": diff.only_left,
+        "only_right": diff.only_right,
+    }
+    if declared != counts:
+        result._err(f"{rel}: change counts {declared} do not match entries {counts}")
+    if not (path / "run_diff.md").exists():
+        result._err(f"{_rel(path / 'run_diff.md', root)}: missing")
+    for name in ("run_diff.json", "run_diff.md"):
+        _scan_secrets(path / name, root, result)
+
+
 def _validate_run_manifest(dir_path: Path, root: Path, result: ValidationResult) -> None:
     """Validate ``run_index.json`` inside a run directory, if present.
 
@@ -773,6 +857,7 @@ def _validate_run_manifest(dir_path: Path, root: Path, result: ValidationResult)
     raw = _load_json(manifest_path, root, result)
     if raw is None:
         return
+    _check_schema_version_file(manifest_path, "run_manifest", root, result)
     try:
         manifest = RunManifest.model_validate(raw)
     except ValidationError as exc:

@@ -15,6 +15,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from agentic_security_harness.models import ExploitTrace, Severity
+from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 from agentic_security_harness.scorecard import ScorecardSummary
 
 Severity = Severity  # re-export for type annotations
@@ -61,6 +62,7 @@ class RemediationReport(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    schema_version: str = SCHEMA_VERSIONS["remediation"]
     target_name: str
     total_patterns: int
     total_findings: int

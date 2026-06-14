@@ -1,4 +1,5 @@
 {
+  "schema_version": "0.1",
   "target_name": "protected-demo-agent",
   "total_traces": 22,
   "findings_by_severity": {},

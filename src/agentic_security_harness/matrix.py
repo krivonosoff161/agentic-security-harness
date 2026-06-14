@@ -22,6 +22,7 @@ from agentic_security_harness.scenarios import (
     ScenarioVariant,
     get_variants,
 )
+from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 from agentic_security_harness.scorecard import ScorecardSummary, build_scorecard
 
 
@@ -75,7 +76,7 @@ class MatrixReport(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = "0.2"
+    schema_version: str = SCHEMA_VERSIONS["matrix"]
     target_id: str
     target_name: str
     scenario_id: str

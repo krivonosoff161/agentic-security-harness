@@ -71,6 +71,8 @@ def _load(path: Path) -> Any | None:
 
 def detect_kind(run_dir: Path) -> str:
     """Detect the report kind from the artifacts present."""
+    if (run_dir / "run_diff.json").exists():
+        return "diff"
     if (run_dir / "matrix.json").exists():
         return "matrix"
     if (run_dir / "comparison.md").exists() or (
@@ -83,7 +85,8 @@ def detect_kind(run_dir: Path) -> str:
         return "run"
     raise ValueError(
         f"no recognizable run artifacts in {run_dir.as_posix()} "
-        "(expected traces.json, matrix.json, comparison.md, or external_summary.json)"
+        "(expected traces.json, matrix.json, comparison.md, external_summary.json, "
+        "or run_diff.json)"
     )
 
 
@@ -215,8 +218,50 @@ def _render_run(run_dir: Path, manifest: dict | None) -> str:
     body.append(_table(["Pattern", "Outcome", "Top finding"], rows))
 
     body.append(_remediation_section(remediation))
+    body.append(_pattern_detail_sections(traces, remediation))
     body.append(_disclaimer_section())
     return _page(f"Run report — {scorecard.get('target_name', 'run')}", "".join(body))
+
+
+def _pattern_detail_sections(traces: list, remediation: dict | None) -> str:
+    """Per-pattern detail for each finding: status, family, evidence, fixes, retest."""
+    recs_by_pid: dict[str, dict] = {}
+    if remediation:
+        for rec in remediation.get("recommendations", []):
+            recs_by_pid.setdefault(rec.get("pattern_id", ""), rec)
+    finding_traces = [t for t in traces if t.get("findings")]
+    if not finding_traces:
+        return ""
+    out = ["<h2>Findings detail (per pattern)</h2>"]
+    for trace in sorted(finding_traces, key=lambda t: t.get("pattern_id", "")):
+        pid = trace.get("pattern_id", "")
+        findings = trace.get("findings") or []
+        top = max(findings, key=lambda f: _SEV_RANK.get(f.get("severity", ""), -1))
+        rec = recs_by_pid.get(pid, {})
+        family = rec.get("control_family", "")
+        evidence = trace.get("observed_behavior", "") or top.get("message", "")
+        out.append(f"<h3>{_esc(pid)}</h3>")
+        rows = [
+            ("Category", _esc(top.get("code", ""))),
+            ("Severity", f"<span class=\"cell finding\">{_esc(top.get('severity', ''))}</span>"),
+            ("Status", "<span class=\"cell finding\">FINDING</span>"),
+            ("Control family", _esc(family) if family else "-"),
+            ("Evidence", _esc(evidence[:400])),
+        ]
+        if rec:
+            rows += [
+                ("Quick fix", _esc(rec.get("quick_fix", ""))),
+                ("Engineering fix", _esc(rec.get("engineering_fix", ""))),
+                ("Architecture fix", _esc(rec.get("architecture_fix", ""))),
+                ("Verification", _esc(rec.get("verification", ""))),
+                ("Residual risk", _esc(rec.get("residual_risk", ""))),
+            ]
+        rows.append((
+            "Retest",
+            "re-run after the fix, then <code>ash diff-runs</code> the two run dirs",
+        ))
+        out.append(_kv(rows))
+    return "".join(out)
 
 
 def _remediation_section(remediation: dict | None) -> str:
@@ -395,6 +440,25 @@ def _render_external(run_dir: Path, manifest: dict | None) -> str:
             rows,
         ))
 
+    # Explicit attention lists so the reader sees WHICH patterns need more data.
+    attention = []
+    for label, key in (
+        ("Flaky", "flaky_patterns"),
+        ("Inconclusive", "inconclusive_patterns"),
+        ("Adapter errors", "error_patterns"),
+    ):
+        pids = summary.get(key, [])
+        if pids:
+            attention.append(
+                f"<li><strong>{label}:</strong> "
+                + ", ".join(f"<code>{_esc(p)}</code>" for p in pids) + "</li>"
+            )
+    if attention:
+        body.append("<h2>Needs more data</h2>")
+        body.append("<ul>" + "".join(attention) + "</ul>")
+        body.append("<p class=\"sub\">Flaky/inconclusive/error are not pass or fail; "
+                    "re-run with more <code>--repeats</code>.</p>")
+
     fam = summary.get("findings_by_control_family", {})
     if fam:
         body.append("<h2>Findings by control family</h2>")
@@ -407,6 +471,47 @@ def _render_external(run_dir: Path, manifest: dict | None) -> str:
     return _page("External run report", "".join(body))
 
 
+def _render_diff(run_dir: Path, manifest: dict | None) -> str:
+    diff = _load(run_dir / "run_diff.json") or {}
+    body = [f"<h1>Run diff — {_esc(diff.get('kind', ''))}</h1>"]
+    body.append(
+        f"<p class=\"sub\">left <code>{_esc(diff.get('left_label', ''))}</code> "
+        f"vs right <code>{_esc(diff.get('right_label', ''))}</code></p>"
+    )
+    body.append("<div class=\"note\">Artifact comparison only: what changed between two "
+                "recorded runs. Not a re-run and not a certification.</div>")
+    body.append("<h2>Summary</h2>")
+    body.append(_table(
+        ["Change", "Count"],
+        [
+            ["Fixed (finding -> pass)", str(diff.get("fixed", 0))],
+            ["New (pass -> finding)", str(diff.get("new", 0))],
+            ["Changed (status/severity)", str(diff.get("changed", 0))],
+            ["Unchanged", str(diff.get("unchanged", 0))],
+            ["Only on left", str(diff.get("only_left", 0))],
+            ["Only on right", str(diff.get("only_right", 0))],
+        ],
+    ))
+    changed = [e for e in diff.get("entries", [])
+               if e.get("change") in ("fixed", "new", "changed")]
+    if changed:
+        body.append("<h2>Changed patterns</h2>")
+        rows = []
+        for e in changed:
+            cls = {"fixed": "pass", "new": "finding", "changed": "inconclusive"}.get(
+                e.get("change", ""), "")
+            rows.append([
+                f"<code>{_esc(e.get('pattern_id', ''))}</code>",
+                _esc(e.get("control_family", "")),
+                _esc(e.get("left_status", "")),
+                _esc(e.get("right_status", "")),
+                f"<span class=\"cell {cls}\">{_esc(e.get('change', ''))}</span>",
+            ])
+        body.append(_table(["Pattern", "Family", "Left", "Right", "Change"], rows))
+    body.append(_disclaimer_section())
+    return _page("Run diff", "".join(body))
+
+
 # --------------------------------------------------------------------------- public
 
 
@@ -414,6 +519,8 @@ def render_report(run_dir: Path) -> str:
     """Render a run directory into a single self-contained HTML string."""
     kind = detect_kind(run_dir)
     manifest = _load(run_dir / "run_index.json")
+    if kind == "diff":
+        return _render_diff(run_dir, manifest)
     if kind == "matrix":
         return _render_matrix(run_dir, manifest)
     if kind == "compare":

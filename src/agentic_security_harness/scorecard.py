@@ -3,6 +3,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 
 from agentic_security_harness.models import ExploitTrace
+from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 
 
 class ScorecardSummary(BaseModel):
@@ -10,6 +11,7 @@ class ScorecardSummary(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    schema_version: str = SCHEMA_VERSIONS["scorecard"]
     target_name: str
     total_traces: int
     findings_by_severity: dict[str, int] = Field(default_factory=dict)

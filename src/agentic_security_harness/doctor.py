@@ -144,6 +144,46 @@ def _check_external_adapters() -> DoctorCheck:
     )
 
 
+def _check_presets() -> DoctorCheck:
+    """Validate external presets resolve - no network."""
+    try:
+        from agentic_security_harness.presets import apply_preset, list_presets
+
+        presets = list_presets()
+        for p in presets:
+            # Non-template presets must resolve cleanly with no key value involved.
+            _url, _key, err = apply_preset(p.name, None, "")
+            if err and "placeholder" not in (err or ""):
+                return DoctorCheck(
+                    name="external_presets", ok=False,
+                    detail=f"preset '{p.name}' failed to resolve: {err}",
+                )
+        names = ", ".join(p.name for p in presets)
+        return DoctorCheck(
+            name="external_presets", ok=True, detail=f"{len(presets)} presets: {names}"
+        )
+    except Exception as exc:  # pragma: no cover - defensive
+        return DoctorCheck(name="external_presets", ok=False, detail=str(exc))
+
+
+def _check_reports_writable(reports_root: Path) -> DoctorCheck:
+    """Check we can create/write the chosen reports directory (no network)."""
+    try:
+        reports_root.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(
+            dir=reports_root, prefix=".ash_doctor_", delete=True
+        ):
+            pass
+        return DoctorCheck(
+            name="reports_writable", ok=True, detail=f"{reports_root.as_posix()} writable"
+        )
+    except OSError as exc:
+        return DoctorCheck(
+            name="reports_writable", ok=False,
+            detail=f"{reports_root.as_posix()} not writable: {exc}",
+        )
+
+
 def _check_live_local(base_url: str, api_key_env: str) -> DoctorCheck:
     from agentic_security_harness.external_openai_compatible import chat_completion
 
@@ -167,12 +207,14 @@ def _check_live_local(base_url: str, api_key_env: str) -> DoctorCheck:
 def run_doctor(
     *,
     root: Path | None = None,
+    reports_root: Path | None = None,
     live_local: bool = False,
     base_url: str = "http://127.0.0.1:8766/v1",
     api_key_env: str = _DEFAULT_KEY_ENV,
 ) -> DoctorReport:
     """Run all diagnostics. Network is only touched when ``live_local`` is true."""
     root = root or Path.cwd()
+    reports_root = reports_root or (root / "reports")
     checks = [
         _check_python(),
         _check_import(),
@@ -180,9 +222,11 @@ def run_doctor(
         _check_examples(root),
         _check_fake_server(root),
         _check_writable(root),
+        _check_reports_writable(reports_root),
         _check_build_tool(),
         _check_api_key_env(api_key_env),
         _check_external_adapters(),
+        _check_presets(),
     ]
     if live_local:
         checks.append(_check_live_local(base_url, api_key_env))

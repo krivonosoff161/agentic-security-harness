@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
+
 _MAX_REPEATS = 10
 _MAX_TOTAL_REQUESTS = 50
 
@@ -28,7 +30,7 @@ class RunConfig(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = "0.1"
+    schema_version: str = SCHEMA_VERSIONS["run_config"]
     adapter_type: str = "openai-compatible"
     provider_label: str = ""
     base_url_label: str = ""
@@ -108,7 +110,7 @@ class ExternalSummary(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = "0.1"
+    schema_version: str = SCHEMA_VERSIONS["external_summary"]
     scenario_id: str = ""
     adapter_type: str = ""
     model: str = ""

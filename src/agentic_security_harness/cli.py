@@ -22,6 +22,7 @@ from pathlib import Path
 from agentic_security_harness import __version__
 from agentic_security_harness.adapters import list_targets, make_target, target_ids
 from agentic_security_harness.patterns import seed_patterns
+from agentic_security_harness.presets import apply_preset, list_presets, preset_names
 from agentic_security_harness.reporting import write_comparison, write_reports
 from agentic_security_harness.run_config import (
     _MAX_REPEATS,
@@ -169,9 +170,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="adapter type (default: openai-compatible)",
     )
     ext_p.add_argument(
+        "--preset",
+        default=None,
+        choices=preset_names(),
+        help="connection preset that fills a default base URL (see `ash external-presets`)",
+    )
+    ext_p.add_argument(
         "--base-url",
-        required=True,
-        help="OpenAI-compatible API base URL (e.g. http://localhost:8000/v1)",
+        default=None,
+        help="OpenAI-compatible API base URL (required unless --preset is given)",
     )
     ext_p.add_argument(
         "--model",
@@ -249,9 +256,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="adapter type (default: openai-compatible)",
     )
     check_p.add_argument(
+        "--preset",
+        default=None,
+        choices=preset_names(),
+        help="connection preset that fills a default base URL",
+    )
+    check_p.add_argument(
         "--base-url",
-        required=True,
-        help="OpenAI-compatible API base URL",
+        default=None,
+        help="OpenAI-compatible API base URL (required unless --preset is given)",
     )
     check_p.add_argument(
         "--model",
@@ -303,6 +316,25 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("reports"),
         help="directory to scan for run manifests (default: reports)",
     )
+    runs_p.add_argument(
+        "--db",
+        type=Path,
+        default=None,
+        help="read from a SQLite run index instead of scanning (see `ash index-runs`)",
+    )
+
+    index_p = sub.add_parser(
+        "index-runs",
+        help="index run manifests under a root into a local SQLite file (metadata only)",
+    )
+    index_p.add_argument(
+        "--root", type=Path, default=Path("reports"),
+        help="directory to scan for run manifests (default: reports)",
+    )
+    index_p.add_argument(
+        "--db", type=Path, default=Path("reports/runs.db"),
+        help="SQLite index path (default: reports/runs.db)",
+    )
 
     doctor_p = sub.add_parser(
         "doctor",
@@ -325,6 +357,30 @@ def build_parser() -> argparse.ArgumentParser:
         "--api-key-env",
         default="ASH_EXTERNAL_API_KEY",
         help="env var name to check for presence (value never read/printed)",
+    )
+    doctor_p.add_argument(
+        "--reports-root",
+        type=Path,
+        default=None,
+        help="reports directory to check is writable (default: ./reports)",
+    )
+
+    sub.add_parser(
+        "external-presets",
+        help="list connection presets for the external OpenAI-compatible path",
+    )
+
+    diff_p = sub.add_parser(
+        "diff-runs",
+        help="compare two run directories of the same kind (run/matrix/external)",
+    )
+    diff_p.add_argument("--left", type=Path, required=True, help="left run directory")
+    diff_p.add_argument("--right", type=Path, required=True, help="right run directory")
+    diff_p.add_argument(
+        "--out",
+        type=Path,
+        required=True,
+        help="output directory for run_diff.json / run_diff.md",
     )
 
     report_p = sub.add_parser(
@@ -425,7 +481,8 @@ def _validate(path: Path) -> int:
     print(
         f"validated {len(result.report_dirs)} report dir(s), "
         f"{len(result.comparison_dirs)} comparison dir(s), "
-        f"{len(result.external_dirs)} external dir(s)"
+        f"{len(result.external_dirs)} external dir(s), "
+        f"{len(result.run_diff_dirs)} run-diff dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
     for warning in result.warnings:
@@ -682,14 +739,21 @@ def _run_external(
 
 
 def _doctor(
-    as_json: bool, live_local: bool, base_url: str, api_key_env: str
+    as_json: bool,
+    live_local: bool,
+    base_url: str,
+    api_key_env: str,
+    reports_root: Path | None,
 ) -> int:
     import json as _json
 
     from agentic_security_harness.doctor import run_doctor
 
     report = run_doctor(
-        live_local=live_local, base_url=base_url, api_key_env=api_key_env
+        reports_root=reports_root,
+        live_local=live_local,
+        base_url=base_url,
+        api_key_env=api_key_env,
     )
     if as_json:
         print(_json.dumps(report.model_dump(mode="json"), indent=2))
@@ -706,6 +770,42 @@ def _doctor(
     for cmd in report.next_commands:
         print(f"  {cmd}")
     return 0 if report.ok else 1
+
+
+def _external_presets() -> int:
+    print("Connection presets for the external OpenAI-compatible path:")
+    print("(presets only fill a default base URL + key env-var NAME; network is still opt-in)")
+    print(f"{'preset':26s} {'key':4s} base_url")
+    for p in list_presets():
+        key = "yes" if p.needs_key else "no"
+        print(f"{p.name:26s} {key:4s} {p.base_url}")
+        print(f"{'':31s} {p.notes}")
+    print("\nUse: ash external-check --preset <name> --model <model>")
+    print("Vendor URLs are starting points; confirm the current value in provider docs.")
+    return 0
+
+
+def _diff_runs(left: Path, right: Path, out: Path) -> int:
+    from agentic_security_harness.run_diff import diff_runs, write_run_diff
+
+    for label, p in (("--left", left), ("--right", right)):
+        if not p.exists() or not p.is_dir():
+            print(f"Error: {label} run directory not found: {p.as_posix()}")
+            return 1
+    try:
+        diff = diff_runs(left, right)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
+    write_run_diff(diff, out)
+    print(f"wrote run_diff.json, run_diff.md to {out.as_posix()}")
+    print(
+        f"kind: {diff.kind}  fixed: {diff.fixed}  new: {diff.new}  "
+        f"changed: {diff.changed}  unchanged: {diff.unchanged}"
+    )
+    print("Diff is an artifact comparison, not a re-run or a certification.")
+    print("Next: ash report --root " + out.as_posix() + "  (or open run_diff.md)")
+    return 0
 
 
 def _report(root: Path, out: Path | None) -> int:
@@ -727,7 +827,24 @@ def _report(root: Path, out: Path | None) -> int:
     return 0
 
 
-def _list_runs(root: Path) -> int:
+def _list_runs(root: Path, db: Path | None) -> int:
+    if db is not None:
+        from agentic_security_harness.rundb import list_db_runs
+
+        rows = list_db_runs(db)
+        if not rows:
+            print(f"No runs in index {db.as_posix()}. Build it with ash index-runs.")
+            return 0
+        print(f"Found {len(rows)} run(s) in {db.as_posix()}:")
+        for r in rows:
+            oc = r.get("outcomes") or {}
+            oc_dict = oc if isinstance(oc, dict) else {}
+            outcomes = "  ".join(f"{k}={v}" for k, v in oc_dict.items())
+            print(f"{str(r['run_id']):14s} {str(r['run_kind']):9s} "
+                  f"{str(r.get('scenario', '') or '')[:16]:16s} "
+                  f"{str(r.get('target') or r.get('model') or '-')[:28]:28s} {outcomes}")
+            print(f"  -> {r.get('manifest_path', '')}")
+        return 0
     manifests = load_run_manifests(root)
     if not manifests:
         print(f"No runs found under {root.as_posix()}.")
@@ -744,6 +861,19 @@ def _list_runs(root: Path) -> int:
             f"{target:28s} {outcomes}{when}"
         )
         print(f"  -> {path.parent.as_posix()}")
+    return 0
+
+
+def _index_runs(root: Path, db: Path) -> int:
+    from agentic_security_harness.rundb import index_runs
+
+    if not root.exists() or not root.is_dir():
+        print(f"Error: root not found: {root.as_posix()}")
+        return 1
+    count = index_runs(root, db)
+    print(f"indexed {count} run(s) from {root.as_posix()} into {db.as_posix()}")
+    print("Metadata only (run id/kind/target/model/scenario/outcomes); no trace bodies.")
+    print("Read it with: ash list-runs --db " + db.as_posix())
     return 0
 
 
@@ -897,40 +1027,61 @@ def main(argv: list[str] | None = None) -> int:
             args.variant,
             args.list_variants,
         )
-    if args.command == "run-external":
-        return _run_external(
-            args.base_url,
-            args.model,
-            args.scenario,
-            args.out,
-            args.repeats,
-            args.temperature,
-            args.timeout,
-            args.api_key_env,
-            args.max_variants,
-            args.variant,
-            args.dry_run,
-            args.adapter,
-            args.max_requests,
-        )
-    if args.command == "external-check":
+    if args.command == "external-presets":
+        return _external_presets()
+    if args.command in ("run-external", "external-check"):
+        try:
+            base_url, api_key_env, err = apply_preset(
+                args.preset, args.base_url, args.api_key_env
+            )
+        except KeyError as exc:
+            print(f"Error: {exc}")
+            return 1
+        if err:
+            print(f"Error: {err}")
+            return 1
+        if args.preset:
+            print(f"Using preset '{args.preset}': base_url {_redact_url(base_url)}")
+        if args.command == "run-external":
+            return _run_external(
+                base_url,
+                args.model,
+                args.scenario,
+                args.out,
+                args.repeats,
+                args.temperature,
+                args.timeout,
+                api_key_env,
+                args.max_variants,
+                args.variant,
+                args.dry_run,
+                args.adapter,
+                args.max_requests,
+            )
         return _external_check(
-            args.base_url,
+            base_url,
             args.model,
             args.scenario,
             args.adapter,
-            args.api_key_env,
+            api_key_env,
             args.repeats,
             args.max_variants,
             getattr(args, "live", False),
             args.max_requests,
         )
     if args.command == "list-runs":
-        return _list_runs(args.root)
+        return _list_runs(args.root, args.db)
+    if args.command == "index-runs":
+        return _index_runs(args.root, args.db)
+    if args.command == "diff-runs":
+        return _diff_runs(args.left, args.right, args.out)
     if args.command == "report":
         return _report(args.root, args.out)
     if args.command == "doctor":
-        return _doctor(args.json, args.live_local, args.base_url, args.api_key_env)
+        return _doctor(
+            args.json, args.live_local, args.base_url, args.api_key_env,
+            args.reports_root,
+        )
     return 1
 
 

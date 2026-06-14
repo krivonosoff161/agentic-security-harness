@@ -30,6 +30,7 @@ from agentic_security_harness.models import (
     TraceStep,
 )
 from agentic_security_harness.patterns import seed_patterns
+from agentic_security_harness.presets import Preset, apply_preset, list_presets
 from agentic_security_harness.protected_demo_agent import (
     ProtectedDemoAgent,
     ProtectedDemoAgentTarget,
@@ -51,13 +52,20 @@ from agentic_security_harness.reporting import (
     write_comparison,
     write_reports,
 )
+from agentic_security_harness.run_diff import RunDiff, diff_runs, write_run_diff
 from agentic_security_harness.run_manifest import (
     RunManifest,
     build_manifest,
     load_run_manifests,
     write_run_manifest,
 )
+from agentic_security_harness.rundb import index_runs, list_db_runs
 from agentic_security_harness.runner import HarnessRunner
+from agentic_security_harness.schema_versions import (
+    SCHEMA_VERSIONS,
+    check_schema_version,
+    schema_version,
+)
 from agentic_security_harness.scorecard import ScorecardSummary, build_scorecard
 from agentic_security_harness.standards_mapping import (
     CategoryStandards,
@@ -89,6 +97,17 @@ __all__ = [
     "run_scenarios",
     "HarnessRunner",
     "ScorecardSummary",
+    "SCHEMA_VERSIONS",
+    "schema_version",
+    "check_schema_version",
+    "RunDiff",
+    "diff_runs",
+    "write_run_diff",
+    "Preset",
+    "list_presets",
+    "apply_preset",
+    "index_runs",
+    "list_db_runs",
     "build_scorecard",
     "seed_patterns",
     "CorpusEntry",
@@ -121,4 +140,4 @@ __all__ = [
     "write_remediation",
 ]
 
-__version__ = "0.12.1"
+__version__ = "0.13.0"

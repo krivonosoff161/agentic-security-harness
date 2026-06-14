@@ -9,6 +9,8 @@ from typing import Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
+
 Severity = Literal["info", "low", "medium", "high", "critical"]
 
 
@@ -180,7 +182,7 @@ class ExploitTrace(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     trace_id: str = Field(min_length=1)
-    schema_version: str = "0.1"
+    schema_version: str = SCHEMA_VERSIONS["trace"]
     pattern_id: str = Field(min_length=1)
     target: TargetDescriptor
     graph_path: list[str] = Field(min_length=1)
