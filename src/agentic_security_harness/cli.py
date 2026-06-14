@@ -437,6 +437,7 @@ def _validate(path: Path) -> int:
             "OK: artifacts conform to the corpus manifest "
             "and contain no forbidden markers"
         )
+        print("(artifact integrity only - not a safety or security guarantee)")
     else:
         print("FAILED: see errors above")
     return 0 if result.ok else 1

@@ -19,6 +19,7 @@ from agentic_security_harness.external_openai_compatible import (
 from agentic_security_harness.external_prompt import render_pattern_prompt
 from agentic_security_harness.patterns import DefensivePattern, seed_patterns
 from agentic_security_harness.run_config import (
+    _MAX_TOTAL_REQUESTS,
     ExternalResult,
     ExternalSummary,
     RepeatSummary,
@@ -387,6 +388,41 @@ def _build_external_summary(
     )
 
 
+def _reproduce_command_lines(config: RunConfig) -> list[str]:
+    """Build a fuller, secret-free `ash run-external` reproduction command.
+
+    Includes the run knobs that affect results (temperature, timeout, repeats, variant
+    selection) and the cost cap only when it would otherwise block the rerun. The base
+    URL is redacted and the API key env var is named, never its value.
+    """
+    flags: list[str] = [
+        f"--base-url {config.base_url_label}",
+        f"--model {config.model}",
+        f"--scenario {config.scenario_id}",
+        f"--repeats {config.repeats}",
+        f"--temperature {config.temperature}",
+        f"--timeout {config.timeout_seconds}",
+    ]
+    # Reproduce the exact variant when a single one was selected; otherwise the count.
+    if len(config.selected_variants) == 1:
+        flags.append(f"--variant {config.selected_variants[0]}")
+    else:
+        flags.append(f"--max-variants {config.max_variants}")
+    if config.api_key_env:
+        flags.append(f"--api-key-env {config.api_key_env}")
+    # Only surface the cap flag when the default would refuse this run.
+    if config.request_count > _MAX_TOTAL_REQUESTS:
+        flags.append(f"--max-requests {config.request_count}")
+
+    # Render as a readable multi-line command (3 flags per line).
+    lines: list[str] = ["ash run-external \\"]
+    for i in range(0, len(flags), 3):
+        chunk = " ".join(flags[i : i + 3])
+        lines.append(f"  {chunk} \\")
+    lines.append("  --out reports/external-rerun")
+    return lines
+
+
 def _build_external_report_md(
     summary: ExternalSummary, config: RunConfig
 ) -> str:
@@ -487,14 +523,15 @@ def _build_external_report_md(
         "",
         "## How to reproduce / validate",
         "",
-        "Reproduce this run (set the API key env var first if the endpoint needs one):",
+        "Reproduce this run (set the API key env var first if the endpoint needs one). "
+        "The endpoint is shown redacted and the key env var is named, never its value:",
         "",
         "```bash",
-        f"ash run-external --base-url {config.base_url_label} "
-        f"--model {config.model} --scenario {config.scenario_id} "
-        f"--repeats {config.repeats} --max-variants {config.max_variants} \\",
-        "  --out reports/external-rerun",
+        *_reproduce_command_lines(config),
         "```",
+        "",
+        "On Windows PowerShell, replace each trailing `\\` with a backtick `` ` `` (or put "
+        "the command on one line).",
         "",
         "Then validate the artifacts:",
         "",
@@ -503,7 +540,7 @@ def _build_external_report_md(
         "```",
         "",
         "Stochastic endpoints may differ across runs; increase `--repeats` to surface "
-        "flaky patterns.",
+        "flaky patterns. `run_config.json` is the authoritative record of what was run.",
         "",
         "## Important notes",
         "",

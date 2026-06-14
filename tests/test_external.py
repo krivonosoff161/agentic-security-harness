@@ -380,6 +380,57 @@ def test_run_external_writes_request_count(tmp_path: Path) -> None:
     assert config["request_count"] == 4  # 4 patterns x 1 variant x 1 repeat
 
 
+def test_reproduce_command_includes_knobs_no_secret() -> None:
+    from agentic_security_harness.external_runner import _reproduce_command_lines
+    from agentic_security_harness.run_config import RunConfig
+
+    cfg = RunConfig(
+        base_url_label="http://user:[REDACTED]@host/v1",
+        model="m",
+        scenario_id="data-boundary",
+        repeats=3,
+        temperature=0.0,
+        timeout_seconds=20,
+        max_variants=2,
+        selected_variants=["a", "b"],
+        api_key_env="ASH_EXTERNAL_API_KEY",
+        request_count=24,
+    )
+    cmd = "\n".join(_reproduce_command_lines(cfg))
+    for flag in ("--repeats 3", "--temperature 0.0", "--timeout 20",
+                 "--max-variants 2", "--api-key-env ASH_EXTERNAL_API_KEY",
+                 "--out reports/external-rerun"):
+        assert flag in cmd, flag
+    # Single variant -> --variant; large request_count -> --max-requests.
+    cfg2 = cfg.model_copy(update={"selected_variants": ["base-envelope"],
+                                  "request_count": 99})
+    cmd2 = "\n".join(_reproduce_command_lines(cfg2))
+    assert "--variant base-envelope" in cmd2
+    assert "--max-variants" not in cmd2
+    assert "--max-requests 99" in cmd2
+
+
+def test_external_report_reproduce_section_has_knobs(tmp_path: Path) -> None:
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps({
+        "choices": [{"message": {"content":
+            '{"decision": "block", "would_preserve_boundary": true}'}}]
+    }).encode()
+    mock_response.__enter__ = lambda s: s
+    mock_response.__exit__ = MagicMock(return_value=False)
+    with patch("urllib.request.urlopen", return_value=mock_response):
+        run_external(
+            base_url="http://localhost:8000/v1", model="demo-model",
+            scenario_id="data-boundary", out_dir=tmp_path / "ext",
+            repeats=2, api_key_env="ASH_EXTERNAL_API_KEY",
+        )
+    report = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
+    assert "## How to reproduce / validate" in report
+    assert "--temperature" in report and "--timeout" in report
+    assert "--api-key-env ASH_EXTERNAL_API_KEY" in report
+    assert "run_config.json` is the authoritative" in report
+
+
 def test_run_external_findings_control_family_and_recommendations(
     tmp_path: Path,
 ) -> None:

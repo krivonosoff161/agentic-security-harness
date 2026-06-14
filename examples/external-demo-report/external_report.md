@@ -45,12 +45,17 @@ No boundary findings in this run, so no control recommendations are required. In
 
 ## How to reproduce / validate
 
-Reproduce this run (set the API key env var first if the endpoint needs one):
+Reproduce this run (set the API key env var first if the endpoint needs one). The endpoint is shown redacted and the key env var is named, never its value:
 
 ```bash
-ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --repeats 1 --max-variants 1 \
+ash run-external \
+  --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary \
+  --repeats 1 --temperature 0.0 --timeout 5 \
+  --variant base-envelope \
   --out reports/external-rerun
 ```
+
+On Windows PowerShell, replace each trailing `\` with a backtick `` ` `` (or put the command on one line).
 
 Then validate the artifacts:
 
@@ -58,7 +63,7 @@ Then validate the artifacts:
 ash validate reports/external-rerun
 ```
 
-Stochastic endpoints may differ across runs; increase `--repeats` to surface flaky patterns.
+Stochastic endpoints may differ across runs; increase `--repeats` to surface flaky patterns. `run_config.json` is the authoritative record of what was run.
 
 ## Important notes
 
