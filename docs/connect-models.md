@@ -1,0 +1,317 @@
+# Connect your model or runtime
+
+> **Agentic Security Harness** — connector recipes for the experimental external
+> evaluation path. Everything here uses **synthetic, sanitized prompts** against an
+> **authorized** OpenAI-compatible endpoint. No real secrets, no harmful payloads,
+> no tool execution.
+
+## 1. Overview
+
+The harness ships **one** external adapter: **`openai-compatible`**. It speaks the
+OpenAI Chat Completions wire format (`POST {base_url}/chat/completions`). Anything that
+exposes that format — a cloud API, a local server, or a gateway/proxy in front of
+another provider — can be evaluated through the same path.
+
+This is **prompt-based evaluation only**: the model receives a synthetic benchmark
+scenario and returns a structured JSON verdict. **No tools are executed**, no agent host
+is driven, and no streaming is used. See [What is not supported yet](#13-what-is-not-supported-yet).
+
+## 2. Safety and cost model
+
+The number of network requests a run makes is exactly:
+
+```text
+request_count = patterns_in_scenario × variants × repeats
+```
+
+- `run-external` **refuses to start** if `request_count` exceeds `--max-requests`
+  (default **50**). Raise it explicitly for larger runs.
+- `external-check` and `run-external --dry-run` make **no benchmark network calls**.
+- `external-check --live` makes **exactly one** request to verify connectivity.
+- The API key is read from an **environment variable by name**. The key **value** is
+  never logged, never printed, and never written to any artifact. `run_config.json`
+  records only the env-var *name*.
+- `base_url` is redacted before it is stored, so embedded credentials never land in a
+  report.
+
+Scenario sizes (use these to estimate cost):
+
+| Scenario | Patterns | Default variants |
+|---|---|---|
+| `data-boundary` | 4 | 3 |
+| `memory-governance` | 5 | 3 |
+| `tool-selection` | 3 | 3 |
+| `authority-control` | 2 | 2 |
+| `approval-audit` | 3 | 3 |
+| `budget-control` | 2 | 2 |
+| `perception-boundary` | 1 | 2 |
+| `all` | 22 | 4 |
+
+`--max-variants 1` (the external default) keeps runs small. Run `ash scenarios --verbose`
+for the exact variant ids.
+
+## 3. Universal flow
+
+Every recipe below follows the same five steps:
+
+```text
+external-check         # validate config, see request estimate + cost cap (no network)
+run-external --dry-run # preview exact request count (no network, no files)
+run-external           # small live run against the endpoint
+ash validate <out>     # confirm the artifacts are well-formed
+open external_report.md# read results + control recommendations
+```
+
+> The recipes below omit `--adapter openai-compatible` because it is the **default**.
+> You can add it explicitly (as the README examples do); both forms are equivalent.
+
+## 4. Connection matrix
+
+| Stack | Endpoint type | Base URL (example) | Auth | Model (example) | Status |
+|---|---|---|---|---|---|
+| Local fake server (bundled) | OpenAI-compatible | `http://127.0.0.1:8766/v1` | none | `fake-model` | supported |
+| vLLM | OpenAI-compatible (native) | `http://localhost:8000/v1` | none / token | served model id | supported via OpenAI-compatible |
+| DeepSeek API | OpenAI-compatible (native) | `https://api.deepseek.com/v1` | API key | `deepseek-chat` | supported via OpenAI-compatible |
+| Alibaba Model Studio (Qwen) | OpenAI compatible-mode | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1` | API key | `qwen-plus` | supported via OpenAI-compatible |
+| Generic OpenAI-compatible gateway | OpenAI-compatible | `https://YOUR-ENDPOINT/v1` | depends | provider model id | supported via OpenAI-compatible |
+| Ollama | OpenAI-compatible (native) | `http://localhost:11434/v1` | none | `llama3.1` | supported via OpenAI-compatible |
+| LM Studio | OpenAI-compatible (native) | `http://localhost:1234/v1` | none | loaded model id | supported via OpenAI-compatible |
+| Native provider SDKs / tool execution / streaming / agent hosts | — | — | — | — | future |
+
+> Provider URLs change over time. Where a row shows a vendor host, treat it as a
+> starting point and confirm against the provider's current API docs. For anything
+> uncertain, use the generic template `https://YOUR-ENDPOINT/v1`.
+
+The columns below (env command, preflight, dry-run, live, artifacts) are identical in
+shape for every row; the recipes spell them out.
+
+## 5. Windows PowerShell quickstart
+
+```powershell
+# (only for authenticated endpoints) set the key by ENV VAR NAME
+$env:ASH_EXTERNAL_API_KEY = "your_key_here"
+
+# 1) preflight (no network)
+ash external-check --base-url https://YOUR-ENDPOINT/v1 --model your-model `
+  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY
+
+# 2) dry-run (no network, no files)
+ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model `
+  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --dry-run
+
+# 3) small live run
+ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model `
+  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY `
+  --out reports/external-run
+
+# 4) validate + read
+ash validate reports/external-run
+Get-Content reports/external-run/external_report.md
+```
+
+PowerShell notes:
+- Use the backtick `` ` `` for line continuation, **not** the bash `\`.
+- Do **not** use the trailing `&` background form. Start background processes in a
+  second terminal or with `Start-Process`.
+- Set env vars with `$env:NAME = "value"`, read them as `$env:NAME`.
+
+## 6. Linux/macOS bash quickstart
+
+```bash
+# (only for authenticated endpoints) set the key by ENV VAR NAME
+export ASH_EXTERNAL_API_KEY=your_key_here
+
+# 1) preflight (no network)
+ash external-check --base-url https://YOUR-ENDPOINT/v1 --model your-model \
+  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY
+
+# 2) dry-run (no network, no files)
+ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model \
+  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --dry-run
+
+# 3) small live run
+ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model \
+  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY \
+  --out reports/external-run
+
+# 4) validate + read
+ash validate reports/external-run
+cat reports/external-run/external_report.md
+```
+
+## 7. Recipe: local fake server (free, no key)
+
+The bundled fake server returns deterministic responses, so you can exercise the whole
+flow with zero cost and no network egress.
+
+```bash
+# terminal 1 — start the server (Ctrl+C to stop)
+python examples/fake_openai_server.py
+```
+
+```bash
+# terminal 2 — run against it
+ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary
+ash run-external  --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --dry-run
+ash run-external  --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario perception-boundary --out reports/external-demo
+ash validate reports/external-demo
+```
+
+On Windows, start the server in a separate PowerShell window (no trailing `&`).
+
+## 8. Recipe: vLLM (local, OpenAI-compatible)
+
+vLLM serves a native OpenAI-compatible API. Start it separately, then point the harness
+at it. No key is needed unless you launched vLLM with `--api-key`.
+
+```bash
+# vLLM is started separately, e.g.:
+#   python -m vllm.entrypoints.openai.api_server --model <your-model>
+ash external-check --base-url http://localhost:8000/v1 --model <served-model-id> --scenario data-boundary
+ash run-external  --base-url http://localhost:8000/v1 --model <served-model-id> --scenario data-boundary --dry-run
+ash run-external  --base-url http://localhost:8000/v1 --model <served-model-id> --scenario data-boundary --out reports/external-vllm
+ash validate reports/external-vllm
+```
+
+If you started vLLM with an API key, set `export ASH_EXTERNAL_API_KEY=...` and add
+`--api-key-env ASH_EXTERNAL_API_KEY`. Use the exact model id vLLM reports (it is the
+`--model` you launched it with).
+
+## 9. Recipe: DeepSeek API
+
+DeepSeek exposes an OpenAI-compatible API. Confirm the current base URL and model ids in
+the DeepSeek API docs.
+
+```bash
+export ASH_EXTERNAL_API_KEY=your_deepseek_key
+ash external-check --base-url https://api.deepseek.com/v1 --model deepseek-chat \
+  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY
+ash run-external  --base-url https://api.deepseek.com/v1 --model deepseek-chat \
+  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --dry-run
+ash run-external  --base-url https://api.deepseek.com/v1 --model deepseek-chat \
+  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --out reports/external-deepseek
+ash validate reports/external-deepseek
+```
+
+## 10. Recipe: Alibaba Cloud Model Studio (Qwen, compatible-mode)
+
+Model Studio offers an OpenAI **compatible-mode** endpoint. The host differs by region
+(international vs. mainland China) and can change — confirm yours in the Model Studio
+docs. International example:
+
+```bash
+export ASH_EXTERNAL_API_KEY=your_dashscope_key
+ash external-check \
+  --base-url https://dashscope-intl.aliyuncs.com/compatible-mode/v1 \
+  --model qwen-plus --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY
+ash run-external \
+  --base-url https://dashscope-intl.aliyuncs.com/compatible-mode/v1 \
+  --model qwen-plus --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --dry-run
+ash run-external \
+  --base-url https://dashscope-intl.aliyuncs.com/compatible-mode/v1 \
+  --model qwen-plus --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY \
+  --out reports/external-qwen
+ash validate reports/external-qwen
+```
+
+Mainland-China host (confirm in the docs):
+`https://dashscope.aliyuncs.com/compatible-mode/v1`.
+
+## 11. Recipe: generic OpenAI-compatible gateway
+
+Any gateway/proxy that exposes `/chat/completions` works. Substitute your endpoint and
+auth.
+
+```bash
+export ASH_EXTERNAL_API_KEY=your_key   # omit if the gateway needs no auth
+ash external-check --base-url https://YOUR-ENDPOINT/v1 --model your-model-id \
+  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY
+ash run-external  --base-url https://YOUR-ENDPOINT/v1 --model your-model-id \
+  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --dry-run
+ash run-external  --base-url https://YOUR-ENDPOINT/v1 --model your-model-id \
+  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --out reports/external-gw
+ash validate reports/external-gw
+```
+
+The harness appends `/chat/completions` if your `--base-url` does not already end with
+it, so both `https://host/v1` and `https://host/v1/chat/completions` work.
+
+## 12. Recipe: Ollama / LM Studio / local desktop runtimes
+
+Both **Ollama** and **LM Studio** expose a native OpenAI-compatible server, so they use
+the same path with **no API key**.
+
+Ollama (default port `11434`, OpenAI-compatible endpoint under `/v1`):
+
+```bash
+# Ollama running locally, model already pulled (e.g. `ollama pull llama3.1`)
+ash external-check --base-url http://localhost:11434/v1 --model llama3.1 --scenario data-boundary
+ash run-external  --base-url http://localhost:11434/v1 --model llama3.1 --scenario data-boundary --dry-run
+ash run-external  --base-url http://localhost:11434/v1 --model llama3.1 --scenario data-boundary --out reports/external-ollama
+ash validate reports/external-ollama
+```
+
+LM Studio (start its local server; default port `1234`):
+
+```bash
+ash external-check --base-url http://localhost:1234/v1 --model <loaded-model-id> --scenario data-boundary
+ash run-external  --base-url http://localhost:1234/v1 --model <loaded-model-id> --scenario data-boundary --out reports/external-lmstudio
+ash validate reports/external-lmstudio
+```
+
+Small local models often return prose instead of strict JSON. The harness records those
+as `inconclusive` (not `pass`/`finding`). Lower `--temperature 0.0` and prefer a model
+that follows JSON instructions if you see many inconclusive results.
+
+## 13. Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| `API key environment variable 'X' is not set` | env var not exported in this shell | bash: `export X=...` · PowerShell: `$env:X='...'`; or omit `--api-key-env` for keyless local servers |
+| `Network error connecting to ...` / connection refused | server not running, wrong port/host | start the server; check the port; confirm `http`/`https` |
+| `HTTP 401` / `HTTP 403` | wrong/missing key, or wrong auth style | verify the key and that the endpoint expects `Authorization: Bearer` |
+| `HTTP 404` | wrong base URL path | most endpoints want `.../v1`; the harness adds `/chat/completions` |
+| `Invalid JSON response from ...` | endpoint returned non-JSON (HTML error page, proxy notice) | check the URL/gateway; try `external-check --live` to see the raw failure |
+| many `inconclusive` results | model returned prose, not the JSON verdict schema | set `--temperature 0.0`; use a stronger instruction-following model |
+| `estimated N requests exceeds the safety cap` | scope too large for the cap | reduce `--max-variants`/`--repeats`/scenario, or raise `--max-requests` |
+| `repeats must be between 1 and 10` | `--repeats` out of range | choose 1–10 |
+| `unknown variant '...'` | bad `--variant` id | run `ash run-matrix --scenario <s> --list-variants` or `ash scenarios --verbose` |
+
+A connectivity failure during a real run is recorded as a **structured error** per
+pattern in `external_results.json` (and counted in `error_patterns`), not a crash.
+
+## 14. What is not supported yet
+
+These are **future** tracks, intentionally not implemented:
+
+- Native provider SDK adapters (Anthropic, OpenAI Responses, Google, etc.).
+- **Tool execution** / real agent-host integration (the external path evaluates model
+  decisions, it does not drive an agent that calls tools).
+- Streaming responses.
+- Multi-turn agent conversations.
+- Non-OpenAI wire formats without a compatible-mode gateway in front.
+
+Do not interpret a clean external run as proof that a *deployed agent* is safe — it
+evaluates model decision boundaries on synthetic prompts only. See
+[docs/threat-model.md](threat-model.md).
+
+## 15. How to add a new adapter later
+
+The benchmark's stable unit is `pattern → adapter → trace → scorecard → validation`, so
+new runtimes plug in without changing the corpus. The contract and the metadata models
+for future adapters are described in
+[docs/adapter-contract.md](adapter-contract.md). A new adapter must:
+
+- accept a sanitized `DefensivePattern` and return observed behavior in the common trace
+  model (or, for prompt-only adapters, a structured verdict);
+- emit reproducibility metadata (adapter name/version, model, settings);
+- never log or store secret **values**;
+- default to no network and require explicit, authorized opt-in.
+
+## See also
+
+- [docs/test-your-model.md](test-your-model.md) — the external path in depth, artifact
+  reference, and full troubleshooting.
+- [docs/bring-your-own-target.md](bring-your-own-target.md) — local/synthetic target
+  adapters.
+- [docs/reporting-flow.md](reporting-flow.md) — what each artifact contains.

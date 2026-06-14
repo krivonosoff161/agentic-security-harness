@@ -272,9 +272,9 @@ reports/demo/
 - `run_config.json` — run configuration incl. `request_count` (API key env name only, never the value)
 - `external_results.json` — per-pattern evaluation results with structured errors
 - `external_summary.json` — aggregated repeat summaries + `findings_by_control_family`
-- `external_report.md` — human-readable report with a control-family table and
-  **control recommendations** (quick / engineering / architecture fix, verification,
-  residual risk) for any finding
+- `external_report.md` — human-readable report; when findings exist it adds a
+  control-family table and **control recommendations** (quick / engineering /
+  architecture fix, verification, residual risk), plus a "how to reproduce / validate" section
 
 `run-external` refuses to start if the estimated request count
 (`patterns × variants × repeats`) exceeds `--max-requests` (default 50); raise it
@@ -297,33 +297,38 @@ before/after example is explained in
 
 ## Test your own model/runtime (experimental)
 
-The external adapter path lets you evaluate an authorized OpenAI-compatible endpoint
-with safe synthetic prompts. **Network calls only happen when you explicitly run the
-command without `--dry-run`.**
+The external adapter evaluates any **authorized OpenAI-compatible endpoint** (cloud API,
+local server, or gateway) with safe synthetic prompts. **Network calls only happen when
+you explicitly run `run-external` without `--dry-run`, or `external-check --live`.** The
+API key is read from an env var by name and never logged or stored.
 
 ```bash
-# Dry-run first (no network, no money)
-ash run-external --adapter openai-compatible \
-  --base-url http://localhost:8000/v1 \
-  --model your-model \
-  --scenario data-boundary \
-  --dry-run
-
-# Free local demo with fake server
+# 0) free local demo — start the bundled fake server (second terminal on Windows)
 python examples/fake_openai_server.py &
-ash run-external --adapter openai-compatible \
-  --base-url http://127.0.0.1:8766/v1 \
-  --model fake-model \
-  --scenario data-boundary \
-  --out reports/external-demo
+
+# 1) preflight: config + request estimate + cost cap (no network)
+ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary
+
+# 2) dry-run: exact request count (no network, no files)
+ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --dry-run
+
+# 3) minimal live run against the endpoint
+ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario perception-boundary --out reports/external-demo
+
+# 4) validate + read the report (with control recommendations)
+ash validate reports/external-demo
+cat reports/external-demo/external_report.md
 ```
 
-On PowerShell, start the fake server in a second terminal with
-`python examples/fake_openai_server.py` instead of using the trailing `&` form.
+`request_count = patterns × variants × repeats`; `run-external` refuses to exceed
+`--max-requests` (default 50). On PowerShell, start the fake server in a second terminal
+(no trailing `&`) and use `` ` `` for line continuation.
 
 > **Experimental.** Prompt-based evaluation only. No tool execution. Not a
-> benchmark-grade vendor comparison. See [docs/test-your-model.md](docs/test-your-model.md)
-> for the full guide (DeepSeek, vLLM, Alibaba examples, troubleshooting).
+> benchmark-grade vendor comparison.
+> **Connector recipes** (fake server, vLLM, DeepSeek, Alibaba/Qwen, Ollama, LM Studio,
+> generic gateway) with Windows/Linux/macOS commands: **[docs/connect-models.md](docs/connect-models.md)**.
+> Full path reference and troubleshooting: [docs/test-your-model.md](docs/test-your-model.md).
 
 ## Measure risk reduction
 

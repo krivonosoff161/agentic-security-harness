@@ -7,6 +7,16 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- **Connector recipes doc** — `docs/connect-models.md`: a connection matrix and
+  copy-pasteable Windows PowerShell + Linux/macOS recipes for the fake server, vLLM,
+  DeepSeek, Alibaba/Qwen compatible-mode, generic OpenAI-compatible gateways, and
+  Ollama / LM Studio, with a "supported now / via OpenAI-compatible / future" status
+  table and troubleshooting. Linked from README and `docs/test-your-model.md`.
+- **external-check next steps** — the preflight now prints a copy-pasteable
+  dry-run → live → validate command sequence (redacted base_url, env-var name only)
+  and clarifies that only `--live` / a real run make network calls.
+- **`How to reproduce / validate` section** in `external_report.md` (and required by
+  `ash validate`), with a redacted, copy-pasteable rerun + validate command.
 - **External-run control recommendations** — `external_report.md` now ends with a
   per-control-family recommendations section (what failed, why it matters, quick /
   engineering / architecture fix, verification, residual risk) for any finding.
