@@ -31,7 +31,13 @@ if TYPE_CHECKING:
     from agentic_security_harness.run_config import ExternalResult, ExternalSummary
 
 _SCHEMA_VERSION = "0.1"
+# Three validation tiers by target type:
+#   baseline  -> vulnerable-by-design demo targets; MUST FAIL every pattern.
+#   protected -> controlled demo target; MUST PASS every pattern.
+#   neutral   -> any other adapter (toy / arbitrary system under test); findings are
+#                optional, but any finding must still be corpus-consistent.
 _PROTECTED_TYPES = {"protected_demo_agent"}
+_BASELINE_TYPES = {"mock_agent", "demo_agent"}
 
 # Conservative, format-anchored markers. The left look-behind keeps "risk-reduction" and
 # similar prose from matching "sk-"; the length tails require key-shaped tokens.
@@ -88,8 +94,16 @@ def _is_external_dir(path: Path) -> bool:
 
 
 def validate_path(path: Path) -> ValidationResult:
-    """Validate a report dir, a comparison dir, or a directory of such dirs."""
+    """Validate a report dir, a comparison dir, or a directory of such dirs.
+
+    Also runs the corpus-level standards-mapping self-check so framework-mapping drift
+    is caught in CI alongside artifact validation.
+    """
     result = ValidationResult()
+    from agentic_security_harness.standards_mapping import validate_standards_mapping
+
+    for err in validate_standards_mapping():
+        result._err(f"standards-mapping: {err}")
     _validate_into(path, path, result)
     return result
 
@@ -234,6 +248,7 @@ def _validate_traces(
         if trace.data_envelope != pattern.data_envelope:
             result._err(f"{prefix}: data_envelope does not match the seed pattern")
         protected = _is_protected(trace.target)
+        baseline = trace.target.type in _BASELINE_TYPES
         if trace.findings:
             if protected:
                 result._err(f"{prefix}: protected target should PASS but has findings")
@@ -251,7 +266,9 @@ def _validate_traces(
                 result._err(
                     f"{prefix}: finding broke_at '{top.broke_at}' != corpus '{entry.broke_at}'"
                 )
-        elif not protected:
+        elif baseline:
+            # Only the vulnerable-by-design demo baselines must fail every pattern;
+            # a neutral adapter is allowed to legitimately PASS.
             result._err(f"{prefix}: no findings but baseline target expects FAIL")
     # For matrix runs, validate against the selected patterns instead of the full corpus
     expected_ids = expected_pattern_ids if expected_pattern_ids is not None else set(corpus)
@@ -768,6 +785,18 @@ def _validate_run_manifest(dir_path: Path, root: Path, result: ValidationResult)
     for art in manifest.artifacts:
         if not (dir_path / art).exists():
             result._err(f"{rel}: artifact '{art}' is missing from the run directory")
+    # External runs must carry reproducibility metadata; the key env field must hold a
+    # NAME, never a value.
+    if manifest.run_kind == "external":
+        required = {"adapter_type", "model", "scenario", "network_mode"}
+        missing = sorted(required - set(manifest.metadata))
+        if missing:
+            result._err(f"{rel}: external metadata missing keys: {missing}")
+        key_env = manifest.metadata.get("api_key_env")
+        if isinstance(key_env, str) and any(
+            token in key_env.lower() for token in ("sk-", "key=")
+        ):
+            result._err(f"{rel}: metadata.api_key_env looks like a key value")
     _scan_secrets(manifest_path, root, result)
 
 

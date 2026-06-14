@@ -1,45 +1,53 @@
 # Standards mapping
 
-> Last reviewed: 2026-06-12.
+> Last reviewed: 2026-06-14 (v0.12).
 >
-> Scope: implemented local corpus only. This page maps the seventeen deterministic seed
-> patterns to external security frameworks at a coarse defensive level. The mapping helps
-> reviewers understand what each pattern exercises; it does **not** imply certification,
-> complete coverage, or real-world protection.
+> Scope: implemented local corpus only (22 deterministic seed patterns across 14
+> categories). This page maps each pattern **category** to external security frameworks
+> at a coarse, defensive level. It helps reviewers understand what each category
+> exercises; it does **not** imply certification, complete coverage, or real-world
+> protection.
 
 ## Source frameworks
 
-- **OWASP Top 10 for Agentic Applications 2026** - used for the current
-  machine-readable `owasp_agentic` mapping in
+- **OWASP Top 10 for Agentic Applications 2026** - per-pattern `owasp_agentic` mapping in
   [`src/agentic_security_harness/corpus.py`](../src/agentic_security_harness/corpus.py).
-- **OWASP Top 10 for LLM Applications 2025** - kept as a future mapping field
-  (`owasp_llm`), not filled per pattern yet.
-- **MITRE ATLAS** - kept as a future mapping field (`mitre_atlas`), not filled per
-  pattern yet.
-- **NIST AI RMF / GenAI profile** - future report-alignment target, not a per-pattern
-  field yet.
+- **OWASP Top 10 for LLM Applications 2025** - category-level `owasp_llm` mapping in
+  [`src/agentic_security_harness/standards_mapping.py`](../src/agentic_security_harness/standards_mapping.py).
+- **NIST AI RMF (core functions GOVERN / MAP / MEASURE / MANAGE)** - category-level
+  `nist_ai_rmf` mapping in the same module (function level only, not sub-categories).
+- **MITRE ATLAS** - **deferred**: technique IDs are not asserted until verified against
+  the current ATLAS matrix. The field exists and is intentionally empty.
 
-## Implemented corpus mapping
+The machine-readable mapping is the source of truth; `ash validate` runs a self-check
+(`validate_standards_mapping`) so this page and the code cannot silently drift.
 
-| Pattern | Current ASI mapping | Why |
-|---|---|---|
-| `indirect_prompt_injection_via_tool_output` | ASI01, ASI02 | Untrusted tool output can redirect the agent goal and induce tool misuse. |
-| `data_boundary_recipient_confusion` | ASI03, ASI07 | Recipient labels fail across identity, privilege, and handoff boundaries. |
-| `memory_poisoning_sanitized` | ASI06 | Stored context is poisoned despite `can_store=false` and TTL expectations. |
-| `data_boundary_classification_mutation` | ASI03, ASI06 | An untrusted source downgrades classification and contaminates later context. |
-| `data_boundary_handoff_label_stripping` | ASI03, ASI07 | Data labels are lost during an agent handoff. |
-| `tool_permission_abuse_sanitized` | ASI02, ASI03 | The agent calls a tool outside the data envelope's allowed purpose. |
-| `provider_boundary_leakage_sanitized` | ASI03, ASI04 | Restricted data crosses a provider or supply-chain boundary despite `can_forward=false`. |
-| `sleeping_prompt.delayed_activation` | ASI01, ASI06 | A stored dormant instruction redirects the agent on a later turn after provenance is lost. |
-| `audit.spam_label_abuse` | ASI03 | An untrusted label tries to bypass an oversight control on labeled data. |
-| `budget.loop_abuse` | ASI02 | Repeated tool/action steps run without budget or loop-guard enforcement. |
-| `capability.delegation_chain_drift` | ASI02, ASI07 | Delegated authority expands across agent hops instead of preserving least privilege and chain provenance. |
-| `mcp.tool_schema_deception` | ASI02, ASI06 | Changed tool metadata is trusted without schema provenance or hash checks. |
-| `audit.hash_chain_tamper` | ASI03 | Edited audit entries are accepted instead of being rejected by integrity validation. |
-| `perception_boundary.sensor_command_confusion` | ASI01 | Perception-channel content is treated as user intent or action authority instead of untrusted observed data. |
-| `ambient_authority.environmental_privilege_escalation` | ASI02, ASI03 | A synthetic host capability is used without an explicit authority binding to the data envelope. |
-| `approval_laundering.underjustified_confirmation` | ASI05 | A confirmation request omits data class, recipient, purpose, or risk context needed for informed approval. |
-| `memory_governance.unscoped_memory_persistence` | ASI01, ASI03, ASI06 | Memory entries lose provenance, TTL, trust level, or conflict precedence across later reads. |
+## Category-level mapping
+
+`status` is honest about completeness. Because MITRE ATLAS is deferred everywhere, no
+category is fully `mapped`; everything with OWASP LLM + NIST coverage is `partial`, and
+categories with no clean OWASP LLM Top 10 fit mark that field `(deferred)` explicitly.
+
+| Category | OWASP Agentic | OWASP LLM 2025 | NIST AI RMF | MITRE ATLAS | Status |
+|---|---|---|---|---|---|
+| `ambient_authority` | ASI02, ASI03 | LLM06 | MEASURE, MANAGE | (deferred) | partial |
+| `approval_laundering` | ASI05 | LLM06 | GOVERN, MANAGE | (deferred) | partial |
+| `audit_bypass` | ASI03 | (deferred) | GOVERN, MANAGE | (deferred) | partial |
+| `audit_integrity` | ASI03 | (deferred) | GOVERN, MANAGE | (deferred) | partial |
+| `budget_exhaustion` | ASI02 | LLM10 | MEASURE, MANAGE | (deferred) | partial |
+| `capability_delegation` | ASI02, ASI07 | LLM06 | MEASURE, MANAGE | (deferred) | partial |
+| `data_boundary` | ASI03, ASI04, ASI06, ASI07 | LLM02 | MAP, MEASURE, MANAGE | (deferred) | partial |
+| `indirect_prompt_injection` | ASI01, ASI02 | LLM01 | MEASURE, MANAGE | (deferred) | partial |
+| `mcp_tool_schema` | ASI02, ASI06 | LLM06 | MEASURE, MANAGE | (deferred) | partial |
+| `memory_governance` | ASI01, ASI03, ASI06 | LLM04, LLM02 | MEASURE, MANAGE | (deferred) | partial |
+| `memory_poisoning` | ASI06 | LLM04 | MEASURE, MANAGE | (deferred) | partial |
+| `perception_boundary` | ASI01 | LLM01 | MEASURE | (deferred) | partial |
+| `sleeping_prompt` | ASI01, ASI06 | LLM01 | MEASURE | (deferred) | partial |
+| `tool_permission` | ASI02, ASI03 | LLM06 | MEASURE, MANAGE | (deferred) | partial |
+
+Rationale for each row lives next to the mapping in `standards_mapping.py`. Per-pattern
+OWASP Agentic (ASI) codes remain in `corpus.py`; the table above aggregates them by
+category.
 
 ## Why the project focuses on label propagation
 
@@ -61,12 +69,13 @@ agent stack preserves the relevant labels in known failure shapes.
 
 ## Mapping rules
 
-- Prefer a small number of framework IDs per pattern.
-- Use [research-roadmap.md](research-roadmap.md) for planned ideas; keep this page focused
-  on implemented corpus mappings.
+- Prefer a small number of framework IDs per category; map at category level, not by
+  guessing per-pattern sub-IDs.
+- OWASP Agentic (per pattern) is authored in `corpus.py`; OWASP LLM and NIST (per
+  category) in `standards_mapping.py`. Keep both in sync — `validate_standards_mapping`
+  enforces id formats and that empty fields are explicit, not accidental omissions.
 - Do not add MITRE ATLAS IDs until they are checked against the current official ATLAS
-  technique pages.
+  technique pages; leaving the field empty with status `partial`/`deferred` is the
+  honest default.
 - Do not add standards mappings for planned patterns before the pattern exists in code.
-- If a mapping is debatable, keep it in docs first and leave the machine-readable manifest
-  unchanged until reviewed.
 - Treat mappings as reviewer navigation, not as proof of security.

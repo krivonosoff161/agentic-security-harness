@@ -92,6 +92,29 @@ def _init_registry() -> None:
         )
     )
 
+    from agentic_security_harness.toy_adapters import ToyRagTarget, ToyToolsTarget
+
+    _register(
+        TargetInfo(
+            target_id="toy-rag",
+            name="toy-rag",
+            type="toy_rag",
+            deterministic=True,
+            description="Toy retrieval agent; exercises data/memory/injection surfaces",
+            factory=ToyRagTarget,
+        )
+    )
+    _register(
+        TargetInfo(
+            target_id="toy-tools",
+            name="toy-tools",
+            type="toy_tools",
+            deterministic=True,
+            description="Toy tool-using agent; exercises tool/authority surfaces",
+            factory=ToyToolsTarget,
+        )
+    )
+
 
 class _ToyLocalFunctionTarget:
     """Toy adapter: wraps a deterministic Python function as a target.
