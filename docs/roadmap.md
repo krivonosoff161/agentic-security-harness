@@ -33,6 +33,11 @@ provider calls, no real targets, no real secrets.
   recommendations (`ControlRecommendation` model), `remediation.json` and
   `remediation.md` artifacts, executive report integration, remediation
   validation in `ash validate`.
+- **v0.11 - product maturity:** external OpenAI-compatible model path with preflight,
+  cost cap, control recommendations, and connector recipes
+  ([docs/connect-models.md](connect-models.md)); run history manifests
+  (`run_index.json`) with `ash list-runs` and manifest validation; getting-started
+  guide; cross-platform CI (Ubuntu + Windows, Python 3.11-3.13).
 
 ---
 
@@ -59,11 +64,25 @@ These come after v1.0 and are not implemented today. They stay out of the benchm
 release scope until the core above is stable:
 
 - **Reference gateway** - a planned optional defense target for risk-reduction replay.
+- **Native provider adapters** - first-class SDK adapters (Anthropic, OpenAI Responses,
+  Google, etc.) beyond the current OpenAI-compatible path.
+- **Agent-host / tool-use adapters** - drive an authorized live agent that actually calls
+  tools, instead of prompt-only model evaluation.
 - **Real LLM adapters** - drive authorized live agents instead of local synthetic targets.
 - **Multimodal / audio-ASR** - sanitized, pre-recorded ASR / OCR fixtures for the
   sensor-to-agent path.
-- **Postgres trace store** - durable trace storage after the local hash-chain validation
-  story is proven in the file-based benchmark.
+- **Web report viewer / dashboard** - optional static viewer over run manifests; the
+  current product surface is CLI + Markdown/JSON only.
+- **Richer HTML reports + coverage heatmaps** - stdlib-only static HTML rendering, kept
+  out of the core until it earns its complexity; Markdown remains the source of truth.
+- **Persistent result database** - durable run/trace store (e.g. Postgres) after the
+  file-based `run_index.json` + hash-chain story is proven.
+- **Docker / devcontainer** - reproducible container image for the toolkit.
+- **PyPI / package release flow** - tagged releases and published wheels once the CLI and
+  trace schema are stable.
+- **Deeper scenario corpus expansion** - more boundary families and variants.
+- **Benchmark leaderboard** - only after the evaluation methodology stabilizes (no
+  cross-model scoreboard until results are reproducible and fair).
 
 ---
 

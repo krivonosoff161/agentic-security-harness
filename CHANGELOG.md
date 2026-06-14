@@ -6,7 +6,22 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-06-14
+
 ### Added
+- **Run history manifests** — every run writes `run_index.json` (run id, kind,
+  target/model, scenario, variants, repeats, outcome counts, artifact paths). New
+  `ash list-runs --root <dir>` lists runs; manifests are validated by `ash validate`
+  when present. New `run_manifest` module exported from the package API.
+- **Getting-started guide** — `docs/getting-started.md`: clone → first validated report
+  in 10–30 minutes, no keys or network; includes the run-history workflow.
+- **Examples showcase** — `examples/README.md` documents each committed example, the
+  exact command to regenerate it, expected output, and the recommended reading order.
+- **Cross-platform CI** — the test matrix now runs on Ubuntu (Python 3.11–3.13) and
+  Windows (Python 3.11), backing the cross-platform claim. Added a 3.13 classifier and
+  `Operating System :: OS Independent`.
+- **Read-this-first pointers** — `run`, `compare`, `run-matrix`, and `run-external`
+  now print a `Start here:` line to the primary report plus the run id.
 - **Connector recipes doc** — `docs/connect-models.md`: a connection matrix and
   copy-pasteable Windows PowerShell + Linux/macOS recipes for the fake server, vLLM,
   DeepSeek, Alibaba/Qwen compatible-mode, generic OpenAI-compatible gateways, and
@@ -41,6 +56,12 @@ All notable changes to this project are documented here. The format follows
   `findings_by_control_family`, `inconclusive_patterns`, and `flaky_patterns`,
   verifies `run_config.request_count`, and checks `external_report.md` has its core
   sections and references the machine artifacts.
+- `ash validate` validates `run_index.json` when present (schema, run kind, and that
+  every listed artifact exists).
+
+### Fixed
+- Reconciled the package version: `pyproject.toml`, `__version__`, and the CHANGELOG
+  now agree (was `pyproject` 0.8.0 vs `__version__` 0.10.0).
 
 ## [0.10.0] - 2026-06-13
 

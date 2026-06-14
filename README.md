@@ -49,6 +49,8 @@ deterministic tests · honest residual risk. Full rules:
 
 ## How to read this repository
 
+- Want a first result fast? Follow [getting started](docs/getting-started.md)
+  (clone → report in 10–30 minutes, no keys, no network).
 - New to the project? Start with the [project map](docs/project-map.md).
 - Evaluating the thesis? Read [positioning](docs/positioning.md), the
   [boundary model](docs/agentic-boundary-model.md), and
@@ -255,14 +257,21 @@ ash run-external --adapter openai-compatible \
   --out reports/external-demo
 ```
 
-Each run writes four artifacts:
+Each run writes these artifacts:
 
 ```text
 reports/demo/
 ├── traces.json       # portable, machine-readable traces (one per pattern)
 ├── scorecard.json    # deterministic aggregate
 ├── summary.md        # human-readable summary table
-└── executive.md      # concise scope, severity, top-failure, and residual-risk view
+├── executive.md      # concise scope, severity, top-failure, and residual-risk view
+└── run_index.json    # run manifest: run id, kind, target, outcome counts, artifacts
+```
+
+Every run records a `run_index.json` manifest, so you can review run history:
+
+```bash
+ash list-runs --root reports
 ```
 
 `run-matrix` additionally writes `matrix.json` (variant metadata) and `matrix.md`
