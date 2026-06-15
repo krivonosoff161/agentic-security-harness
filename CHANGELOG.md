@@ -53,6 +53,8 @@ All notable changes to this project are documented here. The format follows
   `--credential-env` flag. The legacy `api_key_env` artifact field and `--api-key-env`
   CLI alias remain readable for compatibility, but new artifacts and prompts avoid
   secret-like plaintext patterns.
+- `ash validate` now redacts secret-shaped strings before printing human-readable or JSON
+  validation messages.
 
 ## [0.13.0] - 2026-06-14
 

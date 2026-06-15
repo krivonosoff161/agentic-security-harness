@@ -36,6 +36,7 @@ from agentic_security_harness.run_manifest import (
     write_run_manifest,
 )
 from agentic_security_harness.runner import HarnessRunner
+from agentic_security_harness.safe_io import redact_artifact_text
 from agentic_security_harness.scenarios import list_scenarios, scenario_ids
 from agentic_security_harness.scorecard import build_scorecard
 from agentic_security_harness.validation import validate_path
@@ -579,8 +580,15 @@ def _compare(baseline: str, protected: str, out: Path) -> int:
 
 def _validate(path: Path, output_format: str = "text") -> int:
     result = validate_path(path)
+    redacted_errors = [redact_artifact_text(msg) for msg in result.errors]
+    redacted_warnings = [redact_artifact_text(msg) for msg in result.warnings]
     if output_format == "json":
-        print(json.dumps(result.model_dump(mode="json"), indent=2))
+        safe_result = result.model_copy(
+            update={"errors": redacted_errors, "warnings": redacted_warnings}
+        )
+        # Validation messages are redacted before printing.
+        # codeql[py/clear-text-logging-sensitive-data]
+        print(json.dumps(safe_result.model_dump(mode="json"), indent=2))
         return 0 if result.ok else 1
     print(
         f"validated {len(result.report_dirs)} report dir(s), "
@@ -589,9 +597,11 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.run_diff_dirs)} run-diff dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
-    for warning in result.warnings:
+    for warning in redacted_warnings:
         print(f"  warning: {warning}")
-    for error in result.errors:
+    for error in redacted_errors:
+        # Validation messages are redacted before printing.
+        # codeql[py/clear-text-logging-sensitive-data]
         print(f"  error: {error}")
     if result.ok:
         print(
