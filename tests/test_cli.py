@@ -47,8 +47,8 @@ def test_cli_validate_redacts_messages_before_printing(
 
     assert "sk-ABCDEFGHIJ0123456789" not in out
     assert "Bearer abcdefghijklmnopqrstuvwxyz123456" not in out
-    assert "sk-[REDACTED]" in out
-    assert "Bearer [REDACTED]" in out
+    assert "Validation message details are hidden in text output" in out
+    assert "--format json" in out
 
 
 def test_cli_validate_json_redacts_messages_before_printing(

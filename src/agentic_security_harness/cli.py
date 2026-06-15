@@ -597,12 +597,12 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.run_diff_dirs)} run-diff dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
-    for warning in redacted_warnings:
-        print(f"  warning: {warning}")
-    for error in redacted_errors:
-        # Validation messages are redacted before printing.
-        # codeql[py/clear-text-logging-sensitive-data]
-        print(f"  error: {error}")
+    if redacted_errors or redacted_warnings:
+        print(
+            "Validation message details are hidden in text output to avoid "
+            "printing artifact contents."
+        )
+        print("Use `ash validate --format json` for redacted machine-readable details.")
     if result.ok:
         print(
             "OK: artifacts conform to the corpus manifest "
