@@ -1,0 +1,67 @@
+name: Defensive pattern proposal
+description: Propose a new sanitized benchmark pattern or situation family.
+title: "[Pattern]: "
+labels: ["taxonomy", "corpus", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        New patterns are not accepted as raw prompt lists. Start from the invariant and the trace evidence.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What agentic boundary or invariant can fail?
+    validations:
+      required: true
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Defensive scenario
+      description: Synthetic/mock/authorized setup only.
+    validations:
+      required: true
+  - type: textarea
+    id: expected_vulnerable
+    attributes:
+      label: Expected vulnerable behavior
+      description: What should the vulnerable target do wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: detection
+    attributes:
+      label: Detection signal / trace evidence
+      description: Which trace fields prove the boundary failed?
+    validations:
+      required: true
+  - type: textarea
+    id: mitigation
+    attributes:
+      label: Mitigation / protection model
+      description: What control should make the protected target pass?
+    validations:
+      required: true
+  - type: dropdown
+    id: topology
+    attributes:
+      label: Evaluation topology
+      options:
+        - Local deterministic target
+        - Vulnerable vs protected agent
+        - Agent plus memory
+        - Agent plus tools
+        - Model chain / router
+        - Multi-agent handoff
+        - Cross-provider handoff
+        - Human approval loop
+        - Recovery / escalation path
+    validations:
+      required: true
+  - type: textarea
+    id: residual
+    attributes:
+      label: Residual risk and non-goals
+      description: What remains uncovered, and what should not be built?
+    validations:
+      required: true

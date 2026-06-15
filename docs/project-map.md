@@ -8,7 +8,8 @@
 The project turns an agentic AI failure idea into a safe, reproducible benchmark:
 
 ```text
-problem idea -> sanitized pattern -> local target -> trace -> scorecard -> validation
+problem idea -> boundary invariant -> evaluation topology -> sanitized pattern
+-> target adapter -> trace -> scorecard -> validation
 ```
 
 Built-in/local targets are local, synthetic, deterministic, and offline. There is also an
@@ -35,6 +36,9 @@ If those six points hold, the benchmark is coherent.
 | Piece | What it does | Where to look |
 |---|---|---|
 | Corpus | The 22 implemented defensive patterns and their expected outcomes. | [corpus.md](corpus.md), `src/agentic_security_harness/corpus.py` |
+| Boundary model | The protection/boundary invariants the corpus is organized around. | [agentic-boundary-model.md](agentic-boundary-model.md) |
+| Evaluation topologies | The system shapes a target adapter can represent: local target, agent, memory loop, tool loop, model chain, handoff, provider boundary, recovery path. | [evaluation-topologies.md](evaluation-topologies.md) |
+| Corpus expansion plan | Invariant-based backlog for future patterns without full combinatorial expansion. | [corpus-expansion-plan.md](corpus-expansion-plan.md) |
 | Patterns | Sanitized test cases the runner sends to targets. | `src/agentic_security_harness/patterns.py` |
 | Targets | Local systems under test: `mock`, `demo-agent`, `protected-demo-agent`, and toy adapters `toy-local-function`, `toy-rag`, `toy-tools`. | `src/agentic_security_harness/*agent*.py`, `mock_target.py`, `toy_adapters.py` |
 | Runner | Converts `pattern + target` into traces. | `src/agentic_security_harness/runner.py` |
@@ -103,17 +107,20 @@ If you still want the linear path:
    and claim boundaries.
 3. [Positioning](positioning.md) and [boundary model](agentic-boundary-model.md) - the
    operating-environment boundary thesis.
-4. [Corpus coverage matrix](corpus.md) - the 22 implemented patterns.
-5. [Comparison example](../examples/comparison-report/README.md) - the visible 22 -> 0
+4. [Evaluation topologies](evaluation-topologies.md) - what kinds of systems can sit
+   behind a target adapter.
+5. [Corpus coverage matrix](corpus.md) - the 22 implemented patterns.
+6. [Comparison example](../examples/comparison-report/README.md) - the visible 22 -> 0
    demonstration.
-6. [Custom adapter tutorial](custom-adapter-tutorial.md) - the quickest path for a new
+7. [Custom adapter tutorial](custom-adapter-tutorial.md) - the quickest path for a new
    local target.
-7. [Adapter contract](adapter-contract.md) - how future targets can implement the benchmark.
-8. [Reporting design](reporting.md) - what reviewers should see in reports.
-9. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,
+8. [Adapter contract](adapter-contract.md) - how future targets can implement the benchmark.
+9. [Reporting design](reporting.md) - what reviewers should see in reports.
+10. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,
    mitigations, and planned reference controls.
-10. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
-11. [Roadmap](roadmap.md) - what is current, next, and future.
+11. [Corpus expansion plan](corpus-expansion-plan.md) - bounded backlog for future patterns.
+12. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
+13. [Roadmap](roadmap.md) - what is current, next, and future.
 
 Then run:
 
@@ -130,8 +137,9 @@ Expected current result: baseline has 22 findings; protected has 0 findings.
 Convert the idea into this structure before asking an agent to code:
 
 ```text
-problem -> defensive scenario -> expected vulnerable behavior -> detection signal
--> mitigation -> harness test -> residual risk
+problem -> boundary invariant -> evaluation topology -> defensive scenario
+-> expected vulnerable behavior -> detection signal -> mitigation -> harness test
+-> residual risk
 ```
 
 Rules:
@@ -143,12 +151,15 @@ Rules:
 - The protected target must pass because of a specific control.
 - The trace must show where the failure happened.
 - The docs must say whether the item is current, planned, or future.
+- Do not expand by full cross-product. Use representative, invariant-based patterns.
 
 ## Review checklist for agent-generated changes
 
 Before accepting a change from any coding agent, check:
 
 - Scope: does the diff touch only the files required for the task?
+- Governance: does the change belong in an issue/decision before code, especially for
+  corpus, adapter, or methodology work?
 - Safety: no real secrets, real targets, live abuse steps, malware behavior, or unsafe
   instructions.
 - Current/planned boundary: planned gateway, real adapters, MCP, and multimodal work are
@@ -159,6 +170,8 @@ Before accepting a change from any coding agent, check:
 - Test gates: `pytest`, `ruff`, `mypy`, `ash validate examples/`, and `git diff --check`.
 - Claims: no first/only/complete-protection claims.
 - Attribution: existing project name, license, and NOTICE are preserved.
+- Project process: [GOVERNANCE.md](../GOVERNANCE.md), [MAINTAINERS.md](../MAINTAINERS.md),
+  and GitHub issue/PR templates are followed.
 
 ## Red flags in future pull requests
 

@@ -86,6 +86,9 @@ A target adapter must:
 Real or semi-real adapters need more reproducibility metadata than the current synthetic
 targets. `TargetMetadata` captures the stable fields:
 
+- evaluation topology (`single-target`, `memory-loop`, `tool-loop`, `model-chain`,
+  `multi-agent-handoff`, `provider-boundary`, `recovery-path`, or custom);
+- observation layer (what the adapter can actually observe vs infer);
 - adapter name and version;
 - target runtime name and version;
 - model/provider family, if a model is used;
@@ -100,6 +103,10 @@ targets. `TargetMetadata` captures the stable fields:
 
 Do not put provider keys, account ids, raw prompts containing secrets, private URLs, or
 private customer data into the public artifact.
+
+Adapters should also state whether protection is built into the target, wrapped by an
+external control, absent by design, or unknown. This avoids confusing a model-only check
+with an agentic-system boundary measurement.
 
 ## Adapter safety gates
 

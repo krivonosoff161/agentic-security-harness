@@ -19,6 +19,9 @@ Then verify by hand:
 
 - [ ] `pyproject.toml` `version`, `__version__`, and the top `CHANGELOG.md` entry agree.
 - [ ] `CHANGELOG.md` has a dated section for this version (move items out of `Unreleased`).
+- [ ] GitHub release notes are drafted from `CHANGELOG.md`; no future feature is listed as
+      shipped.
+- [ ] Open security advisories / dependency alerts are reviewed before tagging.
 - [ ] `ash --help` lists every command; no command errors on `--help`.
 - [ ] README "What exists today" / "Current vs planned" match the code (no future feature
       described as current).
@@ -52,6 +55,8 @@ v1.0 means a stable, dependable benchmark. Open blockers:
 - [ ] **Docs pass** - every doc cross-reference resolves; no stale counts; limitations
       page current.
 - [ ] **CI matrix confirmed** - Ubuntu (3.11-3.13) + Windows green on the release commit.
+- [ ] **GitHub project surface current** - issue templates, PR template, CODEOWNERS,
+      governance, support, and maintainer docs still match the release scope.
 
 ## Not in scope for v1.0
 

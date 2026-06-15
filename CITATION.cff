@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use Agentic Security Harness in research or public analysis, please cite it."
+title: "Agentic Security Harness"
+version: "0.13.0"
+date-released: "2026-06-15"
+authors:
+  - family-names: "Krivonosov"
+    given-names: "Dmitry"
+repository-code: "https://github.com/krivonosoff161/agentic-security-harness"
+license: "Apache-2.0"
+keywords:
+  - "agentic AI"
+  - "AI security"
+  - "defensive benchmark"
+  - "boundary failures"
+  - "failure traces"

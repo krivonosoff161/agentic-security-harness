@@ -4,6 +4,10 @@ What each target and mode does, so you can pick the right one and read its resul
 correctly. Built-in/local modes are deterministic and offline; the external path is the
 only one that touches the network, and only on explicit opt-in.
 
+For broader system shapes a target adapter may represent, see
+[evaluation-topologies.md](evaluation-topologies.md). This page is the shipped mode matrix;
+the topology page is the methodology map.
+
 ## Targets and modes
 
 | Mode | Command | Network (default) | Uses a model/provider | Determinism | Corpus scope | Repeats | Scenario variants | Writes `run_index.json` | `ash validate` |

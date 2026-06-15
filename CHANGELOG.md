@@ -7,6 +7,16 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- GitHub project-governance surface: PR template, issue templates for bugs/features/
+  defensive pattern proposals, CODEOWNERS, Dependabot config, CodeQL, Scorecard, release
+  artifact workflow, governance, maintainers, support, code-of-conduct, and citation files.
+- Evaluation topology documentation for single models, local targets, protected-vs-
+  vulnerable agents, memory/tool loops, model chains, multi-agent handoffs, provider
+  boundaries, human approval, and recovery paths.
+- Corpus expansion plan that requires invariant-based, topology-aware pattern selection
+  and rejects full combinatorial sweeps of model/provider/agent/time variants.
+- Documentation contract tests for methodology links, topology coverage, expansion-plan
+  structure, governance files, and stale pattern-count claims.
 - External raw-response evidence: new `run-external --raw-response-limit` flag, full
   per-request response files under `raw_responses/`, and `raw_response_path`,
   `raw_response_sha256`, `raw_response_chars`, and `raw_response_truncated` fields in
@@ -25,6 +35,11 @@ All notable changes to this project are documented here. The format follows
   command (`--retries`, retry backoff in artifacts).
 
 ### Changed
+- `agentic-boundary-model.md` is now the canonical protection/boundary model catalog,
+  including current coverage and missing situation families.
+- README, protocol, semantics, project map, roadmap, research roadmap, harness,
+  development, adapter contract, and release checklist now distinguish boundary
+  invariants, evaluation topologies, shipped coverage, and planned work more explicitly.
 - New external runs treat missing pattern ids, invalid boundary assertions, control-family
   mismatches, and contradictory verdict fields as `inconclusive` instead of PASS/FINDING.
 - The fake OpenAI-compatible demo server now echoes the requested pattern id and emits the

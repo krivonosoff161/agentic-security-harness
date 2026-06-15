@@ -50,8 +50,12 @@ agent-host adapters are future.
 
 ## Next
 
+- **Methodology and topology governance:** keep the boundary model,
+  [evaluation topologies](evaluation-topologies.md), and
+  [corpus expansion plan](corpus-expansion-plan.md) current before adding more patterns.
 - **Cross-app contamination and audit context split:** cross-surface data-instruction
-  contamination and action-audit divergence tests.
+  contamination and action-audit divergence tests, after pattern proposals pass the
+  invariant/topology review.
 - **Toy multi-agent handoff adapter:** a coordinator/worker delegation surface, adding to
   the shipped toy adapters (`toy-local-function`, `toy-rag`, `toy-tools`).
 - **MITRE ATLAS verification + pattern versioning:** verify ATLAS technique ids against
@@ -88,6 +92,9 @@ release scope until the core above is stable:
 - **PyPI / package release flow** - tagged releases and published wheels once the CLI and
   trace schema are stable.
 - **Deeper scenario corpus expansion** - more boundary families and variants.
+- **Agentic topology expansion** - model chains, router/filter/validator paths,
+  cross-provider handoff, and recovery-path patterns selected by invariant, not full
+  combinatorial sweep.
 - **Benchmark leaderboard** - only after the evaluation methodology stabilizes (no
   cross-model scoreboard until results are reproducible and fair).
 

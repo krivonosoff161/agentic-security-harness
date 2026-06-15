@@ -41,6 +41,9 @@ Do not read a clean run as "the system is secure." A clean run only means the ta
 **A trace-first defensive benchmark for agentic AI failure modes.** It reproduces how LLM
 agents, tool chains, and data boundaries fail, captures each run as a **portable failure
 trace**, and **measures risk reduction** by replaying a baseline target against a protected one.
+It evaluates boundary failures in **agentic systems**, not just standalone model answers:
+a target can be a local agent, a tool loop, a memory loop, a model chain, a multi-agent
+handoff, or a future authorized runtime behind the same adapter contract.
 
 - **Trace-first** - every run is a portable, machine-readable failure trace, not just pass/fail.
 - **Agentic operating-environment boundary corpus** - 22 deterministic seed patterns for
@@ -102,13 +105,16 @@ deterministic tests - honest residual risk. Full rules:
 - Evaluating the thesis? Read [positioning](docs/positioning.md), the
   [boundary model](docs/agentic-boundary-model.md), and
   [how it differs](docs/how-it-differs.md).
+- Understanding what can be tested? Read the
+  [evaluation topologies](docs/evaluation-topologies.md).
 - Evaluating it for an AI/security team? Read [use cases](docs/use-cases.md) and the
   [comparison example](examples/comparison-report/README.md).
 - Reviewing standards coverage? Read the [standards mapping](docs/standards-mapping.md)
   and [corpus matrix](docs/corpus.md).
 - Adding a new idea? Convert it into the safe structure in
   [project map](docs/project-map.md#how-to-add-a-new-research-idea-safely) before coding.
-- Prioritizing future patterns? Read the [research roadmap](docs/research-roadmap.md).
+- Prioritizing future patterns? Read the [research roadmap](docs/research-roadmap.md) and
+  [corpus expansion plan](docs/corpus-expansion-plan.md).
 
 ## Status
 
@@ -189,7 +195,7 @@ only in the experimental `run-external` path and require an explicit command.
 
 | Area | Current release | Planned / future track |
 |---|---|---|
-| Benchmark | 22-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus, mappings, report quality. |
+| Benchmark | 22-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus via invariant-based expansion, mappings, report quality. |
 | Targets | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, plus experimental OpenAI-compatible external model checks. | Native provider adapters and agent-host / tool-use adapters. |
 | Runtime | CLI-only (`run`, `compare`, `validate`, `targets`, `scenarios`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `list-runs`, `index-runs`, `stats`, `retention`, `report`, `doctor`). | Optional HTTP reference gateway and a web report viewer after the benchmark stabilizes. |
 | Network / providers | Off by default; `run-external` makes explicit OpenAI-compatible calls only when invoked without `--dry-run`. | More provider presets, config files, and verified local-runtime guides. |
@@ -429,9 +435,10 @@ contradictory model JSON is recorded as inconclusive.
 ## Measure risk reduction
 
 `demo-agent` is **vulnerable by design**; `protected-demo-agent` is the same agent with
-**simple deterministic controls** (untrusted tool output is not acted on, recipients outside
-the data envelope are blocked, `can_store=false` is honored). The `compare` command runs both
-against the same patterns and writes a side-by-side report:
+**simple deterministic controls** across the current boundary families, including
+provenance, data envelopes, tool/schema checks, memory governance, audit, budget,
+capability, perception, and approval context. The `compare` command runs both against the
+same patterns and writes a side-by-side report:
 
 ```bash
 ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison
@@ -466,6 +473,8 @@ traces and deterministic baseline-vs-protected replay. Honest comparison:
 - **[Harness](docs/harness.md)** - flagship: trace format, attack graph, test patterns, scorecard, replay.
 - **[Positioning](docs/positioning.md)** - the operating-environment boundary thesis.
 - **[Boundary model](docs/agentic-boundary-model.md)** - the chain from source content to memory/audit.
+- **[Evaluation topologies](docs/evaluation-topologies.md)** - how targets can represent
+  single agents, model chains, tool loops, memory loops, handoffs, provider boundaries, and recovery paths.
 - **[How it differs](docs/how-it-differs.md)** - comparison with adjacent tools and defenses.
 - **[Adapter contract](docs/adapter-contract.md)** - how the benchmark can target other
   agent runtimes later without becoming provider-specific.
@@ -479,6 +488,8 @@ traces and deterministic baseline-vs-protected replay. Honest comparison:
 - **[Problem-solution catalog](docs/problem-solution-catalog.md)** - problem -> detection -> mitigation -> harness test -> reference control -> residual risk.
 - **[Corpus coverage matrix](docs/corpus.md)** - the 22 implemented seed patterns, baseline vs protected, and what each touches.
 - **[Research roadmap](docs/research-roadmap.md)** - cleaned intake map for future benchmark patterns.
+- **[Corpus expansion plan](docs/corpus-expansion-plan.md)** - invariant-based backlog for
+  future patterns without combinatorial explosion.
 - **[Mission](docs/mission.md)** - **[Safe research rules](docs/research-rules.md)** - what this is for, and how to research safely.
 - **Learning** - [agentic security basics](docs/learning/01-agentic-security-basics.md) - [data-boundary failures](docs/learning/02-data-boundary-failures.md).
 - [Architecture](docs/architecture.md) - components and data flow.
@@ -506,6 +517,7 @@ The project is **Agentic Security Harness** (repository `agentic-security-harnes
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) - add a test pattern / target adapter / trace detector.
 - [SECURITY.md](SECURITY.md) - responsible use + private vulnerability disclosure.
+- [GOVERNANCE.md](GOVERNANCE.md) - decision gates, corpus methodology, and release authority.
 
 ## License
 

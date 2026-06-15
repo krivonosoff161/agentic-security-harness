@@ -279,13 +279,21 @@ Implemented in the 22-pattern corpus:
 - minimal `PerceptionTranscript` and `MemoryEntry` models;
 - regenerated examples validated by `ash validate examples/`.
 
-### v0.9 - cross-app contamination and audit context split (next)
+### Next - topology-reviewed expansion
 
-1. Implement `cross_app.data_instruction_contamination` with synthetic app-surface markers.
-2. Implement `audit_context_split.action_audit_divergence` with synthetic audit entries.
-3. Add a narrow `semantic.policy_letter_vs_spirit` fixture with deterministic invariant
+Before adding more patterns, keep the candidate list aligned with
+[agentic-boundary-model.md](agentic-boundary-model.md),
+[evaluation-topologies.md](evaluation-topologies.md), and
+[corpus-expansion-plan.md](corpus-expansion-plan.md). The first implementation candidates
+remain:
+
+1. `cross_app.data_instruction_contamination` with synthetic app-surface markers.
+2. `audit_context_split.action_audit_divergence` with synthetic audit entries.
+3. A narrow `semantic.policy_letter_vs_spirit` fixture with deterministic invariant
    checks.
-4. Decide whether semantic checks remain code-only or need a separate reviewed evaluator.
+
+Each candidate needs an issue or design note that states the invariant, topology, trace
+evidence, protected control, and residual risk before code lands.
 
 ### Future / explicitly out of scope for now
 

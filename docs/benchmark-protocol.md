@@ -18,11 +18,16 @@ production certification benchmark and it is not a general security guarantee.
 The stable unit is:
 
 ```text
-defensive pattern -> target adapter -> trace -> scorecard -> validation
+boundary invariant -> evaluation topology -> defensive pattern -> target adapter
+-> trace -> scorecard -> validation
 ```
 
 Each part has a specific meaning:
 
+- **Boundary invariant:** the property that should survive, such as provenance, scope,
+  recipient limits, TTL, or approval context.
+- **Evaluation topology:** the shape of the system under test: local target, agent,
+  memory loop, tool loop, model chain, handoff, provider boundary, or recovery path.
 - **Defensive pattern:** a sanitized synthetic representation of a known failure mode.
 - **Target adapter:** the system under test, wrapped behind the common target contract.
 - **Trace:** the portable machine-readable record of what happened.
@@ -31,9 +36,11 @@ Each part has a specific meaning:
   versions, and forbidden marker scans.
 
 The trace is the primary evidence. Markdown and HTML reports are reader-friendly views
-over JSON artifacts.
+over JSON artifacts. Topologies are documented in
+[evaluation-topologies.md](evaluation-topologies.md); boundary models are documented in
+[agentic-boundary-model.md](agentic-boundary-model.md).
 
-## Current benchmark modes
+## Current benchmark modes and topologies
 
 | Mode | Status | Network | Determinism | Interpretation |
 |---|---|---|---|---|
@@ -59,6 +66,10 @@ A valid shipped pattern must:
 Scenario variants may change benchmark conditions such as depth, memory mode, or tool
 mode. In the current local matrix path, variants are replay metadata and pattern
 selection context; they do not create live tool execution.
+
+New pattern candidates must be selected by invariant and representative topology, not by
+full cross-products of model/provider/framework/prompt combinations. The bounded backlog
+and selection rules live in [corpus-expansion-plan.md](corpus-expansion-plan.md).
 
 ## Target rules
 

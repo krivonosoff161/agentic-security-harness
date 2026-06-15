@@ -16,6 +16,11 @@ did delegated authority expand, was a tool selected without provenance.
 
 The unit is: `pattern -> target -> trace -> scorecard -> validation`. The portable
 **trace** is the stable artifact; the verdict is about *that boundary under that test*.
+More precisely, the benchmark tracks
+`boundary invariant -> evaluation topology -> pattern -> target adapter -> trace`.
+The topology can be a single local target, a memory loop, a tool loop, a model chain, a
+multi-agent handoff, a provider boundary, or a recovery path. See
+[evaluation-topologies.md](evaluation-topologies.md).
 
 ## What is NOT being tested
 
@@ -25,6 +30,8 @@ The unit is: `pattern -> target -> trace -> scorecard -> validation`. The portab
 - The external path is **prompt-only**: it asks a model to judge a synthetic scenario.
   It does **not** execute tools, drive an agent host, or test a real deployment.
 - A clean result means the *modelled patterns* passed - not that a real system is safe.
+- It is **not** an exhaustive combinatorial sweep of all agent/model/provider/time
+  variants. The corpus uses representative, invariant-based patterns.
 
 ## Result words
 

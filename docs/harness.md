@@ -136,18 +136,20 @@ input channel -> ASR / OCR transcript` prefix sits before `exposed inputs` (see
 
 ## Target adapters
 
-A **target adapter** lets the harness drive a system under test. Planned adapter kinds:
+A **target adapter** lets the harness drive a system under test. A target can be a single
+local mock, a synthetic agent, a toy RAG/tool surface, an experimental prompt-only model
+check, or a future authorized runtime. The adapter may represent a single model, agent,
+model chain, tool loop, memory loop, multi-agent handoff, provider boundary, or recovery
+path; see [evaluation-topologies.md](evaluation-topologies.md).
 
-- **LLM agent** - a single agent with tools.
-- **MCP / tool chain** - an agent wired to MCP servers / tool schemas.
-- **Multi-agent workflow** - several agents passing messages / shared memory.
-- **AI gateway** - a gateway in front of any of the above (including the
-  [reference gateway](#reference-defense-replay)).
-- **Voice / multimodal target** - an agent that accepts audio / image input, tested via
-  **sanitized ASR / OCR fixtures**, exercising the pre-LLM sensor channel.
+Current shipped adapters are local and synthetic (`mock`, `demo-agent`,
+`protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`) plus the
+experimental OpenAI-compatible prompt-only external path. The shipped mode matrix is
+[capability-matrix.md](capability-matrix.md); the formal future adapter contract is
+[adapter-contract.md](adapter-contract.md).
 
-**Mock / demo adapters come first.** Real adapters are opt-in and only ever pointed at
-targets you own or are authorized to test.
+Real adapters are opt-in and only ever pointed at targets you own or are authorized to
+test.
 
 ---
 
@@ -155,12 +157,11 @@ targets you own or are authorized to test.
 
 Each pattern is a **defensive test pattern** (sanitized, with expected vulnerable
 behavior + mitigation; coarse OWASP Agentic mapping is available in
-[corpus.md](corpus.md)). The **local demo corpus
-implements 13 of these as deterministic, sanitized seed patterns** (run with `ash run` /
-`ash compare`); **v0.5
-additionally validates the committed artifacts** against the corpus manifest (`ash
-validate`). The corpus is defined in `src/agentic_security_harness/corpus.py` and its
-coverage matrix is documented in [corpus.md](corpus.md). Taxonomy:
+[corpus.md](corpus.md)). The **local demo corpus implements 22 deterministic, sanitized
+seed patterns** (run with `ash run` / `ash compare`), and committed artifacts are
+validated against the corpus manifest with `ash validate`. The corpus is defined in
+`src/agentic_security_harness/corpus.py`; the canonical current coverage matrix is
+[corpus.md](corpus.md). Taxonomy:
 
 | Pattern | What it probes |
 |---|---|

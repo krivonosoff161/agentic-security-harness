@@ -35,7 +35,7 @@ test file:
 - `tests/test_scorecard.py` - scorecard scoring.
 - `tests/test_cli.py` - the `ash` CLI commands.
 - `tests/test_demo_agent.py` - the vulnerable-by-design demo agent.
-- `tests/test_protected.py` - the protected demo agent (passes all 13).
+- `tests/test_protected.py` - the protected demo agent (passes all 22).
 - `tests/test_corpus.py` - corpus manifest consistency.
 - `tests/test_reporting.py` - report generation.
 - `tests/test_validation.py` - the `ash validate` checks.
@@ -61,6 +61,11 @@ A pattern is a sanitized defensive test case. Adding one touches a fixed set of 
 7. Add tests for the new behavior.
 8. Regenerate the committed examples under `examples/`.
 9. Run `ash validate examples/` to confirm artifacts and corpus stay consistent.
+
+Before adding a pattern, write or update the proposal in the format from
+[project-map.md](project-map.md#how-to-add-a-new-research-idea-safely). New patterns must
+be selected by boundary invariant and representative topology, not by a full cross-product
+of model/provider/framework variants. See [corpus-expansion-plan.md](corpus-expansion-plan.md).
 
 ### Add a target adapter
 

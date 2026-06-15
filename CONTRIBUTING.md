@@ -18,6 +18,8 @@ ash validate examples/
 ```
 
 See [docs/development.md](docs/development.md) for the full layout and extension points.
+Project decision gates are in [GOVERNANCE.md](GOVERNANCE.md). Pattern proposals should
+use the GitHub "Defensive pattern proposal" template before code is written.
 
 ## Ways to contribute
 
@@ -49,6 +51,7 @@ See [docs/development.md](docs/development.md) for the full layout and extension
 ## Pull requests
 
 - One logical change per PR; conventional commit style (`feat:`, `fix:`, `docs:`, `test:`).
+- Use the pull request template and keep issue templates aligned with the change type.
 - Include tests; keep `python -m pytest`, `python -m ruff check .`, and
   `python -m mypy src tests` green.
 - Keep the committed examples synchronized — if your change affects output, regenerate
