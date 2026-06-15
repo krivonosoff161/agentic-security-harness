@@ -235,9 +235,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="chars kept in external_results.raw_response (0 = full; full text is always saved)",
     )
     ext_p.add_argument(
+        "--credential-env",
         "--api-key-env",
+        dest="credential_env_var",
         default="",
-        help="environment variable name containing the API key",
+        help="environment variable name containing an optional API credential",
     )
     ext_p.add_argument(
         "--max-variants",
@@ -297,9 +299,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="scenario id (default: data-boundary)",
     )
     check_p.add_argument(
+        "--credential-env",
         "--api-key-env",
+        dest="credential_env_var",
         default="",
-        help="environment variable name containing the API key",
+        help="environment variable name containing an optional API credential",
     )
     check_p.add_argument(
         "--repeats",
@@ -373,9 +377,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="local endpoint for --live-local (default: fake server)",
     )
     doctor_p.add_argument(
+        "--credential-env",
         "--api-key-env",
+        dest="credential_env_var",
         default="ASH_EXTERNAL_API_KEY",
-        help="env var name to check for presence (value never read/printed)",
+        help="credential env var name to check for presence (value never printed)",
     )
     doctor_p.add_argument(
         "--reports-root",
@@ -706,7 +712,7 @@ def _run_external(
     timeout: int,
     retries: int,
     raw_response_limit: int,
-    api_key_env: str,
+    credential_env_var: str,
     max_variants: int,
     variant_id: str | None,
     dry_run: bool,
@@ -762,20 +768,23 @@ def _run_external(
             timeout_seconds=timeout,
             max_retries=retries,
             raw_response_limit=raw_response_limit,
-            api_key_env=api_key_env,
+            credential_env_var=credential_env_var,
             max_variants=max_variants,
             only_variant_id=variant_id,
             dry_run=True,
         )
         print("No network call. No files written. (dry run)")
-        if api_key_env:
-            print(f"  Set the key first: $env:{api_key_env}='...' (PowerShell)")
+        if credential_env_var:
+            print(
+                f"  Credential env var required: {credential_env_var} "
+                "(set its value in your shell before the live run)."
+            )
         print("Next: re-run without --dry-run to execute.")
         return 0
 
     print(f"Estimated requests: {estimate}  (cap: {max_requests})")
     print(f"Artifacts will be written to {out.as_posix()}")
-    print("API key value is never stored; only the env var name is recorded.")
+    print("Credential values are never stored; only the env var name is recorded.")
 
     try:
         summary = run_external(
@@ -788,7 +797,7 @@ def _run_external(
             timeout_seconds=timeout,
             max_retries=retries,
             raw_response_limit=raw_response_limit,
-            api_key_env=api_key_env,
+            credential_env_var=credential_env_var,
             max_variants=max_variants,
             only_variant_id=variant_id,
             dry_run=False,
@@ -824,7 +833,7 @@ def _run_external(
             "raw_response_limit": raw_response_limit,
             "request_count": summary.total_repeats,
             "network_mode": "explicit-external",
-            "api_key_env": api_key_env,
+            "credential_env_var": credential_env_var,
         },
         artifacts=_artifact_names(out),
         tool_version=__version__,
@@ -854,7 +863,7 @@ def _doctor(
     as_json: bool,
     live_local: bool,
     base_url: str,
-    api_key_env: str,
+    credential_env_var: str,
     reports_root: Path | None,
 ) -> int:
     import json as _json
@@ -865,7 +874,7 @@ def _doctor(
         reports_root=reports_root,
         live_local=live_local,
         base_url=base_url,
-        api_key_env=api_key_env,
+        credential_env_var=credential_env_var,
     )
     if as_json:
         print(_json.dumps(report.model_dump(mode="json"), indent=2))
@@ -886,7 +895,10 @@ def _doctor(
 
 def _external_presets() -> int:
     print("Connection presets for the external OpenAI-compatible path:")
-    print("(presets only fill a default base URL + key env-var NAME; network is still opt-in)")
+    print(
+        "(presets only fill a default base URL + credential env-var NAME; "
+        "network is still opt-in)"
+    )
     print(f"{'preset':26s} {'key':4s} base_url")
     for p in list_presets():
         key = "yes" if p.needs_key else "no"
@@ -1080,7 +1092,7 @@ def _external_check(
     model: str,
     scenario_id: str,
     adapter: str,
-    api_key_env: str,
+    credential_env_var: str,
     repeats: int,
     max_variants: int,
     live: bool,
@@ -1137,19 +1149,19 @@ def _external_check(
     else:
         print(f"  Cost cap: {max_requests} (within budget)")
 
-    # Check API key env
-    if api_key_env:
+    # Check credential env var
+    if credential_env_var:
         import os
 
-        val = os.environ.get(api_key_env)
+        val = os.environ.get(credential_env_var)
         if val:
-            print(f"  API key env ({api_key_env}): SET (value hidden)")
+            print(f"  Credential env var ({credential_env_var}): SET (value hidden)")
         else:
-            print(f"  API key env ({api_key_env}): NOT SET")
-        print(f"    Linux/macOS: export {api_key_env}=your_key")
-        print(f"    PowerShell:  $env:{api_key_env}='your_key'")
+            print(f"  Credential env var ({credential_env_var}): NOT SET")
+        print("    Set this environment variable in your shell before a live run.")
+        print("    The value is only read for the request header; it is not printed.")
     else:
-        print("  API key env: not specified (local server may not need one)")
+        print("  Credential env var: not specified (local server may not need one)")
 
     # Check repeats
     from agentic_security_harness.run_config import _MAX_REPEATS
@@ -1172,7 +1184,7 @@ def _external_check(
                 model=model,
                 messages=[{"role": "user", "content": "ping"}],
                 timeout_seconds=10,
-                api_key_env=api_key_env,
+                credential_env_var=credential_env_var,
             )
             print("  Live request: SUCCESS")
             print(f"  Response model: {resp.get('model', 'unknown')}")
@@ -1191,11 +1203,13 @@ def _external_check(
         "only --live and a real run-external do."
     )
     # Concrete copy-pasteable next step (dry-run first, then the live run).
-    key_flag = f" --api-key-env {api_key_env}" if api_key_env else ""
+    credential_flag = (
+        f" --credential-env {credential_env_var}" if credential_env_var else ""
+    )
     next_cmd = (
         f"ash run-external --base-url {redacted} --model {model} "
         f"--scenario {scenario_id} --repeats {repeats} "
-        f"--max-variants {max_variants}{key_flag}"
+        f"--max-variants {max_variants}{credential_flag}"
     )
     print("Next steps:")
     print(f"  1) dry-run (no network, no files): {next_cmd} --dry-run")
@@ -1229,8 +1243,8 @@ def main(argv: list[str] | None = None) -> int:
         return _external_presets()
     if args.command in ("run-external", "external-check"):
         try:
-            base_url, api_key_env, err = apply_preset(
-                args.preset, args.base_url, args.api_key_env
+            base_url, credential_env_var, err = apply_preset(
+                args.preset, args.base_url, args.credential_env_var
             )
         except KeyError as exc:
             print(f"Error: {exc}")
@@ -1251,7 +1265,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.timeout,
                 args.retries,
                 args.raw_response_limit,
-                api_key_env,
+                credential_env_var,
                 args.max_variants,
                 args.variant,
                 args.dry_run,
@@ -1263,7 +1277,7 @@ def main(argv: list[str] | None = None) -> int:
             args.model,
             args.scenario,
             args.adapter,
-            api_key_env,
+            credential_env_var,
             args.repeats,
             args.max_variants,
             getattr(args, "live", False),
@@ -1285,7 +1299,7 @@ def main(argv: list[str] | None = None) -> int:
         return _report(args.root, args.out)
     if args.command == "doctor":
         return _doctor(
-            args.json, args.live_local, args.base_url, args.api_key_env,
+            args.json, args.live_local, args.base_url, args.credential_env_var,
             args.reports_root,
         )
     return 1

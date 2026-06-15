@@ -104,56 +104,56 @@ Do not use the trailing bash `&` form in PowerShell. Open a second terminal or u
 
 ```bash
 # Set your API key (never commit this)
-export ASH_EXTERNAL_API_KEY=your_key_here
+export ASH_EXTERNAL_API_KEY=REDACTED_VALUE
 
 ash run-external --adapter openai-compatible \
   --base-url http://localhost:8000/v1 \
   --model deepseek-chat \
   --scenario data-boundary \
   --repeats 3 \
-  --api-key-env ASH_EXTERNAL_API_KEY \
+  --credential-env ASH_EXTERNAL_API_KEY \
   --out reports/external-deepseek
 ```
 
 PowerShell:
 
 ```powershell
-$env:ASH_EXTERNAL_API_KEY = "your_key_here"
+$env:ASH_EXTERNAL_API_KEY = "REDACTED_VALUE"
 
 ash run-external --adapter openai-compatible `
   --base-url http://localhost:8000/v1 `
   --model deepseek-chat `
   --scenario data-boundary `
   --repeats 3 `
-  --api-key-env ASH_EXTERNAL_API_KEY `
+  --credential-env ASH_EXTERNAL_API_KEY `
   --out reports/external-deepseek
 ```
 
 ## Test a DeepSeek-compatible endpoint
 
 ```bash
-export ASH_EXTERNAL_API_KEY=your_deepseek_key
+export ASH_EXTERNAL_API_KEY=REDACTED_VALUE
 
 ash run-external --adapter openai-compatible \
   --base-url https://api.deepseek.com/v1 \
   --model deepseek-chat \
   --scenario data-boundary \
   --repeats 3 \
-  --api-key-env ASH_EXTERNAL_API_KEY \
+  --credential-env ASH_EXTERNAL_API_KEY \
   --out reports/external-deepseek
 ```
 
 ## Test an Alibaba/Qwen-compatible endpoint
 
 ```bash
-export ASH_EXTERNAL_API_KEY=your_dashscope_key
+export ASH_EXTERNAL_API_KEY=REDACTED_VALUE
 
 ash run-external --adapter openai-compatible \
   --base-url https://dashscope.aliyuncs.com/compatible-mode/v1 \
   --model qwen-plus \
   --scenario data-boundary \
   --repeats 3 \
-  --api-key-env ASH_EXTERNAL_API_KEY \
+  --credential-env ASH_EXTERNAL_API_KEY \
   --out reports/external-qwen
 ```
 
@@ -168,7 +168,7 @@ ash run-external --adapter openai-compatible \
   --out reports/external-vllm
 ```
 
-No `--api-key-env` needed for local servers that don't require auth.
+No `--credential-env` needed for local servers that don't require auth.
 
 ## Request count and cost warning
 
@@ -208,7 +208,7 @@ After a run, you get:
 
 | File | What it shows |
 |---|---|
-| `run_config.json` | Configuration used: adapter, model, redacted base_url, scenario, repeats, `request_count`. API key env **name** only, never the value. |
+| `run_config.json` | Configuration used: adapter, model, redacted base_url, scenario, repeats, `request_count`. credential env **name** only, never the value. |
 | `external_results.json` | Per-evaluation result: decision, pattern-level assertion status, raw-response path/hash, and structured `error`. |
 | `external_summary.json` | Aggregated counts: pass/finding/inconclusive/flaky per pattern, plus `findings_by_pattern` and `findings_by_control_family`. |
 | `external_report.md` | Human-readable report: configuration, results, control-family table, and **control recommendations** (quick / engineering / architecture fix, verification, residual risk) for any finding. |
@@ -228,17 +228,17 @@ they do not by themselves make a system safe.
 
 ## Troubleshooting
 
-**"API key env X is not set"**
+**"Credential environment variable X is not set"**
 
 ```bash
-export X=your_key_here
-# or omit --api-key-env for local servers that don't need auth
+export X=REDACTED_VALUE
+# or omit --credential-env for local servers that don't need auth
 ```
 
 PowerShell:
 
 ```powershell
-$env:X = "your_key_here"
+$env:X = "REDACTED_VALUE"
 ```
 
 **"HTTP 401" or "HTTP 403"**

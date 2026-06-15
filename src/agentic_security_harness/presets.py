@@ -1,9 +1,10 @@
 """Lightweight provider/runtime presets for the OpenAI-compatible external path.
 
-A preset only substitutes a default ``base_url`` and a suggested API-key env-var **name**
-and prints notes. It does **not** add a provider SDK, change the transport, or hide a
-network call - the external path is still explicit, opt-in, OpenAI-compatible only.
-Vendor URLs are starting points; confirm the current value in the provider's docs.
+A preset only substitutes a default ``base_url`` and a suggested credential env-var
+**name** and prints notes. It does **not** add a provider SDK, change the transport,
+or hide a network call - the external path is still explicit, opt-in,
+OpenAI-compatible only. Vendor URLs are starting points; confirm the current value in
+the provider's docs.
 """
 
 from __future__ import annotations
@@ -100,28 +101,30 @@ def is_template_url(base_url: str) -> bool:
 def apply_preset(
     preset_name: str | None,
     base_url: str | None,
-    api_key_env: str,
+    credential_env_var: str,
 ) -> tuple[str, str, str | None]:
-    """Resolve effective (base_url, api_key_env, error).
+    """Resolve effective (base_url, credential_env_var, error).
 
     Explicit ``base_url`` always wins. The preset fills the base URL and, when the
-    provider needs a key and none was given, suggests its default key env var **name**
-    (never a value). Returns an error string when a template URL was selected without an
-    explicit ``--base-url``.
+    provider needs a credential and none was given, suggests its default credential env
+    var **name** (never a value). Returns an error string when a template URL was
+    selected without an explicit ``--base-url``.
     """
     if preset_name is None:
         if not base_url:
-            return "", api_key_env, "provide --base-url or --preset"
-        return base_url, api_key_env, None
+            return "", credential_env_var, "provide --base-url or --preset"
+        return base_url, credential_env_var, None
 
     preset = resolve_preset(preset_name)  # may raise KeyError, handled by caller
     effective_url = base_url or preset.base_url
     if is_template_url(effective_url):
         return (
             effective_url,
-            api_key_env,
+            credential_env_var,
             f"preset '{preset_name}' has a placeholder base URL; pass --base-url "
             "with your endpoint",
         )
-    effective_key_env = api_key_env or (preset.default_key_env if preset.needs_key else "")
-    return effective_url, effective_key_env, None
+    effective_credential_env_var = (
+        credential_env_var or (preset.default_key_env if preset.needs_key else "")
+    )
+    return effective_url, effective_credential_env_var, None

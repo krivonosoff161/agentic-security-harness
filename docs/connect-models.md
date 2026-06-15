@@ -19,7 +19,7 @@ is driven, and no streaming is used. See [What is not supported yet](#13-what-is
 ### Presets (optional shortcut)
 
 `ash external-presets` lists connection presets that fill a default `base_url` and suggest
-an API-key env-var **name**. A preset is only a convenience - it does not add a provider
+a credential env-var **name**. A preset is only a convenience - it does not add a provider
 SDK, change the transport, or hide a network call.
 
 ```bash
@@ -120,19 +120,19 @@ shape for every row; the recipes spell them out.
 
 ```powershell
 # (only for authenticated endpoints) set the key by ENV VAR NAME
-$env:ASH_EXTERNAL_API_KEY = "your_key_here"
+$env:ASH_EXTERNAL_API_KEY = "REDACTED_VALUE"
 
 # 1) preflight (no network)
 ash external-check --base-url https://YOUR-ENDPOINT/v1 --model your-model `
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY
 
 # 2) dry-run (no network, no files)
 ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model `
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --dry-run
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --dry-run
 
 # 3) small live run
 ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model `
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY `
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY `
   --out reports/external-run
 
 # 4) validate + read
@@ -150,19 +150,19 @@ PowerShell notes:
 
 ```bash
 # (only for authenticated endpoints) set the key by ENV VAR NAME
-export ASH_EXTERNAL_API_KEY=your_key_here
+export ASH_EXTERNAL_API_KEY=REDACTED_VALUE
 
 # 1) preflight (no network)
 ash external-check --base-url https://YOUR-ENDPOINT/v1 --model your-model \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY
 
 # 2) dry-run (no network, no files)
 ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --dry-run
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --dry-run
 
 # 3) small live run
 ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY \
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY \
   --out reports/external-run
 
 # 4) validate + read
@@ -205,7 +205,7 @@ ash validate reports/external-vllm
 ```
 
 If you started vLLM with an API key, set `export ASH_EXTERNAL_API_KEY=...` and add
-`--api-key-env ASH_EXTERNAL_API_KEY`. Use the exact model id vLLM reports (it is the
+`--credential-env ASH_EXTERNAL_API_KEY`. Use the exact model id vLLM reports (it is the
 `--model` you launched it with).
 
 ## 9. Recipe: DeepSeek API
@@ -214,13 +214,13 @@ DeepSeek exposes an OpenAI-compatible API. Confirm the current base URL and mode
 the DeepSeek API docs.
 
 ```bash
-export ASH_EXTERNAL_API_KEY=your_deepseek_key
+export ASH_EXTERNAL_API_KEY=REDACTED_VALUE
 ash external-check --base-url https://api.deepseek.com/v1 --model deepseek-chat \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY
 ash run-external  --base-url https://api.deepseek.com/v1 --model deepseek-chat \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --dry-run
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --dry-run
 ash run-external  --base-url https://api.deepseek.com/v1 --model deepseek-chat \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --out reports/external-deepseek
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --out reports/external-deepseek
 ash validate reports/external-deepseek
 ```
 
@@ -231,16 +231,16 @@ Model Studio offers an OpenAI **compatible-mode** endpoint. The host differs by 
 docs. International example:
 
 ```bash
-export ASH_EXTERNAL_API_KEY=your_dashscope_key
+export ASH_EXTERNAL_API_KEY=REDACTED_VALUE
 ash external-check \
   --base-url https://dashscope-intl.aliyuncs.com/compatible-mode/v1 \
-  --model qwen-plus --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY
+  --model qwen-plus --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY
 ash run-external \
   --base-url https://dashscope-intl.aliyuncs.com/compatible-mode/v1 \
-  --model qwen-plus --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --dry-run
+  --model qwen-plus --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --dry-run
 ash run-external \
   --base-url https://dashscope-intl.aliyuncs.com/compatible-mode/v1 \
-  --model qwen-plus --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY \
+  --model qwen-plus --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY \
   --out reports/external-qwen
 ash validate reports/external-qwen
 ```
@@ -254,13 +254,13 @@ Any gateway/proxy that exposes `/chat/completions` works. Substitute your endpoi
 auth.
 
 ```bash
-export ASH_EXTERNAL_API_KEY=your_key   # omit if the gateway needs no auth
+export ASH_EXTERNAL_API_KEY=REDACTED_VALUE   # omit if the gateway needs no auth
 ash external-check --base-url https://YOUR-ENDPOINT/v1 --model your-model-id \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY
 ash run-external  --base-url https://YOUR-ENDPOINT/v1 --model your-model-id \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --dry-run
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --dry-run
 ash run-external  --base-url https://YOUR-ENDPOINT/v1 --model your-model-id \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --out reports/external-gw
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --out reports/external-gw
 ash validate reports/external-gw
 ```
 
@@ -298,7 +298,7 @@ that follows JSON instructions if you see many inconclusive results.
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| `API key environment variable 'X' is not set` | env var not exported in this shell | bash: `export X=...` - PowerShell: `$env:X='...'`; or omit `--api-key-env` for keyless local servers |
+| `Credential environment variable 'X' is not set` | env var not exported in this shell | set `X` in the current shell; or omit `--credential-env` for keyless local servers |
 | `Network error connecting to ...` / connection refused | server not running, wrong port/host | start the server; check the port; confirm `http`/`https` |
 | `HTTP 401` / `HTTP 403` | wrong/missing key, or wrong auth style | verify the key and that the endpoint expects `Authorization: Bearer` |
 | `HTTP 404` | wrong base URL path | most endpoints want `.../v1`; the harness adds `/chat/completions` |

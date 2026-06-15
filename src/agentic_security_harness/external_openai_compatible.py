@@ -22,18 +22,23 @@ class ExternalAPIError(Exception):
         self.response = response
 
 
-def _get_api_key(env_name: str) -> str | None:
-    """Read API key from environment variable. Never logs the value."""
+def _get_credential(env_name: str) -> str | None:
+    """Read a credential from an environment variable. Never logs the value."""
     if not env_name:
         return None
     value = os.environ.get(env_name)
     if not value:
         raise ExternalAPIError(
-            f"API key environment variable '{env_name}' is not set. "
-            f"Set it first - bash: export {env_name}=your_key  |  "
-            f"PowerShell: $env:{env_name}='your_key'"
+            f"Credential environment variable '{env_name}' is not set. "
+            "Set that variable in your shell before retrying, or omit the "
+            "credential option for keyless local servers."
         )
     return value
+
+
+def _get_api_key(env_name: str) -> str | None:
+    """Backward-compatible wrapper for older imports."""
+    return _get_credential(env_name)
 
 
 def chat_completion(
@@ -42,7 +47,8 @@ def chat_completion(
     messages: list[dict[str, str]],
     temperature: float = 0.0,
     timeout_seconds: int = 30,
-    api_key_env: str = "",
+    credential_env_var: str = "",
+    api_key_env: str | None = None,
     max_retries: int = 0,
     retry_backoff_seconds: float = 0.0,
 ) -> dict[str, Any]:
@@ -50,7 +56,8 @@ def chat_completion(
 
     Returns the parsed JSON response. Raises ExternalAPIError on failure.
     """
-    api_key = _get_api_key(api_key_env)
+    env_name = credential_env_var if api_key_env is None else api_key_env
+    credential = _get_credential(env_name)
 
     url = base_url.rstrip("/")
     if not url.endswith("/chat/completions"):
@@ -66,8 +73,8 @@ def chat_completion(
         "Content-Type": "application/json",
         "Accept": "application/json",
     }
-    if api_key:
-        headers["Authorization"] = f"Bearer {api_key}"
+    if credential:
+        headers["Authorization"] = f"Bearer {credential}"
 
     req = urllib.request.Request(url, data=body, headers=headers, method="POST")
 

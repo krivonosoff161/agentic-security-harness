@@ -49,6 +49,10 @@ All notable changes to this project are documented here. The format follows
   `would_preserve_boundary=false`, are weak evidence and remain `inconclusive`.
 - Key CLI commands now have machine-readable output paths for automation while preserving
   the existing human-readable default output.
+- External credential metadata now uses `credential_env_var` and the preferred
+  `--credential-env` flag. The legacy `api_key_env` artifact field and `--api-key-env`
+  CLI alias remain readable for compatibility, but new artifacts and prompts avoid
+  secret-like plaintext patterns.
 
 ## [0.13.0] - 2026-06-14
 
@@ -67,7 +71,7 @@ All notable changes to this project are documented here. The format follows
   view. Still self-contained: no JS, no CDN, no network.
 - **External connection presets** (`ash external-presets`, `--preset`): fake-local, vllm,
   ollama, lm-studio, deepseek, alibaba-qwen-compatible, generic-openai-compatible. A preset
-  only fills a default base URL and a key env-var **name**; it adds no SDK and hides no
+  only fills a default base URL and a credential env-var **name**; it adds no SDK and hides no
   network call. `--base-url` is now optional when `--preset` is given.
 - **doctor v2**: adds a reports-dir writability check and an external-preset validation
   check (no network). New `--reports-root` flag.
@@ -105,7 +109,7 @@ All notable changes to this project are documented here. The format follows
 - **Stale "future" claims fixed**: `ash report`, toy-rag/toy-tools, adapter metadata, and
   the stochastic/inconclusive statuses are documented as shipped (were "planned/future").
 - **Fuller external reproduce command** in `external_report.md`: now includes temperature,
-  timeout, repeats, the selected variant or max-variants, the API key env-var **name**
+  timeout, repeats, the selected variant or max-variants, the credential env-var **name**
   (never the value), the redacted base_url, and `--max-requests` only when the cap would
   block the rerun; notes that `run_config.json` is authoritative.
 - `ash validate` success line now states it is artifact integrity only, not a safety
@@ -123,7 +127,7 @@ All notable changes to this project are documented here. The format follows
 - **`ash doctor`** — onboarding diagnostics (Python version, package import, CLI commands,
   examples/fake-server presence, writability, key-env presence (value never read),
   supported external adapters, next commands). Flags: `--json`, `--live-local`,
-  `--base-url`, `--api-key-env`. No network unless `--live-local`.
+  `--base-url`, `--credential-env`. No network unless `--live-local`.
 - **Toy adapters** — `toy-rag` (data/memory/injection surface) and `toy-tools`
   (tool/authority surface): deterministic, local, no network, with corpus-consistent
   findings and honest partial coverage. Registered in `ash targets`.

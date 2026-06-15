@@ -95,15 +95,24 @@ def test_redact_url_bearer_token_style() -> None:
     assert "[REDACTED]" in result
 
 
-def test_run_config_never_stores_api_key() -> None:
+def test_run_config_never_stores_credential_value() -> None:
     config = RunConfig(
-        api_key_env="MY_API_KEY",
+        credential_env_var="MY_CREDENTIAL_ENV",
         model="test-model",
     )
     dump = config.model_dump(mode="json")
-    assert "MY_API_KEY" in dump["api_key_env"]
-    # Key value should never appear
+    assert "MY_CREDENTIAL_ENV" in dump["credential_env_var"]
+    assert "api_key_env" not in dump
+    # Credential value should never appear
     assert "secret" not in json.dumps(dump).lower()
+
+
+def test_run_config_accepts_legacy_api_key_env_field() -> None:
+    config = RunConfig.model_validate({
+        "api_key_env": "ASH_EXTERNAL_API_KEY",
+        "model": "test-model",
+    })
+    assert config.credential_env_var == "ASH_EXTERNAL_API_KEY"
 
 
 def test_run_config_safety_note() -> None:
@@ -498,13 +507,13 @@ def test_reproduce_command_includes_knobs_no_secret() -> None:
         timeout_seconds=20,
         max_variants=2,
         selected_variants=["a", "b"],
-        api_key_env="ASH_EXTERNAL_API_KEY",
+        credential_env_var="ASH_EXTERNAL_API_KEY",
         request_count=24,
     )
     cmd = "\n".join(_reproduce_command_lines(cfg))
     for flag in ("--repeats 3", "--temperature 0.0", "--timeout 20", "--retries 1",
                  "--raw-response-limit 0",
-                 "--max-variants 2", "--api-key-env ASH_EXTERNAL_API_KEY",
+                 "--max-variants 2", "--credential-env ASH_EXTERNAL_API_KEY",
                  "--out reports/external-rerun"):
         assert flag in cmd, flag
     # Single variant -> --variant; large request_count -> --max-requests.
@@ -521,13 +530,13 @@ def test_external_report_reproduce_section_has_knobs(tmp_path: Path) -> None:
         run_external(
             base_url="http://localhost:8000/v1", model="demo-model",
             scenario_id="data-boundary", out_dir=tmp_path / "ext",
-            repeats=2, api_key_env="ASH_EXTERNAL_API_KEY",
+            repeats=2, credential_env_var="ASH_EXTERNAL_API_KEY",
         )
     report = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
     assert "## How to reproduce / validate" in report
     assert "--temperature" in report and "--timeout" in report
     assert "--raw-response-limit" in report
-    assert "--api-key-env ASH_EXTERNAL_API_KEY" in report
+    assert "--credential-env ASH_EXTERNAL_API_KEY" in report
     assert "run_config.json` is the authoritative" in report
 
 
@@ -718,8 +727,9 @@ def test_cli_external_check_no_live_no_network(capsys: pytest.CaptureFixture[str
 
     out = capsys.readouterr().out
     assert "Estimated requests: 16" in out
-    assert "Linux/macOS: export ASH_TEST_KEY_NOT_SET=your_key" in out
-    assert "PowerShell:  $env:ASH_TEST_KEY_NOT_SET='your_key'" in out
+    assert "Credential env var (ASH_TEST_KEY_NOT_SET): NOT SET" in out
+    assert "Set this environment variable in your shell before a live run." in out
+    assert "your_key" not in out
 
 
 def test_cli_external_check_live_success(capsys: pytest.CaptureFixture[str]) -> None:

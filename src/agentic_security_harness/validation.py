@@ -597,11 +597,12 @@ def _validate_external_dir(path: Path, root: Path, result: ValidationResult) -> 
                 f"{_rel(path / 'run_config.json', root)}: unsupported adapter_type "
                 f"'{config.adapter_type}'"
             )
-        if config.api_key_env and any(
-            token in config.api_key_env.lower() for token in ("sk-", "key=")
+        if config.credential_env_var and any(
+            token in config.credential_env_var.lower() for token in ("sk-", "key=")
         ):
             result._err(
-                f"{_rel(path / 'run_config.json', root)}: api_key_env looks like a key value"
+                f"{_rel(path / 'run_config.json', root)}: "
+                "credential_env_var looks like a credential value"
             )
         # request_count is the pre-run estimate; once results exist it must match
         # the number of normalized results actually written.
@@ -913,18 +914,22 @@ def _validate_run_manifest(dir_path: Path, root: Path, result: ValidationResult)
     for art in manifest.artifacts:
         if not (dir_path / art).exists():
             result._err(f"{rel}: artifact '{art}' is missing from the run directory")
-    # External runs must carry reproducibility metadata; the key env field must hold a
-    # NAME, never a value.
+    # External runs must carry reproducibility metadata; the credential env field must
+    # hold a NAME, never a value.
     if manifest.run_kind == "external":
         required = {"adapter_type", "model", "scenario", "network_mode"}
         missing = sorted(required - set(manifest.metadata))
         if missing:
             result._err(f"{rel}: external metadata missing keys: {missing}")
-        key_env = manifest.metadata.get("api_key_env")
-        if isinstance(key_env, str) and any(
-            token in key_env.lower() for token in ("sk-", "key=")
+        credential_env = manifest.metadata.get(
+            "credential_env_var", manifest.metadata.get("api_key_env")
+        )
+        if isinstance(credential_env, str) and any(
+            token in credential_env.lower() for token in ("sk-", "key=")
         ):
-            result._err(f"{rel}: metadata.api_key_env looks like a key value")
+            result._err(
+                f"{rel}: metadata.credential_env_var looks like a credential value"
+            )
     _scan_secrets(manifest_path, root, result)
 
 

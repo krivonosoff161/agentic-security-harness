@@ -167,7 +167,7 @@ def _manifest_pairs(manifest: dict | None) -> list[tuple[str, str]]:
         "temperature",
         "timeout_seconds",
         "network_mode",
-        "api_key_env",
+        "credential_env_var",
     ):
         if key in meta and meta[key] not in ("", None):
             pairs.append((key.replace("_", " "), _esc(meta[key])))
@@ -396,7 +396,14 @@ def _render_external(run_dir: Path, manifest: dict | None) -> str:
             ("repeats", _esc(config.get("repeats", ""))),
             ("request_count", _esc(config.get("request_count", ""))),
             ("network_mode", _esc(config.get("network_mode", ""))),
-            ("api_key_env", _esc(config.get("api_key_env", "") or "(none)")),
+            (
+                "credential_env_var",
+                _esc(
+                    config.get(
+                        "credential_env_var", config.get("api_key_env", "")
+                    ) or "(none)"
+                ),
+            ),
         ]
     body.append(_kv(pairs))
 

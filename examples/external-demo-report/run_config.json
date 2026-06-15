@@ -15,7 +15,7 @@
   "request_count": 4,
   "deterministic": false,
   "network_mode": "explicit-external",
-  "api_key_env": "",
+  "credential_env_var": "",
   "created_by": "ash run-external",
   "safety_note": "Experimental external run. Not a benchmark-grade measurement. Synthetic prompts only. No real data or tool execution."
 }

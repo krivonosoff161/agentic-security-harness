@@ -171,7 +171,7 @@ def test_external_run_writes_metadata(tmp_path: Path) -> None:
             "--base-url", "http://user:secret@localhost:8000/v1",
             "--model", "demo-model",
             "--scenario", "data-boundary",
-            "--api-key-env", "ASH_EXTERNAL_API_KEY",
+            "--credential-env", "ASH_EXTERNAL_API_KEY",
             "--out", str(tmp_path / "ext"),
         ])
     assert rc == 0
@@ -180,7 +180,7 @@ def test_external_run_writes_metadata(tmp_path: Path) -> None:
     assert meta["adapter_type"] == "openai-compatible"
     assert meta["model"] == "demo-model"
     assert meta["network_mode"] == "explicit-external"
-    assert meta["api_key_env"] == "ASH_EXTERNAL_API_KEY"  # name only
+    assert meta["credential_env_var"] == "ASH_EXTERNAL_API_KEY"  # name only
     # The base_url password must be redacted everywhere in the manifest.
     assert "secret" not in json.dumps(data)
     assert "[REDACTED]" in meta["base_url_label"]

@@ -100,7 +100,7 @@ def run_external(
     max_retries: int = 1,
     retry_backoff_seconds: float = 0.0,
     raw_response_limit: int = 0,
-    api_key_env: str = "",
+    credential_env_var: str = "",
     max_variants: int = 1,
     only_variant_id: str | None = None,
     dry_run: bool = False,
@@ -136,7 +136,7 @@ def run_external(
         max_variants=len(variants),
         selected_variants=[v.variant_id for v in variants],
         request_count=total_requests,
-        api_key_env=api_key_env,
+        credential_env_var=credential_env_var,
     )
 
     if dry_run:
@@ -149,8 +149,8 @@ def run_external(
         print(f"  variants: {len(variants)}")
         print(f"  repeats: {repeats}")
         print(f"  temperature: {temperature}")
-        if api_key_env:
-            print(f"  api_key_env: {api_key_env}")
+        if credential_env_var:
+            print(f"  credential_env_var: {credential_env_var}")
         return ExternalSummary(
             scenario_id=scenario_id,
             adapter_type="openai-compatible",
@@ -176,7 +176,7 @@ def run_external(
                     pattern, variant.variant_id, variant.knobs,
                     repeat_idx, base_url, model, temperature,
                     timeout_seconds, max_retries, retry_backoff_seconds,
-                    raw_response_limit, api_key_env, out_dir,
+                    raw_response_limit, credential_env_var, out_dir,
                 )
                 all_results.append(result)
 
@@ -221,7 +221,7 @@ def _evaluate_one(
     max_retries: int,
     retry_backoff_seconds: float,
     raw_response_limit: int,
-    api_key_env: str,
+    credential_env_var: str,
     out_dir: Path,
 ) -> ExternalResult:
     """Evaluate one pattern variant repeat against the external endpoint."""
@@ -237,7 +237,7 @@ def _evaluate_one(
             timeout_seconds=timeout_seconds,
             max_retries=max_retries,
             retry_backoff_seconds=retry_backoff_seconds,
-            api_key_env=api_key_env,
+            credential_env_var=credential_env_var,
         )
         content = extract_content(response)
         parsed = _parse_decision(content)
@@ -457,7 +457,7 @@ def _reproduce_command_lines(config: RunConfig) -> list[str]:
 
     Includes the run knobs that affect results (temperature, timeout, repeats, variant
     selection) and the cost cap only when it would otherwise block the rerun. The base
-    URL is redacted and the API key env var is named, never its value.
+    URL is redacted and the credential env var is named, never its value.
     """
     flags: list[str] = [
         f"--base-url {config.base_url_label}",
@@ -474,8 +474,8 @@ def _reproduce_command_lines(config: RunConfig) -> list[str]:
         flags.append(f"--variant {config.selected_variants[0]}")
     else:
         flags.append(f"--max-variants {config.max_variants}")
-    if config.api_key_env:
-        flags.append(f"--api-key-env {config.api_key_env}")
+    if config.credential_env_var:
+        flags.append(f"--credential-env {config.credential_env_var}")
     # Only surface the cap flag when the default would refuse this run.
     if config.request_count > _MAX_TOTAL_REQUESTS:
         flags.append(f"--max-requests {config.request_count}")
@@ -594,8 +594,8 @@ def _build_external_report_md(
         "",
         "## How to reproduce / validate",
         "",
-        "Reproduce this run (set the API key env var first if the endpoint needs one). "
-        "The endpoint is shown redacted and the key env var is named, never its value:",
+        "Reproduce this run (set the credential env var first if the endpoint needs one). "
+        "The endpoint is shown redacted and the credential env var is named, never its value:",
         "",
         "```bash",
         *_reproduce_command_lines(config),

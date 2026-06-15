@@ -1,6 +1,6 @@
 """Run configuration for external model/runtime adapter paths.
 
-Stores metadata about an external run. Never stores API key values.
+Stores metadata about an external run. Never stores credential values.
 """
 
 from __future__ import annotations
@@ -48,12 +48,24 @@ class RunConfig(BaseModel):
     request_count: int = 0
     deterministic: bool = False
     network_mode: str = "explicit-external"
-    api_key_env: str = ""
+    credential_env_var: str = ""
     created_by: str = "ash run-external"
     safety_note: str = (
         "Experimental external run. Not a benchmark-grade measurement. "
         "Synthetic prompts only. No real data or tool execution."
     )
+
+    @model_validator(mode="before")
+    @classmethod
+    def accept_legacy_credential_field(cls, data: object) -> object:
+        """Accept pre-v0.14 artifacts that used ``api_key_env`` as the field name."""
+        if not isinstance(data, dict):
+            return data
+        migrated = dict(data)
+        legacy = migrated.pop("api_key_env", None)
+        if "credential_env_var" not in migrated and legacy is not None:
+            migrated["credential_env_var"] = legacy
+        return migrated
 
 
 class ExternalRuntimeMetadata(BaseModel):
@@ -68,8 +80,20 @@ class ExternalRuntimeMetadata(BaseModel):
     timeout_seconds: int = 30
     deterministic: bool = False
     network_mode: str = "explicit-external"
-    api_key_env: str = ""
+    credential_env_var: str = ""
     run_id: str = ""
+
+    @model_validator(mode="before")
+    @classmethod
+    def accept_legacy_credential_field(cls, data: object) -> object:
+        """Accept pre-v0.14 artifacts that used ``api_key_env`` as the field name."""
+        if not isinstance(data, dict):
+            return data
+        migrated = dict(data)
+        legacy = migrated.pop("api_key_env", None)
+        if "credential_env_var" not in migrated and legacy is not None:
+            migrated["credential_env_var"] = legacy
+        return migrated
 
 
 class ExternalResult(BaseModel):

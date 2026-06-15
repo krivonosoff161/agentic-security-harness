@@ -317,18 +317,18 @@ ash external-check --adapter openai-compatible \
   --scenario data-boundary
 
 # actual run (makes network calls)
-export ASH_EXTERNAL_API_KEY=your_key_here
+export ASH_EXTERNAL_API_KEY=REDACTED_VALUE
 ash run-external --adapter openai-compatible \
   --base-url http://localhost:8000/v1 \
   --model deepseek-chat \
   --scenario data-boundary \
   --repeats 3 \
-  --api-key-env ASH_EXTERNAL_API_KEY \
+  --credential-env ASH_EXTERNAL_API_KEY \
   --out reports/external-demo
 ```
 
 > The commands above are bash. On **Windows PowerShell**, set the key with
-> `$env:ASH_EXTERNAL_API_KEY = "your_key_here"` and use a backtick `` ` `` for line
+> `$env:ASH_EXTERNAL_API_KEY = "REDACTED_VALUE"` and use a backtick `` ` `` for line
 > continuation. Full per-stack PowerShell recipes:
 > [docs/connect-models.md](docs/connect-models.md). Full walkthrough:
 > [docs/user-journey.md](docs/user-journey.md).
@@ -363,7 +363,7 @@ ash validate reports/demo --format json
 (scenario-specific summary).
 
 `run-external` writes:
-- `run_config.json` - run configuration incl. `request_count` (API key env name only, never the value)
+- `run_config.json` - run configuration incl. `request_count` (credential env name only, never the value)
 - `external_results.json` - per-pattern evaluation results with structured errors,
   pattern-level assertion status, raw-response path, and sha256
 - `external_summary.json` - aggregated repeat summaries + `findings_by_control_family`

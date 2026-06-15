@@ -46,7 +46,7 @@ No boundary findings in this run, so no control recommendations are required. In
 
 ## How to reproduce / validate
 
-Reproduce this run (set the API key env var first if the endpoint needs one). The endpoint is shown redacted and the key env var is named, never its value:
+Reproduce this run (set the credential env var first if the endpoint needs one). The endpoint is shown redacted and the credential env var is named, never its value:
 
 ```bash
 ash run-external \
