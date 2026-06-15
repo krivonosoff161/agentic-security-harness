@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.1",
+  "adapter_type": "openai-compatible",
+  "provider_label": "http://localhost:8000/v1",
+  "base_url_label": "http://localhost:8000/v1",
+  "model": "snapshot-model",
+  "temperature": 0.0,
+  "timeout_seconds": 30,
+  "max_retries": 1,
+  "retry_backoff_seconds": 0.0,
+  "raw_response_limit": 0,
+  "repeats": 1,
+  "scenario_id": "perception-boundary",
+  "corpus_version": "0.13.0",
+  "max_variants": 1,
+  "selected_variants": [
+    "text-transcript"
+  ],
+  "request_count": 1,
+  "deterministic": false,
+  "network_mode": "explicit-external",
+  "api_key_env": "",
+  "created_by": "ash run-external",
+  "safety_note": "Experimental external run. Not a benchmark-grade measurement. Synthetic prompts only. No real data or tool execution."
+}

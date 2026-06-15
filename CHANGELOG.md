@@ -16,12 +16,24 @@ All notable changes to this project are documented here. The format follows
   `DefensivePattern` and canonical control family before recording PASS/FINDING.
 - JSON CLI output for automation: `ash validate --format json`, `ash stats --format json`,
   `ash retention --format json`, and `ash compare-models --format json`.
+- Golden snapshot coverage for external artifacts, including the normalized
+  `external_results.json`, `external_summary.json`, `external_report.md`, `run_config.json`,
+  and the linked raw response file.
+- Run-history maintenance commands: `ash stats`, `ash retention`, and `ash compare-models`
+  expose the previously internal stats, retention, and external-run comparison logic.
+- External retry controls are part of the recorded run configuration and reproduction
+  command (`--retries`, retry backoff in artifacts).
 
 ### Changed
 - New external runs treat missing pattern ids, invalid boundary assertions, control-family
   mismatches, and contradictory verdict fields as `inconclusive` instead of PASS/FINDING.
 - The fake OpenAI-compatible demo server now echoes the requested pattern id and emits the
   new boundary assertion field.
+- Benchmark protocol and semantics now document the conservative external cross-check:
+  contradictory model self-reports, such as `decision=block` with
+  `would_preserve_boundary=false`, are weak evidence and remain `inconclusive`.
+- Key CLI commands now have machine-readable output paths for automation while preserving
+  the existing human-readable default output.
 
 ## [0.13.0] - 2026-06-14
 
