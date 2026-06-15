@@ -9,6 +9,7 @@ Passing validation means the artifacts conform to the corpus manifest (schema v0
 contain no forbidden marker patterns - NOT that any system is secure.
 """
 
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -706,6 +707,27 @@ def _validate_external_results(
             result._err(f"{prefix}: error result should not also carry a decision")
         if item.error and item.deterministic_cross_check != "adapter_error":
             result._err(f"{prefix}: error result must use adapter_error cross-check")
+        if not item.error and item.raw_response_path:
+            if not item.assertion_id:
+                result._err(f"{prefix}: missing assertion_id")
+            if not item.assertion_result:
+                result._err(f"{prefix}: missing assertion_result")
+        if item.raw_response_path:
+            raw_path = path / item.raw_response_path
+            if not raw_path.exists() or not raw_path.is_file():
+                result._err(f"{prefix}: raw_response_path missing: {item.raw_response_path}")
+            else:
+                try:
+                    raw_text = raw_path.read_text(encoding="utf-8")
+                except (OSError, UnicodeDecodeError):
+                    result._err(f"{prefix}: raw_response_path unreadable")
+                else:
+                    digest = hashlib.sha256(raw_text.encode("utf-8")).hexdigest()
+                    if item.raw_response_sha256 and digest != item.raw_response_sha256:
+                        result._err(f"{prefix}: raw_response_sha256 does not match file")
+                    if item.raw_response_chars and item.raw_response_chars != len(raw_text):
+                        result._err(f"{prefix}: raw_response_chars does not match file")
+                    _scan_secrets(raw_path, root, result)
 
 
 def _validate_external_summary(

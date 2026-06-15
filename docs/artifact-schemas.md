@@ -31,6 +31,8 @@ Non-versioned by design:
 - Markdown artifacts (`summary.md`, `executive.md`, `comparison.md`, `matrix.md`,
   `remediation.md`, `external_report.md`, `run_diff.md`) - human views; the JSON next to
   them is authoritative.
+- External raw response text files under `raw_responses/` are evidence artifacts linked
+  from `external_results.json` by relative path and sha256.
 - A `comparison` is represented as two report directories (`baseline/`, `protected/`) plus
   `comparison.md`; there is no separate `comparison.json`. Use `ash diff-runs` for an
   arbitrary run-vs-run diff (which does emit a versioned `run_diff.json`).

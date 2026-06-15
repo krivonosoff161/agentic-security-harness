@@ -20,21 +20,70 @@ from urllib.parse import urlparse
 
 _HOST = "127.0.0.1"
 _PORT = 8766
+_FALLBACK_FAMILY_MAP = {
+    "indirect_prompt_injection_via_tool_output": "provenance",
+    "data_boundary_recipient_confusion": "data_boundary",
+    "memory_poisoning_sanitized": "memory_governance",
+    "data_boundary_classification_mutation": "data_boundary",
+    "data_boundary_handoff_label_stripping": "data_boundary",
+    "tool_permission_abuse_sanitized": "tool_selection",
+    "provider_boundary_leakage_sanitized": "provider_boundary",
+    "sleeping_prompt.delayed_activation": "memory_governance",
+    "audit.spam_label_abuse": "audit_completeness",
+    "budget.loop_abuse": "budget_control",
+    "capability.delegation_chain_drift": "capability_control",
+    "mcp.tool_schema_deception": "tool_selection",
+    "audit.hash_chain_tamper": "audit_completeness",
+    "perception_boundary.sensor_command_confusion": "perception_boundary",
+    "ambient_authority.environmental_privilege_escalation": "capability_control",
+    "approval_laundering.underjustified_confirmation": "approval_context",
+    "memory_governance.unscoped_memory_persistence": "memory_governance",
+    "memory_governance.environment_injected_poisoning": "memory_governance",
+    "memory_governance.unintentional_cross_user": "memory_governance",
+    "budget.recursive_execution_amplification": "budget_control",
+    "mcp.tool_selection_manipulation": "tool_selection",
+    "indirect_instruction.multi_turn_escalation": "provenance",
+}
 
-# Deterministic response: block with boundary preserved (PASS-like)
-_RESPONSE_BLOCK = {
+def _extract_pattern_id(request: dict) -> str:
+    return _extract_prompt_field(request, "Pattern") or "unknown"
+
+
+def _extract_control_family(request: dict) -> str:
+    pattern_id = _extract_pattern_id(request)
+    return _FALLBACK_FAMILY_MAP.get(
+        pattern_id, _extract_prompt_field(request, "Category") or "data_boundary"
+    )
+
+
+def _extract_prompt_field(request: dict, field: str) -> str:
+    messages = request.get("messages") or []
+    prefix = f"{field}: "
+    for message in messages:
+        content = str(message.get("content", ""))
+        for line in content.splitlines():
+            if line.startswith(prefix):
+                return line.split(prefix, 1)[1].strip()
+    return ""
+
+
+def _response_block(model: str, pattern_id: str, control_family: str) -> dict:
+    """Deterministic response: block with boundary preserved (PASS-like)."""
+    return {
     "id": "chatcmpl-fake",
     "object": "chat.completion",
-    "model": "fake-model",
+    "model": model,
     "choices": [
         {
             "index": 0,
             "message": {
                 "role": "assistant",
                 "content": json.dumps({
+                    "pattern_id": pattern_id,
                     "decision": "block",
+                    "boundary_assertion": "preserve_boundary",
                     "reason": "synthetic boundary evaluation: agent should preserve envelope",
-                    "control_family": "data_boundary",
+                    "control_family": control_family,
                     "would_preserve_boundary": True,
                 }),
             },
@@ -42,7 +91,7 @@ _RESPONSE_BLOCK = {
         }
     ],
     "usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30},
-}
+    }
 
 
 class FakeHandler(BaseHTTPRequestHandler):
@@ -65,8 +114,11 @@ class FakeHandler(BaseHTTPRequestHandler):
             return
 
         model = request.get("model", "unknown")
-        response = dict(_RESPONSE_BLOCK)
-        response["model"] = model
+        response = _response_block(
+            model,
+            _extract_pattern_id(request),
+            _extract_control_family(request),
+        )
         self._respond(200, response)
 
     def _respond(self, code: int, data: dict) -> None:

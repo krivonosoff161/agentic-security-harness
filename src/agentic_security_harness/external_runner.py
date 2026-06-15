@@ -17,6 +17,7 @@ from agentic_security_harness.external_openai_compatible import (
     extract_content,
 )
 from agentic_security_harness.external_prompt import render_pattern_prompt
+from agentic_security_harness.external_validation import validate_external_verdict
 from agentic_security_harness.patterns import DefensivePattern, seed_patterns
 from agentic_security_harness.run_config import (
     _MAX_TOTAL_REQUESTS,
@@ -98,6 +99,7 @@ def run_external(
     timeout_seconds: int = 30,
     max_retries: int = 1,
     retry_backoff_seconds: float = 0.0,
+    raw_response_limit: int = 0,
     api_key_env: str = "",
     max_variants: int = 1,
     only_variant_id: str | None = None,
@@ -128,6 +130,7 @@ def run_external(
         timeout_seconds=timeout_seconds,
         max_retries=max_retries,
         retry_backoff_seconds=retry_backoff_seconds,
+        raw_response_limit=raw_response_limit,
         repeats=repeats,
         scenario_id=scenario_id,
         max_variants=len(variants),
@@ -172,7 +175,8 @@ def run_external(
                 result = _evaluate_one(
                     pattern, variant.variant_id, variant.knobs,
                     repeat_idx, base_url, model, temperature,
-                    timeout_seconds, max_retries, retry_backoff_seconds, api_key_env,
+                    timeout_seconds, max_retries, retry_backoff_seconds,
+                    raw_response_limit, api_key_env, out_dir,
                 )
                 all_results.append(result)
 
@@ -216,7 +220,9 @@ def _evaluate_one(
     timeout_seconds: int,
     max_retries: int,
     retry_backoff_seconds: float,
+    raw_response_limit: int,
     api_key_env: str,
+    out_dir: Path,
 ) -> ExternalResult:
     """Evaluate one pattern variant repeat against the external endpoint."""
     rid = _result_id(pattern.pattern_id, variant_id, repeat_index)
@@ -235,11 +241,16 @@ def _evaluate_one(
         )
         content = extract_content(response)
         parsed = _parse_decision(content)
-        outcome, reason = _classify_outcome(parsed)
+        verdict = validate_external_verdict(pattern, parsed)
         model_self_report = (
             f"decision={parsed.get('decision', 'unclear')}; "
+            f"boundary_assertion={parsed.get('boundary_assertion', 'unclear')}; "
             f"would_preserve_boundary={parsed.get('would_preserve_boundary')}"
         )
+        raw_response_path, raw_response_sha256, raw_response_chars = _write_raw_response(
+            out_dir, rid, content
+        )
+        preview, truncated = _raw_response_preview(content, raw_response_limit)
 
         return ExternalResult(
             result_id=rid,
@@ -247,13 +258,20 @@ def _evaluate_one(
             variant_id=variant_id,
             repeat_index=repeat_index,
             decision=parsed.get("decision", "unclear"),
-            reason=reason,
+            reason=verdict.reason,
             control_family=parsed.get("control_family", ""),
             would_preserve_boundary=parsed.get("would_preserve_boundary"),
-            raw_response=content[:500],
+            raw_response=preview,
+            raw_response_path=raw_response_path,
+            raw_response_sha256=raw_response_sha256,
+            raw_response_chars=raw_response_chars,
+            raw_response_truncated=truncated,
             model_self_report=model_self_report,
-            deterministic_cross_check=outcome,
-            cross_check_reason=reason,
+            deterministic_cross_check=verdict.outcome,
+            cross_check_reason=verdict.reason,
+            assertion_id=verdict.assertion_id,
+            assertion_result=verdict.assertion_result,
+            expected_control_family=verdict.expected_control_family,
         )
     except ExternalAPIError as exc:
         return ExternalResult(
@@ -264,6 +282,8 @@ def _evaluate_one(
             error=str(exc),
             deterministic_cross_check="adapter_error",
             cross_check_reason=str(exc),
+            assertion_id=f"{pattern.pattern_id}:boundary_preservation",
+            assertion_result="adapter_error",
         )
     except Exception as exc:
         return ExternalResult(
@@ -274,7 +294,29 @@ def _evaluate_one(
             error=f"unexpected error: {exc}",
             deterministic_cross_check="adapter_error",
             cross_check_reason=f"unexpected error: {exc}",
+            assertion_id=f"{pattern.pattern_id}:boundary_preservation",
+            assertion_result="adapter_error",
         )
+
+
+def _raw_response_preview(content: str, raw_response_limit: int) -> tuple[str, bool]:
+    """Return the JSON-embedded raw response preview.
+
+    ``0`` means full response in JSON. Full response is always written separately to
+    ``raw_responses/<result_id>.txt`` for replay/debug.
+    """
+    if raw_response_limit <= 0 or len(content) <= raw_response_limit:
+        return content, False
+    return content[:raw_response_limit], True
+
+
+def _write_raw_response(out_dir: Path, result_id: str, content: str) -> tuple[str, str, int]:
+    raw_dir = out_dir / "raw_responses"
+    raw_path = raw_dir / f"{result_id}.txt"
+    write_text_artifact(raw_path, content)
+    written = raw_path.read_text(encoding="utf-8")
+    digest = hashlib.sha256(written.encode("utf-8")).hexdigest()
+    return raw_path.relative_to(out_dir).as_posix(), digest, len(written)
 
 
 def _build_external_summary(
@@ -425,6 +467,7 @@ def _reproduce_command_lines(config: RunConfig) -> list[str]:
         f"--temperature {config.temperature}",
         f"--timeout {config.timeout_seconds}",
         f"--retries {config.max_retries}",
+        f"--raw-response-limit {config.raw_response_limit}",
     ]
     # Reproduce the exact variant when a single one was selected; otherwise the count.
     if len(config.selected_variants) == 1:
@@ -463,6 +506,7 @@ def _build_external_report_md(
         f"- Temperature: {config.temperature}",
         f"- Timeout seconds: {config.timeout_seconds}",
         f"- Max retries: {config.max_retries}",
+        f"- Raw response limit: {config.raw_response_limit} (0 = full JSON field)",
         f"- Repeats: {config.repeats}",
         f"- Scenario: `{config.scenario_id}`",
         f"- Variants: {config.max_variants}",
@@ -545,6 +589,8 @@ def _build_external_report_md(
         "(adapter, model, redacted endpoint, scenario, repeats, request_count)",
         "- `external_summary.json` - machine-readable aggregated summary",
         "- `external_results.json` - per-request normalized results",
+        "- `raw_responses/` - full model response text per request, with sha256 recorded "
+        "in `external_results.json`",
         "",
         "## How to reproduce / validate",
         "",

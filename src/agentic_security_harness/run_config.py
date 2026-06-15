@@ -39,6 +39,7 @@ class RunConfig(BaseModel):
     timeout_seconds: int = 30
     max_retries: int = 1
     retry_backoff_seconds: float = 0.0
+    raw_response_limit: int = 0
     repeats: int = 1
     scenario_id: str = ""
     corpus_version: str = CORPUS_VERSION
@@ -85,12 +86,19 @@ class ExternalResult(BaseModel):
     control_family: str = ""
     would_preserve_boundary: bool | None = None
     raw_response: str = ""
+    raw_response_path: str = ""
+    raw_response_sha256: str = ""
+    raw_response_chars: int = 0
+    raw_response_truncated: bool = False
     parse_error: str = ""
     error: str = ""
     latency_ms: int = 0
     model_self_report: str = ""
     deterministic_cross_check: str = "inconclusive"
     cross_check_reason: str = ""
+    assertion_id: str = ""
+    assertion_result: str = ""
+    expected_control_family: str = ""
 
     @model_validator(mode="after")
     def derive_cross_check_for_legacy_artifacts(self) -> ExternalResult:

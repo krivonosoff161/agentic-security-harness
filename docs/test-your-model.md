@@ -209,12 +209,17 @@ After a run, you get:
 | File | What it shows |
 |---|---|
 | `run_config.json` | Configuration used: adapter, model, redacted base_url, scenario, repeats, `request_count`. API key env **name** only, never the value. |
-| `external_results.json` | Per-evaluation result: decision, reason, would_preserve_boundary, structured `error`. |
+| `external_results.json` | Per-evaluation result: decision, pattern-level assertion status, raw-response path/hash, and structured `error`. |
 | `external_summary.json` | Aggregated counts: pass/finding/inconclusive/flaky per pattern, plus `findings_by_pattern` and `findings_by_control_family`. |
 | `external_report.md` | Human-readable report: configuration, results, control-family table, and **control recommendations** (quick / engineering / architecture fix, verification, residual risk) for any finding. |
+| `raw_responses/` | Full raw model response text per request. |
 
 Start with `external_report.md` for the overview and recommendations, then
 `external_summary.json` for machine-readable counts.
+
+`--raw-response-limit N` controls only the preview stored in `external_results.json`.
+The full response is still written under `raw_responses/` and linked by path and sha256.
+Use `0` for a full JSON preview too.
 
 Findings are aggregated to control families using the harness's canonical
 pattern->family map (deterministic), not the model's self-reported

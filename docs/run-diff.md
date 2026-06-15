@@ -15,6 +15,7 @@ ash compare-models --left reports/external-a --right reports/external-b --out re
 ```
 
 Both commands compare recorded artifacts only; they do not re-run targets or call models.
+Use `--format json` when another tool should consume the comparison summary.
 
 It writes `run_diff.json` (machine-readable, schema-versioned) and `run_diff.md` (human
 view) into `--out`, then you can render or validate them:

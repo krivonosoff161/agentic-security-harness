@@ -2,10 +2,12 @@
 
 import json
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 
 from agentic_security_harness import cli
+from agentic_security_harness.remediation import _FAMILY_MAP
 from agentic_security_harness.run_manifest import (
     RunManifest,
     build_manifest,
@@ -16,6 +18,34 @@ from agentic_security_harness.run_manifest import (
 from agentic_security_harness.validation import validate_path
 
 # --- module-level model tests ---
+
+
+def _pattern_id_from_request(req: object) -> str:
+    body = json.loads(req.data.decode("utf-8"))  # type: ignore[attr-defined]
+    for message in body.get("messages", []):
+        for line in str(message.get("content", "")).splitlines():
+            if line.startswith("Pattern: "):
+                return line.split("Pattern: ", 1)[1].strip()
+    return "unknown"
+
+
+def _mock_external_open(req: object, *args: object, **kwargs: object) -> MagicMock:
+    pattern_id = _pattern_id_from_request(req)
+    resp = MagicMock()
+    content = json.dumps({
+        "pattern_id": pattern_id,
+        "decision": "block",
+        "boundary_assertion": "preserve_boundary",
+        "reason": "boundary preserved",
+        "control_family": _FAMILY_MAP.get(pattern_id, "data_boundary"),
+        "would_preserve_boundary": True,
+    })
+    resp.read.return_value = json.dumps(
+        {"choices": [{"message": {"content": content}}]}
+    ).encode()
+    resp.__enter__ = lambda s: s
+    resp.__exit__ = MagicMock(return_value=False)
+    return resp
 
 
 def test_make_run_id_is_deterministic() -> None:
@@ -133,17 +163,9 @@ def test_validate_rejects_missing_artifact(tmp_path: Path) -> None:
 
 
 def test_external_run_writes_metadata(tmp_path: Path) -> None:
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 
-    mock_response = MagicMock()
-    mock_response.read.return_value = json.dumps(
-        {"choices": [{"message": {"content":
-            '{"decision": "block", "would_preserve_boundary": true}'}}]}
-    ).encode()
-    mock_response.__enter__ = lambda s: s
-    mock_response.__exit__ = MagicMock(return_value=False)
-
-    with patch("urllib.request.urlopen", return_value=mock_response):
+    with patch("urllib.request.urlopen", side_effect=_mock_external_open):
         rc = cli.main([
             "run-external",
             "--base-url", "http://user:secret@localhost:8000/v1",
@@ -168,16 +190,9 @@ def test_external_run_writes_metadata(tmp_path: Path) -> None:
 
 
 def test_validate_rejects_missing_external_metadata(tmp_path: Path) -> None:
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 
-    mock_response = MagicMock()
-    mock_response.read.return_value = json.dumps(
-        {"choices": [{"message": {"content":
-            '{"decision": "block", "would_preserve_boundary": true}'}}]}
-    ).encode()
-    mock_response.__enter__ = lambda s: s
-    mock_response.__exit__ = MagicMock(return_value=False)
-    with patch("urllib.request.urlopen", return_value=mock_response):
+    with patch("urllib.request.urlopen", side_effect=_mock_external_open):
         cli.main([
             "run-external", "--base-url", "http://localhost:8000/v1",
             "--model", "m", "--scenario", "data-boundary",

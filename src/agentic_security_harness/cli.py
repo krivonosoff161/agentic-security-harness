@@ -16,6 +16,7 @@ External runs require explicit user action and make network calls only when invo
 """
 
 import argparse
+import json
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -108,6 +109,12 @@ def build_parser() -> argparse.ArgumentParser:
         nargs="?",
         default=Path("examples"),
         help="report dir, comparison dir, or a directory of such dirs",
+    )
+    val_p.add_argument(
+        "--format",
+        choices=("text", "json"),
+        default="text",
+        help="output format (default: text)",
     )
 
     sub.add_parser("targets", help="list registered built-in targets")
@@ -220,6 +227,12 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=1,
         help="retry count for transient external API failures (default: 1, max: 3)",
+    )
+    ext_p.add_argument(
+        "--raw-response-limit",
+        type=int,
+        default=0,
+        help="chars kept in external_results.raw_response (0 = full; full text is always saved)",
     )
     ext_p.add_argument(
         "--api-key-env",
@@ -401,6 +414,12 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         help="output directory for model comparison diff artifacts",
     )
+    model_cmp_p.add_argument(
+        "--format",
+        choices=("text", "json"),
+        default="text",
+        help="output format (default: text)",
+    )
 
     stats_p = sub.add_parser(
         "stats",
@@ -417,6 +436,12 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=None,
         help="optional output directory for run_stats.json / run_stats.md",
+    )
+    stats_p.add_argument(
+        "--format",
+        choices=("text", "json"),
+        default="text",
+        help="output format (default: text)",
     )
 
     retention_p = sub.add_parser(
@@ -445,6 +470,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--apply",
         action="store_true",
         help="remove selected run directories (default is dry-run plan only)",
+    )
+    retention_p.add_argument(
+        "--format",
+        choices=("text", "json"),
+        default="text",
+        help="output format (default: text)",
     )
 
     report_p = sub.add_parser(
@@ -540,8 +571,11 @@ def _compare(baseline: str, protected: str, out: Path) -> int:
     return 0
 
 
-def _validate(path: Path) -> int:
+def _validate(path: Path, output_format: str = "text") -> int:
     result = validate_path(path)
+    if output_format == "json":
+        print(json.dumps(result.model_dump(mode="json"), indent=2))
+        return 0 if result.ok else 1
     print(
         f"validated {len(result.report_dirs)} report dir(s), "
         f"{len(result.comparison_dirs)} comparison dir(s), "
@@ -671,6 +705,7 @@ def _run_external(
     temperature: float,
     timeout: int,
     retries: int,
+    raw_response_limit: int,
     api_key_env: str,
     max_variants: int,
     variant_id: str | None,
@@ -693,6 +728,9 @@ def _run_external(
         return 1
     if retries < 0 or retries > 3:
         print("Error: retries must be between 0 and 3")
+        return 1
+    if raw_response_limit < 0:
+        print("Error: raw-response-limit must be >= 0")
         return 1
 
     # Estimate request count and enforce the cost safety cap before any call.
@@ -723,6 +761,7 @@ def _run_external(
             temperature=temperature,
             timeout_seconds=timeout,
             max_retries=retries,
+            raw_response_limit=raw_response_limit,
             api_key_env=api_key_env,
             max_variants=max_variants,
             only_variant_id=variant_id,
@@ -748,6 +787,7 @@ def _run_external(
             temperature=temperature,
             timeout_seconds=timeout,
             max_retries=retries,
+            raw_response_limit=raw_response_limit,
             api_key_env=api_key_env,
             max_variants=max_variants,
             only_variant_id=variant_id,
@@ -781,6 +821,7 @@ def _run_external(
             "temperature": temperature,
             "timeout_seconds": timeout,
             "max_retries": retries,
+            "raw_response_limit": raw_response_limit,
             "request_count": summary.total_repeats,
             "network_mode": "explicit-external",
             "api_key_env": api_key_env,
@@ -879,7 +920,7 @@ def _diff_runs(left: Path, right: Path, out: Path) -> int:
     return 0
 
 
-def _compare_models(left: Path, right: Path, out: Path) -> int:
+def _compare_models(left: Path, right: Path, out: Path, output_format: str = "text") -> int:
     from agentic_security_harness.html_report import detect_kind
     from agentic_security_harness.run_diff import diff_runs, write_run_diff
 
@@ -892,6 +933,9 @@ def _compare_models(left: Path, right: Path, out: Path) -> int:
             return 1
     diff = diff_runs(left, right)
     write_run_diff(diff, out)
+    if output_format == "json":
+        print(json.dumps(diff.model_dump(mode="json"), indent=2))
+        return 0
     print(f"wrote model comparison artifacts to {out.as_posix()}")
     print(
         f"fixed: {diff.fixed}  new: {diff.new}  changed: {diff.changed}  "
@@ -901,21 +945,31 @@ def _compare_models(left: Path, right: Path, out: Path) -> int:
     return 0
 
 
-def _stats(root: Path, out: Path | None) -> int:
+def _stats(root: Path, out: Path | None, output_format: str = "text") -> int:
     from agentic_security_harness.stats import build_run_stats, write_run_stats
 
     stats = build_run_stats(root)
+    if out is not None:
+        write_run_stats(stats, out)
+    if output_format == "json":
+        print(json.dumps(stats.model_dump(mode="json"), indent=2))
+        return 0
     print(f"Run stats for {root.as_posix()}")
     print(f"  total runs: {stats.total_runs}")
     for kind, count in stats.by_kind.items():
         print(f"  {kind}: {count}")
     if out is not None:
-        write_run_stats(stats, out)
         print(f"wrote run_stats.json, run_stats.md to {out.as_posix()}")
     return 0
 
 
-def _retention(root: Path, keep_last: int, kinds: list[str], apply: bool) -> int:
+def _retention(
+    root: Path,
+    keep_last: int,
+    kinds: list[str],
+    apply: bool,
+    output_format: str = "text",
+) -> int:
     from agentic_security_harness.run_manifest import _RUN_KINDS
     from agentic_security_harness.stats import apply_retention_plan, build_retention_plan
 
@@ -928,6 +982,9 @@ def _retention(root: Path, keep_last: int, kinds: list[str], apply: bool) -> int
     except ValueError as exc:
         print(f"Error: {exc}")
         return 1
+    if output_format == "json" and not apply:
+        print(json.dumps(plan.model_dump(mode="json"), indent=2))
+        return 0
     print(
         f"Retention plan for {root.as_posix()}: "
         f"{len(plan.candidates)} candidate(s), keep_last={keep_last}"
@@ -942,6 +999,9 @@ def _retention(root: Path, keep_last: int, kinds: list[str], apply: bool) -> int
     except ValueError as exc:
         print(f"Error: {exc}")
         return 1
+    if output_format == "json":
+        print(json.dumps(applied.model_dump(mode="json"), indent=2))
+        return 0
     print(f"Removed {applied.removed} run dir(s).")
     return 0
 
@@ -1151,7 +1211,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "compare":
         return _compare(args.baseline, args.protected, args.out)
     if args.command == "validate":
-        return _validate(args.path)
+        return _validate(args.path, args.format)
     if args.command == "targets":
         return _targets()
     if args.command == "scenarios":
@@ -1190,6 +1250,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.temperature,
                 args.timeout,
                 args.retries,
+                args.raw_response_limit,
                 api_key_env,
                 args.max_variants,
                 args.variant,
@@ -1215,11 +1276,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "diff-runs":
         return _diff_runs(args.left, args.right, args.out)
     if args.command == "compare-models":
-        return _compare_models(args.left, args.right, args.out)
+        return _compare_models(args.left, args.right, args.out, args.format)
     if args.command == "stats":
-        return _stats(args.root, args.out)
+        return _stats(args.root, args.out, args.format)
     if args.command == "retention":
-        return _retention(args.root, args.keep_last, args.kind, args.apply)
+        return _retention(args.root, args.keep_last, args.kind, args.apply, args.format)
     if args.command == "report":
         return _report(args.root, args.out)
     if args.command == "doctor":

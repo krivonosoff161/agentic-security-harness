@@ -6,6 +6,7 @@ import socket
 import subprocess
 import sys
 import time
+from collections.abc import Callable
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -24,11 +25,53 @@ from agentic_security_harness.external_runner import (
     _result_id,
     run_external,
 )
+from agentic_security_harness.external_validation import validate_external_verdict
 from agentic_security_harness.models import DataEnvelope, DefensivePattern
+from agentic_security_harness.patterns import seed_patterns
+from agentic_security_harness.remediation import _FAMILY_MAP
 from agentic_security_harness.run_config import (
     RunConfig,
     _redact_url,
 )
+
+
+def _pattern_id_from_request(req: object) -> str:
+    body = json.loads(req.data.decode("utf-8"))  # type: ignore[attr-defined]
+    for message in body.get("messages", []):
+        for line in str(message.get("content", "")).splitlines():
+            if line.startswith("Pattern: "):
+                return line.split("Pattern: ", 1)[1].strip()
+    return "unknown"
+
+
+def _mock_chat_open(
+    *,
+    decision: str = "block",
+    boundary_assertion: str = "preserve_boundary",
+    would_preserve_boundary: bool = True,
+    reason: str = "boundary preserved",
+) -> Callable[..., MagicMock]:
+    def _open(req: object, *args: object, **kwargs: object) -> MagicMock:
+        pattern_id = _pattern_id_from_request(req)
+        resp = MagicMock()
+        content = json.dumps(
+            {
+                "pattern_id": pattern_id,
+                "decision": decision,
+                "boundary_assertion": boundary_assertion,
+                "reason": reason,
+                "control_family": _FAMILY_MAP.get(pattern_id, "data_boundary"),
+                "would_preserve_boundary": would_preserve_boundary,
+            }
+        )
+        resp.read.return_value = json.dumps(
+            {"choices": [{"message": {"content": content}}]}
+        ).encode()
+        resp.__enter__ = lambda s: s
+        resp.__exit__ = MagicMock(return_value=False)
+        return resp
+
+    return _open
 
 # --- run_config tests ---
 
@@ -322,17 +365,7 @@ def test_run_external_dry_run_with_repeats(tmp_path: Path) -> None:
 
 
 def test_run_external_mock_endpoint(tmp_path: Path) -> None:
-    mock_response = MagicMock()
-    mock_response.read.return_value = json.dumps({
-        "choices": [{"message": {"content":
-            '{"decision": "block", "reason": "boundary preserved", '
-            '"would_preserve_boundary": true}'
-        }}]
-    }).encode()
-    mock_response.__enter__ = lambda s: s
-    mock_response.__exit__ = MagicMock(return_value=False)
-
-    with patch("urllib.request.urlopen", return_value=mock_response):
+    with patch("urllib.request.urlopen", side_effect=_mock_chat_open()):
         summary = run_external(
             base_url="http://localhost:8000/v1",
             model="test",
@@ -348,20 +381,23 @@ def test_run_external_mock_endpoint(tmp_path: Path) -> None:
     assert (tmp_path / "ext" / "external_results.json").exists()
     assert (tmp_path / "ext" / "external_summary.json").exists()
     assert (tmp_path / "ext" / "external_report.md").exists()
+    results = json.loads((tmp_path / "ext" / "external_results.json").read_text())
+    raw_path = tmp_path / "ext" / results[0]["raw_response_path"]
+    assert raw_path.exists()
+    assert results[0]["raw_response_sha256"]
+    assert results[0]["assertion_result"] == "pass"
 
 
 def test_run_external_finding_result(tmp_path: Path) -> None:
-    mock_response = MagicMock()
-    mock_response.read.return_value = json.dumps({
-        "choices": [{"message": {"content":
-            '{"decision": "allow", "reason": "ignored", '
-            '"would_preserve_boundary": false}'
-        }}]
-    }).encode()
-    mock_response.__enter__ = lambda s: s
-    mock_response.__exit__ = MagicMock(return_value=False)
-
-    with patch("urllib.request.urlopen", return_value=mock_response):
+    with patch(
+        "urllib.request.urlopen",
+        side_effect=_mock_chat_open(
+            decision="allow",
+            boundary_assertion="vulnerable_behavior",
+            would_preserve_boundary=False,
+            reason="vulnerable behavior allowed",
+        ),
+    ):
         summary = run_external(
             base_url="http://localhost:8000/v1",
             model="test",
@@ -380,17 +416,38 @@ def test_classify_outcome_allow_but_preserve_is_inconclusive() -> None:
     assert outcome == "inconclusive"
 
 
-def test_run_external_writes_request_count(tmp_path: Path) -> None:
-    mock_response = MagicMock()
-    mock_response.read.return_value = json.dumps({
-        "choices": [{"message": {"content":
-            '{"decision": "block", "would_preserve_boundary": true}'
-        }}]
-    }).encode()
-    mock_response.__enter__ = lambda s: s
-    mock_response.__exit__ = MagicMock(return_value=False)
+def test_pattern_level_validator_requires_pattern_id() -> None:
+    pattern = seed_patterns()[0]
+    verdict = validate_external_verdict(
+        pattern,
+        {
+            "decision": "block",
+            "boundary_assertion": "preserve_boundary",
+            "would_preserve_boundary": True,
+        },
+    )
+    assert verdict.outcome == "inconclusive"
+    assert verdict.assertion_result == "pattern_id_mismatch"
 
-    with patch("urllib.request.urlopen", return_value=mock_response):
+
+def test_pattern_level_validator_pass() -> None:
+    pattern = seed_patterns()[0]
+    verdict = validate_external_verdict(
+        pattern,
+        {
+            "pattern_id": pattern.pattern_id,
+            "decision": "block",
+            "boundary_assertion": "preserve_boundary",
+            "control_family": _FAMILY_MAP[pattern.pattern_id],
+            "would_preserve_boundary": True,
+        },
+    )
+    assert verdict.outcome == "pass"
+    assert verdict.assertion_result == "pass"
+
+
+def test_run_external_writes_request_count(tmp_path: Path) -> None:
+    with patch("urllib.request.urlopen", side_effect=_mock_chat_open()):
         run_external(
             base_url="http://localhost:8000/v1",
             model="test",
@@ -402,6 +459,30 @@ def test_run_external_writes_request_count(tmp_path: Path) -> None:
 
     config = json.loads((tmp_path / "ext" / "run_config.json").read_text())
     assert config["request_count"] == 4  # 4 patterns x 1 variant x 1 repeat
+
+
+def test_run_external_raw_response_limit_keeps_full_raw_artifact(tmp_path: Path) -> None:
+    with patch(
+        "urllib.request.urlopen",
+        side_effect=_mock_chat_open(reason="x" * 200),
+    ):
+        run_external(
+            base_url="http://localhost:8000/v1",
+            model="test",
+            scenario_id="perception-boundary",
+            out_dir=tmp_path / "ext",
+            raw_response_limit=40,
+        )
+
+    results = json.loads((tmp_path / "ext" / "external_results.json").read_text())
+    result = results[0]
+    raw_text = (tmp_path / "ext" / result["raw_response_path"]).read_text(
+        encoding="utf-8"
+    )
+    assert result["raw_response_truncated"] is True
+    assert len(result["raw_response"]) == 40
+    assert len(raw_text) == result["raw_response_chars"]
+    assert len(raw_text) > 40
 
 
 def test_reproduce_command_includes_knobs_no_secret() -> None:
@@ -422,6 +503,7 @@ def test_reproduce_command_includes_knobs_no_secret() -> None:
     )
     cmd = "\n".join(_reproduce_command_lines(cfg))
     for flag in ("--repeats 3", "--temperature 0.0", "--timeout 20", "--retries 1",
+                 "--raw-response-limit 0",
                  "--max-variants 2", "--api-key-env ASH_EXTERNAL_API_KEY",
                  "--out reports/external-rerun"):
         assert flag in cmd, flag
@@ -435,14 +517,7 @@ def test_reproduce_command_includes_knobs_no_secret() -> None:
 
 
 def test_external_report_reproduce_section_has_knobs(tmp_path: Path) -> None:
-    mock_response = MagicMock()
-    mock_response.read.return_value = json.dumps({
-        "choices": [{"message": {"content":
-            '{"decision": "block", "would_preserve_boundary": true}'}}]
-    }).encode()
-    mock_response.__enter__ = lambda s: s
-    mock_response.__exit__ = MagicMock(return_value=False)
-    with patch("urllib.request.urlopen", return_value=mock_response):
+    with patch("urllib.request.urlopen", side_effect=_mock_chat_open()):
         run_external(
             base_url="http://localhost:8000/v1", model="demo-model",
             scenario_id="data-boundary", out_dir=tmp_path / "ext",
@@ -451,6 +526,7 @@ def test_external_report_reproduce_section_has_knobs(tmp_path: Path) -> None:
     report = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
     assert "## How to reproduce / validate" in report
     assert "--temperature" in report and "--timeout" in report
+    assert "--raw-response-limit" in report
     assert "--api-key-env ASH_EXTERNAL_API_KEY" in report
     assert "run_config.json` is the authoritative" in report
 
@@ -458,16 +534,15 @@ def test_external_report_reproduce_section_has_knobs(tmp_path: Path) -> None:
 def test_run_external_findings_control_family_and_recommendations(
     tmp_path: Path,
 ) -> None:
-    mock_response = MagicMock()
-    mock_response.read.return_value = json.dumps({
-        "choices": [{"message": {"content":
-            '{"decision": "allow", "would_preserve_boundary": false}'
-        }}]
-    }).encode()
-    mock_response.__enter__ = lambda s: s
-    mock_response.__exit__ = MagicMock(return_value=False)
-
-    with patch("urllib.request.urlopen", return_value=mock_response):
+    with patch(
+        "urllib.request.urlopen",
+        side_effect=_mock_chat_open(
+            decision="allow",
+            boundary_assertion="vulnerable_behavior",
+            would_preserve_boundary=False,
+            reason="vulnerable behavior allowed",
+        ),
+    ):
         summary = run_external(
             base_url="http://localhost:8000/v1",
             model="test",
@@ -501,14 +576,7 @@ def test_run_external_api_error(tmp_path: Path) -> None:
 
 
 def test_stability_status_stable_pass(tmp_path: Path) -> None:
-    mock_response = MagicMock()
-    mock_response.read.return_value = json.dumps({
-        "choices": [{"message": {"content":
-            '{"decision": "block", "would_preserve_boundary": true}'}}]
-    }).encode()
-    mock_response.__enter__ = lambda s: s
-    mock_response.__exit__ = MagicMock(return_value=False)
-    with patch("urllib.request.urlopen", return_value=mock_response):
+    with patch("urllib.request.urlopen", side_effect=_mock_chat_open()):
         summary = run_external(
             base_url="http://localhost:8000/v1", model="m",
             scenario_id="data-boundary", out_dir=tmp_path / "ext", repeats=2,
@@ -528,15 +596,29 @@ def test_stability_status_adapter_error(tmp_path: Path) -> None:
 def test_stability_status_flaky(tmp_path: Path) -> None:
     call_count = 0
 
-    def _mock_open(*args, **kwargs):  # type: ignore[no-untyped-def]
+    def _mock_open(req, *args, **kwargs):  # type: ignore[no-untyped-def]
         nonlocal call_count
         call_count += 1
         resp = MagicMock()
-        content = (
-            '{"decision": "block", "would_preserve_boundary": true}'
-            if call_count % 2 == 1
-            else '{"decision": "allow", "would_preserve_boundary": false}'
-        )
+        pattern_id = _pattern_id_from_request(req)
+        payload = {
+            "pattern_id": pattern_id,
+            "control_family": _FAMILY_MAP.get(pattern_id, "perception_boundary"),
+            "reason": "flaky synthetic response",
+        }
+        if call_count % 2 == 1:
+            payload.update({
+                "decision": "block",
+                "boundary_assertion": "preserve_boundary",
+                "would_preserve_boundary": True,
+            })
+        else:
+            payload.update({
+                "decision": "allow",
+                "boundary_assertion": "vulnerable_behavior",
+                "would_preserve_boundary": False,
+            })
+        content = json.dumps(payload)
         resp.read.return_value = json.dumps(
             {"choices": [{"message": {"content": content}}]}
         ).encode()
@@ -556,14 +638,29 @@ def test_run_external_flaky_detection(tmp_path: Path) -> None:
     """Test flaky detection: same pattern returns different outcomes across repeats."""
     call_count = 0
 
-    def _mock_open(*args, **kwargs):  # type: ignore[no-untyped-def]
+    def _mock_open(req, *args, **kwargs):  # type: ignore[no-untyped-def]
         nonlocal call_count
         call_count += 1
         resp = MagicMock()
+        pattern_id = _pattern_id_from_request(req)
+        payload = {
+            "pattern_id": pattern_id,
+            "control_family": _FAMILY_MAP.get(pattern_id, "perception_boundary"),
+            "reason": "flaky synthetic response",
+        }
         if call_count % 2 == 1:
-            content = '{"decision": "block", "would_preserve_boundary": true}'
+            payload.update({
+                "decision": "block",
+                "boundary_assertion": "preserve_boundary",
+                "would_preserve_boundary": True,
+            })
         else:
-            content = '{"decision": "allow", "would_preserve_boundary": false}'
+            payload.update({
+                "decision": "allow",
+                "boundary_assertion": "vulnerable_behavior",
+                "would_preserve_boundary": False,
+            })
+        content = json.dumps(payload)
         resp.read.return_value = json.dumps({
             "choices": [{"message": {"content": content}}]
         }).encode()

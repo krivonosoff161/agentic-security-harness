@@ -1,5 +1,6 @@
 """Tests for run stats, retention planning, and model comparisons."""
 
+import json
 import shutil
 from pathlib import Path
 
@@ -75,6 +76,35 @@ def test_cli_stats_and_retention_dry_run(tmp_path: Path) -> None:
     assert run_dir.exists()
 
 
+def test_cli_stats_json(capsys, tmp_path: Path) -> None:  # type: ignore[no-untyped-def]
+    _manifested_run(tmp_path, "run1", "2026-06-15T00:00:00Z")
+
+    assert cli.main(["stats", "--root", str(tmp_path), "--format", "json"]) == 0
+
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["total_runs"] == 1
+    assert payload["by_kind"] == {"run": 1}
+
+
+def test_cli_retention_json(capsys, tmp_path: Path) -> None:  # type: ignore[no-untyped-def]
+    _manifested_run(tmp_path, "old", "2026-06-14T00:00:00Z")
+    _manifested_run(tmp_path, "new", "2026-06-15T00:00:00Z")
+
+    assert cli.main([
+        "retention",
+        "--root",
+        str(tmp_path),
+        "--keep-last",
+        "1",
+        "--format",
+        "json",
+    ]) == 0
+
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["applied"] is False
+    assert len(payload["candidates"]) == 1
+
+
 def test_cli_retention_rejects_bad_kind(tmp_path: Path) -> None:
     assert cli.main(["retention", "--root", str(tmp_path), "--kind", "bogus"]) == 1
 
@@ -91,6 +121,29 @@ def test_cli_compare_models_writes_external_diff(tmp_path: Path) -> None:
     assert (out / "run_diff.json").exists()
     result = validate_path(out)
     assert result.ok, result.errors
+
+
+def test_cli_compare_models_json(capsys, tmp_path: Path) -> None:  # type: ignore[no-untyped-def]
+    left = tmp_path / "left"
+    right = tmp_path / "right"
+    shutil.copytree(EXAMPLES / "external-demo-report", left)
+    shutil.copytree(EXAMPLES / "external-demo-report", right)
+
+    assert cli.main([
+        "compare-models",
+        "--left",
+        str(left),
+        "--right",
+        str(right),
+        "--out",
+        str(tmp_path / "model-diff"),
+        "--format",
+        "json",
+    ]) == 0
+
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["kind"] == "external"
+    assert payload["unchanged"] > 0
 
 
 def test_cli_compare_models_rejects_non_external(tmp_path: Path) -> None:

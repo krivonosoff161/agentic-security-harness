@@ -22,6 +22,8 @@ ash retention  --root reports --keep-last 20         # dry-run cleanup plan
 - `stats` scans manifests and can write `run_stats.json` / `run_stats.md`.
 - `retention` scans manifests and prints removable old run directories. It does not
   delete anything unless `--apply` is passed.
+- `stats`, `retention`, `validate`, and `compare-models` support `--format json` for
+  automation.
 - The JSON manifests remain the source of truth; the DB is a derived convenience index and
   can be deleted and rebuilt at any time.
 

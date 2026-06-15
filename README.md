@@ -348,6 +348,7 @@ Every run records a `run_index.json` manifest, so you can review run history:
 ash list-runs --root reports
 ash stats --root reports --out reports/stats
 ash retention --root reports --keep-last 20
+ash validate reports/demo --format json
 ```
 
 `ash retention` is a dry-run unless `--apply` is passed.
@@ -357,11 +358,14 @@ ash retention --root reports --keep-last 20
 
 `run-external` writes:
 - `run_config.json` - run configuration incl. `request_count` (API key env name only, never the value)
-- `external_results.json` - per-pattern evaluation results with structured errors
+- `external_results.json` - per-pattern evaluation results with structured errors,
+  pattern-level assertion status, raw-response path, and sha256
 - `external_summary.json` - aggregated repeat summaries + `findings_by_control_family`
 - `external_report.md` - human-readable report; when findings exist it adds a
   control-family table and **control recommendations** (quick / engineering /
   architecture fix, verification, residual risk), plus a "how to reproduce / validate" section
+- `raw_responses/` - full raw model response text per request; `--raw-response-limit`
+  controls only the preview stored inside `external_results.json` (`0` = full preview)
 
 `run-external` refuses to start if the estimated request count
 (`patterns x variants x repeats`) exceeds `--max-requests` (default 50); raise it
@@ -410,6 +414,11 @@ cat reports/external-demo/external_report.md
 `request_count = patterns x variants x repeats`; `run-external` refuses to exceed
 `--max-requests` (default 50). On PowerShell, start the fake server in a second terminal
 (no trailing `&`) and use `` ` `` for line continuation.
+
+External verdicts are not accepted from model prose alone. New runs require the model to
+echo `pattern_id` and `boundary_assertion`; the harness cross-checks these against the
+pattern and canonical control family before recording PASS/FINDING. Incomplete or
+contradictory model JSON is recorded as inconclusive.
 
 > **Experimental.** Prompt-based evaluation only. No tool execution. Not a
 > benchmark-grade vendor comparison.

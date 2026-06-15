@@ -6,6 +6,23 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- External raw-response evidence: new `run-external --raw-response-limit` flag, full
+  per-request response files under `raw_responses/`, and `raw_response_path`,
+  `raw_response_sha256`, `raw_response_chars`, and `raw_response_truncated` fields in
+  `external_results.json`.
+- Pattern-level external verdict validation: external prompts now require `pattern_id`
+  and `boundary_assertion`; the harness validates them against the concrete
+  `DefensivePattern` and canonical control family before recording PASS/FINDING.
+- JSON CLI output for automation: `ash validate --format json`, `ash stats --format json`,
+  `ash retention --format json`, and `ash compare-models --format json`.
+
+### Changed
+- New external runs treat missing pattern ids, invalid boundary assertions, control-family
+  mismatches, and contradictory verdict fields as `inconclusive` instead of PASS/FINDING.
+- The fake OpenAI-compatible demo server now echoes the requested pattern id and emits the
+  new boundary assertion field.
+
 ## [0.13.0] - 2026-06-14
 
 ### Added
