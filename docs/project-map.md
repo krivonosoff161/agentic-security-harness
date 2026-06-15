@@ -53,7 +53,7 @@ If those six points hold, the benchmark is coherent.
 ## Network model (important)
 
 - **Built-in/local targets** (`mock`, `demo-agent`, `protected-demo-agent`, toy adapters)
-  and `run-matrix`: deterministic and **offline** — no network, no provider calls.
+  and `run-matrix`: deterministic and **offline** - no network, no provider calls.
 - **`run-external` / `external-check --live`**: make OpenAI-compatible calls, but **only
   on explicit opt-in** (a real run without `--dry-run`, or `--live`). Prompt-only; no
   tool execution.
@@ -85,20 +85,35 @@ These are roadmap or future-track items. They should not be described as shipped
 
 ## How to inspect the project without reading code
 
-Start here:
+Start here by role:
+
+| Role | Read first | Why |
+|---|---|---|
+| First-time user | [Getting started](getting-started.md), [User journey](user-journey.md) | Run the deterministic local path and inspect output. |
+| Benchmark reviewer | [Benchmark protocol](benchmark-protocol.md), [Benchmark semantics](benchmark-semantics.md), [Artifact schemas](artifact-schemas.md) | Understand what the benchmark proves and what it does not prove. |
+| Adapter author | [Custom adapter tutorial](custom-adapter-tutorial.md), [Adapter contract](adapter-contract.md), [Bring your own target](bring-your-own-target.md) | Implement a target without forking the benchmark model. |
+| Report reviewer | [Examples index](../examples/README.md), [Comparison example](../examples/comparison-report/README.md), [Reporting](reporting.md) | Inspect committed proof artifacts before running anything. |
+| Safety reviewer | [Research rules](research-rules.md), [Threat model](threat-model.md), [SECURITY](../SECURITY.md) | Confirm the project stays defensive, synthetic, and authorized. |
+| Release reviewer | [Release checklist](release-checklist.md), [Changelog](../CHANGELOG.md), [CI workflow](../.github/workflows/ci.yml) | Verify public packaging and quality gates. |
+
+If you still want the linear path:
 
 1. [README](../README.md) - current status, commands, and high-level positioning.
-2. [Positioning](positioning.md) and [boundary model](agentic-boundary-model.md) - the
+2. [Benchmark protocol](benchmark-protocol.md) - formal run semantics, scoring limits,
+   and claim boundaries.
+3. [Positioning](positioning.md) and [boundary model](agentic-boundary-model.md) - the
    operating-environment boundary thesis.
-3. [Corpus coverage matrix](corpus.md) - the 22 implemented patterns.
-4. [Comparison example](../examples/comparison-report/README.md) - the visible 22 -> 0
+4. [Corpus coverage matrix](corpus.md) - the 22 implemented patterns.
+5. [Comparison example](../examples/comparison-report/README.md) - the visible 22 -> 0
    demonstration.
-5. [Adapter contract](adapter-contract.md) - how future targets can implement the benchmark.
-6. [Reporting design](reporting.md) - what reviewers should see in reports.
-7. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,
+6. [Custom adapter tutorial](custom-adapter-tutorial.md) - the quickest path for a new
+   local target.
+7. [Adapter contract](adapter-contract.md) - how future targets can implement the benchmark.
+8. [Reporting design](reporting.md) - what reviewers should see in reports.
+9. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,
    mitigations, and planned reference controls.
-8. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
-9. [Roadmap](roadmap.md) - what is current, next, and future.
+10. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
+11. [Roadmap](roadmap.md) - what is current, next, and future.
 
 Then run:
 

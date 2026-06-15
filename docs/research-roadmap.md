@@ -228,7 +228,7 @@ current surface's envelope.
 
 ### `audit_context_split.action_audit_divergence`
 
-**Problem:** the audit trail records what happened but not why — missing decision context,
+**Problem:** the audit trail records what happened but not why - missing decision context,
 data envelope, or policy rule.
 
 **Safe scenario only:** synthetic audit entries with and without decision context.

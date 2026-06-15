@@ -5,6 +5,10 @@
 > operating system. Current shipped adapters are local and synthetic; real adapters are
 > future, opt-in, and must be explicitly authorized.
 
+If you want to implement a small local target first, start with
+[custom-adapter-tutorial.md](custom-adapter-tutorial.md), then come back here for the
+formal contract and review gates.
+
 ## Why this matters
 
 The benchmark is not "a test for one demo agent." The stable unit is:

@@ -3,7 +3,7 @@
 ## Primary thesis
 
 **Agentic Security Harness** is an opinionated, trace-first benchmark that measures
-whether the **agentic operating-environment boundary** holds — whether data envelopes,
+whether the **agentic operating-environment boundary** holds - whether data envelopes,
 authority scopes, and trust boundaries survive agent handoffs, memory writes, tool calls,
 and provider routing.
 

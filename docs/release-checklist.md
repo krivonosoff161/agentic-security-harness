@@ -41,17 +41,17 @@ ash validate reports/e2e
 
 v1.0 means a stable, dependable benchmark. Open blockers:
 
-- [ ] **Stable trace schema** — freeze `schema_version` and document the compatibility
+- [ ] **Stable trace schema** - freeze `schema_version` and document the compatibility
       policy.
-- [ ] **Stable corpus manifest** — freeze pattern ids and the corpus fields; document a
+- [ ] **Stable corpus manifest** - freeze pattern ids and the corpus fields; document a
       deprecation policy for renames.
-- [ ] **Standards mapping review** — verify OWASP LLM / NIST category mappings with a
+- [ ] **Standards mapping review** - verify OWASP LLM / NIST category mappings with a
       second reviewer; decide MITRE ATLAS (currently deferred).
-- [ ] **Real adapter contract** — finalise the contract for non-synthetic adapters
+- [ ] **Real adapter contract** - finalise the contract for non-synthetic adapters
       (still future; see [adapter-contract.md](adapter-contract.md)).
-- [ ] **Docs pass** — every doc cross-reference resolves; no stale counts; limitations
+- [ ] **Docs pass** - every doc cross-reference resolves; no stale counts; limitations
       page current.
-- [ ] **CI matrix confirmed** — Ubuntu (3.11-3.13) + Windows green on the release commit.
+- [ ] **CI matrix confirmed** - Ubuntu (3.11-3.13) + Windows green on the release commit.
 
 ## Not in scope for v1.0
 

@@ -2,7 +2,7 @@
 
 Produces deterministic, pattern-mapped remediation advice: what control family is
 missing, what minimal fix exists, what stronger architecture looks like, and how
-to verify the fix.  All content is synthetic benchmark language — no real exploit
+to verify the fix.  All content is synthetic benchmark language - no real exploit
 guidance, no real system instructions.
 """
 
@@ -94,7 +94,7 @@ class ExternalControlRecommendation(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Pattern → control family mapping (deterministic)
+# Pattern -> control family mapping (deterministic)
 # ---------------------------------------------------------------------------
 
 _FAMILY_MAP: dict[str, ControlFamily] = {
@@ -133,7 +133,7 @@ _FAMILY_MAP: dict[str, ControlFamily] = {
 }
 
 # ---------------------------------------------------------------------------
-# Finding severity → priority mapping
+# Finding severity -> priority mapping
 # ---------------------------------------------------------------------------
 
 _SEV_PRIORITY: dict[str, ControlPriority] = {
@@ -157,7 +157,7 @@ _TEMPLATES: dict[ControlFamily, dict[str, str]] = {
         "engineering_fix": (
             "Implement a provenance propagation layer: every content item carries "
             "source_channel, trust_level, and classification_source through the "
-            "full pipeline (ingest → context → decision → action → memory)."
+            "full pipeline (ingest -> context -> decision -> action -> memory)."
         ),
         "architecture_fix": (
             "Adopt a formal information-flow control model (e.g. CaMeL/FIDES-style "
@@ -423,7 +423,7 @@ _TEMPLATES: dict[ControlFamily, dict[str, str]] = {
         ),
         "residual_risk": (
             "Adapter metadata is informational; it does not prevent "
-            "boundary failures — it enables reproducibility and audit."
+            "boundary failures - it enables reproducibility and audit."
         ),
     },
 }
@@ -487,7 +487,7 @@ _FAMILY_CONTEXT: dict[ControlFamily, dict[str, str]] = {
         ),
         "why_it_matters": (
             "Without source provenance, injected instructions in external content "
-            "are treated as trusted intent — a core indirect-injection failure class."
+            "are treated as trusted intent - a core indirect-injection failure class."
         ),
     },
     "data_boundary": {
@@ -506,7 +506,7 @@ _FAMILY_CONTEXT: dict[ControlFamily, dict[str, str]] = {
             "expired memory at read time."
         ),
         "why_it_matters": (
-            "Unscoped memory lets one session or user silently steer later runs — "
+            "Unscoped memory lets one session or user silently steer later runs - "
             "a persistent, hard-to-detect failure."
         ),
     },

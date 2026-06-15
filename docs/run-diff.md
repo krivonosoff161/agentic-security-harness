@@ -1,7 +1,7 @@
 # Comparing two runs with `ash diff-runs`
 
 `ash compare` runs a fixed baseline-vs-protected pair. `ash diff-runs` compares **any two
-existing run directories** of the same kind — for example, the same target before and
+existing run directories** of the same kind - for example, the same target before and
 after a fix, or two external model runs.
 
 ```bash
@@ -27,21 +27,21 @@ The two directories must be the **same kind**:
 | external | external | per-pattern status diff (pass/finding/flaky/inconclusive/error) |
 | any | different kind | clear error, no output |
 
-Kind is detected from the artifacts present (`traces.json` → run, `matrix.json` → matrix,
-`external_summary.json` → external).
+Kind is detected from the artifacts present (`traces.json` -> run, `matrix.json` -> matrix,
+`external_summary.json` -> external).
 
 ## What the diff reports
 
-- `left_label` / `right_label` — the run ids from each `run_index.json` (or the directory
+- `left_label` / `right_label` - the run ids from each `run_index.json` (or the directory
   names);
 - a configuration summary for each side (target / model / endpoint / scenario / repeats /
   request_count, as available);
 - per-pattern change classification:
-  - **fixed** — was a finding on the left, passes on the right;
-  - **new** — passed on the left, is a finding on the right;
-  - **changed** — finding-like on both sides but the status or severity changed;
-  - **unchanged** — same status (and severity);
-  - **only_left** / **only_right** — the pattern appears on only one side (e.g. different
+  - **fixed** - was a finding on the left, passes on the right;
+  - **new** - passed on the left, is a finding on the right;
+  - **changed** - finding-like on both sides but the status or severity changed;
+  - **unchanged** - same status (and severity);
+  - **only_left** / **only_right** - the pattern appears on only one side (e.g. different
     scenarios);
 - counts for each change class, validated against the entries;
 - the control family for each changed pattern.

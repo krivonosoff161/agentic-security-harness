@@ -412,7 +412,7 @@ def _validate_remediation(
     expected = build_recommendations(traces, expected_card)
 
     if not expected.recommendations:
-        # No findings → no remediation artifacts expected; clean up stale ones
+        # No findings -> no remediation artifacts expected; clean up stale ones
         for p in (rem_json, rem_md):
             if p.exists():
                 p.unlink()

@@ -53,7 +53,7 @@ Target: `demo-local-agent`
 
 ## Engineering fixes
 
-- **provenance**: Implement a provenance propagation layer: every content item carries source_channel, trust_level, and classification_source through the full pipeline (ingest → context → decision → action → memory).
+- **provenance**: Implement a provenance propagation layer: every content item carries source_channel, trust_level, and classification_source through the full pipeline (ingest -> context -> decision -> action -> memory).
 - **data_boundary**: Propagate the full DataEnvelope (data_class, allowed_recipients, allowed_purpose, can_forward, can_store, ttl) across every agent handoff, memory write, tool call, and provider route. Reject operations where envelope fields are missing or mutated.
 - **memory_governance**: Implement per-entry memory governance: provenance tracking, trust-level precedence on conflict, TTL enforcement at read, per-user scope isolation, and deletion requiring trusted authorization.
 - **tool_selection**: Pin tool-schema provenance per run; treat annotations as untrusted until approved; validate tool output against the declared schema; re-check schema hash before each call.

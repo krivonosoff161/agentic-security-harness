@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/krivonosoff161/agentic-security-harness/schemas/scorecard.schema.json",
+  "title": "Agentic Security Harness scorecard",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "target_name",
+    "total_traces",
+    "findings_by_severity",
+    "findings_by_category",
+    "failed_patterns",
+    "passed_patterns"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "target_name": { "type": "string" },
+    "total_traces": { "type": "integer", "minimum": 0 },
+    "findings_by_severity": { "type": "object", "additionalProperties": { "type": "integer" } },
+    "findings_by_category": { "type": "object", "additionalProperties": { "type": "integer" } },
+    "failed_patterns": { "type": "array", "items": { "type": "string" } },
+    "passed_patterns": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": true
+}

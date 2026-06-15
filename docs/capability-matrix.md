@@ -14,10 +14,10 @@ only one that touches the network, and only on explicit opt-in.
 | `toy-local-function` | `run --target toy-local-function` | offline | no | deterministic | full (22) | no | no | yes | yes |
 | `toy-rag` | `run --target toy-rag` | offline | no | deterministic | full (22) | no | no | yes | yes |
 | `toy-tools` | `run --target toy-tools` | offline | no | deterministic | full (22) | no | no | yes | yes |
-| Scenario matrix | `run-matrix --target <t> --scenario <s>` | offline | no | deterministic | subset (scenario) × variants | no | yes | yes | yes |
-| External (OpenAI-compatible) | `run-external --base-url ... --model ...` | **opt-in only** | yes (prompt-only) | stochastic possible | subset (scenario) × variants | yes | yes | yes | yes |
-| Native provider adapter | — | — | — | — | — | — | — | — | **future** |
-| Agent-host / tool-use adapter | — | — | — | — | — | — | — | — | **future** |
+| Scenario matrix | `run-matrix --target <t> --scenario <s>` | offline | no | deterministic | subset (scenario) x variants | no | yes | yes | yes |
+| External (OpenAI-compatible) | `run-external --base-url ... --model ...` | **opt-in only** | yes (prompt-only) | stochastic possible | subset (scenario) x variants | yes | yes | yes | yes |
+| Native provider adapter | - | - | - | - | - | - | - | - | **future** |
+| Agent-host / tool-use adapter | - | - | - | - | - | - | - | - | **future** |
 
 ## What each is good for / does not cover
 
@@ -31,7 +31,7 @@ only one that touches the network, and only on explicit opt-in.
 | `toy-tools` | Showing the harness on a tool/authority surface (partial coverage). | Data/memory surfaces (PASS by construction). |
 | Scenario matrix | Stability across variants; stable vs variant-sensitive failures; coverage heatmap. | Stochastic behavior (variants are deterministic replay metadata). |
 | External (OpenAI-compatible) | Asking a model to judge synthetic scenarios; repeats + stochastic status. | Tool execution, agent-host behavior, or a real deployment. |
-| Native / agent-host adapters | (future) driving real provider SDKs or tool-executing agents. | Not shipped — do not assume it exists. |
+| Native / agent-host adapters | (future) driving real provider SDKs or tool-executing agents. | Not shipped - do not assume it exists. |
 
 ## Notes
 

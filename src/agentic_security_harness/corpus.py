@@ -240,7 +240,7 @@ _CORPUS: list[CorpusEntry] = [
         ),
         owasp_agentic=["ASI01", "ASI03", "ASI06"],
     ),
-    # ── v0.9 deeper variants ────────────────────────────────────────────────
+    # -- v0.9 deeper variants ------------------------------------------------
     CorpusEntry(
         pattern_id="memory_governance.environment_injected_poisoning",
         name="Memory governance: environment-injected poisoning (sanitized)",

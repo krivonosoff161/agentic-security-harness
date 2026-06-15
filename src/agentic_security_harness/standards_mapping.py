@@ -1,13 +1,13 @@
 """Category-level mapping from the corpus to external security frameworks.
 
-This is a **coarse, defensive, category-level** mapping — not a per-pattern certification.
+This is a **coarse, defensive, category-level** mapping - not a per-pattern certification.
 It maps each implemented pattern category to:
 
 - OWASP Top 10 for Agentic Applications 2026 (``owasp_agentic``, single-sourced from
   ``corpus.py``),
 - OWASP Top 10 for LLM Applications 2025 (``owasp_llm``),
 - NIST AI RMF core functions (``nist_ai_rmf``: GOVERN / MAP / MEASURE / MANAGE),
-- MITRE ATLAS (``mitre_atlas``) — intentionally **deferred**: per-category ATLAS technique
+- MITRE ATLAS (``mitre_atlas``) - intentionally **deferred**: per-category ATLAS technique
   IDs are not asserted until verified against the ATLAS matrix.
 
 ``status`` is honest about completeness: ``mapped`` (owasp_agentic + owasp_llm + nist all
@@ -53,12 +53,12 @@ class CategoryStandards(BaseModel):
 
 
 # Per-category mapping (owasp_agentic is filled from the corpus, not duplicated here).
-# MITRE ATLAS is deferred everywhere on purpose — see module docstring.
+# MITRE ATLAS is deferred everywhere on purpose - see module docstring.
 _CATEGORY: dict[str, _Spec] = {
     "indirect_prompt_injection": {
         "owasp_llm": ["LLM01"],
         "nist_ai_rmf": ["MEASURE", "MANAGE"],
-        "rationale": "Untrusted tool/retrieved content steers the agent — prompt "
+        "rationale": "Untrusted tool/retrieved content steers the agent - prompt "
         "injection (LLM01). ATLAS technique id deferred.",
     },
     "data_boundary": {
@@ -70,57 +70,57 @@ _CATEGORY: dict[str, _Spec] = {
     "memory_poisoning": {
         "owasp_llm": ["LLM04"],
         "nist_ai_rmf": ["MEASURE", "MANAGE"],
-        "rationale": "Untrusted content is persisted into memory — data poisoning (LLM04).",
+        "rationale": "Untrusted content is persisted into memory - data poisoning (LLM04).",
     },
     "memory_governance": {
         "owasp_llm": ["LLM04", "LLM02"],
         "nist_ai_rmf": ["MEASURE", "MANAGE"],
-        "rationale": "Unscoped / cross-user / expired memory is trusted at read — "
+        "rationale": "Unscoped / cross-user / expired memory is trusted at read - "
         "poisoning (LLM04) and cross-user disclosure (LLM02).",
     },
     "tool_permission": {
         "owasp_llm": ["LLM06"],
         "nist_ai_rmf": ["MEASURE", "MANAGE"],
-        "rationale": "Tool used outside its allowed purpose — excessive agency (LLM06).",
+        "rationale": "Tool used outside its allowed purpose - excessive agency (LLM06).",
     },
     "mcp_tool_schema": {
         "owasp_llm": ["LLM06"],
         "nist_ai_rmf": ["MEASURE", "MANAGE"],
-        "rationale": "Unverified tool schema/annotations are trusted — excessive agency "
+        "rationale": "Unverified tool schema/annotations are trusted - excessive agency "
         "(LLM06).",
     },
     "capability_delegation": {
         "owasp_llm": ["LLM06"],
         "nist_ai_rmf": ["MEASURE", "MANAGE"],
-        "rationale": "Delegated authority expands across hops — excessive agency (LLM06).",
+        "rationale": "Delegated authority expands across hops - excessive agency (LLM06).",
     },
     "ambient_authority": {
         "owasp_llm": ["LLM06"],
         "nist_ai_rmf": ["MEASURE", "MANAGE"],
-        "rationale": "Ambient host capability used without explicit binding — excessive "
+        "rationale": "Ambient host capability used without explicit binding - excessive "
         "agency (LLM06).",
     },
     "approval_laundering": {
         "owasp_llm": ["LLM06"],
         "nist_ai_rmf": ["GOVERN", "MANAGE"],
         "rationale": "Under-justified confirmation launders a risky action past the human "
-        "— excessive agency (LLM06).",
+        "- excessive agency (LLM06).",
     },
     "budget_exhaustion": {
         "owasp_llm": ["LLM10"],
         "nist_ai_rmf": ["MEASURE", "MANAGE"],
-        "rationale": "Unbounded loops / recursion — unbounded consumption (LLM10).",
+        "rationale": "Unbounded loops / recursion - unbounded consumption (LLM10).",
     },
     "perception_boundary": {
         "owasp_llm": ["LLM01"],
         "nist_ai_rmf": ["MEASURE"],
-        "rationale": "Perceived content treated as instruction — injection via a "
+        "rationale": "Perceived content treated as instruction - injection via a "
         "perception channel (LLM01).",
     },
     "sleeping_prompt": {
         "owasp_llm": ["LLM01"],
         "nist_ai_rmf": ["MEASURE"],
-        "rationale": "Dormant stored instruction activates later — delayed injection "
+        "rationale": "Dormant stored instruction activates later - delayed injection "
         "(LLM01).",
     },
     "audit_bypass": {

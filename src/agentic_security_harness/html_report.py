@@ -99,7 +99,7 @@ def _page(title: str, body: str) -> str:
         "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
         f"<title>{_esc(title)}</title><style>{_CSS}</style></head><body>\n"
         f"{body}\n"
-        "<footer>Agentic Security Harness — static report. No external resources, "
+        "<footer>Agentic Security Harness - static report. No external resources, "
         "no network, no telemetry. JSON/Markdown artifacts remain authoritative."
         "</footer></body></html>\n"
     )
@@ -196,9 +196,9 @@ def _render_run(run_dir: Path, manifest: dict | None) -> str:
     passed = scorecard.get("passed_patterns", [])
     by_sev = scorecard.get("findings_by_severity", {})
 
-    body = [f"<h1>Run report — {target}</h1>"]
-    body.append(f"<p class=\"sub\">{len(traces)} patterns · "
-                f"{len(failed)} with findings · {len(passed)} clean</p>")
+    body = [f"<h1>Run report - {target}</h1>"]
+    body.append(f"<p class=\"sub\">{len(traces)} patterns - "
+                f"{len(failed)} with findings - {len(passed)} clean</p>")
     if manifest:
         body.append("<h2>Run metadata</h2>")
         body.append(_kv(_manifest_pairs(manifest)))
@@ -220,7 +220,7 @@ def _render_run(run_dir: Path, manifest: dict | None) -> str:
     body.append(_remediation_section(remediation))
     body.append(_pattern_detail_sections(traces, remediation))
     body.append(_disclaimer_section())
-    return _page(f"Run report — {scorecard.get('target_name', 'run')}", "".join(body))
+    return _page(f"Run report - {scorecard.get('target_name', 'run')}", "".join(body))
 
 
 def _pattern_detail_sections(traces: list, remediation: dict | None) -> str:
@@ -287,7 +287,7 @@ def _render_compare(run_dir: Path, manifest: dict | None) -> str:
     p_findings = sum((prot.get("findings_by_severity") or {}).values())
 
     body = ["<h1>Risk-reduction comparison</h1>"]
-    body.append(f"<p class=\"sub\">{_esc(base.get('target_name', 'baseline'))} → "
+    body.append(f"<p class=\"sub\">{_esc(base.get('target_name', 'baseline'))} -> "
                 f"{_esc(prot.get('target_name', 'protected'))}</p>")
     if manifest:
         body.append("<h2>Run metadata</h2>")
@@ -305,7 +305,7 @@ def _render_compare(run_dir: Path, manifest: dict | None) -> str:
     ]
     body.append(_table(["Metric", "Baseline", "Protected"], rows))
     delta = p_findings - b_findings
-    body.append(f"<div class=\"note\">Findings reduced: <strong>{b_findings} → "
+    body.append(f"<div class=\"note\">Findings reduced: <strong>{b_findings} -> "
                 f"{p_findings} ({delta:+d})</strong>.</div>")
 
     body.append("<h2>Baseline severity distribution</h2>")
@@ -323,10 +323,10 @@ def _render_matrix(run_dir: Path, manifest: dict | None) -> str:
     variants = matrix.get("variants", [])
     pattern_ids = matrix.get("selected_pattern_ids", [])
 
-    body = [f"<h1>Matrix report — {_esc(matrix.get('scenario_id', ''))}</h1>"]
-    body.append(f"<p class=\"sub\">target <code>{_esc(matrix.get('target_name', ''))}</code> · "
-                f"{summary.get('total_variants', 0)} variants · "
-                f"{summary.get('total_traces', 0)} traces · "
+    body = [f"<h1>Matrix report - {_esc(matrix.get('scenario_id', ''))}</h1>"]
+    body.append(f"<p class=\"sub\">target <code>{_esc(matrix.get('target_name', ''))}</code> - "
+                f"{summary.get('total_variants', 0)} variants - "
+                f"{summary.get('total_traces', 0)} traces - "
                 f"{summary.get('failed_variants', 0)} failed / "
                 f"{summary.get('passed_variants', 0)} passed variants</p>")
     if manifest:
@@ -334,7 +334,7 @@ def _render_matrix(run_dir: Path, manifest: dict | None) -> str:
         body.append(_kv(_manifest_pairs(manifest)))
 
     # Coverage heatmap: patterns (rows) x variants (cols)
-    body.append("<h2>Coverage heatmap (pattern × variant)</h2>")
+    body.append("<h2>Coverage heatmap (pattern x variant)</h2>")
     fail_sets = {
         v.get("variant_id", ""): set(v.get("failed_patterns", [])) for v in variants
     }
@@ -379,7 +379,7 @@ def _render_external(run_dir: Path, manifest: dict | None) -> str:
     summary = _load(run_dir / "external_summary.json") or {}
     config = _load(run_dir / "run_config.json") or {}
 
-    body = [f"<h1>External run report — {_esc(summary.get('model', 'model'))}</h1>"]
+    body = [f"<h1>External run report - {_esc(summary.get('model', 'model'))}</h1>"]
     body.append("<div class=\"note\">Experimental external run. Prompt-based evaluation "
                 "only; no tools executed. Not a benchmark-grade vendor comparison.</div>")
 
@@ -473,7 +473,7 @@ def _render_external(run_dir: Path, manifest: dict | None) -> str:
 
 def _render_diff(run_dir: Path, manifest: dict | None) -> str:
     diff = _load(run_dir / "run_diff.json") or {}
-    body = [f"<h1>Run diff — {_esc(diff.get('kind', ''))}</h1>"]
+    body = [f"<h1>Run diff - {_esc(diff.get('kind', ''))}</h1>"]
     body.append(
         f"<p class=\"sub\">left <code>{_esc(diff.get('left_label', ''))}</code> "
         f"vs right <code>{_esc(diff.get('right_label', ''))}</code></p>"

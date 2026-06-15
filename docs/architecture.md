@@ -43,12 +43,12 @@ protected target adapters. A generalized, standalone data-boundary checker is pl
 ## Attack graph
 
 ```
-target → exposed inputs → agents → tools → permissions → memory → external data
-       → attack chain → observed behavior → finding → mitigation
+target -> exposed inputs -> agents -> tools -> permissions -> memory -> external data
+       -> attack chain -> observed behavior -> finding -> mitigation
 ```
 
 **Perception-boundary tests** extend the front with an
-`external signal → input channel → transcript` prefix before `exposed inputs`. The current
+`external signal -> input channel -> transcript` prefix before `exposed inputs`. The current
 release uses synthetic OCR / ASR / HTML transcript fixtures; full media adapters are future
 work. A **data envelope** (`data_class`, `allowed_recipients`, `can_store`, `can_forward`,
 `ttl`, `classification_mutable=false`) travels alongside the data, and the harness checks
@@ -91,19 +91,19 @@ For future adapters, the stable contract is documented in
 > intended design of the optional reference gateway.
 
 When a target is put behind the reference gateway, the gateway inspects requests/responses
-and emits one of five decisions — `ALLOW / WARN / REDACT / QUARANTINE / BLOCK` — with
+and emits one of five decisions - `ALLOW / WARN / REDACT / QUARANTINE / BLOCK` - with
 fixed precedence `BLOCK > QUARANTINE > REDACT > WARN > ALLOW`.
 
 ```
- client/app ─► gateway → normalizer → [deterministic scanner | PII/secrets | classifier]
-                                              │
+ client/app -> gateway -> normalizer -> [deterministic scanner | PII/secrets | classifier]
+                                              |
                                           policy engine
-                            ┌──────────┬──────┴────┬──────────┬─────────┐
+                            +----------+------+----+----------+---------+
                           BLOCK    QUARANTINE     REDACT     WARN      ALLOW
-                            │      202+id(async)    │          │         │
-                          error   (no held conn)  rewrite   annotate  forward ─► provider
-                                                                          │
-                                                              response scanner ─► client
+                            |      202+id(async)    |          |         |
+                          error   (no held conn)  rewrite   annotate  forward -> provider
+                                                                          |
+                                                              response scanner -> client
 ```
 
 - **Quarantine is async:** on `QUARANTINE` the gateway returns `202` + `quarantine_id`
@@ -117,14 +117,14 @@ fixed precedence `BLOCK > QUARANTINE > REDACT > WARN > ALLOW`.
 ## Trust boundaries
 
 ```
-[ untrusted: user input, RAG docs, tool/sensor outputs ] ─► boundary 1 ─►
-[ target under test (agent / chain / workflow) ]         ─► boundary 2 ─►
-[ harness control plane: runner + traces + scorecard ]   ─► boundary 3 ─►
-[ optional defense: reference gateway ] ─► [ external: LLM provider ]
+[ untrusted: user input, RAG docs, tool/sensor outputs ] -> boundary 1 ->
+[ target under test (agent / chain / workflow) ]         -> boundary 2 ->
+[ harness control plane: runner + traces + scorecard ]   -> boundary 3 ->
+[ optional defense: reference gateway ] -> [ external: LLM provider ]
 ```
 
 The harness only drives **mock / demo / authorized** targets. Everything to the left of
-boundary 1 is hostile by default — including **sensor inputs** (audio/image), not just text.
+boundary 1 is hostile by default - including **sensor inputs** (audio/image), not just text.
 
 ## Storage
 

@@ -3,10 +3,14 @@
 What the Agentic Security Harness actually measures, what the result words mean, and what
 a clean run does and does **not** prove. Read this before drawing conclusions from a run.
 
+For the formal public protocol (evaluation unit, target modes, scoring rules, claim
+boundaries, and reviewer checklist), see [benchmark-protocol.md](benchmark-protocol.md).
+This page is the glossary and interpretation companion to that protocol.
+
 ## What is being tested
 
 For each sanitized **pattern** (a known agentic failure mode with synthetic data), the
-harness drives a **target** and records whether a declared **boundary** survived — for
+harness drives a **target** and records whether a declared **boundary** survived - for
 example: did a data-envelope label survive a handoff, was untrusted tool output trusted,
 did delegated authority expand, was a tool selected without provenance.
 
@@ -20,7 +24,7 @@ The unit is: `pattern -> target -> trace -> scorecard -> validation`. The portab
 - It is **not** a certification, guarantee, or production-safety claim.
 - The external path is **prompt-only**: it asks a model to judge a synthetic scenario.
   It does **not** execute tools, drive an agent host, or test a real deployment.
-- A clean result means the *modelled patterns* passed — not that a real system is safe.
+- A clean result means the *modelled patterns* passed - not that a real system is safe.
 
 ## Result words
 
@@ -70,7 +74,7 @@ artifacts are internally consistent and safe to publish:
 
 - It does **not** prove a target is secure, compliant, or production-safe.
 - It does **not** re-run the model or re-test anything live.
-- It does **not** validate real-world risk — only that the artifacts conform.
+- It does **not** validate real-world risk - only that the artifacts conform.
 
 `validate` passing means "these reports are well-formed and consistent", not "this system
 is safe".
@@ -80,10 +84,10 @@ is safe".
 | Mode | What it is | Network | Determinism |
 |---|---|---|---|
 | Local deterministic target | `mock`, `demo-agent`, `protected-demo-agent` | offline | deterministic |
-| Toy target | `toy-local-function`, `toy-rag`, `toy-tools` — demo stand-ins exercising a subset of surfaces (legitimately PASS some patterns) | offline | deterministic |
+| Toy target | `toy-local-function`, `toy-rag`, `toy-tools` - demo stand-ins exercising a subset of surfaces (legitimately PASS some patterns) | offline | deterministic |
 | Scenario matrix | `run-matrix` replays scenario variants and aggregates stability | offline | deterministic |
 | External prompt-only check | `run-external` against an OpenAI-compatible endpoint | opt-in only | stochastic possible |
-| Native / agent-host adapter | provider SDK or tool-executing agent | — | **future, not shipped** |
+| Native / agent-host adapter | provider SDK or tool-executing agent | - | **future, not shipped** |
 
 See [capability-matrix.md](capability-matrix.md) for the full per-target table.
 
@@ -97,7 +101,7 @@ See [capability-matrix.md](capability-matrix.md) for the full per-target table.
 ## Comparing two runs responsibly
 
 - Compare runs with the **same** scenario, variants, repeats, and temperature.
-- Do not compare a single response from model A against a single response from model B —
+- Do not compare a single response from model A against a single response from model B -
   re-run each with the same configuration and compare per-status counts.
 - A lower finding count is only meaningful if the runs are configured identically and the
   difference is larger than the flaky noise.
@@ -105,6 +109,6 @@ See [capability-matrix.md](capability-matrix.md) for the full per-target table.
 ## Why a single clean run is not a guarantee
 
 The corpus is a finite set of **known** synthetic failure shapes. Passing them means the
-target handled those shapes in this deterministic test — not that it resists novel,
+target handled those shapes in this deterministic test - not that it resists novel,
 obfuscated, or adaptive attacks, real data, or production conditions. False negatives are
 expected; see [threat-model.md](threat-model.md).

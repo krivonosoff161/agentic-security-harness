@@ -4,7 +4,7 @@
 > [safe research rules](../research-rules.md).
 
 The data-boundary / recipient-control wedge asks one question: **do a data item's rules
-survive the agent's internal handling?** Five common ways they do not — each with a safe,
+survive the agent's internal handling+** Five common ways they do not - each with a safe,
 mock-only test idea, a detection signal, and a mitigation.
 
 ## 1. A user pastes sensitive company data into an AI assistant
@@ -53,4 +53,4 @@ mock-only test idea, a detection signal, and a mitigation.
 ---
 
 Each scenario maps to a harness **test pattern** and, where applicable, a **reference-defense
-control** — see the [problem–solution catalog](../problem-solution-catalog.md).
+control** - see the [problem-solution catalog](../problem-solution-catalog.md).

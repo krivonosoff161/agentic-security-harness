@@ -44,7 +44,7 @@ These are **not** implemented and should wait until the trace schema is frozen a
 - Storing trace bodies or findings in the DB (the file artifacts already hold these).
 - A query CLI (filter by kind/target/outcome, time ranges).
 - A migration/versioning story for the DB schema itself.
-- Any networked or multi-user database (Postgres, a server) — see
+- Any networked or multi-user database (Postgres, a server) - see
   [roadmap.md](roadmap.md) and
   [independent-benchmark-gap-list.md](independent-benchmark-gap-list.md).
 

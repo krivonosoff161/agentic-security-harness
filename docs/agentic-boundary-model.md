@@ -5,8 +5,8 @@
 Every agentic system processes information through a chain:
 
 ```
-source content → parser/perception → model context → agent planner →
-permission layer → tool/action → memory/audit → next cycle
+source content -> parser/perception -> model context -> agent planner ->
+permission layer -> tool/action -> memory/audit -> next cycle
 ```
 
 Each link in this chain is a **boundary** where trust must be evaluated. The harness

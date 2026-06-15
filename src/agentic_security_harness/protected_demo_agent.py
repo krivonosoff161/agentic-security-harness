@@ -304,7 +304,7 @@ class ProtectedDemoAgent(DemoAgent):
         self.log("audit_integrity_check", "agent", "audit chain verified")
         return False
 
-    # ── v0.9 deeper variants ────────────────────────────────────────────────
+    # -- v0.9 deeper variants ------------------------------------------------
 
     def store_retrieved_content_with_source(
         self, key: str, value: str, envelope: DataEnvelope, source_channel: str

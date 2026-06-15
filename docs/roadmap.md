@@ -97,9 +97,9 @@ release scope until the core above is stable:
 
 Captured but intentionally not built yet:
 
-- [independent-benchmark-gap-list.md](independent-benchmark-gap-list.md) — onboarding/UX,
+- [independent-benchmark-gap-list.md](independent-benchmark-gap-list.md) - onboarding/UX,
   reporting, and reproducibility gaps for a fully self-serve module.
-- [benchmark-positioning-gap-list.md](benchmark-positioning-gap-list.md) — where we win
+- [benchmark-positioning-gap-list.md](benchmark-positioning-gap-list.md) - where we win
   and lag versus common open eval/red-team toolkits.
 
 ## A note on self-learning

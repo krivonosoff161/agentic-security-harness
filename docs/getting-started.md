@@ -1,12 +1,12 @@
 # Getting started
 
-Goal: from a fresh clone to your first validated benchmark report in **10–30 minutes**,
+Goal: from a fresh clone to your first validated benchmark report in **10-30 minutes**,
 with no API keys and no network.
 
 > **What this is:** a defensive **benchmark / evaluation toolkit** that reproduces
 > agentic AI failure modes on synthetic targets and measures risk reduction.
 > **What this is not:** a sandbox, a runtime firewall, or a security certification. A
-> clean result means the synthetic patterns passed — not that a real system is safe.
+> clean result means the synthetic patterns passed - not that a real system is safe.
 
 ## 1. Install
 
@@ -80,13 +80,13 @@ ash run-external  --base-url http://127.0.0.1:8766/v1 --model fake-model --scena
 ```
 
 On Windows PowerShell, start the fake server in a separate window (no trailing `&`) and
-use `` ` `` for line continuation — see [connect-models.md §5](connect-models.md) for the
+use `` ` `` for line continuation - see [connect-models.md Section 5](connect-models.md) for the
 PowerShell recipes.
 
 Then point it at your own stack (vLLM, DeepSeek, Alibaba/Qwen, Ollama, LM Studio, or any
 gateway) using the recipes in [connect-models.md](connect-models.md). `run-external`
 refuses to exceed `--max-requests` (default 50), and the API key is read from an env var
-by name — never logged or stored.
+by name - never logged or stored.
 
 ## 7. Validate any report
 
@@ -112,9 +112,9 @@ produces the same id. Manifests are validated by `ash validate` when present.
 
 ## Where to read next
 
-- [examples/README.md](../examples/README.md) — what each committed example shows.
-- [connect-models.md](connect-models.md) — connector recipes per stack.
-- [test-your-model.md](test-your-model.md) — the external path in depth.
-- [reporting-flow.md](reporting-flow.md) — what each artifact contains.
-- [threat-model.md](threat-model.md) — limitations and honest residual risk.
-- [project-map.md](project-map.md) — the full repository map.
+- [examples/README.md](../examples/README.md) - what each committed example shows.
+- [connect-models.md](connect-models.md) - connector recipes per stack.
+- [test-your-model.md](test-your-model.md) - the external path in depth.
+- [reporting-flow.md](reporting-flow.md) - what each artifact contains.
+- [threat-model.md](threat-model.md) - limitations and honest residual risk.
+- [project-map.md](project-map.md) - the full repository map.

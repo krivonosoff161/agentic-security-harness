@@ -72,7 +72,7 @@ agent stack preserves the relevant labels in known failure shapes.
 - Prefer a small number of framework IDs per category; map at category level, not by
   guessing per-pattern sub-IDs.
 - OWASP Agentic (per pattern) is authored in `corpus.py`; OWASP LLM and NIST (per
-  category) in `standards_mapping.py`. Keep both in sync — `validate_standards_mapping`
+  category) in `standards_mapping.py`. Keep both in sync - `validate_standards_mapping`
   enforces id formats and that empty fields are explicit, not accidental omissions.
 - Do not add MITRE ATLAS IDs until they are checked against the current official ATLAS
   technique pages; leaving the field empty with status `partial`/`deferred` is the

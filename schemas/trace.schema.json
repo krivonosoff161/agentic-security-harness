@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/krivonosoff161/agentic-security-harness/schemas/trace.schema.json",
+  "title": "Agentic Security Harness trace",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "trace_id",
+    "pattern_id",
+    "target",
+    "graph_path",
+    "steps",
+    "expected_vulnerable_behavior",
+    "observed_behavior",
+    "findings",
+    "reproducibility"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "trace_id": { "type": "string", "minLength": 1 },
+    "pattern_id": { "type": "string", "minLength": 1 },
+    "target": { "type": "object" },
+    "graph_path": { "type": "array", "items": { "type": "string" } },
+    "steps": { "type": "array", "items": { "type": "object" } },
+    "expected_vulnerable_behavior": { "type": "string" },
+    "observed_behavior": { "type": "string" },
+    "findings": { "type": "array", "items": { "type": "object" } },
+    "data_envelope": { "type": ["object", "null"] },
+    "reproducibility": { "type": "object" }
+  },
+  "additionalProperties": true
+}

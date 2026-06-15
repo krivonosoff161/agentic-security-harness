@@ -58,7 +58,7 @@ def _artifact_names(out: Path) -> list[str]:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="ash",
-        description="Agentic Security Harness - defensive, mock-only demo runner.",
+        description="Agentic Security Harness - trace-first defensive benchmark harness.",
     )
     sub = parser.add_subparsers(dest="command", required=True)
 

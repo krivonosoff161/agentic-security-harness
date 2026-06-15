@@ -1,10 +1,10 @@
-# Problem–solution catalog
+# Problem-solution catalog
 
 > **Agentic Security Harness.** This is the **central map** from a real agentic problem to a defensive
 > test and a control. It ties together the [harness](harness.md), the
 > [threat model](threat-model.md), and the [reference defense](architecture.md).
 >
-> **Defensive framing:** every entry is a **defensive test pattern** — sanitized, run
+> **Defensive framing:** every entry is a **defensive test pattern** - sanitized, run
 > against **mock / demo / authorized** targets only, no real credential theft or
 > third-party abuse ([responsible use](../SECURITY.md#responsible-use)).
 
@@ -12,15 +12,15 @@
 
 Each entry follows the same shape:
 
-- **What goes wrong** · **Defensive scenario** · **Detection signals** ·
-  **Mitigation controls** · **Harness test pattern** · **Planned reference-control idea** ·
-  **Human / process controls** · **Residual risk**
+- **What goes wrong** - **Defensive scenario** - **Detection signals** -
+  **Mitigation controls** - **Harness test pattern** - **Planned reference-control idea** -
+  **Human / process controls** - **Residual risk**
 
 Several entries use the **data envelope**
 ([definition](harness.md#agentic-data-boundary-and-recipient-control)): `data_class`,
 `allowed_recipients`, `allowed_purpose`, `can_store`, `can_forward`, `ttl`,
 `requires_confirmation`, `classification_source`, `classification_mutable=false`. An
-envelope is a **policy label that must be enforced and survive transformation** — **not**
+envelope is a **policy label that must be enforced and survive transformation** - **not**
 encryption (encryption protects transport/storage; it does not solve prompt injection).
 
 ---
@@ -60,7 +60,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 
 ## 3. Data reclassification attack
 
-- **What goes wrong:** untrusted content induces the agent to **downgrade/alter a sensitivity label** (e.g. confidential → public), so later controls treat it as safe.
+- **What goes wrong:** untrusted content induces the agent to **downgrade/alter a sensitivity label** (e.g. confidential -> public), so later controls treat it as safe.
 - **Defensive scenario:** synthetic data tagged confidential; inject content attempting a relabel; verify `classification_mutable=false` holds.
 - **Detection signals:** classification changing from a non-trusted `classification_source`; downgrade events.
 - **Mitigation controls:** trusted `classification_source` only; `classification_mutable=false`; relabel requires authority; log all changes.
@@ -223,5 +223,5 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 
 > This catalog is the project's backbone: each problem should map to a **harness test
 > pattern** (so it is reproducible) and, where applicable, a **reference control** (so risk
-> reduction can be *measured*, not asserted). It does not claim to be first or only — see
+> reduction can be *measured*, not asserted). It does not claim to be first or only - see
 > [competitors.md](competitors.md).

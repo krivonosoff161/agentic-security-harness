@@ -1,7 +1,7 @@
 # Deployment
 
 > **Agentic Security Harness.** **Current reality:** the local harness and the `ash` CLI run
-> a deterministic 22-pattern corpus against mock/demo targets and write reports — there is no
+> a deterministic 22-pattern corpus against mock/demo targets and write reports - there is no
 > server to deploy yet. The reference-gateway server / Docker workflow below is design intent
 > for later versions. Sections are marked accordingly.
 
@@ -41,10 +41,10 @@ configuration required by the current `ash` CLI.
     **non-root** user, runtime artifacts only. Entry point runs the
   ASGI server. `HEALTHCHECK` hits `/health`.
 - **docker-compose.yml** services:
-  - `gateway` — the app; reads `.env`.
-  - `db` — PostgreSQL (`prod` profile); the `default` profile uses SQLite and skips it.
-  - `redis` — optional (cache/budgets), behind a Compose profile.
-  - `dashboard` — optional separate service, or served by the gateway in early versions.
+  - `gateway` - the app; reads `.env`.
+  - `db` - PostgreSQL (`prod` profile); the `default` profile uses SQLite and skips it.
+  - `redis` - optional (cache/budgets), behind a Compose profile.
+  - `dashboard` - optional separate service, or served by the gateway in early versions.
   - Profiles: `default` (gateway + SQLite), `prod` (gateway + Postgres + Redis + dashboard).
 
 ## Environment variables
@@ -52,7 +52,7 @@ configuration required by the current `ash` CLI.
 | Var | Purpose |
 |---|---|
 | `GATEWAY_PORT` | listen port (default 8080) |
-| `GATEWAY_DB_URL` | `sqlite:///gateway.db` or `postgresql://…` |
+| `GATEWAY_DB_URL` | `sqlite:///gateway.db` or `postgresql://...` |
 | `GATEWAY_REDIS_URL` | optional; enables cache/budgets |
 | `GATEWAY_ADMIN_TOKEN` | bearer token for `/admin/*` |
 | `GATEWAY_DEFAULT_PROVIDER` | `openai` / `anthropic` / `ollama` |

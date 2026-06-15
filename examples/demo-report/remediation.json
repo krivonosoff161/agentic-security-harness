@@ -10,7 +10,7 @@
       "control_family": "provenance",
       "priority": "p1",
       "quick_fix": "Tag all external/tool/retrieval output with a source provenance label before it enters the agent context.",
-      "engineering_fix": "Implement a provenance propagation layer: every content item carries source_channel, trust_level, and classification_source through the full pipeline (ingest → context → decision → action → memory).",
+      "engineering_fix": "Implement a provenance propagation layer: every content item carries source_channel, trust_level, and classification_source through the full pipeline (ingest -> context -> decision -> action -> memory).",
       "architecture_fix": "Adopt a formal information-flow control model (e.g. CaMeL/FIDES-style label separation) where untrusted content cannot influence privileged actions without explicit declassification.",
       "verification": "Re-run the affected pattern with the control active; the baseline finding should disappear and the protected trace should show provenance tags in every step.",
       "residual_risk": "Semantic similarity between trusted and untrusted content may still cause confusion; cross-modal injection vectors require additional perception-layer controls."
@@ -241,7 +241,7 @@
       "control_family": "provenance",
       "priority": "p1",
       "quick_fix": "Tag all external/tool/retrieval output with a source provenance label before it enters the agent context.",
-      "engineering_fix": "Implement a provenance propagation layer: every content item carries source_channel, trust_level, and classification_source through the full pipeline (ingest → context → decision → action → memory).",
+      "engineering_fix": "Implement a provenance propagation layer: every content item carries source_channel, trust_level, and classification_source through the full pipeline (ingest -> context -> decision -> action -> memory).",
       "architecture_fix": "Adopt a formal information-flow control model (e.g. CaMeL/FIDES-style label separation) where untrusted content cannot influence privileged actions without explicit declassification.",
       "verification": "Re-run the affected pattern with the control active; the baseline finding should disappear and the protected trace should show provenance tags in every step.",
       "residual_risk": "Semantic similarity between trusted and untrusted content may still cause confusion; cross-modal injection vectors require additional perception-layer controls."

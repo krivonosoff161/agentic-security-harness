@@ -482,7 +482,7 @@ def seed_patterns() -> list[DefensivePattern]:
                 classification_mutable=False,
             ),
         ),
-        # ── v0.9 deeper variants ────────────────────────────────────────────
+        # -- v0.9 deeper variants --------------------------------------------
         DefensivePattern(
             pattern_id="memory_governance.environment_injected_poisoning",
             name="Memory governance: environment-injected poisoning (sanitized)",

@@ -1,7 +1,7 @@
 # Releasing (PyPI, Docker, devcontainer)
 
 The package is import- and wheel-clean today; this page is the practical path to a public
-release. PyPI publishing itself is **future** (a v1.0 step) — do not assume the package is
+release. PyPI publishing itself is **future** (a v1.0 step) - do not assume the package is
 on PyPI yet. See the gates in [release-checklist.md](release-checklist.md).
 
 ## Packaging facts (current)
@@ -26,7 +26,7 @@ ash validate examples/
 
 CI already runs the equivalent build + `twine check` + wheel smoke on every push.
 
-## Publishing to PyPI (future — when v1.0 gates pass)
+## Publishing to PyPI (future - when v1.0 gates pass)
 
 ```bash
 # TestPyPI first

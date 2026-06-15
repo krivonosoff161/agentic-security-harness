@@ -18,9 +18,9 @@ replay**.
 
 Attack chains here are documented as **defensive test patterns**. Every pattern is:
 
-- **sanitized** — payloads are placeholders / minimal proof-of-concept, never weaponized;
-- **reproducible** — the same inputs produce the same trace;
-- **run against mock / demo / authorized targets only** — never against third-party
+- **sanitized** - payloads are placeholders / minimal proof-of-concept, never weaponized;
+- **reproducible** - the same inputs produce the same trace;
+- **run against mock / demo / authorized targets only** - never against third-party
   systems you do not own or have written permission to test;
 - documented with its **expected vulnerable behavior**;
 - documented with a **mitigation**;
@@ -42,8 +42,8 @@ a defense **repeatably**.
 
 Given a **target** and a set of **defensive test patterns**, the runner produces:
 
-1. **Traces** — one machine-readable, portable failure trace per attack chain (the core artifact).
-2. **A scorecard** — an aggregate derived from a set of traces.
+1. **Traces** - one machine-readable, portable failure trace per attack chain (the core artifact).
+2. **A scorecard** - an aggregate derived from a set of traces.
 
 Both are data, not prose, so they can be diffed, version-controlled, and replayed.
 
@@ -54,15 +54,15 @@ Both are data, not prose, so they can be diffed, version-controlled, and replaye
 A **trace** is the central artifact (the model class is `ExploitTrace` in
 `src/agentic_security_harness/models.py`). It is:
 
-- **machine-readable** — structured data (JSON/YAML), not a log line;
-- **portable** — describes the target abstractly, so the same trace can be **replayed
+- **machine-readable** - structured data (JSON/YAML), not a log line;
+- **portable** - describes the target abstractly, so the same trace can be **replayed
   against a different target or defense**;
-- **explanatory** — it records *where the chain broke* along the attack graph, not just
+- **explanatory** - it records *where the chain broke* along the attack graph, not just
   pass/fail.
 
 ### Illustrative example
 
-> ⚠️ **Illustrative, not the final spec.** Field names and shape will change. Payloads are
+> WARNING **Illustrative, not the final spec.** Field names and shape will change. Payloads are
 > sanitized placeholders. The implemented schema is the `ExploitTrace` model in
 > `src/agentic_security_harness/models.py`; the current committed artifacts use
 > `pattern_id`, indexed `steps`, and a `findings` list. The `mapping` block below is
@@ -103,33 +103,33 @@ The format is deliberately small: a target descriptor, a path through the attack
 the steps, the expected vs observed behavior, the finding (with **where it broke**), the
 mitigation, and a reproducibility anchor.
 
-Future sensor / multimodal targets would add a `modality` block to the trace — see
+Future sensor / multimodal targets would add a `modality` block to the trace - see
 [Multimodal and sensor-to-agent injection](#multimodal-and-sensor-to-agent-injection).
 
 ---
 
 ## Attack graph
 
-The graph is **practical, not abstract** — it models the real surface of an agentic
+The graph is **practical, not abstract** - it models the real surface of an agentic
 system as a chain:
 
 ```
-target → exposed inputs → agents → tools → permissions → memory → external data
-       → attack chain → observed behavior → finding → mitigation
+target -> exposed inputs -> agents -> tools -> permissions -> memory -> external data
+       -> attack chain -> observed behavior -> finding -> mitigation
 ```
 
 Each trace is a **path** through this graph. The value is locating the **break point**:
-e.g. a chain that flows `exposed_input → external_data(retrieval) → agent_decision →
+e.g. a chain that flows `exposed_input -> external_data(retrieval) -> agent_decision ->
 tool_call` and breaks at `agent_decision` tells you the agent failed to separate
-untrusted content from instructions — which points directly at the mitigation.
+untrusted content from instructions - which points directly at the mitigation.
 
-**Planned sensor / multimodal targets extend the front of the graph** — an `external signal →
-input channel → ASR / OCR transcript` prefix sits before `exposed inputs` (see
+**Planned sensor / multimodal targets extend the front of the graph** - an `external signal ->
+input channel -> ASR / OCR transcript` prefix sits before `exposed inputs` (see
 [Multimodal and sensor-to-agent injection](#multimodal-and-sensor-to-agent-injection)).
 
 **A data envelope travels alongside the data** (`data_class`, `allowed_recipients`,
 `can_store`, `can_forward`, `ttl`, `classification_mutable=false`); the harness checks it
-**survives** each hop — see
+**survives** each hop - see
 [Agentic data boundary and recipient control](#agentic-data-boundary-and-recipient-control).
 
 ---
@@ -138,12 +138,12 @@ input channel → ASR / OCR transcript` prefix sits before `exposed inputs` (see
 
 A **target adapter** lets the harness drive a system under test. Planned adapter kinds:
 
-- **LLM agent** — a single agent with tools.
-- **MCP / tool chain** — an agent wired to MCP servers / tool schemas.
-- **Multi-agent workflow** — several agents passing messages / shared memory.
-- **AI gateway** — a gateway in front of any of the above (including the
+- **LLM agent** - a single agent with tools.
+- **MCP / tool chain** - an agent wired to MCP servers / tool schemas.
+- **Multi-agent workflow** - several agents passing messages / shared memory.
+- **AI gateway** - a gateway in front of any of the above (including the
   [reference gateway](#reference-defense-replay)).
-- **Voice / multimodal target** — an agent that accepts audio / image input, tested via
+- **Voice / multimodal target** - an agent that accepts audio / image input, tested via
   **sanitized ASR / OCR fixtures**, exercising the pre-LLM sensor channel.
 
 **Mock / demo adapters come first.** Real adapters are opt-in and only ever pointed at
@@ -170,11 +170,11 @@ coverage matrix is documented in [corpus.md](corpus.md). Taxonomy:
 | **Memory poisoning** | Planted state changes the agent's *future* decisions. |
 | **Tool-permission abuse** | Over-broad tool permissions enable an unintended action. |
 | **MCP / tool-schema deception** | A misleading tool schema/description steers the agent into a wrong call. |
-| **Data exfiltration attempt (simulated)** | Agent is induced to route sanitized "sensitive" markers outward — simulation only, never real secrets. |
+| **Data exfiltration attempt (simulated)** | Agent is induced to route sanitized "sensitive" markers outward - simulation only, never real secrets. |
 | **Budget exhaustion / loop abuse** | A chain burns tokens / loops without bound. |
 | **Policy bypass via multi-turn escalation** | A guardrail holds for one turn but is escalated across turns. |
-| **Multimodal and sensor-to-agent injection** | A signal on a non-text channel (esp. **audio → ASR**, also image / OCR) carries an instruction the agent acts on — testing the path *before* the LLM sees text ([details](#multimodal-and-sensor-to-agent-injection)). |
-| **Agentic data boundary and recipient control** | Whether a data item's **envelope** (class, allowed recipients, store / forward rules, TTL) **survives** agent handoffs, memory writes, tool calls, and provider routing — incl. classification mutation, recipient confusion, label stripping ([details](#agentic-data-boundary-and-recipient-control)). |
+| **Multimodal and sensor-to-agent injection** | A signal on a non-text channel (esp. **audio -> ASR**, also image / OCR) carries an instruction the agent acts on - testing the path *before* the LLM sees text ([details](#multimodal-and-sensor-to-agent-injection)). |
+| **Agentic data boundary and recipient control** | Whether a data item's **envelope** (class, allowed recipients, store / forward rules, TTL) **survives** agent handoffs, memory writes, tool calls, and provider routing - incl. classification mutation, recipient confusion, label stripping ([details](#agentic-data-boundary-and-recipient-control)). |
 
 All payloads are sanitized; "sensitive" data in exfiltration tests are **synthetic
 markers**, not real credentials.
@@ -186,18 +186,18 @@ sensor / input channels**. A future harness track should test the **full path fr
 external signal to agent action**:
 
 ```
-external signal (audio / image) → input channel (e.g. microphone) → ASR / OCR transcript
-  → agent context → tool call / memory / output
+external signal (audio / image) -> input channel (e.g. microphone) -> ASR / OCR transcript
+  -> agent context -> tool call / memory / output
 ```
 
 Audio-to-agent is the primary case:
-`audio input → microphone / input channel → ASR transcript → agent context → tool call / memory / output`.
+`audio input -> microphone / input channel -> ASR transcript -> agent context -> tool call / memory / output`.
 
 **Safety framing (strict):**
 
-- **No instructions for generating ultrasonic / adversarial audio** — out of scope by design.
+- **No instructions for generating ultrasonic / adversarial audio** - out of scope by design.
 - **Sanitized, pre-recorded fixtures only** (benign, checked-in test assets).
-- This is **defensive testing of systems that accept voice / image / audio inputs** — not
+- This is **defensive testing of systems that accept voice / image / audio inputs** - not
   signal weaponization.
 
 For these future targets the trace should capture additional `modality` fields: `modality`,
@@ -208,7 +208,7 @@ available), `anomaly_or_spectral_flag` (if available),
 ### Agentic data boundary and recipient control
 
 A primary wedge. Most tools test *whether an injection succeeded*; this class tests whether
-a **data item's rules survive the agent's internal handling** — across handoffs, memory
+a **data item's rules survive the agent's internal handling** - across handoffs, memory
 writes, tool calls, and provider routing.
 
 Model each data item as a **policy-enforced data envelope**:
@@ -223,15 +223,15 @@ Model each data item as a **policy-enforced data envelope**:
 | `ttl` | how long it may live |
 | `requires_confirmation` | does an action on it need human confirmation |
 | `classification_source` | who set the class (must be trusted) |
-| `classification_mutable` | **`false`** — content / agents cannot relabel it |
+| `classification_mutable` | **`false`** - content / agents cannot relabel it |
 
 The harness checks whether these properties **hold** as data crosses each boundary:
 classification mutation, recipient confusion, `can_store` / `ttl` violation, handoff label
 stripping, and provider-boundary leakage. Full set in the
-[problem–solution catalog](problem-solution-catalog.md).
+[problem-solution catalog](problem-solution-catalog.md).
 
 > **Not encryption.** A data envelope is a **policy label that must be enforced and survive
-> transformation** — it is *not* magic encryption. Encryption protects transport and
+> transformation** - it is *not* magic encryption. Encryption protects transport and
 > storage; it does **not** solve prompt injection, because an authorized agent can still be
 > tricked into misusing data it is allowed to read. The envelope is what the harness
 > **verifies**; the reference gateway is one place to **enforce** it.
@@ -247,7 +247,7 @@ A **scorecard** is derived **from a set of traces** for a target. It reports, pe
 - corpus coverage by implemented pattern;
 - reproducibility (deterministic vs flaky).
 
-It is a derived artifact — regenerating it from the same traces is deterministic.
+It is a derived artifact - regenerating it from the same traces is deterministic.
 
 **Benchmark-artifact integrity.** The committed examples under `examples/` are validated
 artifacts. `ash validate` checks them against the corpus manifest
@@ -262,12 +262,12 @@ The reference gateway (this repo's original component, now **optional**) is one 
 target design** for a later release; it is not implemented in the current benchmark
 release. The replay loop is where traces pay off:
 
-1. Run a trace set against a **baseline** target → record findings.
+1. Run a trace set against a **baseline** target -> record findings.
 2. Put the target **behind a defense** (the reference gateway, or any other gateway you
-   want to evaluate) → replay the **same** trace set.
-3. Compare the two scorecards → **measured risk reduction**, not a marketing claim.
+   want to evaluate) -> replay the **same** trace set.
+3. Compare the two scorecards -> **measured risk reduction**, not a marketing claim.
 
-This is the honest core: the harness does not assert protection — it **measures the
+This is the honest core: the harness does not assert protection - it **measures the
 delta** a defense produces against reproducible traces.
 
 ---
@@ -276,6 +276,6 @@ delta** a defense produces against reproducible traces.
 
 This space is **not empty**, and this project does **not** claim to be first or only. The closest
 combined prior art and the established tools are named honestly in
-[competitors.md](competitors.md). The intended angle is narrow and specific — **portable
+[competitors.md](competitors.md). The intended angle is narrow and specific - **portable
 traces + a practical attack graph + reproducible cross-target replay + data-boundary /
 label-propagation measurement**, not "more attacks."

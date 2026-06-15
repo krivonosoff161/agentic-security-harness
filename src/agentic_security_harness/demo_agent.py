@@ -383,7 +383,7 @@ class DemoAgent:
         self.log("audit_integrity_check", "agent", "accepted audit chain without verification")
         return True
 
-    # ── v0.9 deeper variants ────────────────────────────────────────────────
+    # -- v0.9 deeper variants ------------------------------------------------
 
     def store_retrieved_content_with_source(
         self, key: str, value: str, envelope: DataEnvelope, source_channel: str

@@ -1,7 +1,7 @@
 # Competitive landscape
 
 > **Verification status:** verified **2026-06-12** against primary sources (inline
-> footnotes). A point-in-time snapshot — features, licensing, and ownership change;
+> footnotes). A point-in-time snapshot - features, licensing, and ownership change;
 > re-check before relying on any single claim. Pricing is intentionally not quoted.
 > This project does not claim to be the first or only tool in the category; it competes on
 > trace portability, corpus clarity, operating-environment boundary measurement, and
@@ -11,11 +11,11 @@
 
 There are three relevant categories:
 
-- **(A) Agentic security testing / red-teaming** — the closest active category.
+- **(A) Agentic security testing / red-teaming** - the closest active category.
   Several tools overlap our intent; we name them explicitly.
-- **(B) Information-flow / label-propagation defenses** — the most important adjacent
+- **(B) Information-flow / label-propagation defenses** - the most important adjacent
   category for the project's current data-boundary wedge.
-- **(C) Gateways / firewalls** — the context for the **reference defense** component only.
+- **(C) Gateways / firewalls** - the context for the **reference defense** component only.
 
 Tools we would **integrate** (wrap as detectors/oracles) are marked complementary.
 
@@ -23,7 +23,7 @@ Tools we would **integrate** (wrap as detectors/oracles) are marked complementar
 
 ## (A) Agentic security testing / red-teaming
 
-> ⚠️ **Active category.** General red-team scanning and live LLM vulnerability testing are
+> WARNING **Active category.** General red-team scanning and live LLM vulnerability testing are
 > already well served by established tools. This project should not compete on "more
 > attacks." Its narrower wedge is deterministic, local measurement of whether agentic
 > operating-environment boundaries survive handoffs, memory writes, tool calls, approvals,
@@ -38,7 +38,7 @@ Tools we would **integrate** (wrap as detectors/oracles) are marked complementar
 | **promptfoo** | OSS (MIT) test + red-team for prompts/agents/RAG; OWASP LLM Top 10; declarative YAML, CI/CD | Established OSS; strong overlap on agent testing | [repo][promptfoo] |
 | **AgentDojo** | MIT benchmark environment for attacks and defenses for LLM agents | Academic benchmark adjacent to our trace format; useful interop target | [repo][agentdojo] |
 
-> Four tools named in early discussion — *AgentSeal, PwnClaw, Inkog Red, OrchSec* — could
+> Four tools named in early discussion - *AgentSeal, PwnClaw, Inkog Red, OrchSec* - could
 > **not** be verified (no product or repo found) and are **omitted** rather than asserted.
 
 ---
@@ -59,7 +59,7 @@ the need for a small framework-neutral conformance-style benchmark.
 
 ## (C) Gateways / firewalls (reference-defense context)
 
-> **Closest gateway prior art — Trylon.** [Trylon Gateway][trylon] is an open-source,
+> **Closest gateway prior art - Trylon.** [Trylon Gateway][trylon] is an open-source,
 > self-hosted, FastAPI LLM-firewall gateway (multi-provider proxy + guardrails). It is the
 > closest prior art for **our reference-defense component** (not the harness).
 
@@ -68,16 +68,16 @@ the need for a small framework-neutral conformance-style benchmark.
 | **Trylon Gateway** | OSS FastAPI LLM-firewall gateway; multi-provider proxy + guardrails (PII redaction, toxicity, leakage) | Closest **gateway** prior art | [repo][trylon] |
 | **LiteLLM** | OSS proxy + SDK; routing/budgets/logging + **native guardrails framework** (Presidio, Lakera, Aporia, Pillar, PromptGuard, Bedrock, OpenAI moderation) | Gateway with real guardrails; routing-first vs security-first | [docs][litellm] |
 | **Lakera (Guard)** | Commercial API; prompt injection/jailbreak, content moderation, PII/data-leakage | Commercial detector; could be an optional scanner | [docs][lakera] |
-| **LLM Guard** (Protect AI) | OSS (MIT) scanner toolkit; 15 input + 20 output scanners | Complementary — integration target; owner now Palo Alto | [site][llmguard] |
-| **Guardrails AI** | OSS framework + Hub (100+ validators) | Complementary — in-process; we can wrap validators | [repo][guardrails] |
-| **NeMo Guardrails** (NVIDIA) | OSS (Apache-2.0); Colang DSL; 5 rail types | Complementary — in-process, dialog-centric | [repo][nemo] |
+| **LLM Guard** (Protect AI) | OSS (MIT) scanner toolkit; 15 input + 20 output scanners | Complementary - integration target; owner now Palo Alto | [site][llmguard] |
+| **Guardrails AI** | OSS framework + Hub (100+ validators) | Complementary - in-process; we can wrap validators | [repo][guardrails] |
+| **NeMo Guardrails** (NVIDIA) | OSS (Apache-2.0); Colang DSL; 5 rail types | Complementary - in-process, dialog-centric | [repo][nemo] |
 | **Microsoft Presidio** | OSS PII detect/anonymize (Analyzer + Anonymizer) | Complementary - a planned reference-gateway integration | [repo][presidio] |
-| **Rebuff** | OSS prompt-injection detector | Reference only — repo **archived/read-only** | [repo][rebuff] |
+| **Rebuff** | OSS prompt-injection detector | Reference only - repo **archived/read-only** | [repo][rebuff] |
 
 ### Ownership notes (verified)
-- **Rebuff** — archived (read-only) by owner **2025-05-16**. [repo][rebuff]
-- **Protect AI** (owns LLM Guard) — acquired by **Palo Alto Networks, completed 2025-07-22**. [source][protectai]
-- **Prompt Security** — acquired by **SentinelOne**, completed **2025-09-05**. [source][promptsec]
+- **Rebuff** - archived (read-only) by owner **2025-05-16**. [repo][rebuff]
+- **Protect AI** (owns LLM Guard) - acquired by **Palo Alto Networks, completed 2025-07-22**. [source][protectai]
+- **Prompt Security** - acquired by **SentinelOne**, completed **2025-09-05**. [source][promptsec]
 
 ---
 
@@ -101,7 +101,7 @@ garak / PyRIT / promptfoo are established and overlap on red-teaming/eval; Agent
 strong benchmark adjacent; CaMeL and FIDES validate the information-flow / label-propagation
 direction; Trylon is the closest gateway prior art for the reference defense. The public
 positioning is **"a focused, open, trace-first conformance-style benchmark for agentic
-operating-environment boundary failures,"** not a new category — and the wedge above should
+operating-environment boundary failures,"** not a new category - and the wedge above should
 be re-checked as these tools evolve.
 
 [botguard]: https://github.com/botguardai/BotGuard

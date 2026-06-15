@@ -1,6 +1,6 @@
 # Test your own model/runtime
 
-> **Agentic Security Harness** — experimental external adapter path.
+> **Agentic Security Harness** - experimental external adapter path.
 > Evaluate an authorized OpenAI-compatible endpoint with safe synthetic prompts.
 >
 > Looking for ready-made, copy-pasteable recipes per stack (fake server, vLLM, DeepSeek,
@@ -217,7 +217,7 @@ Start with `external_report.md` for the overview and recommendations, then
 `external_summary.json` for machine-readable counts.
 
 Findings are aggregated to control families using the harness's canonical
-pattern→family map (deterministic), not the model's self-reported
+pattern->family map (deterministic), not the model's self-reported
 `control_family` field. Recommendations reduce a *class* of benchmark findings;
 they do not by themselves make a system safe.
 

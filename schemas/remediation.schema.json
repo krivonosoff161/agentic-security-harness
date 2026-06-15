@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/krivonosoff161/agentic-security-harness/schemas/remediation.schema.json",
+  "title": "Agentic Security Harness remediation report",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "target_name",
+    "total_patterns",
+    "total_findings",
+    "recommendations"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "target_name": { "type": "string" },
+    "total_patterns": { "type": "integer", "minimum": 0 },
+    "total_findings": { "type": "integer", "minimum": 0 },
+    "recommendations": { "type": "array", "items": { "type": "object" } }
+  },
+  "additionalProperties": true
+}

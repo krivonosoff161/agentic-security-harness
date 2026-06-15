@@ -72,21 +72,21 @@ local and deterministic - no real provider, gateway, or network calls.
 ## Conventions
 
 - Style: PEP 8; snake_case functions, PascalCase classes.
-- Imports: stdlib → third-party → local, separated by blank lines.
+- Imports: stdlib -> third-party -> local, separated by blank lines.
 - Small, single-purpose functions.
-- Commits: conventional style (`feat:`, `fix:`, `docs:`, `test:`…), one logical change each.
+- Commits: conventional style (`feat:`, `fix:`, `docs:`, `test:`...), one logical change each.
 - No application secrets in code or config; provider keys come from env only.
 
 ## Design rules
 
 - The simple path needs **zero extra services**: local files only, no server, no Redis,
   no classifier, and no database.
-- The system prompt is **not** a security boundary — never store secrets there
+- The system prompt is **not** a security boundary - never store secrets there
   ([why](threat-model.md#why-the-system-prompt-is-not-a-security-boundary)).
 - No self-learning: rules do not mutate at runtime; feedback labels are collected for
   future human-reviewed adaptive rules only.
 - **Study, don't copy.** We may study and cite other open-source projects, but do not copy
-  code blindly — respect licenses, cite sources, and implement our own minimal, compatible
+  code blindly - respect licenses, cite sources, and implement our own minimal, compatible
   adapters / tests.
 - **Responsible use:** patterns are sanitized and run only against mock / authorized
   targets ([policy](../SECURITY.md#responsible-use)).
@@ -96,11 +96,11 @@ local and deterministic - no real provider, gateway, or network calls.
 These apply to every contribution and to any agent working in this repo (see also the
 [safe research rules](research-rules.md)):
 
-- **Deterministic tests** — same inputs → same trace / scorecard; no flakiness.
-- **No network or LLM calls in unit tests** — providers and targets are mocked.
-- **No real secrets** — synthetic markers only, never real credentials or keys.
-- **No real target adapters** without explicit docs **and** an authorization model — until
+- **Deterministic tests** - same inputs -> same trace / scorecard; no flakiness.
+- **No network or LLM calls in unit tests** - providers and targets are mocked.
+- **No real secrets** - synthetic markers only, never real credentials or keys.
+- **No real target adapters** without explicit docs **and** an authorization model - until
   then, only mock / demo targets.
-- **Keep the trace schema portable and sanitized** — no host-specific data, no real payloads.
+- **Keep the trace schema portable and sanitized** - no host-specific data, no real payloads.
 - **Self-review checklist before commit:** no secrets; no overclaiming (no first/only/complete-protection claims); no unsafe or abuse wording; scope matches the approved roadmap version;
   `pytest` + `ruff` + `mypy` + `ash validate examples/` green; internal files not tracked; `git diff` only the expected files.

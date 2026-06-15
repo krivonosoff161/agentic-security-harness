@@ -10,9 +10,9 @@
 3. **No real credential collection.** Patterns must not gather real secrets from any system.
 4. **No real exfiltration.** Data-exfiltration tests are simulations with synthetic markers;
    no data leaves a mock boundary.
-5. **No live-abuse payloads.** No payload designed to harm or abuse a real system — use
+5. **No live-abuse payloads.** No payload designed to harm or abuse a real system - use
    sanitized placeholders only.
-6. **Deterministic tests.** Same inputs → same trace. No network, no randomness, no clocks
+6. **Deterministic tests.** Same inputs -> same trace. No network, no randomness, no clocks
    in unit tests.
 7. **Cite prior art.** When a concept or technique comes from another project or paper, cite
    it; do not copy code blindly (respect licenses).

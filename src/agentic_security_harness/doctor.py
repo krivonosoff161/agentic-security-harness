@@ -2,7 +2,7 @@
 
 Read-only environment checks so a new user can tell whether the toolkit is ready to
 run. No network by default; `--live-local` makes exactly one request to a local
-endpoint. API key values are never read or printed — only the env-var name and whether
+endpoint. API key values are never read or printed - only the env-var name and whether
 it is set.
 """
 

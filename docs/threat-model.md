@@ -4,29 +4,29 @@
 > that *probes* these risks (recording each as a [trace](harness.md#failure-trace-format))
 > and the **planned reference gateway** that may later *mitigate* them as an optional
 > defense target.
-> The honest framing: **risk reduction, observability, and measurement — not 100%
+> The honest framing: **risk reduction, observability, and measurement - not 100%
 > protection.** The harness only tests **mock / demo / authorized** targets (see
 > [Responsible use](../SECURITY.md#responsible-use)).
 
 ## What we protect
 
-- **Integrity** of the LLM interaction — resist hijacking via injection.
-- **Confidentiality** of data crossing the boundary — PII, secrets, internal context.
-- **Data boundary / recipient control** — that a data item's envelope (class, recipients,
+- **Integrity** of the LLM interaction - resist hijacking via injection.
+- **Confidentiality** of data crossing the boundary - PII, secrets, internal context.
+- **Data boundary / recipient control** - that a data item's envelope (class, recipients,
   store / forward rules, TTL) survives agent handoffs, memory writes, tools, and provider
   routing.
-- **Safety** of agent actions — gate dangerous tool calls before side effects.
-- **Accountability** — an audit trail of requests, findings, and decisions, including
+- **Safety** of agent actions - gate dangerous tool calls before side effects.
+- **Accountability** - an audit trail of requests, findings, and decisions, including
   current local hash-chain tamper-detection fixtures and future stronger trace-integrity
   storage (see [Residual risk](#residual-risk)).
-- **Cost** — token/spend budgets.
+- **Cost** - token/spend budgets.
 
 ## Who / what we protect against
 
-- **Untrusted input content** reaching the model — including **indirect** injection
+- **Untrusted input content** reaching the model - including **indirect** injection
   from RAG documents, web pages, emails, and tool outputs (the dangerous, underrated case).
 - **A manipulated model output** triggering side effects or leaking data.
-- **Careless or abusive callers** — accidental PII submission, cost blowups.
+- **Careless or abusive callers** - accidental PII submission, cost blowups.
 
 Out of scope: a malicious operator with DB access, OS-level host compromise, or a
 malicious LLM provider. These are different trust domains.
@@ -34,16 +34,16 @@ malicious LLM provider. These are different trust domains.
 ## Trust boundaries
 
 ```
-[ untrusted: user input, sensors (audio/image), RAG docs, tool outputs ] ─► boundary 1 ─►
-[ target under test: agent / tool chain / multi-agent workflow ]          ─► boundary 2 ─►
-[ harness control plane: runner + traces + scorecard ]                    ─► boundary 3 ─►
-[ future optional defense: reference gateway ]  ─►  [ external: LLM provider ]
+[ untrusted: user input, sensors (audio/image), RAG docs, tool outputs ] -> boundary 1 ->
+[ target under test: agent / tool chain / multi-agent workflow ]          -> boundary 2 ->
+[ harness control plane: runner + traces + scorecard ]                    -> boundary 3 ->
+[ future optional defense: reference gateway ]  ->  [ external: LLM provider ]
 ```
 
-Boundary 1 is the critical one — everything to its left is hostile by default, **including
+Boundary 1 is the critical one - everything to its left is hostile by default, **including
 sensor inputs**, not just text. The harness drives only **mock / demo / authorized**
 targets (boundary 2). The planned reference gateway, when implemented, would sit between
-the target and the provider — it is the future place for envelope / redaction enforcement
+the target and the provider - it is the future place for envelope / redaction enforcement
 and for minimizing what crosses to the provider.
 
 ## Attacks we aim to cover (with caveats)
@@ -57,15 +57,15 @@ and for minimizing what crosses to the provider.
 
 ## Attacks we do NOT cover
 
-- Novel / obfuscated injections that defeat current detectors — **false negatives are expected.**
+- Novel / obfuscated injections that defeat current detectors - **false negatives are expected.**
 - Semantic attacks that are individually benign but harmful in aggregate.
-- **Generating** adversarial / ultrasonic audio or other weaponized signals — out of
+- **Generating** adversarial / ultrasonic audio or other weaponized signals - out of
   scope by design. Multimodal / sensor-to-agent testing is a future track and, when
-  implemented, must use **sanitized, pre-recorded fixtures** only — see
+  implemented, must use **sanitized, pre-recorded fixtures** only - see
   [harness.md](harness.md#multimodal-and-sensor-to-agent-injection).
 - Provider-side or model-weights compromise; training-time poisoning.
 - Host / OS compromise; an insider with database access.
-- Anything requiring the model to be *correct* — the project does not fix
+- Anything requiring the model to be *correct* - the project does not fix
   hallucination / misinformation, only flags policy-relevant signals.
 
 ## Residual risk
@@ -82,7 +82,7 @@ Two deliberate limitations to call out:
   pattern and validates benchmark artifacts, but it does not provide cryptographic signing,
   remote attestation, or a hardened persistent store. Those remain future work.
 - **No self-learning:** the harness does not adapt its own patterns or detectors at
-  runtime. This is a deliberate trade — a self-mutating security tool is hard to audit.
+  runtime. This is a deliberate trade - a self-mutating security tool is hard to audit.
   Feedback labels are collected for future, human-reviewed adaptive rules only.
 
 ## Known limitations (v0.10)
@@ -134,8 +134,8 @@ revealing, or contradicting it (this is exactly LLM07 below). Therefore:
 
 ## Mapping to OWASP Top 10 for LLM Applications
 
-> ✅ Verified against the [OWASP Top 10 for LLM Applications 2025](https://genai.owasp.org/llm-top-10/):
-> the LLM01–LLM10 codes and titles below match the official 2025 list (last checked 2026-06-08).
+> OK Verified against the [OWASP Top 10 for LLM Applications 2025](https://genai.owasp.org/llm-top-10/):
+> the LLM01-LLM10 codes and titles below match the official 2025 list (last checked 2026-06-08).
 
 This table is an **orientation map**, not a machine-readable per-pattern coverage claim.
 Rows marked **Current** correspond to implemented local traces or an explicit current design
@@ -143,7 +143,7 @@ stance. Rows marked **Planned** or **Out of scope** do not imply shipped coverag
 Per-pattern OWASP LLM IDs remain verification-gated; see
 [standards-mapping.md](standards-mapping.md).
 
-| OWASP LLM (2025) | Coverage — current harness probes / planned gateway mitigates |
+| OWASP LLM (2025) | Coverage - current harness probes / planned gateway mitigates |
 |---|---|
 | **LLM01 Prompt Injection** | Current: deterministic indirect-injection pattern. Planned: classifier and quarantine for indirect injection. *(Primary focus.)* |
 | **LLM02 Sensitive Information Disclosure** | Current: provider-boundary leakage and data-envelope patterns. Planned: PII/secret detection and `REDACT` controls. |

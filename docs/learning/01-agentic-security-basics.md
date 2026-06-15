@@ -6,7 +6,7 @@
 A plain-language glossary of the concepts this project uses.
 
 ## Agent
-An LLM-driven program that takes a goal, reasons, and acts — often in a loop — by calling
+An LLM-driven program that takes a goal, reasons, and acts - often in a loop - by calling
 tools and reading/writing memory.
 
 ## Tool call
@@ -18,7 +18,7 @@ State the agent keeps across turns (scratchpad, vector store, conversation histo
 goes into memory can change future decisions.
 
 ## RAG / tool output
-Content retrieved from documents (RAG) or returned by tools. It is **untrusted by default** —
+Content retrieved from documents (RAG) or returned by tools. It is **untrusted by default** -
 it can carry instructions the agent should not follow.
 
 ## MCP (Model Context Protocol)
@@ -43,7 +43,7 @@ A practical map of an agentic system's surface:
 attack chain -> observed behavior -> finding -> mitigation`. Each trace is a path through it.
 
 ## Scorecard
-A deterministic summary derived from a set of traces — what failed, at what severity, and where.
+A deterministic summary derived from a set of traces - what failed, at what severity, and where.
 
 ## Reference defense
 An optional defense you can place in front of a target and re-run the harness against, to

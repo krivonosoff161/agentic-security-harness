@@ -1,6 +1,6 @@
 # Connect your model or runtime
 
-> **Agentic Security Harness** — connector recipes for the experimental external
+> **Agentic Security Harness** - connector recipes for the experimental external
 > evaluation path. Everything here uses **synthetic, sanitized prompts** against an
 > **authorized** OpenAI-compatible endpoint. No real secrets, no harmful payloads,
 > no tool execution.
@@ -9,8 +9,8 @@
 
 The harness ships **one** external adapter: **`openai-compatible`**. It speaks the
 OpenAI Chat Completions wire format (`POST {base_url}/chat/completions`). Anything that
-exposes that format — a cloud API, a local server, or a gateway/proxy in front of
-another provider — can be evaluated through the same path.
+exposes that format - a cloud API, a local server, or a gateway/proxy in front of
+another provider - can be evaluated through the same path.
 
 This is **prompt-based evaluation only**: the model receives a synthetic benchmark
 scenario and returns a structured JSON verdict. **No tools are executed**, no agent host
@@ -19,7 +19,7 @@ is driven, and no streaming is used. See [What is not supported yet](#13-what-is
 ### Presets (optional shortcut)
 
 `ash external-presets` lists connection presets that fill a default `base_url` and suggest
-an API-key env-var **name**. A preset is only a convenience — it does not add a provider
+an API-key env-var **name**. A preset is only a convenience - it does not add a provider
 SDK, change the transport, or hide a network call.
 
 ```bash
@@ -31,7 +31,7 @@ ash run-external  --preset fake-local --model fake-model --scenario data-boundar
 Presets: `fake-local`, `vllm`, `ollama`, `lm-studio`, `deepseek`,
 `alibaba-qwen-compatible`, `generic-openai-compatible`. An explicit `--base-url` always
 overrides the preset; `generic-openai-compatible` requires you to pass your own
-`--base-url`. Vendor URLs are starting points — confirm the current value in the
+`--base-url`. Vendor URLs are starting points - confirm the current value in the
 provider's docs.
 
 ### Stochastic models and repeats
@@ -39,12 +39,12 @@ provider's docs.
 A single response is not a verdict. Stochastic models can answer differently each call.
 
 - Use `--temperature 0.0` (the default) for the most repeatable behaviour.
-- Use `--repeats N` (2–10) for stochastic models. Each `(pattern, variant)` group is
+- Use `--repeats N` (2-10) for stochastic models. Each `(pattern, variant)` group is
   then summarised with an explicit **status**:
   `stable_pass`, `stable_finding`, `flaky` (mixed outcomes across repeats),
   `inconclusive` (no usable JSON verdict), or `adapter_error` (the call failed).
 - Treat `flaky` and `inconclusive` as "needs more data", not as pass or fail.
-- Do **not** compare two models from a single run each — re-run with the same scenario,
+- Do **not** compare two models from a single run each - re-run with the same scenario,
   variants, and repeats, and compare the per-status counts.
 
 ## 2. Safety and cost model
@@ -52,7 +52,7 @@ A single response is not a verdict. Stochastic models can answer differently eac
 The number of network requests a run makes is exactly:
 
 ```text
-request_count = patterns_in_scenario × variants × repeats
+request_count = patterns_in_scenario x variants x repeats
 ```
 
 - `run-external` **refuses to start** if `request_count` exceeds `--max-requests`
@@ -107,7 +107,7 @@ open external_report.md# read results + control recommendations
 | Generic OpenAI-compatible gateway | OpenAI-compatible | `https://YOUR-ENDPOINT/v1` | depends | provider model id | supported via OpenAI-compatible |
 | Ollama | OpenAI-compatible (native) | `http://localhost:11434/v1` | none | `llama3.1` | supported via OpenAI-compatible |
 | LM Studio | OpenAI-compatible (native) | `http://localhost:1234/v1` | none | loaded model id | supported via OpenAI-compatible |
-| Native provider SDKs / tool execution / streaming / agent hosts | — | — | — | — | future |
+| Native provider SDKs / tool execution / streaming / agent hosts | - | - | - | - | future |
 
 > Provider URLs change over time. Where a row shows a vendor host, treat it as a
 > starting point and confirm against the provider's current API docs. For anything
@@ -176,12 +176,12 @@ The bundled fake server returns deterministic responses, so you can exercise the
 flow with zero cost and no network egress.
 
 ```bash
-# terminal 1 — start the server (Ctrl+C to stop)
+# terminal 1 - start the server (Ctrl+C to stop)
 python examples/fake_openai_server.py
 ```
 
 ```bash
-# terminal 2 — run against it
+# terminal 2 - run against it
 ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary
 ash run-external  --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --dry-run
 ash run-external  --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario perception-boundary --out reports/external-demo
@@ -227,7 +227,7 @@ ash validate reports/external-deepseek
 ## 10. Recipe: Alibaba Cloud Model Studio (Qwen, compatible-mode)
 
 Model Studio offers an OpenAI **compatible-mode** endpoint. The host differs by region
-(international vs. mainland China) and can change — confirm yours in the Model Studio
+(international vs. mainland China) and can change - confirm yours in the Model Studio
 docs. International example:
 
 ```bash
@@ -298,14 +298,14 @@ that follows JSON instructions if you see many inconclusive results.
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| `API key environment variable 'X' is not set` | env var not exported in this shell | bash: `export X=...` · PowerShell: `$env:X='...'`; or omit `--api-key-env` for keyless local servers |
+| `API key environment variable 'X' is not set` | env var not exported in this shell | bash: `export X=...` - PowerShell: `$env:X='...'`; or omit `--api-key-env` for keyless local servers |
 | `Network error connecting to ...` / connection refused | server not running, wrong port/host | start the server; check the port; confirm `http`/`https` |
 | `HTTP 401` / `HTTP 403` | wrong/missing key, or wrong auth style | verify the key and that the endpoint expects `Authorization: Bearer` |
 | `HTTP 404` | wrong base URL path | most endpoints want `.../v1`; the harness adds `/chat/completions` |
 | `Invalid JSON response from ...` | endpoint returned non-JSON (HTML error page, proxy notice) | check the URL/gateway; try `external-check --live` to see the raw failure |
 | many `inconclusive` results | model returned prose, not the JSON verdict schema | set `--temperature 0.0`; use a stronger instruction-following model |
 | `estimated N requests exceeds the safety cap` | scope too large for the cap | reduce `--max-variants`/`--repeats`/scenario, or raise `--max-requests` |
-| `repeats must be between 1 and 10` | `--repeats` out of range | choose 1–10 |
+| `repeats must be between 1 and 10` | `--repeats` out of range | choose 1-10 |
 | `unknown variant '...'` | bad `--variant` id | run `ash run-matrix --scenario <s> --list-variants` or `ash scenarios --verbose` |
 
 A connectivity failure during a real run is recorded as a **structured error** per
@@ -322,13 +322,13 @@ These are **future** tracks, intentionally not implemented:
 - Multi-turn agent conversations.
 - Non-OpenAI wire formats without a compatible-mode gateway in front.
 
-Do not interpret a clean external run as proof that a *deployed agent* is safe — it
+Do not interpret a clean external run as proof that a *deployed agent* is safe - it
 evaluates model decision boundaries on synthetic prompts only. See
 [docs/threat-model.md](threat-model.md).
 
 ## 15. How to add a new adapter later
 
-The benchmark's stable unit is `pattern → adapter → trace → scorecard → validation`, so
+The benchmark's stable unit is `pattern -> adapter -> trace -> scorecard -> validation`, so
 new runtimes plug in without changing the corpus. The contract and the metadata models
 for future adapters are described in
 [docs/adapter-contract.md](adapter-contract.md). A new adapter must:
@@ -341,8 +341,8 @@ for future adapters are described in
 
 ## See also
 
-- [docs/test-your-model.md](test-your-model.md) — the external path in depth, artifact
+- [docs/test-your-model.md](test-your-model.md) - the external path in depth, artifact
   reference, and full troubleshooting.
-- [docs/bring-your-own-target.md](bring-your-own-target.md) — local/synthetic target
+- [docs/bring-your-own-target.md](bring-your-own-target.md) - local/synthetic target
   adapters.
-- [docs/reporting-flow.md](reporting-flow.md) — what each artifact contains.
+- [docs/reporting-flow.md](reporting-flow.md) - what each artifact contains.

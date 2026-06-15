@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/krivonosoff161/agentic-security-harness/schemas/run-manifest.schema.json",
+  "title": "Agentic Security Harness run manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "run_kind",
+    "created_at",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "run_kind": { "type": "string", "enum": ["run", "compare", "matrix", "external"] },
+    "created_at": { "type": "string" },
+    "tool_version": { "type": "string" },
+    "target": { "type": "string" },
+    "model": { "type": "string" },
+    "scenario": { "type": "string" },
+    "variants": { "type": "array", "items": { "type": "string" } },
+    "repeats": { "type": "integer", "minimum": 1 },
+    "outcomes": { "type": "object", "additionalProperties": { "type": "integer" } },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": { "type": ["string", "integer", "number", "boolean", "null"] }
+    },
+    "artifacts": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": true
+}

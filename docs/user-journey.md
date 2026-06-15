@@ -1,6 +1,6 @@
-# User journey — one happy path
+# User journey - one happy path
 
-A single, complete walkthrough: install → local benchmark → report → validate, then the
+A single, complete walkthrough: install -> local benchmark -> report -> validate, then the
 external model check against a free local fake server. Everything here is offline except
 the explicitly-marked external steps, which only ever call `http://127.0.0.1:8766`.
 
@@ -35,8 +35,8 @@ ash run --target toy-rag --out reports/demo
 
 `toy-rag` is a deterministic local toy adapter (no network, no model). It prints a
 `Start here:` pointer and a run id, and writes `traces.json`, `scorecard.json`,
-`summary.md`, `executive.md`, `run_index.json`, and — because `toy-rag` produces findings
-— `remediation.json` / `remediation.md` (these two appear only when findings exist).
+`summary.md`, `executive.md`, `run_index.json`, and - because `toy-rag` produces findings
+- `remediation.json` / `remediation.md` (these two appear only when findings exist).
 
 ## 4. Render an HTML report
 
@@ -75,7 +75,7 @@ fake server here.
 python examples/fake_openai_server.py &
 ```
 
-**Windows (PowerShell)** — start it in a **separate** window (do not use a trailing `&`):
+**Windows (PowerShell)** - start it in a **separate** window (do not use a trailing `&`):
 
 ```powershell
 python examples/fake_openai_server.py
@@ -109,13 +109,13 @@ Tip: `ash external-presets` lists shortcuts that fill the `base_url` for you, e.
 ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --repeats 2 --out reports/external-demo
 ```
 
-This is the first step that makes requests — all to localhost. For a real endpoint you
+This is the first step that makes requests - all to localhost. For a real endpoint you
 would add `--api-key-env ASH_EXTERNAL_API_KEY` after exporting the key:
 
 - bash: `export ASH_EXTERNAL_API_KEY=your_key`
 - PowerShell: `$env:ASH_EXTERNAL_API_KEY = "your_key"`
 
-The key value is never logged or stored — only the env var name is recorded.
+The key value is never logged or stored - only the env var name is recorded.
 
 ## 11. Render the external HTML report
 
@@ -136,7 +136,7 @@ ash validate reports/external-demo
   `stable_finding`, `flaky`, `inconclusive`, or `adapter_error`.
 - `flaky` / `inconclusive` mean "not enough signal", not pass or fail.
 - The fake server always preserves the boundary, so you will see `stable_pass` and 0
-  findings — expected for a deterministic fake.
+  findings - expected for a deterministic fake.
 
 Full definitions: [benchmark-semantics.md](benchmark-semantics.md).
 
@@ -152,4 +152,4 @@ Stop the fake server (Ctrl+C in its window, or close the background job). Then:
 - Explore variant stability: `ash run-matrix --target toy-tools --scenario tool-selection --max-variants 3 --out reports/matrix`.
 - Read the [capability matrix](capability-matrix.md) to pick the right target/mode.
 
-> A clean run means the modelled patterns passed — not that any real system is secure.
+> A clean run means the modelled patterns passed - not that any real system is secure.

@@ -20,12 +20,12 @@ flowchart LR
 
 1. **Target adapter** drives the agent through each pattern scenario.
 2. **Pattern corpus** provides 22 deterministic synthetic test patterns.
-3. **Trace generation** produces one `ExploitTrace` per pattern — portable, machine-readable.
+3. **Trace generation** produces one `ExploitTrace` per pattern - portable, machine-readable.
 4. **Scorecard** aggregates findings by severity, counts failed/passed patterns.
 5. **Executive report** summarizes scope, headline result, and top control families.
 6. **Remediation report** maps findings to control families with fix recommendations.
 7. **Comparison** replays the same corpus against a protected target and measures reduction.
-8. **Fix and re-run** — the verification loop: implement a control, re-run, compare.
+8. **Fix and re-run** - the verification loop: implement a control, re-run, compare.
 
 ## Control recommendation flow
 
@@ -38,7 +38,7 @@ flowchart TD
     B --> F["Verification step\n(re-run and compare)"]
     F --> G["Re-run benchmark"]
     G --> H{"Finding gone?"}
-    H -->|Yes| I["PASS — control worked"]
+    H -->|Yes| I["PASS - control worked"]
     H -->|No| J["Try engineering/architecture fix"]
     J --> F
 ```
@@ -65,17 +65,17 @@ flowchart TD
 flowchart LR
     A["Baseline target\n(vulnerable)"] --> C["Compare"]
     B["Protected target\n(controlled)"] --> C
-    C --> D["Risk reduction summary\n(findings: N → 0)"]
+    C --> D["Risk reduction summary\n(findings: N -> 0)"]
     C --> E["Control priorities\n(what to fix first)"]
     C --> F["Remediation\n(from baseline)"]
 ```
 
 **What the comparison shows:**
 
-- **Baseline** — how many patterns failed, at which break points, with what severity.
-- **Protected** — how many patterns pass after controls are applied.
-- **Reduction** — the measured delta (e.g. "22 → 0").
-- **Control priorities** — which control families the baseline findings indicate.
+- **Baseline** - how many patterns failed, at which break points, with what severity.
+- **Protected** - how many patterns pass after controls are applied.
+- **Reduction** - the measured delta (e.g. "22 -> 0").
+- **Control priorities** - which control families the baseline findings indicate.
 
 ## Report artifact summary
 
@@ -110,10 +110,10 @@ flowchart LR
 
 **What the matrix shows:**
 
-- **Variant results** — which variant knobs were tested, findings per variant.
-- **Pattern stability** — which patterns fail in every variant (stable_fail),
+- **Variant results** - which variant knobs were tested, findings per variant.
+- **Pattern stability** - which patterns fail in every variant (stable_fail),
   which fail only under some variants (variant_sensitive), and which pass.
-- **Control families** — which families appear across variants, with counts.
+- **Control families** - which families appear across variants, with counts.
 
 In the current release, variant knobs are deterministic replay metadata. They make the
 matrix report useful for grouping and aggregation, but they do not mutate underlying
@@ -123,17 +123,17 @@ pattern content yet.
 
 ### If you see FAIL patterns
 
-1. Open `remediation.md` — it tells you what control family is missing.
-2. Check the **quick fix** — can you implement it immediately?
-3. If not, check the **engineering fix** — what implementation change is needed?
-4. For deeper issues, check the **architecture fix** — what stronger design is recommended.
-5. Follow the **verification step** — re-run the benchmark to confirm.
+1. Open `remediation.md` - it tells you what control family is missing.
+2. Check the **quick fix** - can you implement it immediately?
+3. If not, check the **engineering fix** - what implementation change is needed?
+4. For deeper issues, check the **architecture fix** - what stronger design is recommended.
+5. Follow the **verification step** - re-run the benchmark to confirm.
 
 ### If you see all PASS
 
 1. The protected target passed all 22 patterns.
 2. This means the controls are working for the **deterministic synthetic scenarios** tested.
-3. It does **not** guarantee real-world protection — stochastic models, real providers,
+3. It does **not** guarantee real-world protection - stochastic models, real providers,
    and production environments introduce additional risk.
 4. Check `residual risk` in the remediation report for what remains.
 
