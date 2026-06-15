@@ -8,6 +8,14 @@ after a fix, or two external model runs.
 ash diff-runs --left reports/run-before --right reports/run-after --out reports/diff
 ```
 
+For external model/runtime artifacts, the narrower wrapper is:
+
+```bash
+ash compare-models --left reports/external-a --right reports/external-b --out reports/model-diff
+```
+
+Both commands compare recorded artifacts only; they do not re-run targets or call models.
+
 It writes `run_diff.json` (machine-readable, schema-versioned) and `run_diff.md` (human
 view) into `--out`, then you can render or validate them:
 

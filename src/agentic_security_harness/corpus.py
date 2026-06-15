@@ -11,6 +11,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from agentic_security_harness.models import Severity
+from agentic_security_harness.schema_versions import CORPUS_VERSION
 
 Outcome = Literal["FAIL", "PASS"]
 
@@ -314,3 +315,8 @@ _CORPUS: list[CorpusEntry] = [
 def corpus_manifest() -> list[CorpusEntry]:
     """Return the curated corpus manifest (22 implemented patterns, stable order)."""
     return list(_CORPUS)
+
+
+def corpus_version() -> str:
+    """Return the implemented corpus version for reproducibility metadata."""
+    return CORPUS_VERSION

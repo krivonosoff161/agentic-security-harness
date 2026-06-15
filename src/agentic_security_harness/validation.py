@@ -25,7 +25,7 @@ from agentic_security_harness.reporting import (
     build_executive_md,
     build_summary_md,
 )
-from agentic_security_harness.schema_versions import check_schema_version
+from agentic_security_harness.schema_versions import CORPUS_VERSION, check_schema_version
 from agentic_security_harness.scorecard import ScorecardSummary, build_scorecard
 
 if TYPE_CHECKING:
@@ -44,6 +44,8 @@ _BASELINE_TYPES = {"mock_agent", "demo_agent"}
 _SECRET_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("sk-", re.compile(r"(?<![A-Za-z0-9])sk-[A-Za-z0-9_-]{16,}")),
     ("AKIA", re.compile(r"(?<![A-Za-z0-9])AKIA[0-9A-Z]{16}")),
+    ("ghp_", re.compile(r"(?<![A-Za-z0-9])ghp_[A-Za-z0-9]{20,}")),
+    ("Bearer", re.compile(r"Bearer\s+[A-Za-z0-9._~+/=-]{16,}")),
     ("BEGIN PRIVATE KEY", re.compile(r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY")),
 ]
 
@@ -584,6 +586,11 @@ def _validate_external_dir(path: Path, root: Path, result: ValidationResult) -> 
             results = parsed if ok else None
 
     if config is not None:
+        if config.corpus_version != CORPUS_VERSION:
+            result._err(
+                f"{_rel(path / 'run_config.json', root)}: corpus_version "
+                f"'{config.corpus_version}' != supported '{CORPUS_VERSION}'"
+            )
         if config.adapter_type != "openai-compatible":
             result._err(
                 f"{_rel(path / 'run_config.json', root)}: unsupported adapter_type "
@@ -605,6 +612,11 @@ def _validate_external_dir(path: Path, root: Path, result: ValidationResult) -> 
     if results is not None:
         _validate_external_results(path, root, results, result)
     if config is not None and summary is not None:
+        if summary.corpus_version != CORPUS_VERSION:
+            result._err(
+                f"{_rel(path / 'external_summary.json', root)}: corpus_version "
+                f"'{summary.corpus_version}' != supported '{CORPUS_VERSION}'"
+            )
         if summary.adapter_type != config.adapter_type:
             result._err(
                 f"{_rel(path / 'external_summary.json', root)}: adapter_type "
@@ -678,6 +690,13 @@ def _validate_external_results(
         seen.add(item.result_id)
         if item.pattern_id not in corpus_ids:
             result._err(f"{prefix}: pattern_id not in corpus")
+        if item.deterministic_cross_check not in {
+            "pass", "finding", "inconclusive", "adapter_error"
+        }:
+            result._err(
+                f"{prefix}: invalid deterministic_cross_check "
+                f"'{item.deterministic_cross_check}'"
+            )
         if item.error and (
             item.decision != "unclear"
             or item.reason
@@ -685,6 +704,8 @@ def _validate_external_results(
             or item.would_preserve_boundary is not None
         ):
             result._err(f"{prefix}: error result should not also carry a decision")
+        if item.error and item.deterministic_cross_check != "adapter_error":
+            result._err(f"{prefix}: error result must use adapter_error cross-check")
 
 
 def _validate_external_summary(
@@ -713,7 +734,7 @@ def _validate_external_summary(
 
     # Recompute per-pattern aggregates from results to catch tampered/stale summaries.
     finding_results = [
-        r for r in results if not r.error and r.would_preserve_boundary is False
+        r for r in results if not r.error and r.deterministic_cross_check == "finding"
     ]
     findings_by_pattern: dict[str, int] = defaultdict(int)
     for r in finding_results:
@@ -743,7 +764,7 @@ def _validate_external_summary(
     inconclusive_pids = {
         r.pattern_id
         for r in results
-        if not r.error and r.would_preserve_boundary is None
+        if not r.error and r.deterministic_cross_check == "inconclusive"
     }
     expected_inconclusive = sorted(
         pid for pid in inconclusive_pids if pid not in findings_by_pattern
@@ -756,9 +777,9 @@ def _validate_external_summary(
     for r in results:
         if r.error:
             outcome = "error"
-        elif r.would_preserve_boundary is True:
+        elif r.deterministic_cross_check == "pass":
             outcome = "pass"
-        elif r.would_preserve_boundary is False:
+        elif r.deterministic_cross_check == "finding":
             outcome = "finding"
         else:
             outcome = "inconclusive"
@@ -918,6 +939,11 @@ def _validate_matrix_json(
     except ValidationError as exc:
         result._err(f"{rel}: schema: {_fmt_error(exc)}")
         return
+    if report.corpus_version != CORPUS_VERSION:
+        result._err(
+            f"{rel}: corpus_version '{report.corpus_version}' != supported "
+            f"'{CORPUS_VERSION}'"
+        )
     # Validate selected pattern ids exist in corpus
     corpus = {entry.pattern_id: entry for entry in corpus_manifest()}
     for pid in report.selected_pattern_ids:

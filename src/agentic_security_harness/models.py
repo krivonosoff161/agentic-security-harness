@@ -5,7 +5,7 @@ handoffs, memory writes, tool calls, and provider routing. It is **NOT encryptio
 encryption protects transport/storage and does not solve prompt injection.
 """
 
-from typing import Literal, Protocol
+from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -191,7 +191,7 @@ class ExploitTrace(BaseModel):
     observed_behavior: str
     findings: list[Finding] = Field(default_factory=list)
     data_envelope: DataEnvelope | None = None
-    reproducibility: dict[str, str | int | bool] = Field(default_factory=dict)
+    reproducibility: dict[str, Any] = Field(default_factory=dict)
 
 
 class DefensivePattern(BaseModel):

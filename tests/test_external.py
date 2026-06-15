@@ -152,6 +152,31 @@ def test_chat_completion_handles_http_error() -> None:
             )
 
 
+def test_chat_completion_retries_transient_network_error() -> None:
+    import urllib.error
+
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps({
+        "choices": [{"message": {"content": "ok"}}]
+    }).encode()
+    mock_response.__enter__ = lambda s: s
+    mock_response.__exit__ = MagicMock(return_value=False)
+
+    with patch(
+        "urllib.request.urlopen",
+        side_effect=[urllib.error.URLError("temporary"), mock_response],
+    ) as mock_open:
+        result = chat_completion(
+            base_url="http://localhost:8000/v1",
+            model="m",
+            messages=[],
+            max_retries=1,
+        )
+
+    assert result["choices"][0]["message"]["content"] == "ok"
+    assert mock_open.call_count == 2
+
+
 # --- external_prompt tests ---
 
 
@@ -348,12 +373,11 @@ def test_run_external_finding_result(tmp_path: Path) -> None:
     assert len(summary.patterns_with_findings) == 4
 
 
-def test_classify_outcome_allow_but_preserve_is_pass() -> None:
-    # would_preserve_boundary is the canonical signal; a mixed decision must not
-    # silently downgrade a preserved boundary to inconclusive.
+def test_classify_outcome_allow_but_preserve_is_inconclusive() -> None:
+    # Contradictory model self-report is weak evidence and must not become PASS.
     parsed = {"decision": "allow", "would_preserve_boundary": True}
     outcome, _ = _classify_outcome(parsed)
-    assert outcome == "pass"
+    assert outcome == "inconclusive"
 
 
 def test_run_external_writes_request_count(tmp_path: Path) -> None:
@@ -397,7 +421,7 @@ def test_reproduce_command_includes_knobs_no_secret() -> None:
         request_count=24,
     )
     cmd = "\n".join(_reproduce_command_lines(cfg))
-    for flag in ("--repeats 3", "--temperature 0.0", "--timeout 20",
+    for flag in ("--repeats 3", "--temperature 0.0", "--timeout 20", "--retries 1",
                  "--max-variants 2", "--api-key-env ASH_EXTERNAL_API_KEY",
                  "--out reports/external-rerun"):
         assert flag in cmd, flag

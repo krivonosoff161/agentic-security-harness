@@ -17,12 +17,13 @@ from pydantic import BaseModel, ConfigDict, Field
 from agentic_security_harness.models import Target
 from agentic_security_harness.patterns import DefensivePattern, seed_patterns
 from agentic_security_harness.runner import HarnessRunner
+from agentic_security_harness.safe_io import write_text_artifact
 from agentic_security_harness.scenarios import (
     _DEFAULT_MAX_VARIANTS,
     ScenarioVariant,
     get_variants,
 )
-from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
+from agentic_security_harness.schema_versions import CORPUS_VERSION, SCHEMA_VERSIONS
 from agentic_security_harness.scorecard import ScorecardSummary, build_scorecard
 
 
@@ -81,7 +82,7 @@ class MatrixReport(BaseModel):
     target_name: str
     scenario_id: str
     scenario_title: str
-    corpus_version: str = "0.12.1"
+    corpus_version: str = CORPUS_VERSION
     selected_pattern_ids: list[str] = Field(default_factory=list)
     variants: list[VariantResult] = Field(default_factory=list)
     summary: MatrixSummary = Field(default_factory=MatrixSummary)
@@ -264,19 +265,17 @@ def run_matrix(
 
     # Write matrix.json
     matrix_path = out_dir / "matrix.json"
-    matrix_path.write_text(
+    write_text_artifact(
+        matrix_path,
         json.dumps(report.model_dump(mode="json"), indent=2, ensure_ascii=False)
         + "\n",
-        encoding="utf-8",
-        newline="\n",
     )
 
     # Write matrix.md
     summary_path = out_dir / "matrix.md"
-    summary_path.write_text(
+    write_text_artifact(
+        summary_path,
         _build_matrix_md(report, scorecard),
-        encoding="utf-8",
-        newline="\n",
     )
 
     return report

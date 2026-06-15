@@ -1,4 +1,12 @@
 from agentic_security_harness.mock_target import MockTarget
+from agentic_security_harness.models import (
+    CapabilityCheckResult,
+    DefensivePattern,
+    HealthStatus,
+    Observation,
+    TargetMetadata,
+    TraceStep,
+)
 from agentic_security_harness.patterns import seed_patterns
 from agentic_security_harness.runner import HarnessRunner
 
@@ -62,3 +70,94 @@ def test_no_real_secrets_in_traces() -> None:
     blob = " ".join(t.model_dump_json() for t in traces)
     for marker in ("sk-", "AKIA", "BEGIN PRIVATE KEY"):
         assert marker not in blob
+
+
+class LifecycleTarget:
+    name = "lifecycle-target"
+
+    def descriptor_fields(self) -> tuple[str, str, str]:
+        return ("custom_target", self.name, "custom-adapter")
+
+    def health(self) -> HealthStatus:
+        return HealthStatus(
+            ok=True,
+            status="ready",
+            message="ready",
+            checks={"fixture": True},
+        )
+
+    def metadata(self, run_id: str) -> TargetMetadata:
+        return TargetMetadata(
+            adapter_name="custom-adapter",
+            adapter_version="1.2.3",
+            runtime_name="local-fixture",
+            memory_mode="session",
+            permission_model="capability-token",
+            network_mode="local-only",
+            provider_calls=False,
+            run_id=run_id,
+        )
+
+    def capability_check(self, pattern: DefensivePattern) -> CapabilityCheckResult:
+        return CapabilityCheckResult(
+            pattern_id=pattern.pattern_id,
+            supported=True,
+            safety_gates_passed=True,
+            reasons=[],
+        )
+
+    def observe(self, pattern: DefensivePattern) -> Observation:
+        return Observation(
+            steps=[TraceStep(index=0, actor="target", action=pattern.graph_path[0])],
+            observed_behavior="ok",
+            findings=[],
+        )
+
+
+def test_runner_calls_adapter_lifecycle_hooks() -> None:
+    trace = HarnessRunner(LifecycleTarget()).run(seed_patterns()[0])
+
+    assert trace.reproducibility["adapter_name"] == "custom-adapter"
+    assert trace.reproducibility["adapter_version"] == "1.2.3"
+    assert trace.reproducibility["runtime_name"] == "local-fixture"
+    assert trace.reproducibility["memory_mode"] == "session"
+    assert trace.reproducibility["network_mode"] == "local-only"
+    assert trace.reproducibility["capability_supported"] is True
+    assert trace.reproducibility["safety_gates_passed"] is True
+
+
+class UnreadyTarget(LifecycleTarget):
+    def health(self) -> HealthStatus:
+        return HealthStatus(
+            ok=False,
+            status="misconfigured",
+            message="missing fixture",
+        )
+
+
+def test_runner_refuses_unready_adapter() -> None:
+    try:
+        HarnessRunner(UnreadyTarget()).run(seed_patterns()[0])
+    except RuntimeError as exc:
+        assert "not ready" in str(exc)
+    else:
+        raise AssertionError("expected unready adapter to fail before observe")
+
+
+class UnsupportedPatternTarget(LifecycleTarget):
+    def capability_check(self, pattern: DefensivePattern) -> CapabilityCheckResult:
+        return CapabilityCheckResult(
+            pattern_id=pattern.pattern_id,
+            supported=False,
+            safety_gates_passed=False,
+            reasons=["pattern requires unavailable fixture"],
+        )
+
+
+def test_runner_refuses_unsupported_pattern() -> None:
+    try:
+        HarnessRunner(UnsupportedPatternTarget()).run(seed_patterns()[0])
+    except RuntimeError as exc:
+        assert "unavailable fixture" in str(exc)
+    else:
+        raise AssertionError("expected unsupported pattern to fail before observe")

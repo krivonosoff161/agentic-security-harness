@@ -562,6 +562,9 @@ def test_external_findings_by_control_family_tamper_fails(tmp_path: Path) -> Non
     report = _copy("external-demo-report", tmp_path)
     results = _load(report / "external_results.json")
     results[0]["would_preserve_boundary"] = False
+    results[0]["decision"] = "allow"
+    results[0]["deterministic_cross_check"] = "finding"
+    results[0]["cross_check_reason"] = "tampered finding"
     _dump(report / "external_results.json", results)
     summary = _load(report / "external_summary.json")
     # Update some fields but deliberately leave findings_by_control_family wrong.

@@ -33,10 +33,12 @@ Each `ash run` writes:
 `ash validate` checks that committed artifacts match the corpus manifest and contain no
 forbidden markers, including `remediation.json` and `remediation.md`.
 
-Every run also writes a `run_index.json` manifest (`list-runs` reads it). `run-matrix`
-adds `matrix.json` / `matrix.md`; `run-external` writes `run_config.json`,
-`external_results.json`, `external_summary.json`, and `external_report.md`. `ash report`
-renders any of these into a static `report.html` (see below).
+Every run also writes a `run_index.json` manifest (`list-runs`, `stats`, and `retention`
+read it). `run-matrix` adds `matrix.json` / `matrix.md`; `run-external` writes
+`run_config.json`, `external_results.json`, `external_summary.json`, and
+`external_report.md`. `ash diff-runs` / `ash compare-models` write `run_diff.json` and
+`run_diff.md`. `ash report` renders any run/diff directory into a static `report.html`
+(see below).
 
 ## Executive report shape
 
@@ -110,7 +112,8 @@ fields before anything is committed to the public repository.
 ## Current gaps
 
 - No per-pattern HTML trace viewer (the static report is summary-level).
-- No cross-run trend / history view (single-run reports only).
+- No interactive cross-run dashboard; `stats`, `list-runs`, `index-runs`, and `diff-runs`
+  provide CLI-level history and comparison.
 - No stochastic-run report for **native** model adapters (the external path covers
   OpenAI-compatible prompt-only runs, with repeats and stochastic status).
 - No mitigation-checklist artifact yet.

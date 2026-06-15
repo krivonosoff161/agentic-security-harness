@@ -170,7 +170,11 @@ See [docs/roadmap.md](docs/roadmap.md).
   remain authoritative.
 - **Onboarding doctor** - `ash doctor [--json] [--live-local]` checks the environment and
   prints next steps. **Run history** - `ash list-runs` reads the `run_index.json`
-  manifest written by every run.
+  manifest written by every run; `ash stats` summarizes run history; `ash retention`
+  plans local report cleanup with dry-run by default.
+- **Run and model comparisons** - `ash diff-runs` compares two recorded run directories
+  of the same kind; `ash compare-models` is the external-run-only wrapper for comparing
+  two recorded model/runtime checks without making provider calls.
 - **Validation (`ash validate examples/`)** - checks committed benchmark artifacts (traces,
   scorecards, summaries, comparison, external-run reports, and run manifests), corpus and
   standards-mapping consistency, and scans for forbidden markers; the examples are
@@ -187,7 +191,7 @@ only in the experimental `run-external` path and require an explicit command.
 |---|---|---|
 | Benchmark | 22-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus, mappings, report quality. |
 | Targets | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, plus experimental OpenAI-compatible external model checks. | Native provider adapters and agent-host / tool-use adapters. |
-| Runtime | CLI-only (`run`, `compare`, `validate`, `targets`, `scenarios`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `list-runs`, `index-runs`, `report`, `doctor`). | Optional HTTP reference gateway and a web report viewer after the benchmark stabilizes. |
+| Runtime | CLI-only (`run`, `compare`, `validate`, `targets`, `scenarios`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `list-runs`, `index-runs`, `stats`, `retention`, `report`, `doctor`). | Optional HTTP reference gateway and a web report viewer after the benchmark stabilizes. |
 | Network / providers | Off by default; `run-external` makes explicit OpenAI-compatible calls only when invoked without `--dry-run`. | More provider presets, config files, and verified local-runtime guides. |
 | Storage | Local report files and committed examples. | Optional persistent trace store after v1.0. |
 
@@ -342,7 +346,11 @@ Every run records a `run_index.json` manifest, so you can review run history:
 
 ```bash
 ash list-runs --root reports
+ash stats --root reports --out reports/stats
+ash retention --root reports --keep-last 20
 ```
+
+`ash retention` is a dry-run unless `--apply` is passed.
 
 `run-matrix` additionally writes `matrix.json` (variant metadata) and `matrix.md`
 (scenario-specific summary).

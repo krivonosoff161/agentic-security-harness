@@ -12,11 +12,16 @@ only** (no trace bodies, no secrets), local file, no network, no server.
 ```bash
 ash index-runs --root reports --db reports/runs.db   # build/refresh the index
 ash list-runs  --db reports/runs.db                  # read from the index
+ash stats      --root reports --out reports/stats    # aggregate manifest statistics
+ash retention  --root reports --keep-last 20         # dry-run cleanup plan
 ```
 
 - `index-runs` scans `--root` for `run_index.json` manifests and upserts them by `run_id`
   (idempotent). It stores only the manifest metadata.
 - `list-runs --db` reads from the index instead of scanning.
+- `stats` scans manifests and can write `run_stats.json` / `run_stats.md`.
+- `retention` scans manifests and prints removable old run directories. It does not
+  delete anything unless `--apply` is passed.
 - The JSON manifests remain the source of truth; the DB is a derived convenience index and
   can be deleted and rebuilt at any time.
 

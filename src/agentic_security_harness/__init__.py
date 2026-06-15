@@ -7,6 +7,7 @@ provider and agent-host adapters are future. A ``DataEnvelope`` is a policy labe
 encryption.
 """
 
+from agentic_security_harness.adapter_base import TargetAdapterBase
 from agentic_security_harness.corpus import CorpusEntry, corpus_manifest
 from agentic_security_harness.demo_adapter import DemoAgentTarget, run_scenarios
 from agentic_security_harness.demo_agent import DemoAgent
@@ -72,6 +73,15 @@ from agentic_security_harness.standards_mapping import (
     standards_mapping,
     validate_standards_mapping,
 )
+from agentic_security_harness.stats import (
+    RetentionCandidate,
+    RetentionPlan,
+    RunStats,
+    apply_retention_plan,
+    build_retention_plan,
+    build_run_stats,
+    write_run_stats,
+)
 from agentic_security_harness.validation import ValidationResult, validate_path
 
 __all__ = [
@@ -86,6 +96,7 @@ __all__ = [
     "HealthStatus",
     "Observation",
     "Target",
+    "TargetAdapterBase",
     "TargetDescriptor",
     "TargetMetadata",
     "TraceStep",
@@ -132,6 +143,13 @@ __all__ = [
     "CategoryStandards",
     "standards_mapping",
     "validate_standards_mapping",
+    "RunStats",
+    "RetentionCandidate",
+    "RetentionPlan",
+    "build_run_stats",
+    "write_run_stats",
+    "build_retention_plan",
+    "apply_retention_plan",
     "ControlRecommendation",
     "RemediationReport",
     "build_recommendations",

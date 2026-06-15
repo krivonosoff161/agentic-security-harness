@@ -15,6 +15,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from agentic_security_harness.models import ExploitTrace, Severity
+from agentic_security_harness.safe_io import write_text_artifact
 from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 from agentic_security_harness.scorecard import ScorecardSummary
 
@@ -769,10 +770,6 @@ def write_remediation(
         "remediation_json": out_dir / "remediation.json",
         "remediation_md": out_dir / "remediation.md",
     }
-    paths["remediation_json"].write_text(
-        remediation_to_json(report), encoding="utf-8", newline="\n"
-    )
-    paths["remediation_md"].write_text(
-        build_remediation_md(report), encoding="utf-8", newline="\n"
-    )
+    write_text_artifact(paths["remediation_json"], remediation_to_json(report))
+    write_text_artifact(paths["remediation_md"], build_remediation_md(report))
     return paths

@@ -16,6 +16,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from agentic_security_harness.safe_io import write_text_artifact
 from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 
 _RUN_KINDS = frozenset({"run", "compare", "matrix", "external"})
@@ -103,11 +104,7 @@ def write_run_manifest(out_dir: Path, manifest: RunManifest) -> Path:
     """Write ``run_index.json`` into ``out_dir`` (LF newlines). Returns the path."""
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / "run_index.json"
-    path.write_text(
-        json.dumps(manifest.model_dump(mode="json"), indent=2) + "\n",
-        encoding="utf-8",
-        newline="\n",
-    )
+    write_text_artifact(path, json.dumps(manifest.model_dump(mode="json"), indent=2) + "\n")
     return path
 
 

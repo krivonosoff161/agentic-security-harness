@@ -14,6 +14,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 
 from agentic_security_harness.html_report import detect_kind
+from agentic_security_harness.safe_io import write_text_artifact
 from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 
 # Any non-"pass" status is "finding-like" for diff purposes.
@@ -281,10 +282,9 @@ def write_run_diff(diff: RunDiff, out_dir: Path) -> dict[str, Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     json_path = out_dir / "run_diff.json"
     md_path = out_dir / "run_diff.md"
-    json_path.write_text(
+    write_text_artifact(
+        json_path,
         json.dumps(diff.model_dump(mode="json"), indent=2) + "\n",
-        encoding="utf-8",
-        newline="\n",
     )
-    md_path.write_text(_diff_md(diff), encoding="utf-8", newline="\n")
+    write_text_artifact(md_path, _diff_md(diff))
     return {"run_diff_json": json_path, "run_diff_md": md_path}

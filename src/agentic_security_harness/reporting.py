@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from agentic_security_harness.models import ExploitTrace
+from agentic_security_harness.safe_io import write_text_artifact
 from agentic_security_harness.scorecard import ScorecardSummary
 
 _SEVERITY_RANK = {"critical": 4, "high": 3, "medium": 2, "low": 1, "info": 0}
@@ -170,12 +171,10 @@ def write_reports(
         "summary": out_dir / "summary.md",
         "executive": out_dir / "executive.md",
     }
-    paths["traces"].write_text(traces_to_json(traces), encoding="utf-8", newline="\n")
-    paths["scorecard"].write_text(scorecard_to_json(scorecard), encoding="utf-8", newline="\n")
-    paths["summary"].write_text(build_summary_md(scorecard, traces), encoding="utf-8", newline="\n")
-    paths["executive"].write_text(
-        build_executive_md(scorecard, traces), encoding="utf-8", newline="\n"
-    )
+    write_text_artifact(paths["traces"], traces_to_json(traces))
+    write_text_artifact(paths["scorecard"], scorecard_to_json(scorecard))
+    write_text_artifact(paths["summary"], build_summary_md(scorecard, traces))
+    write_text_artifact(paths["executive"], build_executive_md(scorecard, traces))
     # Write remediation artifacts if there are findings
     remediation = build_recommendations(traces, scorecard)
     if remediation.recommendations:
@@ -255,9 +254,7 @@ def write_comparison(
     write_reports(baseline_traces, baseline_card, out_dir / "baseline")
     write_reports(protected_traces, protected_card, out_dir / "protected")
     comparison_path = out_dir / "comparison.md"
-    comparison_path.write_text(
-        build_comparison_md(baseline_card, protected_card), encoding="utf-8", newline="\n"
-    )
+    write_text_artifact(comparison_path, build_comparison_md(baseline_card, protected_card))
     return {
         "baseline": out_dir / "baseline",
         "protected": out_dir / "protected",

@@ -2,7 +2,9 @@
 
 import pytest
 
+from agentic_security_harness.adapter_base import TargetAdapterBase
 from agentic_security_harness.adapters import list_targets, make_target, target_ids
+from agentic_security_harness.models import DefensivePattern, Observation, TraceStep
 
 
 def test_list_targets_returns_builtin_targets() -> None:
@@ -66,3 +68,26 @@ def test_all_targets_have_descriptions() -> None:
 def test_targets_are_distinct() -> None:
     ids = target_ids()
     assert len(ids) == len(set(ids))
+
+
+class DemoBaseTarget(TargetAdapterBase):
+    target_type = "base_demo"
+    adapter_name = "base-demo"
+    adapter_version = "9.9"
+
+    def observe(self, pattern: DefensivePattern) -> Observation:
+        return Observation(
+            steps=[TraceStep(index=0, actor="target", action=pattern.graph_path[0])],
+            observed_behavior="unused",
+        )
+
+
+def test_target_adapter_base_lifecycle_defaults() -> None:
+    target = DemoBaseTarget()
+    assert target.descriptor_fields() == ("base_demo", "base-demo", "base-demo")
+    assert target.health().ok is True
+    metadata = target.metadata("run_x")
+    assert metadata.adapter_name == "base-demo"
+    assert metadata.adapter_version == "9.9"
+    assert metadata.network_mode == "off"
+    assert metadata.run_id == "run_x"

@@ -41,15 +41,18 @@ class Target(Protocol):
 The runner wraps that into an `ExploitTrace` with the target descriptor, graph path,
 expected vulnerable behavior, data envelope, and reproducibility metadata.
 
-The repository also ships typed metadata models for future adapters:
+The repository also ships typed metadata models and lifecycle hooks:
 
 - `TargetMetadata` - adapter/runtime/model/network/memory reproducibility metadata;
 - `HealthStatus` - readiness checks before a run;
 - `CapabilityCheckResult` - per-pattern adapter compatibility and safety-gate result.
+- `TargetAdapterBase` - optional base class with default `health()`, `metadata(run_id)`,
+  and `capability_check(pattern)` hooks.
 
-These models are contract surface, not a requirement for the current local demo targets.
-Future non-synthetic or stochastic adapters must use them before their results are treated
-as comparable to the deterministic examples.
+The runner now calls these hooks when an adapter exposes them. Existing local demo targets
+remain compatible through default structural behavior. Future non-synthetic or stochastic
+adapters must use the lifecycle hooks before their results are treated as comparable to
+the deterministic examples.
 
 ## Required adapter behavior
 

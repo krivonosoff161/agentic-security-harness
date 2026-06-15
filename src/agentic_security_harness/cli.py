@@ -216,6 +216,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="request timeout in seconds (default: 30)",
     )
     ext_p.add_argument(
+        "--retries",
+        type=int,
+        default=1,
+        help="retry count for transient external API failures (default: 1, max: 3)",
+    )
+    ext_p.add_argument(
         "--api-key-env",
         default="",
         help="environment variable name containing the API key",
@@ -381,6 +387,64 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         required=True,
         help="output directory for run_diff.json / run_diff.md",
+    )
+
+    model_cmp_p = sub.add_parser(
+        "compare-models",
+        help="compare two external model run directories",
+    )
+    model_cmp_p.add_argument("--left", type=Path, required=True, help="left external run")
+    model_cmp_p.add_argument("--right", type=Path, required=True, help="right external run")
+    model_cmp_p.add_argument(
+        "--out",
+        type=Path,
+        required=True,
+        help="output directory for model comparison diff artifacts",
+    )
+
+    stats_p = sub.add_parser(
+        "stats",
+        help="summarize run history from run_index.json manifests",
+    )
+    stats_p.add_argument(
+        "--root",
+        type=Path,
+        default=Path("reports"),
+        help="directory to scan for run manifests (default: reports)",
+    )
+    stats_p.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="optional output directory for run_stats.json / run_stats.md",
+    )
+
+    retention_p = sub.add_parser(
+        "retention",
+        help="plan or apply retention for old run directories",
+    )
+    retention_p.add_argument(
+        "--root",
+        type=Path,
+        default=Path("reports"),
+        help="directory to scan for run manifests (default: reports)",
+    )
+    retention_p.add_argument(
+        "--keep-last",
+        type=int,
+        default=20,
+        help="runs to keep per kind (default: 20)",
+    )
+    retention_p.add_argument(
+        "--kind",
+        action="append",
+        default=[],
+        help="limit to one run kind; may be repeated",
+    )
+    retention_p.add_argument(
+        "--apply",
+        action="store_true",
+        help="remove selected run directories (default is dry-run plan only)",
     )
 
     report_p = sub.add_parser(
@@ -606,6 +670,7 @@ def _run_external(
     repeats: int,
     temperature: float,
     timeout: int,
+    retries: int,
     api_key_env: str,
     max_variants: int,
     variant_id: str | None,
@@ -625,6 +690,9 @@ def _run_external(
             f"Error: unsupported adapter '{adapter}'. "
             "Only 'openai-compatible' is supported."
         )
+        return 1
+    if retries < 0 or retries > 3:
+        print("Error: retries must be between 0 and 3")
         return 1
 
     # Estimate request count and enforce the cost safety cap before any call.
@@ -654,6 +722,7 @@ def _run_external(
             repeats=repeats,
             temperature=temperature,
             timeout_seconds=timeout,
+            max_retries=retries,
             api_key_env=api_key_env,
             max_variants=max_variants,
             only_variant_id=variant_id,
@@ -678,6 +747,7 @@ def _run_external(
             repeats=repeats,
             temperature=temperature,
             timeout_seconds=timeout,
+            max_retries=retries,
             api_key_env=api_key_env,
             max_variants=max_variants,
             only_variant_id=variant_id,
@@ -710,6 +780,7 @@ def _run_external(
             "repeats": repeats,
             "temperature": temperature,
             "timeout_seconds": timeout,
+            "max_retries": retries,
             "request_count": summary.total_repeats,
             "network_mode": "explicit-external",
             "api_key_env": api_key_env,
@@ -805,6 +876,73 @@ def _diff_runs(left: Path, right: Path, out: Path) -> int:
     )
     print("Diff is an artifact comparison, not a re-run or a certification.")
     print("Next: ash report --root " + out.as_posix() + "  (or open run_diff.md)")
+    return 0
+
+
+def _compare_models(left: Path, right: Path, out: Path) -> int:
+    from agentic_security_harness.html_report import detect_kind
+    from agentic_security_harness.run_diff import diff_runs, write_run_diff
+
+    for label, p in (("--left", left), ("--right", right)):
+        if not p.exists() or not p.is_dir():
+            print(f"Error: {label} external run directory not found: {p.as_posix()}")
+            return 1
+        if detect_kind(p) != "external":
+            print(f"Error: {label} is not an external run directory: {p.as_posix()}")
+            return 1
+    diff = diff_runs(left, right)
+    write_run_diff(diff, out)
+    print(f"wrote model comparison artifacts to {out.as_posix()}")
+    print(
+        f"fixed: {diff.fixed}  new: {diff.new}  changed: {diff.changed}  "
+        f"unchanged: {diff.unchanged}"
+    )
+    print("Comparison is based on recorded external artifacts; it does not call models.")
+    return 0
+
+
+def _stats(root: Path, out: Path | None) -> int:
+    from agentic_security_harness.stats import build_run_stats, write_run_stats
+
+    stats = build_run_stats(root)
+    print(f"Run stats for {root.as_posix()}")
+    print(f"  total runs: {stats.total_runs}")
+    for kind, count in stats.by_kind.items():
+        print(f"  {kind}: {count}")
+    if out is not None:
+        write_run_stats(stats, out)
+        print(f"wrote run_stats.json, run_stats.md to {out.as_posix()}")
+    return 0
+
+
+def _retention(root: Path, keep_last: int, kinds: list[str], apply: bool) -> int:
+    from agentic_security_harness.run_manifest import _RUN_KINDS
+    from agentic_security_harness.stats import apply_retention_plan, build_retention_plan
+
+    bad = sorted(set(kinds) - set(_RUN_KINDS))
+    if bad:
+        print(f"Error: unknown run kind(s): {', '.join(bad)}")
+        return 1
+    try:
+        plan = build_retention_plan(root, keep_last=keep_last, kinds=kinds)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
+    print(
+        f"Retention plan for {root.as_posix()}: "
+        f"{len(plan.candidates)} candidate(s), keep_last={keep_last}"
+    )
+    for c in plan.candidates:
+        print(f"  {c.run_kind:9s} {c.run_id:14s} {c.run_dir}  ({c.reason})")
+    if not apply:
+        print("Dry run only. Re-run with --apply to remove these run directories.")
+        return 0
+    try:
+        applied = apply_retention_plan(plan)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
+    print(f"Removed {applied.removed} run dir(s).")
     return 0
 
 
@@ -1051,6 +1189,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.repeats,
                 args.temperature,
                 args.timeout,
+                args.retries,
                 api_key_env,
                 args.max_variants,
                 args.variant,
@@ -1075,6 +1214,12 @@ def main(argv: list[str] | None = None) -> int:
         return _index_runs(args.root, args.db)
     if args.command == "diff-runs":
         return _diff_runs(args.left, args.right, args.out)
+    if args.command == "compare-models":
+        return _compare_models(args.left, args.right, args.out)
+    if args.command == "stats":
+        return _stats(args.root, args.out)
+    if args.command == "retention":
+        return _retention(args.root, args.keep_last, args.kind, args.apply)
     if args.command == "report":
         return _report(args.root, args.out)
     if args.command == "doctor":

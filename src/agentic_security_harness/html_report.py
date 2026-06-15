@@ -13,6 +13,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from agentic_security_harness.safe_io import write_text_artifact
+
 _CSS = """
 :root { color-scheme: light dark; }
 body { font: 15px/1.5 -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
@@ -533,5 +535,5 @@ def render_report(run_dir: Path) -> str:
 def write_html_report(run_dir: Path, out: Path) -> Path:
     """Render ``run_dir`` and write the HTML to ``out`` (LF newlines)."""
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(render_report(run_dir), encoding="utf-8", newline="\n")
+    write_text_artifact(out, render_report(run_dir))
     return out

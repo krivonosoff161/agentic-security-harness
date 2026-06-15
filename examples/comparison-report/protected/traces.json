@@ -59,6 +59,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/indirect_prompt_injection_via_tool_output"
     }
   },
@@ -136,6 +147,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/data_boundary_recipient_confusion"
     }
   },
@@ -201,6 +223,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/memory_poisoning_sanitized"
     }
   },
@@ -266,6 +299,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/data_boundary_classification_mutation"
     }
   },
@@ -341,6 +385,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/data_boundary_handoff_label_stripping"
     }
   },
@@ -408,6 +463,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/tool_permission_abuse_sanitized"
     }
   },
@@ -473,6 +539,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/provider_boundary_leakage_sanitized"
     }
   },
@@ -546,6 +623,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/sleeping_prompt.delayed_activation"
     }
   },
@@ -611,6 +699,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/audit.spam_label_abuse"
     }
   },
@@ -666,6 +765,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/budget.loop_abuse"
     }
   },
@@ -729,6 +839,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/capability.delegation_chain_drift"
     }
   },
@@ -792,6 +913,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/mcp.tool_schema_deception"
     }
   },
@@ -855,6 +987,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/audit.hash_chain_tamper"
     }
   },
@@ -932,6 +1075,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/perception_boundary.sensor_command_confusion"
     }
   },
@@ -1007,6 +1161,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/ambient_authority.environmental_privilege_escalation"
     }
   },
@@ -1084,6 +1249,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/approval_laundering.underjustified_confirmation"
     }
   },
@@ -1157,6 +1333,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/memory_governance.unscoped_memory_persistence"
     }
   },
@@ -1238,6 +1425,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/memory_governance.environment_injected_poisoning"
     }
   },
@@ -1311,6 +1509,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/memory_governance.unintentional_cross_user"
     }
   },
@@ -1366,6 +1575,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/budget.recursive_execution_amplification"
     }
   },
@@ -1441,6 +1661,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/mcp.tool_selection_manipulation"
     }
   },
@@ -1524,6 +1755,17 @@
     "reproducibility": {
       "deterministic": true,
       "seed": 0,
+      "adapter_name": "local",
+      "adapter_version": "builtin",
+      "memory_mode": "off",
+      "permission_model": "none",
+      "network_mode": "off",
+      "provider_calls": false,
+      "run_count": 1,
+      "health_status": "ready",
+      "capability_supported": true,
+      "safety_gates_passed": true,
+      "runtime_name": "protected-demo-agent",
       "inputs_ref": "fixtures/indirect_instruction.multi_turn_escalation"
     }
   }
