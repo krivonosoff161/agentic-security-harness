@@ -611,6 +611,43 @@ def _validate_external_dir(path: Path, root: Path, result: ValidationResult) -> 
                 f"{_rel(path / 'run_config.json', root)}: request_count "
                 f"{config.request_count} != external_results count {len(results)}"
             )
+        if isinstance(config_raw, dict) and "runtime" in config_raw:
+            runtime = config.runtime
+            if runtime.model_id and runtime.model_id != config.model:
+                result._err(
+                    f"{_rel(path / 'run_config.json', root)}: "
+                    "runtime.model_id does not match model"
+                )
+            if runtime.network_mode != config.network_mode:
+                result._err(
+                    f"{_rel(path / 'run_config.json', root)}: "
+                    "runtime.network_mode does not match network_mode"
+                )
+            if not runtime.prompt_only:
+                result._err(
+                    f"{_rel(path / 'run_config.json', root)}: "
+                    "runtime.prompt_only must be true for run-external"
+                )
+            if runtime.tool_execution:
+                result._err(
+                    f"{_rel(path / 'run_config.json', root)}: "
+                    "runtime.tool_execution must be false for run-external"
+                )
+            if runtime.local_only and runtime.network_mode != "local-only":
+                result._err(
+                    f"{_rel(path / 'run_config.json', root)}: "
+                    "local runtime must use network_mode=local-only"
+                )
+            if not runtime.model_license_note.strip():
+                result._err(
+                    f"{_rel(path / 'run_config.json', root)}: "
+                    "runtime.model_license_note is empty"
+                )
+            if not runtime.recovery_guidance:
+                result._err(
+                    f"{_rel(path / 'run_config.json', root)}: "
+                    "runtime.recovery_guidance is empty"
+                )
     if results is not None:
         _validate_external_results(path, root, results, result)
     if config is not None and summary is not None:

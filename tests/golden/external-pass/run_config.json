@@ -18,8 +18,33 @@
   ],
   "request_count": 1,
   "deterministic": false,
-  "network_mode": "explicit-external",
+  "network_mode": "local-only",
   "credential_env_var": "",
+  "runtime": {
+    "adapter_type": "openai-compatible",
+    "runtime_name": "local-openai-compatible",
+    "runtime_family": "local-runtime",
+    "runtime_version": "",
+    "base_url_hash": "cbff7260a780c934",
+    "model": "snapshot-model",
+    "model_id": "snapshot-model",
+    "temperature": 0.0,
+    "timeout_seconds": 30,
+    "deterministic": false,
+    "network_mode": "local-only",
+    "authorization_mode": "local_runtime",
+    "local_only": true,
+    "prompt_only": true,
+    "tool_execution": false,
+    "credential_env_var": "",
+    "model_license_note": "Local OpenAI-compatible endpoint; verify the served model license and acceptable-use policy.",
+    "recovery_guidance": [
+      "If the server is not running, start the runtime server and retry with external-check --live.",
+      "If the model is not found, pull or load the model and verify the --model id.",
+      "If the output is inconclusive, inspect raw_responses/ and rerun with --temperature 0.0 and more repeats."
+    ],
+    "run_id": ""
+  },
   "created_by": "ash run-external",
   "safety_note": "Experimental external run. Not a benchmark-grade measurement. Synthetic prompts only. No real data or tool execution."
 }

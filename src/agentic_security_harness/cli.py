@@ -23,7 +23,12 @@ from pathlib import Path
 from agentic_security_harness import __version__
 from agentic_security_harness.adapters import list_targets, make_target, target_ids
 from agentic_security_harness.patterns import seed_patterns
-from agentic_security_harness.presets import apply_preset, list_presets, preset_names
+from agentic_security_harness.presets import (
+    apply_preset,
+    infer_runtime_profile,
+    list_presets,
+    preset_names,
+)
 from agentic_security_harness.reporting import write_comparison, write_reports
 from agentic_security_harness.run_config import (
     _MAX_REPEATS,
@@ -728,6 +733,7 @@ def _run_external(
     dry_run: bool,
     adapter: str,
     max_requests: int,
+    preset_name: str | None,
 ) -> int:
     from agentic_security_harness.external_runner import run_external
     from agentic_security_harness.scenarios import get_scenario, get_variants
@@ -748,6 +754,7 @@ def _run_external(
     if raw_response_limit < 0:
         print("Error: raw-response-limit must be >= 0")
         return 1
+    runtime_profile = infer_runtime_profile(preset_name, base_url)
 
     # Estimate request count and enforce the cost safety cap before any call.
     try:
@@ -782,6 +789,7 @@ def _run_external(
             max_variants=max_variants,
             only_variant_id=variant_id,
             dry_run=True,
+            preset_name=preset_name,
         )
         print("No network call. No files written. (dry run)")
         if credential_env_var:
@@ -794,6 +802,11 @@ def _run_external(
 
     print(f"Estimated requests: {estimate}  (cap: {max_requests})")
     print(f"Artifacts will be written to {out.as_posix()}")
+    print(
+        f"Runtime: {runtime_profile.runtime_name}  "
+        f"network_mode: {runtime_profile.network_mode}  "
+        f"prompt_only: true"
+    )
     print("Credential values are never stored; only the env var name is recorded.")
 
     try:
@@ -811,6 +824,7 @@ def _run_external(
             max_variants=max_variants,
             only_variant_id=variant_id,
             dry_run=False,
+            preset_name=preset_name,
         )
     except KeyError as exc:
         print(f"Error: {exc}")
@@ -842,7 +856,13 @@ def _run_external(
             "max_retries": retries,
             "raw_response_limit": raw_response_limit,
             "request_count": summary.total_repeats,
-            "network_mode": "explicit-external",
+            "runtime_name": runtime_profile.runtime_name,
+            "runtime_family": runtime_profile.runtime_family,
+            "network_mode": runtime_profile.network_mode,
+            "authorization_mode": runtime_profile.authorization_mode,
+            "local_only": runtime_profile.local_only,
+            "prompt_only": True,
+            "tool_execution": False,
             "credential_env_var": credential_env_var,
         },
         artifacts=_artifact_names(out),
@@ -1107,6 +1127,7 @@ def _external_check(
     max_variants: int,
     live: bool,
     max_requests: int,
+    preset_name: str | None,
 ) -> int:
     from agentic_security_harness.run_config import _redact_url
     from agentic_security_harness.scenarios import get_scenario, get_variants
@@ -1123,6 +1144,12 @@ def _external_check(
     # Check base URL
     redacted = _redact_url(base_url)
     print(f"  Base URL: {redacted}")
+    runtime_profile = infer_runtime_profile(preset_name, base_url)
+    print(f"  Runtime: {runtime_profile.runtime_name} ({runtime_profile.runtime_family})")
+    print(f"  Network mode: {runtime_profile.network_mode}")
+    print(f"  Authorization mode: {runtime_profile.authorization_mode}")
+    print("  Prompt-only: yes; tool execution: no")
+    print(f"  Model/license note: {runtime_profile.model_license_note}")
 
     # Check model
     if not model:
@@ -1200,6 +1227,9 @@ def _external_check(
             print(f"  Response model: {resp.get('model', 'unknown')}")
         except Exception as exc:
             print(f"  Live request: FAILED -- {exc}")
+            print("  Recovery:")
+            for hint in runtime_profile.recovery_guidance:
+                print(f"    - {hint}")
             return 1
     else:
         print(
@@ -1281,6 +1311,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.dry_run,
                 args.adapter,
                 args.max_requests,
+                args.preset,
             )
         return _external_check(
             base_url,
@@ -1292,6 +1323,7 @@ def main(argv: list[str] | None = None) -> int:
             args.max_variants,
             getattr(args, "live", False),
             args.max_requests,
+            args.preset,
         )
     if args.command == "list-runs":
         return _list_runs(args.root, args.db)

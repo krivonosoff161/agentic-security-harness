@@ -22,6 +22,8 @@ from agentic_security_harness.external_prompt import render_pattern_prompt
 from agentic_security_harness.external_runner import (
     _classify_outcome,
     _parse_decision,
+    _recovery_hint_for_error,
+    _recovery_hint_for_verdict,
     _result_id,
     run_external,
 )
@@ -118,6 +120,8 @@ def test_run_config_accepts_legacy_api_key_env_field() -> None:
 def test_run_config_safety_note() -> None:
     config = RunConfig()
     assert "experimental" in config.safety_note.lower()
+    assert config.runtime.prompt_only is True
+    assert config.runtime.tool_execution is False
 
 
 # --- external_openai_compatible tests ---
@@ -391,10 +395,18 @@ def test_run_external_mock_endpoint(tmp_path: Path) -> None:
     assert (tmp_path / "ext" / "external_summary.json").exists()
     assert (tmp_path / "ext" / "external_report.md").exists()
     results = json.loads((tmp_path / "ext" / "external_results.json").read_text())
+    config = json.loads((tmp_path / "ext" / "run_config.json").read_text())
+    assert config["runtime"]["runtime_name"] == "local-openai-compatible"
+    assert config["runtime"]["network_mode"] == "local-only"
+    assert config["runtime"]["prompt_only"] is True
+    assert config["runtime"]["tool_execution"] is False
+    assert config["runtime"]["model_id"] == "test"
+    assert config["network_mode"] == "local-only"
     raw_path = tmp_path / "ext" / results[0]["raw_response_path"]
     assert raw_path.exists()
     assert results[0]["raw_response_sha256"]
     assert results[0]["assertion_result"] == "pass"
+    assert "recovery_hint" in results[0]
 
 
 def test_run_external_finding_result(tmp_path: Path) -> None:
@@ -494,6 +506,58 @@ def test_run_external_raw_response_limit_keeps_full_raw_artifact(tmp_path: Path)
     assert len(raw_text) > 40
 
 
+def test_run_external_preset_writes_local_runtime_metadata(tmp_path: Path) -> None:
+    with patch("urllib.request.urlopen", side_effect=_mock_chat_open()):
+        run_external(
+            base_url="http://localhost:11434/v1",
+            model="llama3.1",
+            scenario_id="perception-boundary",
+            out_dir=tmp_path / "ext",
+            preset_name="ollama",
+        )
+
+    config = json.loads((tmp_path / "ext" / "run_config.json").read_text())
+    report = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
+    assert config["runtime"]["runtime_name"] == "ollama"
+    assert config["runtime"]["authorization_mode"] == "local_runtime"
+    assert config["runtime"]["local_only"] is True
+    assert config["runtime"]["model_license_note"]
+    assert config["runtime"]["recovery_guidance"]
+    assert "Runtime: `ollama`" in report
+    assert "Prompt-only: True" in report
+    assert "Tool execution: False" in report
+    assert "Local runtime execution does not remove model-license" in report
+
+
+def test_run_external_adapter_error_has_recovery_hint(tmp_path: Path) -> None:
+    with patch(
+        "urllib.request.urlopen",
+        side_effect=ExternalAPIError("HTTP 404 from local: model not found"),
+    ):
+        run_external(
+            base_url="http://localhost:11434/v1",
+            model="missing-model",
+            scenario_id="perception-boundary",
+            out_dir=tmp_path / "ext",
+            preset_name="ollama",
+        )
+
+    results = json.loads((tmp_path / "ext" / "external_results.json").read_text())
+    assert "pull or load the model" in results[0]["recovery_hint"]
+    report = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
+    assert "## Recovery guidance" in report
+
+
+def test_external_recovery_hints_cover_common_failures() -> None:
+    assert "Start Ollama" in _recovery_hint_for_error("connection refused")
+    assert "increase --timeout" in _recovery_hint_for_error("timeout")
+    assert "pull or load the model" in _recovery_hint_for_error("HTTP 404 model not found")
+    assert "chat completions" in _recovery_hint_for_error("Invalid JSON response")
+    assert "required JSON contract" in _recovery_hint_for_verdict(
+        "inconclusive", "no valid JSON response"
+    )
+
+
 def test_reproduce_command_includes_knobs_no_secret() -> None:
     from agentic_security_harness.external_runner import _reproduce_command_lines
     from agentic_security_harness.run_config import RunConfig
@@ -538,6 +602,7 @@ def test_external_report_reproduce_section_has_knobs(tmp_path: Path) -> None:
     assert "--raw-response-limit" in report
     assert "--credential-env ASH_EXTERNAL_API_KEY" in report
     assert "run_config.json` is the authoritative" in report
+    assert "## Recovery guidance" in report
 
 
 def test_run_external_findings_control_family_and_recommendations(
@@ -727,6 +792,9 @@ def test_cli_external_check_no_live_no_network(capsys: pytest.CaptureFixture[str
 
     out = capsys.readouterr().out
     assert "Estimated requests: 16" in out
+    assert "Runtime: local-openai-compatible" in out
+    assert "Network mode: local-only" in out
+    assert "Prompt-only: yes; tool execution: no" in out
     assert "Credential env var (ASH_TEST_KEY_NOT_SET): NOT SET" in out
     assert "Set this environment variable in your shell before a live run." in out
     assert "your_key" not in out
@@ -832,6 +900,8 @@ def test_cli_run_external_dry_run_reports_no_files(
         mock_open.assert_not_called()
     out = capsys.readouterr().out
     assert "Estimated requests: 4" in out
+    assert "runtime: local-openai-compatible" in out
+    assert "network_mode: local-only" in out
     assert "No network call. No files written." in out
 
 

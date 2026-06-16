@@ -9,6 +9,8 @@ the provider's docs.
 
 from __future__ import annotations
 
+from urllib.parse import urlparse
+
 from pydantic import BaseModel, ConfigDict
 
 _TEMPLATE_HOST = "YOUR-ENDPOINT"  # placeholder base URLs that require an explicit --base-url
@@ -24,6 +26,44 @@ class Preset(BaseModel):
     needs_key: bool = False
     default_key_env: str = ""
     notes: str = ""
+    runtime_name: str = "generic-openai-compatible"
+    runtime_family: str = "openai-compatible"
+    network_mode: str = "authorized-external"
+    authorization_mode: str = "authorized_external"
+    local_only: bool = False
+    model_license_note: str = (
+        "Verify the model license, acceptable-use policy, and authorization scope "
+        "before running or publishing results."
+    )
+
+
+class RuntimeProfile(BaseModel):
+    """Secret-free runtime profile stored in run artifacts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    runtime_name: str
+    runtime_family: str
+    network_mode: str
+    authorization_mode: str
+    local_only: bool
+    model_license_note: str
+    recovery_guidance: list[str]
+
+
+_LOCAL_RECOVERY_GUIDANCE = [
+    "If the server is not running, start the runtime server and retry with external-check --live.",
+    "If the model is not found, pull or load the model and verify the --model id.",
+    "If the output is inconclusive, inspect raw_responses/ and rerun with "
+    "--temperature 0.0 and more repeats.",
+]
+
+_REMOTE_RECOVERY_GUIDANCE = [
+    "If connectivity fails, verify the base URL, credential env var, and authorization scope.",
+    "If the model is not found, verify the provider model id and current endpoint documentation.",
+    "If output is inconclusive, inspect raw_responses/ and rerun with lower temperature "
+    "or more repeats.",
+]
 
 
 _PRESETS: dict[str, Preset] = {
@@ -32,6 +72,12 @@ _PRESETS: dict[str, Preset] = {
         base_url="http://127.0.0.1:8766/v1",
         needs_key=False,
         notes="bundled deterministic fake server (examples/fake_openai_server.py)",
+        runtime_name="fake-local",
+        runtime_family="local-fake",
+        network_mode="local-only",
+        authorization_mode="demo_synthetic",
+        local_only=True,
+        model_license_note="Bundled fake server; no model license applies.",
     ),
     "vllm": Preset(
         name="vllm",
@@ -39,18 +85,36 @@ _PRESETS: dict[str, Preset] = {
         needs_key=False,
         default_key_env="ASH_EXTERNAL_API_KEY",
         notes="local vLLM OpenAI-compatible server; --model = the served model id",
+        runtime_name="vllm",
+        runtime_family="local-runtime",
+        network_mode="local-only",
+        authorization_mode="local_runtime",
+        local_only=True,
+        model_license_note="Verify the served model license and vLLM deployment policy.",
     ),
     "ollama": Preset(
         name="ollama",
         base_url="http://localhost:11434/v1",
         needs_key=False,
         notes="Ollama native OpenAI-compatible endpoint; pull the model first",
+        runtime_name="ollama",
+        runtime_family="local-runtime",
+        network_mode="local-only",
+        authorization_mode="local_runtime",
+        local_only=True,
+        model_license_note="Verify the pulled model license and acceptable-use policy.",
     ),
     "lm-studio": Preset(
         name="lm-studio",
         base_url="http://localhost:1234/v1",
         needs_key=False,
         notes="LM Studio local server; start its server and load a model",
+        runtime_name="lm-studio",
+        runtime_family="local-runtime",
+        network_mode="local-only",
+        authorization_mode="local_runtime",
+        local_only=True,
+        model_license_note="Verify the loaded model license and LM Studio usage policy.",
     ),
     "deepseek": Preset(
         name="deepseek",
@@ -58,6 +122,8 @@ _PRESETS: dict[str, Preset] = {
         needs_key=True,
         default_key_env="ASH_EXTERNAL_API_KEY",
         notes="confirm the current base URL and model ids in the DeepSeek API docs",
+        runtime_name="deepseek",
+        runtime_family="cloud-provider",
     ),
     "alibaba-qwen-compatible": Preset(
         name="alibaba-qwen-compatible",
@@ -65,6 +131,8 @@ _PRESETS: dict[str, Preset] = {
         needs_key=True,
         default_key_env="ASH_EXTERNAL_API_KEY",
         notes="Model Studio compatible-mode; host is region-dependent, confirm in docs",
+        runtime_name="alibaba-qwen-compatible",
+        runtime_family="cloud-provider",
     ),
     "generic-openai-compatible": Preset(
         name="generic-openai-compatible",
@@ -72,6 +140,8 @@ _PRESETS: dict[str, Preset] = {
         needs_key=True,
         default_key_env="ASH_EXTERNAL_API_KEY",
         notes="any OpenAI-compatible gateway; pass --base-url with your endpoint",
+        runtime_name="generic-openai-compatible",
+        runtime_family="openai-compatible",
     ),
 }
 
@@ -96,6 +166,56 @@ def resolve_preset(name: str) -> Preset:
 def is_template_url(base_url: str) -> bool:
     """True if the URL is a placeholder that the user must replace with --base-url."""
     return _TEMPLATE_HOST in base_url
+
+
+def _is_local_url(base_url: str) -> bool:
+    host = (urlparse(base_url).hostname or "").lower()
+    return host in {"localhost", "127.0.0.1", "::1"}
+
+
+def infer_runtime_profile(preset_name: str | None, base_url: str) -> RuntimeProfile:
+    """Infer artifact-safe runtime metadata from the preset and effective URL."""
+    preset = _PRESETS.get(preset_name or "")
+    if preset is not None:
+        guidance = (
+            _LOCAL_RECOVERY_GUIDANCE if preset.local_only else _REMOTE_RECOVERY_GUIDANCE
+        )
+        return RuntimeProfile(
+            runtime_name=preset.runtime_name,
+            runtime_family=preset.runtime_family,
+            network_mode=preset.network_mode,
+            authorization_mode=preset.authorization_mode,
+            local_only=preset.local_only,
+            model_license_note=preset.model_license_note,
+            recovery_guidance=list(guidance),
+        )
+
+    if _is_local_url(base_url):
+        return RuntimeProfile(
+            runtime_name="local-openai-compatible",
+            runtime_family="local-runtime",
+            network_mode="local-only",
+            authorization_mode="local_runtime",
+            local_only=True,
+            model_license_note=(
+                "Local OpenAI-compatible endpoint; verify the served model license "
+                "and acceptable-use policy."
+            ),
+            recovery_guidance=list(_LOCAL_RECOVERY_GUIDANCE),
+        )
+
+    return RuntimeProfile(
+        runtime_name="generic-openai-compatible",
+        runtime_family="openai-compatible",
+        network_mode="authorized-external",
+        authorization_mode="authorized_external",
+        local_only=False,
+        model_license_note=(
+            "Authorized external OpenAI-compatible endpoint; verify provider terms, "
+            "scope, and model policy before running or publishing results."
+        ),
+        recovery_guidance=list(_REMOTE_RECOVERY_GUIDANCE),
+    )
 
 
 def apply_preset(

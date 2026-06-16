@@ -388,14 +388,20 @@ def _render_external(run_dir: Path, manifest: dict | None) -> str:
     body.append("<h2>Run metadata</h2>")
     pairs = _manifest_pairs(manifest)
     if not pairs:
+        runtime = config.get("runtime", {}) if isinstance(config.get("runtime"), dict) else {}
         pairs = [
             ("adapter", _esc(config.get("adapter_type", ""))),
             ("model", _esc(config.get("model", ""))),
             ("endpoint", _esc(config.get("base_url_label", ""))),
+            ("runtime", _esc(runtime.get("runtime_name", ""))),
+            ("runtime_family", _esc(runtime.get("runtime_family", ""))),
             ("scenario", _esc(config.get("scenario_id", ""))),
             ("repeats", _esc(config.get("repeats", ""))),
             ("request_count", _esc(config.get("request_count", ""))),
             ("network_mode", _esc(config.get("network_mode", ""))),
+            ("authorization_mode", _esc(runtime.get("authorization_mode", ""))),
+            ("prompt_only", _esc(runtime.get("prompt_only", ""))),
+            ("tool_execution", _esc(runtime.get("tool_execution", ""))),
             (
                 "credential_env_var",
                 _esc(

@@ -208,8 +208,8 @@ After a run, you get:
 
 | File | What it shows |
 |---|---|
-| `run_config.json` | Configuration used: adapter, model, redacted base_url, scenario, repeats, `request_count`. credential env **name** only, never the value. |
-| `external_results.json` | Per-evaluation result: decision, pattern-level assertion status, raw-response path/hash, and structured `error`. |
+| `run_config.json` | Configuration used: adapter, runtime metadata, model, redacted base_url, scenario, repeats, `request_count`. credential env **name** only, never the value. |
+| `external_results.json` | Per-evaluation result: decision, pattern-level assertion status, raw-response path/hash, structured `error`, and `recovery_hint`. |
 | `external_summary.json` | Aggregated counts: pass/finding/inconclusive/flaky per pattern, plus `findings_by_pattern` and `findings_by_control_family`. |
 | `external_report.md` | Human-readable report: configuration, results, control-family table, and **control recommendations** (quick / engineering / architecture fix, verification, residual risk) for any finding. |
 | `raw_responses/` | Full raw model response text per request. |

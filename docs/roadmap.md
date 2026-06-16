@@ -73,9 +73,9 @@ The next work is ordered by credibility, not by feature volume:
    residual risk.
 5. **Toy multi-agent handoff adapter:** a local coordinator/worker delegation surface,
    adding to the shipped toy adapters without introducing live provider calls.
-6. **Local-runtime evidence mode:** clarify and harden the Ollama / LM Studio / vLLM path
-   as an authorized local-runtime prompt-only check, including model-license notes and
-   recovery guidance.
+6. **Local-runtime evidence upkeep:** keep the Ollama / LM Studio / vLLM prompt-only path
+   explicit in artifacts, including model-license notes, `local-only` mode, and recovery
+   guidance.
 7. **v1.0 stable benchmark release:** stable trace schema, stable corpus manifest, stable
    CLI, validated examples, coherent docs, public tag (see
    [release-checklist.md](release-checklist.md)).
