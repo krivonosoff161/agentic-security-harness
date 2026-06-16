@@ -13,6 +13,7 @@ what the project currently proves.
 | [Deepening backlog](deepening-backlog.md) | Bounded follow-up variations selected from evidence, not a full cross-product. |
 | [Metrics contract](../metric-contract.md) | How to read traffic, benchmark, runtime, and process metrics. |
 | [Scenario investigation workflow](../scenario-investigation-workflow.md) | How scenarios become evidence and then deeper checks. |
+| Generated showcase | Produced by `ash showcase --root reports --out docs/showcase/generated`. |
 
 ## Current public evidence
 
@@ -47,6 +48,14 @@ ash compare --baseline demo-agent --protected protected-demo-agent --out reports
 ash validate reports/comparison
 ash report --root reports/comparison
 ```
+
+Generate reviewer-facing Markdown from recorded artifacts:
+
+```bash
+ash showcase --root reports --out docs/showcase/generated
+```
+
+The generated files are a reviewer aid. JSON artifacts remain the source of truth.
 
 ## Reproduce the low-memory local smoke
 

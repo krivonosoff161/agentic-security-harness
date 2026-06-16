@@ -34,6 +34,6 @@ a full combinatorial sweep.
 
 1. Build public showcase skeleton from these docs (#25).
 2. Add trace replay / failure-card generation from artifacts (#21).
-3. Implement the first scenario timeline format (#20).
+3. Implement the first scenario timeline from [scenario-timeline.md](../scenario-timeline.md).
 4. Promote local Prometheus smoke from docs-only workflow to a small suite (#19).
-5. Add showcase generator over JSON artifacts (#23).
+5. Add richer showcase generator views over JSON artifacts (#23).

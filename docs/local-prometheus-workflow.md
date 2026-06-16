@@ -26,6 +26,8 @@ This profile is deliberately conservative. The goal is not to find the strongest
 model; it is to collect reproducible real-model evidence without making the machine
 unusable.
 
+See [local-model-profiles.md](local-model-profiles.md) for the maintained profile table.
+
 ## What this does and does not test
 
 Current support:

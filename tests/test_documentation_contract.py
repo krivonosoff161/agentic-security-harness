@@ -18,6 +18,8 @@ def test_readme_links_methodology_docs() -> None:
         "docs/project-tracker.md",
         "docs/metric-contract.md",
         "docs/local-prometheus-workflow.md",
+        "docs/local-model-profiles.md",
+        "docs/scenario-timeline.md",
         "docs/showcase/index.md",
         "docs/showcase/scenario-matrix.md",
         "docs/showcase/weak-spots-and-findings.md",
@@ -133,6 +135,8 @@ def test_status_and_authorization_docs_are_canonical() -> None:
     assert "project-tracker.md" in project_map
     assert "metric-contract.md" in project_map
     assert "local-prometheus-workflow.md" in project_map
+    assert "local-model-profiles.md" in project_map
+    assert "scenario-timeline.md" in project_map
     assert "showcase/index.md" in project_map
     assert "docs/current-state.md" in release_checklist
     assert "docs/authorized-testing-paths.md" in release_checklist
@@ -143,6 +147,8 @@ def test_showcase_separates_weak_spots_findings_and_deepening() -> None:
     weak = _read("docs/showcase/weak-spots-and-findings.md")
     deepening = _read("docs/showcase/deepening-backlog.md")
     workflow = _read("docs/scenario-investigation-workflow.md")
+    timeline = _read("docs/scenario-timeline.md")
+    profiles = _read("docs/local-model-profiles.md")
 
     for phrase in (
         "Scenario matrix",
@@ -174,6 +180,22 @@ def test_showcase_separates_weak_spots_findings_and_deepening() -> None:
         "Deepening variation rules",
     ):
         assert phrase in workflow
+
+    for phrase in (
+        "timeline_id",
+        "trust_zone",
+        "validators",
+        "First timeline candidates",
+    ):
+        assert phrase in timeline
+
+    for phrase in (
+        "prometheus-lowmem-smoke",
+        "qwen2.5:1.5b",
+        "Stop conditions",
+        "adapter_error",
+    ):
+        assert phrase in profiles
 
 
 def test_active_docs_do_not_use_stale_pattern_count() -> None:

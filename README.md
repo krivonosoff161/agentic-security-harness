@@ -24,6 +24,7 @@ python -m mypy src tests
 ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison
 ash validate reports/comparison
 ash validate examples/
+ash showcase --root reports --out docs/showcase/generated
 ```
 
 Read by role:
@@ -40,8 +41,9 @@ Read by role:
 - Showcase reviewer: [Public evidence showcase](docs/showcase/index.md),
   [scenario matrix](docs/showcase/scenario-matrix.md), and
   [weak spots/findings ledger](docs/showcase/weak-spots-and-findings.md).
-- Local model reviewer: [Local Prometheus workflow](docs/local-prometheus-workflow.md)
-  and [Metrics contract](docs/metric-contract.md).
+- Scenario designer: [Scenario timeline contract](docs/scenario-timeline.md).
+- Local model reviewer: [Local Prometheus workflow](docs/local-prometheus-workflow.md),
+  [Local model profiles](docs/local-model-profiles.md), and [Metrics contract](docs/metric-contract.md).
 - Safety reviewer: [Research rules](docs/research-rules.md), [Authorized testing paths](docs/authorized-testing-paths.md),
   [Threat model](docs/threat-model.md), and [SECURITY.md](SECURITY.md).
 

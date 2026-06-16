@@ -43,14 +43,16 @@ If those six points hold, the benchmark is coherent.
 | Targets | Local systems under test: `mock`, `demo-agent`, `protected-demo-agent`, and toy adapters `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`. | `src/agentic_security_harness/*agent*.py`, `mock_target.py`, `toy_adapters.py` |
 | Runner | Converts `pattern + target` into traces. | `src/agentic_security_harness/runner.py` |
 | Scenario matrix | Runs scenario variants and aggregates stability (`run-matrix`). | `src/agentic_security_harness/matrix.py` |
+| Scenario timeline contract | Defines how longer multi-step, multi-actor scenario evidence should be modeled before implementation. | [scenario-timeline.md](scenario-timeline.md) |
 | External path | Experimental, opt-in OpenAI-compatible prompt-only model check (`run-external`, `external-check`, `external-presets`). | `src/agentic_security_harness/external_runner.py`, `presets.py`, [connect-models.md](connect-models.md) |
 | Reports | Writes `traces.json`, `scorecard.json`, `summary.md`, `executive.md`, remediation, comparison, and static HTML (`report`). | `src/agentic_security_harness/reporting.py`, `html_report.py`, `examples/` |
+| Showcase generator | Builds reviewer-facing weak-spot/finding cards from existing run artifacts (`showcase`). | `src/agentic_security_harness/showcase.py`, [showcase/index.md](showcase/index.md) |
 | Run diff | `diff-runs` compares two same-kind runs (`run_diff.json` / `run_diff.md`); `compare-models` wraps this for external model artifacts. | `src/agentic_security_harness/run_diff.py`, [run-diff.md](run-diff.md) |
 | Run history | `run_index.json` manifest per run; `list-runs` lists them; `index-runs` builds a local SQLite metadata index; `stats` summarizes history; `retention` plans cleanup. | `src/agentic_security_harness/run_manifest.py`, `rundb.py`, `stats.py` |
 | Schemas | Every JSON artifact carries a `schema_version` from one registry. | `src/agentic_security_harness/schema_versions.py`, [artifact-schemas.md](artifact-schemas.md) |
 | Validation | Checks report/external/manifest/diff artifacts, schema versions, and standards-mapping consistency. | `src/agentic_security_harness/validation.py` |
 | Diagnostics | `doctor` checks the environment (no network by default). | `src/agentic_security_harness/doctor.py` |
-| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `validate`, `report`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
+| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `validate`, `report`, `showcase`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
 | Adapter contract | Rules and metadata models for future model/provider/runtime adapters. | [adapter-contract.md](adapter-contract.md), `models.py` |
 | Reporting design | How executive and technical reports should be shaped. | [reporting.md](reporting.md) |
 
@@ -99,7 +101,8 @@ Start here by role:
 | Adapter author | [Custom adapter tutorial](custom-adapter-tutorial.md), [Adapter contract](adapter-contract.md), [Bring your own target](bring-your-own-target.md) | Implement a target without forking the benchmark model. |
 | Report reviewer | [Examples index](../examples/README.md), [Comparison example](../examples/comparison-report/README.md), [Reporting](reporting.md) | Inspect committed proof artifacts before running anything. |
 | Showcase reviewer | [Public evidence showcase](showcase/index.md), [Scenario matrix](showcase/scenario-matrix.md), [Weak spots and findings](showcase/weak-spots-and-findings.md) | See scenarios, current evidence, weak spots, findings, and next variations without reading code. |
-| Local model reviewer | [Local Prometheus workflow](local-prometheus-workflow.md), [Metrics contract](metric-contract.md), [Connect models](connect-models.md) | Run a weak local model safely and read inconclusive/error evidence correctly. |
+| Scenario designer | [Scenario timeline contract](scenario-timeline.md) | Model multi-step, multi-actor, delayed, or cross-boundary situations before adding corpus cases. |
+| Local model reviewer | [Local Prometheus workflow](local-prometheus-workflow.md), [Local model profiles](local-model-profiles.md), [Metrics contract](metric-contract.md), [Connect models](connect-models.md) | Run a weak local model safely and read inconclusive/error evidence correctly. |
 | Safety reviewer | [Research rules](research-rules.md), [Authorized testing paths](authorized-testing-paths.md), [Threat model](threat-model.md), [SECURITY](../SECURITY.md) | Confirm the project stays defensive, synthetic, and authorized. |
 | Release reviewer | [Release checklist](release-checklist.md), [Changelog](../CHANGELOG.md), [CI workflow](../.github/workflows/ci.yml) | Verify public packaging and quality gates. |
 
