@@ -32,6 +32,9 @@ Supporting docs:
 
 - [metric-contract.md](metric-contract.md) defines how traffic, benchmark, runtime, and
   process metrics should be read.
+- [inter-agent-handoff-integrity.md](inter-agent-handoff-integrity.md) defines the
+  design-first track for provenance-preserving worker-to-senior agent handoffs. It is
+  planned work, not shipped benchmark coverage.
 - [local-prometheus-workflow.md](local-prometheus-workflow.md) defines the low-memory
   Ollama smoke workflow for real local model probes.
 - [local-model-profiles.md](local-model-profiles.md) records hardware-safe local model
@@ -71,12 +74,14 @@ GitHub traffic graphs are useful, but they do not prove benchmark quality.
 
 1. Keep the GitHub tracker honest: every large idea becomes an issue with labels,
    milestone, scope, non-goals, and exit gate.
-2. Build the evidence showcase from existing deterministic artifacts first.
-3. Add local Prometheus/model-in-loop probes only after the showcase can explain how to
+2. For new methodology tracks such as inter-agent handoff integrity, write the design
+   track and exit gates before adding code or corpus cases.
+3. Build the evidence showcase from existing deterministic artifacts first.
+4. Add local Prometheus/model-in-loop probes only after the showcase can explain how to
    read evidence and limitations.
-4. Generate failure cards and metrics from artifacts. Do not hand-write conclusions that
+5. Generate failure cards and metrics from artifacts. Do not hand-write conclusions that
    are stronger than the trace/scorecard data.
-5. Only then expand scenario timelines and local model profiles.
+6. Only then expand scenario timelines and local model profiles.
 
 ## Local verification before claiming progress
 

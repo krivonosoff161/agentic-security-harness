@@ -44,6 +44,7 @@ If those six points hold, the benchmark is coherent.
 | Runner | Converts `pattern + target` into traces. | `src/agentic_security_harness/runner.py` |
 | Scenario matrix | Runs scenario variants and aggregates stability (`run-matrix`). | `src/agentic_security_harness/matrix.py` |
 | Scenario timeline contract | Defines how longer multi-step, multi-actor scenario evidence should be modeled before implementation. | [scenario-timeline.md](scenario-timeline.md) |
+| Inter-agent handoff integrity | Design track for provenance-preserving worker-to-senior handoffs before any benchmark code lands. | [inter-agent-handoff-integrity.md](inter-agent-handoff-integrity.md) |
 | External path | Experimental, opt-in OpenAI-compatible prompt-only model check (`run-external`, `external-check`, `external-presets`). | `src/agentic_security_harness/external_runner.py`, `presets.py`, [connect-models.md](connect-models.md) |
 | Reports | Writes `traces.json`, `scorecard.json`, `summary.md`, `executive.md`, remediation, comparison, and static HTML (`report`). | `src/agentic_security_harness/reporting.py`, `html_report.py`, `examples/` |
 | Showcase generator | Builds reviewer-facing weak-spot/finding cards from existing run artifacts (`showcase`). | `src/agentic_security_harness/showcase.py`, [showcase/index.md](showcase/index.md) |
@@ -102,6 +103,7 @@ Start here by role:
 | Report reviewer | [Examples index](../examples/README.md), [Comparison example](../examples/comparison-report/README.md), [Reporting](reporting.md) | Inspect committed proof artifacts before running anything. |
 | Showcase reviewer | [Public evidence showcase](showcase/index.md), [Scenario matrix](showcase/scenario-matrix.md), [Weak spots and findings](showcase/weak-spots-and-findings.md) | See scenarios, current evidence, weak spots, findings, and next variations without reading code. |
 | Scenario designer | [Scenario timeline contract](scenario-timeline.md) | Model multi-step, multi-actor, delayed, or cross-boundary situations before adding corpus cases. |
+| Handoff/integrity designer | [Inter-agent handoff integrity](inter-agent-handoff-integrity.md), [Scenario investigation workflow](scenario-investigation-workflow.md) | Keep inter-agent provenance, integrity, recovery, and operations work design-led before code is added. |
 | Local model reviewer | [Local Prometheus workflow](local-prometheus-workflow.md), [Local model profiles](local-model-profiles.md), [Metrics contract](metric-contract.md), [Connect models](connect-models.md) | Run a weak local model safely and read inconclusive/error evidence correctly. |
 | Safety reviewer | [Research rules](research-rules.md), [Authorized testing paths](authorized-testing-paths.md), [Threat model](threat-model.md), [SECURITY](../SECURITY.md) | Confirm the project stays defensive, synthetic, and authorized. |
 | Release reviewer | [Release checklist](release-checklist.md), [Changelog](../CHANGELOG.md), [CI workflow](../.github/workflows/ci.yml) | Verify public packaging and quality gates. |

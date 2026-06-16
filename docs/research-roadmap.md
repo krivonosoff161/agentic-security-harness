@@ -96,6 +96,7 @@ Use these as research anchors, not as certification claims:
 | Done | `mcp.tool_schema_deception` | Current in v0.7 for a mock schema record. | MCP clients rely on tool metadata, schemas, annotations, and server trust. A deceptive or changed schema can steer an agent into the wrong call. | Mock MCP-like schema record; schema hash changes; protected target pins schema provenance and rejects drift / untrusted annotations. |
 | Done | `audit.hash_chain_tamper` | Current in v0.7. | Portable traces need integrity checks: deletion, reorder, and edit attempts should be detectable. | Append-only audit entries with `previous_hash`; vulnerable target accepts edit; protected target detects chain break. |
 | Done | `ambient_authority.environmental_privilege_escalation` | Current in v0.8 for synthetic host capability markers. | Agents can inherit host, runtime, file, or tool authority beyond the declared data envelope. | Synthetic host capability only; no real credentials. Protected target requires explicit capability binding and rejects unscoped ambient authority. |
+| P1 | `inter_agent.handoff_integrity` | Design track only. | Senior agents may treat worker summaries as facts unless provenance, source labels, payload integrity, policy version, and recovery metadata survive the handoff. | Synthetic senior/worker topology; vulnerable path accepts an unverified handoff; protected path blocks or reviews via deterministic handoff verifier. See [inter-agent-handoff-integrity.md](inter-agent-handoff-integrity.md). |
 | P1 | `semantic.policy_letter_vs_spirit` | Not covered beyond explicit envelope fields. | A model may satisfy the literal policy while reconstructing or transforming sensitive content in a way that violates the policy intent. | Deterministic semantic invariant fixtures; protected target checks invariant rules such as minimization, recipient, purpose, and reconstruction limits. |
 
 ## Implemented v0.7 details
@@ -287,9 +288,11 @@ Before adding more patterns, keep the candidate list aligned with
 [corpus-expansion-plan.md](corpus-expansion-plan.md). The first implementation candidates
 remain:
 
-1. `cross_app.data_instruction_contamination` with synthetic app-surface markers.
-2. `audit_context_split.action_audit_divergence` with synthetic audit entries.
-3. A narrow `semantic.policy_letter_vs_spirit` fixture with deterministic invariant
+1. `inter_agent.handoff_integrity` only after the design track exit gate in
+   [inter-agent-handoff-integrity.md](inter-agent-handoff-integrity.md) is reviewed.
+2. `cross_app.data_instruction_contamination` with synthetic app-surface markers.
+3. `audit_context_split.action_audit_divergence` with synthetic audit entries.
+4. A narrow `semantic.policy_letter_vs_spirit` fixture with deterministic invariant
    checks.
 
 Each candidate needs an issue or design note that states the invariant, topology, trace
