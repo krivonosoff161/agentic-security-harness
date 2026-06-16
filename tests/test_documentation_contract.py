@@ -210,3 +210,24 @@ def test_public_showcase_checklist_is_linked_from_release_and_example_docs() -> 
     assert "docs/showcase-report-checklist.md" in readme
     assert "Findings reduced: **22 -> 0**" in comparison_readme
     assert "Findings reduced: **17 -> 0**" not in comparison_readme
+
+
+def test_v1_readiness_matrix_is_linked_and_explicit_about_blockers() -> None:
+    readiness = _read("docs/v1-readiness.md")
+    release_checklist = _read("docs/release-checklist.md")
+    readme = _read("README.md")
+
+    for phrase in (
+        "Stable vs experimental surface",
+        "Clean install path",
+        "Fake-server path",
+        "Claim boundaries for v1.0",
+        "Open v1.0 blockers",
+        "Trace schema freeze",
+        "Corpus manifest freeze",
+        "not a claim that v1.0 is ready",
+    ):
+        assert phrase in readiness
+
+    assert "v1-readiness.md" in release_checklist
+    assert "docs/v1-readiness.md" in readme

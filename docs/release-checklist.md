@@ -1,7 +1,8 @@
 # Release checklist
 
 Practical preflight for cutting a release. The project is **pre-1.0**; this list is the
-path toward a stable v1.0, not a claim that v1.0 is ready.
+path toward a stable v1.0, not a claim that v1.0 is ready. The broader readiness map is
+[v1-readiness.md](v1-readiness.md).
 
 ## Every release
 

@@ -30,7 +30,7 @@ Read by role:
 
 - First-time user: [Getting started](docs/getting-started.md) and [User journey](docs/user-journey.md).
 - Project status reviewer: [Current state](docs/current-state.md), [Capability matrix](docs/capability-matrix.md),
-  and [Roadmap](docs/roadmap.md).
+  [Roadmap](docs/roadmap.md), and [v1.0 readiness](docs/v1-readiness.md).
 - Benchmark reviewer: [Benchmark protocol](docs/benchmark-protocol.md), [Benchmark semantics](docs/benchmark-semantics.md), and [Artifact schemas](docs/artifact-schemas.md).
 - Adapter author: [Custom adapter tutorial](docs/custom-adapter-tutorial.md) and [Adapter contract](docs/adapter-contract.md).
 - Report reviewer: [Examples index](examples/README.md),
