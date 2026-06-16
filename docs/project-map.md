@@ -94,7 +94,7 @@ Start here by role:
 | Role | Read first | Why |
 |---|---|---|
 | First-time user | [Getting started](getting-started.md), [User journey](user-journey.md) | Run the deterministic local path and inspect output. |
-| Project status reviewer | [Current state](current-state.md), [Capability matrix](capability-matrix.md), [Roadmap](roadmap.md) | Separate shipped, experimental, planned, and blocked work. |
+| Project status reviewer | [Current state](current-state.md), [Capability matrix](capability-matrix.md), [Roadmap](roadmap.md), [Project tracker](project-tracker.md) | Separate shipped, experimental, planned, blocked work, and visible GitHub issue flow. |
 | Benchmark reviewer | [Benchmark protocol](benchmark-protocol.md), [Benchmark semantics](benchmark-semantics.md), [Artifact schemas](artifact-schemas.md) | Understand what the benchmark proves and what it does not prove. |
 | Adapter author | [Custom adapter tutorial](custom-adapter-tutorial.md), [Adapter contract](adapter-contract.md), [Bring your own target](bring-your-own-target.md) | Implement a target without forking the benchmark model. |
 | Report reviewer | [Examples index](../examples/README.md), [Comparison example](../examples/comparison-report/README.md), [Reporting](reporting.md) | Inspect committed proof artifacts before running anything. |

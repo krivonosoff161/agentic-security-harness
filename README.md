@@ -30,7 +30,8 @@ Read by role:
 
 - First-time user: [Getting started](docs/getting-started.md) and [User journey](docs/user-journey.md).
 - Project status reviewer: [Current state](docs/current-state.md), [Capability matrix](docs/capability-matrix.md),
-  [Roadmap](docs/roadmap.md), and [v1.0 readiness](docs/v1-readiness.md).
+  [Roadmap](docs/roadmap.md), [Project tracker](docs/project-tracker.md), and
+  [v1.0 readiness](docs/v1-readiness.md).
 - Benchmark reviewer: [Benchmark protocol](docs/benchmark-protocol.md), [Benchmark semantics](docs/benchmark-semantics.md), and [Artifact schemas](docs/artifact-schemas.md).
 - Adapter author: [Custom adapter tutorial](docs/custom-adapter-tutorial.md) and [Adapter contract](docs/adapter-contract.md).
 - Report reviewer: [Examples index](examples/README.md),
@@ -105,7 +106,7 @@ deterministic tests - honest residual risk. Full rules:
   [benchmark semantics](docs/benchmark-semantics.md) and the
   [capability matrix](docs/capability-matrix.md).
 - Need to know what is shipped, experimental, planned, and safe to claim publicly? Read
-  [current state](docs/current-state.md).
+  [current state](docs/current-state.md) and the public [project tracker](docs/project-tracker.md).
 - Comparing two runs, reading artifact versions, or connecting a provider? See
   [run diff](docs/run-diff.md), [artifact schemas](docs/artifact-schemas.md), and
   [connect models](docs/connect-models.md).

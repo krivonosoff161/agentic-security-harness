@@ -66,6 +66,8 @@ The next work is ordered by credibility, not by feature volume:
 1. **Keep public status synchronized:** maintain
    [current-state.md](current-state.md), this roadmap, the capability matrix, and the
    README so reviewers can see what is shipped, experimental, planned, and out of scope.
+   Active public work is tracked in [project-tracker.md](project-tracker.md) and GitHub
+   milestones; open issues are not shipped capability.
 2. **Document official/authorized testing paths:** keep
    [authorized-testing-paths.md](authorized-testing-paths.md) aligned with the security
    policy, adapter contract, provider-safe wording, and local-runtime guidance.

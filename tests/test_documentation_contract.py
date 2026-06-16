@@ -15,6 +15,7 @@ def test_readme_links_methodology_docs() -> None:
         "docs/evaluation-topologies.md",
         "docs/corpus-expansion-plan.md",
         "docs/agentic-boundary-model.md",
+        "docs/project-tracker.md",
         "GOVERNANCE.md",
     ):
         assert link in readme
@@ -124,6 +125,7 @@ def test_status_and_authorization_docs_are_canonical() -> None:
 
     assert "current-state.md" in project_map
     assert "authorized-testing-paths.md" in project_map
+    assert "project-tracker.md" in project_map
     assert "docs/current-state.md" in release_checklist
     assert "docs/authorized-testing-paths.md" in release_checklist
 
