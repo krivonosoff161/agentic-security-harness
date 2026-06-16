@@ -138,3 +138,27 @@ def test_active_docs_do_not_use_stale_pattern_count() -> None:
         text = _read(path).lower()
         assert "passes all 13" not in text
         assert "implements 13" not in text
+
+
+def test_toy_multi_agent_status_is_documented_as_shipped() -> None:
+    required_docs = (
+        "README.md",
+        "CHANGELOG.md",
+        "docs/current-state.md",
+        "docs/adapter-contract.md",
+        "docs/capability-matrix.md",
+        "docs/evaluation-topologies.md",
+        "docs/harness.md",
+        "docs/project-map.md",
+        "docs/benchmark-semantics.md",
+        "docs/agentic-boundary-model.md",
+    )
+    for path in required_docs:
+        assert "toy-multi-agent" in _read(path), path
+
+    current_state = _read("docs/current-state.md")
+    planned_section = current_state.split("## Planned, not shipped", 1)[1].split(
+        "## Current active work", 1
+    )[0]
+    assert "toy multi-agent handoff adapter" not in planned_section
+    assert "toy-multi-agent" in current_state.split("## Shipped and verified", 1)[1]

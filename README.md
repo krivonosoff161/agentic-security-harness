@@ -130,8 +130,8 @@ deterministic tests - honest residual risk. Full rules:
 agentic operating-environment boundary failures** - data-boundary, authority, perception,
 memory governance, approval, and audit integrity - against deterministic local targets,
 with baseline-vs-protected replay (see *What exists today*). Cross-app contamination,
-real target adapters, live MCP adapters, richer multi-agent tests, full multimodal adapters,
-and the reference gateway come later.
+real target adapters, live MCP adapters, richer live multi-agent tests, full multimodal
+adapters, and the reference gateway come later.
 See [docs/roadmap.md](docs/roadmap.md).
 
 ![status](https://img.shields.io/badge/status-pre--release-orange)
@@ -173,11 +173,11 @@ See [docs/roadmap.md](docs/roadmap.md).
   passed to the external prompt as scenario context, but do not yet mutate the
   underlying pattern content; for the local `run-matrix` path they remain replay
   metadata only.
-- **Toy adapters** - `toy-rag` and `toy-tools` (plus the trivial pass-all
-  `toy-local-function`): deterministic local stand-ins for agentic systems that exercise
-  *different* surfaces (retrieval/memory vs tool/authority) and so legitimately PASS some
-  patterns and FAIL others. They show the harness can evaluate arbitrary systems, not
-  only the demo agents. No network, no dependencies.
+- **Toy adapters** - `toy-rag`, `toy-tools`, and `toy-multi-agent` (plus the trivial
+  pass-all `toy-local-function`): deterministic local stand-ins for agentic systems that
+  exercise *different* surfaces (retrieval/memory, tool/authority, and coordinator/worker
+  handoff) and so legitimately PASS some patterns and FAIL others. They show the harness
+  can evaluate arbitrary systems, not only the demo agents. No network, no dependencies.
 - **Static HTML reports** - `ash report --root <dir>` renders a self-contained
   `report.html` (no JS, no CDN, no network) with an executive summary, severity
   distribution, pattern table, and a coverage heatmap for matrix runs. JSON/Markdown
@@ -204,7 +204,7 @@ only in the experimental `run-external` path and require an explicit command.
 | Area | Current release | Planned / future track |
 |---|---|---|
 | Benchmark | 22-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus via invariant-based expansion, mappings, report quality. |
-| Targets | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, plus experimental OpenAI-compatible external model checks. | Native provider adapters and agent-host / tool-use adapters. |
+| Targets | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, plus experimental OpenAI-compatible external model checks. | Native provider adapters and agent-host / tool-use adapters. |
 | Runtime | CLI-only (`run`, `compare`, `validate`, `targets`, `scenarios`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `list-runs`, `index-runs`, `stats`, `retention`, `report`, `doctor`). | Optional HTTP reference gateway and a web report viewer after the benchmark stabilizes. |
 | Network / providers | Off by default; `run-external` makes explicit OpenAI-compatible calls only when invoked without `--dry-run`. | More provider presets, config files, and verified local-runtime guides. |
 | Storage | Local report files and committed examples. | Optional persistent trace store after v1.0. |
@@ -236,8 +236,9 @@ ash validate examples/        # validate committed benchmark artifacts
   tool-schema provenance tests for the tools / permissions layer of the graph.
 - **Perception-boundary checks** - synthetic OCR / ASR / HTML transcript fixtures test
   whether observed content is treated as authority. Full multimodal adapters are planned.
-- **Cross-app and multi-agent contamination** (planned) - explicit tests for workflows
-  where one app surface or agent contaminates another.
+- **Cross-app and multi-agent contamination** - current local coverage includes a
+  toy coordinator/worker handoff for label stripping and capability drift; richer live
+  cross-app / multi-agent workflows remain planned.
 - **Scorecard from traces** - a derived, deterministic aggregate.
 - **Reference gateway** (planned) - an optional defense target design for future replay.
 

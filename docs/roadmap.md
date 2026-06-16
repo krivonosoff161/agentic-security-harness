@@ -53,6 +53,9 @@ agent-host adapters are future.
   external raw-response evidence files, pattern-level external cross-checks,
   `compare-models`, `stats`, `retention`, JSON output options, and golden external
   artifact snapshots. These are in `CHANGELOG.md` under `Unreleased` until the next tag.
+- **Post-v0.13 local multi-agent handoff slice:** `toy-multi-agent` adds a deterministic
+  coordinator/worker target for data-label handoff and capability-delegation drift traces
+  without provider calls, live tools, or network access.
 
 ---
 
@@ -71,8 +74,9 @@ The next work is ordered by credibility, not by feature volume:
 4. **Cross-app contamination and audit context split:** implement only after each pattern
    proposal states the invariant, topology, trace evidence, protected control, and
    residual risk.
-5. **Toy multi-agent handoff adapter:** a local coordinator/worker delegation surface,
-   adding to the shipped toy adapters without introducing live provider calls.
+5. **Multi-agent handoff expansion:** keep the shipped `toy-multi-agent` slice current,
+   then add only reviewed handoff patterns with explicit invariants, trace evidence, and
+   safety gates.
 6. **Local-runtime evidence upkeep:** keep the Ollama / LM Studio / vLLM prompt-only path
    explicit in artifacts, including model-license notes, `local-only` mode, and recovery
    guidance.

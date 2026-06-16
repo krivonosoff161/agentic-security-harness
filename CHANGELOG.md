@@ -42,6 +42,10 @@ All notable changes to this project are documented here. The format follows
   runtime family, `network_mode`, authorization mode, model id, model license/policy note,
   prompt-only/tool-execution flags, and recovery guidance for local Ollama, LM Studio,
   vLLM, localhost, and generic OpenAI-compatible endpoints.
+- Local toy multi-agent handoff target: `toy-multi-agent` models a deterministic
+  coordinator/worker handoff for data-label stripping and capability-delegation drift,
+  records before/after handoff evidence in trace steps, and remains offline with no
+  provider calls or live tools.
 
 ### Changed
 - `agentic-boundary-model.md` is now the canonical protection/boundary model catalog,
@@ -72,6 +76,9 @@ All notable changes to this project are documented here. The format follows
 - External reports and run manifests now surface runtime metadata and recovery guidance,
   and the committed external demo report uses the same fake-local runtime metadata path
   as a normal CLI run.
+- README, current-state, adapter contract, capability matrix, evaluation topologies,
+  roadmap, boundary model, and project map now list `toy-multi-agent` as shipped while
+  keeping live/cross-provider multi-agent workflows future-scoped.
 
 ## [0.13.0] - 2026-06-14
 
