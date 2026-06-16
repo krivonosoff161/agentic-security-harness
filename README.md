@@ -37,6 +37,8 @@ Read by role:
 - Report reviewer: [Examples index](examples/README.md),
   [comparison example](examples/comparison-report/README.md), and
   [showcase checklist](docs/showcase-report-checklist.md).
+- Local model reviewer: [Local Prometheus workflow](docs/local-prometheus-workflow.md)
+  and [Metrics contract](docs/metric-contract.md).
 - Safety reviewer: [Research rules](docs/research-rules.md), [Authorized testing paths](docs/authorized-testing-paths.md),
   [Threat model](docs/threat-model.md), and [SECURITY.md](SECURITY.md).
 
