@@ -272,6 +272,11 @@ it, so both `https://host/v1` and `https://host/v1/chat/completions` work.
 Both **Ollama** and **LM Studio** expose a native OpenAI-compatible server, so they use
 the same path with **no API key**.
 
+Treat local runtime evaluation as a **local authorized lab**. Running a model on your own
+machine removes cloud-provider runtime dependency, but it does not remove model-license
+terms, acceptable-use policies, or the requirement to test only synthetic, owned, or
+authorized targets. See [authorized testing paths](authorized-testing-paths.md).
+
 Ollama (default port `11434`, OpenAI-compatible endpoint under `/v1`):
 
 ```bash
@@ -293,6 +298,10 @@ ash validate reports/external-lmstudio
 Small local models often return prose instead of strict JSON. The harness records those
 as `inconclusive` (not `pass`/`finding`). Lower `--temperature 0.0` and prefer a model
 that follows JSON instructions if you see many inconclusive results.
+
+Recommended artifact note for local runs: record the runtime (`ollama`, `lm-studio`,
+`vllm`), the model id, whether the endpoint is local-only, and the model license/policy
+you are relying on. Future adapter metadata should make that explicit.
 
 ## 13. Troubleshooting
 

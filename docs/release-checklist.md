@@ -25,6 +25,10 @@ Then verify by hand:
 - [ ] `ash --help` lists every command; no command errors on `--help`.
 - [ ] README "What exists today" / "Current vs planned" match the code (no future feature
       described as current).
+- [ ] `docs/current-state.md`, `docs/roadmap.md`, and `docs/capability-matrix.md` agree
+      on shipped / experimental / planned status.
+- [ ] `docs/authorized-testing-paths.md`, `SECURITY.md`, and adapter docs agree on
+      authorized-use boundaries.
 - [ ] Counts are current: 22 patterns, 14 categories, target list in `ash targets`.
 - [ ] No local-only files staged (e.g. `reports/`, untracked notes).
 - [ ] Fake-server E2E passes locally (see below).
@@ -62,5 +66,5 @@ v1.0 means a stable, dependable benchmark. Open blockers:
 
 These remain future tracks (see [roadmap.md](roadmap.md)) and must not be presented as
 shipped: native provider adapters, agent-host / tool-use adapters, streaming, a web
-report viewer / dashboard, a persistent result database, Docker images, PyPI publishing,
-and any cross-model leaderboard.
+report viewer / dashboard, a persistent result database, published Docker images, PyPI
+publishing, and any cross-model leaderboard.

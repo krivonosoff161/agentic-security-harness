@@ -7,6 +7,11 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- `docs/current-state.md`: reviewer-facing status snapshot that separates shipped,
+  experimental, planned, active, and claim-boundary items.
+- `docs/authorized-testing-paths.md`: official/authorized use paths for synthetic local
+  labs, local runtimes, owned-system assessments, customer-authorized assessments,
+  provider-program testing, and standards-aligned benchmarking.
 - GitHub project-governance surface: PR template, issue templates for bugs/features/
   defensive pattern proposals, CODEOWNERS, Dependabot config, CodeQL, Scorecard, release
   artifact workflow, governance, maintainers, support, code-of-conduct, and citation files.
@@ -40,6 +45,8 @@ All notable changes to this project are documented here. The format follows
 - README, protocol, semantics, project map, roadmap, research roadmap, harness,
   development, adapter contract, and release checklist now distinguish boundary
   invariants, evaluation topologies, shipped coverage, and planned work more explicitly.
+- README and project map now point reviewers to current-state and authorized-testing
+  documents before they infer status from scattered docs.
 - New external runs treat missing pattern ids, invalid boundary assertions, control-family
   mismatches, and contradictory verdict fields as `inconclusive` instead of PASS/FINDING.
 - The fake OpenAI-compatible demo server now echoes the requested pattern id and emits the

@@ -29,10 +29,13 @@ ash validate examples/
 Read by role:
 
 - First-time user: [Getting started](docs/getting-started.md) and [User journey](docs/user-journey.md).
+- Project status reviewer: [Current state](docs/current-state.md), [Capability matrix](docs/capability-matrix.md),
+  and [Roadmap](docs/roadmap.md).
 - Benchmark reviewer: [Benchmark protocol](docs/benchmark-protocol.md), [Benchmark semantics](docs/benchmark-semantics.md), and [Artifact schemas](docs/artifact-schemas.md).
 - Adapter author: [Custom adapter tutorial](docs/custom-adapter-tutorial.md) and [Adapter contract](docs/adapter-contract.md).
 - Report reviewer: [Examples index](examples/README.md) and [comparison example](examples/comparison-report/README.md).
-- Safety reviewer: [Research rules](docs/research-rules.md), [Threat model](docs/threat-model.md), and [SECURITY.md](SECURITY.md).
+- Safety reviewer: [Research rules](docs/research-rules.md), [Authorized testing paths](docs/authorized-testing-paths.md),
+  [Threat model](docs/threat-model.md), and [SECURITY.md](SECURITY.md).
 
 Do not read a clean run as "the system is secure." A clean run only means the target handled the modeled synthetic patterns under the declared run configuration.
 
@@ -98,6 +101,8 @@ deterministic tests - honest residual risk. Full rules:
   `ash validate` does and does **not** prove? Read
   [benchmark semantics](docs/benchmark-semantics.md) and the
   [capability matrix](docs/capability-matrix.md).
+- Need to know what is shipped, experimental, planned, and safe to claim publicly? Read
+  [current state](docs/current-state.md).
 - Comparing two runs, reading artifact versions, or connecting a provider? See
   [run diff](docs/run-diff.md), [artifact schemas](docs/artifact-schemas.md), and
   [connect models](docs/connect-models.md).
@@ -111,6 +116,8 @@ deterministic tests - honest residual risk. Full rules:
   [comparison example](examples/comparison-report/README.md).
 - Reviewing standards coverage? Read the [standards mapping](docs/standards-mapping.md)
   and [corpus matrix](docs/corpus.md).
+- Reviewing authorization and legal/scope boundaries? Read
+  [authorized testing paths](docs/authorized-testing-paths.md).
 - Adding a new idea? Convert it into the safe structure in
   [project map](docs/project-map.md#how-to-add-a-new-research-idea-safely) before coding.
 - Prioritizing future patterns? Read the [research roadmap](docs/research-roadmap.md) and

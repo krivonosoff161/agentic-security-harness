@@ -8,7 +8,7 @@
 >
 > Synthetic, mock-only, no network. Measured risk reduction here is **not** a guarantee of
 > real-world protection. OWASP Agentic mapping is included; OWASP LLM and MITRE ATLAS
-> mappings remain **TBD** until verified per pattern. See
+> per-pattern mappings remain **deferred until verified**. See
 > [standards-mapping.md](standards-mapping.md).
 
 ## Patterns

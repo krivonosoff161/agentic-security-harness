@@ -94,33 +94,37 @@ Start here by role:
 | Role | Read first | Why |
 |---|---|---|
 | First-time user | [Getting started](getting-started.md), [User journey](user-journey.md) | Run the deterministic local path and inspect output. |
+| Project status reviewer | [Current state](current-state.md), [Capability matrix](capability-matrix.md), [Roadmap](roadmap.md) | Separate shipped, experimental, planned, and blocked work. |
 | Benchmark reviewer | [Benchmark protocol](benchmark-protocol.md), [Benchmark semantics](benchmark-semantics.md), [Artifact schemas](artifact-schemas.md) | Understand what the benchmark proves and what it does not prove. |
 | Adapter author | [Custom adapter tutorial](custom-adapter-tutorial.md), [Adapter contract](adapter-contract.md), [Bring your own target](bring-your-own-target.md) | Implement a target without forking the benchmark model. |
 | Report reviewer | [Examples index](../examples/README.md), [Comparison example](../examples/comparison-report/README.md), [Reporting](reporting.md) | Inspect committed proof artifacts before running anything. |
-| Safety reviewer | [Research rules](research-rules.md), [Threat model](threat-model.md), [SECURITY](../SECURITY.md) | Confirm the project stays defensive, synthetic, and authorized. |
+| Safety reviewer | [Research rules](research-rules.md), [Authorized testing paths](authorized-testing-paths.md), [Threat model](threat-model.md), [SECURITY](../SECURITY.md) | Confirm the project stays defensive, synthetic, and authorized. |
 | Release reviewer | [Release checklist](release-checklist.md), [Changelog](../CHANGELOG.md), [CI workflow](../.github/workflows/ci.yml) | Verify public packaging and quality gates. |
 
 If you still want the linear path:
 
 1. [README](../README.md) - current status, commands, and high-level positioning.
-2. [Benchmark protocol](benchmark-protocol.md) - formal run semantics, scoring limits,
+2. [Current state](current-state.md) - shipped, experimental, planned, and active work.
+3. [Benchmark protocol](benchmark-protocol.md) - formal run semantics, scoring limits,
    and claim boundaries.
-3. [Positioning](positioning.md) and [boundary model](agentic-boundary-model.md) - the
+4. [Positioning](positioning.md) and [boundary model](agentic-boundary-model.md) - the
    operating-environment boundary thesis.
-4. [Evaluation topologies](evaluation-topologies.md) - what kinds of systems can sit
+5. [Evaluation topologies](evaluation-topologies.md) - what kinds of systems can sit
    behind a target adapter.
-5. [Corpus coverage matrix](corpus.md) - the 22 implemented patterns.
-6. [Comparison example](../examples/comparison-report/README.md) - the visible 22 -> 0
+6. [Corpus coverage matrix](corpus.md) - the 22 implemented patterns.
+7. [Comparison example](../examples/comparison-report/README.md) - the visible 22 -> 0
    demonstration.
-7. [Custom adapter tutorial](custom-adapter-tutorial.md) - the quickest path for a new
+8. [Authorized testing paths](authorized-testing-paths.md) - local, owned, authorized,
+   provider-program, and standards-aligned use.
+9. [Custom adapter tutorial](custom-adapter-tutorial.md) - the quickest path for a new
    local target.
-8. [Adapter contract](adapter-contract.md) - how future targets can implement the benchmark.
-9. [Reporting design](reporting.md) - what reviewers should see in reports.
-10. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,
+10. [Adapter contract](adapter-contract.md) - how future targets can implement the benchmark.
+11. [Reporting design](reporting.md) - what reviewers should see in reports.
+12. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,
    mitigations, and planned reference controls.
-11. [Corpus expansion plan](corpus-expansion-plan.md) - bounded backlog for future patterns.
-12. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
-13. [Roadmap](roadmap.md) - what is current, next, and future.
+13. [Corpus expansion plan](corpus-expansion-plan.md) - bounded backlog for future patterns.
+14. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
+15. [Roadmap](roadmap.md) - what is current, next, and future.
 
 Then run:
 

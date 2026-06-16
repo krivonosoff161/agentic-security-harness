@@ -45,25 +45,41 @@ agent-host adapters are future.
   `toy-tools`) with a three-tier validation model (baseline/protected/neutral);
   adapter metadata + explicit stochastic repeat status for external runs; category-level
   OWASP LLM / NIST standards mapping with a validation self-check; release checklist.
+- **v0.13 - schema, diff, presets, and packaging readiness:** schema-version registry,
+  `ash diff-runs`, HTML report v2, external connection presets, doctor v2, local SQLite
+  run metadata index, Dockerfile/devcontainer, and PyPI release notes.
+- **Post-v0.13 governance and evidence hardening on `main`:** GitHub issue/PR templates,
+  CODEOWNERS, Dependabot, CodeQL, Scorecard, release-artifact workflow, governance files,
+  external raw-response evidence files, pattern-level external cross-checks,
+  `compare-models`, `stats`, `retention`, JSON output options, and golden external
+  artifact snapshots. These are in `CHANGELOG.md` under `Unreleased` until the next tag.
 
 ---
 
-## Next
+## Current active focus
 
-- **Methodology and topology governance:** keep the boundary model,
-  [evaluation topologies](evaluation-topologies.md), and
-  [corpus expansion plan](corpus-expansion-plan.md) current before adding more patterns.
-- **Cross-app contamination and audit context split:** cross-surface data-instruction
-  contamination and action-audit divergence tests, after pattern proposals pass the
-  invariant/topology review.
-- **Toy multi-agent handoff adapter:** a coordinator/worker delegation surface, adding to
-  the shipped toy adapters (`toy-local-function`, `toy-rag`, `toy-tools`).
-- **MITRE ATLAS verification + pattern versioning:** verify ATLAS technique ids against
-  the official matrix (currently deferred), add a severity-rationale and pattern-version
-  policy. A mitigation checklist artifact can follow the standards mapping.
-- **v1.0 - stable benchmark release:** stable trace schema, stable corpus manifest, stable
-  CLI, validated examples, coherent docs, public tag (see
-  [release-checklist.md](release-checklist.md)).
+The next work is ordered by credibility, not by feature volume:
+
+1. **Keep public status synchronized:** maintain
+   [current-state.md](current-state.md), this roadmap, the capability matrix, and the
+   README so reviewers can see what is shipped, experimental, planned, and out of scope.
+2. **Document official/authorized testing paths:** keep
+   [authorized-testing-paths.md](authorized-testing-paths.md) aligned with the security
+   policy, adapter contract, provider-safe wording, and local-runtime guidance.
+3. **MITRE ATLAS verification + pattern versioning:** verify technique ids against the
+   official matrix before asserting them; add a severity-rationale and pattern-version
+   policy.
+4. **Cross-app contamination and audit context split:** implement only after each pattern
+   proposal states the invariant, topology, trace evidence, protected control, and
+   residual risk.
+5. **Toy multi-agent handoff adapter:** a local coordinator/worker delegation surface,
+   adding to the shipped toy adapters without introducing live provider calls.
+6. **Local-runtime evidence mode:** clarify and harden the Ollama / LM Studio / vLLM path
+   as an authorized local-runtime prompt-only check, including model-license notes and
+   recovery guidance.
+7. **v1.0 stable benchmark release:** stable trace schema, stable corpus manifest, stable
+   CLI, validated examples, coherent docs, public tag (see
+   [release-checklist.md](release-checklist.md)).
 
 ---
 
@@ -88,9 +104,10 @@ release scope until the core above is stable:
   remain the source of truth.
 - **Persistent result database** - durable run/trace store (e.g. Postgres) after the
   file-based `run_index.json` + hash-chain story is proven.
-- **Docker / devcontainer** - reproducible container image for the toolkit.
-- **PyPI / package release flow** - tagged releases and published wheels once the CLI and
-  trace schema are stable.
+- **Published Docker image** - the repository has a Dockerfile and devcontainer; publishing
+  official images is future.
+- **PyPI publication** - package build docs exist; publishing wheels remains future once
+  the CLI and trace schema are stable.
 - **Deeper scenario corpus expansion** - more boundary families and variants.
 - **Agentic topology expansion** - model chains, router/filter/validator paths,
   cross-provider handoff, and recovery-path patterns selected by invariant, not full

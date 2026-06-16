@@ -36,8 +36,8 @@ class CorpusEntry(BaseModel):
     docs_reference: str = "docs/corpus.md"
     safe_research_note: str = _SAFE_NOTE
     owasp_agentic: list[str] = Field(default_factory=list)
-    owasp_llm: list[str] = Field(default_factory=list)  # TBD - not verified per pattern.
-    mitre_atlas: list[str] = Field(default_factory=list)  # TBD - not verified per pattern.
+    owasp_llm: list[str] = Field(default_factory=list)  # Deferred - not verified per pattern.
+    mitre_atlas: list[str] = Field(default_factory=list)  # Deferred - not verified per pattern.
 
 
 _CORPUS: list[CorpusEntry] = [

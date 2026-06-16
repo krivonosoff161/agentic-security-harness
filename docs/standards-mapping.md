@@ -1,6 +1,6 @@
 # Standards mapping
 
-> Last reviewed: 2026-06-14 (v0.12).
+> Last reviewed: 2026-06-16 (v0.13 + unreleased docs).
 >
 > Scope: implemented local corpus only (22 deterministic seed patterns across 14
 > categories). This page maps each pattern **category** to external security frameworks
@@ -21,6 +21,11 @@
 
 The machine-readable mapping is the source of truth; `ash validate` runs a self-check
 (`validate_standards_mapping`) so this page and the code cannot silently drift.
+
+For legitimate use paths around local labs, owned-system assessments, provider programs,
+and standards-aligned benchmarking, see
+[authorized-testing-paths.md](authorized-testing-paths.md). Framework mappings are analyst
+orientation, not certification or endorsement.
 
 ## Category-level mapping
 

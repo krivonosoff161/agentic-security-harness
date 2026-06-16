@@ -10,6 +10,8 @@ def _read(path: str) -> str:
 def test_readme_links_methodology_docs() -> None:
     readme = _read("README.md")
     for link in (
+        "docs/current-state.md",
+        "docs/authorized-testing-paths.md",
         "docs/evaluation-topologies.md",
         "docs/corpus-expansion-plan.md",
         "docs/agentic-boundary-model.md",
@@ -94,6 +96,36 @@ def test_github_project_surface_exists() -> None:
         "CITATION.cff",
     ):
         assert (ROOT / path).is_file(), path
+
+
+def test_status_and_authorization_docs_are_canonical() -> None:
+    current_state = _read("docs/current-state.md")
+    authorized_paths = _read("docs/authorized-testing-paths.md")
+    project_map = _read("docs/project-map.md")
+    release_checklist = _read("docs/release-checklist.md")
+
+    for phrase in (
+        "Shipped and verified",
+        "Experimental",
+        "Planned, not shipped",
+        "Current active work",
+        "Claim boundary",
+    ):
+        assert phrase in current_state
+
+    for phrase in (
+        "Demo synthetic lab",
+        "Local runtime lab",
+        "Owned system assessment",
+        "Provider bug bounty / safe harbor",
+        "Standards-aligned benchmark",
+    ):
+        assert phrase in authorized_paths
+
+    assert "current-state.md" in project_map
+    assert "authorized-testing-paths.md" in project_map
+    assert "docs/current-state.md" in release_checklist
+    assert "docs/authorized-testing-paths.md" in release_checklist
 
 
 def test_active_docs_do_not_use_stale_pattern_count() -> None:
