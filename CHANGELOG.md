@@ -52,6 +52,9 @@ All notable changes to this project are documented here. The format follows
 - Public showcase report checklist: required commands, artifacts, validation result,
   baseline/protected summary, claim-boundary language, and standards-mapping caveat before
   any report is promoted in README or release material.
+- `docs/v1-readiness.md`: stable-vs-experimental readiness matrix covering clean install,
+  fake-server path, schema/corpus freeze expectations, showcase report gate, claim
+  boundaries, and open v1.0 blockers.
 
 ### Changed
 - `agentic-boundary-model.md` is now the canonical protection/boundary model catalog,
