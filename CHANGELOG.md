@@ -62,6 +62,9 @@ All notable changes to this project are documented here. The format follows
   secret-like plaintext patterns.
 - `ash validate` now hides validation message details in text output and redacts
   secret-shaped strings in JSON output.
+- Standards mapping now asserts a small MITRE ATLAS 2026.05 verified subset for direct-fit
+  categories and keeps governance/audit/delegation categories deferred where the fit would
+  be speculative.
 
 ## [0.13.0] - 2026-06-14
 

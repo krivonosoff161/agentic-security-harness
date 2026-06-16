@@ -25,8 +25,8 @@ Attack chains here are documented as **defensive test patterns**. Every pattern 
 - documented with its **expected vulnerable behavior**;
 - documented with a **mitigation**;
 - prepared for standards references where applicable. The implemented corpus currently
-  includes coarse **OWASP Agentic Security Initiative** mappings; OWASP LLM and MITRE ATLAS
-  fields remain verification-gated.
+  includes coarse **OWASP Agentic Security Initiative** mappings plus category-level
+  OWASP LLM, NIST AI RMF, and verified MITRE ATLAS mappings where there is a direct fit.
 
 The harness contains **no real credential theft, no live exploitation, and no
 instructions for abusing third-party systems.** See [SECURITY.md](../SECURITY.md#responsible-use)
