@@ -66,9 +66,8 @@ The next work is ordered by credibility, not by feature volume:
 2. **Document official/authorized testing paths:** keep
    [authorized-testing-paths.md](authorized-testing-paths.md) aligned with the security
    policy, adapter contract, provider-safe wording, and local-runtime guidance.
-3. **MITRE ATLAS verification + pattern versioning:** verify technique ids against the
-   official matrix before asserting them; add a severity-rationale and pattern-version
-   policy.
+3. **MITRE ATLAS upkeep + pattern versioning:** keep asserted technique ids checked
+   against the official ATLAS release; add a severity-rationale and pattern-version policy.
 4. **Cross-app contamination and audit context split:** implement only after each pattern
    proposal states the invariant, topology, trace evidence, protected control, and
    residual risk.

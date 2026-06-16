@@ -2,8 +2,9 @@
 
 Curated metadata for the 22 deterministic seed patterns (see ``patterns.py``). Simple Python
 data structures only - no database, no YAML. Tests keep it in sync with the actual patterns
-and scorecards. OWASP Agentic mapping is intentionally coarse and defensive; OWASP LLM and
-MITRE ATLAS mappings remain empty until each ID is verified against primary sources.
+and scorecards. OWASP Agentic mapping is intentionally coarse and defensive; OWASP LLM,
+NIST AI RMF, and MITRE ATLAS mappings are maintained at category level in
+``standards_mapping.py`` so IDs can be verified against primary sources before publication.
 """
 
 from typing import Literal

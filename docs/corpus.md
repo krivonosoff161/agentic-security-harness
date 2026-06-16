@@ -7,8 +7,8 @@
 > [`src/agentic_security_harness/corpus.py`](../src/agentic_security_harness/corpus.py).
 >
 > Synthetic, mock-only, no network. Measured risk reduction here is **not** a guarantee of
-> real-world protection. OWASP Agentic mapping is included; OWASP LLM and MITRE ATLAS
-> per-pattern mappings remain **deferred until verified**. See
+> real-world protection. OWASP Agentic mapping is included per pattern; OWASP LLM,
+> NIST AI RMF, and verified MITRE ATLAS mappings are maintained at category level. See
 > [standards-mapping.md](standards-mapping.md).
 
 ## Patterns

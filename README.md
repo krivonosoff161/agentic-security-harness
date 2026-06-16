@@ -56,7 +56,8 @@ handoff, or a future authorized runtime behind the same adapter contract.
 - **Baseline vs protected replay** - a vulnerable demo agent vs a controlled one, on
   deterministic **local** targets, with a measured before/after scorecard.
 - **Standards-aware corpus** - implemented patterns include coarse OWASP Agentic Security
-  Initiative mappings; OWASP LLM and MITRE ATLAS mappings remain verification-gated.
+  Initiative mappings plus category-level OWASP LLM, NIST AI RMF, and verified MITRE
+  ATLAS mappings where there is a direct fit.
 
 Built-in/local targets are synthetic, deterministic, and offline - no network, no
 provider calls. The experimental `run-external` path calls an OpenAI-compatible endpoint

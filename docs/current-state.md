@@ -26,7 +26,7 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | Run history and maintenance | Shipped | `list-runs`, `index-runs`, `stats`, `retention`, `diff-runs`. |
 | External OpenAI-compatible prompt check | Experimental | `run-external`, prompt-only, explicit opt-in, no tool execution. |
 | External evidence cross-check | Shipped for experimental path | Pattern id, boundary assertion, control family, decision coherence, raw response files. |
-| Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS deferred. |
+| Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
 | Public project process | Shipped locally | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, release artifact workflow. |
 
 ## Experimental
@@ -52,7 +52,7 @@ These are roadmap items and must not be described as current capability:
 - toy multi-agent handoff adapter;
 - cross-provider and cross-ecosystem handoff tests;
 - recovery-path pattern family;
-- stronger MITRE ATLAS verification;
+- second-reviewer MITRE ATLAS mapping review and release-to-release upkeep;
 - interactive multi-run viewer;
 - persistent trace store beyond local manifests / SQLite metadata index;
 - reference gateway runtime.

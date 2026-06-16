@@ -53,7 +53,8 @@ v1.0 means a stable, dependable benchmark. Open blockers:
 - [ ] **Stable corpus manifest** - freeze pattern ids and the corpus fields; document a
       deprecation policy for renames.
 - [ ] **Standards mapping review** - verify OWASP LLM / NIST category mappings with a
-      second reviewer; decide MITRE ATLAS (currently deferred).
+      second reviewer; re-check the current MITRE ATLAS verified subset against the latest
+      official ATLAS release.
 - [ ] **Real adapter contract** - finalise the contract for non-synthetic adapters
       (still future; see [adapter-contract.md](adapter-contract.md)).
 - [ ] **Docs pass** - every doc cross-reference resolves; no stale counts; limitations
