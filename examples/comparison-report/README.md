@@ -13,16 +13,20 @@ secrets, or third-party systems.
 
 | Metric | Baseline `demo-agent` | Protected `protected-demo-agent` |
 |---|---:|---:|
-| Patterns failed | 17 | 0 |
-| Patterns passed | 0 | 17 |
-| Total findings | 17 | 0 |
-| High findings | 15 | 0 |
+| Patterns failed | 22 | 0 |
+| Patterns passed | 0 | 22 |
+| Total findings | 22 | 0 |
+| High findings | 20 | 0 |
 | Medium findings | 2 | 0 |
 
-Findings reduced: **17 -> 0**.
+Findings reduced: **22 -> 0**.
 
 This means the protected local demo target handles the current synthetic corpus better
 than the vulnerable local demo target. It does not guarantee real-world protection.
+
+This example is the primary public showcase candidate. Before promoting it in a release,
+README, or external write-up, review the
+[public showcase report checklist](../../docs/showcase-report-checklist.md).
 
 ## Files
 

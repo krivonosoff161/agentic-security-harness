@@ -185,3 +185,28 @@ def test_recovery_trust_gate_candidate_has_required_proposal_shape() -> None:
 
     assert "Trust gate without a recovery path" in catalog
     assert "planned ID `recovery.trust_gate_no_path`" in catalog
+
+
+def test_public_showcase_checklist_is_linked_from_release_and_example_docs() -> None:
+    checklist = _read("docs/showcase-report-checklist.md")
+    release_checklist = _read("docs/release-checklist.md")
+    examples_index = _read("examples/README.md")
+    comparison_readme = _read("examples/comparison-report/README.md")
+    readme = _read("README.md")
+
+    for phrase in (
+        "Required command record",
+        "Required artifacts",
+        "Required summary",
+        "Claim boundary text",
+        "Standards mapping caveat",
+        "ash validate <showcase-dir>",
+    ):
+        assert phrase in checklist
+
+    assert "showcase-report-checklist.md" in release_checklist
+    assert "showcase-report-checklist.md" in examples_index
+    assert "showcase-report-checklist.md" in comparison_readme
+    assert "docs/showcase-report-checklist.md" in readme
+    assert "Findings reduced: **22 -> 0**" in comparison_readme
+    assert "Findings reduced: **17 -> 0**" not in comparison_readme

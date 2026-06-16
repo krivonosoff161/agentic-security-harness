@@ -33,7 +33,9 @@ Read by role:
   and [Roadmap](docs/roadmap.md).
 - Benchmark reviewer: [Benchmark protocol](docs/benchmark-protocol.md), [Benchmark semantics](docs/benchmark-semantics.md), and [Artifact schemas](docs/artifact-schemas.md).
 - Adapter author: [Custom adapter tutorial](docs/custom-adapter-tutorial.md) and [Adapter contract](docs/adapter-contract.md).
-- Report reviewer: [Examples index](examples/README.md) and [comparison example](examples/comparison-report/README.md).
+- Report reviewer: [Examples index](examples/README.md),
+  [comparison example](examples/comparison-report/README.md), and
+  [showcase checklist](docs/showcase-report-checklist.md).
 - Safety reviewer: [Research rules](docs/research-rules.md), [Authorized testing paths](docs/authorized-testing-paths.md),
   [Threat model](docs/threat-model.md), and [SECURITY.md](SECURITY.md).
 
