@@ -33,7 +33,7 @@ pattern selection, see [corpus-expansion-plan.md](corpus-expansion-plan.md).
 | Audit integrity / completeness boundary | Append-only integrity, tamper evidence, audit presence, and decision context. | `audit.spam_label_abuse`, `audit.hash_chain_tamper` | action-audit divergence, missing policy/envelope context |
 | Budget / recursion boundary | Step budgets, recursion depth, and bounded execution. | `budget.loop_abuse`, `budget.recursive_execution_amplification` | budget transfer across agents, fallback loops |
 | Model trust asymmetry | Different trust levels for weak/local/cheap/filter/chief models in one workflow. | Not yet a seed pattern. | weak-to-strong escalation, cheap filter suppresses risky context |
-| Cross-agent handoff trust | Data, authority, provenance, memory, and scope across Agent A -> Agent B. | Partial: `data_boundary_handoff_label_stripping`, `capability.delegation_chain_drift` | cross-agent memory rehydration, receiver ignores signature/scope |
+| Cross-agent handoff trust | Data, authority, provenance, memory, and scope across Agent A -> Agent B. | Partial: `data_boundary_handoff_label_stripping`, `capability.delegation_chain_drift`, exercised by the local `toy-multi-agent` coordinator/worker adapter | cross-agent memory rehydration, receiver ignores signature/scope |
 | Recovery path / escalation | What happens when a trust gate, provider, adapter, or validation step fails. | Partial through explicit errors and external `inconclusive`; no seed pattern yet. | failed trust gate with no recovery path, opaque final denial |
 
 ## How to read current coverage
@@ -44,7 +44,8 @@ pattern selection, see [corpus-expansion-plan.md](corpus-expansion-plan.md).
   governance includes direct memory poisoning, delayed activation, environment-injected
   poisoning, unscoped persistence, and cross-user leakage.
 - Some boundary models are only partial. Cross-agent handoff is currently represented by
-  label stripping and capability delegation drift, not a full multi-agent runtime.
+  label stripping and capability delegation drift through a local toy coordinator/worker
+  adapter, not a live multi-agent runtime.
 - `adapter_metadata` exists as a remediation/control-family concept, but it is not yet a
   seed pattern. It should become evidence metadata for future non-synthetic adapters before
   it becomes a finding family.
@@ -70,7 +71,7 @@ The bounded backlog is maintained in [corpus-expansion-plan.md](corpus-expansion
 
 ## Not yet covered
 
-- Full cross-app workflow contamination beyond current label/scope slices.
+- Full cross-app workflow contamination beyond the local label/scope handoff slices.
 - Native provider/agent-host adapters that execute tools.
 - Cross-provider chain-of-custody across mixed model ecosystems.
 - Model trust asymmetry in cheap-to-chief or filter-to-chief routing.

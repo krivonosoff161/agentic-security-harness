@@ -19,7 +19,7 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | Area | Status | Evidence |
 |---|---|---|
 | Local deterministic corpus | Shipped | 22 sanitized seed patterns in `corpus.py` and `patterns.py`. |
-| Local targets | Shipped | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`. |
+| Local targets | Shipped | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`. |
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
 | Portable artifacts | Shipped | `traces.json`, `scorecard.json`, `summary.md`, `executive.md`, remediation, run manifests. |
 | Static reports | Shipped | `ash report --root <run-dir>` writes a self-contained HTML report. |
@@ -52,8 +52,7 @@ These are roadmap items and must not be described as current capability:
 - native provider SDK adapters;
 - live agent-host or tool-executing adapters;
 - live MCP server adapter;
-- toy multi-agent handoff adapter;
-- cross-provider and cross-ecosystem handoff tests;
+- cross-provider and cross-ecosystem handoff tests beyond the local toy adapter;
 - recovery-path pattern family;
 - second-reviewer MITRE ATLAS mapping review and release-to-release upkeep;
 - interactive multi-run viewer;
@@ -69,8 +68,9 @@ The next public-development focus is:
    provider-program assessments.
 3. Verify standards mappings without implying certification.
 4. Expand the corpus by invariant and topology, not by prompt/model cross-products.
-5. Add multi-agent-handoff tracks behind explicit safety gates; keep local-runtime
-   metadata and recovery guidance current.
+5. Expand multi-agent-handoff coverage beyond the shipped local toy adapter only when
+   each new track has explicit safety gates; keep local-runtime metadata and recovery
+   guidance current.
 6. Improve public demo/showcase reports with replayable, validated artifacts.
 
 ## Validation commands

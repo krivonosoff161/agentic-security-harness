@@ -40,7 +40,7 @@ If those six points hold, the benchmark is coherent.
 | Evaluation topologies | The system shapes a target adapter can represent: local target, agent, memory loop, tool loop, model chain, handoff, provider boundary, recovery path. | [evaluation-topologies.md](evaluation-topologies.md) |
 | Corpus expansion plan | Invariant-based backlog for future patterns without full combinatorial expansion. | [corpus-expansion-plan.md](corpus-expansion-plan.md) |
 | Patterns | Sanitized test cases the runner sends to targets. | `src/agentic_security_harness/patterns.py` |
-| Targets | Local systems under test: `mock`, `demo-agent`, `protected-demo-agent`, and toy adapters `toy-local-function`, `toy-rag`, `toy-tools`. | `src/agentic_security_harness/*agent*.py`, `mock_target.py`, `toy_adapters.py` |
+| Targets | Local systems under test: `mock`, `demo-agent`, `protected-demo-agent`, and toy adapters `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`. | `src/agentic_security_harness/*agent*.py`, `mock_target.py`, `toy_adapters.py` |
 | Runner | Converts `pattern + target` into traces. | `src/agentic_security_harness/runner.py` |
 | Scenario matrix | Runs scenario variants and aggregates stability (`run-matrix`). | `src/agentic_security_harness/matrix.py` |
 | External path | Experimental, opt-in OpenAI-compatible prompt-only model check (`run-external`, `external-check`, `external-presets`). | `src/agentic_security_harness/external_runner.py`, `presets.py`, [connect-models.md](connect-models.md) |

@@ -71,8 +71,9 @@ of model/provider/framework variants. See [corpus-expansion-plan.md](corpus-expa
 
 Implement the target-adapter contract: drive a local / synthetic system under test and
 return observations the runner records into a trace. Today the targets are `mock`,
-`demo-agent` (vulnerable by design), and `protected-demo-agent`. New adapters stay
-local and deterministic - no real provider, gateway, or network calls.
+`demo-agent` (vulnerable by design), `protected-demo-agent`, `toy-local-function`,
+`toy-rag`, `toy-tools`, and `toy-multi-agent`. New adapters stay local and
+deterministic - no real provider, gateway, or network calls.
 
 ## Conventions
 

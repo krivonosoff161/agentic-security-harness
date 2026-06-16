@@ -143,8 +143,9 @@ model chain, tool loop, memory loop, multi-agent handoff, provider boundary, or 
 path; see [evaluation-topologies.md](evaluation-topologies.md).
 
 Current shipped adapters are local and synthetic (`mock`, `demo-agent`,
-`protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`) plus the
-experimental OpenAI-compatible prompt-only external path. The shipped mode matrix is
+`protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`,
+`toy-multi-agent`) plus the experimental OpenAI-compatible prompt-only external path.
+The shipped mode matrix is
 [capability-matrix.md](capability-matrix.md); the formal future adapter contract is
 [adapter-contract.md](adapter-contract.md).
 

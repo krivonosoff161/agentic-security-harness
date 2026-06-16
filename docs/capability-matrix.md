@@ -18,6 +18,7 @@ the topology page is the methodology map.
 | `toy-local-function` | `run --target toy-local-function` | offline | no | deterministic | full (22) | no | no | yes | yes |
 | `toy-rag` | `run --target toy-rag` | offline | no | deterministic | full (22) | no | no | yes | yes |
 | `toy-tools` | `run --target toy-tools` | offline | no | deterministic | full (22) | no | no | yes | yes |
+| `toy-multi-agent` | `run --target toy-multi-agent` | offline | no | deterministic | full (22) | no | no | yes | yes |
 | Scenario matrix | `run-matrix --target <t> --scenario <s>` | offline | no | deterministic | subset (scenario) x variants | no | yes | yes | yes |
 | External (OpenAI-compatible) | `run-external --base-url ... --model ...` | **opt-in only** | yes (prompt-only) | stochastic possible | subset (scenario) x variants | yes | yes | yes | yes |
 | Native provider adapter | - | - | - | - | - | - | - | - | **future** |
@@ -33,6 +34,7 @@ the topology page is the methodology map.
 | `toy-local-function` | Trivial neutral adapter that PASSes everything; a template for new adapters. | Any real surface. |
 | `toy-rag` | Showing the harness on a retrieval/memory/injection surface (partial coverage). | Tool/authority/budget/audit surfaces (PASS by construction). |
 | `toy-tools` | Showing the harness on a tool/authority surface (partial coverage). | Data/memory surfaces (PASS by construction). |
+| `toy-multi-agent` | Showing coordinator/worker handoff traces for label stripping and capability delegation drift (partial coverage). | Live agent hosts, real tools, provider handoffs, emergent multi-agent behavior. |
 | Scenario matrix | Stability across variants; stable vs variant-sensitive failures; coverage heatmap. | Stochastic behavior (variants are deterministic replay metadata). |
 | External (OpenAI-compatible) | Asking a model to judge synthetic scenarios; repeats + stochastic status. | Tool execution, agent-host behavior, or a real deployment. |
 | Native / agent-host adapters | (future) driving real provider SDKs or tool-executing agents. | Not shipped - do not assume it exists. |

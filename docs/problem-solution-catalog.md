@@ -109,10 +109,10 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 ## 7. Cross-agent contamination
 
 - **What goes wrong:** one agent poisons another via shared memory / messages / tool outputs; the envelope/labels are stripped at handoff.
-- **Defensive scenario:** two mock agents; A passes content to B; check label survival and contamination.
+- **Defensive scenario:** two local toy agents; A passes content to B; check label survival and contamination.
 - **Detection signals:** envelope fields dropped at handoff; B treating A's untrusted content as trusted.
 - **Mitigation controls:** envelope propagation across handoffs, provenance, per-agent trust.
-- **Status:** current for label stripping; broader cross-agent contamination is planned.
+- **Status:** current for label stripping through `toy-multi-agent`; broader cross-agent contamination is planned.
 - **Harness test pattern:** `data_boundary_handoff_label_stripping` now; planned ID `cross_agent.contamination`.
 - **Planned reference-control idea:** a broker/gateway enforces the envelope on inter-agent messages.
 - **Human / process controls:** workflow review.
@@ -189,7 +189,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Defensive scenario:** a synthetic capability grants `read` for a narrow purpose; a delegated agent attempts to broaden it before handing it off.
 - **Detection signals:** child scope is not a subset of parent scope; TTL expands; issuer/subject chain missing; delegation depth not enforced.
 - **Mitigation controls:** most-restrictive-scope-wins, bounded delegation depth, TTL cannot expand, issuer/subject recorded in the trace.
-- **Status:** current (synthetic capability token only; no real host or cloud authority).
+- **Status:** current through the local `toy-multi-agent` handoff slice (synthetic capability token only; no real host or cloud authority).
 - **Harness test pattern:** `capability.delegation_chain_drift`.
 - **Planned reference-control idea:** authority-envelope enforcement at agent handoff and tool-call boundaries.
 - **Human / process controls:** least-privilege agent design; explicit review of delegated capabilities.

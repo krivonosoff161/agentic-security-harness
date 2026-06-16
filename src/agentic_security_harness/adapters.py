@@ -92,7 +92,11 @@ def _init_registry() -> None:
         )
     )
 
-    from agentic_security_harness.toy_adapters import ToyRagTarget, ToyToolsTarget
+    from agentic_security_harness.toy_adapters import (
+        ToyMultiAgentHandoffTarget,
+        ToyRagTarget,
+        ToyToolsTarget,
+    )
 
     _register(
         TargetInfo(
@@ -112,6 +116,19 @@ def _init_registry() -> None:
             deterministic=True,
             description="Toy tool-using agent; exercises tool/authority surfaces",
             factory=ToyToolsTarget,
+        )
+    )
+    _register(
+        TargetInfo(
+            target_id="toy-multi-agent",
+            name="toy-multi-agent",
+            type="toy_multi_agent",
+            deterministic=True,
+            description=(
+                "Toy coordinator/worker handoff adapter; exercises data-label "
+                "handoff and capability delegation surfaces"
+            ),
+            factory=ToyMultiAgentHandoffTarget,
         )
     )
 
