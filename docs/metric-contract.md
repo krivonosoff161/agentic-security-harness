@@ -112,6 +112,7 @@ Scripts should prefer JSON artifacts over Markdown:
 | Trace-level evidence | `traces.json` |
 | Run history | `run_index.json` |
 | Human report | `external_report.md`, `summary.md`, `executive.md`, `comparison.md` |
+| Generated reviewer view | `ash showcase --root <runs> --out <dir>` |
 
 Markdown is for humans. JSON is the source of truth.
 

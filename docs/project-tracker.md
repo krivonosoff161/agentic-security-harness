@@ -34,9 +34,14 @@ Supporting docs:
   process metrics should be read.
 - [local-prometheus-workflow.md](local-prometheus-workflow.md) defines the low-memory
   Ollama smoke workflow for real local model probes.
+- [local-model-profiles.md](local-model-profiles.md) records hardware-safe local model
+  profiles and stop conditions.
 - [showcase/index.md](showcase/index.md) is the public evidence entry point.
 - [scenario-investigation-workflow.md](scenario-investigation-workflow.md) keeps
   scenario design, weak spots, findings, and deepening variations separate.
+- [scenario-timeline.md](scenario-timeline.md) defines the multi-turn timeline contract.
+- `ash showcase --root reports --out docs/showcase/generated` generates a Markdown
+  reviewer view from run artifacts.
 
 ## How to read labels
 

@@ -121,3 +121,6 @@ Non-goals:
 ```
 
 This keeps the project from turning into an unbounded prompt pile.
+
+See [scenario-timeline.md](scenario-timeline.md) for the timeline design contract used
+by multi-turn, delayed-trigger, handoff, and recovery-path scenarios.

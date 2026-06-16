@@ -507,6 +507,23 @@ def build_parser() -> argparse.ArgumentParser:
         help="output HTML file (default: <root>/report.html)",
     )
 
+    showcase_p = sub.add_parser(
+        "showcase",
+        help="generate a Markdown evidence showcase from run artifacts",
+    )
+    showcase_p.add_argument(
+        "--root",
+        type=Path,
+        default=Path("reports"),
+        help="directory to scan for run manifests (default: reports)",
+    )
+    showcase_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path("docs/showcase/generated"),
+        help="output directory for generated showcase markdown",
+    )
+
     return parser
 
 
@@ -1067,6 +1084,18 @@ def _report(root: Path, out: Path | None) -> int:
     return 0
 
 
+def _showcase(root: Path, out: Path) -> int:
+    from agentic_security_harness.showcase import build_showcase, write_showcase
+
+    manifests, cards = build_showcase(root)
+    paths = write_showcase(root, out)
+    print(f"wrote showcase index to {paths['index'].as_posix()}")
+    print(f"wrote failure/weak-spot cards to {paths['failure_cards'].as_posix()}")
+    print(f"runs discovered: {len(manifests)}  cards generated: {len(cards)}")
+    print("JSON artifacts remain the source of truth; this is a reviewer aid.")
+    return 0
+
+
 def _list_runs(root: Path, db: Path | None) -> int:
     if db is not None:
         from agentic_security_harness.rundb import list_db_runs
@@ -1339,6 +1368,8 @@ def main(argv: list[str] | None = None) -> int:
         return _retention(args.root, args.keep_last, args.kind, args.apply, args.format)
     if args.command == "report":
         return _report(args.root, args.out)
+    if args.command == "showcase":
+        return _showcase(args.root, args.out)
     if args.command == "doctor":
         return _doctor(
             args.json, args.live_local, args.base_url, args.credential_env_var,
