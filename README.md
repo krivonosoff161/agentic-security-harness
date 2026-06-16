@@ -37,6 +37,9 @@ Read by role:
 - Report reviewer: [Examples index](examples/README.md),
   [comparison example](examples/comparison-report/README.md), and
   [showcase checklist](docs/showcase-report-checklist.md).
+- Showcase reviewer: [Public evidence showcase](docs/showcase/index.md),
+  [scenario matrix](docs/showcase/scenario-matrix.md), and
+  [weak spots/findings ledger](docs/showcase/weak-spots-and-findings.md).
 - Local model reviewer: [Local Prometheus workflow](docs/local-prometheus-workflow.md)
   and [Metrics contract](docs/metric-contract.md).
 - Safety reviewer: [Research rules](docs/research-rules.md), [Authorized testing paths](docs/authorized-testing-paths.md),
