@@ -46,6 +46,9 @@ All notable changes to this project are documented here. The format follows
   coordinator/worker handoff for data-label stripping and capability-delegation drift,
   records before/after handoff evidence in trace steps, and remains offline with no
   provider calls or live tools.
+- Recovery-path pattern design: `recovery.trust_gate_no_path` now has a documented
+  pre-implementation proposal covering invariant, topology, expected vulnerable behavior,
+  trace evidence, protected control, residual risk, and anti-combinatorial guardrails.
 
 ### Changed
 - `agentic-boundary-model.md` is now the canonical protection/boundary model catalog,

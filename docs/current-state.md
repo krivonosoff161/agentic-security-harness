@@ -53,7 +53,7 @@ These are roadmap items and must not be described as current capability:
 - live agent-host or tool-executing adapters;
 - live MCP server adapter;
 - cross-provider and cross-ecosystem handoff tests beyond the local toy adapter;
-- recovery-path pattern family;
+- recovery-path pattern family implementation (first candidate is designed, not shipped);
 - second-reviewer MITRE ATLAS mapping review and release-to-release upkeep;
 - interactive multi-run viewer;
 - persistent trace store beyond local manifests / SQLite metadata index;

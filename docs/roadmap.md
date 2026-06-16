@@ -80,7 +80,10 @@ The next work is ordered by credibility, not by feature volume:
 6. **Local-runtime evidence upkeep:** keep the Ollama / LM Studio / vLLM prompt-only path
    explicit in artifacts, including model-license notes, `local-only` mode, and recovery
    guidance.
-7. **v1.0 stable benchmark release:** stable trace schema, stable corpus manifest, stable
+7. **Recovery-path corpus design:** `recovery.trust_gate_no_path` is designed in the
+   corpus expansion plan; implementation must stay deterministic and avoid provider-
+   specific appeal workflows.
+8. **v1.0 stable benchmark release:** stable trace schema, stable corpus manifest, stable
    CLI, validated examples, coherent docs, public tag (see
    [release-checklist.md](release-checklist.md)).
 

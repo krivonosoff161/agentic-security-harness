@@ -162,3 +162,26 @@ def test_toy_multi_agent_status_is_documented_as_shipped() -> None:
     )[0]
     assert "toy multi-agent handoff adapter" not in planned_section
     assert "toy-multi-agent" in current_state.split("## Shipped and verified", 1)[1]
+
+
+def test_recovery_trust_gate_candidate_has_required_proposal_shape() -> None:
+    expansion = _read("docs/corpus-expansion-plan.md")
+    catalog = _read("docs/problem-solution-catalog.md")
+
+    assert "Designed candidate: `recovery.trust_gate_no_path`" in expansion
+    for phrase in (
+        "Boundary invariant",
+        "Problem",
+        "Defensive scenario",
+        "Expected vulnerable behavior",
+        "Detection signal",
+        "Mitigation",
+        "Harness test",
+        "Residual risk",
+        "Implementation guardrails",
+        "Do not expand by provider x model x country x document type x retry count",
+    ):
+        assert phrase in expansion
+
+    assert "Trust gate without a recovery path" in catalog
+    assert "planned ID `recovery.trust_gate_no_path`" in catalog
