@@ -28,6 +28,13 @@ failure cards, and metrics contracts.
 | [#23 feature: showcase generator](https://github.com/krivonosoff161/agentic-security-harness/issues/23) | Reports / automation | Generate showcase markdown from JSON artifacts instead of manually copying results. |
 | [#24 research: local model profiles](https://github.com/krivonosoff161/agentic-security-harness/issues/24) | Local runtime | Hardware-safe model/runtime profiles and recovery guidance for weak local models. |
 
+Supporting docs:
+
+- [metric-contract.md](metric-contract.md) defines how traffic, benchmark, runtime, and
+  process metrics should be read.
+- [local-prometheus-workflow.md](local-prometheus-workflow.md) defines the low-memory
+  Ollama smoke workflow for real local model probes.
+
 ## How to read labels
 
 | Label family | Meaning |

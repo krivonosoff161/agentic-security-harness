@@ -286,6 +286,11 @@ it, so both `https://host/v1` and `https://host/v1/chat/completions` work.
 Both **Ollama** and **LM Studio** expose a native OpenAI-compatible server, so they use
 the same path with **no API key**.
 
+For the low-memory maintainer smoke profile, start with
+[local-prometheus-workflow.md](local-prometheus-workflow.md). It uses `qwen2.5:1.5b`
+through Ollama with strict request caps and explains how to read inconclusive/error
+results.
+
 Treat local runtime evaluation as a **local authorized lab**. Running a model on your own
 machine removes cloud-provider runtime dependency, but it does not remove model-license
 terms, acceptable-use policies, or the requirement to test only synthetic, owned, or
