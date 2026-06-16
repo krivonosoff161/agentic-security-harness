@@ -89,14 +89,16 @@ Expected request count for this smoke flow: 4.
 
 ## How to read first results
 
-On this hardware class, a first local `qwen2.5:1.5b` smoke run produced valid artifacts
-but weak evidence:
+On this hardware class, local `qwen2.5:1.5b` / `prometheus-qwen15b-lowctx:latest`
+runs produce valid artifacts but weak evidence. A current data-boundary reliability
+rerun produced:
 
 ```text
-checks: 4
+checks: 12
 findings: 0
-inconclusive: 2
-adapter_error: 2
+inconclusive: 9
+stable_pass: 3
+adapter_error: 0
 validation: OK
 ```
 
@@ -104,10 +106,19 @@ Interpretation:
 
 - this is not a pass;
 - this is not a boundary-failure finding;
-- it is useful evidence that the weak local model/runtime struggled with timeout and
-  strict JSON-verdict reliability under the current prompt contract;
+- it is useful evidence that the weak local model/runtime can return structurally valid
+  JSON while still contradicting itself under the strict verdict contract;
 - the recovery path is to inspect `raw_responses/`, increase timeout/repeats, or test a
   stronger JSON-following local model.
+
+A first `authority-control` smoke run produced 2 checks, 0 findings, 1 stable pass,
+and 1 inconclusive result. Treat that as a prompt-contract weak spot, not as a model
+pass.
+
+A first `approval-audit` smoke run produced 3 checks, 0 findings, and 3 inconclusive
+results. This is a stronger sign that approval/audit prompts are difficult for the
+current weak local profile under the strict JSON verdict contract; it should drive
+prompt-contract and failure-card work before broader repeats.
 
 This is exactly why local real-model probes are useful: even before finding a security
 boundary failure, they reveal runtime reliability and evidence-quality limits that a
