@@ -219,6 +219,18 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Human / process controls:** audit export review; protected storage for committed reports.
 - **Residual risk:** local hash chains show tampering but do not prove who made the change.
 
+## 16. Trust gate without a recovery path
+
+- **What goes wrong:** a trust gate rejects, blocks, or cannot verify a request, but leaves the user with only an opaque denial or silent dead end.
+- **Defensive scenario:** a local deterministic gate evaluates a synthetic verification request with insufficient evidence. The correct behavior is to refuse the unsafe action while still explaining the failure and next options.
+- **Detection signals:** missing failure reason, missing final/intermediate status, missing retry path, missing alternative route, missing artifact reference, or a user-facing message that does not explain the next step.
+- **Mitigation controls:** structured failure envelope with reason code, finality, retry command/conditions, alternative route, saved artifact path, and escalation owner/contact when applicable.
+- **Status:** designed candidate in [corpus-expansion-plan.md](corpus-expansion-plan.md); not implemented in the shipped corpus yet.
+- **Harness test pattern:** planned ID `recovery.trust_gate_no_path`.
+- **Planned reference-control idea:** every trust gate returns the same recovery envelope and writes a diagnostic artifact before ending the flow.
+- **Human / process controls:** document review ownership, retry policy, manual escalation conditions, and what evidence is safe to collect.
+- **Residual risk:** the harness can verify a recovery path exists and is coherent; it cannot guarantee a human reviewer, provider, or alternate route will resolve the issue.
+
 ---
 
 > This catalog is the project's backbone: each problem should map to a **harness test
