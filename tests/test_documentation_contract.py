@@ -18,6 +18,9 @@ def test_readme_links_methodology_docs() -> None:
         "docs/project-tracker.md",
         "docs/metric-contract.md",
         "docs/local-prometheus-workflow.md",
+        "docs/showcase/index.md",
+        "docs/showcase/scenario-matrix.md",
+        "docs/showcase/weak-spots-and-findings.md",
         "GOVERNANCE.md",
     ):
         assert link in readme
@@ -130,8 +133,47 @@ def test_status_and_authorization_docs_are_canonical() -> None:
     assert "project-tracker.md" in project_map
     assert "metric-contract.md" in project_map
     assert "local-prometheus-workflow.md" in project_map
+    assert "showcase/index.md" in project_map
     assert "docs/current-state.md" in release_checklist
     assert "docs/authorized-testing-paths.md" in release_checklist
+
+
+def test_showcase_separates_weak_spots_findings_and_deepening() -> None:
+    index = _read("docs/showcase/index.md")
+    weak = _read("docs/showcase/weak-spots-and-findings.md")
+    deepening = _read("docs/showcase/deepening-backlog.md")
+    workflow = _read("docs/scenario-investigation-workflow.md")
+
+    for phrase in (
+        "Scenario matrix",
+        "Weak spots and findings",
+        "Deepening backlog",
+        "local Prometheus",
+    ):
+        assert phrase in index
+
+    for phrase in (
+        "Current weak spots",
+        "Current confirmed findings",
+        "Current non-findings",
+        "Promotion rule",
+    ):
+        assert phrase in weak
+
+    for phrase in (
+        "Active deepening candidates",
+        "Variation budget",
+        "Not scheduled",
+    ):
+        assert phrase in deepening
+
+    for phrase in (
+        "scenario family",
+        "weak spot",
+        "finding",
+        "Deepening variation rules",
+    ):
+        assert phrase in workflow
 
 
 def test_active_docs_do_not_use_stale_pattern_count() -> None:

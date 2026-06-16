@@ -34,6 +34,9 @@ Supporting docs:
   process metrics should be read.
 - [local-prometheus-workflow.md](local-prometheus-workflow.md) defines the low-memory
   Ollama smoke workflow for real local model probes.
+- [showcase/index.md](showcase/index.md) is the public evidence entry point.
+- [scenario-investigation-workflow.md](scenario-investigation-workflow.md) keeps
+  scenario design, weak spots, findings, and deepening variations separate.
 
 ## How to read labels
 

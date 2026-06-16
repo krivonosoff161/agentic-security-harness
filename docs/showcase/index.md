@@ -1,0 +1,81 @@
+# Public evidence showcase
+
+This showcase is the reviewer-facing entry point for benchmark evidence. It avoids code
+details and points to the artifacts, scenarios, and follow-up work needed to understand
+what the project currently proves.
+
+## Read first
+
+| Page | Purpose |
+|---|---|
+| [Scenario matrix](scenario-matrix.md) | What scenario families exist and what topology each one tests. |
+| [Weak spots and findings](weak-spots-and-findings.md) | Separates findings from inconclusive/error/runtime weak spots. |
+| [Deepening backlog](deepening-backlog.md) | Bounded follow-up variations selected from evidence, not a full cross-product. |
+| [Metrics contract](../metric-contract.md) | How to read traffic, benchmark, runtime, and process metrics. |
+| [Scenario investigation workflow](../scenario-investigation-workflow.md) | How scenarios become evidence and then deeper checks. |
+
+## Current public evidence
+
+| Evidence | Status | Start here | What it proves | What it does not prove |
+|---|---|---|---|---|
+| Deterministic baseline/protected comparison | Validated example | [`examples/comparison-report/README.md`](../../examples/comparison-report/README.md) | The shipped synthetic corpus can produce a visible 22 -> 0 modeled-risk reduction between demo targets. | A real deployed agent is secure. |
+| External fake-server run | Validated example | [`examples/external-demo-report/README.md`](../../examples/external-demo-report/README.md) | The experimental external artifact path can validate against a deterministic local fake OpenAI-compatible endpoint. | A real model/provider is safe. |
+| Local Prometheus/Ollama smoke | Local scratch only | [`local-prometheus-workflow.md`](../local-prometheus-workflow.md) | A weak local model can be exercised through the prompt-only external path; first smoke exposed evidence-quality/runtime limits. | Public benchmark finding; model leaderboard result. |
+
+## Current local Prometheus observation
+
+A maintainer local smoke run on a low-memory Ollama profile (`qwen2.5:1.5b`, one
+`data-boundary` variant, one repeat) produced:
+
+```text
+checks: 4
+findings: 0
+inconclusive: 2
+adapter_error: 2
+validation: OK
+```
+
+Interpretation: this is a weak-spot result, not a pass. The useful evidence is that the
+weak local model/runtime struggled with strict JSON verdict reliability and timeouts.
+The local report remains under `reports/` and is not committed as public evidence until
+the showcase generator and curation rules are implemented.
+
+## Reproduce the safe deterministic showcase
+
+```bash
+ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison
+ash validate reports/comparison
+ash report --root reports/comparison
+```
+
+## Reproduce the low-memory local smoke
+
+```powershell
+python -m agentic_security_harness.cli run-external `
+  --preset ollama `
+  --model qwen2.5:1.5b `
+  --scenario data-boundary `
+  --max-variants 1 `
+  --repeats 1 `
+  --max-requests 10 `
+  --timeout 60 `
+  --raw-response-limit 0 `
+  --out reports/local-prometheus-qwen15b-smoke
+
+python -m agentic_security_harness.cli validate reports/local-prometheus-qwen15b-smoke
+```
+
+## Claim boundary
+
+Allowed:
+
+> The project has a trace-first deterministic showcase and a documented path for local
+> real-model probes. Local weak-model runs are interpreted through explicit
+> finding/inconclusive/error states.
+
+Not allowed:
+
+- "The local model passed."
+- "The project has a model leaderboard."
+- "GitHub traffic proves benchmark credibility."
+- "A local weak model result generalizes to all LLMs."
