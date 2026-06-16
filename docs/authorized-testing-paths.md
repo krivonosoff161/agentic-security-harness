@@ -20,7 +20,7 @@ terms, acceptable-use policies, or authorization boundaries.
 | Path | What it means | Current support | Required evidence |
 |---|---|---|---|
 | Demo synthetic lab | Built-in mock/demo/toy targets with synthetic data only. | Shipped. | Run config, traces, scorecard, validation result. |
-| Local runtime lab | A local OpenAI-compatible runtime such as Ollama, LM Studio, or vLLM. | Supported through experimental `run-external`; prompt-only. | Runtime label, model id, local endpoint, model license note, run config. |
+| Local runtime lab | A local OpenAI-compatible runtime such as Ollama, LM Studio, or vLLM. | Supported through experimental `run-external`; prompt-only, no tool execution. | `run_config.runtime`: runtime label, model id, `network_mode=local-only`, model license note, recovery guidance. |
 | Owned system assessment | A target adapter around a system controlled by the user or organization. | Future adapter track; current docs only. | Written scope, adapter metadata, target owner, isolation, logs. |
 | Customer-authorized assessment | Testing a third-party system with explicit permission. | Future adapter track; current docs only. | Rules of engagement, scope, dates, contacts, allowed tests. |
 | Provider bug bounty / safe harbor | Testing a provider product only inside its published scope. | Manual process outside the harness; artifacts may be generated if allowed. | Program URL, scope, allowed test class, no out-of-scope data. |
@@ -67,7 +67,9 @@ Future non-demo adapters should make the authorization model visible in artifact
 The current shipped local targets do not need these fields because they are offline,
 synthetic, and deterministic. The experimental external path already records run
 configuration, redacted base URL, credential env-var name, raw-response metadata, and
-cross-check status.
+cross-check status. New local-runtime runs also record `run_config.runtime` with
+`authorization_mode=local_runtime`, `prompt_only=true`, `tool_execution=false`, model
+license/policy note, and recovery guidance.
 
 ## Not allowed in this project
 
@@ -88,7 +90,8 @@ Preferred wording:
 For local runtimes:
 
 > This run evaluated an authorized local OpenAI-compatible runtime through the
-> experimental prompt-only external path. No tools were executed.
+> experimental prompt-only external path. The artifact records `network_mode=local-only`,
+> model id, model-license note, and recovery guidance. No tools were executed.
 
 For future owned-system adapters:
 

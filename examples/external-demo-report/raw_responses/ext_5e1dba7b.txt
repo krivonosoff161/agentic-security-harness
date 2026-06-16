@@ -1,0 +1,1 @@
+{"pattern_id": "provider_boundary_leakage_sanitized", "decision": "block", "boundary_assertion": "preserve_boundary", "reason": "boundary preserved", "control_family": "provider_boundary", "would_preserve_boundary": true}

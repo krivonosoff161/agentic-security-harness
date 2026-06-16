@@ -5,6 +5,8 @@ Stores metadata about an external run. Never stores credential values.
 
 from __future__ import annotations
 
+import hashlib
+
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from agentic_security_harness.schema_versions import CORPUS_VERSION, SCHEMA_VERSIONS
@@ -23,6 +25,47 @@ def _redact_url(url: str) -> str:
                 _auth, host_part = after_scheme.rsplit("@", 1)
                 return f"{url[:scheme_end + 3]}[REDACTED]@{host_part}"
     return url
+
+
+class ExternalRuntimeMetadata(BaseModel):
+    """Runtime metadata for an external adapter run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    adapter_type: str = "openai-compatible"
+    runtime_name: str = "generic-openai-compatible"
+    runtime_family: str = "openai-compatible"
+    runtime_version: str = ""
+    base_url_hash: str = ""
+    model: str = ""
+    model_id: str = ""
+    temperature: float = 0.0
+    timeout_seconds: int = 30
+    deterministic: bool = False
+    network_mode: str = "authorized-external"
+    authorization_mode: str = "authorized_external"
+    local_only: bool = False
+    prompt_only: bool = True
+    tool_execution: bool = False
+    credential_env_var: str = ""
+    model_license_note: str = (
+        "Verify the model license, acceptable-use policy, and authorization scope "
+        "before running or publishing results."
+    )
+    recovery_guidance: list[str] = Field(default_factory=list)
+    run_id: str = ""
+
+    @model_validator(mode="before")
+    @classmethod
+    def accept_legacy_credential_field(cls, data: object) -> object:
+        """Accept pre-v0.14 artifacts that used ``api_key_env`` as the field name."""
+        if not isinstance(data, dict):
+            return data
+        migrated = dict(data)
+        legacy = migrated.pop("api_key_env", None)
+        if "credential_env_var" not in migrated and legacy is not None:
+            migrated["credential_env_var"] = legacy
+        return migrated
 
 
 class RunConfig(BaseModel):
@@ -47,8 +90,9 @@ class RunConfig(BaseModel):
     selected_variants: list[str] = Field(default_factory=list)
     request_count: int = 0
     deterministic: bool = False
-    network_mode: str = "explicit-external"
+    network_mode: str = "authorized-external"
     credential_env_var: str = ""
+    runtime: ExternalRuntimeMetadata = Field(default_factory=ExternalRuntimeMetadata)
     created_by: str = "ash run-external"
     safety_note: str = (
         "Experimental external run. Not a benchmark-grade measurement. "
@@ -68,32 +112,37 @@ class RunConfig(BaseModel):
         return migrated
 
 
-class ExternalRuntimeMetadata(BaseModel):
-    """Runtime metadata for an external adapter run."""
+def build_external_runtime_metadata(
+    *,
+    base_url: str,
+    model: str,
+    temperature: float,
+    timeout_seconds: int,
+    credential_env_var: str,
+    preset_name: str | None = None,
+) -> ExternalRuntimeMetadata:
+    """Build secret-free metadata describing the runtime under evaluation."""
+    from agentic_security_harness.presets import infer_runtime_profile
 
-    model_config = ConfigDict(extra="forbid")
-
-    adapter_type: str = "openai-compatible"
-    base_url_hash: str = ""
-    model: str = ""
-    temperature: float = 0.0
-    timeout_seconds: int = 30
-    deterministic: bool = False
-    network_mode: str = "explicit-external"
-    credential_env_var: str = ""
-    run_id: str = ""
-
-    @model_validator(mode="before")
-    @classmethod
-    def accept_legacy_credential_field(cls, data: object) -> object:
-        """Accept pre-v0.14 artifacts that used ``api_key_env`` as the field name."""
-        if not isinstance(data, dict):
-            return data
-        migrated = dict(data)
-        legacy = migrated.pop("api_key_env", None)
-        if "credential_env_var" not in migrated and legacy is not None:
-            migrated["credential_env_var"] = legacy
-        return migrated
+    profile = infer_runtime_profile(preset_name, base_url)
+    return ExternalRuntimeMetadata(
+        runtime_name=profile.runtime_name,
+        runtime_family=profile.runtime_family,
+        base_url_hash=hashlib.sha256(base_url.encode("utf-8")).hexdigest()[:16],
+        model=model,
+        model_id=model,
+        temperature=temperature,
+        timeout_seconds=timeout_seconds,
+        deterministic=False,
+        network_mode=profile.network_mode,
+        authorization_mode=profile.authorization_mode,
+        local_only=profile.local_only,
+        prompt_only=True,
+        tool_execution=False,
+        credential_env_var=credential_env_var,
+        model_license_note=profile.model_license_note,
+        recovery_guidance=list(profile.recovery_guidance),
+    )
 
 
 class ExternalResult(BaseModel):
@@ -116,6 +165,7 @@ class ExternalResult(BaseModel):
     raw_response_truncated: bool = False
     parse_error: str = ""
     error: str = ""
+    recovery_hint: str = ""
     latency_ms: int = 0
     model_self_report: str = ""
     deterministic_cross_check: str = "inconclusive"

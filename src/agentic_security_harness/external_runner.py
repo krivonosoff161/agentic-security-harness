@@ -26,6 +26,7 @@ from agentic_security_harness.run_config import (
     RepeatSummary,
     RunConfig,
     _redact_url,
+    build_external_runtime_metadata,
 )
 from agentic_security_harness.safe_io import write_text_artifact
 
@@ -104,6 +105,7 @@ def run_external(
     max_variants: int = 1,
     only_variant_id: str | None = None,
     dry_run: bool = False,
+    preset_name: str | None = None,
 ) -> ExternalSummary:
     """Run external evaluation and write report artifacts."""
     from agentic_security_harness.scenarios import get_scenario, get_variants
@@ -120,6 +122,14 @@ def run_external(
 
     total_requests = len(patterns) * len(variants) * repeats
     base_url_label = _redact_url(base_url)
+    runtime = build_external_runtime_metadata(
+        base_url=base_url,
+        model=model,
+        temperature=temperature,
+        timeout_seconds=timeout_seconds,
+        credential_env_var=credential_env_var,
+        preset_name=preset_name,
+    )
 
     run_config = RunConfig(
         adapter_type="openai-compatible",
@@ -137,6 +147,8 @@ def run_external(
         selected_variants=[v.variant_id for v in variants],
         request_count=total_requests,
         credential_env_var=credential_env_var,
+        network_mode=runtime.network_mode,
+        runtime=runtime,
     )
 
     if dry_run:
@@ -144,6 +156,8 @@ def run_external(
         print("  adapter: openai-compatible")
         print(f"  base_url: {base_url_label}")
         print(f"  model: {model}")
+        print(f"  runtime: {runtime.runtime_name}")
+        print(f"  network_mode: {runtime.network_mode}")
         print(f"  scenario: {scenario_id}")
         print(f"  patterns: {len(patterns)}")
         print(f"  variants: {len(variants)}")
@@ -242,6 +256,7 @@ def _evaluate_one(
         content = extract_content(response)
         parsed = _parse_decision(content)
         verdict = validate_external_verdict(pattern, parsed)
+        parse_error = "no valid JSON response" if not parsed else ""
         model_self_report = (
             f"decision={parsed.get('decision', 'unclear')}; "
             f"boundary_assertion={parsed.get('boundary_assertion', 'unclear')}; "
@@ -266,6 +281,8 @@ def _evaluate_one(
             raw_response_sha256=raw_response_sha256,
             raw_response_chars=raw_response_chars,
             raw_response_truncated=truncated,
+            parse_error=parse_error,
+            recovery_hint=_recovery_hint_for_verdict(verdict.outcome, verdict.reason),
             model_self_report=model_self_report,
             deterministic_cross_check=verdict.outcome,
             cross_check_reason=verdict.reason,
@@ -274,29 +291,102 @@ def _evaluate_one(
             expected_control_family=verdict.expected_control_family,
         )
     except ExternalAPIError as exc:
+        error_text = _external_error_text(exc)
         return ExternalResult(
             result_id=rid,
             pattern_id=pattern.pattern_id,
             variant_id=variant_id,
             repeat_index=repeat_index,
-            error=str(exc),
+            error=error_text,
+            recovery_hint=_recovery_hint_for_error(error_text),
             deterministic_cross_check="adapter_error",
-            cross_check_reason=str(exc),
+            cross_check_reason=error_text,
             assertion_id=f"{pattern.pattern_id}:boundary_preservation",
             assertion_result="adapter_error",
         )
     except Exception as exc:
+        error_text = f"unexpected error: {exc}"
         return ExternalResult(
             result_id=rid,
             pattern_id=pattern.pattern_id,
             variant_id=variant_id,
             repeat_index=repeat_index,
-            error=f"unexpected error: {exc}",
+            error=error_text,
+            recovery_hint=_recovery_hint_for_error(error_text),
             deterministic_cross_check="adapter_error",
-            cross_check_reason=f"unexpected error: {exc}",
+            cross_check_reason=error_text,
             assertion_id=f"{pattern.pattern_id}:boundary_preservation",
             assertion_result="adapter_error",
         )
+
+
+def _external_error_text(exc: ExternalAPIError) -> str:
+    text = str(exc)
+    if exc.response:
+        response = " ".join(exc.response.split())[:500]
+        if response:
+            text = f"{text}; response={response}"
+    return text
+
+
+def _recovery_hint_for_error(error: str) -> str:
+    lower = error.lower()
+    if "not set" in lower and "environment variable" in lower:
+        return (
+            "Set the named credential environment variable, or omit --credential-env "
+            "for a keyless local runtime."
+        )
+    if "connection refused" in lower or "winerror 10061" in lower:
+        return (
+            "The runtime server is not accepting connections. Start Ollama/LM Studio/vLLM "
+            "or the fake server, then retry with ash external-check --live."
+        )
+    if "timed out" in lower or "timeout" in lower:
+        return (
+            "The request timed out. Check that the runtime is loaded and responsive, "
+            "or increase --timeout."
+        )
+    if "http 404" in lower or "model not found" in lower or "not found" in lower:
+        return (
+            "Verify the --model id. For local runtimes, pull or load the model before "
+            "running the harness."
+        )
+    if "http 400" in lower or "invalid json response" in lower:
+        return (
+            "Verify that the endpoint implements OpenAI-compatible chat completions at "
+            "<base_url>/chat/completions and returns JSON."
+        )
+    if "network error" in lower:
+        return (
+            "Check the base URL, local server status, firewall/proxy, and authorization "
+            "scope, then rerun external-check."
+        )
+    return "Inspect external_results.json and retry after fixing the adapter/runtime error."
+
+
+def _recovery_hint_for_verdict(outcome: str, reason: str) -> str:
+    if outcome != "inconclusive":
+        return ""
+    lower = reason.lower()
+    if "no valid json" in lower or "missing_json" in lower:
+        return (
+            "Inspect raw_responses/. The model did not return the required JSON contract; "
+            "retry with --temperature 0.0, a stronger model, or fewer variants."
+        )
+    if "pattern_id mismatch" in lower:
+        return (
+            "The model response was not bound to the requested pattern_id. Inspect the raw "
+            "response and rerun; do not treat this as pass or finding."
+        )
+    if "missing boolean" in lower or "invalid boundary_assertion" in lower:
+        return (
+            "The model omitted required verdict fields. Inspect raw_responses/ and rerun "
+            "with stricter settings or another model."
+        )
+    return (
+        "The response was contradictory or incomplete. Treat it as weak evidence, inspect "
+        "raw_responses/, and rerun with more repeats."
+    )
 
 
 def _raw_response_preview(content: str, raw_response_limit: int) -> tuple[str, bool]:
@@ -503,6 +593,13 @@ def _build_external_report_md(
         f"- Adapter: `{config.adapter_type}`",
         f"- Model: `{config.model}`",
         f"- Endpoint: `{config.base_url_label}`",
+        f"- Runtime: `{config.runtime.runtime_name}` ({config.runtime.runtime_family})",
+        f"- Network mode: `{config.runtime.network_mode}`",
+        f"- Authorization mode: `{config.runtime.authorization_mode}`",
+        f"- Prompt-only: {config.runtime.prompt_only}",
+        f"- Tool execution: {config.runtime.tool_execution}",
+        f"- Local-only runtime: {config.runtime.local_only}",
+        f"- Model license / policy note: {config.runtime.model_license_note}",
         f"- Temperature: {config.temperature}",
         f"- Timeout seconds: {config.timeout_seconds}",
         f"- Max retries: {config.max_retries}",
@@ -567,6 +664,25 @@ def _build_external_report_md(
             )
         lines.append("")
 
+    recovery_lines = list(config.runtime.recovery_guidance)
+    if summary.error_patterns:
+        recovery_lines.append(
+            "Adapter errors are final for this run. Fix the runtime/endpoint/model and rerun."
+        )
+    if summary.inconclusive_patterns:
+        recovery_lines.append(
+            "Inconclusive outputs are not passes. Inspect raw_responses/ and rerun with "
+            "more repeats or a stronger JSON-following model."
+        )
+    if recovery_lines:
+        lines += [
+            "## Recovery guidance",
+            "",
+        ]
+        for item in dict.fromkeys(recovery_lines):
+            lines.append(f"- {item}")
+        lines.append("")
+
     from agentic_security_harness.remediation import build_external_recommendations_md
 
     rec_lines = build_external_recommendations_md(summary.patterns_with_findings)
@@ -586,7 +702,8 @@ def _build_external_report_md(
         "## Related artifacts",
         "",
         "- `run_config.json` - machine-readable run configuration "
-        "(adapter, model, redacted endpoint, scenario, repeats, request_count)",
+        "(adapter, runtime metadata, model, redacted endpoint, scenario, repeats, "
+        "request_count)",
         "- `external_summary.json` - machine-readable aggregated summary",
         "- `external_results.json` - per-request normalized results",
         "- `raw_responses/` - full model response text per request, with sha256 recorded "
@@ -620,6 +737,8 @@ def _build_external_report_md(
         "- Stochastic models may produce different results across repeats.",
         "- No tools were executed. Only prompt-based evaluation.",
         "- No real data or secrets were used in prompts.",
+        "- Local runtime execution does not remove model-license, acceptable-use, or "
+        "authorization requirements.",
         "",
         "> Synthetic prompts only. No real data, tool execution, or harmful content.",
         "",

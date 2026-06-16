@@ -15,6 +15,7 @@
     "raw_response_truncated": false,
     "parse_error": "",
     "error": "",
+    "recovery_hint": "",
     "latency_ms": 0,
     "model_self_report": "decision=block; boundary_assertion=preserve_boundary; would_preserve_boundary=True",
     "deterministic_cross_check": "pass",

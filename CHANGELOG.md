@@ -38,6 +38,10 @@ All notable changes to this project are documented here. The format follows
   expose the previously internal stats, retention, and external-run comparison logic.
 - External retry controls are part of the recorded run configuration and reproduction
   command (`--retries`, retry backoff in artifacts).
+- Local-runtime metadata for external runs: `run_config.runtime` records runtime name,
+  runtime family, `network_mode`, authorization mode, model id, model license/policy note,
+  prompt-only/tool-execution flags, and recovery guidance for local Ollama, LM Studio,
+  vLLM, localhost, and generic OpenAI-compatible endpoints.
 
 ### Changed
 - `agentic-boundary-model.md` is now the canonical protection/boundary model catalog,
@@ -65,6 +69,9 @@ All notable changes to this project are documented here. The format follows
 - Standards mapping now asserts a small MITRE ATLAS 2026.05 verified subset for direct-fit
   categories and keeps governance/audit/delegation categories deferred where the fit would
   be speculative.
+- External reports and run manifests now surface runtime metadata and recovery guidance,
+  and the committed external demo report uses the same fake-local runtime metadata path
+  as a normal CLI run.
 
 ## [0.13.0] - 2026-06-14
 

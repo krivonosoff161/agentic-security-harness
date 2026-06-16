@@ -179,7 +179,12 @@ def test_external_run_writes_metadata(tmp_path: Path) -> None:
     meta = data["metadata"]
     assert meta["adapter_type"] == "openai-compatible"
     assert meta["model"] == "demo-model"
-    assert meta["network_mode"] == "explicit-external"
+    assert meta["network_mode"] == "local-only"
+    assert meta["runtime_name"] == "local-openai-compatible"
+    assert meta["runtime_family"] == "local-runtime"
+    assert meta["authorization_mode"] == "local_runtime"
+    assert meta["prompt_only"] is True
+    assert meta["tool_execution"] is False
     assert meta["credential_env_var"] == "ASH_EXTERNAL_API_KEY"  # name only
     # The base_url password must be redacted everywhere in the manifest.
     assert "secret" not in json.dumps(data)

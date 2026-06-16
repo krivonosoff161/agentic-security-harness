@@ -26,6 +26,7 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | Run history and maintenance | Shipped | `list-runs`, `index-runs`, `stats`, `retention`, `diff-runs`. |
 | External OpenAI-compatible prompt check | Experimental | `run-external`, prompt-only, explicit opt-in, no tool execution. |
 | External evidence cross-check | Shipped for experimental path | Pattern id, boundary assertion, control family, decision coherence, raw response files. |
+| Local-runtime metadata | Shipped for experimental path | `run_config.runtime`, report/runtime metadata, `local-only` mode for localhost/Ollama/LM Studio/vLLM, recovery guidance. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
 | Public project process | Shipped locally | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, release artifact workflow. |
 
@@ -33,7 +34,9 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 
 These features exist, but their results must be read conservatively:
 
-- `ash run-external`: prompt-only evaluation of an authorized OpenAI-compatible endpoint.
+- `ash run-external`: prompt-only evaluation of an authorized OpenAI-compatible endpoint;
+  local runtimes are labeled `local-only` and still require model-license /
+  authorization review.
 - External model comparisons: useful for exploratory checks, not benchmark-grade
   leaderboards.
 - Scenario matrix variants: deterministic local replay metadata and pattern subsets, not
@@ -66,7 +69,8 @@ The next public-development focus is:
    provider-program assessments.
 3. Verify standards mappings without implying certification.
 4. Expand the corpus by invariant and topology, not by prompt/model cross-products.
-5. Add local-runtime and multi-agent-handoff tracks behind explicit safety gates.
+5. Add multi-agent-handoff tracks behind explicit safety gates; keep local-runtime
+   metadata and recovery guidance current.
 6. Improve public demo/showcase reports with replayable, validated artifacts.
 
 ## Validation commands

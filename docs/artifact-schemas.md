@@ -28,6 +28,9 @@ Non-versioned by design:
 
 - `external_results.json` - a bare list whose item schema is governed by the
   `external_summary` version; it is not separately versioned today.
+- `run_config.json` includes a `runtime` metadata block for new external runs
+  (`runtime_name`, `runtime_family`, `network_mode`, authorization mode, model id,
+  prompt-only/tool-execution flags, model license/policy note, and recovery guidance).
 - Markdown artifacts (`summary.md`, `executive.md`, `comparison.md`, `matrix.md`,
   `remediation.md`, `external_report.md`, `run_diff.md`) - human views; the JSON next to
   them is authoritative.

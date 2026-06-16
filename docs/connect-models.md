@@ -34,6 +34,17 @@ overrides the preset; `generic-openai-compatible` requires you to pass your own
 `--base-url`. Vendor URLs are starting points - confirm the current value in the
 provider's docs.
 
+Every new `run-external` artifact records a `runtime` block in `run_config.json` with:
+
+- `runtime_name` / `runtime_family`;
+- `network_mode` (`local-only` for Ollama, LM Studio, vLLM, localhost, and the fake server;
+  `authorized-external` for cloud or remote OpenAI-compatible endpoints);
+- `authorization_mode` (`local_runtime`, `demo_synthetic`, or `authorized_external`);
+- `model_id` and a model license / policy note;
+- `prompt_only=true` and `tool_execution=false`;
+- recovery guidance for server-not-running, model-not-found, invalid JSON, timeout, and
+  inconclusive output.
+
 ### Stochastic models and repeats
 
 A single response is not a verdict. Stochastic models can answer differently each call.
@@ -64,6 +75,9 @@ request_count = patterns_in_scenario x variants x repeats
   records only the env-var *name*.
 - `base_url` is redacted before it is stored, so embedded credentials never land in a
   report.
+- Local runtime metadata is stored in `run_config.json`, `external_report.md`, and
+  `run_index.json`; the full endpoint is still redacted and credential values are never
+  stored.
 
 Scenario sizes (use these to estimate cost):
 
@@ -277,6 +291,12 @@ machine removes cloud-provider runtime dependency, but it does not remove model-
 terms, acceptable-use policies, or the requirement to test only synthetic, owned, or
 authorized targets. See [authorized testing paths](authorized-testing-paths.md).
 
+For local presets, `run_config.json` records `network_mode=local-only`,
+`authorization_mode=local_runtime`, `prompt_only=true`, and `tool_execution=false`. If the
+server is down, the model is not loaded, or the model returns non-JSON / contradictory
+output, the result is `adapter_error` or `inconclusive` with a recovery hint; it is not a
+pass.
+
 Ollama (default port `11434`, OpenAI-compatible endpoint under `/v1`):
 
 ```bash
@@ -299,9 +319,9 @@ Small local models often return prose instead of strict JSON. The harness record
 as `inconclusive` (not `pass`/`finding`). Lower `--temperature 0.0` and prefer a model
 that follows JSON instructions if you see many inconclusive results.
 
-Recommended artifact note for local runs: record the runtime (`ollama`, `lm-studio`,
-`vllm`), the model id, whether the endpoint is local-only, and the model license/policy
-you are relying on. Future adapter metadata should make that explicit.
+Recommended artifact note for local runs: review the generated `runtime` block before
+publishing results, and keep a private note of the exact model license/policy you checked
+if the model card or local registry metadata is not public.
 
 ## 13. Troubleshooting
 
