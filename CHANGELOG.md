@@ -49,6 +49,9 @@ All notable changes to this project are documented here. The format follows
 - Recovery-path pattern design: `recovery.trust_gate_no_path` now has a documented
   pre-implementation proposal covering invariant, topology, expected vulnerable behavior,
   trace evidence, protected control, residual risk, and anti-combinatorial guardrails.
+- Public showcase report checklist: required commands, artifacts, validation result,
+  baseline/protected summary, claim-boundary language, and standards-mapping caveat before
+  any report is promoted in README or release material.
 
 ### Changed
 - `agentic-boundary-model.md` is now the canonical protection/boundary model catalog,
@@ -82,6 +85,8 @@ All notable changes to this project are documented here. The format follows
 - README, current-state, adapter contract, capability matrix, evaluation topologies,
   roadmap, boundary model, and project map now list `toy-multi-agent` as shipped while
   keeping live/cross-provider multi-agent workflows future-scoped.
+- The committed comparison example README now reflects the current 22-pattern corpus and
+  links to the public showcase checklist.
 
 ## [0.13.0] - 2026-06-14
 
