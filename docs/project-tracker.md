@@ -27,6 +27,11 @@ failure cards, and metrics contracts.
 | [#22 docs: metric contract](https://github.com/krivonosoff161/agentic-security-harness/issues/22) | Metrics | A stable vocabulary for GitHub traffic metrics, benchmark evidence metrics, runtime evidence, and project process metrics. |
 | [#23 feature: showcase generator](https://github.com/krivonosoff161/agentic-security-harness/issues/23) | Reports / automation | Generate showcase markdown from JSON artifacts instead of manually copying results. |
 | [#24 research: local model profiles](https://github.com/krivonosoff161/agentic-security-harness/issues/24) | Local runtime | Hardware-safe model/runtime profiles and recovery guidance for weak local models. |
+| [#30 research: design inter-agent handoff integrity contract](https://github.com/krivonosoff161/agentic-security-harness/issues/30) | Multi-agent / research | Minimal contract for provenance-preserving worker-to-senior handoffs before code lands. |
+| [#31 docs: correct inter-agent handoff research source map](https://github.com/krivonosoff161/agentic-security-harness/issues/31) | Standards / research | Broken citations fixed; adjacent work acknowledged; shipped-vs-planned claims kept conservative. |
+| [#32 research: formalize handoff verifier decisions and risk scoring](https://github.com/krivonosoff161/agentic-security-harness/issues/32) | Multi-agent / reports | Deterministic blocker verdicts are separated from normalized severity scoring. |
+| [#33 research: define minimal typed handoff envelope](https://github.com/krivonosoff161/agentic-security-harness/issues/33) | Multi-agent / recovery | Envelope fields and payload-type requirements are explicit before fixtures/tests are added. |
+| [#34 feature: add deterministic toy topology for handoff integrity](https://github.com/krivonosoff161/agentic-security-harness/issues/34) | Multi-agent / corpus | First synthetic senior/worker topology lands only after the design contract and scoring model are reviewed. |
 
 Supporting docs:
 
@@ -34,7 +39,9 @@ Supporting docs:
   process metrics should be read.
 - [inter-agent-handoff-integrity.md](inter-agent-handoff-integrity.md) defines the
   design-first track for provenance-preserving worker-to-senior agent handoffs. It is
-  planned work, not shipped benchmark coverage.
+  planned work, not shipped benchmark coverage. Issues #30-#34 split the work into
+  source correction, contract design, scoring semantics, envelope design, and a later
+  deterministic toy topology.
 - [local-prometheus-workflow.md](local-prometheus-workflow.md) defines the low-memory
   Ollama smoke workflow for real local model probes.
 - [local-model-profiles.md](local-model-profiles.md) records hardware-safe local model

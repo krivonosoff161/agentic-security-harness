@@ -49,6 +49,32 @@ Related standards language:
 The project should not claim this term is a formal standard. It is the local name for the
 benchmark track.
 
+## Research baseline
+
+This track is adjacent to several active research and standards areas, but it should not
+overclaim that any one source already defines the benchmark contract.
+
+| Source family | What it contributes | Boundary for this track |
+|---|---|---|
+| CaMeL / FIDES | Information-flow control, source labels, and deterministic enforcement before sensitive actions. | Strong design inspiration; not a complete multi-agent handoff provenance standard. |
+| AgentDojo | Benchmark methodology for tool-using agents over untrusted data. | Useful evaluation reference; not a chain-of-custody or inter-agent envelope benchmark. |
+| BlockA2A | A proposed secure/verifiable agent-to-agent interoperability framework using DIDs, ledgers, smart contracts, and runtime controls. | Directly adjacent work; do not claim there is no research in this space. |
+| W3C PROV | Entity/activity/agent provenance vocabulary and interchange model. | Provenance model only; no cryptographic verification or runtime authority enforcement. |
+| in-toto / SLSA | Supply-chain attestation and verifiable artifact provenance. | Useful chain-of-custody pattern; software artifact workflow, not agent handoff semantics. |
+| C2PA | Signed content credentials and content provenance. | Useful credential/signature pattern; no agent authority, policy, or receiver-trust semantics. |
+| MCP | Standardized agent/tool/context protocol with authorization and security guidance. | Protocol and implementation guidance; not a built-in handoff provenance verifier. |
+| OWASP Agentic Top 10 | Risk taxonomy, including insecure inter-agent communication. | Threat-model reference; not a formal verifier specification. |
+
+Use conservative wording:
+
+> We did not find a widely adopted standard that combines IFC labels, provenance,
+> chain-of-custody, cryptographic verification, and runtime handoff enforcement for
+> multi-agent systems.
+
+Do not write:
+
+> No existing project works on secure agent-to-agent handoff.
+
 ## Defensive scenario shape
 
 Use synthetic, local-only fixtures. A representative scenario is:
@@ -99,6 +125,41 @@ This track should evaluate controls, not rely on model judgment alone:
 | Canary handoff tests | Prove the verifier still catches safe synthetic failures. |
 | Recovery path | Return `blocked` / `needs_review` with a reproduce path instead of silently passing data. |
 
+## Decision and scoring model
+
+The verifier decision must be separate from any risk or severity score.
+
+| Layer | Purpose | Example output |
+|---|---|---|
+| Deterministic blocker verdict | Decide whether the receiver may trust or consume the handoff. | `pass`, `blocked`, `needs_review`, `quarantine` |
+| Failure reason | Explain the invariant that failed. | `missing_provenance`, `integrity_mismatch`, `authority_expansion`, `stale_or_replayed`, `verifier_error` |
+| Severity score | Rank comparable failures for reporting and triage. | normalized score within a payload family |
+
+The score is not proof. It is secondary reporting metadata after the deterministic verdict.
+Any formula must:
+
+- define every variable it uses;
+- avoid division by zero;
+- normalize set-growth metrics before treating them as `[0, 1]` values;
+- preserve label identity, not only label count;
+- keep structural risk separate from unsafe receiver consumption;
+- document whether payload-type multipliers are used before scenarios are calculated.
+
+## Open research questions
+
+These questions should remain visible until the contract and first toy topology are
+reviewed:
+
+| Question | Why it matters | Benchmarkability |
+|---|---|---|
+| What is the minimal safe handoff envelope? | Too small loses evidence; too large makes adoption unlikely. | Yes, via schema tests. |
+| Which fields are required by payload type? | A capability, approval, summary, and tool result need different evidence. | Yes, via typed fixtures. |
+| How should receiver trust be represented? | The same payload can be safe as untrusted input and unsafe as trusted authority. | Yes, via receiver-decision traces. |
+| What is deterministic and what is model-judged? | Summary truthfulness cannot be treated the same as byte integrity. | Partially, via contract/oracle fixtures. |
+| How should policy/schema negotiation fail? | Silent policy drift is a handoff failure even when payload bytes match. | Yes, via version-mismatch fixtures. |
+| What should happen when the verifier is unavailable? | Fail-open behavior hides the most important operational failure. | Yes, via outage fixtures. |
+| Which claims need signatures versus hashes only? | Cryptographic assurance has cost and scope boundaries. | Yes, via local synthetic artifacts. |
+
 ## Out of scope
 
 Keep this track defensive and reviewable:
@@ -129,11 +190,26 @@ Do not implement all of this at once. Each stage has a visible exit gate.
 | Stage | Work | Exit gate |
 |---|---|---|
 | 0. Design lock | This document, tracker entry, non-goals, terminology. | Reviewers can tell what is planned and what is not shipped. |
-| 1. Contract design | Define a minimal handoff envelope and expected verifier outcomes. | Contract has tests for schema validity and claim boundaries. |
-| 2. Deterministic toy topology | Add a synthetic senior/worker topology with vulnerable and protected behavior. | Vulnerable path accepts unverified handoff; protected path blocks or reviews. |
-| 3. Evidence artifacts | Write trace/report artifacts for handoff pass/block/review outcomes. | `ash validate` accepts the generated artifacts. |
-| 4. Canary operations | Add daily/canary-style local checks as an operator pattern. | Report shows verifier alive, expected pass, expected block, and recovery guidance. |
-| 5. Local model probe | Optional weak local model participant under strict request caps. | Local model output is classified as pass/finding/inconclusive/error without overclaiming. |
+| 1. Source/claim correction | Keep the research map, citations, and white-space claim accurate. | No broken citations; adjacent work is acknowledged without overstating it. |
+| 2. Contract design | Define a minimal handoff envelope and expected verifier outcomes. | Contract has tests for schema validity and claim boundaries. |
+| 3. Decision/scoring design | Define blocker verdicts separately from normalized severity scoring. | All scenario calculations are reproducible from one metrics table. |
+| 4. Deterministic toy topology | Add a synthetic senior/worker topology with vulnerable and protected behavior. | Vulnerable path accepts unverified handoff; protected path blocks or reviews. |
+| 5. Evidence artifacts | Write trace/report artifacts for handoff pass/block/review outcomes. | `ash validate` accepts the generated artifacts. |
+| 6. Canary operations | Add daily/canary-style local checks as an operator pattern. | Report shows verifier alive, expected pass, expected block, and recovery guidance. |
+| 7. Local model probe | Optional weak local model participant under strict request caps. | Local model output is classified as pass/finding/inconclusive/error without overclaiming. |
+
+Tracked public issues:
+
+- [#30](https://github.com/krivonosoff161/agentic-security-harness/issues/30) -
+  design the inter-agent handoff integrity contract.
+- [#31](https://github.com/krivonosoff161/agentic-security-harness/issues/31) -
+  correct the research source map and claim boundaries.
+- [#32](https://github.com/krivonosoff161/agentic-security-harness/issues/32) -
+  formalize verifier decisions and risk scoring.
+- [#33](https://github.com/krivonosoff161/agentic-security-harness/issues/33) -
+  define the minimal typed handoff envelope.
+- [#34](https://github.com/krivonosoff161/agentic-security-harness/issues/34) -
+  add the first deterministic toy topology after the design gates pass.
 
 ## Definition of done for a benchmark pattern
 
