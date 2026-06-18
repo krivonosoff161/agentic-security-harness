@@ -36,7 +36,7 @@
 | File | Status | Description |
 |---|---|---|
 | `handoff-integrity.md` | Active | Pilot theory module for inter-agent handoff integrity. |
-| `data-boundary.md` | Planned | Theory for data envelope / label preservation. |
+| `data-boundary.md` | Active | Theory for data envelope / label preservation. |
 | `authority-delegation.md` | Planned | Theory for capability delegation and authority non-expansion. |
 | `audit-integrity.md` | Planned | Theory for append-only audit hash-chain integrity. |
 | `memory-governance.md` | Planned | Theory for memory provenance, TTL, and cross-user isolation. |
