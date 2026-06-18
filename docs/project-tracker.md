@@ -13,25 +13,36 @@ Active public-development track:
 | [v0.17 public evidence showcase and local model probes](https://github.com/krivonosoff161/agentic-security-harness/milestone/5) | Make benchmark evidence easy to inspect before reading code, then add bounded local real-model probes. |
 
 The milestone is not a release claim. It is a work tracker for the next credibility
-slice: public evidence pages, local Prometheus/Ollama probes, scenario timelines,
-failure cards, and metrics contracts.
+slice: local Prometheus/Ollama probes, scenario timelines, failure cards, and the
+design-led inter-agent handoff integrity track.
 
 ## Open work in this track
 
 | Issue | Track | Exit focus |
 |---|---|---|
-| [#25 docs: public evidence showcase](https://github.com/krivonosoff161/agentic-security-harness/issues/25) | Showcase | A reviewer can see scenarios, latest example runs, failure cards, artifacts, and reproduce commands without reading source code. |
 | [#19 feature: local Prometheus suite](https://github.com/krivonosoff161/agentic-security-harness/issues/19) | Local runtime | Real local model-in-loop smoke run through Ollama/OpenAI-compatible runtime, with strict caps and validated artifacts. |
 | [#20 feature: scenario timeline](https://github.com/krivonosoff161/agentic-security-harness/issues/20) | Corpus / multi-turn | Multi-turn, delayed-trigger, context-overload, and handoff scenarios described as timelines with invariants and validators. |
 | [#21 feature: trace replay and failure cards](https://github.com/krivonosoff161/agentic-security-harness/issues/21) | Reports | Human-readable failure cards generated from trace artifacts, not hand-written marketing summaries. |
-| [#22 docs: metric contract](https://github.com/krivonosoff161/agentic-security-harness/issues/22) | Metrics | A stable vocabulary for GitHub traffic metrics, benchmark evidence metrics, runtime evidence, and project process metrics. |
-| [#23 feature: showcase generator](https://github.com/krivonosoff161/agentic-security-harness/issues/23) | Reports / automation | Generate showcase markdown from JSON artifacts instead of manually copying results. |
-| [#24 research: local model profiles](https://github.com/krivonosoff161/agentic-security-harness/issues/24) | Local runtime | Hardware-safe model/runtime profiles and recovery guidance for weak local models. |
 | [#30 research: design inter-agent handoff integrity contract](https://github.com/krivonosoff161/agentic-security-harness/issues/30) | Multi-agent / research | Minimal contract for provenance-preserving worker-to-senior handoffs before code lands. |
 | [#31 docs: correct inter-agent handoff research source map](https://github.com/krivonosoff161/agentic-security-harness/issues/31) | Standards / research | Broken citations fixed; adjacent work acknowledged; shipped-vs-planned claims kept conservative. |
 | [#32 research: formalize handoff verifier decisions and risk scoring](https://github.com/krivonosoff161/agentic-security-harness/issues/32) | Multi-agent / reports | Deterministic blocker verdicts are separated from normalized severity scoring. |
 | [#33 research: define minimal typed handoff envelope](https://github.com/krivonosoff161/agentic-security-harness/issues/33) | Multi-agent / recovery | Envelope fields and payload-type requirements are explicit before fixtures/tests are added. |
 | [#34 feature: add deterministic toy topology for handoff integrity](https://github.com/krivonosoff161/agentic-security-harness/issues/34) | Multi-agent / corpus | First synthetic senior/worker topology lands only after the design contract and scoring model are reviewed. |
+
+## Open maintenance work
+
+| Issue | Track | Exit focus |
+|---|---|---|
+| [#29 fix: clarify external run diff status labels](https://github.com/krivonosoff161/agentic-security-harness/issues/29) | Reports / maintenance | Run-diff labels make fixed/new/changed/unchanged status unambiguous for external runs. |
+
+## Recently completed in this track
+
+| Issue | Track | Delivered focus |
+|---|---|---|
+| [#25 docs: public evidence showcase](https://github.com/krivonosoff161/agentic-security-harness/issues/25) | Showcase | Public showcase entry point and evidence pages exist for reviewer navigation. |
+| [#22 docs: metric contract](https://github.com/krivonosoff161/agentic-security-harness/issues/22) | Metrics | Stable vocabulary for GitHub traffic, benchmark evidence, runtime evidence, and project-process metrics. |
+| [#23 feature: showcase generator](https://github.com/krivonosoff161/agentic-security-harness/issues/23) | Reports / automation | `ash showcase` generates reviewer-facing Markdown from JSON artifacts. |
+| [#24 research: local model profiles](https://github.com/krivonosoff161/agentic-security-harness/issues/24) | Local runtime | Hardware-safe local model profiles and stop conditions are documented. |
 
 Supporting docs:
 

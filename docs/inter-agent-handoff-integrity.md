@@ -5,8 +5,9 @@
 > Scope: defensive-only modeling of how agentic systems should preserve provenance,
 > integrity, authority, and recovery metadata when data moves between agents.
 >
-> Last reviewed: 2026-06-17. Draft updates for issues #31, #32, and #33 are in
-> review; implementation remains planned work.
+> Last reviewed: 2026-06-18. The design gates for issues #31, #32, and #33 are
+> documented here. Implementation remains planned work; the next code-bearing gate is
+> issue #34.
 
 ## Problem statement
 
@@ -65,6 +66,10 @@ this project should use it.
 | **CaMeL** (arXiv:2503.18813, Debenedetti et al., 2025) — "Defeating Prompt Injections by Design" | Separates control and data flows around an LLM agent; capability-based enforcement limits unauthorized data movement. The paper reports 77% secure task completion in AgentDojo. | Single-agent focused; no multi-agent provenance chain; no verification of message integrity between agents. | Design inspiration for authority scope model and trusted/untrusted flow separation in the handoff envelope. |
 | **FIDES** (arXiv:2505.23643, Costa et al., 2025) — "Securing AI Agents with Information-Flow Control" | Formal model for information-flow control in AI agents. Confidentiality/integrity labels with deterministic policy enforcement. Novel primitives for selective information hiding. | Research/tutorial implementation and experimental Agent Framework feature; no complete multi-agent handoff provenance chain. | Strong adjacent work on IFC for agents. Source labels and deterministic enforcement model directly inform envelope design. |
 | **AgentDojo** (arXiv:2406.13352, Debenedetti et al., 2024) — "A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents" | 97 realistic tasks, 629 security test cases. Benchmark methodology for tool-using agents over untrusted data. | Benchmark, not a defense; single-agent focused; no provenance or chain-of-custody model. | Evaluation methodology reference. Shows that naive approaches fail. Useful as a comparison point for our benchmark design. |
+| **Open Challenges in Multi-Agent Security** (arXiv:2505.02077, de Witt et al., 2025) — "Towards Secure Systems of Interacting AI Agents" | Frames multi-agent security as distinct from securing isolated agents; highlights threats that emerge through direct interaction, shared environments, and institutions. | Research agenda, not a concrete handoff envelope, verifier, or benchmark artifact schema. | Supports the need for topology-aware handoff patterns and prevents overstating single-agent coverage. |
+| **Seven Security Challenges** (arXiv:2505.23847, Ko et al., 2025) — "Seven Security Challenges That Must be Solved in Cross-domain Multi-agent LLM Systems" | Maps cross-domain multi-agent risks, metrics, and research directions for agents cooperating across organizational boundaries. | Position paper; no runtime enforcement contract or deterministic verifier schema. | Source for cross-domain trust assumptions and evaluation-metric framing. |
+| **SEAgent** (arXiv:2601.11893, Ji et al., 2026) — "Taming Various Privilege Escalation in LLM-Based Agent Systems" | Mandatory access-control framing for LLM agents using ABAC and information-flow graphs; explicitly discusses multi-agent privilege escalation / confused-deputy style risk. | Focused on privilege escalation and tool interactions; no provenance-preserving handoff envelope or chain-of-custody artifact format. | Adjacent authority-control work; informs non-expansion checks for capability and delegation payloads. |
+| **Agent Access Control vision** (arXiv:2510.11108, Li et al., 2025) — "A Vision for Access Control in LLM-based Agent Systems" | Reframes access control as context-aware information-flow governance with adaptive responses such as redaction, summarization, and paraphrasing. | Vision/design paper, not a deployable inter-agent integrity verifier or benchmark pattern. | Useful conceptual support for receiver treatment, downgrade, and review-path semantics. |
 | **BlockA2A** (arXiv:2508.01332, Zou et al., 2025) — "Towards Secure and Verifiable Agent-to-Agent Interoperability" | Directly adjacent A2A trust work. Proposes DIDs, blockchain-anchored ledgers, smart contracts, and a Defense Orchestration Engine. | Proposed framework, not a widely adopted standard; blockchain-heavy design may be too heavyweight for lightweight handoff verification. | Directly adjacent work. Do not claim there is no research in this space. Lightweight envelope design may offer a complementary approach. |
 
 > We did not find a widely adopted standard that combines IFC labels, provenance,
@@ -160,8 +165,8 @@ This track should evaluate controls, not rely on model judgment alone:
 
 ## Typed handoff envelope
 
-> This section defines the contract for issues #33 and #32. It is design-only;
-> no code implementation exists yet.
+> This section defines the contract for issue #33 and informs the decision model in
+> issue #32. It is design-only; no code implementation exists yet.
 
 ### Core fields
 

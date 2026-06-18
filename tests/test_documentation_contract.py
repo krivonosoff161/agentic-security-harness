@@ -282,6 +282,31 @@ def test_public_showcase_checklist_is_linked_from_release_and_example_docs() -> 
     assert "Findings reduced: **17 -> 0**" not in comparison_readme
 
 
+def test_project_tracker_separates_open_and_completed_work() -> None:
+    tracker = _read("docs/project-tracker.md")
+    open_work = tracker.split("## Open work in this track", 1)[1].split(
+        "## Open maintenance work", 1
+    )[0]
+    completed = tracker.split("## Recently completed in this track", 1)[1]
+
+    for issue in ("#22", "#23", "#24", "#25"):
+        assert issue not in open_work
+        assert issue in completed
+    for issue in ("#19", "#20", "#21", "#30", "#31", "#32", "#33", "#34"):
+        assert issue in open_work
+    assert "#29" in tracker.split("## Open maintenance work", 1)[1]
+
+
+def test_handoff_source_map_uses_corrected_research_ids() -> None:
+    handoff = _read("docs/inter-agent-handoff-integrity.md")
+    for bad_id in ("2504.15437", "2503.20006", "2602.18793", "2502.04150"):
+        assert bad_id not in handoff
+    for corrected_id in ("2505.02077", "2505.23847", "2601.11893", "2510.11108"):
+        assert corrected_id in handoff
+    assert "SLSA v1.2" in handoff
+    assert "BlockA2A" in handoff
+
+
 def test_v1_readiness_matrix_is_linked_and_explicit_about_blockers() -> None:
     readiness = _read("docs/v1-readiness.md")
     release_checklist = _read("docs/release-checklist.md")
