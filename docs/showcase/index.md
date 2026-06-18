@@ -20,6 +20,7 @@ what the project currently proves.
 | Evidence | Status | Start here | What it proves | What it does not prove |
 |---|---|---|---|---|
 | Deterministic baseline/protected comparison | Validated example | [`examples/comparison-report/README.md`](../../examples/comparison-report/README.md) | The shipped synthetic corpus can produce a visible 22 -> 0 modeled-risk reduction between demo targets. | A real deployed agent is secure. |
+| Deterministic multi-agent handoff toy comparison | Local validated artifact | [`handoff-toy-topology.md`](../handoff-toy-topology.md) | The shipped local `toy-multi-agent` slice produces 2 modeled handoff findings, while `protected-toy-multi-agent` blocks the malformed handoffs under the same corpus. | Evidence about a live multi-agent framework, provider, or production handoff protocol. |
 | External fake-server run | Validated example | [`examples/external-demo-report/README.md`](../../examples/external-demo-report/README.md) | The experimental external artifact path can validate against a deterministic local fake OpenAI-compatible endpoint. | A real model/provider is safe. |
 | Local Prometheus/Ollama smoke | Local scratch only | [`local-prometheus-workflow.md`](../local-prometheus-workflow.md) | A weak local model can be exercised through the prompt-only external path; first smoke exposed evidence-quality/runtime limits. | Public benchmark finding; model leaderboard result. |
 
@@ -56,6 +57,18 @@ ash showcase --root reports --out docs/showcase/generated
 ```
 
 The generated files are a reviewer aid. JSON artifacts remain the source of truth.
+
+## Reproduce the local handoff toy comparison
+
+```bash
+ash compare --baseline toy-multi-agent --protected protected-toy-multi-agent --out reports/handoff-toy-comparison
+ash validate reports/handoff-toy-comparison
+```
+
+Expected current result: `toy-multi-agent` records 2 deterministic modeled findings
+(`data_boundary_handoff_label_stripping` and `capability.delegation_chain_drift`);
+`protected-toy-multi-agent` records 0 findings by blocking consumption of the malformed
+handoffs. This remains a local synthetic topology, not a live multi-agent runtime claim.
 
 ## Reproduce the low-memory local smoke
 

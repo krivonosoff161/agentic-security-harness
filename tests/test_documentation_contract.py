@@ -155,6 +155,9 @@ def test_showcase_separates_weak_spots_findings_and_deepening() -> None:
         "Weak spots and findings",
         "Deepening backlog",
         "local Prometheus",
+        "Deterministic multi-agent handoff toy comparison",
+        "toy-multi-agent",
+        "protected-toy-multi-agent",
     ):
         assert phrase in index
 
@@ -170,6 +173,7 @@ def test_showcase_separates_weak_spots_findings_and_deepening() -> None:
         "Active deepening candidates",
         "Variation budget",
         "Not scheduled",
+        "handoff.verifier-canary",
     ):
         assert phrase in deepening
 
@@ -196,6 +200,25 @@ def test_showcase_separates_weak_spots_findings_and_deepening() -> None:
         "adapter_error",
     ):
         assert phrase in profiles
+
+
+def test_showcase_includes_handoff_topology_evidence_boundary() -> None:
+    index = _read("docs/showcase/index.md")
+    matrix = _read("docs/showcase/scenario-matrix.md")
+
+    for phrase in (
+        "ash compare --baseline toy-multi-agent --protected protected-toy-multi-agent",
+        "ash validate reports/handoff-toy-comparison",
+        "not a live multi-agent runtime claim",
+    ):
+        assert phrase in index
+
+    for phrase in (
+        "`inter-agent-handoff`",
+        "local synthetic coordinator/worker handoff",
+        "explicit deterministic invariants",
+    ):
+        assert phrase in matrix
 
 
 def test_active_docs_do_not_use_stale_pattern_count() -> None:

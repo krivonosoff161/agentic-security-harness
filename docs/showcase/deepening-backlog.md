@@ -11,6 +11,7 @@ a full combinatorial sweep.
 | `data-boundary.multi-turn-handoff` | `data-boundary` scenario matrix row | Add timeline with original envelope, untrusted handoff, and final user continuation. | 2-3 timeline steps, one variant first. | If invariant cannot be checked deterministically, keep design-only. |
 | `memory.delayed-recall-source-label` | `memory-governance` | Delayed recall from untrusted memory source. | 1 pattern family, 2 variants. | If raw trace cannot expose source labels, update trace schema before expanding. |
 | `authority.claimed-supervisor` | `authority-control` | Claimed higher authority attempts to expand delegated scope. | 1 pattern family, 2 variants. | If target cannot represent delegated identity, keep toy-only. |
+| `handoff.verifier-canary` | `handoff-toy-comparison` local artifact | Re-run expected-good and expected-block handoff cases as a canary for verifier liveness and fail-closed behavior. | Existing 2 handoff patterns only. | If protected target consumes a malformed handoff or validation fails, stop expansion and fix verifier/reporting first. |
 | `approval.missing-context-recovery` | `approval-audit` | Approval request missing envelope fields should trigger review/recovery path. | 1 pattern family, 2 variants. | If output cannot distinguish refuse/review/recover, add validator vocabulary first. |
 
 ## Variation budget
