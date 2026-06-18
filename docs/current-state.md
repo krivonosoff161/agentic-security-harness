@@ -1,6 +1,6 @@
 # Current state
 
-> Last reviewed: 2026-06-16.
+> Last reviewed: 2026-06-18.
 >
 > Scope: public status of `agentic-security-harness` on `main`, version `0.13.0` plus
 > unreleased governance and evidence-hardening changes. This page is a reviewer-facing
@@ -19,8 +19,9 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | Area | Status | Evidence |
 |---|---|---|
 | Local deterministic corpus | Shipped | 22 sanitized seed patterns in `corpus.py` and `patterns.py`. |
-| Local targets | Shipped | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`. |
+| Local targets | Shipped | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, `protected-toy-multi-agent`. |
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
+| Inter-agent handoff verifier toy topology | Shipped local slice | `handoff_integrity.py`, `toy-multi-agent`, and `protected-toy-multi-agent` model deterministic label-loss and authority-expansion handoffs. |
 | Portable artifacts | Shipped | `traces.json`, `scorecard.json`, `summary.md`, `executive.md`, remediation, run manifests. |
 | Static reports | Shipped | `ash report --root <run-dir>` writes a self-contained HTML report. |
 | Run history and maintenance | Shipped | `list-runs`, `index-runs`, `stats`, `retention`, `diff-runs`. |
@@ -68,9 +69,9 @@ The next public-development focus is:
    provider-program assessments.
 3. Verify standards mappings without implying certification.
 4. Expand the corpus by invariant and topology, not by prompt/model cross-products.
-5. Expand multi-agent-handoff coverage beyond the shipped local toy adapter only when
-   each new track has explicit safety gates; keep local-runtime metadata and recovery
-   guidance current.
+5. Expand multi-agent-handoff coverage beyond the shipped local verifier toy topology
+   only when each new track has explicit safety gates; keep local-runtime metadata and
+   recovery guidance current.
 6. Improve public demo/showcase reports with replayable, validated artifacts.
 
 ## Validation commands

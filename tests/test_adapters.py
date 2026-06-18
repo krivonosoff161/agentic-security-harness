@@ -17,6 +17,7 @@ def test_list_targets_returns_builtin_targets() -> None:
     assert "toy-rag" in ids
     assert "toy-tools" in ids
     assert "toy-multi-agent" in ids
+    assert "protected-toy-multi-agent" in ids
 
 
 def test_target_ids_matches_list() -> None:
@@ -58,6 +59,14 @@ def test_make_target_toy_multi_agent() -> None:
     type_, name, adapter = target.descriptor_fields()
     assert type_ == "toy_multi_agent"
     assert adapter == "toy-multi-agent"
+
+
+def test_make_target_protected_toy_multi_agent() -> None:
+    target = make_target("protected-toy-multi-agent")
+    assert target.name == "protected-toy-multi-agent"
+    type_, name, adapter = target.descriptor_fields()
+    assert type_ == "protected_toy_multi_agent"
+    assert adapter == "protected-toy-multi-agent"
 
 
 def test_make_target_unknown_raises_key_error() -> None:

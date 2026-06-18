@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 #   protected -> controlled demo target; MUST PASS every pattern.
 #   neutral   -> any other adapter (toy / arbitrary system under test); findings are
 #                optional, but any finding must still be corpus-consistent.
-_PROTECTED_TYPES = {"protected_demo_agent"}
+_PROTECTED_TYPES = {"protected_demo_agent", "protected_toy_multi_agent"}
 _BASELINE_TYPES = {"mock_agent", "demo_agent"}
 
 # Conservative, format-anchored markers. The left look-behind keeps "risk-reduction" and

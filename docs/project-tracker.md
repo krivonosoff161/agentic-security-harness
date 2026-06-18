@@ -23,8 +23,6 @@ design-led inter-agent handoff integrity track.
 | [#19 feature: local Prometheus suite](https://github.com/krivonosoff161/agentic-security-harness/issues/19) | Local runtime | Real local model-in-loop smoke run through Ollama/OpenAI-compatible runtime, with strict caps and validated artifacts. |
 | [#20 feature: scenario timeline](https://github.com/krivonosoff161/agentic-security-harness/issues/20) | Corpus / multi-turn | Multi-turn, delayed-trigger, context-overload, and handoff scenarios described as timelines with invariants and validators. |
 | [#21 feature: trace replay and failure cards](https://github.com/krivonosoff161/agentic-security-harness/issues/21) | Reports | Human-readable failure cards generated from trace artifacts, not hand-written marketing summaries. |
-| [#30 research: design inter-agent handoff integrity contract](https://github.com/krivonosoff161/agentic-security-harness/issues/30) | Multi-agent / research | Minimal contract for provenance-preserving worker-to-senior handoffs before code lands. |
-| [#34 feature: add deterministic toy topology for handoff integrity](https://github.com/krivonosoff161/agentic-security-harness/issues/34) | Multi-agent / corpus | First synthetic senior/worker topology lands only after the design contract and scoring model are reviewed. |
 
 ## Open maintenance work
 
@@ -43,16 +41,17 @@ design-led inter-agent handoff integrity track.
 | [#31 docs: correct inter-agent handoff research source map](https://github.com/krivonosoff161/agentic-security-harness/issues/31) | Standards / research | Broken citations fixed; adjacent work acknowledged; shipped-vs-planned claims kept conservative. |
 | [#32 research: formalize handoff verifier decisions and risk scoring](https://github.com/krivonosoff161/agentic-security-harness/issues/32) | Multi-agent / reports | Deterministic blocker verdicts are separated from normalized severity scoring. |
 | [#33 research: define minimal typed handoff envelope](https://github.com/krivonosoff161/agentic-security-harness/issues/33) | Multi-agent / recovery | Envelope fields and payload-type requirements are explicit before fixtures/tests are added. |
+| [#30 research: design inter-agent handoff integrity contract](https://github.com/krivonosoff161/agentic-security-harness/issues/30) | Multi-agent / research | Design contract, claim boundary, failure classes, verifier outcomes, and staged work order are documented. |
+| [#34 feature: add deterministic toy topology for handoff integrity](https://github.com/krivonosoff161/agentic-security-harness/issues/34) | Multi-agent / corpus | Local synthetic verifier topology ships vulnerable/protected handoff traces for label loss and authority expansion. |
 
 Supporting docs:
 
 - [metric-contract.md](metric-contract.md) defines how traffic, benchmark, runtime, and
   process metrics should be read.
 - [inter-agent-handoff-integrity.md](inter-agent-handoff-integrity.md) defines the
-  design-first track for provenance-preserving worker-to-senior agent handoffs. It is
-  planned work, not shipped benchmark coverage. Issues #30-#34 split the work into
-  source correction, contract design, scoring semantics, envelope design, and a later
-  deterministic toy topology.
+  design-first track for provenance-preserving worker-to-senior agent handoffs.
+- [handoff-toy-topology.md](handoff-toy-topology.md) documents the first shipped local
+  synthetic verifier topology for malformed summary and capability handoffs.
 - [local-prometheus-workflow.md](local-prometheus-workflow.md) defines the low-memory
   Ollama smoke workflow for real local model probes.
 - [local-model-profiles.md](local-model-profiles.md) records hardware-safe local model

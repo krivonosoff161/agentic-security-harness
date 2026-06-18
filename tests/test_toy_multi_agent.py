@@ -27,6 +27,14 @@ def test_toy_multi_agent_partial_coverage() -> None:
     assert len([trace for trace in traces if not trace.findings]) == 20
 
 
+def test_protected_toy_multi_agent_blocks_handoff_failures() -> None:
+    traces = HarnessRunner(make_target("protected-toy-multi-agent")).run_many(seed_patterns())
+    failed = [trace.pattern_id for trace in traces if trace.findings]
+
+    assert failed == []
+    assert len([trace for trace in traces if not trace.findings]) == 22
+
+
 def test_toy_multi_agent_handoff_trace_has_before_after_envelope() -> None:
     target = make_target("toy-multi-agent")
     trace = HarnessRunner(target).run(_pattern("data_boundary_handoff_label_stripping"))
@@ -41,8 +49,25 @@ def test_toy_multi_agent_handoff_trace_has_before_after_envelope() -> None:
     assert "after_handoff envelope=missing" in blob
     assert "chain_of_custody=coordinator->worker" in blob
     assert "provenance_decision=missing_source_labels" in blob
+    assert "verdict=blocked" in blob
+    assert "failure_reasons=missing_provenance,label_loss" in blob
+    assert "S_combined=1.00" in blob
     assert "authority_decision=overtrusted_unrestricted" in blob
+    assert "consumed malformed summary as trusted fact" in blob
     assert "labels/provenance" in blob
+
+
+def test_protected_toy_multi_agent_handoff_trace_blocks_consumption() -> None:
+    target = make_target("protected-toy-multi-agent")
+    trace = HarnessRunner(target).run(_pattern("data_boundary_handoff_label_stripping"))
+
+    assert trace.target.type == "protected_toy_multi_agent"
+    assert not trace.findings
+    blob = _observed_blob(trace)
+    assert "verdict=blocked" in blob
+    assert "trusted_fact_consumed=false" in blob
+    assert "S_structural=1.00" in blob
+    assert "S_semantic=0.00" in blob
 
 
 def test_toy_multi_agent_capability_trace_has_authority_drift() -> None:
@@ -57,8 +82,20 @@ def test_toy_multi_agent_capability_trace_has_authority_drift() -> None:
     assert "before_handoff capability=issuer:agent_a" in blob
     assert "after_handoff capability=issuer_chain:missing" in blob
     assert "authority_decision=expanded_scope" in blob
-    assert "provenance_decision=issuer_chain_missing" in blob
+    assert "failure_reasons=authority_expansion" in blob
+    assert "verdict=blocked" in blob
     assert "broader capability" in blob
+
+
+def test_protected_toy_multi_agent_capability_trace_blocks_authority() -> None:
+    target = make_target("protected-toy-multi-agent")
+    trace = HarnessRunner(target).run(_pattern("capability.delegation_chain_drift"))
+
+    assert not trace.findings
+    blob = _observed_blob(trace)
+    assert "verdict=blocked" in blob
+    assert "failure_reasons=authority_expansion" in blob
+    assert "trusted_authority_consumed=false" in blob
 
 
 def test_toy_multi_agent_neutral_pass_for_unrelated_pattern() -> None:
@@ -76,7 +113,7 @@ def test_toy_multi_agent_metadata_is_local_and_reproducible() -> None:
     trace = HarnessRunner(target).run(_pattern("data_boundary_handoff_label_stripping"))
 
     assert trace.reproducibility["adapter_name"] == "toy-multi-agent"
-    assert trace.reproducibility["adapter_version"] == "0.1"
+    assert trace.reproducibility["adapter_version"] == "0.2"
     assert trace.reproducibility["runtime_name"] == "toy-coordinator-worker"
     assert trace.reproducibility["memory_mode"] == "session"
     assert trace.reproducibility["permission_model"] == "capability-token"

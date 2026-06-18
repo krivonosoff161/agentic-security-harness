@@ -289,10 +289,10 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
     )[0]
     completed = tracker.split("## Recently completed in this track", 1)[1]
 
-    for issue in ("#22", "#23", "#24", "#25", "#31", "#32", "#33"):
+    for issue in ("#22", "#23", "#24", "#25", "#30", "#31", "#32", "#33", "#34"):
         assert issue not in open_work
         assert issue in completed
-    for issue in ("#19", "#20", "#21", "#30", "#34"):
+    for issue in ("#19", "#20", "#21"):
         assert issue in open_work
     assert "#29" in tracker.split("## Open maintenance work", 1)[1]
 
@@ -305,6 +305,27 @@ def test_handoff_source_map_uses_corrected_research_ids() -> None:
         assert corrected_id in handoff
     assert "SLSA v1.2" in handoff
     assert "BlockA2A" in handoff
+
+
+def test_handoff_toy_topology_documents_verifier_math_and_claim_boundary() -> None:
+    readme = _read("README.md")
+    tracker = _read("docs/project-tracker.md")
+    handoff = _read("docs/inter-agent-handoff-integrity.md")
+    topology = _read("docs/handoff-toy-topology.md")
+
+    assert "docs/handoff-toy-topology.md" in readme
+    assert "handoff-toy-topology.md" in tracker
+    assert "handoff-toy-topology.md" in handoff
+    for phrase in (
+        "payload_hash = SHA-256(JSON-canonical(payload))",
+        "S_structural = 1.0",
+        "S_semantic = n_unsafe / n_consumptions",
+        "S_combined = 0.7",
+        "toy-multi-agent",
+        "protected-toy-multi-agent",
+        "This is not evidence about a live multi-agent runtime.",
+    ):
+        assert phrase in topology
 
 
 def test_v1_readiness_matrix_is_linked_and_explicit_about_blockers() -> None:

@@ -1,13 +1,13 @@
 # Inter-agent handoff integrity
 
-> Status: design track. This is not shipped benchmark coverage yet.
+> Status: design track plus first local synthetic topology. This is not live
+> multi-agent runtime proof.
 >
 > Scope: defensive-only modeling of how agentic systems should preserve provenance,
 > integrity, authority, and recovery metadata when data moves between agents.
 >
 > Last reviewed: 2026-06-18. The design gates for issues #31, #32, and #33 are
-> documented here. Implementation remains planned work; the next code-bearing gate is
-> issue #34.
+> documented here. Issue #34 adds the first deterministic code-bearing toy topology.
 
 ## Problem statement
 
@@ -166,7 +166,8 @@ This track should evaluate controls, not rely on model judgment alone:
 ## Typed handoff envelope
 
 > This section defines the contract for issue #33 and informs the decision model in
-> issue #32. It is design-only; no code implementation exists yet.
+> issue #32. The first implementation slice is intentionally smaller than the full
+> envelope and lives in `handoff_integrity.py`.
 
 ### Core fields
 
@@ -467,7 +468,7 @@ Do not implement all of this at once. Each stage has a visible exit gate.
 | 1. Source/claim correction | Keep the research map, citations, and white-space claim accurate. | No broken citations; adjacent work is acknowledged without overstating it. | #31 |
 | 2. Contract design | Define a minimal handoff envelope and expected verifier outcomes. | Contract has tests for schema validity and claim boundaries. | #33 |
 | 3. Decision/scoring design | Define blocker verdicts separately from normalized severity scoring. | All scenario calculations are reproducible from one metrics table. | #32 |
-| 4. Deterministic toy topology | Add a synthetic senior/worker topology with vulnerable and protected behavior. | Vulnerable path accepts unverified handoff; protected path blocks or reviews. | #34 |
+| 4. Deterministic toy topology | Add a synthetic senior/worker topology with vulnerable and protected behavior. | Initial local slice: vulnerable path accepts malformed handoff; protected path blocks it. | #34 |
 | 5. Evidence artifacts | Write trace/report artifacts for handoff pass/block/review outcomes. | `ash validate` accepts the generated artifacts. | - |
 | 6. Canary operations | Add daily/canary-style local checks as an operator pattern. | Report shows verifier alive, expected pass, expected block, and recovery guidance. | - |
 | 7. Local model probe | Optional weak local model participant under strict request caps. | Local model output is classified as pass/finding/inconclusive/error without overclaiming. | - |
@@ -497,6 +498,9 @@ A handoff-integrity pattern is not done until it has:
 6. remediation/control family;
 7. recovery path;
 8. documentation that says whether it is shipped, experimental, or planned.
+
+The first shipped local slice is documented in
+[handoff-toy-topology.md](handoff-toy-topology.md).
 
 ## Claim boundary
 

@@ -42,6 +42,8 @@ Read by role:
   [scenario matrix](docs/showcase/scenario-matrix.md), and
   [weak spots/findings ledger](docs/showcase/weak-spots-and-findings.md).
 - Scenario designer: [Scenario timeline contract](docs/scenario-timeline.md).
+- Multi-agent handoff reviewer: [Inter-agent handoff integrity](docs/inter-agent-handoff-integrity.md)
+  and [deterministic handoff toy topology](docs/handoff-toy-topology.md).
 - Local model reviewer: [Local Prometheus workflow](docs/local-prometheus-workflow.md),
   [Local model profiles](docs/local-model-profiles.md), and [Metrics contract](docs/metric-contract.md).
 - Safety reviewer: [Research rules](docs/research-rules.md), [Authorized testing paths](docs/authorized-testing-paths.md),

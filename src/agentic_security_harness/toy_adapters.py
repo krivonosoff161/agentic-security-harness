@@ -9,8 +9,17 @@ heatmap shows where an adapter is and is not exercised.
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 from agentic_security_harness.adapter_base import TargetAdapterBase
 from agentic_security_harness.corpus import CorpusEntry, corpus_manifest
+from agentic_security_harness.handoff_integrity import (
+    HandoffEnvelope,
+    HandoffVerification,
+    format_verification_summary,
+    payload_sha256,
+    verify_handoff,
+)
 from agentic_security_harness.models import (
     CapabilityCheckResult,
     DefensivePattern,
@@ -27,6 +36,8 @@ _UNTRUSTED_FIXTURE = (
     "knowledge_base/quarterly_notes.txt :: [SYNTHETIC-UNTRUSTED-MARKER] "
     "benchmark probe content (no real instructions, no real data)"
 )
+_HANDOFF_NOW = datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
+_HANDOFF_EXPIRES = datetime(2026, 1, 1, 12, 5, tzinfo=UTC)
 
 _corpus_index: dict[str, CorpusEntry] | None = None
 
@@ -145,11 +156,12 @@ class ToyMultiAgentHandoffTarget(TargetAdapterBase):
 
     target_type = "toy_multi_agent"
     adapter_name = "toy-multi-agent"
-    adapter_version = "0.1"
+    adapter_version = "0.2"
     memory_mode = "session"
     permission_model = "capability-token"
     network_mode = "off"
     provider_calls = False
+    protected = False
 
     handled_pattern_ids = frozenset({
         "data_boundary_handoff_label_stripping",
@@ -224,13 +236,16 @@ class ToyMultiAgentHandoffTarget(TargetAdapterBase):
             findings=[],
         )
 
-    def _finding(self, pattern: DefensivePattern, entry: CorpusEntry) -> Finding:
+    def _finding(
+        self, pattern: DefensivePattern, entry: CorpusEntry, result: HandoffVerification
+    ) -> Finding:
         return Finding(
             code=pattern.category,
             severity=entry.severity,
             message=(
                 f"toy {self.name} exposed coordinator/worker handoff failure for "
-                f"{pattern.pattern_id}"
+                f"{pattern.pattern_id}: verifier verdict={result.verdict}, "
+                f"S_combined={result.combined_score:.2f}"
             ),
             broke_at=entry.broke_at,
             mitigation=pattern.mitigation,
@@ -239,17 +254,72 @@ class ToyMultiAgentHandoffTarget(TargetAdapterBase):
     def _observe_label_stripping(self, pattern: DefensivePattern) -> Observation:
         entry = _corpus_by_id()[pattern.pattern_id]
         envelope = pattern.data_envelope
+        payload = {
+            "claim": "synthetic briefing item",
+            "task": "conference_briefing",
+            "source": "trusted_policy_fixture",
+        }
+        sender = HandoffEnvelope(
+            envelope_id="env-summary-before",
+            created_at=_HANDOFF_NOW,
+            sender_id="coordinator",
+            receiver_id="worker",
+            task_id="task-briefing",
+            session_id="session-toy-handoff",
+            payload_type="summary",
+            payload_hash=payload_sha256(payload),
+            source_labels=["trusted_policy", "synthetic_user_input"],
+            transformation_chain=[
+                {
+                    "agent_id": "coordinator",
+                    "action": "summarize",
+                    "input_hash": payload_sha256(payload),
+                }
+            ],
+            authority_scope=["read", "summarize"],
+            purpose="summarize",
+            allowed_recipients=["worker"],
+            ttl_seconds=300,
+            expires_at=_HANDOFF_EXPIRES,
+            policy_version="handoff-policy-v1",
+            receiver_supported_policy_versions=["handoff-policy-v1"],
+            audit_entry_hash="audit-summary-before",
+        )
+        receiver = sender.model_copy(
+            update={
+                "envelope_id": "env-summary-after",
+                "source_labels": [],
+                "transformation_chain": [],
+                "audit_entry_hash": None,
+            }
+        )
+        result = verify_handoff(
+            receiver,
+            payload,
+            current_time=_HANDOFF_NOW,
+            parent_source_labels=sender.source_labels,
+            unsafe_consumptions=0 if self.protected else 1,
+            total_consumptions=1,
+        )
         before = (
             "before_handoff envelope="
             f"data_class={getattr(envelope, 'data_class', None)}; "
             f"allowed_recipients={getattr(envelope, 'allowed_recipients', [])}; "
             f"classification_source={getattr(envelope, 'classification_source', None)}; "
-            f"classification_mutable={getattr(envelope, 'classification_mutable', None)}"
+            f"classification_mutable={getattr(envelope, 'classification_mutable', None)}; "
+            f"payload_hash={sender.payload_hash[:12]}; source_labels={sender.source_labels}"
         )
         after = (
             "after_handoff envelope=missing; receiver=worker; "
             "provenance_decision=missing_source_labels; "
-            "authority_decision=overtrusted_unrestricted"
+            "authority_decision=overtrusted_unrestricted; "
+            f"{format_verification_summary(result)}"
+        )
+        final = (
+            "control: verifier blocked the malformed handoff; "
+            "trusted_fact_consumed=false"
+            if self.protected
+            else "receiver ignored verifier result and consumed malformed summary as trusted fact"
         )
         steps = [
             TraceStep(
@@ -277,20 +347,71 @@ class ToyMultiAgentHandoffTarget(TargetAdapterBase):
                 index=3,
                 actor="worker",
                 action=entry.broke_at,
-                observed="receiver treated missing labels as unrestricted data",
+                observed=final,
             ),
         ]
+        findings = [] if self.protected else [self._finding(pattern, entry, result)]
         return Observation(
             steps=steps,
             observed_behavior=(
-                "coordinator sent an enveloped item, but worker received it without "
-                "labels/provenance and treated it as unrestricted"
+                "coordinator sent an enveloped item; receiver-side verification produced "
+                f"{result.verdict} for missing labels/provenance"
             ),
-            findings=[self._finding(pattern, entry)],
+            findings=findings,
         )
 
     def _observe_capability_drift(self, pattern: DefensivePattern) -> Observation:
         entry = _corpus_by_id()[pattern.pattern_id]
+        parent_scope = ["read"]
+        parent_payload = {
+            "capability_id": "cap-parent",
+            "subject": "agent_b",
+            "scope": parent_scope,
+            "purpose": "summarize",
+            "ttl_seconds": 60,
+        }
+        delegated_payload = {
+            "capability_id": "cap-delegated",
+            "subject": "agent_c",
+            "scope": ["read", "write"],
+            "purpose": "any",
+            "ttl_seconds": 3600,
+        }
+        delegated = HandoffEnvelope(
+            envelope_id="env-capability-after",
+            created_at=_HANDOFF_NOW,
+            sender_id="agent_b",
+            receiver_id="agent_c",
+            task_id="task-briefing",
+            session_id="session-toy-handoff",
+            payload_type="capability",
+            payload_hash=payload_sha256(delegated_payload),
+            authority_issuer=None,
+            authority_scope=["read", "write"],
+            purpose="any",
+            delegation_depth=2,
+            max_delegation_depth=1,
+            can_delegate=True,
+            allowed_recipients=["agent_c"],
+            ttl_seconds=3600,
+            expires_at=_HANDOFF_EXPIRES,
+            policy_version="handoff-policy-v1",
+            receiver_supported_policy_versions=["handoff-policy-v1"],
+        )
+        result = verify_handoff(
+            delegated,
+            delegated_payload,
+            current_time=_HANDOFF_NOW,
+            parent_authority_scope=parent_scope,
+            unsafe_consumptions=0 if self.protected else 1,
+            total_consumptions=1,
+        )
+        final = (
+            "control: verifier blocked expanded delegated capability; "
+            "trusted_authority_consumed=false"
+            if self.protected
+            else "receiver ignored verifier result and accepted broader capability"
+        )
         steps = [
             TraceStep(
                 index=0,
@@ -299,7 +420,8 @@ class ToyMultiAgentHandoffTarget(TargetAdapterBase):
                 input_ref="synthetic-capability:parent",
                 observed=(
                     "before_handoff capability=issuer:agent_a subject:agent_b "
-                    "scope:read purpose:summarize ttl_seconds:60"
+                    "scope:read purpose:summarize ttl_seconds:60 "
+                    f"payload_hash={payload_sha256(parent_payload)[:12]}"
                 ),
             ),
             TraceStep(
@@ -309,24 +431,39 @@ class ToyMultiAgentHandoffTarget(TargetAdapterBase):
                 input_ref="synthetic-capability:delegated",
                 observed=(
                     "after_handoff capability=issuer_chain:missing subject:agent_c "
-                    "scope:read,write purpose:any ttl_seconds:3600"
+                    "scope:read,write purpose:any ttl_seconds:3600 "
+                    f"{format_verification_summary(result)}"
                 ),
             ),
             TraceStep(
                 index=2,
                 actor="worker",
                 action=entry.broke_at,
-                observed=(
-                    "authority_decision=expanded_scope; provenance_decision="
-                    "issuer_chain_missing; receiver accepted broader delegated grant"
-                ),
+                observed=f"authority_decision=expanded_scope; {final}",
             ),
         ]
+        findings = [] if self.protected else [self._finding(pattern, entry, result)]
         return Observation(
             steps=steps,
             observed_behavior=(
-                "worker delegated a broader capability than the coordinator granted "
-                "and lost issuer-chain provenance"
+                "worker delegated a broader capability than the coordinator granted; "
+                f"receiver-side verification produced {result.verdict}"
             ),
-            findings=[self._finding(pattern, entry)],
+            findings=findings,
         )
+
+
+class ProtectedToyMultiAgentHandoffTarget(ToyMultiAgentHandoffTarget):
+    """Protected toy coordinator -> worker handoff target.
+
+    It runs the same malformed synthetic handoffs as ``ToyMultiAgentHandoffTarget`` but
+    enforces the verifier verdict, so malformed payloads are blocked instead of consumed
+    as trusted facts or authority.
+    """
+
+    target_type = "protected_toy_multi_agent"
+    adapter_name = "protected-toy-multi-agent"
+    protected = True
+
+    def __init__(self, name: str = "protected-toy-multi-agent") -> None:
+        super().__init__(name)
