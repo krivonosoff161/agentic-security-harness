@@ -151,6 +151,8 @@ git diff --check
 
 Commit rules:
 
+- **All changes go through a branch and pull request.** Do not push directly to `main`.
+  `main` is the stable, release-facing branch.
 - one coherent logical change per commit
 - no unrelated cleanup bundled into feature work
 - no commit without owner approval

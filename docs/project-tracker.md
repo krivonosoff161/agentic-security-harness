@@ -52,6 +52,8 @@ Supporting docs:
   design-first track for provenance-preserving worker-to-senior agent handoffs.
 - [handoff-toy-topology.md](handoff-toy-topology.md) documents the first shipped local
   synthetic verifier topology for malformed summary and capability handoffs.
+- [research-claims.md](research-claims.md) tracks research claims from hypothesis
+  through validated evidence artifacts.
 - [local-prometheus-workflow.md](local-prometheus-workflow.md) defines the low-memory
   Ollama smoke workflow for real local model probes.
 - [local-model-profiles.md](local-model-profiles.md) records hardware-safe local model
