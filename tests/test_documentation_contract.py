@@ -411,6 +411,8 @@ def test_research_claims_registry_exists_and_has_required_structure() -> None:
     ):
         assert claim in claims
 
+    assert "docs/theory/data-boundary.md" in claims
+
 
 def test_research_claims_registry_status_definitions_are_unique() -> None:
     claims = _read("docs/research-claims.md")
@@ -496,6 +498,60 @@ def test_handoff_theory_links_claim_to_code_tests_evidence() -> None:
         assert link in theory
 
 
+def test_data_boundary_theory_separates_primary_adjacent_and_gaps() -> None:
+    theory = _read("docs/theory/data-boundary.md")
+
+    for section in (
+        "## 1. Claim",
+        "## 2. Formal Object",
+        "## 3. Boundary Invariants",
+        "## 4. Current Coverage",
+        "## 7. Coverage Gaps",
+        "## 8. Claim Table",
+        "## 10. Limits / Non-Claims",
+    ):
+        assert section in theory
+
+    for pattern in (
+        "data_boundary_recipient_confusion",
+        "data_boundary_classification_mutation",
+        "data_boundary_handoff_label_stripping",
+        "provider_boundary_leakage_sanitized",
+    ):
+        assert pattern in theory
+
+    for phrase in (
+        "Primary Data-Boundary Patterns",
+        "Adjacent Envelope-Field Patterns",
+        "individual patterns do not themselves prove the whole 22 -> 0 result",
+        "Memory write/read envelope drift",
+        "Missing envelope recovery",
+        "`planned`",
+    ):
+        assert phrase in theory
+
+
+def test_data_boundary_theory_does_not_overclaim_memory_or_production_security() -> None:
+    theory = _read("docs/theory/data-boundary.md")
+    claim_section = (
+        theory.split("## 1. Claim", 1)[1]
+        .split("This does not claim", 1)[0]
+        .lower()
+    )
+    limits_section = theory.split("## 10. Limits / Non-Claims", 1)[1].lower()
+
+    assert "deployed agent framework preserves labels" not in claim_section
+    assert "semantic truthfulness is solved" not in claim_section
+    assert "every possible boundary type is covered" not in claim_section
+
+    for phrase in (
+        "full memory write/read envelope preservation",
+        "missing-envelope recovery",
+        "complete formal security proof",
+    ):
+        assert phrase in limits_section
+
+
 def test_theory_readme_documents_public_private_boundary() -> None:
     readme = _read("docs/theory/README.md")
 
@@ -510,6 +566,7 @@ def test_theory_readme_documents_public_private_boundary() -> None:
         assert phrase in readme
 
     assert "handoff-integrity.md" in readme
+    assert "| `data-boundary.md` | Active |" in readme
 
 
 def test_project_tracker_links_research_claims_registry() -> None:
@@ -530,6 +587,7 @@ def test_no_mathematically_proven_overclaim_in_docs() -> None:
         "docs/inter-agent-handoff-integrity.md",
         "docs/handoff-toy-topology.md",
         "docs/theory/handoff-integrity.md",
+        "docs/theory/data-boundary.md",
     ):
         text = _read(path).lower()
         assert "mathematically proven" not in text, path
