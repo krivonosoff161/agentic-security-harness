@@ -370,3 +370,174 @@ def test_v1_readiness_matrix_is_linked_and_explicit_about_blockers() -> None:
 
     assert "v1-readiness.md" in release_checklist
     assert "docs/v1-readiness.md" in readme
+
+
+def test_research_claims_registry_exists_and_has_required_structure() -> None:
+    claims = _read("docs/research-claims.md")
+
+    for phrase in (
+        "hypothesis",
+        "formal_model_draft",
+        "executable_invariant",
+        "synthetic_validation",
+        "local_empirical",
+        "public_example",
+        "planned",
+        "superseded",
+    ):
+        assert phrase in claims
+
+    for column in (
+        "Claim",
+        "Boundary / topic",
+        "Status",
+        "Theory doc",
+        "Code mapping",
+        "Tests",
+        "Evidence artifacts",
+        "What this proves",
+        "What this does NOT prove",
+        "Next step",
+    ):
+        assert column in claims
+
+    for claim in (
+        "Data boundary / envelope preservation",
+        "Capability delegation / authority non-expansion",
+        "Audit hash-chain integrity",
+        "Memory governance / TTL / provenance",
+        "Inter-agent handoff integrity",
+        "Local Prometheus weak-model evidence quality",
+    ):
+        assert claim in claims
+
+
+def test_research_claims_registry_status_definitions_are_unique() -> None:
+    claims = _read("docs/research-claims.md")
+    definitions = claims.split("## Status definitions", 1)[1].split("## Claim registry", 1)[0]
+
+    statuses = (
+        "hypothesis",
+        "formal_model_draft",
+        "executable_invariant",
+        "synthetic_validation",
+        "local_empirical",
+        "public_example",
+        "planned",
+        "superseded",
+    )
+    for status in statuses:
+        assert f"`{status}`" in claims
+        assert definitions.count(f"| `{status}` |") == 1
+
+
+def test_research_claims_registry_uses_real_paths_and_public_example_boundary() -> None:
+    claims = _read("docs/research-claims.md")
+
+    for path in (
+        "src/agentic_security_harness/demo_agent.py",
+        "src/agentic_security_harness/protected_demo_agent.py",
+        "src/agentic_security_harness/external_runner.py",
+        "tests/test_external.py",
+        "tests/test_v07_patterns.py",
+    ):
+        assert path in claims
+
+    for stale_path in (
+        "demo-agent.py",
+        "protected-demo-agent.py",
+        "tests/test_external_runner.py",
+    ):
+        assert stale_path not in claims
+
+    public_definition = claims.split("| `public_example` |", 1)[1].split("|", 1)[0]
+    assert "reports/" not in public_definition
+    assert "examples/" in public_definition
+
+
+def test_handoff_theory_does_not_make_live_runtime_claim() -> None:
+    theory = _read("docs/theory/handoff-integrity.md")
+
+    expected = "Formal executable invariant prototype validated on deterministic synthetic topology"
+    assert expected in theory
+
+    non_claims_section = theory.split("## 10. Limits / non-claims", 1)[1]
+    allowed_in_non_claims = non_claims_section.lower()
+
+    claim_section = theory.split("## 1. Claim", 1)[1].split("## 2.", 1)[0].lower()
+    assert "prevents all handoff failures in production" not in claim_section
+    assert "complete multi-agent security solution" not in claim_section
+    assert "live multi-agent framework" not in claim_section
+
+    assert "prevents all handoff failures in production" in allowed_in_non_claims
+    assert "complete multi-agent security solution" in allowed_in_non_claims
+
+
+def test_handoff_theory_links_claim_to_code_tests_evidence() -> None:
+    theory = _read("docs/theory/handoff-integrity.md")
+
+    for section in (
+        "## 1. Claim",
+        "## 2. Formal objects",
+        "## 3. Invariants",
+        "## 7. Code mapping",
+        "## 8. Tests",
+        "## 9. Evidence",
+        "## 10. Limits / non-claims",
+    ):
+        assert section in theory
+
+    for link in (
+        "handoff_integrity.py",
+        "test_handoff_integrity.py",
+        "toy-multi-agent",
+        "protected-toy-multi-agent",
+    ):
+        assert link in theory
+
+
+def test_theory_readme_documents_public_private_boundary() -> None:
+    readme = _read("docs/theory/README.md")
+
+    for phrase in (
+        "Public (this directory)",
+        "Private / local only",
+        "Cleaned invariant statements",
+        "Scratch derivations",
+        "Claim boundaries",
+        "No theory doc may claim",
+    ):
+        assert phrase in readme
+
+    assert "handoff-integrity.md" in readme
+
+
+def test_project_tracker_links_research_claims_registry() -> None:
+    tracker = _read("docs/project-tracker.md")
+    assert "research-claims.md" in tracker
+
+
+def test_project_map_links_research_claims_and_theory() -> None:
+    project_map = _read("docs/project-map.md")
+    assert "research-claims.md" in project_map
+    assert "theory/" in project_map
+    assert "Research claims registry" in project_map
+    assert "Theory docs" in project_map
+
+
+def test_no_mathematically_proven_overclaim_in_docs() -> None:
+    for path in (
+        "docs/inter-agent-handoff-integrity.md",
+        "docs/handoff-toy-topology.md",
+        "docs/theory/handoff-integrity.md",
+    ):
+        text = _read(path).lower()
+        assert "mathematically proven" not in text, path
+        assert "mathematically secure" not in text, path
+        assert "provably secure" not in text, path
+
+    theory_readme = _read("docs/theory/README.md").lower()
+    assert "no theory doc may claim" in theory_readme
+    forbidden_section = theory_readme.split("no theory doc may claim", 1)[0]
+    assert "what does not belong" in forbidden_section
+    assert "mathematically proven" in theory_readme

@@ -56,6 +56,8 @@ If those six points hold, the benchmark is coherent.
 | CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `validate`, `report`, `showcase`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
 | Adapter contract | Rules and metadata models for future model/provider/runtime adapters. | [adapter-contract.md](adapter-contract.md), `models.py` |
 | Reporting design | How executive and technical reports should be shaped. | [reporting.md](reporting.md) |
+| Research claims registry | Status table tracking each research claim from hypothesis through evidence artifacts. | [research-claims.md](research-claims.md) |
+| Theory docs | Cleaned invariant statements, formal objects, and claim boundaries for research tracks. | [theory/](theory/) |
 
 ## Network model (important)
 
@@ -106,6 +108,7 @@ Start here by role:
 | Handoff/integrity designer | [Inter-agent handoff integrity](inter-agent-handoff-integrity.md), [Scenario investigation workflow](scenario-investigation-workflow.md) | Keep inter-agent provenance, integrity, recovery, and operations work design-led before code is added. |
 | Local model reviewer | [Local Prometheus workflow](local-prometheus-workflow.md), [Local model profiles](local-model-profiles.md), [Metrics contract](metric-contract.md), [Connect models](connect-models.md) | Run a weak local model safely and read inconclusive/error evidence correctly. |
 | Safety reviewer | [Research rules](research-rules.md), [Authorized testing paths](authorized-testing-paths.md), [Threat model](threat-model.md), [SECURITY](../SECURITY.md) | Confirm the project stays defensive, synthetic, and authorized. |
+| Research reviewer | [Research claims registry](research-claims.md), [Theory docs](theory/), [Research roadmap](research-roadmap.md) | Track research claim status, invariant maturity, and evidence artifacts. |
 | Release reviewer | [Release checklist](release-checklist.md), [Changelog](../CHANGELOG.md), [CI workflow](../.github/workflows/ci.yml) | Verify public packaging and quality gates. |
 
 If you still want the linear path:
@@ -131,7 +134,9 @@ If you still want the linear path:
    mitigations, and planned reference controls.
 13. [Corpus expansion plan](corpus-expansion-plan.md) - bounded backlog for future patterns.
 14. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
-15. [Roadmap](roadmap.md) - what is current, next, and future.
+15. [Research claims registry](research-claims.md) - status table for research claims from hypothesis through evidence.
+16. [Theory docs](theory/) - cleaned invariant statements and claim boundaries for research tracks.
+17. [Roadmap](roadmap.md) - what is current, next, and future.
 
 Then run:
 
