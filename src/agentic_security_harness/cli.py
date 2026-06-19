@@ -1222,8 +1222,8 @@ def _local_suite(
     result = validate_path(out_dir)
     if not result.ok:
         print(f"Validation FAILED for {redact_artifact_text(out_dir.as_posix())}:")
-        for e in result.errors[:10]:
-            print(f"  - {redact_artifact_text(e)}")
+        print(f"errors: {len(result.errors)}")
+        print("Use `ash validate --format json` for redacted machine-readable details.")
         return 1
     print(f"validated {out_dir.as_posix()} (artifact integrity only).")
     print(

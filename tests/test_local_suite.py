@@ -159,7 +159,7 @@ def test_execute_validation_failure_redacts_errors(
     printed = capsys.readouterr().out
     assert rc == 1
     assert secret not in printed
-    assert "sk-[REDACTED]" in printed
+    assert "Use `ash validate --format json`" in printed
 
 
 # --- weak-model classification contract (issue #19) ------------------------------------
