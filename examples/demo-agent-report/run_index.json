@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.1",
+  "run_id": "run_e6faffdab7",
+  "run_kind": "run",
+  "created_at": "2026-06-19T00:00:00Z",
+  "tool_version": "0.13.0",
+  "target": "demo-local-agent",
+  "model": "",
+  "scenario": "seed-corpus",
+  "variants": [],
+  "repeats": 1,
+  "outcomes": {
+    "failed": 22,
+    "passed": 0
+  },
+  "metadata": {},
+  "artifacts": [
+    "executive.md",
+    "remediation.json",
+    "remediation.md",
+    "scorecard.json",
+    "summary.md",
+    "traces.json"
+  ]
+}

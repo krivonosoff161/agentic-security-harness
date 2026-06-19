@@ -13,7 +13,7 @@ what the project currently proves.
 | [Deepening backlog](deepening-backlog.md) | Bounded follow-up variations selected from evidence, not a full cross-product. |
 | [Metrics contract](../metric-contract.md) | How to read traffic, benchmark, runtime, and process metrics. |
 | [Scenario investigation workflow](../scenario-investigation-workflow.md) | How scenarios become evidence and then deeper checks. |
-| Generated showcase | Produced by `ash showcase --root reports --out docs/showcase/generated`. |
+| [Generated failure cards](generated/failure-cards.md) | Artifact-driven failure/replay cards generated from a committed run (`ash showcase --root examples/demo-agent-report --out docs/showcase/generated`); every card links a trace reference. |
 
 ## Current public evidence
 
@@ -82,9 +82,9 @@ python -m agentic_security_harness.cli run-external `
   --max-requests 10 `
   --timeout 60 `
   --raw-response-limit 0 `
-  --out reports/local-prometheus-qwen15b-smoke
+  --out reports/local-prometheus-lowmem-smoke-qwen2.5-1.5b
 
-python -m agentic_security_harness.cli validate reports/local-prometheus-qwen15b-smoke
+python -m agentic_security_harness.cli validate reports/local-prometheus-lowmem-smoke-qwen2.5-1.5b
 ```
 
 ## Claim boundary
