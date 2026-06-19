@@ -1221,9 +1221,9 @@ def _local_suite(
 
     result = validate_path(out_dir)
     if not result.ok:
-        print(f"Validation FAILED for {out_dir.as_posix()}:")
+        print(f"Validation FAILED for {redact_artifact_text(out_dir.as_posix())}:")
         for e in result.errors[:10]:
-            print(f"  - {e}")
+            print(f"  - {redact_artifact_text(e)}")
         return 1
     print(f"validated {out_dir.as_posix()} (artifact integrity only).")
     print(

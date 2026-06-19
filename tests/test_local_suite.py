@@ -7,6 +7,7 @@ and the execute path is exercised through a mocked OpenAI-compatible transport.
 import json
 from collections.abc import Callable
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -139,6 +140,26 @@ def test_execute_with_showcase_generates_cards(tmp_path: Path) -> None:
     assert rc == 0
     showcase = out.parent / f"{out.name}-showcase"
     assert (showcase / "failure-cards.md").exists()
+
+
+def test_execute_validation_failure_redacts_errors(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    out = tmp_path / "control"
+    secret = "sk-ABCDEFGHIJ0123456789"
+    failed = SimpleNamespace(ok=False, errors=[f"raw value {secret} should not print"])
+    with (
+        patch("agentic_security_harness.cli._run_external", return_value=0),
+        patch("agentic_security_harness.validation.validate_path", return_value=failed),
+    ):
+        rc = cli.main([
+            "local-suite", "--profile", "fake-local-control", "--execute",
+            "--out", str(out),
+        ])
+    printed = capsys.readouterr().out
+    assert rc == 1
+    assert secret not in printed
+    assert "sk-[REDACTED]" in printed
 
 
 # --- weak-model classification contract (issue #19) ------------------------------------
