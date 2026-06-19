@@ -28,7 +28,7 @@ design-led inter-agent handoff integrity track.
 
 | Issue | Track | Exit focus |
 |---|---|---|
-| [#29 fix: clarify external run diff status labels](https://github.com/krivonosoff161/agentic-security-harness/issues/29) | Reports / maintenance | Run-diff labels make fixed/new/changed/unchanged status unambiguous for external runs. |
+| [#29 fix: clarify external run diff status labels](https://github.com/krivonosoff161/agentic-security-harness/issues/29) | Reports / maintenance | Run-diff labels split decisive `finding_fixed`/`new_finding`/`changed_status`/`unchanged_finding`/`stable_pass` from non-decisive `inconclusive_error_drift`/`stable_inconclusive`/`stable_error`, so an `error -> pass` external move is never reported as a security fix. |
 
 ## Recently completed in this track
 

@@ -47,6 +47,21 @@ Not current support:
 - benchmark-grade model leaderboard;
 - a claim that weak-model behavior generalizes to frontier models.
 
+## Bounded suite command
+
+The fastest safe path is the named, bounded suite (dry-run by default; only calls a model
+on `--execute`):
+
+```powershell
+python -m agentic_security_harness.cli local-suite --list
+python -m agentic_security_harness.cli local-suite --profile prometheus-lowmem-smoke            # dry-run
+python -m agentic_security_harness.cli local-suite --profile prometheus-lowmem-smoke --execute  # real run + validate
+```
+
+Profiles live in [`local_profiles.py`](../src/agentic_security_harness/local_profiles.py)
+and mirror the table in [local-model-profiles.md](local-model-profiles.md). The manual
+step-by-step flow below is the same run expanded.
+
 ## Smoke flow
 
 Run these from the repository root.
@@ -79,10 +94,10 @@ python -m agentic_security_harness.cli run-external `
   --max-requests 10 `
   --timeout 60 `
   --raw-response-limit 0 `
-  --out reports/local-prometheus-qwen15b-smoke
+  --out reports/local-prometheus-lowmem-smoke-qwen2.5-1.5b
 
 # 4) validate artifacts
-python -m agentic_security_harness.cli validate reports/local-prometheus-qwen15b-smoke
+python -m agentic_security_harness.cli validate reports/local-prometheus-lowmem-smoke-qwen2.5-1.5b
 ```
 
 Expected request count for this smoke flow: 4.

@@ -21,9 +21,32 @@ leaderboard target.
 | `prometheus-3b-experimental` | `qwen2.5:3b` or `llama3.2:3b` | one pattern or one variant only | 120s | 1 | Only if the machine remains responsive. |
 | `fake-local-control` | `fake-model` via bundled fake server | one scenario | 30s | 1 | Verify the external artifact path without model variability. |
 
-## Current recommendation
+## Bounded suite command
 
-Start with:
+These profiles are implemented as named, bounded configurations in
+[`local_profiles.py`](../src/agentic_security_harness/local_profiles.py) and run through one
+command. It is **dry-run by default** (no network, no files) and only calls a model on
+explicit `--execute`:
+
+```powershell
+# list the bounded profiles
+python -m agentic_security_harness.cli local-suite --list
+
+# preview (dry-run): estimate requests, no network, no files written
+python -m agentic_security_harness.cli local-suite --profile prometheus-lowmem-smoke
+
+# real local run, then auto-validate and generate failure cards
+python -m agentic_security_harness.cli local-suite --profile prometheus-lowmem-smoke --execute --showcase
+```
+
+The command resolves the profile's preset/model/scenario/repeats/timeout/request-cap,
+enforces the request cap before any call, writes artifacts to a derived `reports/local-...`
+path, validates them, and reports the weak-model classification
+(`stable_pass`/`inconclusive`/`adapter_error`). It never executes tools.
+
+## Manual equivalent
+
+The suite above is equivalent to:
 
 ```powershell
 python -m agentic_security_harness.cli run-external `
@@ -35,16 +58,9 @@ python -m agentic_security_harness.cli run-external `
   --max-requests 10 `
   --timeout 60 `
   --raw-response-limit 0 `
-  --out reports/local-prometheus-qwen15b-smoke
-```
+  --out reports/local-prometheus-lowmem-smoke-qwen2.5-1.5b
 
-Then:
-
-```powershell
-python -m agentic_security_harness.cli validate reports/local-prometheus-qwen15b-smoke
-python -m agentic_security_harness.cli showcase `
-  --root reports/local-prometheus-qwen15b-smoke `
-  --out reports/local-prometheus-qwen15b-showcase
+python -m agentic_security_harness.cli validate reports/local-prometheus-lowmem-smoke-qwen2.5-1.5b
 ```
 
 ## How to interpret weak local models

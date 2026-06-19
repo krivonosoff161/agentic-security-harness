@@ -7,6 +7,14 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Scenario timeline fixtures and validator contract for delayed activation, context
+  overload, and handoff provenance scenarios. These are synthetic design fixtures, not a
+  live multi-agent executor.
+- Generated showcase failure cards from the committed demo-agent report, with trace
+  references and non-claim language for reviewer-facing evidence.
+- `ash local-suite` for bounded local Prometheus/Ollama smoke profiles. The command is
+  dry-run by default, enforces request caps, and validates real local-run artifacts after
+  explicit `--execute`.
 - `docs/current-state.md`: reviewer-facing status snapshot that separates shipped,
   experimental, planned, active, and claim-boundary items.
 - `docs/authorized-testing-paths.md`: official/authorized use paths for synthetic local
@@ -57,6 +65,12 @@ All notable changes to this project are documented here. The format follows
   boundaries, and open v1.0 blockers.
 
 ### Changed
+- `run_diff.json` is now schema v0.2 with explicit decisive/non-decisive labels such as
+  `finding_fixed`, `new_finding`, and `inconclusive_error_drift`; v0.1 aliases and
+  validation support remain for compatibility.
+- Project tracker, project map, local Prometheus docs, and research claims now point to
+  the bounded local-suite workflow and clarify that weak local model evidence is
+  inconclusive/error unless the validated artifacts say otherwise.
 - `agentic-boundary-model.md` is now the canonical protection/boundary model catalog,
   including current coverage and missing situation families.
 - README, protocol, semantics, project map, roadmap, research roadmap, harness,
