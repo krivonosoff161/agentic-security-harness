@@ -17,12 +17,79 @@ from agentic_security_harness.html_report import detect_kind
 from agentic_security_harness.safe_io import write_text_artifact
 from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 
-# Any non-"pass" status is "finding-like" for diff purposes.
 _PASS = "pass"
+
+# Statuses that are neither a clean pass nor a confirmed finding. A weak/local model that
+# errors, times out, or contradicts itself produces these. They are *not* evidence that the
+# boundary held or broke, so a transition that touches one of them must never be reported as
+# a security fix or a new finding. (External runs surface "flaky"/"inconclusive"/"error";
+# the run/matrix kinds never emit them.)
+_NON_DECISIVE = {"flaky", "inconclusive", "error"}
+
+# Ordered change vocabulary. Two groups:
+#   decisive   - both sides are a clean pass or a confirmed finding;
+#   non-decisive - at least one side is inconclusive/error (no security conclusion);
+#   coverage   - the pattern is present on only one side.
+# Each label is unambiguous on its own so an external-run reviewer never has to guess
+# whether "fixed" meant "finding -> pass" or "error -> pass" (see issue #29).
+CHANGE_CLASSES: tuple[str, ...] = (
+    "finding_fixed",            # finding -> pass
+    "new_finding",              # pass -> finding
+    "changed_status",           # finding <-> finding, status or severity moved
+    "unchanged_finding",        # finding -> same finding
+    "stable_pass",              # pass -> pass
+    "inconclusive_error_drift",  # inconclusive/error on a side; not a fix or new finding
+    "stable_inconclusive",      # inconclusive/flaky -> same (still no conclusion)
+    "stable_error",             # error -> error
+    "only_left",                # pattern only in the left run
+    "only_right",               # pattern only in the right run
+)
+
+CHANGE_MEANINGS: dict[str, str] = {
+    "finding_fixed": "finding -> pass",
+    "new_finding": "pass -> finding",
+    "changed_status": "finding <-> finding, status/severity moved",
+    "unchanged_finding": "finding -> same finding",
+    "stable_pass": "pass -> pass",
+    "inconclusive_error_drift": "inconclusive/error on a side; not a fix or new finding",
+    "stable_inconclusive": "inconclusive/flaky -> same (no conclusion either side)",
+    "stable_error": "error -> error",
+    "only_left": "pattern only in the left run",
+    "only_right": "pattern only in the right run",
+}
+
+
+def _classify(
+    in_left: bool, in_right: bool, ls: str, rs: str, lsev: str, rsev: str
+) -> str:
+    """Map a per-pattern (left, right) status pair to one change label.
+
+    The decisive labels (finding_fixed/new_finding) are reserved for pass<->finding
+    transitions between two *decisive* statuses. Anything touching a non-decisive status
+    falls into the inconclusive/error group so it cannot be read as a security change.
+    """
+    if in_left and not in_right:
+        return "only_left"
+    if in_right and not in_left:
+        return "only_right"
+    if ls in _NON_DECISIVE or rs in _NON_DECISIVE:
+        if ls == rs:
+            return "stable_error" if ls == "error" else "stable_inconclusive"
+        return "inconclusive_error_drift"
+    l_pass, r_pass = ls == _PASS, rs == _PASS
+    if l_pass and r_pass:
+        return "stable_pass"
+    if l_pass and not r_pass:
+        return "new_finding"
+    if not l_pass and r_pass:
+        return "finding_fixed"
+    if ls != rs or lsev != rsev:
+        return "changed_status"
+    return "unchanged_finding"
 
 
 class RunDiffEntry(BaseModel):
-    """One pattern's status on each side and how it changed."""
+    """One pattern's status on each side and how it changed (see ``CHANGE_CLASSES``)."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -32,7 +99,7 @@ class RunDiffEntry(BaseModel):
     right_status: str = ""
     left_severity: str = ""
     right_severity: str = ""
-    change: str  # fixed | new | changed | unchanged | only_left | only_right
+    change: str  # one of CHANGE_CLASSES
 
 
 class RunDiff(BaseModel):
@@ -46,16 +113,27 @@ class RunDiff(BaseModel):
     right_label: str
     left_summary: dict[str, str | int] = Field(default_factory=dict)
     right_summary: dict[str, str | int] = Field(default_factory=dict)
+    finding_fixed: int = 0
+    new_finding: int = 0
+    changed_status: int = 0
+    unchanged_finding: int = 0
+    stable_pass: int = 0
+    inconclusive_error_drift: int = 0
+    stable_inconclusive: int = 0
+    stable_error: int = 0
+    only_left: int = 0
+    only_right: int = 0
+    # Deprecated v0.1-compatible aliases. Kept in v0.2 so older consumers that read only
+    # the four coarse counters do not break while reviewers migrate to the explicit labels.
     fixed: int = 0
     new: int = 0
     changed: int = 0
     unchanged: int = 0
-    only_left: int = 0
-    only_right: int = 0
     entries: list[RunDiffEntry] = Field(default_factory=list)
     note: str = (
         "Artifact comparison only: what changed between two recorded runs. "
-        "Not a re-run and not a certification."
+        "inconclusive/error are not a pass and not a finding, so they never count as a "
+        "fix or a new finding. Not a re-run and not a certification."
     )
 
 
@@ -184,24 +262,12 @@ def diff_runs(left_dir: Path, right_dir: Path) -> RunDiff:
     right_out, right_summary = _outcomes(right_kind, right_dir)
 
     entries: list[RunDiffEntry] = []
-    counts = {"fixed": 0, "new": 0, "changed": 0, "unchanged": 0,
-              "only_left": 0, "only_right": 0}
+    counts = {c: 0 for c in CHANGE_CLASSES}
     for pid in sorted(set(left_out) | set(right_out)):
         in_left, in_right = pid in left_out, pid in right_out
         ls, lsev = left_out.get(pid, ("", ""))
         rs, rsev = right_out.get(pid, ("", ""))
-        if in_left and not in_right:
-            change = "only_left"
-        elif in_right and not in_left:
-            change = "only_right"
-        elif ls == _PASS and rs != _PASS:
-            change = "new"
-        elif ls != _PASS and rs == _PASS:
-            change = "fixed"
-        elif ls != rs or lsev != rsev:
-            change = "changed"
-        else:
-            change = "unchanged"
+        change = _classify(in_left, in_right, ls, rs, lsev, rsev)
         counts[change] += 1
         entries.append(RunDiffEntry(
             pattern_id=pid,
@@ -219,17 +285,34 @@ def diff_runs(left_dir: Path, right_dir: Path) -> RunDiff:
         right_label=_label(right_dir),
         left_summary=left_summary,
         right_summary=right_summary,
-        fixed=counts["fixed"],
-        new=counts["new"],
-        changed=counts["changed"],
-        unchanged=counts["unchanged"],
+        finding_fixed=counts["finding_fixed"],
+        new_finding=counts["new_finding"],
+        changed_status=counts["changed_status"],
+        unchanged_finding=counts["unchanged_finding"],
+        stable_pass=counts["stable_pass"],
+        inconclusive_error_drift=counts["inconclusive_error_drift"],
+        stable_inconclusive=counts["stable_inconclusive"],
+        stable_error=counts["stable_error"],
         only_left=counts["only_left"],
         only_right=counts["only_right"],
+        fixed=counts["finding_fixed"],
+        new=counts["new_finding"],
+        changed=counts["changed_status"] + counts["inconclusive_error_drift"],
+        unchanged=(
+            counts["unchanged_finding"] + counts["stable_pass"]
+            + counts["stable_inconclusive"] + counts["stable_error"]
+        ),
         entries=entries,
     )
 
 
+# Changes worth listing per-pattern: real security movement plus inconclusive/error drift
+# (the case issue #29 cares about). The "stable_*" and "only_*" classes are summary-only.
+_NOTEWORTHY = ("finding_fixed", "new_finding", "changed_status", "inconclusive_error_drift")
+
+
 def _diff_md(diff: RunDiff) -> str:
+    counts = {c: getattr(diff, c) for c in CHANGE_CLASSES}
     lines = [
         "# Agentic Security Harness - run diff",
         "",
@@ -240,14 +323,15 @@ def _diff_md(diff: RunDiff) -> str:
         "",
         "## Summary",
         "",
-        "| Change | Count |",
-        "|---|---|",
-        f"| Fixed (finding -> pass) | {diff.fixed} |",
-        f"| New (pass -> finding) | {diff.new} |",
-        f"| Changed (status/severity) | {diff.changed} |",
-        f"| Unchanged | {diff.unchanged} |",
-        f"| Only on left | {diff.only_left} |",
-        f"| Only on right | {diff.only_right} |",
+        "Decisive labels (`finding_fixed` / `new_finding`) describe `pass` <-> `finding` "
+        "moves only. `inconclusive` and `error` are not a pass and not a finding, so a side "
+        "that is inconclusive/error is reported as drift, never as a fix or a new finding.",
+        "",
+        "| Change | Meaning | Count |",
+        "|---|---|---|",
+    ]
+    lines += [f"| `{c}` | {CHANGE_MEANINGS[c]} | {counts[c]} |" for c in CHANGE_CLASSES]
+    lines += [
         "",
         "## Configuration",
         "",
@@ -259,7 +343,7 @@ def _diff_md(diff: RunDiff) -> str:
         lines.append(
             f"| {k} | {diff.left_summary.get(k, '')} | {diff.right_summary.get(k, '')} |"
         )
-    changed = [e for e in diff.entries if e.change in ("fixed", "new", "changed")]
+    changed = [e for e in diff.entries if e.change in _NOTEWORTHY]
     if changed:
         lines += ["", "## Changed patterns", "",
                   "| Pattern | Family | Left | Right | Change |",

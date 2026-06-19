@@ -25,6 +25,13 @@ ash report --root reports/diff      # static HTML
 ash validate reports/diff           # artifact integrity
 ```
 
+`run_diff.json` v0.2 writes the explicit labels below. For compatibility during the
+migration from v0.1, it also keeps deprecated coarse alias counters (`fixed`, `new`,
+`changed`, `unchanged`) and `ash validate` still accepts existing v0.1 diff artifacts.
+New readers should use the explicit labels. Consumers that parse per-entry `change`
+values must branch on `schema_version`: v0.1 artifacts use the coarse labels, while v0.2
+artifacts use the explicit labels below.
+
 ## Supported comparisons
 
 The two directories must be the **same kind**:
@@ -45,20 +52,40 @@ Kind is detected from the artifacts present (`traces.json` -> run, `matrix.json`
   names);
 - a configuration summary for each side (target / model / endpoint / scenario / repeats /
   request_count, as available);
-- per-pattern change classification:
-  - **fixed** - was a finding on the left, passes on the right;
-  - **new** - passed on the left, is a finding on the right;
-  - **changed** - finding-like on both sides but the status or severity changed;
-  - **unchanged** - same status (and severity);
-  - **only_left** / **only_right** - the pattern appears on only one side (e.g. different
-    scenarios);
+- per-pattern change classification (see the label table below);
 - counts for each change class, validated against the entries;
 - the control family for each changed pattern.
+
+## Change labels
+
+A pattern status is one of `pass`, `finding` (and `variant_sensitive` for matrix runs), or
+- for external runs only - the **non-decisive** statuses `flaky`, `inconclusive`, `error`.
+A non-decisive status is *not* a pass and *not* a finding: the model erred, timed out, or
+contradicted itself, so the boundary neither held nor broke. The labels keep that
+distinction explicit so an external-run reviewer never has to guess whether "fixed" meant
+`finding -> pass` or `error -> pass` (see issue #29).
+
+| Label | Meaning |
+|---|---|
+| `finding_fixed` | finding on the left, pass on the right |
+| `new_finding` | pass on the left, finding on the right |
+| `changed_status` | finding-like on both sides, but status or severity moved |
+| `unchanged_finding` | same finding (status and severity) on both sides |
+| `stable_pass` | pass on both sides |
+| `inconclusive_error_drift` | a side is `inconclusive`/`error` and it moved; **not** a fix or a new finding |
+| `stable_inconclusive` | `inconclusive`/`flaky` on both sides (still no conclusion) |
+| `stable_error` | `error` on both sides |
+| `only_left` / `only_right` | the pattern appears on only one side (e.g. different scenarios) |
+
+`finding_fixed` and `new_finding` are reserved for `pass <-> finding` moves between two
+decisive statuses. Any transition that touches `inconclusive`/`error` is reported as
+`inconclusive_error_drift`, so a weak local model that recovers from `error` to `pass` is
+never counted as a security improvement.
 
 ## What it is not
 
 A diff is an **artifact comparison**: it tells you what changed between two recorded runs.
 It does **not** re-run anything and is **not** a certification. For stochastic external
 runs, compare runs with the same scenario, variants, repeats, and temperature, and treat
-`flaky` / `inconclusive` differences as noise rather than improvement. See
-[benchmark-semantics.md](benchmark-semantics.md).
+`inconclusive_error_drift` / `stable_inconclusive` / `stable_error` as noise rather than
+improvement. See [benchmark-semantics.md](benchmark-semantics.md).

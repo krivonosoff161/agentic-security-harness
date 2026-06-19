@@ -487,6 +487,8 @@ def _render_external(run_dir: Path, manifest: dict | None) -> str:
 
 
 def _render_diff(run_dir: Path, manifest: dict | None) -> str:
+    from agentic_security_harness.run_diff import CHANGE_CLASSES, CHANGE_MEANINGS
+
     diff = _load(run_dir / "run_diff.json") or {}
     body = [f"<h1>Run diff - {_esc(diff.get('kind', ''))}</h1>"]
     body.append(
@@ -494,27 +496,44 @@ def _render_diff(run_dir: Path, manifest: dict | None) -> str:
         f"vs right <code>{_esc(diff.get('right_label', ''))}</code></p>"
     )
     body.append("<div class=\"note\">Artifact comparison only: what changed between two "
-                "recorded runs. Not a re-run and not a certification.</div>")
+                "recorded runs. inconclusive/error are not a pass and not a finding, so "
+                "they never count as a fix or a new finding. Not a re-run and not a "
+                "certification.</div>")
     body.append("<h2>Summary</h2>")
-    body.append(_table(
-        ["Change", "Count"],
-        [
-            ["Fixed (finding -> pass)", str(diff.get("fixed", 0))],
-            ["New (pass -> finding)", str(diff.get("new", 0))],
-            ["Changed (status/severity)", str(diff.get("changed", 0))],
-            ["Unchanged", str(diff.get("unchanged", 0))],
-            ["Only on left", str(diff.get("only_left", 0))],
-            ["Only on right", str(diff.get("only_right", 0))],
-        ],
-    ))
+    if diff.get("schema_version") == "0.1":
+        legacy_meanings = {
+            "fixed": "legacy: non-pass -> pass",
+            "new": "legacy: pass -> non-pass",
+            "changed": "legacy: status/severity moved",
+            "unchanged": "legacy: unchanged",
+            "only_left": "pattern only in the left run",
+            "only_right": "pattern only in the right run",
+        }
+        legacy_classes = ("fixed", "new", "changed", "unchanged", "only_left", "only_right")
+        body.append(_table(
+            ["Change", "Meaning", "Count"],
+            [[c, legacy_meanings[c], str(diff.get(c, 0))] for c in legacy_classes],
+        ))
+        noteworthy: tuple[str, ...] = ("fixed", "new", "changed")
+    else:
+        body.append(_table(
+            ["Change", "Meaning", "Count"],
+            [[c, CHANGE_MEANINGS[c], str(diff.get(c, 0))] for c in CHANGE_CLASSES],
+        ))
+        noteworthy = ("finding_fixed", "new_finding", "changed_status",
+                      "inconclusive_error_drift")
     changed = [e for e in diff.get("entries", [])
-               if e.get("change") in ("fixed", "new", "changed")]
+               if e.get("change") in noteworthy]
     if changed:
         body.append("<h2>Changed patterns</h2>")
         rows = []
         for e in changed:
-            cls = {"fixed": "pass", "new": "finding", "changed": "inconclusive"}.get(
-                e.get("change", ""), "")
+            cls = {
+                "finding_fixed": "pass",
+                "new_finding": "finding",
+                "changed_status": "inconclusive",
+                "inconclusive_error_drift": "inconclusive",
+            }.get(e.get("change", ""), "")
             rows.append([
                 f"<code>{_esc(e.get('pattern_id', ''))}</code>",
                 _esc(e.get("control_family", "")),
