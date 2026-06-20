@@ -57,9 +57,10 @@ def _parse_decision(raw_text: str) -> dict:
                 text = part
                 break
     try:
-        return json.loads(text)
+        parsed = json.loads(text)
     except json.JSONDecodeError:
         return {}
+    return parsed if isinstance(parsed, dict) else {}
 
 
 def _classify_outcome(parsed: dict) -> tuple[str, str]:
