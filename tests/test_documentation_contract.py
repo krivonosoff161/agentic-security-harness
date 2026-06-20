@@ -312,12 +312,28 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
     )[0]
     completed = tracker.split("## Recently completed in this track", 1)[1]
 
-    for issue in ("#22", "#23", "#24", "#25", "#30", "#31", "#32", "#33", "#34"):
+    for issue in (
+        "#21",
+        "#22",
+        "#23",
+        "#24",
+        "#25",
+        "#29",
+        "#30",
+        "#31",
+        "#32",
+        "#33",
+        "#34",
+    ):
         assert issue not in open_work
         assert issue in completed
-    for issue in ("#19", "#20", "#21"):
+    for issue in ("#19", "#20"):
         assert issue in open_work
-    assert "#29" in tracker.split("## Open maintenance work", 1)[1]
+    open_maintenance = tracker.split("## Open maintenance work", 1)[1].split(
+        "## Recently completed in this track", 1
+    )[0]
+    assert "#29" not in open_maintenance
+    assert "None currently tracked." in open_maintenance
 
 
 def test_handoff_source_map_uses_corrected_research_ids() -> None:

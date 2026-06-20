@@ -38,3 +38,6 @@ a full combinatorial sweep.
 3. Implement the first scenario timeline from [scenario-timeline.md](../scenario-timeline.md).
 4. Promote local Prometheus smoke from docs-only workflow to a small suite (#19).
 5. Add richer showcase generator views over JSON artifacts (#23).
+
+Items #25, #21, and #23 now have shipped slices; the remaining active sequence is the
+scenario timeline work (#20), then the bounded local Prometheus suite (#19).

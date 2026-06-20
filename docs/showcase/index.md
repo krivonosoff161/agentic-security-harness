@@ -40,7 +40,7 @@ validation: OK
 Interpretation: this is a weak-spot result, not a pass. The useful evidence is that the
 weak local model/runtime struggled with strict JSON verdict reliability and timeouts.
 The local report remains under `reports/` and is not committed as public evidence until
-the showcase generator and curation rules are implemented.
+the local runtime evidence is rerun, curated, and validated for public use.
 
 ## Reproduce the safe deterministic showcase
 
