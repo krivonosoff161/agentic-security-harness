@@ -3,6 +3,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from agentic_security_harness import cli
 from agentic_security_harness.adapters import make_target, target_ids
 from agentic_security_harness.corpus import corpus_manifest
@@ -15,6 +17,7 @@ def test_toy_adapters_registered() -> None:
     ids = target_ids()
     assert "toy-rag" in ids
     assert "toy-tools" in ids
+    assert "toy-multi-agent" in ids
 
 
 def test_toy_rag_partial_coverage() -> None:
@@ -22,7 +25,7 @@ def test_toy_rag_partial_coverage() -> None:
     failed = [t for t in traces if t.findings]
     passed = [t for t in traces if not t.findings]
     # RAG surface: data/memory/injection categories produce findings; rest PASS.
-    assert len(failed) == 10
+    assert len(failed) == 12
     assert len(passed) == 12
 
 
@@ -56,6 +59,12 @@ def test_cli_run_toy_rag_validates(tmp_path: Path) -> None:
     assert rc == 0
     result = validate_path(out)
     assert result.ok, result.errors
+
+
+def test_cli_targets_lists_toy_multi_agent(capsys: pytest.CaptureFixture[str]) -> None:
+    assert cli.main(["targets"]) == 0
+    out = capsys.readouterr().out
+    assert "toy-multi-agent" in out
 
 
 def test_neutral_pass_only_target_validates(tmp_path: Path) -> None:

@@ -143,7 +143,8 @@ def test_cli_compare_models_json(capsys, tmp_path: Path) -> None:  # type: ignor
 
     payload = json.loads(capsys.readouterr().out)
     assert payload["kind"] == "external"
-    assert payload["unchanged"] > 0
+    # external-demo-report is all pass -> compared with itself everything is stable_pass.
+    assert payload["stable_pass"] > 0
 
 
 def test_cli_compare_models_rejects_non_external(tmp_path: Path) -> None:

@@ -22,6 +22,8 @@ from agentic_security_harness.external_prompt import render_pattern_prompt
 from agentic_security_harness.external_runner import (
     _classify_outcome,
     _parse_decision,
+    _recovery_hint_for_error,
+    _recovery_hint_for_verdict,
     _result_id,
     run_external,
 )
@@ -95,20 +97,31 @@ def test_redact_url_bearer_token_style() -> None:
     assert "[REDACTED]" in result
 
 
-def test_run_config_never_stores_api_key() -> None:
+def test_run_config_never_stores_credential_value() -> None:
     config = RunConfig(
-        api_key_env="MY_API_KEY",
+        credential_env_var="MY_CREDENTIAL_ENV",
         model="test-model",
     )
     dump = config.model_dump(mode="json")
-    assert "MY_API_KEY" in dump["api_key_env"]
-    # Key value should never appear
+    assert "MY_CREDENTIAL_ENV" in dump["credential_env_var"]
+    assert "api_key_env" not in dump
+    # Credential value should never appear
     assert "secret" not in json.dumps(dump).lower()
+
+
+def test_run_config_accepts_legacy_api_key_env_field() -> None:
+    config = RunConfig.model_validate({
+        "api_key_env": "ASH_EXTERNAL_API_KEY",
+        "model": "test-model",
+    })
+    assert config.credential_env_var == "ASH_EXTERNAL_API_KEY"
 
 
 def test_run_config_safety_note() -> None:
     config = RunConfig()
     assert "experimental" in config.safety_note.lower()
+    assert config.runtime.prompt_only is True
+    assert config.runtime.tool_execution is False
 
 
 # --- external_openai_compatible tests ---
@@ -344,7 +357,7 @@ def test_run_external_dry_run(tmp_path: Path) -> None:
         out_dir=tmp_path / "ext",
         dry_run=True,
     )
-    assert summary.total_checks == 4
+    assert summary.total_checks == 6
     assert summary.total_repeats == 1
     # Dry run should not create output dir
     assert not (tmp_path / "ext").exists()
@@ -360,7 +373,7 @@ def test_run_external_dry_run_with_repeats(tmp_path: Path) -> None:
         max_variants=2,
         dry_run=True,
     )
-    assert summary.total_checks == 4 * 2  # 4 patterns x 2 variants
+    assert summary.total_checks == 6 * 2  # 6 patterns x 2 variants
     assert summary.total_repeats == 3
 
 
@@ -375,17 +388,25 @@ def test_run_external_mock_endpoint(tmp_path: Path) -> None:
             max_variants=1,
         )
 
-    assert summary.total_checks == 4
+    assert summary.total_checks == 6
     assert len(summary.patterns_with_findings) == 0
     assert (tmp_path / "ext" / "run_config.json").exists()
     assert (tmp_path / "ext" / "external_results.json").exists()
     assert (tmp_path / "ext" / "external_summary.json").exists()
     assert (tmp_path / "ext" / "external_report.md").exists()
     results = json.loads((tmp_path / "ext" / "external_results.json").read_text())
+    config = json.loads((tmp_path / "ext" / "run_config.json").read_text())
+    assert config["runtime"]["runtime_name"] == "local-openai-compatible"
+    assert config["runtime"]["network_mode"] == "local-only"
+    assert config["runtime"]["prompt_only"] is True
+    assert config["runtime"]["tool_execution"] is False
+    assert config["runtime"]["model_id"] == "test"
+    assert config["network_mode"] == "local-only"
     raw_path = tmp_path / "ext" / results[0]["raw_response_path"]
     assert raw_path.exists()
     assert results[0]["raw_response_sha256"]
     assert results[0]["assertion_result"] == "pass"
+    assert "recovery_hint" in results[0]
 
 
 def test_run_external_finding_result(tmp_path: Path) -> None:
@@ -406,7 +427,7 @@ def test_run_external_finding_result(tmp_path: Path) -> None:
             repeats=1,
         )
 
-    assert len(summary.patterns_with_findings) == 4
+    assert len(summary.patterns_with_findings) == 6
 
 
 def test_classify_outcome_allow_but_preserve_is_inconclusive() -> None:
@@ -458,7 +479,7 @@ def test_run_external_writes_request_count(tmp_path: Path) -> None:
         )
 
     config = json.loads((tmp_path / "ext" / "run_config.json").read_text())
-    assert config["request_count"] == 4  # 4 patterns x 1 variant x 1 repeat
+    assert config["request_count"] == 6  # 6 patterns x 1 variant x 1 repeat
 
 
 def test_run_external_raw_response_limit_keeps_full_raw_artifact(tmp_path: Path) -> None:
@@ -485,6 +506,58 @@ def test_run_external_raw_response_limit_keeps_full_raw_artifact(tmp_path: Path)
     assert len(raw_text) > 40
 
 
+def test_run_external_preset_writes_local_runtime_metadata(tmp_path: Path) -> None:
+    with patch("urllib.request.urlopen", side_effect=_mock_chat_open()):
+        run_external(
+            base_url="http://localhost:11434/v1",
+            model="llama3.1",
+            scenario_id="perception-boundary",
+            out_dir=tmp_path / "ext",
+            preset_name="ollama",
+        )
+
+    config = json.loads((tmp_path / "ext" / "run_config.json").read_text())
+    report = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
+    assert config["runtime"]["runtime_name"] == "ollama"
+    assert config["runtime"]["authorization_mode"] == "local_runtime"
+    assert config["runtime"]["local_only"] is True
+    assert config["runtime"]["model_license_note"]
+    assert config["runtime"]["recovery_guidance"]
+    assert "Runtime: `ollama`" in report
+    assert "Prompt-only: True" in report
+    assert "Tool execution: False" in report
+    assert "Local runtime execution does not remove model-license" in report
+
+
+def test_run_external_adapter_error_has_recovery_hint(tmp_path: Path) -> None:
+    with patch(
+        "urllib.request.urlopen",
+        side_effect=ExternalAPIError("HTTP 404 from local: model not found"),
+    ):
+        run_external(
+            base_url="http://localhost:11434/v1",
+            model="missing-model",
+            scenario_id="perception-boundary",
+            out_dir=tmp_path / "ext",
+            preset_name="ollama",
+        )
+
+    results = json.loads((tmp_path / "ext" / "external_results.json").read_text())
+    assert "pull or load the model" in results[0]["recovery_hint"]
+    report = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
+    assert "## Recovery guidance" in report
+
+
+def test_external_recovery_hints_cover_common_failures() -> None:
+    assert "Start Ollama" in _recovery_hint_for_error("connection refused")
+    assert "increase --timeout" in _recovery_hint_for_error("timeout")
+    assert "pull or load the model" in _recovery_hint_for_error("HTTP 404 model not found")
+    assert "chat completions" in _recovery_hint_for_error("Invalid JSON response")
+    assert "required JSON contract" in _recovery_hint_for_verdict(
+        "inconclusive", "no valid JSON response"
+    )
+
+
 def test_reproduce_command_includes_knobs_no_secret() -> None:
     from agentic_security_harness.external_runner import _reproduce_command_lines
     from agentic_security_harness.run_config import RunConfig
@@ -498,13 +571,13 @@ def test_reproduce_command_includes_knobs_no_secret() -> None:
         timeout_seconds=20,
         max_variants=2,
         selected_variants=["a", "b"],
-        api_key_env="ASH_EXTERNAL_API_KEY",
-        request_count=24,
+        credential_env_var="ASH_EXTERNAL_API_KEY",
+        request_count=30,
     )
     cmd = "\n".join(_reproduce_command_lines(cfg))
     for flag in ("--repeats 3", "--temperature 0.0", "--timeout 20", "--retries 1",
                  "--raw-response-limit 0",
-                 "--max-variants 2", "--api-key-env ASH_EXTERNAL_API_KEY",
+                 "--max-variants 2", "--credential-env ASH_EXTERNAL_API_KEY",
                  "--out reports/external-rerun"):
         assert flag in cmd, flag
     # Single variant -> --variant; large request_count -> --max-requests.
@@ -521,14 +594,15 @@ def test_external_report_reproduce_section_has_knobs(tmp_path: Path) -> None:
         run_external(
             base_url="http://localhost:8000/v1", model="demo-model",
             scenario_id="data-boundary", out_dir=tmp_path / "ext",
-            repeats=2, api_key_env="ASH_EXTERNAL_API_KEY",
+            repeats=2, credential_env_var="ASH_EXTERNAL_API_KEY",
         )
     report = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
     assert "## How to reproduce / validate" in report
     assert "--temperature" in report and "--timeout" in report
     assert "--raw-response-limit" in report
-    assert "--api-key-env ASH_EXTERNAL_API_KEY" in report
+    assert "--credential-env ASH_EXTERNAL_API_KEY" in report
     assert "run_config.json` is the authoritative" in report
+    assert "## Recovery guidance" in report
 
 
 def test_run_external_findings_control_family_and_recommendations(
@@ -552,7 +626,7 @@ def test_run_external_findings_control_family_and_recommendations(
         )
 
     # data-boundary patterns map to data_boundary + provider_boundary families.
-    assert summary.findings_by_control_family.get("data_boundary", 0) == 3
+    assert summary.findings_by_control_family.get("data_boundary", 0) == 5
     assert summary.findings_by_control_family.get("provider_boundary", 0) == 1
 
     report = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
@@ -572,7 +646,7 @@ def test_run_external_api_error(tmp_path: Path) -> None:
             repeats=1,
         )
 
-    assert len(summary.error_patterns) == 4
+    assert len(summary.error_patterns) == 6
 
 
 def test_stability_status_stable_pass(tmp_path: Path) -> None:
@@ -717,9 +791,13 @@ def test_cli_external_check_no_live_no_network(capsys: pytest.CaptureFixture[str
         mock_open.assert_not_called()
 
     out = capsys.readouterr().out
-    assert "Estimated requests: 16" in out
-    assert "Linux/macOS: export ASH_TEST_KEY_NOT_SET=your_key" in out
-    assert "PowerShell:  $env:ASH_TEST_KEY_NOT_SET='your_key'" in out
+    assert "Estimated requests: 24" in out
+    assert "Runtime: local-openai-compatible" in out
+    assert "Network mode: local-only" in out
+    assert "Prompt-only: yes; tool execution: no" in out
+    assert "Credential env var (ASH_TEST_KEY_NOT_SET): NOT SET" in out
+    assert "Set this environment variable in your shell before a live run." in out
+    assert "your_key" not in out
 
 
 def test_cli_external_check_live_success(capsys: pytest.CaptureFixture[str]) -> None:
@@ -789,7 +867,7 @@ def test_cli_run_external_exceeds_request_cap(
 ) -> None:
     from agentic_security_harness import cli
 
-    # 22 patterns x 4 variants x 1 repeat = 88 > default cap 50. The cap is
+    # 24 patterns x 4 variants x 1 repeat = 96 > default cap 50. The cap is
     # checked before any network call, even with --dry-run.
     with patch("urllib.request.urlopen") as mock_open:
         rc = cli.main([
@@ -821,7 +899,9 @@ def test_cli_run_external_dry_run_reports_no_files(
         assert rc == 0
         mock_open.assert_not_called()
     out = capsys.readouterr().out
-    assert "Estimated requests: 4" in out
+    assert "Estimated requests: 6" in out
+    assert "runtime: local-openai-compatible" in out
+    assert "network_mode: local-only" in out
     assert "No network call. No files written." in out
 
 

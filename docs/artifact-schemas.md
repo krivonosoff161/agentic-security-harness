@@ -22,12 +22,24 @@ registry compatibility, standards mapping, and forbidden marker scans.
 | `run_config.json` | `run_config` | 0.1 | `ash run-external` | `ash validate` |
 | `external_summary.json` | `external_summary` | 0.1 | `ash run-external` | `ash validate` |
 | `run_index.json` | `run_manifest` | 0.1 | every run (manifest) | `ash validate` |
-| `run_diff.json` | `run_diff` | 0.1 | `ash diff-runs` | `ash validate` |
+| `run_diff.json` | `run_diff` | 0.2 | `ash diff-runs` | `ash validate` |
+
+`run_diff` v0.2 replaces the ambiguous v0.1 coarse labels (`fixed`, `new`,
+`changed`, `unchanged`) with explicit decisive/non-decisive counters such as
+`finding_fixed`, `new_finding`, and `inconclusive_error_drift`. The writer still emits
+the v0.1 alias counters as deprecated optional fields, and `ash validate` accepts both
+v0.1 and v0.2 `run_diff.json` artifacts. This keeps old local reports readable while new
+reports stop treating `error -> pass` as a security fix.
+The same rule applies to `adapter_error -> pass` and other non-decisive external
+transitions.
 
 Non-versioned by design:
 
 - `external_results.json` - a bare list whose item schema is governed by the
   `external_summary` version; it is not separately versioned today.
+- `run_config.json` includes a `runtime` metadata block for new external runs
+  (`runtime_name`, `runtime_family`, `network_mode`, authorization mode, model id,
+  prompt-only/tool-execution flags, model license/policy note, and recovery guidance).
 - Markdown artifacts (`summary.md`, `executive.md`, `comparison.md`, `matrix.md`,
   `remediation.md`, `external_report.md`, `run_diff.md`) - human views; the JSON next to
   them is authoritative.

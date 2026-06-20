@@ -1,9 +1,10 @@
 """Machine-readable manifest for the implemented local defensive corpus.
 
-Curated metadata for the 22 deterministic seed patterns (see ``patterns.py``). Simple Python
+Curated metadata for the 24 deterministic seed patterns (see ``patterns.py``). Simple Python
 data structures only - no database, no YAML. Tests keep it in sync with the actual patterns
-and scorecards. OWASP Agentic mapping is intentionally coarse and defensive; OWASP LLM and
-MITRE ATLAS mappings remain empty until each ID is verified against primary sources.
+and scorecards. OWASP Agentic mapping is intentionally coarse and defensive; OWASP LLM,
+NIST AI RMF, and MITRE ATLAS mappings are maintained at category level in
+``standards_mapping.py`` so IDs can be verified against primary sources before publication.
 """
 
 from typing import Literal
@@ -36,8 +37,8 @@ class CorpusEntry(BaseModel):
     docs_reference: str = "docs/corpus.md"
     safe_research_note: str = _SAFE_NOTE
     owasp_agentic: list[str] = Field(default_factory=list)
-    owasp_llm: list[str] = Field(default_factory=list)  # TBD - not verified per pattern.
-    mitre_atlas: list[str] = Field(default_factory=list)  # TBD - not verified per pattern.
+    owasp_llm: list[str] = Field(default_factory=list)  # Deferred - not verified per pattern.
+    mitre_atlas: list[str] = Field(default_factory=list)  # Deferred - not verified per pattern.
 
 
 _CORPUS: list[CorpusEntry] = [
@@ -110,6 +111,36 @@ _CORPUS: list[CorpusEntry] = [
         data_boundary_fields_used=["can_forward", "data_class"],
         mitigation="enforce can_forward before provider routing; redact restricted data",
         owasp_agentic=["ASI03", "ASI04"],
+    ),
+    CorpusEntry(
+        pattern_id="data_boundary_missing_envelope_recovery",
+        name="Data boundary missing envelope recovery",
+        category="data_boundary",
+        severity="high",
+        broke_at="envelope_check",
+        data_boundary_fields_used=[],
+        mitigation="fail closed when a required DataEnvelope is absent at a boundary",
+        owasp_agentic=["ASI03", "ASI07"],
+    ),
+    CorpusEntry(
+        pattern_id="data_boundary_memory_envelope_drift",
+        name="Data boundary memory envelope drift",
+        category="data_boundary",
+        severity="high",
+        broke_at="envelope_drift_check",
+        data_boundary_fields_used=[
+            "data_class",
+            "allowed_recipients",
+            "allowed_purpose",
+            "can_forward",
+            "ttl_seconds",
+            "classification_source",
+        ],
+        mitigation=(
+            "bind envelopes to memory records; require read_envelope <= write_envelope "
+            "and enforce TTL from write time"
+        ),
+        owasp_agentic=["ASI03", "ASI06"],
     ),
     CorpusEntry(
         pattern_id="sleeping_prompt.delayed_activation",
@@ -313,7 +344,7 @@ _CORPUS: list[CorpusEntry] = [
 
 
 def corpus_manifest() -> list[CorpusEntry]:
-    """Return the curated corpus manifest (22 implemented patterns, stable order)."""
+    """Return the curated corpus manifest (24 implemented patterns, stable order)."""
     return list(_CORPUS)
 
 

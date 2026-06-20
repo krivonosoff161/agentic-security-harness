@@ -25,8 +25,8 @@ Attack chains here are documented as **defensive test patterns**. Every pattern 
 - documented with its **expected vulnerable behavior**;
 - documented with a **mitigation**;
 - prepared for standards references where applicable. The implemented corpus currently
-  includes coarse **OWASP Agentic Security Initiative** mappings; OWASP LLM and MITRE ATLAS
-  fields remain verification-gated.
+  includes coarse **OWASP Agentic Security Initiative** mappings plus category-level
+  OWASP LLM, NIST AI RMF, and verified MITRE ATLAS mappings where there is a direct fit.
 
 The harness contains **no real credential theft, no live exploitation, and no
 instructions for abusing third-party systems.** See [SECURITY.md](../SECURITY.md#responsible-use)
@@ -143,8 +143,9 @@ model chain, tool loop, memory loop, multi-agent handoff, provider boundary, or 
 path; see [evaluation-topologies.md](evaluation-topologies.md).
 
 Current shipped adapters are local and synthetic (`mock`, `demo-agent`,
-`protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`) plus the
-experimental OpenAI-compatible prompt-only external path. The shipped mode matrix is
+`protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`,
+`toy-multi-agent`) plus the experimental OpenAI-compatible prompt-only external path.
+The shipped mode matrix is
 [capability-matrix.md](capability-matrix.md); the formal future adapter contract is
 [adapter-contract.md](adapter-contract.md).
 
@@ -157,7 +158,7 @@ test.
 
 Each pattern is a **defensive test pattern** (sanitized, with expected vulnerable
 behavior + mitigation; coarse OWASP Agentic mapping is available in
-[corpus.md](corpus.md)). The **local demo corpus implements 22 deterministic, sanitized
+[corpus.md](corpus.md)). The **local demo corpus implements 24 deterministic, sanitized
 seed patterns** (run with `ash run` / `ash compare`), and committed artifacts are
 validated against the corpus manifest with `ash validate`. The corpus is defined in
 `src/agentic_security_harness/corpus.py`; the canonical current coverage matrix is

@@ -53,10 +53,10 @@ def test_doctor_api_key_value_never_printed(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv("ASH_DOCTOR_SECRET_ENV", "super-secret-value-123")
-    report = run_doctor(root=tmp_path, api_key_env="ASH_DOCTOR_SECRET_ENV")
+    report = run_doctor(root=tmp_path, credential_env_var="ASH_DOCTOR_SECRET_ENV")
     blob = json.dumps(report.model_dump(mode="json"))
     assert "super-secret-value-123" not in blob
-    key_check = next(c for c in report.checks if c.name == "api_key_env")
+    key_check = next(c for c in report.checks if c.name == "credential_env_var")
     assert "SET" in key_check.detail  # presence reported, value hidden
 
 
