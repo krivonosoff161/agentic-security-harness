@@ -38,7 +38,7 @@ ash retention  --root reports --keep-last 20         # dry-run cleanup plan
 | `target` | target label (or "vs" labels for compare) |
 | `model` | external model label, if any |
 | `scenario` | scenario id |
-| `outcomes` | JSON of outcome counts (e.g. `{"failed": 23, "passed": 0}`) |
+| `outcomes` | JSON of outcome counts (e.g. `{"failed": 24, "passed": 0}`) |
 | `manifest_path` | path to the run dir, relative to the scanned root |
 
 No trace contents, prompts, responses, or secrets are stored. `reports/` and `*.db` are

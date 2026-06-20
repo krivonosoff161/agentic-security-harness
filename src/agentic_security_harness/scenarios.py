@@ -54,6 +54,7 @@ _SCENARIOS: list[ScenarioTemplate] = [
             "data_boundary_handoff_label_stripping",
             "provider_boundary_leakage_sanitized",
             "data_boundary_missing_envelope_recovery",
+            "data_boundary_memory_envelope_drift",
         ],
         variants=[
             ScenarioVariant(
@@ -340,7 +341,7 @@ _SCENARIOS: list[ScenarioTemplate] = [
         scenario_id="all",
         title="All patterns",
         description="Every implemented seed pattern in the corpus "
-        "(23 patterns).",
+        "(24 patterns).",
         pattern_ids=[
             "indirect_prompt_injection_via_tool_output",
             "data_boundary_recipient_confusion",
@@ -350,6 +351,7 @@ _SCENARIOS: list[ScenarioTemplate] = [
             "tool_permission_abuse_sanitized",
             "provider_boundary_leakage_sanitized",
             "data_boundary_missing_envelope_recovery",
+            "data_boundary_memory_envelope_drift",
             "sleeping_prompt.delayed_activation",
             "audit.spam_label_abuse",
             "budget.loop_abuse",

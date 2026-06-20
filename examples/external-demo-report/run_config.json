@@ -16,7 +16,7 @@
   "selected_variants": [
     "base-envelope"
   ],
-  "request_count": 5,
+  "request_count": 6,
   "deterministic": false,
   "network_mode": "local-only",
   "credential_env_var": "",

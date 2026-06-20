@@ -4,19 +4,19 @@ Generated from recorded run artifacts. JSON artifacts remain the source of truth
 
 - Source root: `demo-agent-report`
 - Runs discovered: 1
-- Cards generated: 23
+- Cards generated: 24
 
 ## Run summary
 
 | Run | Kind | Scenario | Target/model | Outcomes |
 |---|---|---|---|---|
-| `run_e6faffdab7` | run | `seed-corpus` | `demo-local-agent` | failed=23, passed=0 |
+| `run_e6faffdab7` | run | `seed-corpus` | `demo-local-agent` | failed=24, passed=0 |
 
 ## Card counts
 
 | Type | Count |
 |---|---|
-| finding | 23 |
+| finding | 24 |
 
 ## Claim boundary
 

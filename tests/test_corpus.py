@@ -6,9 +6,9 @@ from agentic_security_harness.runner import HarnessRunner
 from agentic_security_harness.scorecard import build_scorecard
 
 
-def test_manifest_has_twenty_three_implemented_entries() -> None:
+def test_manifest_has_twenty_four_implemented_entries() -> None:
     manifest = corpus_manifest()
-    assert len(manifest) == 23
+    assert len(manifest) == 24
     assert all(entry.implemented for entry in manifest)
 
 

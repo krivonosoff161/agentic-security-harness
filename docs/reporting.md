@@ -55,10 +55,10 @@ A reviewer should see these first:
 Example:
 
 ```text
-Corpus: 23 local synthetic patterns
-Baseline: demo-agent, 23 findings
+Corpus: 24 local synthetic patterns
+Baseline: demo-agent, 24 findings
 Protected: protected-demo-agent, 0 findings
-Measured delta: 23 -> 0
+Measured delta: 24 -> 0
 Residual risk: local deterministic traces only; no real model/provider/runtime tested
 ```
 
@@ -120,7 +120,7 @@ fields before anything is committed to the public repository.
 
 Shipped already: the static HTML report with coverage heatmap, an adapter metadata block
 in `run_index.json`, and the category-level standards mapping. The remaining report-quality
-tasks should improve how the 23-pattern corpus is reviewed without changing the benchmark
+tasks should improve how the 24-pattern corpus is reviewed without changing the benchmark
 semantics.
 
 ## Remediation layer (v0.10)

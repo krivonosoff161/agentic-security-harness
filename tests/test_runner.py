@@ -19,6 +19,7 @@ SEED_ORDER = [
     "tool_permission_abuse_sanitized",
     "provider_boundary_leakage_sanitized",
     "data_boundary_missing_envelope_recovery",
+    "data_boundary_memory_envelope_drift",
     "sleeping_prompt.delayed_activation",
     "audit.spam_label_abuse",
     "budget.loop_abuse",

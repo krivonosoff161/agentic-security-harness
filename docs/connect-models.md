@@ -83,14 +83,14 @@ Scenario sizes (use these to estimate cost):
 
 | Scenario | Patterns | Default variants |
 |---|---|---|
-| `data-boundary` | 5 | 3 |
+| `data-boundary` | 6 | 3 |
 | `memory-governance` | 5 | 3 |
 | `tool-selection` | 3 | 3 |
 | `authority-control` | 2 | 2 |
 | `approval-audit` | 3 | 3 |
 | `budget-control` | 2 | 2 |
 | `perception-boundary` | 1 | 2 |
-| `all` | 23 | 4 |
+| `all` | 24 | 4 |
 
 `--max-variants 1` (the external default) keeps runs small. Run `ash scenarios --verbose`
 for the exact variant ids.

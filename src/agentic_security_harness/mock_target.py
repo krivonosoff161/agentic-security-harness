@@ -54,6 +54,11 @@ _OUTCOMES: dict[str, tuple[Severity, str, str]] = {
         "envelope_check",
         "mock target continued a boundary action without a required data envelope",
     ),
+    "data_boundary_memory_envelope_drift": (
+        "high",
+        "envelope_drift_check",
+        "mock target read a memory item with a weaker or expired data envelope",
+    ),
     "sleeping_prompt.delayed_activation": (
         "high",
         "provenance_check",

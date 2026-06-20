@@ -7,7 +7,7 @@
 
 ```mermaid
 flowchart LR
-    A["Target adapter\n(local synthetic)"] --> B["Pattern corpus\n(23 patterns)"]
+    A["Target adapter\n(local synthetic)"] --> B["Pattern corpus\n(24 patterns)"]
     B --> C["Trace generation\n(ExploitTrace per pattern)"]
     C --> D["Scorecard\n(aggregate from traces)"]
     C --> E["Executive report\n(top control families)"]
@@ -19,7 +19,7 @@ flowchart LR
 **What happens at each step:**
 
 1. **Target adapter** drives the agent through each pattern scenario.
-2. **Pattern corpus** provides 23 deterministic synthetic test patterns.
+2. **Pattern corpus** provides 24 deterministic synthetic test patterns.
 3. **Trace generation** produces one `ExploitTrace` per pattern - portable, machine-readable.
 4. **Scorecard** aggregates findings by severity, counts failed/passed patterns.
 5. **Executive report** summarizes scope, headline result, and top control families.
@@ -74,7 +74,7 @@ flowchart LR
 
 - **Baseline** - how many patterns failed, at which break points, with what severity.
 - **Protected** - how many patterns pass after controls are applied.
-- **Reduction** - the measured delta (e.g. "23 -> 0").
+- **Reduction** - the measured delta (e.g. "24 -> 0").
 - **Control priorities** - which control families the baseline findings indicate.
 
 ## Report artifact summary
@@ -131,7 +131,7 @@ pattern content yet.
 
 ### If you see all PASS
 
-1. The protected target passed all 23 patterns.
+1. The protected target passed all 24 patterns.
 2. This means the controls are working for the **deterministic synthetic scenarios** tested.
 3. It does **not** guarantee real-world protection - stochastic models, real providers,
    and production environments introduce additional risk.

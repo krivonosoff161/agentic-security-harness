@@ -16,7 +16,7 @@ findings. Do not merge these categories in public summaries.
 
 | ID | Source | Scenario | Status | Evidence | Public wording |
 |---|---|---|---|---|---|
-| `finding.demo_agent.full_corpus` | Deterministic demo target | `all` | validated-example | Baseline demo-agent produces modeled findings across the 23-pattern corpus; protected demo target reduces them to 0 in the comparison example. | "The synthetic vulnerable demo target fails the modeled corpus; the protected demo target passes the same modeled checks." |
+| `finding.demo_agent.full_corpus` | Deterministic demo target | `all` | validated-example | Baseline demo-agent produces modeled findings across the 24-pattern corpus; protected demo target reduces them to 0 in the comparison example. | "The synthetic vulnerable demo target fails the modeled corpus; the protected demo target passes the same modeled checks." |
 
 ## Current non-findings
 

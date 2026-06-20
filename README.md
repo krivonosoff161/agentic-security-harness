@@ -6,7 +6,7 @@
 
 | Surface | Current status | Evidence |
 |---|---|---|
-| Local benchmark core | Shipped | 23 deterministic seed patterns, local targets, traces, scorecards, remediation, validation. |
+| Local benchmark core | Shipped | 24 deterministic seed patterns, local targets, traces, scorecards, remediation, validation. |
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
 | Committed examples | Shipped | `examples/` plus `ash validate examples/`. |
 | CI / package checks | Shipped | `.github/workflows/ci.yml` runs tests, ruff, mypy, package build, and example validation. |
@@ -61,7 +61,7 @@ a target can be a local agent, a tool loop, a memory loop, a model chain, a mult
 handoff, or a future authorized runtime behind the same adapter contract.
 
 - **Trace-first** - every run is a portable, machine-readable failure trace, not just pass/fail.
-- **Agentic operating-environment boundary corpus** - 23 deterministic seed patterns for
+- **Agentic operating-environment boundary corpus** - 24 deterministic seed patterns for
   how sensitivity labels, recipients, storage, forwarding, audit, budget, delegated
   authority, tool schemas, perception boundaries, ambient authority, approval context,
   and memory governance break in agentic systems.
@@ -138,7 +138,7 @@ deterministic tests - honest residual risk. Full rules:
 
 ## Status
 
-**Pre-release, working.** The harness runs a **23-pattern local corpus centered on
+**Pre-release, working.** The harness runs a **24-pattern local corpus centered on
 agentic operating-environment boundary failures** - data-boundary, authority, perception,
 memory governance, approval, and audit integrity - against deterministic local targets,
 with baseline-vs-protected replay (see *What exists today*). Cross-app contamination,
@@ -167,7 +167,7 @@ See [docs/roadmap.md](docs/roadmap.md).
   mock tool calls, data-envelope propagation, recipient-control checks); intentionally
   vulnerable for the seed patterns. No network, no LLM.
 - **Protected demo agent (`protected-demo-agent`)** - the same agent with simple deterministic
-  controls; passes all twenty-three seed patterns. `ash compare` measures the reduction in findings.
+  controls; passes all twenty-four seed patterns. `ash compare` measures the reduction in findings.
 - **Runner** - `pattern -> target -> trace` (mock or demo-agent).
 - **Scorecard** - a deterministic aggregate derived from traces.
 - **Demo CLI (`ash`)** - `ash run --target {mock,demo-agent,protected-demo-agent}`,
@@ -216,7 +216,7 @@ only in the experimental `run-external` path and require an explicit command.
 
 | Area | Current release | Planned / future track |
 |---|---|---|
-| Benchmark | 23-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus via invariant-based expansion, mappings, report quality. |
+| Benchmark | 24-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus via invariant-based expansion, mappings, report quality. |
 | Targets | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, plus experimental OpenAI-compatible external model checks. | Native provider adapters and agent-host / tool-use adapters. |
 | Runtime | CLI-only (`run`, `compare`, `validate`, `targets`, `scenarios`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `list-runs`, `index-runs`, `stats`, `retention`, `report`, `doctor`). | Optional HTTP reference gateway and a web report viewer after the benchmark stabilizes. |
 | Network / providers | Off by default; `run-external` makes explicit OpenAI-compatible calls only when invoked without `--dry-run`. | More provider presets, config files, and verified local-runtime guides. |
@@ -475,7 +475,7 @@ reports/comparison/
 
 In the committed example
 ([`examples/comparison-report/comparison.md`](examples/comparison-report/comparison.md)) the
-baseline fails all 23 patterns (23 findings) and the protected agent passes all 23 (0 findings).
+baseline fails all 24 patterns (24 findings) and the protected agent passes all 24 (0 findings).
 
 > Educational and synthetic: risk reduction is measured from deterministic mock traces,
 > **not** a guarantee of real-world protection.
@@ -508,7 +508,7 @@ traces and deterministic baseline-vs-protected replay. Honest comparison:
 - **[Project map](docs/project-map.md)** - plain-language guide for reviewers and maintainers.
 - **[Use cases](docs/use-cases.md)** - how AI/security teams can evaluate and apply the benchmark.
 - **[Problem-solution catalog](docs/problem-solution-catalog.md)** - problem -> detection -> mitigation -> harness test -> reference control -> residual risk.
-- **[Corpus coverage matrix](docs/corpus.md)** - the 23 implemented seed patterns, baseline vs protected, and what each touches.
+- **[Corpus coverage matrix](docs/corpus.md)** - the 24 implemented seed patterns, baseline vs protected, and what each touches.
 - **[Research roadmap](docs/research-roadmap.md)** - cleaned intake map for future benchmark patterns.
 - **[Corpus expansion plan](docs/corpus-expansion-plan.md)** - invariant-based backlog for
   future patterns without combinatorial explosion.

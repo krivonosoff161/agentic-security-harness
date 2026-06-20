@@ -7,7 +7,7 @@
 ## What the benchmark checks
 
 The benchmark measures whether **agentic operating-environment boundaries survive** across
-23 deterministic synthetic patterns. It checks:
+24 deterministic synthetic patterns. It checks:
 
 - data envelope propagation (labels, recipients, forwarding rules)
 - memory governance (provenance, trust levels, TTL, scope isolation)

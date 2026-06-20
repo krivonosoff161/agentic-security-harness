@@ -49,7 +49,7 @@ The showcase must include a small comparison table:
 | Protected target | Target id and descriptor. |
 | Baseline findings | Count and severity distribution. |
 | Protected findings | Count and severity distribution. |
-| Findings delta | Example: `23 -> 0`; do not call this a security guarantee. |
+| Findings delta | Example: `24 -> 0`; do not call this a security guarantee. |
 | Validation | Command and pass/fail result. |
 
 ## Claim boundary text

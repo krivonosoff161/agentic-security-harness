@@ -18,7 +18,7 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 
 | Area | Status | Evidence |
 |---|---|---|
-| Local deterministic corpus | Shipped | 23 sanitized seed patterns in `corpus.py` and `patterns.py`. |
+| Local deterministic corpus | Shipped | 24 sanitized seed patterns in `corpus.py` and `patterns.py`. |
 | Local targets | Shipped | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, `protected-toy-multi-agent`. |
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
 | Inter-agent handoff verifier toy topology | Shipped local slice | `handoff_integrity.py`, `toy-multi-agent`, and `protected-toy-multi-agent` model deterministic label-loss and authority-expansion handoffs. |
@@ -96,7 +96,7 @@ ash report --root reports/comparison
 ```
 
 Expected current demonstration: the vulnerable baseline shows findings on the shipped
-23-pattern corpus; the protected demo target removes those modeled findings under the
+24-pattern corpus; the protected demo target removes those modeled findings under the
 same configuration.
 
 ## Claim boundary

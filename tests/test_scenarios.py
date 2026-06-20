@@ -42,9 +42,9 @@ def test_all_scenario_pattern_ids_exist_in_corpus() -> None:
             assert pid in corpus, msg
 
 
-def test_all_scenario_has_all_23_patterns() -> None:
+def test_all_scenario_has_all_24_patterns() -> None:
     all_scenario = get_scenario("all")
-    assert len(all_scenario.pattern_ids) == 23
+    assert len(all_scenario.pattern_ids) == 24
 
 
 def test_get_scenario_unknown_raises_key_error() -> None:

@@ -28,7 +28,7 @@ implements information-flow control middleware.
 - We are a **benchmark**, not a defense. We measure whether boundaries hold, we don't
   enforce them.
 - We are **framework-agnostic**. Our traces can be replayed against any target.
-- We test **23 deterministic seed patterns** across data, authority, perception, approval,
+- We test **24 deterministic seed patterns** across data, authority, perception, approval,
   memory, audit, budget, and schema-boundary classes.
 
 **We are complementary:** a team using CaMeL could use this harness to verify that their

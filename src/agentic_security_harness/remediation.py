@@ -106,6 +106,7 @@ _FAMILY_MAP: dict[str, ControlFamily] = {
     "data_boundary_classification_mutation": "data_boundary",
     "data_boundary_handoff_label_stripping": "data_boundary",
     "data_boundary_missing_envelope_recovery": "data_boundary",
+    "data_boundary_memory_envelope_drift": "data_boundary",
     "provider_boundary_leakage_sanitized": "provider_boundary",
     # memory
     "memory_poisoning_sanitized": "memory_governance",

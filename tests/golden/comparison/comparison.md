@@ -3,18 +3,18 @@
 | | Baseline | Protected |
 |---|---|---|
 | Target | `demo-local-agent` | `protected-demo-agent` |
-| Patterns failed | 23 | 0 |
-| Patterns passed | 0 | 23 |
-| Total findings | 23 | 0 |
+| Patterns failed | 24 | 0 |
+| Patterns passed | 0 | 24 |
+| Total findings | 24 | 0 |
 
 ## Findings by severity
 
 | Severity | Baseline | Protected |
 |---|---|---|
-| high | 21 | 0 |
+| high | 22 | 0 |
 | medium | 2 | 0 |
 
-Findings reduced: 23 -> 0 (-23).
+Findings reduced: 24 -> 0 (-24).
 
 ## Recommended control priorities
 

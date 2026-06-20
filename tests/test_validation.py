@@ -191,7 +191,7 @@ def test_scorecard_failed_passed_mismatch_fails(tmp_path: Path) -> None:
 def test_comparison_reduction_numbers_wrong_fails(tmp_path: Path) -> None:
     comp = _copy("comparison-report", tmp_path)
     text = (comp / "comparison.md").read_text(encoding="utf-8")
-    (comp / "comparison.md").write_text(text.replace("(-23)", "(-22)"), encoding="utf-8")
+    (comp / "comparison.md").write_text(text.replace("(-24)", "(-23)"), encoding="utf-8")
     result = validate_path(comp)
     assert not result.ok
     # Pin the dedicated reduction-mismatch branch specifically (not just the rebuild check).
@@ -407,8 +407,8 @@ def test_summary_md_mismatch_fails(tmp_path: Path) -> None:
     report = _copy("demo-agent-report", tmp_path)
     summ = report / "summary.md"
     text = summ.read_text(encoding="utf-8")
-    assert "Total traces: 23" in text
-    summ.write_text(text.replace("Total traces: 23", "Total traces: 22"), encoding="utf-8")
+    assert "Total traces: 24" in text
+    summ.write_text(text.replace("Total traces: 24", "Total traces: 23"), encoding="utf-8")
     result = validate_path(report)
     assert not result.ok
     assert _has(result, "summary rebuilt")

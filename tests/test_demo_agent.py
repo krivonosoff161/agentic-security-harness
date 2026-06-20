@@ -25,6 +25,7 @@ SEED_IDS = {
     "tool_permission_abuse_sanitized",
     "provider_boundary_leakage_sanitized",
     "data_boundary_missing_envelope_recovery",
+    "data_boundary_memory_envelope_drift",
     "sleeping_prompt.delayed_activation",
     "audit.spam_label_abuse",
     "budget.loop_abuse",
@@ -64,6 +65,7 @@ def test_demo_agent_handles_all_seed_patterns() -> None:
         "tool_permission_abuse_sanitized": "tool_permission_check",
         "provider_boundary_leakage_sanitized": "forward_check",
         "data_boundary_missing_envelope_recovery": "envelope_check",
+        "data_boundary_memory_envelope_drift": "envelope_drift_check",
         "sleeping_prompt.delayed_activation": "provenance_check",
         "audit.spam_label_abuse": "audit_check",
         "budget.loop_abuse": "budget_check",
@@ -110,7 +112,7 @@ def test_no_network(monkeypatch: pytest.MonkeyPatch) -> None:
         raise AssertionError("network call attempted")
 
     monkeypatch.setattr(socket, "socket", _boom)
-    assert len(_traces()) == 23
+    assert len(_traces()) == 24
 
 
 def test_demo_traces_deterministic() -> None:
@@ -120,7 +122,7 @@ def test_demo_traces_deterministic() -> None:
 def test_scorecard_matches_expected() -> None:
     card = build_scorecard(_traces())
     assert card.target_name == "demo-local-agent"
-    assert card.findings_by_severity == {"high": 21, "medium": 2}
+    assert card.findings_by_severity == {"high": 22, "medium": 2}
     assert set(card.failed_patterns) == SEED_IDS
     assert card.passed_patterns == []
 

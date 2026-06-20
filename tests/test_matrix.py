@@ -65,12 +65,12 @@ def test_run_matrix_data_boundary_multi_variant(tmp_path: Path) -> None:
     assert report.summary.total_variants == 3
     assert report.summary.failed_variants == 3
     assert report.summary.passed_variants == 0
-    # Each variant has 5 traces
+    # Each variant has 6 traces
     for v in report.variants:
-        assert v.total_traces == 5
-        assert len(v.trace_ids) == 5
-    # Total traces = 3 variants x 5 patterns = 15
-    assert report.total_traces == 15
+        assert v.total_traces == 6
+        assert len(v.trace_ids) == 6
+    # Total traces = 3 variants x 6 patterns = 18
+    assert report.total_traces == 18
 
 
 def test_run_matrix_protected_all_zero_findings(tmp_path: Path) -> None:
@@ -83,7 +83,7 @@ def test_run_matrix_protected_all_zero_findings(tmp_path: Path) -> None:
     assert report.summary.total_variants == 4
     assert report.summary.failed_variants == 0
     assert report.summary.passed_variants == 4
-    assert report.summary.total_traces == 23 * 4
+    assert report.summary.total_traces == 24 * 4
     for v in report.variants:
         assert len(v.failed_patterns) == 0
 
@@ -97,7 +97,7 @@ def test_run_matrix_single_variant(tmp_path: Path) -> None:
     )
     assert len(report.variants) == 1
     assert report.variants[0].variant_id == "base-envelope"
-    assert report.total_traces == 5
+    assert report.total_traces == 6
 
 
 def test_run_matrix_writes_all_artifacts(tmp_path: Path) -> None:
@@ -140,7 +140,7 @@ def test_run_matrix_deterministic(tmp_path: Path) -> None:
 def test_run_matrix_all_mock(tmp_path: Path) -> None:
     target = make_target("mock")
     report = run_matrix(target, "all", tmp_path / "m", target_id="mock")
-    assert report.total_traces == 23 * 4  # 4 variants, 23 patterns each
+    assert report.total_traces == 24 * 4  # 4 variants, 24 patterns each
     assert report.summary.failed_variants == 4
 
 
@@ -150,7 +150,7 @@ def test_run_matrix_all_protected(tmp_path: Path) -> None:
         target, "all", tmp_path / "m",
         target_id="protected-demo-agent",
     )
-    assert report.total_traces == 23 * 4
+    assert report.total_traces == 24 * 4
     assert report.summary.failed_variants == 0
     assert report.summary.passed_variants == 4
 
@@ -160,8 +160,8 @@ def test_summary_stable_failures_all_mock(tmp_path: Path) -> None:
     report = run_matrix(
         target, "data-boundary", tmp_path / "m", target_id="mock",
     )
-    # All 5 data-boundary patterns fail in all 3 variants
-    assert len(report.summary.stable_failures) == 5
+    # All 6 data-boundary patterns fail in all 3 variants
+    assert len(report.summary.stable_failures) == 6
     assert len(report.summary.variant_sensitive_failures) == 0
 
 

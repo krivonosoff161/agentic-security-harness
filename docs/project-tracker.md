@@ -53,7 +53,8 @@ issue was closed when no issue number exists.
 | Local task | Track | Delivered focus | Public evidence | Private/local note |
 |---|---|---|---|---|
 | DB-1 | Data boundary / theory | Formalized the envelope restriction relation `E_out <= E_in`, field-level non-expansion rules, and explicit non-claims. | `docs/theory/data-boundary.md`, `docs/research-claims.md`, documentation contract tests. | Owner-retained local derivation note; not committed and not public evidence. |
-| DB-2 | Data boundary / corpus | Added `data_boundary_missing_envelope_recovery`, regenerated the 23-pattern examples/golden snapshots, and updated external-run arithmetic. | `examples/comparison-report/`, `docs/showcase/generated/`, `tests/golden/`, `ash validate examples/`. | Owner-retained local verification checklist; not committed and not public evidence. |
+| DB-2 | Data boundary / corpus | Added `data_boundary_missing_envelope_recovery`, regenerated the then-current examples/golden snapshots, and updated external-run arithmetic. | `examples/comparison-report/`, `docs/showcase/generated/`, `tests/golden/`, `ash validate examples/`. | Owner-retained local verification checklist; not committed and not public evidence. |
+| DB-3 | Data boundary / memory read boundary | Added `data_boundary_memory_envelope_drift`, implemented field-level envelope restriction checks, regenerated the 24-pattern examples/golden snapshots, and updated data-boundary theory/claims. | `src/agentic_security_harness/envelope_policy.py`, `tests/test_envelope_policy.py`, `examples/comparison-report/`, `docs/theory/data-boundary.md`, `ash validate examples/`. | Owner-retained local verification checklist; not committed and not public evidence. |
 
 Supporting docs:
 

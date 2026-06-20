@@ -56,7 +56,7 @@ LOCAL_PROFILES: dict[str, LocalProfile] = {
         max_variants=1,
         repeats=3,
         timeout_seconds=90,
-        max_requests=15,
+        max_requests=18,
         note="Check whether inconclusive/timeout states repeat across runs.",
     ),
     "prometheus-3b-experimental": LocalProfile(

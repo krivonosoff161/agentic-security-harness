@@ -10,6 +10,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 
+from agentic_security_harness.envelope_policy import validate_memory_read_envelope
 from agentic_security_harness.models import (
     AuditEntry,
     CapabilityToken,
@@ -144,6 +145,36 @@ class DemoAgent:
         self.log("boundary_action", "agent", f"started {boundary} without a data envelope")
         self.log("envelope_check", "agent", "missing envelope ignored; action continued")
         return True
+
+    def read_memory_with_envelope_drift(
+        self,
+        key: str,
+        value: str,
+        write_envelope: DataEnvelope,
+        read_envelope: DataEnvelope,
+        elapsed_seconds: int,
+    ) -> bool:
+        """Write then read memory. Returns True if read-time envelope drift was accepted."""
+        self.memory[key] = MemoryRecord(value=value, envelope=write_envelope)
+        self.log("memory_write", "agent", "stored item with original data envelope")
+        self.log("memory_read", "agent", f"read memory key '{key}' after {elapsed_seconds}s")
+        result = validate_memory_read_envelope(
+            write_envelope=write_envelope,
+            stored_envelope=self.memory[key].envelope,
+            read_envelope=read_envelope,
+            elapsed_seconds=elapsed_seconds,
+        )
+        # Vulnerable: the drift is detected by the harness model but ignored by the agent.
+        self.log(
+            "envelope_drift_check",
+            "agent",
+            (
+                "read-time envelope drift ignored; memory used with weaker labels"
+                if not result.ok
+                else "read-time envelope remained bounded"
+            ),
+        )
+        return not result.ok
 
     def store_retrieved_content(self, key: str, value: str, envelope: DataEnvelope) -> None:
         """Store retrieved content for later turns."""
