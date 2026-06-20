@@ -42,4 +42,5 @@ def test_clusterfuzzlite_dockerfile_pins_base_image() -> None:
     assert "base-builder-python:latest" not in text
     build_script = (ROOT / ".clusterfuzzlite" / "build.sh").read_text(encoding="utf-8")
     assert "pip install --require-hashes -r requirements/runtime.txt" in build_script
-
+    assert "pip install --no-deps ." not in build_script
+    assert "--paths \"$SRC/agentic-security-harness/src\"" in build_script
