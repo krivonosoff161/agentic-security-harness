@@ -13,7 +13,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-from agentic_security_harness.safe_io import write_text_artifact
+from agentic_security_harness.safe_io import (
+    safe_credential_env_var_name,
+    write_text_artifact,
+)
 
 _CSS = """
 :root { color-scheme: light dark; }
@@ -60,6 +63,12 @@ _DISCLAIMER = (
 
 def _esc(value: Any) -> str:
     return html.escape(str(value))
+
+
+def _credential_metadata_label(config: dict) -> str:
+    if "credential_env_var" in config or "api_key_env" in config:
+        return safe_credential_env_var_name("configured")
+    return "(none)"
 
 
 def _load(path: Path) -> Any | None:
@@ -402,14 +411,7 @@ def _render_external(run_dir: Path, manifest: dict | None) -> str:
             ("authorization_mode", _esc(runtime.get("authorization_mode", ""))),
             ("prompt_only", _esc(runtime.get("prompt_only", ""))),
             ("tool_execution", _esc(runtime.get("tool_execution", ""))),
-            (
-                "credential_env_var",
-                _esc(
-                    config.get(
-                        "credential_env_var", config.get("api_key_env", "")
-                    ) or "(none)"
-                ),
-            ),
+            ("credential_env_var", _esc(_credential_metadata_label(config))),
         ]
     body.append(_kv(pairs))
 

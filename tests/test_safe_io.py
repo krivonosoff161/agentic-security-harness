@@ -1,6 +1,11 @@
 from pathlib import Path
 
-from agentic_security_harness.safe_io import redact_artifact_text, write_text_artifact
+from agentic_security_harness.safe_io import (
+    credential_env_var_lookup_name,
+    redact_artifact_text,
+    safe_credential_env_var_name,
+    write_text_artifact,
+)
 
 
 def test_redact_artifact_text_covers_secret_shapes() -> None:
@@ -36,3 +41,36 @@ def test_write_text_artifact_creates_parent_and_redacts(tmp_path: Path) -> None:
     raw = path.read_bytes()
     assert b"\r\n" not in raw
     assert path.read_text(encoding="utf-8") == "token sk-[REDACTED]\n"
+
+
+def test_safe_credential_env_var_name_rejects_values_and_invalid_labels() -> None:
+    assert (
+        safe_credential_env_var_name("ASH_EXTERNAL_API_KEY")
+        == "[CREDENTIAL_ENV_VAR_CONFIGURED]"
+    )
+    assert safe_credential_env_var_name("") == ""
+    assert (
+        safe_credential_env_var_name("sk-ABCDEFGHIJ0123456789")
+        == "[CREDENTIAL_ENV_VAR_CONFIGURED]"
+    )
+    assert (
+        safe_credential_env_var_name("sk-[REDACTED]")
+        == "[CREDENTIAL_ENV_VAR_CONFIGURED]"
+    )
+    assert (
+        safe_credential_env_var_name("http://user:secret@example.test")
+        == "[CREDENTIAL_ENV_VAR_CONFIGURED]"
+    )
+    assert (
+        safe_credential_env_var_name("not a name")
+        == "[CREDENTIAL_ENV_VAR_CONFIGURED]"
+    )
+
+
+def test_credential_env_var_lookup_name_accepts_only_safe_names() -> None:
+    assert credential_env_var_lookup_name("ASH_EXTERNAL_API_KEY") == "ASH_EXTERNAL_API_KEY"
+    assert credential_env_var_lookup_name("") == ""
+    assert credential_env_var_lookup_name("sk-ABCDEFGHIJ0123456789") == ""
+    assert credential_env_var_lookup_name("sk-[REDACTED]") == ""
+    assert credential_env_var_lookup_name("http://user:secret@example.test") == ""
+    assert credential_env_var_lookup_name("not a name") == ""

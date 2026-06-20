@@ -103,7 +103,7 @@ def test_run_config_never_stores_credential_value() -> None:
         model="test-model",
     )
     dump = config.model_dump(mode="json")
-    assert "MY_CREDENTIAL_ENV" in dump["credential_env_var"]
+    assert dump["credential_env_var"] == "[CREDENTIAL_ENV_VAR_CONFIGURED]"
     assert "api_key_env" not in dump
     # Credential value should never appear
     assert "secret" not in json.dumps(dump).lower()
@@ -114,7 +114,7 @@ def test_run_config_accepts_legacy_api_key_env_field() -> None:
         "api_key_env": "ASH_EXTERNAL_API_KEY",
         "model": "test-model",
     })
-    assert config.credential_env_var == "ASH_EXTERNAL_API_KEY"
+    assert config.credential_env_var == "[CREDENTIAL_ENV_VAR_CONFIGURED]"
 
 
 def test_run_config_safety_note() -> None:
@@ -529,6 +529,45 @@ def test_run_external_preset_writes_local_runtime_metadata(tmp_path: Path) -> No
     assert "Local runtime execution does not remove model-license" in report
 
 
+def test_run_external_redacts_mistaken_credential_env_value(tmp_path: Path) -> None:
+    secret = "sk-ABCDEFGHIJ0123456789"
+    with patch("urllib.request.urlopen", side_effect=_mock_chat_open()):
+        run_external(
+            base_url="http://localhost:8000/v1",
+            model="test",
+            scenario_id="perception-boundary",
+            out_dir=tmp_path / "ext",
+            credential_env_var=secret,
+        )
+
+    config_text = (tmp_path / "ext" / "run_config.json").read_text(encoding="utf-8")
+    report_text = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
+    assert secret not in config_text
+    assert secret not in report_text
+    config = json.loads(config_text)
+    assert config["credential_env_var"] == "[CREDENTIAL_ENV_VAR_CONFIGURED]"
+    assert config["runtime"]["credential_env_var"] == "[CREDENTIAL_ENV_VAR_CONFIGURED]"
+
+
+def test_run_external_dry_run_redacts_mistaken_credential_env_value(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    secret = "sk-ABCDEFGHIJ0123456789"
+
+    run_external(
+        base_url="http://localhost:8000/v1",
+        model="test",
+        scenario_id="perception-boundary",
+        out_dir=tmp_path / "ext",
+        credential_env_var=secret,
+        dry_run=True,
+    )
+
+    out = capsys.readouterr().out
+    assert secret not in out
+    assert "credential_env_var: configured (value hidden)" in out
+
+
 def test_run_external_adapter_error_has_recovery_hint(tmp_path: Path) -> None:
     with patch(
         "urllib.request.urlopen",
@@ -577,7 +616,7 @@ def test_reproduce_command_includes_knobs_no_secret() -> None:
     cmd = "\n".join(_reproduce_command_lines(cfg))
     for flag in ("--repeats 3", "--temperature 0.0", "--timeout 20", "--retries 1",
                  "--raw-response-limit 0",
-                 "--max-variants 2", "--credential-env ASH_EXTERNAL_API_KEY",
+                 "--max-variants 2", "--credential-env <ENV_VAR_NAME>",
                  "--out reports/external-rerun"):
         assert flag in cmd, flag
     # Single variant -> --variant; large request_count -> --max-requests.
@@ -600,7 +639,7 @@ def test_external_report_reproduce_section_has_knobs(tmp_path: Path) -> None:
     assert "## How to reproduce / validate" in report
     assert "--temperature" in report and "--timeout" in report
     assert "--raw-response-limit" in report
-    assert "--credential-env ASH_EXTERNAL_API_KEY" in report
+    assert "--credential-env <ENV_VAR_NAME>" in report
     assert "run_config.json` is the authoritative" in report
     assert "## Recovery guidance" in report
 
