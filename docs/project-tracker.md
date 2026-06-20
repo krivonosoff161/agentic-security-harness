@@ -44,6 +44,17 @@ design-led inter-agent handoff integrity track.
 | [#30 research: design inter-agent handoff integrity contract](https://github.com/krivonosoff161/agentic-security-harness/issues/30) | Multi-agent / research | Design contract, claim boundary, failure classes, verifier outcomes, and staged work order are documented. |
 | [#34 feature: add deterministic toy topology for handoff integrity](https://github.com/krivonosoff161/agentic-security-harness/issues/34) | Multi-agent / corpus | Local synthetic verifier topology ships vulnerable/protected handoff traces for label loss and authority expansion. |
 
+## Recently completed local research closures
+
+These items close local research tasks that were not tracked as GitHub issues. They are
+kept separate from the issue table so the public tracker does not imply that a GitHub
+issue was closed when no issue number exists.
+
+| Local task | Track | Delivered focus | Public evidence | Private/local note |
+|---|---|---|---|---|
+| DB-1 | Data boundary / theory | Formalized the envelope restriction relation `E_out <= E_in`, field-level non-expansion rules, and explicit non-claims. | `docs/theory/data-boundary.md`, `docs/research-claims.md`, documentation contract tests. | Owner-retained local derivation note; not committed and not public evidence. |
+| DB-2 | Data boundary / corpus | Added `data_boundary_missing_envelope_recovery`, regenerated the 23-pattern examples/golden snapshots, and updated external-run arithmetic. | `examples/comparison-report/`, `docs/showcase/generated/`, `tests/golden/`, `ash validate examples/`. | Owner-retained local verification checklist; not committed and not public evidence. |
+
 Supporting docs:
 
 - [metric-contract.md](metric-contract.md) defines how traffic, benchmark, runtime, and

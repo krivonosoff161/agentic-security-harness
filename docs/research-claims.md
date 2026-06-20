@@ -1,6 +1,6 @@
 # Research claims registry
 
-> Last reviewed: 2026-06-18.
+> Last reviewed: 2026-06-20.
 >
 > This is a status table for research claims in Agentic Security Harness. Each row
 > tracks one claim from hypothesis through evidence artifacts. This is not a marketing
@@ -38,6 +38,13 @@
 - **Tests** links to the test files that validate the invariant.
 - **Evidence artifacts** links to committed or local run artifacts that prove the claim.
 - **What this proves / does NOT prove** is the conservative claim boundary.
+
+## Closure notes
+
+| Closure | Claim | Public status after closure | Public evidence | Private/local derivation |
+|---|---|---|---|---|
+| DB-1 | Data boundary restriction model | `formal_model_draft` completed and promoted into the public theory module. | `docs/theory/data-boundary.md` defines `E_out <= E_in`, field-level non-expansion rules, policy caveats, and non-claims. | Owner-retained local derivation note; not committed and not public evidence. |
+| DB-2 | Missing envelope recovery | `public_example` after deterministic corpus implementation. | `data_boundary_missing_envelope_recovery` is in the 23-pattern corpus; `examples/comparison-report/` validates vulnerable finding vs protected pass. | Owner-retained local verification checklist; not committed and not public evidence. |
 
 ## Rules for this registry
 

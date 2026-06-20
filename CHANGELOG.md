@@ -71,6 +71,8 @@ All notable changes to this project are documented here. The format follows
   `DataEnvelope` is absent at a boundary action. The local corpus now has 23 deterministic
   seed patterns; baseline demo targets fail all 23 and the protected demo target passes
   all 23 under deterministic replay.
+- Data-boundary research closure records in the project tracker and claims registry,
+  separating public evidence artifacts from local-only derivation/audit notes.
 
 ### Changed
 - `run_diff.json` is now schema v0.2 with explicit decisive/non-decisive labels such as

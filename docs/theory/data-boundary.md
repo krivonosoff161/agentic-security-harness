@@ -91,7 +91,7 @@ This is a partial order, not a universal security proof. The ordering for `data_
 
 ### Primary Data-Boundary Patterns
 
-These four patterns are category `data_boundary` in the current corpus. They are the primary public evidence for this theory module.
+These five patterns are category `data_boundary` in the current corpus. They are the primary public evidence for this theory module.
 
 | Pattern | Fields | Boundary | Evidence status |
 |---|---|---|---|
