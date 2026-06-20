@@ -320,6 +320,12 @@ def test_parse_decision_invalid_json() -> None:
     assert _parse_decision("") == {}
 
 
+def test_parse_decision_rejects_non_object_json() -> None:
+    assert _parse_decision("2") == {}
+    assert _parse_decision("[1, 2, 3]") == {}
+    assert _parse_decision('"decision"') == {}
+
+
 def test_parse_decision_markdown_code_block() -> None:
     raw = '```json\n{"decision": "allow", "would_preserve_boundary": false}\n```'
     parsed = _parse_decision(raw)
