@@ -26,14 +26,13 @@ design-led inter-agent handoff integrity track.
 
 ## Open maintenance work
 
-| Issue | Track | Exit focus |
-|---|---|---|
-| [#29 fix: clarify external run diff status labels](https://github.com/krivonosoff161/agentic-security-harness/issues/29) | Reports / maintenance | Run-diff labels split decisive `finding_fixed`/`new_finding`/`changed_status`/`unchanged_finding`/`stable_pass` from non-decisive `inconclusive_error_drift`/`stable_inconclusive`/`stable_error`, so an `error -> pass` external move is never reported as a security fix. |
+None currently tracked.
 
 ## Recently completed in this track
 
 | Issue | Track | Delivered focus |
 |---|---|---|
+| [#29 fix: clarify external run diff status labels](https://github.com/krivonosoff161/agentic-security-harness/issues/29) | Reports / maintenance | Run-diff labels split decisive `finding_fixed`/`new_finding` from non-decisive `inconclusive_error_drift`/`stable_inconclusive`/`stable_error`; `error`/`adapter_error` transitions are never reported as security fixes. |
 | [#25 docs: public evidence showcase](https://github.com/krivonosoff161/agentic-security-harness/issues/25) | Showcase | Public showcase entry point and evidence pages exist for reviewer navigation. |
 | [#22 docs: metric contract](https://github.com/krivonosoff161/agentic-security-harness/issues/22) | Metrics | Stable vocabulary for GitHub traffic, benchmark evidence, runtime evidence, and project-process metrics. |
 | [#23 feature: showcase generator](https://github.com/krivonosoff161/agentic-security-harness/issues/23) | Reports / automation | `ash showcase` generates reviewer-facing Markdown from JSON artifacts. |

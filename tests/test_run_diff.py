@@ -93,6 +93,7 @@ def _ext_dir(path: Path, *, status: str) -> Path:
         "flaky": "flaky_patterns",
         "inconclusive": "inconclusive_patterns",
         "error": "error_patterns",
+        "adapter_error": "error_patterns",
     }
     summary: dict = {
         "schema_version": "0.1",
@@ -100,7 +101,7 @@ def _ext_dir(path: Path, *, status: str) -> Path:
         "flaky_patterns": [],
         "inconclusive_patterns": [],
         "error_patterns": [],
-        "repeat_summaries": [{"pattern_id": _PID}],
+        "repeat_summaries": [{"pattern_id": _PID, "stability_status": status}],
     }
     if status in buckets:
         summary[buckets[status]] = [_PID]
@@ -135,13 +136,48 @@ def test_external_pass_to_pass_is_stable_pass(tmp_path: Path) -> None:
     assert _ext_change(tmp_path, "pass", "pass") == "stable_pass"
 
 
+def test_external_transition_matrix_is_explicit(tmp_path: Path) -> None:
+    expected = {
+        ("pass", "pass"): "stable_pass",
+        ("pass", "finding"): "new_finding",
+        ("finding", "pass"): "finding_fixed",
+        ("finding", "finding"): "unchanged_finding",
+    }
+    non_decisive = ("flaky", "inconclusive", "error", "adapter_error")
+    for status in non_decisive:
+        expected[(status, status)] = (
+            "stable_error" if status in {"error", "adapter_error"} else "stable_inconclusive"
+        )
+    expected[("error", "adapter_error")] = "stable_error"
+    expected[("adapter_error", "error")] = "stable_error"
+
+    statuses = ("pass", "finding", *non_decisive)
+    for i, left_status in enumerate(statuses):
+        for j, right_status in enumerate(statuses):
+            expected_change = expected.get((left_status, right_status), "inconclusive_error_drift")
+            actual = _ext_change(
+                tmp_path / f"case_{i}_{j}",
+                left_status,
+                right_status,
+            )
+            assert actual == expected_change, (left_status, right_status)
+
+
 def test_external_error_to_pass_is_drift_not_fixed(tmp_path: Path) -> None:
     # The issue #29 bug: error -> pass was mislabeled "fixed (finding -> pass)".
     assert _ext_change(tmp_path, "error", "pass") == "inconclusive_error_drift"
 
 
+def test_external_adapter_error_to_pass_is_drift_not_fixed(tmp_path: Path) -> None:
+    assert _ext_change(tmp_path, "adapter_error", "pass") == "inconclusive_error_drift"
+
+
 def test_external_pass_to_error_is_drift_not_new(tmp_path: Path) -> None:
     assert _ext_change(tmp_path, "pass", "error") == "inconclusive_error_drift"
+
+
+def test_external_pass_to_adapter_error_is_drift_not_new(tmp_path: Path) -> None:
+    assert _ext_change(tmp_path, "pass", "adapter_error") == "inconclusive_error_drift"
 
 
 def test_external_error_to_finding_is_drift_not_new(tmp_path: Path) -> None:
@@ -154,9 +190,23 @@ def test_external_inconclusive_to_pass_is_drift(tmp_path: Path) -> None:
 
 def test_external_stable_error_and_inconclusive(tmp_path: Path) -> None:
     assert _ext_change(tmp_path, "error", "error") == "stable_error"
+    assert _ext_change(tmp_path, "adapter_error", "adapter_error") == "stable_error"
     assert _ext_change(tmp_path, "inconclusive", "inconclusive") == "stable_inconclusive"
     # flaky on both sides is still "no conclusion", not a stable finding.
     assert _ext_change(tmp_path, "flaky", "flaky") == "stable_inconclusive"
+
+
+def test_external_stability_status_adapter_error_without_error_bucket(tmp_path: Path) -> None:
+    left = _ext_dir(tmp_path / "left", status="pass")
+    right = _ext_dir(tmp_path / "right", status="pass")
+    summary = json.loads((right / "external_summary.json").read_text(encoding="utf-8"))
+    summary["repeat_summaries"][0]["stability_status"] = "adapter_error"
+    (right / "external_summary.json").write_text(
+        json.dumps(summary, indent=2) + "\n", encoding="utf-8"
+    )
+    diff = diff_runs(left, right)
+    assert diff.entries[0].right_status == "adapter_error"
+    assert diff.entries[0].change == "inconclusive_error_drift"
 
 
 def test_external_drift_counts_not_fix_or_new(tmp_path: Path) -> None:

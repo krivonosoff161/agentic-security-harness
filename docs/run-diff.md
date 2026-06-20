@@ -40,7 +40,7 @@ The two directories must be the **same kind**:
 |---|---|---|
 | run | run | per-pattern PASS/FINDING diff |
 | matrix | matrix | per-pattern stable/variant-sensitive diff |
-| external | external | per-pattern status diff (pass/finding/flaky/inconclusive/error) |
+| external | external | per-pattern status diff (pass/finding/flaky/inconclusive/adapter_error/error) |
 | any | different kind | clear error, no output |
 
 Kind is detected from the artifacts present (`traces.json` -> run, `matrix.json` -> matrix,
@@ -59,7 +59,8 @@ Kind is detected from the artifacts present (`traces.json` -> run, `matrix.json`
 ## Change labels
 
 A pattern status is one of `pass`, `finding` (and `variant_sensitive` for matrix runs), or
-- for external runs only - the **non-decisive** statuses `flaky`, `inconclusive`, `error`.
+- for external runs only - the **non-decisive** statuses `flaky`, `inconclusive`,
+`adapter_error`, `error`.
 A non-decisive status is *not* a pass and *not* a finding: the model erred, timed out, or
 contradicted itself, so the boundary neither held nor broke. The labels keep that
 distinction explicit so an external-run reviewer never has to guess whether "fixed" meant
@@ -72,15 +73,15 @@ distinction explicit so an external-run reviewer never has to guess whether "fix
 | `changed_status` | finding-like on both sides, but status or severity moved |
 | `unchanged_finding` | same finding (status and severity) on both sides |
 | `stable_pass` | pass on both sides |
-| `inconclusive_error_drift` | a side is `inconclusive`/`error` and it moved; **not** a fix or a new finding |
+| `inconclusive_error_drift` | a side is `inconclusive`/`adapter_error`/`error` and it moved; **not** a fix or a new finding |
 | `stable_inconclusive` | `inconclusive`/`flaky` on both sides (still no conclusion) |
-| `stable_error` | `error` on both sides |
+| `stable_error` | `adapter_error`/`error` on both sides |
 | `only_left` / `only_right` | the pattern appears on only one side (e.g. different scenarios) |
 
 `finding_fixed` and `new_finding` are reserved for `pass <-> finding` moves between two
-decisive statuses. Any transition that touches `inconclusive`/`error` is reported as
-`inconclusive_error_drift`, so a weak local model that recovers from `error` to `pass` is
-never counted as a security improvement.
+decisive statuses. Any transition that touches `inconclusive`, `adapter_error`, or
+`error` is reported as `inconclusive_error_drift`, so a weak local model that recovers from
+`adapter_error`/`error` to `pass` is never counted as a security improvement.
 
 ## What it is not
 

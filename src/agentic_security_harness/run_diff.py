@@ -22,9 +22,8 @@ _PASS = "pass"
 # Statuses that are neither a clean pass nor a confirmed finding. A weak/local model that
 # errors, times out, or contradicts itself produces these. They are *not* evidence that the
 # boundary held or broke, so a transition that touches one of them must never be reported as
-# a security fix or a new finding. (External runs surface "flaky"/"inconclusive"/"error";
-# the run/matrix kinds never emit them.)
-_NON_DECISIVE = {"flaky", "inconclusive", "error"}
+# a security fix or a new finding. (External runs surface these; run/matrix kinds do not.)
+_NON_DECISIVE = {"flaky", "inconclusive", "error", "adapter_error"}
 
 # Ordered change vocabulary. Two groups:
 #   decisive   - both sides are a clean pass or a confirmed finding;
@@ -38,7 +37,7 @@ CHANGE_CLASSES: tuple[str, ...] = (
     "changed_status",           # finding <-> finding, status or severity moved
     "unchanged_finding",        # finding -> same finding
     "stable_pass",              # pass -> pass
-    "inconclusive_error_drift",  # inconclusive/error on a side; not a fix or new finding
+    "inconclusive_error_drift",  # non-decisive on a side; not a fix or new finding
     "stable_inconclusive",      # inconclusive/flaky -> same (still no conclusion)
     "stable_error",             # error -> error
     "only_left",                # pattern only in the left run
@@ -51,9 +50,11 @@ CHANGE_MEANINGS: dict[str, str] = {
     "changed_status": "finding <-> finding, status/severity moved",
     "unchanged_finding": "finding -> same finding",
     "stable_pass": "pass -> pass",
-    "inconclusive_error_drift": "inconclusive/error on a side; not a fix or new finding",
+    "inconclusive_error_drift": (
+        "inconclusive/adapter_error/error on a side; not a fix or new finding"
+    ),
     "stable_inconclusive": "inconclusive/flaky -> same (no conclusion either side)",
-    "stable_error": "error -> error",
+    "stable_error": "adapter_error/error -> adapter_error/error",
     "only_left": "pattern only in the left run",
     "only_right": "pattern only in the right run",
 }
@@ -74,7 +75,7 @@ def _classify(
         return "only_right"
     if ls in _NON_DECISIVE or rs in _NON_DECISIVE:
         if ls == rs:
-            return "stable_error" if ls == "error" else "stable_inconclusive"
+            return "stable_error" if ls in {"error", "adapter_error"} else "stable_inconclusive"
         return "inconclusive_error_drift"
     l_pass, r_pass = ls == _PASS, rs == _PASS
     if l_pass and r_pass:
@@ -200,14 +201,25 @@ def _matrix_outcomes(
 def _external_outcomes(
     run_dir: Path,
 ) -> tuple[dict[str, tuple[str, str]], dict[str, str | int]]:
-    """External run: pattern -> (status, ""). status: pass|finding|flaky|inconclusive|error."""
+    """External run: pattern -> (status, "").
+
+    Status is one of pass|finding|flaky|inconclusive|adapter_error|error. Older
+    artifacts only expose ``error_patterns``; newer summaries may also carry the
+    aggregate ``stability_status`` per pattern.
+    """
     summary_j = _load(run_dir / "external_summary.json") or {}
     config = _load(run_dir / "run_config.json") or {}
     findings = set(summary_j.get("patterns_with_findings", []))
     flaky = set(summary_j.get("flaky_patterns", []))
     inconclusive = set(summary_j.get("inconclusive_patterns", []))
     errors = set(summary_j.get("error_patterns", []))
-    seen = {rs.get("pattern_id", "") for rs in summary_j.get("repeat_summaries", [])}
+    repeat_summaries = summary_j.get("repeat_summaries", [])
+    seen = {rs.get("pattern_id", "") for rs in repeat_summaries}
+    stability_by_pattern = {
+        rs.get("pattern_id", ""): rs.get("stability_status", "")
+        for rs in repeat_summaries
+        if rs.get("pattern_id")
+    }
     out: dict[str, tuple[str, str]] = {}
     for pid in sorted(seen):
         if pid in findings:
@@ -215,8 +227,16 @@ def _external_outcomes(
         elif pid in flaky:
             status = "flaky"
         elif pid in errors:
-            status = "error"
+            status = "adapter_error"
         elif pid in inconclusive:
+            status = "inconclusive"
+        elif stability_by_pattern.get(pid) == "adapter_error":
+            status = "adapter_error"
+        elif stability_by_pattern.get(pid) == "stable_finding":
+            status = "finding"
+        elif stability_by_pattern.get(pid) == "flaky":
+            status = "flaky"
+        elif stability_by_pattern.get(pid) == "inconclusive":
             status = "inconclusive"
         else:
             status = _PASS
@@ -324,8 +344,9 @@ def _diff_md(diff: RunDiff) -> str:
         "## Summary",
         "",
         "Decisive labels (`finding_fixed` / `new_finding`) describe `pass` <-> `finding` "
-        "moves only. `inconclusive` and `error` are not a pass and not a finding, so a side "
-        "that is inconclusive/error is reported as drift, never as a fix or a new finding.",
+        "moves only. `inconclusive`, `adapter_error`, and `error` are not a pass and not "
+        "a finding, so a side that is non-decisive is reported as drift, never as a fix "
+        "or a new finding.",
         "",
         "| Change | Meaning | Count |",
         "|---|---|---|",

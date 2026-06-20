@@ -30,6 +30,8 @@ registry compatibility, standards mapping, and forbidden marker scans.
 the v0.1 alias counters as deprecated optional fields, and `ash validate` accepts both
 v0.1 and v0.2 `run_diff.json` artifacts. This keeps old local reports readable while new
 reports stop treating `error -> pass` as a security fix.
+The same rule applies to `adapter_error -> pass` and other non-decisive external
+transitions.
 
 Non-versioned by design:
 
