@@ -39,5 +39,6 @@ a full combinatorial sweep.
 4. Promote local Prometheus smoke from docs-only workflow to a small suite (#19).
 5. Add richer showcase generator views over JSON artifacts (#23).
 
-Items #25, #21, and #23 now have shipped slices; the remaining active sequence is the
-scenario timeline work (#20), then the bounded local Prometheus suite (#19).
+Items #25, #21, #23, and #20 now have shipped slices; the remaining active sequence is
+the bounded local Prometheus suite (#19), then only selected timeline deepening variants
+with explicit deterministic invariants.

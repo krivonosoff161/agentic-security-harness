@@ -7,6 +7,7 @@ import pytest
 
 from agentic_security_harness.scenario_timeline import (
     ScenarioTimeline,
+    replay_timeline,
     validate_timeline,
 )
 
@@ -50,6 +51,54 @@ def test_fixture_has_required_contract_fields(path: Path) -> None:
     assert tl.expected_vulnerable_behavior != tl.expected_protected_behavior
     assert tl.validator_expectations
     assert "trace" in tl.trace_evidence
+
+
+@pytest.mark.parametrize("path", _fixture_files(), ids=lambda p: p.stem)
+def test_timeline_replay_marks_vulnerable_failure_step(path: Path) -> None:
+    replay = replay_timeline(_load(path), "vulnerable")
+
+    assert replay.target_kind == "vulnerable"
+    assert replay.final_outcome == "finding"
+    assert replay.decision_step_id in {s.step_id for s in replay.steps}
+    decision = next(s for s in replay.steps if s.step_id == replay.decision_step_id)
+    assert decision.outcome == "finding"
+    assert decision.validators
+    assert all(result.outcome == "finding" for result in replay.validator_results)
+    assert all(result.step_id == replay.decision_step_id for result in replay.validator_results)
+
+
+@pytest.mark.parametrize("path", _fixture_files(), ids=lambda p: p.stem)
+def test_timeline_replay_marks_protected_pass_step(path: Path) -> None:
+    replay = replay_timeline(_load(path), "protected")
+
+    assert replay.target_kind == "protected"
+    assert replay.final_outcome == "pass"
+    decision = next(s for s in replay.steps if s.step_id == replay.decision_step_id)
+    assert decision.outcome == "pass"
+    assert decision.validators
+    assert all(result.outcome == "pass" for result in replay.validator_results)
+
+
+def test_unknown_validator_fails_closed() -> None:
+    raw = _load(_fixture_files()[0])
+    raw["validator_expectations"][0]["validator"] = "model_vibe_check"
+    errors = validate_timeline(raw)
+    assert any("deterministic registry" in e for e in errors)
+
+
+def test_validator_without_matching_step_fails_closed() -> None:
+    raw = _load(_fixture_files()[0])
+    for step in raw["steps"]:
+        step["content_role"] = "summary"
+    errors = validate_timeline(raw)
+    assert any("no matching timeline step" in e for e in errors)
+
+
+def test_replay_rejects_invalid_timeline() -> None:
+    raw = _load(_fixture_files()[0])
+    raw["validator_expectations"][0]["on_vulnerable"] = "pass"
+    with pytest.raises(ValueError, match="expectations must be"):
+        replay_timeline(raw, "vulnerable")
 
 
 def test_missing_invariant_fails_closed() -> None:

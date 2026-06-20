@@ -11,11 +11,12 @@ evidence requirement, or with swapped protected/vulnerable expectations is rejec
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 TIMELINE_SCHEMA_VERSION = "0.1"
+TIMELINE_REPLAY_SCHEMA_VERSION = "0.1"
 
 # Allowed step actors and trust zones (kept in sync with docs/scenario-timeline.md).
 ACTORS = frozenset(
@@ -30,6 +31,18 @@ _NON_TRUSTED_ZONES = TRUST_ZONES - {"trusted"}
 # so a fixture cannot quietly swap them.
 _VULNERABLE_OUTCOME = "finding"
 _PROTECTED_OUTCOME = "pass"
+TimelineTargetKind = Literal["vulnerable", "protected"]
+TimelineReplayOutcome = Literal["continue", "finding", "pass"]
+
+# Deterministic validators currently supported by the timeline contract. Each validator is
+# tied to the content_role of the timeline step where it can produce evidence.
+DETERMINISTIC_TIMELINE_VALIDATORS: dict[str, frozenset[str]] = {
+    "provenance_preservation": frozenset({"provenance_check"}),
+    "delayed_activation_blocked": frozenset({"provenance_check"}),
+    "policy_priority_preserved": frozenset({"priority_check"}),
+    "label_provenance_preserved": frozenset({"provenance_check"}),
+    "handoff_blocked_on_missing_label": frozenset({"provenance_check"}),
+}
 
 
 class TimelineStep(BaseModel):
@@ -52,6 +65,49 @@ class ValidatorExpectation(BaseModel):
     validator: str = Field(min_length=1)
     on_vulnerable: str
     on_protected: str
+
+
+class TimelineReplayStep(BaseModel):
+    """One deterministic replay event derived from a timeline fixture."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    index: int = Field(ge=0)
+    step_id: str = Field(min_length=1)
+    actor: str = Field(min_length=1)
+    trust_zone: str = Field(min_length=1)
+    content_role: str = Field(min_length=1)
+    expected_effect: str = Field(min_length=1)
+    observed_effect: str = Field(min_length=1)
+    outcome: TimelineReplayOutcome = "continue"
+    validators: list[str] = Field(default_factory=list)
+
+
+class TimelineValidatorResult(BaseModel):
+    """Validator outcome and the exact step that produced it."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    validator: str = Field(min_length=1)
+    step_id: str = Field(min_length=1)
+    outcome: Literal["finding", "pass"]
+    evidence: str = Field(min_length=1)
+
+
+class TimelineReplay(BaseModel):
+    """Synthetic trace replay for a timeline fixture on one target kind."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = TIMELINE_REPLAY_SCHEMA_VERSION
+    timeline_id: str = Field(min_length=1)
+    scenario_id: str = Field(min_length=1)
+    target_kind: TimelineTargetKind
+    invariant: str = Field(min_length=1)
+    final_outcome: Literal["finding", "pass"]
+    decision_step_id: str = Field(min_length=1)
+    steps: list[TimelineReplayStep] = Field(min_length=1)
+    validator_results: list[TimelineValidatorResult] = Field(min_length=1)
 
 
 class ScenarioTimeline(BaseModel):
@@ -104,6 +160,16 @@ def _semantic_errors(tl: ScenarioTimeline) -> list[str]:
     if not (zones & _NON_TRUSTED_ZONES):
         errors.append("timeline has no untrusted/delegated/ambient pressure step")
     for ve in tl.validator_expectations:
+        allowed_roles = DETERMINISTIC_TIMELINE_VALIDATORS.get(ve.validator)
+        if allowed_roles is None:
+            errors.append(f"validator '{ve.validator}' is not in the deterministic registry")
+            continue
+        if not any(s.content_role in allowed_roles for s in tl.steps):
+            roles = ", ".join(sorted(allowed_roles))
+            errors.append(
+                f"validator '{ve.validator}' has no matching timeline step "
+                f"with content_role in {{{roles}}}"
+            )
         # Protected/vulnerable expectations must not be swapped or collapsed.
         if ve.on_vulnerable != _VULNERABLE_OUTCOME or ve.on_protected != _PROTECTED_OUTCOME:
             errors.append(
@@ -112,6 +178,103 @@ def _semantic_errors(tl: ScenarioTimeline) -> list[str]:
                 f"(got '{ve.on_vulnerable}' / '{ve.on_protected}')"
             )
     return errors
+
+
+def _decision_step_id(tl: ScenarioTimeline, validator: str) -> str:
+    allowed_roles = DETERMINISTIC_TIMELINE_VALIDATORS[validator]
+    matching = [s.step_id for s in tl.steps if s.content_role in allowed_roles]
+    return matching[-1]
+
+
+def _timeline_from_raw(raw: ScenarioTimeline | dict[str, Any]) -> ScenarioTimeline:
+    if isinstance(raw, ScenarioTimeline):
+        errors = _semantic_errors(raw)
+        if errors:
+            raise ValueError("; ".join(errors))
+        return raw
+    errors = validate_timeline(raw)
+    if errors:
+        raise ValueError("; ".join(errors))
+    return ScenarioTimeline.model_validate(raw)
+
+
+def replay_timeline(
+    raw: ScenarioTimeline | dict[str, Any], target_kind: TimelineTargetKind
+) -> TimelineReplay:
+    """Build a deterministic replay that identifies where the timeline resolves.
+
+    This is not a live agent execution. It turns a validated timeline fixture into an
+    inspectable synthetic trace: vulnerable targets produce ``finding`` at the validator
+    step, protected targets produce ``pass`` at that same step.
+    """
+    if target_kind not in {"vulnerable", "protected"}:
+        raise ValueError("target_kind must be 'vulnerable' or 'protected'")
+
+    tl = _timeline_from_raw(raw)
+    validator_results: list[TimelineValidatorResult] = []
+    validators_by_step: dict[str, list[str]] = {}
+    for ve in tl.validator_expectations:
+        step_id = _decision_step_id(tl, ve.validator)
+        validator_outcome: Literal["finding", "pass"] = (
+            "finding" if target_kind == "vulnerable" else "pass"
+        )
+        validators_by_step.setdefault(step_id, []).append(ve.validator)
+        evidence_behavior = (
+            tl.expected_vulnerable_behavior
+            if target_kind == "vulnerable"
+            else tl.expected_protected_behavior
+        )
+        validator_results.append(
+            TimelineValidatorResult(
+                validator=ve.validator,
+                step_id=step_id,
+                outcome=validator_outcome,
+                evidence=f"{ve.validator} at step '{step_id}': {evidence_behavior}",
+            )
+        )
+
+    decision_step_id = validator_results[-1].step_id
+    final_outcome: Literal["finding", "pass"] = (
+        "finding" if any(r.outcome == "finding" for r in validator_results) else "pass"
+    )
+    steps: list[TimelineReplayStep] = []
+    for index, step in enumerate(tl.steps):
+        validators = validators_by_step.get(step.step_id, [])
+        step_outcome: TimelineReplayOutcome = (
+            final_outcome if step.step_id == decision_step_id else "continue"
+        )
+        if validators:
+            observed = (
+                tl.expected_vulnerable_behavior
+                if target_kind == "vulnerable"
+                else tl.expected_protected_behavior
+            )
+        else:
+            observed = step.expected_effect
+        steps.append(
+            TimelineReplayStep(
+                index=index,
+                step_id=step.step_id,
+                actor=step.actor,
+                trust_zone=step.trust_zone,
+                content_role=step.content_role,
+                expected_effect=step.expected_effect,
+                observed_effect=observed,
+                outcome=step_outcome,
+                validators=validators,
+            )
+        )
+
+    return TimelineReplay(
+        timeline_id=tl.timeline_id,
+        scenario_id=tl.scenario_id,
+        target_kind=target_kind,
+        invariant=tl.invariant,
+        final_outcome=final_outcome,
+        decision_step_id=decision_step_id,
+        steps=steps,
+        validator_results=validator_results,
+    )
 
 
 def validate_timeline(raw: Any) -> list[str]:

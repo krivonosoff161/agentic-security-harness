@@ -21,7 +21,6 @@ design-led inter-agent handoff integrity track.
 | Issue | Track | Exit focus |
 |---|---|---|
 | [#19 feature: local Prometheus suite](https://github.com/krivonosoff161/agentic-security-harness/issues/19) | Local runtime | Real local model-in-loop smoke run through Ollama/OpenAI-compatible runtime, with strict caps and validated artifacts. |
-| [#20 feature: scenario timeline](https://github.com/krivonosoff161/agentic-security-harness/issues/20) | Corpus / multi-turn | Multi-turn, delayed-trigger, context-overload, and handoff scenarios described as timelines with invariants and validators. |
 
 ## Open maintenance work
 
@@ -31,6 +30,7 @@ None currently tracked.
 
 | Issue | Track | Delivered focus |
 |---|---|---|
+| [#20 feature: scenario timeline](https://github.com/krivonosoff161/agentic-security-harness/issues/20) | Corpus / multi-turn | `ScenarioTimeline` fixtures cover delayed activation, context overload, and handoff provenance; each has an invariant, deterministic validator expectation, and `replay_timeline()` shows the vulnerable finding/protected PASS decision step. |
 | [#21 feature: trace replay and failure cards](https://github.com/krivonosoff161/agentic-security-harness/issues/21) | Reports | `ash showcase` generates artifact-driven failure cards with trace replay steps, trace/remediation artifact references, reproduce commands, and explicit non-claims; committed generated example is reproducible from `examples/demo-agent-report`. |
 | [#29 fix: clarify external run diff status labels](https://github.com/krivonosoff161/agentic-security-harness/issues/29) | Reports / maintenance | Run-diff labels split decisive `finding_fixed`/`new_finding` from non-decisive `inconclusive_error_drift`/`stable_inconclusive`/`stable_error`; `error`/`adapter_error` transitions are never reported as security fixes. |
 | [#25 docs: public evidence showcase](https://github.com/krivonosoff161/agentic-security-harness/issues/25) | Showcase | Public showcase entry point and evidence pages exist for reviewer navigation. |

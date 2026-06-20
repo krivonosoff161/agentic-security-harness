@@ -58,6 +58,27 @@ record on a vulnerable target (`finding`) versus a protected target (`pass`); th
 rejects a fixture that swaps them. These validators judge the result without trusting model
 prose.
 
+## Deterministic replay
+
+The contract also ships a local replay helper:
+`replay_timeline(timeline, target_kind)` in
+[`scenario_timeline.py`](../src/agentic_security_harness/scenario_timeline.py).
+
+Replay is deliberately narrow. It does not run a model or agent host. It takes a valid
+timeline fixture, checks the named validator against the deterministic validator registry,
+and emits a synthetic replay with:
+
+- `target_kind`: `vulnerable` or `protected`;
+- `decision_step_id`: the exact timeline step where the validator resolves the scenario;
+- `final_outcome`: `finding` for vulnerable replay, `pass` for protected replay;
+- per-step `outcome` and `validators` fields so the replay shows where the failure or
+  PASS occurred.
+
+For example, `handoff.label-provenance.v1` resolves at the `provenance_check` step:
+the vulnerable replay marks that step as `finding`; the protected replay marks the same
+step as `pass`. This satisfies the trace-replay requirement without claiming a live
+multi-agent executor exists.
+
 ## Actors
 
 | Actor | Meaning |
@@ -119,7 +140,8 @@ deterministic validator expectations; a live multi-turn run path is future work.
 
 ## Non-claim
 
-These fixtures are a validated **design contract** over synthetic, deterministic timelines.
-They are **not a claim that real multi-turn agents are fully covered** and not a live
-multi-agent runtime. A timeline fixture being valid means the scenario is well-formed and
-its invariant/validator expectations are explicit - not that any deployed agent passes it.
+These fixtures and their local replay are a validated **design contract** over synthetic,
+deterministic timelines. They are **not a claim that real multi-turn agents are fully
+covered** and not a live multi-agent runtime. A timeline fixture being valid means the
+scenario is well-formed and its invariant/validator expectations are explicit; replay
+shows the modeled decision step. It does not prove that any deployed agent passes it.

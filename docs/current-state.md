@@ -22,6 +22,7 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | Local targets | Shipped | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, `protected-toy-multi-agent`. |
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
 | Inter-agent handoff verifier toy topology | Shipped local slice | `handoff_integrity.py`, `toy-multi-agent`, and `protected-toy-multi-agent` model deterministic label-loss and authority-expansion handoffs. |
+| Scenario timeline contract | Shipped local slice | `ScenarioTimeline`, `validate_timeline()`, three committed fixtures, and `replay_timeline()` model multi-turn/delayed/context-overload/handoff scenarios with explicit invariant and decision step. |
 | Portable artifacts | Shipped | `traces.json`, `scorecard.json`, `summary.md`, `executive.md`, remediation, run manifests. |
 | Static reports | Shipped | `ash report --root <run-dir>` writes a self-contained HTML report. |
 | Run history and maintenance | Shipped | `list-runs`, `index-runs`, `stats`, `retention`, `diff-runs`. |
@@ -40,8 +41,8 @@ These features exist, but their results must be read conservatively:
   authorization review.
 - External model comparisons: useful for exploratory checks, not benchmark-grade
   leaderboards.
-- Scenario matrix variants: deterministic local replay metadata and pattern subsets, not
-  live multi-tool execution.
+- Scenario matrix and timeline variants: deterministic local replay metadata and pattern
+  subsets, not live multi-tool execution.
 
 External results are weak evidence until a stronger observation layer exists. The harness
 records contradictory or incomplete model self-reports as `inconclusive`.

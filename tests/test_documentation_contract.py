@@ -314,6 +314,7 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
 
     for issue in (
         "#21",
+        "#20",
         "#22",
         "#23",
         "#24",
@@ -327,7 +328,7 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
     ):
         assert issue not in open_work
         assert issue in completed
-    for issue in ("#19", "#20"):
+    for issue in ("#19",):
         assert issue in open_work
     open_maintenance = tracker.split("## Open maintenance work", 1)[1].split(
         "## Recently completed in this track", 1
