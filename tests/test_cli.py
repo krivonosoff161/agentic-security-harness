@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from agentic_security_harness import cli
+from agentic_security_harness.validation import ValidationResult
 
 
 def test_cli_run_writes_reports(tmp_path: Path) -> None:
@@ -29,3 +30,38 @@ def test_cli_validate_json(capsys: pytest.CaptureFixture[str], tmp_path: Path) -
     payload = json.loads(capsys.readouterr().out)
     assert payload["ok"] is True
     assert payload["report_dirs"] == ["demo"]
+
+
+def test_cli_validate_redacts_messages_before_printing(
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    result = ValidationResult(ok=False)
+    result.errors.append("raw value sk-ABCDEFGHIJ0123456789 should not print")
+    result.warnings.append("header Bearer abcdefghijklmnopqrstuvwxyz123456")
+    monkeypatch.setattr(cli, "validate_path", lambda _path: result)
+
+    assert cli.main(["validate", str(tmp_path)]) == 1
+    out = capsys.readouterr().out
+
+    assert "sk-ABCDEFGHIJ0123456789" not in out
+    assert "Bearer abcdefghijklmnopqrstuvwxyz123456" not in out
+    assert "Validation message details are hidden in text output" in out
+    assert "--format json" in out
+
+
+def test_cli_validate_json_redacts_messages_before_printing(
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    result = ValidationResult(ok=False)
+    result.errors.append("raw value sk-ABCDEFGHIJ0123456789 should not print")
+    monkeypatch.setattr(cli, "validate_path", lambda _path: result)
+
+    assert cli.main(["validate", str(tmp_path), "--format", "json"]) == 1
+    payload = json.loads(capsys.readouterr().out)
+
+    assert "sk-ABCDEFGHIJ0123456789" not in json.dumps(payload)
+    assert payload["errors"] == ["raw value sk-[REDACTED] should not print"]

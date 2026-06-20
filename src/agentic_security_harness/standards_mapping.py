@@ -7,18 +7,18 @@ It maps each implemented pattern category to:
   ``corpus.py``),
 - OWASP Top 10 for LLM Applications 2025 (``owasp_llm``),
 - NIST AI RMF core functions (``nist_ai_rmf``: GOVERN / MAP / MEASURE / MANAGE),
-- MITRE ATLAS (``mitre_atlas``) - intentionally **deferred**: per-category ATLAS technique
-  IDs are not asserted until verified against the ATLAS matrix.
+- MITRE ATLAS (``mitre_atlas``) - verified, conservative category-level IDs from
+  ATLAS 2026.05 where there is a direct fit; otherwise deferred.
 
-``status`` is honest about completeness: ``mapped`` (owasp_agentic + owasp_llm + nist all
-present), ``partial`` (some present, some deferred), ``deferred`` (mostly unmapped).
+``status`` is honest about completeness: ``mapped`` (owasp_agentic + owasp_llm + nist +
+mitre all present), ``partial`` (some present, some deferred), ``deferred`` (mostly unmapped).
 A clean mapping does not imply real-world coverage or certification.
 """
 
 from __future__ import annotations
 
 import re
-from typing import Literal, TypedDict
+from typing import Literal, NotRequired, TypedDict
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -28,14 +28,33 @@ from agentic_security_harness.corpus import corpus_manifest
 class _Spec(TypedDict):
     owasp_llm: list[str]
     nist_ai_rmf: list[str]
+    mitre_atlas: NotRequired[list[str]]
     rationale: str
 
 NIST_FUNCTIONS = ("GOVERN", "MAP", "MEASURE", "MANAGE")
+MITRE_ATLAS_VERSION = "2026.05"
+MITRE_ATLAS_SOURCE = (
+    "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/"
+    "ATLAS-2026.05.yaml"
+)
 
 # ID format guards (verified at validation time).
 _ASI_RE = re.compile(r"^ASI\d{2}$")
 _LLM_RE = re.compile(r"^LLM\d{2}$")
 _ATLAS_RE = re.compile(r"^AML\.T\d{4}(\.\d{3})?$")
+
+# Verified against MITRE's public ATLAS 2026.05 YAML distribution. Keep this as a
+# deliberately small allow-list so new IDs cannot appear without an explicit review.
+MITRE_ATLAS_VERIFIED_TECHNIQUES: dict[str, str] = {
+    "AML.T0034.002": "Agentic Resource Consumption",
+    "AML.T0051.001": "LLM Prompt Injection: Indirect",
+    "AML.T0053": "AI Agent Tool Invocation",
+    "AML.T0057": "LLM Data Leakage",
+    "AML.T0080": "AI Agent Context Poisoning",
+    "AML.T0080.000": "AI Agent Context Poisoning: Memory",
+    "AML.T0094": "Delay Execution of LLM Instructions",
+    "AML.T0110": "AI Agent Tool Poisoning",
+}
 
 
 class CategoryStandards(BaseModel):
@@ -53,41 +72,51 @@ class CategoryStandards(BaseModel):
 
 
 # Per-category mapping (owasp_agentic is filled from the corpus, not duplicated here).
-# MITRE ATLAS is deferred everywhere on purpose - see module docstring.
+# MITRE ATLAS IDs stay empty where the fit would be speculative.
 _CATEGORY: dict[str, _Spec] = {
     "indirect_prompt_injection": {
         "owasp_llm": ["LLM01"],
         "nist_ai_rmf": ["MEASURE", "MANAGE"],
+        "mitre_atlas": ["AML.T0051.001"],
         "rationale": "Untrusted tool/retrieved content steers the agent - prompt "
-        "injection (LLM01). ATLAS technique id deferred.",
+        "injection (LLM01); ATLAS Indirect Prompt Injection.",
     },
     "data_boundary": {
         "owasp_llm": ["LLM02"],
         "nist_ai_rmf": ["MAP", "MEASURE", "MANAGE"],
+        "mitre_atlas": ["AML.T0057"],
         "rationale": "Recipient / classification / forwarding labels fail, risking "
-        "sensitive information disclosure (LLM02).",
+        "sensitive information disclosure (LLM02); ATLAS LLM Data Leakage.",
     },
     "memory_poisoning": {
         "owasp_llm": ["LLM04"],
         "nist_ai_rmf": ["MEASURE", "MANAGE"],
-        "rationale": "Untrusted content is persisted into memory - data poisoning (LLM04).",
+        "mitre_atlas": ["AML.T0080.000"],
+        "rationale": "Untrusted content is persisted into memory - data poisoning "
+        "(LLM04); ATLAS agent memory poisoning.",
     },
     "memory_governance": {
         "owasp_llm": ["LLM04", "LLM02"],
         "nist_ai_rmf": ["MEASURE", "MANAGE"],
+        "mitre_atlas": ["AML.T0080", "AML.T0080.000"],
         "rationale": "Unscoped / cross-user / expired memory is trusted at read - "
-        "poisoning (LLM04) and cross-user disclosure (LLM02).",
+        "poisoning (LLM04) and cross-user disclosure (LLM02); ATLAS agent context "
+        "and memory poisoning.",
     },
     "tool_permission": {
         "owasp_llm": ["LLM06"],
         "nist_ai_rmf": ["MEASURE", "MANAGE"],
-        "rationale": "Tool used outside its allowed purpose - excessive agency (LLM06).",
+        "mitre_atlas": ["AML.T0053"],
+        "rationale": "Tool used outside its allowed purpose - excessive agency (LLM06); "
+        "ATLAS AI Agent Tool Invocation.",
     },
     "mcp_tool_schema": {
         "owasp_llm": ["LLM06"],
         "nist_ai_rmf": ["MEASURE", "MANAGE"],
+        "mitre_atlas": ["AML.T0110"],
         "rationale": "Unverified tool schema/annotations are trusted - excessive agency "
-        "(LLM06).",
+        "(LLM06); ATLAS AI Agent Tool Poisoning covers MCP tool description/parameter "
+        "poisoning.",
     },
     "capability_delegation": {
         "owasp_llm": ["LLM06"],
@@ -97,8 +126,9 @@ _CATEGORY: dict[str, _Spec] = {
     "ambient_authority": {
         "owasp_llm": ["LLM06"],
         "nist_ai_rmf": ["MEASURE", "MANAGE"],
+        "mitre_atlas": ["AML.T0053"],
         "rationale": "Ambient host capability used without explicit binding - excessive "
-        "agency (LLM06).",
+        "agency (LLM06); ATLAS AI Agent Tool Invocation.",
     },
     "approval_laundering": {
         "owasp_llm": ["LLM06"],
@@ -109,19 +139,24 @@ _CATEGORY: dict[str, _Spec] = {
     "budget_exhaustion": {
         "owasp_llm": ["LLM10"],
         "nist_ai_rmf": ["MEASURE", "MANAGE"],
-        "rationale": "Unbounded loops / recursion - unbounded consumption (LLM10).",
+        "mitre_atlas": ["AML.T0034.002"],
+        "rationale": "Unbounded loops / recursion - unbounded consumption (LLM10); "
+        "ATLAS Agentic Resource Consumption.",
     },
     "perception_boundary": {
         "owasp_llm": ["LLM01"],
         "nist_ai_rmf": ["MEASURE"],
+        "mitre_atlas": ["AML.T0051.001"],
         "rationale": "Perceived content treated as instruction - injection via a "
-        "perception channel (LLM01).",
+        "perception channel (LLM01); ATLAS indirect prompt injection covers separate "
+        "data channels including multimedia.",
     },
     "sleeping_prompt": {
         "owasp_llm": ["LLM01"],
         "nist_ai_rmf": ["MEASURE"],
+        "mitre_atlas": ["AML.T0094"],
         "rationale": "Dormant stored instruction activates later - delayed injection "
-        "(LLM01).",
+        "(LLM01); ATLAS Delay Execution of LLM Instructions.",
     },
     "audit_bypass": {
         "owasp_llm": [],  # deferred: no clean LLM Top 10 fit
@@ -138,11 +173,14 @@ _CATEGORY: dict[str, _Spec] = {
 }
 
 
-def _status(owasp_llm: list[str], nist: list[str]) -> Literal["mapped", "partial", "deferred"]:
-    if owasp_llm and nist:
-        # mitre_atlas is deferred everywhere, so the strongest honest status is "partial".
-        return "partial"
-    if nist or owasp_llm:
+def _status(
+    owasp_llm: list[str],
+    nist: list[str],
+    mitre_atlas: list[str],
+) -> Literal["mapped", "partial", "deferred"]:
+    if owasp_llm and nist and mitre_atlas:
+        return "mapped"
+    if nist or owasp_llm or mitre_atlas:
         return "partial"
     return "deferred"
 
@@ -167,13 +205,14 @@ def standards_mapping() -> list[CategoryStandards]:
             continue
         owasp_llm = list(spec["owasp_llm"])
         nist = list(spec["nist_ai_rmf"])
+        mitre_atlas = list(spec.get("mitre_atlas", []))
         out.append(CategoryStandards(
             category=category,
             owasp_agentic=agentic,
             owasp_llm=owasp_llm,
-            mitre_atlas=[],
+            mitre_atlas=mitre_atlas,
             nist_ai_rmf=nist,
-            status=_status(owasp_llm, nist),
+            status=_status(owasp_llm, nist, mitre_atlas),
             rationale=spec["rationale"],
         ))
     return out
@@ -198,6 +237,11 @@ def validate_standards_mapping() -> list[str]:
         for code in m.mitre_atlas:
             if not _ATLAS_RE.match(code):
                 errors.append(f"{m.category}: bad MITRE ATLAS id '{code}'")
+            if code not in MITRE_ATLAS_VERIFIED_TECHNIQUES:
+                errors.append(
+                    f"{m.category}: unverified MITRE ATLAS id '{code}' "
+                    f"for ATLAS {MITRE_ATLAS_VERSION}"
+                )
         for fn in m.nist_ai_rmf:
             if fn not in NIST_FUNCTIONS:
                 errors.append(f"{m.category}: bad NIST function '{fn}'")

@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 #   protected -> controlled demo target; MUST PASS every pattern.
 #   neutral   -> any other adapter (toy / arbitrary system under test); findings are
 #                optional, but any finding must still be corpus-consistent.
-_PROTECTED_TYPES = {"protected_demo_agent"}
+_PROTECTED_TYPES = {"protected_demo_agent", "protected_toy_multi_agent"}
 _BASELINE_TYPES = {"mock_agent", "demo_agent"}
 
 # Conservative, format-anchored markers. The left look-behind keeps "risk-reduction" and
@@ -597,11 +597,12 @@ def _validate_external_dir(path: Path, root: Path, result: ValidationResult) -> 
                 f"{_rel(path / 'run_config.json', root)}: unsupported adapter_type "
                 f"'{config.adapter_type}'"
             )
-        if config.api_key_env and any(
-            token in config.api_key_env.lower() for token in ("sk-", "key=")
+        if config.credential_env_var and any(
+            token in config.credential_env_var.lower() for token in ("sk-", "key=")
         ):
             result._err(
-                f"{_rel(path / 'run_config.json', root)}: api_key_env looks like a key value"
+                f"{_rel(path / 'run_config.json', root)}: "
+                "credential_env_var looks like a credential value"
             )
         # request_count is the pre-run estimate; once results exist it must match
         # the number of normalized results actually written.
@@ -610,6 +611,43 @@ def _validate_external_dir(path: Path, root: Path, result: ValidationResult) -> 
                 f"{_rel(path / 'run_config.json', root)}: request_count "
                 f"{config.request_count} != external_results count {len(results)}"
             )
+        if isinstance(config_raw, dict) and "runtime" in config_raw:
+            runtime = config.runtime
+            if runtime.model_id and runtime.model_id != config.model:
+                result._err(
+                    f"{_rel(path / 'run_config.json', root)}: "
+                    "runtime.model_id does not match model"
+                )
+            if runtime.network_mode != config.network_mode:
+                result._err(
+                    f"{_rel(path / 'run_config.json', root)}: "
+                    "runtime.network_mode does not match network_mode"
+                )
+            if not runtime.prompt_only:
+                result._err(
+                    f"{_rel(path / 'run_config.json', root)}: "
+                    "runtime.prompt_only must be true for run-external"
+                )
+            if runtime.tool_execution:
+                result._err(
+                    f"{_rel(path / 'run_config.json', root)}: "
+                    "runtime.tool_execution must be false for run-external"
+                )
+            if runtime.local_only and runtime.network_mode != "local-only":
+                result._err(
+                    f"{_rel(path / 'run_config.json', root)}: "
+                    "local runtime must use network_mode=local-only"
+                )
+            if not runtime.model_license_note.strip():
+                result._err(
+                    f"{_rel(path / 'run_config.json', root)}: "
+                    "runtime.model_license_note is empty"
+                )
+            if not runtime.recovery_guidance:
+                result._err(
+                    f"{_rel(path / 'run_config.json', root)}: "
+                    "runtime.recovery_guidance is empty"
+                )
     if results is not None:
         _validate_external_results(path, root, results, result)
     if config is not None and summary is not None:
@@ -848,7 +886,7 @@ def _validate_comparison_md(
 
 def _validate_run_diff_dir(path: Path, root: Path, result: ValidationResult) -> None:
     """Validate a run-diff directory (run_diff.json + run_diff.md)."""
-    from agentic_security_harness.run_diff import RunDiff
+    from agentic_security_harness.run_diff import CHANGE_CLASSES, RunDiff
 
     diff_json = path / "run_diff.json"
     _check_schema_version_file(diff_json, "run_diff", root, result)
@@ -863,7 +901,9 @@ def _validate_run_diff_dir(path: Path, root: Path, result: ValidationResult) -> 
     rel = _rel(diff_json, root)
     if diff.kind not in {"run", "matrix", "external"}:
         result._err(f"{rel}: unknown diff kind '{diff.kind}'")
-    valid_changes = {"fixed", "new", "changed", "unchanged", "only_left", "only_right"}
+    schema_version = str(raw.get("schema_version") or "")
+    legacy_changes = {"fixed", "new", "changed", "unchanged", "only_left", "only_right"}
+    valid_changes = legacy_changes if schema_version == "0.1" else set(CHANGE_CLASSES)
     counts = {c: 0 for c in valid_changes}
     for entry in diff.entries:
         if entry.change not in valid_changes:
@@ -872,11 +912,14 @@ def _validate_run_diff_dir(path: Path, root: Path, result: ValidationResult) -> 
             counts[entry.change] += 1
         if not entry.pattern_id:
             result._err(f"{rel}: entry with empty pattern_id")
-    declared = {
-        "fixed": diff.fixed, "new": diff.new, "changed": diff.changed,
-        "unchanged": diff.unchanged, "only_left": diff.only_left,
-        "only_right": diff.only_right,
-    }
+    if schema_version == "0.1":
+        declared = {
+            "fixed": diff.fixed, "new": diff.new, "changed": diff.changed,
+            "unchanged": diff.unchanged, "only_left": diff.only_left,
+            "only_right": diff.only_right,
+        }
+    else:
+        declared = {c: getattr(diff, c) for c in CHANGE_CLASSES}
     if declared != counts:
         result._err(f"{rel}: change counts {declared} do not match entries {counts}")
     if not (path / "run_diff.md").exists():
@@ -913,18 +956,22 @@ def _validate_run_manifest(dir_path: Path, root: Path, result: ValidationResult)
     for art in manifest.artifacts:
         if not (dir_path / art).exists():
             result._err(f"{rel}: artifact '{art}' is missing from the run directory")
-    # External runs must carry reproducibility metadata; the key env field must hold a
-    # NAME, never a value.
+    # External runs must carry reproducibility metadata; the credential env field must
+    # hold a NAME, never a value.
     if manifest.run_kind == "external":
         required = {"adapter_type", "model", "scenario", "network_mode"}
         missing = sorted(required - set(manifest.metadata))
         if missing:
             result._err(f"{rel}: external metadata missing keys: {missing}")
-        key_env = manifest.metadata.get("api_key_env")
-        if isinstance(key_env, str) and any(
-            token in key_env.lower() for token in ("sk-", "key=")
+        credential_env = manifest.metadata.get(
+            "credential_env_var", manifest.metadata.get("api_key_env")
+        )
+        if isinstance(credential_env, str) and any(
+            token in credential_env.lower() for token in ("sk-", "key=")
         ):
-            result._err(f"{rel}: metadata.api_key_env looks like a key value")
+            result._err(
+                f"{rel}: metadata.credential_env_var looks like a credential value"
+            )
     _scan_secrets(manifest_path, root, result)
 
 

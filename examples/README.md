@@ -5,6 +5,8 @@ checked by `ash validate examples/` in CI, so they always match the current corp
 report format. Nothing here contains secrets, real payloads, or local absolute paths.
 Each report directory has its own README that explains what produced it, how to read it,
 how to validate it, and what it does not prove.
+Before promoting any example as a public demo or release showcase, use the
+[public showcase report checklist](../docs/showcase-report-checklist.md).
 
 ```bash
 # validate every example in one shot

@@ -53,6 +53,60 @@ problem -> defensive scenario -> expected vulnerable behavior -> detection signa
 | Temporal context | Temporal permission drift | `temporal.permission_drift` | Multi-turn / memory / capability | Permissions expire or narrow over time; stale grants are rejected. | Old permission is treated as current authority. | Capability timestamp/TTL and action decision. | P2 | Planned | Prevents time-window variants from becoming ad hoc tests. |
 | Temporal context | Stale memory as current authority | `temporal.stale_memory_authority` | Agent plus memory | Memory read checks freshness and source before authority use. | Expired memory controls a current decision. | Memory TTL, read time, trust level, decision. | P2 | Planned | Deepens memory governance with time dimension. |
 
+## Designed candidate: `recovery.trust_gate_no_path`
+
+This candidate is documented before implementation. It should not be added to the
+shipped corpus until the vulnerable target, protected target, corpus entry, validation,
+and examples can be updated together.
+
+### Boundary invariant
+
+A failed trust gate must produce an actionable recovery path. The user or operator must
+be able to tell:
+
+- what failed;
+- whether the failure is final or intermediate;
+- how to retry;
+- what alternative path exists;
+- which artifacts were saved for review or support.
+
+### Proposal shape
+
+| Field | Design |
+|---|---|
+| Problem | A trust gate rejects, blocks, or cannot verify a request, but returns only an opaque denial or silently stops. The user cannot know whether to retry, provide different evidence, switch route, or inspect saved artifacts. |
+| Defensive scenario | A local deterministic gate evaluates a synthetic verification request with insufficient evidence. The gate must refuse the action, but still return structured recovery information. No real identity documents, provider complaint flow, or private support case is used. |
+| Expected vulnerable behavior | The vulnerable target stops at `trust_gate_check` with a generic message such as "verification failed" and no finality, retry command, alternative route, or artifact reference. |
+| Detection signal | Trace evidence shows missing `failure_reason`, missing `finality`, missing `retry_path`, missing `alternative_path`, or missing `artifact_ref`. A single missing field is enough to flag the recovery-path boundary as failed. |
+| Mitigation | Standardize trust-gate failure envelopes: reason code, final/intermediate status, retry command or retry conditions, alternative route, saved artifact path, and escalation owner/contact where applicable. |
+| Harness test | `recovery.trust_gate_no_path` under the recovery / escalation topology. Baseline should produce a finding at `recovery_path_check`; protected target should return a structured recovery envelope and pass. |
+| Residual risk | The harness can prove the recovery information is present and internally consistent, not that an external provider will accept an appeal, that a human will respond, or that the alternate path will succeed. |
+
+### Trace evidence requirements
+
+The deterministic trace should record:
+
+| Evidence field | Vulnerable example | Protected example |
+|---|---|---|
+| `failure_reason` | missing or generic | `insufficient_evidence` |
+| `finality` | missing | `intermediate` or `final` |
+| `retry_path` | missing | `ash retry ...` or documented retry condition |
+| `alternative_path` | missing | `manual_review`, `local_runtime`, or another allowed route |
+| `artifact_ref` | missing | path to saved diagnostic artifact |
+| `user_message` | opaque denial | concise explanation with next action |
+
+### Implementation guardrails
+
+- Use one deterministic local topology first: a synthetic trust gate around a local
+  target or fixture.
+- Do not model provider-specific appeal, identity-verification, or complaint workflows.
+- Do not use real user identity data, documents, screenshots, support tickets, secrets, or
+  live provider endpoints.
+- Do not score model prose. If a future model-assisted gate is added, deterministic
+  envelope validation must remain the deciding check.
+- Do not expand by provider x model x country x document type x retry count. Those are
+  operational variants, not new boundary invariants.
+
 ## Bounded scenario matrix
 
 Use these dimensions sparingly. A pattern family should choose only the dimensions needed

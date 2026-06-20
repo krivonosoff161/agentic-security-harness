@@ -18,7 +18,7 @@ A trace-first defensive benchmark for agentic operating-environment boundary fai
 - **Deterministic**: no network, no LLM, no provider calls. Same input = same output.
 - **Baseline-vs-protected**: replay the same patterns against a vulnerable and a protected
   target; measure the delta.
-- **Corpus-driven**: 22 deterministic seed patterns targeting boundary failure classes.
+- **Corpus-driven**: 24 deterministic seed patterns targeting boundary failure classes.
 
 ## What it is not
 
@@ -70,5 +70,5 @@ A trace-first defensive benchmark for agentic operating-environment boundary fai
 
 CaMeL and FIDES implement boundary defenses. We measure whether those boundaries hold.
 A team using an information-flow or capability-based defense could use this harness to
-replay 22 deterministic seed patterns against its own target adapter and compare the result
+replay 24 deterministic seed patterns against its own target adapter and compare the result
 with the local baseline/protected examples.

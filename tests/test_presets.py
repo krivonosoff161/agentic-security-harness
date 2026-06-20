@@ -7,6 +7,7 @@ import pytest
 from agentic_security_harness import cli
 from agentic_security_harness.presets import (
     apply_preset,
+    infer_runtime_profile,
     list_presets,
     preset_names,
     resolve_preset,
@@ -33,6 +34,32 @@ def test_apply_preset_fills_base_url() -> None:
     url, key_env, err = apply_preset("ollama", None, "")
     assert err is None
     assert url == "http://localhost:11434/v1"
+    assert key_env == ""
+
+
+def test_infer_runtime_profile_local_presets() -> None:
+    for preset in ("ollama", "lm-studio", "vllm"):
+        profile = infer_runtime_profile(preset, "http://localhost:1/v1")
+        assert profile.runtime_name == preset
+        assert profile.runtime_family == "local-runtime"
+        assert profile.network_mode == "local-only"
+        assert profile.authorization_mode == "local_runtime"
+        assert profile.local_only is True
+        assert profile.recovery_guidance
+
+
+def test_infer_runtime_profile_localhost_without_preset() -> None:
+    profile = infer_runtime_profile(None, "http://127.0.0.1:8000/v1")
+    assert profile.runtime_name == "local-openai-compatible"
+    assert profile.network_mode == "local-only"
+    assert profile.authorization_mode == "local_runtime"
+
+
+def test_infer_runtime_profile_remote_without_preset() -> None:
+    profile = infer_runtime_profile(None, "https://example.invalid/v1")
+    assert profile.runtime_name == "generic-openai-compatible"
+    assert profile.network_mode == "authorized-external"
+    assert profile.local_only is False
 
 
 def test_apply_preset_explicit_base_url_wins() -> None:

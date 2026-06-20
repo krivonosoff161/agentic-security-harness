@@ -76,8 +76,8 @@ A target adapter must:
 | `toy-local-function` | current | Toy adapter wrapping a plain Python function; passes every pattern. |
 | `toy-rag` | current | Toy retrieval agent exercising the data/memory/injection surface (no network). |
 | `toy-tools` | current | Toy tool-using agent exercising the tool/authority surface (no network). |
+| `toy-multi-agent` | current | Toy coordinator/worker handoff exercising data-label handoff and capability delegation surfaces (no network). |
 | `openai-compatible` (external) | experimental | Evaluates an authorized OpenAI-compatible endpoint with synthetic prompts. Opt-in network; no tool execution. |
-| Toy multi-agent adapter | planned | Local handoff runtime for cross-agent and capability-boundary tests. |
 | Native provider adapter | future | Provider SDK adapter (Anthropic/OpenAI Responses/Google/etc.); never a default path. |
 | Agent-host / tool-use adapter | future | Drives a live agent that actually calls tools; explicitly authorized only. |
 
@@ -86,9 +86,6 @@ A target adapter must:
 Real or semi-real adapters need more reproducibility metadata than the current synthetic
 targets. `TargetMetadata` captures the stable fields:
 
-- evaluation topology (`single-target`, `memory-loop`, `tool-loop`, `model-chain`,
-  `multi-agent-handoff`, `provider-boundary`, `recovery-path`, or custom);
-- observation layer (what the adapter can actually observe vs infer);
 - adapter name and version;
 - target runtime name and version;
 - model/provider family, if a model is used;
@@ -155,11 +152,9 @@ same portable trace structure. The trace is the stable benchmark artifact.
 ## What remains future work
 
 - A plugin/entry-point system for third-party adapters.
-- A local toy multi-agent handoff adapter (the RAG and tool surfaces already ship as
-  `toy-rag` and `toy-tools`).
 - Native provider SDK adapters and agent-host / tool-use adapters.
 - A policy for publishing sanitized adapter examples without leaking private runtime data.
 
-Shipped since this contract was first written: the toy RAG and tool adapters, the
-experimental OpenAI-compatible external path, adapter metadata in `run_index.json`, and a
-stochastic-run report format for external runs.
+Shipped since this contract was first written: the toy RAG, tool, and multi-agent handoff
+adapters; the experimental OpenAI-compatible external path; adapter metadata in
+`run_index.json`; and a stochastic-run report format for external runs.
