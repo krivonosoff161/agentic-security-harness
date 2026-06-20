@@ -18,7 +18,12 @@ design-led inter-agent handoff integrity track.
 
 ## Open work in this track
 
-None currently tracked.
+| Issue | Track | Open focus |
+|---|---|---|
+| [#48 research: measure local small-model swarm evidence quality](https://github.com/krivonosoff161/agentic-security-harness/issues/48) | Small-model swarm handoff evidence quality | Define and implement bounded evidence-quality analysis for recorded local/external model artifacts: schema adherence, raw-response/hash coverage, deterministic-validator agreement, inconclusive/error/flaky split, and cross-run disagreement without creating a new runner or model leaderboard. |
+
+This is open local-empirical work, not a public benchmark finding, model leaderboard, or
+live multi-agent runtime claim.
 
 ## Open maintenance work
 
@@ -68,6 +73,8 @@ Supporting docs:
   Ollama smoke workflow for real local model probes.
 - [local-model-profiles.md](local-model-profiles.md) records hardware-safe local model
   profiles and stop conditions.
+- `ash evidence-quality --root reports --out reports/evidence-quality` summarizes
+  evidence quality from recorded external/local artifacts without making model calls.
 - [showcase/index.md](showcase/index.md) is the public evidence entry point.
 - [scenario-investigation-workflow.md](scenario-investigation-workflow.md) keeps
   scenario design, weak spots, findings, and deepening variations separate.

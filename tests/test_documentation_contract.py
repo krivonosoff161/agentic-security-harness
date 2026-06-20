@@ -344,7 +344,10 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
     ):
         assert issue not in open_work
         assert issue in completed
-    assert "None currently tracked." in open_work
+    assert "#48" in open_work
+    assert "Small-model swarm handoff evidence quality" in open_work
+    assert "live multi-agent runtime claim" in open_work
+    assert "#48" not in completed
     open_maintenance = tracker.split("## Open maintenance work", 1)[1].split(
         "## Recently completed in this track", 1
     )[0]
@@ -440,6 +443,7 @@ def test_research_claims_registry_exists_and_has_required_structure() -> None:
         "Memory governance / TTL / provenance",
         "Inter-agent handoff integrity",
         "Local Prometheus weak-model evidence quality",
+        "Small-model swarm handoff evidence quality",
     ):
         assert claim in claims
 
@@ -451,6 +455,23 @@ def test_research_claims_registry_exists_and_has_required_structure() -> None:
         "cross-provider label survival are not yet covered as primary data-boundary claims"
         in claims
     )
+
+
+def test_small_model_swarm_handoff_claim_is_local_empirical_boundary() -> None:
+    claims = _read("docs/research-claims.md")
+    row = next(
+        line
+        for line in claims.splitlines()
+        if line.startswith("| Small-model swarm handoff evidence quality |")
+    )
+
+    assert "| `local_empirical` |" in row
+    assert "`public_example`" not in row
+    assert "Local scratch" in row
+    assert "not committed public evidence" in row
+    assert "leaderboard" in row
+    assert "Live multi-agent runtime guarantee" in row
+    assert "examples/" not in row
 
 
 def test_research_claims_registry_status_definitions_are_unique() -> None:
@@ -609,11 +630,30 @@ def test_theory_readme_documents_public_private_boundary() -> None:
         "Scratch derivations",
         "Claim boundaries",
         "No theory doc may claim",
+        "Local-empirical summaries",
+        "Raw local model responses",
+        "scratch `reports/`",
+        "`local_empirical` claims",
     ):
         assert phrase in readme
 
     assert "handoff-integrity.md" in readme
     assert "| `data-boundary.md` | Active |" in readme
+
+
+def test_small_model_swarm_handoff_track_is_bounded_not_shipped_profile() -> None:
+    workflow = _read("docs/local-prometheus-workflow.md")
+    profiles = _read("docs/local-model-profiles.md")
+    evidence_quality = _read("docs/evidence-quality.md")
+
+    assert "Small-model swarm handoff" in workflow
+    assert "local-empirical only" in workflow
+    assert "not model safety" in workflow
+    assert "does not orchestrate a swarm" in workflow
+    assert "not yet a named runnable profile" in profiles
+    assert "ash evidence-quality" in profiles
+    assert "Derived analysis only" in evidence_quality
+    assert "not a model leaderboard" in evidence_quality
 
 
 def test_project_tracker_links_research_claims_registry() -> None:

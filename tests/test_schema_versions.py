@@ -22,6 +22,7 @@ def test_registry_has_core_artifacts() -> None:
     for kind in (
         "trace", "scorecard", "remediation", "matrix",
         "run_config", "external_summary", "run_manifest", "run_diff",
+        "evidence_quality",
     ):
         assert kind in SCHEMA_VERSIONS
         assert schema_version(kind)

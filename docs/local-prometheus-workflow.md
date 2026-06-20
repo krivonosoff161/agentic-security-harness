@@ -45,6 +45,8 @@ Not current support:
 - live tool execution;
 - live agent-host control;
 - native provider SDKs;
+- shipped small-model swarm orchestration;
+- live multi-agent runtime evidence;
 - benchmark-grade model leaderboard;
 - a claim that weak-model behavior generalizes to frontier models.
 
@@ -161,6 +163,17 @@ The public showcase should be generated from curated examples after issue
 [#25](https://github.com/krivonosoff161/agentic-security-harness/issues/25) and issue
 [#23](https://github.com/krivonosoff161/agentic-security-harness/issues/23) define the
 showcase structure.
+
+## Small-model swarm handoff track
+
+Issue [#48](https://github.com/krivonosoff161/agentic-security-harness/issues/48)
+tracks local-empirical evidence-quality work for small-model handoff/swarm probes. The
+current shipped component is `ash evidence-quality`, a post-run analyzer for already
+recorded `run-external` / `local-suite` artifacts. It makes no model calls and does not orchestrate a swarm.
+
+This track is local-empirical only until a bounded profile, validation command, and
+curated artifact path are defined. Raw responses and scratch reports stay local/private.
+The track may report evidence quality, not model safety or live handoff integrity.
 
 ## Recovery table
 
