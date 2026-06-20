@@ -25,7 +25,6 @@ _REDACTIONS: list[tuple[re.Pattern[str], str]] = [
 
 _ENV_VAR_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,127}$")
 
-
 def redact_artifact_text(text: str) -> str:
     """Redact secret-shaped strings from artifact text before persistence."""
     redacted = text
@@ -35,22 +34,29 @@ def redact_artifact_text(text: str) -> str:
 
 
 def safe_credential_env_var_name(value: object) -> str:
-    """Return a safe credential env-var *name* for persisted metadata.
+    """Return a safe credential marker for persisted metadata.
 
-    The external path records the environment variable name that would hold a credential,
-    never the credential value. If a caller accidentally passes a secret-shaped value or
-    an invalid env-var label, persist a redacted/invalid marker instead of the raw string.
+    The external runner needs the real environment variable name only while making the
+    request. Artifacts do not need that name, and persisting it creates needless static
+    analysis noise. Keep metadata to a constant non-secret marker.
     """
     text = str(value or "").strip()
     if not text:
         return ""
+    return "[CREDENTIAL_ENV_VAR_CONFIGURED]"
+
+
+def credential_env_var_lookup_name(value: object) -> str:
+    """Return a valid env-var name for runtime lookup, or empty on unsafe input."""
+    text = str(value or "").strip()
+    if not text:
+        return ""
     if "[REDACTED]" in text:
-        return text
-    redacted = redact_artifact_text(text)
-    if redacted != text:
-        return redacted
+        return ""
+    if redact_artifact_text(text) != text:
+        return ""
     if not _ENV_VAR_NAME.fullmatch(text):
-        return "[INVALID_CREDENTIAL_ENV_VAR_NAME]"
+        return ""
     return text
 
 

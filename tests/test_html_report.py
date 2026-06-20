@@ -129,7 +129,7 @@ def test_external_html_redacts_legacy_credential_env_value(tmp_path: Path) -> No
     html = render_report(run_dir)
 
     assert secret not in html
-    assert "sk-[REDACTED]" in html
+    assert "[CREDENTIAL_ENV_VAR_CONFIGURED]" in html
 
 
 def test_matrix_report_renders_heatmap(tmp_path: Path) -> None:

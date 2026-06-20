@@ -103,7 +103,7 @@ def test_run_config_never_stores_credential_value() -> None:
         model="test-model",
     )
     dump = config.model_dump(mode="json")
-    assert "MY_CREDENTIAL_ENV" in dump["credential_env_var"]
+    assert dump["credential_env_var"] == "[CREDENTIAL_ENV_VAR_CONFIGURED]"
     assert "api_key_env" not in dump
     # Credential value should never appear
     assert "secret" not in json.dumps(dump).lower()
@@ -114,7 +114,7 @@ def test_run_config_accepts_legacy_api_key_env_field() -> None:
         "api_key_env": "ASH_EXTERNAL_API_KEY",
         "model": "test-model",
     })
-    assert config.credential_env_var == "ASH_EXTERNAL_API_KEY"
+    assert config.credential_env_var == "[CREDENTIAL_ENV_VAR_CONFIGURED]"
 
 
 def test_run_config_safety_note() -> None:
@@ -545,8 +545,8 @@ def test_run_external_redacts_mistaken_credential_env_value(tmp_path: Path) -> N
     assert secret not in config_text
     assert secret not in report_text
     config = json.loads(config_text)
-    assert config["credential_env_var"] == "sk-[REDACTED]"
-    assert config["runtime"]["credential_env_var"] == "sk-[REDACTED]"
+    assert config["credential_env_var"] == "[CREDENTIAL_ENV_VAR_CONFIGURED]"
+    assert config["runtime"]["credential_env_var"] == "[CREDENTIAL_ENV_VAR_CONFIGURED]"
 
 
 def test_run_external_dry_run_redacts_mistaken_credential_env_value(
@@ -616,7 +616,7 @@ def test_reproduce_command_includes_knobs_no_secret() -> None:
     cmd = "\n".join(_reproduce_command_lines(cfg))
     for flag in ("--repeats 3", "--temperature 0.0", "--timeout 20", "--retries 1",
                  "--raw-response-limit 0",
-                 "--max-variants 2", "--credential-env ASH_EXTERNAL_API_KEY",
+                 "--max-variants 2", "--credential-env <ENV_VAR_NAME>",
                  "--out reports/external-rerun"):
         assert flag in cmd, flag
     # Single variant -> --variant; large request_count -> --max-requests.
@@ -639,7 +639,7 @@ def test_external_report_reproduce_section_has_knobs(tmp_path: Path) -> None:
     assert "## How to reproduce / validate" in report
     assert "--temperature" in report and "--timeout" in report
     assert "--raw-response-limit" in report
-    assert "--credential-env ASH_EXTERNAL_API_KEY" in report
+    assert "--credential-env <ENV_VAR_NAME>" in report
     assert "run_config.json` is the authoritative" in report
     assert "## Recovery guidance" in report
 
