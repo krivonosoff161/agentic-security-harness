@@ -138,6 +138,13 @@ class DemoAgent:
         self.log("forward_check", "agent", "can_forward not enforced; item forwarded")
         return not envelope.can_forward
 
+    def handle_missing_envelope(self, boundary: str) -> bool:
+        """Handle a boundary action with no envelope. Returns True if it continued."""
+        # Vulnerable: treats absence of a label as permission to proceed.
+        self.log("boundary_action", "agent", f"started {boundary} without a data envelope")
+        self.log("envelope_check", "agent", "missing envelope ignored; action continued")
+        return True
+
     def store_retrieved_content(self, key: str, value: str, envelope: DataEnvelope) -> None:
         """Store retrieved content for later turns."""
         # Vulnerable: provenance and TTL are dropped at write time.

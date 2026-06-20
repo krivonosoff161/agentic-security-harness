@@ -158,7 +158,7 @@ test.
 
 Each pattern is a **defensive test pattern** (sanitized, with expected vulnerable
 behavior + mitigation; coarse OWASP Agentic mapping is available in
-[corpus.md](corpus.md)). The **local demo corpus implements 22 deterministic, sanitized
+[corpus.md](corpus.md)). The **local demo corpus implements 23 deterministic, sanitized
 seed patterns** (run with `ash run` / `ash compare`), and committed artifacts are
 validated against the corpus manifest with `ash validate`. The corpus is defined in
 `src/agentic_security_harness/corpus.py`; the canonical current coverage matrix is

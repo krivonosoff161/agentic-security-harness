@@ -15,7 +15,7 @@ not mean production certification, real-target coverage, or a model leaderboard.
 
 | Surface | v1.0 target status | Current status | Evidence / gate |
 |---|---|---|---|
-| Local deterministic corpus | Stable at v1.0 | 22 shipped patterns, still pre-1.0 mutable | Freeze pattern ids and corpus fields; document deprecation policy. |
+| Local deterministic corpus | Stable at v1.0 | 23 shipped patterns, still pre-1.0 mutable | Freeze pattern ids and corpus fields; document deprecation policy. |
 | Trace artifact schema | Stable at v1.0 | `schema_version=0.1`, policy documented | Freeze `trace` schema major version; run `ash validate examples/`. |
 | Scorecard / remediation schemas | Stable at v1.0 | Versioned and validated | Confirm compatibility policy in [artifact-schemas.md](artifact-schemas.md). |
 | Run manifest / run diff schemas | Stable enough for CLI history | Versioned and validated | Keep `run_index.json` and `run_diff.json` schema checks green. |
@@ -42,9 +42,9 @@ ash validate examples/
 Expected showcase result for the current corpus:
 
 ```text
-baseline demo-agent: 22 findings
+baseline demo-agent: 23 findings
 protected-demo-agent: 0 findings
-delta: 22 -> 0
+delta: 23 -> 0
 ```
 
 The public comparison example must satisfy

@@ -6,11 +6,11 @@
 
 ## 1. Claim
 
-Agentic Security Harness models a data envelope as a policy label that travels with a data item. In the shipped synthetic corpus, four primary data-boundary patterns show that a vulnerable demo target loses or ignores envelope constraints, while the protected demo target enforces those constraints.
+Agentic Security Harness models a data envelope as a policy label that travels with a data item. In the shipped synthetic corpus, five primary data-boundary patterns show that a vulnerable demo target loses, ignores, or fails to require envelope constraints, while the protected demo target enforces or fails closed on those constraints.
 
 This module claims a narrower result:
 
-> Data-envelope fields can be checked deterministically at defined synthetic boundaries, and the committed demo comparison contains public evidence for four primary data-boundary patterns.
+> Data-envelope fields can be checked deterministically at defined synthetic boundaries, and the committed demo comparison contains public evidence for five primary data-boundary patterns.
 
 This does not claim that a deployed agent framework preserves labels, that semantic truthfulness is solved, or that every possible boundary type is covered.
 
@@ -99,8 +99,9 @@ These four patterns are category `data_boundary` in the current corpus. They are
 | `data_boundary_classification_mutation` | `data_class`, `classification_mutable`, `classification_source` | Relabel attempt | `public_example` |
 | `data_boundary_handoff_label_stripping` | `data_class`, `allowed_recipients`, `classification_source` | Agent-to-agent handoff | `public_example` |
 | `provider_boundary_leakage_sanitized` | `can_forward`, `data_class` | Provider routing | `public_example` |
+| `data_boundary_missing_envelope_recovery` | Missing required envelope | Fail-closed recovery path | `public_example` |
 
-The public evidence is corpus-level: `examples/comparison-report/` shows the full 22-pattern corpus reduced from 22 modeled findings on the vulnerable demo target to 0 modeled findings on the protected demo target. The four primary data-boundary patterns are part of that corpus; individual patterns do not themselves prove the whole 22 -> 0 result.
+The public evidence is corpus-level: `examples/comparison-report/` shows the full 23-pattern corpus reduced from 23 modeled findings on the vulnerable demo target to 0 modeled findings on the protected demo target. The five primary data-boundary patterns are part of that corpus; individual patterns do not themselves prove the whole 23 -> 0 result.
 
 ### Adjacent Envelope-Field Patterns
 
@@ -143,7 +144,6 @@ These are not shipped claims yet. They should remain planned until code, tests, 
 
 | Gap | Priority | Reason |
 |---|---|---|
-| Missing envelope recovery | P1 | If an envelope is absent where policy requires one, the safe behavior must be fail-closed. |
 | Memory write/read envelope drift | P1 | Current memory patterns cover gates, not full write-envelope to read-envelope preservation. |
 | Multi-hop recipient laundering | P1 | Current recipient coverage is single-hop. |
 | Cross-provider label loss | P1 | Current provider pattern checks forwarding gate, not label survival across provider interfaces. |
@@ -153,13 +153,12 @@ These are not shipped claims yet. They should remain planned until code, tests, 
 
 Recommended implementation order:
 
-1. Missing envelope recovery.
-2. Memory write/read envelope drift.
-3. Multi-hop recipient laundering.
-4. Cross-provider label loss.
-5. Summary-based boundary loss.
-6. Policy version drift.
-7. Semantic reconstruction.
+1. Memory write/read envelope drift.
+2. Multi-hop recipient laundering.
+3. Cross-provider label loss.
+4. Summary-based boundary loss.
+5. Policy version drift.
+6. Semantic reconstruction.
 
 ## 8. Claim Table
 
@@ -169,17 +168,17 @@ Recommended implementation order:
 | Classification non-downgrade at one boundary | `public_example` | The protected demo target rejects untrusted relabeling in the committed comparison corpus. | Complete classification semantics across organizations or providers. |
 | Handoff label preservation at one boundary | `public_example` | The protected demo target preserves required labels during the synthetic handoff pattern. | Summary inheritance, multi-hop label survival, or live framework behavior. |
 | Provider forwarding gate | `public_example` | The protected demo target blocks forwarding when `can_forward=false`. | Cross-provider label preservation or fallback-route correctness. |
+| Missing envelope recovery | `public_example` | The protected demo target fails closed when a boundary action lacks a required envelope. | Complete recovery behavior for every boundary type or live framework behavior. |
 | Tool purpose gate | `synthetic_validation` | Adjacent envelope-field coverage for `allowed_purpose`. | Primary data-boundary coverage or cross-model tool-result trust. |
 | Memory storage/TTL gate | `synthetic_validation` | Adjacent envelope-field coverage for `can_store` and TTL gates. | Full memory write/read envelope preservation. |
 | Full memory envelope drift | `planned` | No implementation claim yet. | Any claim that read-time envelopes preserve all fields. |
-| Missing envelope recovery | `planned` | No implementation claim yet. | Any claim that absent-envelope cases fail closed. |
 
 ## 9. Evidence
 
 | Artifact | Status |
 |---|---|
-| `examples/comparison-report/` | Public curated comparison evidence for the 22-pattern corpus, including the four primary data-boundary patterns. |
-| `examples/demo-agent-report/` | Public vulnerable-target evidence for the 22-pattern corpus, including data-boundary findings. |
+| `examples/comparison-report/` | Public curated comparison evidence for the 23-pattern corpus, including the five primary data-boundary patterns. |
+| `examples/demo-agent-report/` | Public vulnerable-target evidence for the 23-pattern corpus, including data-boundary findings. |
 | `docs/research-claims.md` | Registry row for the broader data-boundary / envelope-preservation claim. |
 
 ## 10. Limits / Non-Claims
@@ -189,15 +188,16 @@ This module does not claim:
 - a real deployed agent preserves envelope labels;
 - envelope labels are encryption;
 - envelope preservation proves semantic truthfulness;
-- the four primary patterns cover every boundary type;
+- the five primary patterns cover every boundary type;
 - adjacent tool, memory, approval, perception, or ambient-authority patterns are primary data-boundary proof;
+- complete recovery behavior for every boundary type;
 - full memory write/read envelope preservation;
-- the project has implemented missing-envelope recovery or full memory write/read envelope drift checks;
+- the project has implemented full memory write/read envelope drift checks;
 - the system has complete formal security proof.
 
 This module does claim:
 
 - `DataEnvelope` is a concrete nine-field model in the public codebase;
-- four primary data-boundary patterns are present in the committed synthetic corpus;
+- five primary data-boundary patterns are present in the committed synthetic corpus;
 - deterministic field-level checks can model the current primary invariants;
-- the public comparison example includes the four primary data-boundary patterns as part of the broader 22-pattern corpus.
+- the public comparison example includes the five primary data-boundary patterns as part of the broader 23-pattern corpus.

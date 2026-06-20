@@ -19,7 +19,7 @@ what the project currently proves.
 
 | Evidence | Status | Start here | What it proves | What it does not prove |
 |---|---|---|---|---|
-| Deterministic baseline/protected comparison | Validated example | [`examples/comparison-report/README.md`](../../examples/comparison-report/README.md) | The shipped synthetic corpus can produce a visible 22 -> 0 modeled-risk reduction between demo targets. | A real deployed agent is secure. |
+| Deterministic baseline/protected comparison | Validated example | [`examples/comparison-report/README.md`](../../examples/comparison-report/README.md) | The shipped synthetic corpus can produce a visible 23 -> 0 modeled-risk reduction between demo targets. | A real deployed agent is secure. |
 | Deterministic multi-agent handoff toy comparison | Local validated artifact | [`handoff-toy-topology.md`](../handoff-toy-topology.md) | The shipped local `toy-multi-agent` slice produces 2 modeled handoff findings, while `protected-toy-multi-agent` blocks the malformed handoffs under the same corpus. | Evidence about a live multi-agent framework, provider, or production handoff protocol. |
 | External fake-server run | Validated example | [`examples/external-demo-report/README.md`](../../examples/external-demo-report/README.md) | The experimental external artifact path can validate against a deterministic local fake OpenAI-compatible endpoint. | A real model/provider is safe. |
 | Local Prometheus/Ollama smoke | Local scratch only | [`local-prometheus-workflow.md`](../local-prometheus-workflow.md) | A weak local model can be exercised through the prompt-only external path; first smoke exposed evidence-quality/runtime limits. | Public benchmark finding; model leaderboard result. |

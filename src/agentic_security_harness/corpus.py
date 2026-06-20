@@ -1,6 +1,6 @@
 """Machine-readable manifest for the implemented local defensive corpus.
 
-Curated metadata for the 22 deterministic seed patterns (see ``patterns.py``). Simple Python
+Curated metadata for the 23 deterministic seed patterns (see ``patterns.py``). Simple Python
 data structures only - no database, no YAML. Tests keep it in sync with the actual patterns
 and scorecards. OWASP Agentic mapping is intentionally coarse and defensive; OWASP LLM,
 NIST AI RMF, and MITRE ATLAS mappings are maintained at category level in
@@ -111,6 +111,16 @@ _CORPUS: list[CorpusEntry] = [
         data_boundary_fields_used=["can_forward", "data_class"],
         mitigation="enforce can_forward before provider routing; redact restricted data",
         owasp_agentic=["ASI03", "ASI04"],
+    ),
+    CorpusEntry(
+        pattern_id="data_boundary_missing_envelope_recovery",
+        name="Data boundary missing envelope recovery",
+        category="data_boundary",
+        severity="high",
+        broke_at="envelope_check",
+        data_boundary_fields_used=[],
+        mitigation="fail closed when a required DataEnvelope is absent at a boundary",
+        owasp_agentic=["ASI03", "ASI07"],
     ),
     CorpusEntry(
         pattern_id="sleeping_prompt.delayed_activation",
@@ -314,7 +324,7 @@ _CORPUS: list[CorpusEntry] = [
 
 
 def corpus_manifest() -> list[CorpusEntry]:
-    """Return the curated corpus manifest (22 implemented patterns, stable order)."""
+    """Return the curated corpus manifest (23 implemented patterns, stable order)."""
     return list(_CORPUS)
 
 

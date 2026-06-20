@@ -1,24 +1,22 @@
 {
   "schema_version": "0.1",
-  "run_id": "run_e6faffdab7",
+  "run_id": "run_60ebd0c66f",
   "run_kind": "run",
-  "created_at": "2026-06-20T07:42:20Z",
+  "created_at": "2026-06-20T07:42:33Z",
   "tool_version": "0.13.0",
-  "target": "demo-local-agent",
+  "target": "protected-demo-agent",
   "model": "",
   "scenario": "seed-corpus",
   "variants": [],
   "repeats": 1,
   "outcomes": {
-    "failed": 23,
-    "passed": 0
+    "failed": 0,
+    "passed": 23
   },
   "metadata": {},
   "artifacts": [
     "README.md",
     "executive.md",
-    "remediation.json",
-    "remediation.md",
     "scorecard.json",
     "summary.md",
     "traces.json"

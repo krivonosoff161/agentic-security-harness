@@ -1,10 +1,10 @@
 {
   "schema_version": "0.1",
-  "run_id": "run_e6faffdab7",
+  "run_id": "run_e519586864",
   "run_kind": "run",
-  "created_at": "2026-06-20T07:42:20Z",
+  "created_at": "2026-06-20T07:42:27Z",
   "tool_version": "0.13.0",
-  "target": "demo-local-agent",
+  "target": "demo-mock-agent",
   "model": "",
   "scenario": "seed-corpus",
   "variants": [],

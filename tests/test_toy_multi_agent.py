@@ -24,7 +24,7 @@ def test_toy_multi_agent_partial_coverage() -> None:
         "data_boundary_handoff_label_stripping",
         "capability.delegation_chain_drift",
     ]
-    assert len([trace for trace in traces if not trace.findings]) == 20
+    assert len([trace for trace in traces if not trace.findings]) == 21
 
 
 def test_protected_toy_multi_agent_blocks_handoff_failures() -> None:
@@ -32,7 +32,7 @@ def test_protected_toy_multi_agent_blocks_handoff_failures() -> None:
     failed = [trace.pattern_id for trace in traces if trace.findings]
 
     assert failed == []
-    assert len([trace for trace in traces if not trace.findings]) == 22
+    assert len([trace for trace in traces if not trace.findings]) == 23
 
 
 def test_toy_multi_agent_handoff_trace_has_before_after_envelope() -> None:

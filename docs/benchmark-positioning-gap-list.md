@@ -19,7 +19,7 @@ is a commitment to build - gaps that should wait are marked.
 
 ## What we already do well
 
-- **Deterministic, offline core.** The 22-pattern corpus runs without network or a model,
+- **Deterministic, offline core.** The 23-pattern corpus runs without network or a model,
   so the baseline is reproducible byte-for-byte. Most red-team tools are network/model
   bound and therefore flaky by nature.
 - **Trace-first portable artifacts + validation.** Every run is a machine-readable trace,
@@ -43,7 +43,7 @@ is a commitment to build - gaps that should wait are marked.
   choice, but it is a capability gap for users who want fuzzing.
 - **No web dashboard / multi-run trend viewer.** promptfoo and Inspect-style tools have
   rich viewers; we ship a single static per-run HTML page.
-- **Smaller probe count.** garak has many probes; our corpus is 22 curated boundary
+- **Smaller probe count.** garak has many probes; our corpus is 23 curated boundary
   patterns - narrower but deeper on the agentic operating-environment boundary.
 - **No tool-execution / agent-host evaluation.** The external path is prompt-only.
 - **No plugin/entry-point ecosystem** for third-party probes/adapters yet.

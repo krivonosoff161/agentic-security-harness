@@ -23,7 +23,7 @@ def test_diff_run_fixed(tmp_path: Path) -> None:
     b = _run("protected-demo-agent", tmp_path / "b")
     diff = diff_runs(a, b)
     assert diff.kind == "run"
-    assert diff.finding_fixed == 22
+    assert diff.finding_fixed == 23
     assert diff.new_finding == 0 and diff.changed_status == 0
     assert all(e.change == "finding_fixed" for e in diff.entries)
 
@@ -34,7 +34,7 @@ def test_diff_run_unchanged(tmp_path: Path) -> None:
     a = _run("mock", tmp_path / "a")
     b = _run("mock", tmp_path / "b")
     diff = diff_runs(a, b)
-    assert diff.unchanged_finding == 22
+    assert diff.unchanged_finding == 23
     assert diff.stable_pass == 0
     assert diff.finding_fixed == 0 and diff.new_finding == 0
 
@@ -44,7 +44,7 @@ def test_diff_run_stable_pass(tmp_path: Path) -> None:
     a = _run("protected-demo-agent", tmp_path / "a")
     b = _run("protected-demo-agent", tmp_path / "b")
     diff = diff_runs(a, b)
-    assert diff.stable_pass == 22
+    assert diff.stable_pass == 23
     assert diff.unchanged_finding == 0
     assert all(e.change == "stable_pass" for e in diff.entries)
 
@@ -54,7 +54,7 @@ def test_diff_run_new_findings(tmp_path: Path) -> None:
     a = _run("protected-demo-agent", tmp_path / "a")
     b = _run("demo-agent", tmp_path / "b")
     diff = diff_runs(a, b)
-    assert diff.new_finding == 22
+    assert diff.new_finding == 23
     assert all(e.change == "new_finding" for e in diff.entries)
 
 
@@ -191,8 +191,8 @@ def test_write_and_validate_diff(tmp_path: Path) -> None:
     data = json.loads(paths["run_diff_json"].read_text(encoding="utf-8"))
     # v0.2 writes explicit labels and deprecated v0.1 aliases so old consumers do not
     # break while migrating away from ambiguous fixed/new/changed wording.
-    assert data["finding_fixed"] == 22
-    assert data["fixed"] == 22
+    assert data["finding_fixed"] == 23
+    assert data["fixed"] == 23
     result = validate_path(out)
     assert result.ok, result.errors
     assert result.run_diff_dirs == ["diff"]

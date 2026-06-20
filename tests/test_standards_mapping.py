@@ -24,8 +24,8 @@ def test_every_corpus_category_is_mapped() -> None:
 
 def test_pattern_ids_are_unique_and_stable() -> None:
     ids = [p.pattern_id for p in seed_patterns()]
-    assert len(ids) == 22
-    assert len(set(ids)) == 22
+    assert len(ids) == 23
+    assert len(set(ids)) == 23
 
 
 def test_owasp_agentic_single_sourced_from_corpus() -> None:

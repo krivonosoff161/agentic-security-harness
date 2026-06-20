@@ -301,7 +301,7 @@ def test_public_showcase_checklist_is_linked_from_release_and_example_docs() -> 
     assert "showcase-report-checklist.md" in examples_index
     assert "showcase-report-checklist.md" in comparison_readme
     assert "docs/showcase-report-checklist.md" in readme
-    assert "Findings reduced: **22 -> 0**" in comparison_readme
+    assert "Findings reduced: **23 -> 0**" in comparison_readme
     assert "Findings reduced: **17 -> 0**" not in comparison_readme
 
 
@@ -412,6 +412,7 @@ def test_research_claims_registry_exists_and_has_required_structure() -> None:
         assert claim in claims
 
     assert "docs/theory/data-boundary.md" in claims
+    assert "fail-closed recovery for a missing required envelope" in claims
     assert "Memory and tool envelope uses are adjacent coverage, not primary proof." in claims
     assert (
         "cross-provider label survival are not yet covered as primary data-boundary claims"
@@ -522,6 +523,7 @@ def test_data_boundary_theory_separates_primary_adjacent_and_gaps() -> None:
         "data_boundary_classification_mutation",
         "data_boundary_handoff_label_stripping",
         "provider_boundary_leakage_sanitized",
+        "data_boundary_missing_envelope_recovery",
     ):
         assert pattern in theory
 
@@ -534,7 +536,7 @@ def test_data_boundary_theory_separates_primary_adjacent_and_gaps() -> None:
         "rank(E_out.data_class) >= rank(E_in.data_class)",
         "t_use <= t_created + ttl_seconds",
         "This is a partial order, not a universal security proof",
-        "individual patterns do not themselves prove the whole 22 -> 0 result",
+        "individual patterns do not themselves prove the whole 23 -> 0 result",
         "Memory write/read envelope drift",
         "Missing envelope recovery",
         "`planned`",
@@ -557,7 +559,7 @@ def test_data_boundary_theory_does_not_overclaim_memory_or_production_security()
 
     for phrase in (
         "full memory write/read envelope preservation",
-        "missing-envelope recovery",
+        "complete recovery behavior",
         "complete formal security proof",
     ):
         assert phrase in limits_section

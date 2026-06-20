@@ -30,7 +30,7 @@ agent-host adapters are future.
 - **v0.9 - corpus deepening slice:** environment-injected memory poisoning,
   unintentional cross-user contamination, recursive execution amplification,
   tool-selection manipulation, multi-turn indirect instruction escalation -
-  22 deterministic patterns total.
+  23 deterministic patterns total.
 - **v0.10 - remediation layer and report depth:** structured control
   recommendations (`ControlRecommendation` model), `remediation.json` and
   `remediation.md` artifacts, executive report integration, remediation

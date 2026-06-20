@@ -1,0 +1,30 @@
+{
+  "schema_version": "0.1",
+  "run_id": "run_e74552fbd8",
+  "run_kind": "compare",
+  "created_at": "2026-06-20T07:43:01Z",
+  "tool_version": "0.13.0",
+  "target": "demo-local-agent vs protected-demo-agent",
+  "model": "",
+  "scenario": "seed-corpus",
+  "variants": [],
+  "repeats": 1,
+  "outcomes": {
+    "baseline_failed": 23,
+    "protected_failed": 0
+  },
+  "metadata": {},
+  "artifacts": [
+    "baseline/executive.md",
+    "baseline/remediation.json",
+    "baseline/remediation.md",
+    "baseline/scorecard.json",
+    "baseline/summary.md",
+    "baseline/traces.json",
+    "comparison.md",
+    "protected/executive.md",
+    "protected/scorecard.json",
+    "protected/summary.md",
+    "protected/traces.json"
+  ]
+}

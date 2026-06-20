@@ -21,7 +21,7 @@ Every candidate below must follow the same project rules:
 
 ## Current coverage baseline
 
-The current local corpus has 22 deterministic seed patterns:
+The current local corpus has 23 deterministic seed patterns:
 
 1. `indirect_prompt_injection_via_tool_output`
 2. `data_boundary_recipient_confusion`
@@ -30,21 +30,22 @@ The current local corpus has 22 deterministic seed patterns:
 5. `data_boundary_handoff_label_stripping`
 6. `tool_permission_abuse_sanitized`
 7. `provider_boundary_leakage_sanitized`
-8. `sleeping_prompt.delayed_activation`
-9. `audit.spam_label_abuse`
-10. `budget.loop_abuse`
-11. `capability.delegation_chain_drift`
-12. `mcp.tool_schema_deception`
-13. `audit.hash_chain_tamper`
-14. `perception_boundary.sensor_command_confusion`
-15. `ambient_authority.environmental_privilege_escalation`
-16. `approval_laundering.underjustified_confirmation`
-17. `memory_governance.unscoped_memory_persistence`
-18. `memory_governance.environment_injected_poisoning`
-19. `memory_governance.unintentional_cross_user`
-20. `budget.recursive_execution_amplification`
-21. `mcp.tool_selection_manipulation`
-22. `indirect_instruction.multi_turn_escalation`
+8. `data_boundary_missing_envelope_recovery`
+9. `sleeping_prompt.delayed_activation`
+10. `audit.spam_label_abuse`
+11. `budget.loop_abuse`
+12. `capability.delegation_chain_drift`
+13. `mcp.tool_schema_deception`
+14. `audit.hash_chain_tamper`
+15. `perception_boundary.sensor_command_confusion`
+16. `ambient_authority.environmental_privilege_escalation`
+17. `approval_laundering.underjustified_confirmation`
+18. `memory_governance.unscoped_memory_persistence`
+19. `memory_governance.environment_injected_poisoning`
+20. `memory_governance.unintentional_cross_user`
+21. `budget.recursive_execution_amplification`
+22. `mcp.tool_selection_manipulation`
+23. `indirect_instruction.multi_turn_escalation`
 
 The important distinction for future work:
 
@@ -271,7 +272,7 @@ v0.7 added:
 
 ### v0.8 - perception boundary and ambient authority (done)
 
-Implemented in the 22-pattern corpus:
+Implemented in the 23-pattern corpus:
 
 - `perception_boundary.sensor_command_confusion` with synthetic OCR/ASR/HTML transcripts;
 - `ambient_authority.environmental_privilege_escalation` with synthetic host capability markers;

@@ -13,13 +13,13 @@ secrets, or third-party systems.
 
 | Metric | Baseline `demo-agent` | Protected `protected-demo-agent` |
 |---|---:|---:|
-| Patterns failed | 22 | 0 |
-| Patterns passed | 0 | 22 |
-| Total findings | 22 | 0 |
-| High findings | 20 | 0 |
+| Patterns failed | 23 | 0 |
+| Patterns passed | 0 | 23 |
+| Total findings | 23 | 0 |
+| High findings | 21 | 0 |
 | Medium findings | 2 | 0 |
 
-Findings reduced: **22 -> 0**.
+Findings reduced: **23 -> 0**.
 
 This means the protected local demo target handles the current synthetic corpus better
 than the vulnerable local demo target. It does not guarantee real-world protection.

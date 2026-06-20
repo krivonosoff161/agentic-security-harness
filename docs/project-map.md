@@ -35,7 +35,7 @@ If those six points hold, the benchmark is coherent.
 
 | Piece | What it does | Where to look |
 |---|---|---|
-| Corpus | The 22 implemented defensive patterns and their expected outcomes. | [corpus.md](corpus.md), `src/agentic_security_harness/corpus.py` |
+| Corpus | The 23 implemented defensive patterns and their expected outcomes. | [corpus.md](corpus.md), `src/agentic_security_harness/corpus.py` |
 | Boundary model | The protection/boundary invariants the corpus is organized around. | [agentic-boundary-model.md](agentic-boundary-model.md) |
 | Evaluation topologies | The system shapes a target adapter can represent: local target, agent, memory loop, tool loop, model chain, handoff, provider boundary, recovery path. | [evaluation-topologies.md](evaluation-topologies.md) |
 | Corpus expansion plan | Invariant-based backlog for future patterns without full combinatorial expansion. | [corpus-expansion-plan.md](corpus-expansion-plan.md) |
@@ -122,8 +122,8 @@ If you still want the linear path:
    operating-environment boundary thesis.
 5. [Evaluation topologies](evaluation-topologies.md) - what kinds of systems can sit
    behind a target adapter.
-6. [Corpus coverage matrix](corpus.md) - the 22 implemented patterns.
-7. [Comparison example](../examples/comparison-report/README.md) - the visible 22 -> 0
+6. [Corpus coverage matrix](corpus.md) - the 23 implemented patterns.
+7. [Comparison example](../examples/comparison-report/README.md) - the visible 23 -> 0
    demonstration.
 8. [Authorized testing paths](authorized-testing-paths.md) - local, owned, authorized,
    provider-program, and standards-aligned use.
@@ -147,7 +147,7 @@ ash compare --baseline demo-agent --protected protected-demo-agent --out reports
 ash validate reports/comparison
 ```
 
-Expected current result: baseline has 22 findings; protected has 0 findings.
+Expected current result: baseline has 23 findings; protected has 0 findings.
 
 ## How to add a new research idea safely
 

@@ -49,6 +49,11 @@ _OUTCOMES: dict[str, tuple[Severity, str, str]] = {
         "forward_check",
         "mock target forwarded a can_forward=false item to a provider",
     ),
+    "data_boundary_missing_envelope_recovery": (
+        "high",
+        "envelope_check",
+        "mock target continued a boundary action without a required data envelope",
+    ),
     "sleeping_prompt.delayed_activation": (
         "high",
         "provenance_check",

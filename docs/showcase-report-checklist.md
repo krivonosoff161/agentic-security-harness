@@ -49,7 +49,7 @@ The showcase must include a small comparison table:
 | Protected target | Target id and descriptor. |
 | Baseline findings | Count and severity distribution. |
 | Protected findings | Count and severity distribution. |
-| Findings delta | Example: `22 -> 0`; do not call this a security guarantee. |
+| Findings delta | Example: `23 -> 0`; do not call this a security guarantee. |
 | Validation | Command and pass/fail result. |
 
 ## Claim boundary text
@@ -92,4 +92,3 @@ Before publishing, confirm:
 - the report states residual risk and what it does not prove;
 - external or local-runtime runs include recovery guidance and raw-response artifact
   references where applicable.
-

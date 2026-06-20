@@ -1,14 +1,14 @@
 {
   "schema_version": "0.1",
   "target_name": "demo-local-agent",
-  "total_traces": 22,
+  "total_traces": 23,
   "findings_by_severity": {
-    "high": 20,
+    "high": 21,
     "medium": 2
   },
   "findings_by_category": {
     "indirect_prompt_injection": 2,
-    "data_boundary": 4,
+    "data_boundary": 5,
     "memory_poisoning": 1,
     "tool_permission": 1,
     "sleeping_prompt": 1,
@@ -30,6 +30,7 @@
     "data_boundary_handoff_label_stripping",
     "tool_permission_abuse_sanitized",
     "provider_boundary_leakage_sanitized",
+    "data_boundary_missing_envelope_recovery",
     "sleeping_prompt.delayed_activation",
     "audit.spam_label_abuse",
     "budget.loop_abuse",

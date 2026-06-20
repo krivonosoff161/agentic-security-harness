@@ -88,6 +88,12 @@ class ProtectedDemoAgent(DemoAgent):
         self.log("forward_check", "agent", "can_forward=true; item forwarded")
         return False
 
+    def handle_missing_envelope(self, boundary: str) -> bool:
+        # Control: missing required envelope is not interpreted as public data.
+        self.log("boundary_action", "agent", f"started {boundary} without a data envelope")
+        self.log("envelope_check", "agent", "control: missing envelope; fail-closed")
+        return False
+
     def store_retrieved_content(self, key: str, value: str, envelope: DataEnvelope) -> None:
         # Control: keep the envelope (provenance + TTL) attached to the stored record.
         self.memory[key] = MemoryRecord(value=value, envelope=envelope)

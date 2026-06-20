@@ -4,14 +4,14 @@ Target: `demo-mock-agent`
 
 ## Scope
 
-- Corpus patterns: 22
-- Categories covered: 17
+- Corpus patterns: 23
+- Categories covered: 18
 - Run mode: deterministic synthetic local benchmark
 - Network/provider calls: none in the built-in demo targets
 
 ## Headline result
 
-- Findings present: 22
+- Findings present: 23
 - Patterns with no findings: 0
 
 ## Recommended control families
@@ -31,6 +31,7 @@ Target: `demo-mock-agent`
 - capability
 - data_boundary_classification_mutation
 - data_boundary_handoff_label_stripping
+- data_boundary_missing_envelope_recovery
 - data_boundary_recipient_confusion
 - indirect_instruction
 - indirect_prompt_injection_via_tool_output
@@ -44,7 +45,7 @@ Target: `demo-mock-agent`
 
 ## Findings by severity
 
-- high: 20
+- high: 21
 - medium: 2
 
 ## Highest-priority failures

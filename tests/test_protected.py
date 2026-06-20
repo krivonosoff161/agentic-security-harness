@@ -27,6 +27,7 @@ SEED_IDS = {
     "data_boundary_handoff_label_stripping",
     "tool_permission_abuse_sanitized",
     "provider_boundary_leakage_sanitized",
+    "data_boundary_missing_envelope_recovery",
     "sleeping_prompt.delayed_activation",
     "audit.spam_label_abuse",
     "budget.loop_abuse",
@@ -68,16 +69,16 @@ def test_protected_handles_all_seed_patterns_with_no_findings() -> None:
 def test_protected_scorecard_all_passed() -> None:
     card = build_scorecard(_protected_traces())
     assert card.target_name == "protected-demo-agent"
-    assert len(card.passed_patterns) == 22
+    assert len(card.passed_patterns) == 23
     assert card.failed_patterns == []
     assert card.findings_by_severity == {}
 
 
 def test_baseline_still_fails() -> None:
     card = build_scorecard(_baseline_traces())
-    assert len(card.failed_patterns) == 22
+    assert len(card.failed_patterns) == 23
     assert card.passed_patterns == []
-    assert card.findings_by_severity == {"high": 20, "medium": 2}
+    assert card.findings_by_severity == {"high": 21, "medium": 2}
 
 
 def test_compare_creates_full_structure(tmp_path: Path) -> None:
@@ -127,7 +128,7 @@ def test_no_network(monkeypatch: pytest.MonkeyPatch) -> None:
         raise AssertionError("network call attempted")
 
     monkeypatch.setattr(socket, "socket", _boom)
-    assert len(_protected_traces()) == 22
+    assert len(_protected_traces()) == 23
 
 
 def test_no_real_secret_markers() -> None:
