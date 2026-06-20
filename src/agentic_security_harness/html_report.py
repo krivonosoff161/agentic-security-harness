@@ -13,7 +13,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-from agentic_security_harness.safe_io import write_text_artifact
+from agentic_security_harness.safe_io import (
+    safe_credential_env_var_name,
+    write_text_artifact,
+)
 
 _CSS = """
 :root { color-scheme: light dark; }
@@ -405,9 +408,12 @@ def _render_external(run_dir: Path, manifest: dict | None) -> str:
             (
                 "credential_env_var",
                 _esc(
-                    config.get(
-                        "credential_env_var", config.get("api_key_env", "")
-                    ) or "(none)"
+                    safe_credential_env_var_name(
+                        config.get(
+                            "credential_env_var", config.get("api_key_env", "")
+                        )
+                    )
+                    or "(none)"
                 ),
             ),
         ]

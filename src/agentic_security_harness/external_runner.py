@@ -28,7 +28,10 @@ from agentic_security_harness.run_config import (
     _redact_url,
     build_external_runtime_metadata,
 )
-from agentic_security_harness.safe_io import write_text_artifact
+from agentic_security_harness.safe_io import (
+    safe_credential_env_var_name,
+    write_text_artifact,
+)
 
 
 def _result_id(
@@ -122,12 +125,16 @@ def run_external(
 
     total_requests = len(patterns) * len(variants) * repeats
     base_url_label = _redact_url(base_url)
+    credential_env_var_label = safe_credential_env_var_name(credential_env_var)
+    credential_env_var_lookup = (
+        credential_env_var if credential_env_var_label == credential_env_var else ""
+    )
     runtime = build_external_runtime_metadata(
         base_url=base_url,
         model=model,
         temperature=temperature,
         timeout_seconds=timeout_seconds,
-        credential_env_var=credential_env_var,
+        credential_env_var=credential_env_var_label,
         preset_name=preset_name,
     )
 
@@ -146,7 +153,7 @@ def run_external(
         max_variants=len(variants),
         selected_variants=[v.variant_id for v in variants],
         request_count=total_requests,
-        credential_env_var=credential_env_var,
+        credential_env_var=credential_env_var_label,
         network_mode=runtime.network_mode,
         runtime=runtime,
     )
@@ -163,8 +170,8 @@ def run_external(
         print(f"  variants: {len(variants)}")
         print(f"  repeats: {repeats}")
         print(f"  temperature: {temperature}")
-        if credential_env_var:
-            print(f"  credential_env_var: {credential_env_var}")
+        if credential_env_var_label:
+            print("  credential_env_var: configured (value hidden)")
         return ExternalSummary(
             scenario_id=scenario_id,
             adapter_type="openai-compatible",
@@ -190,7 +197,7 @@ def run_external(
                     pattern, variant.variant_id, variant.knobs,
                     repeat_idx, base_url, model, temperature,
                     timeout_seconds, max_retries, retry_backoff_seconds,
-                    raw_response_limit, credential_env_var, out_dir,
+                    raw_response_limit, credential_env_var_lookup, out_dir,
                 )
                 all_results.append(result)
 

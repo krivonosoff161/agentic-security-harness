@@ -529,6 +529,45 @@ def test_run_external_preset_writes_local_runtime_metadata(tmp_path: Path) -> No
     assert "Local runtime execution does not remove model-license" in report
 
 
+def test_run_external_redacts_mistaken_credential_env_value(tmp_path: Path) -> None:
+    secret = "sk-ABCDEFGHIJ0123456789"
+    with patch("urllib.request.urlopen", side_effect=_mock_chat_open()):
+        run_external(
+            base_url="http://localhost:8000/v1",
+            model="test",
+            scenario_id="perception-boundary",
+            out_dir=tmp_path / "ext",
+            credential_env_var=secret,
+        )
+
+    config_text = (tmp_path / "ext" / "run_config.json").read_text(encoding="utf-8")
+    report_text = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
+    assert secret not in config_text
+    assert secret not in report_text
+    config = json.loads(config_text)
+    assert config["credential_env_var"] == "sk-[REDACTED]"
+    assert config["runtime"]["credential_env_var"] == "sk-[REDACTED]"
+
+
+def test_run_external_dry_run_redacts_mistaken_credential_env_value(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    secret = "sk-ABCDEFGHIJ0123456789"
+
+    run_external(
+        base_url="http://localhost:8000/v1",
+        model="test",
+        scenario_id="perception-boundary",
+        out_dir=tmp_path / "ext",
+        credential_env_var=secret,
+        dry_run=True,
+    )
+
+    out = capsys.readouterr().out
+    assert secret not in out
+    assert "credential_env_var: configured (value hidden)" in out
+
+
 def test_run_external_adapter_error_has_recovery_hint(tmp_path: Path) -> None:
     with patch(
         "urllib.request.urlopen",

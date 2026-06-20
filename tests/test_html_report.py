@@ -1,5 +1,7 @@
 """Tests for the static HTML report renderer and the `ash report` command."""
 
+import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -111,6 +113,23 @@ def test_external_report_localhost_only(tmp_path: Path) -> None:
 
     urls = re.findall(r"https?://[^< \"]+", html)
     assert all(u.startswith("http://127.0.0.1") for u in urls), urls
+
+
+def test_external_html_redacts_legacy_credential_env_value(tmp_path: Path) -> None:
+    run_dir = tmp_path / "external"
+    shutil.copytree(EXAMPLES / "external-demo-report", run_dir)
+    (run_dir / "run_index.json").unlink()
+    config_path = run_dir / "run_config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    secret = "sk-ABCDEFGHIJ0123456789"
+    config.pop("credential_env_var", None)
+    config["api_key_env"] = secret
+    config_path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
+
+    html = render_report(run_dir)
+
+    assert secret not in html
+    assert "sk-[REDACTED]" in html
 
 
 def test_matrix_report_renders_heatmap(tmp_path: Path) -> None:

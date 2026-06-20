@@ -9,6 +9,7 @@ import hashlib
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from agentic_security_harness.safe_io import safe_credential_env_var_name
 from agentic_security_harness.schema_versions import CORPUS_VERSION, SCHEMA_VERSIONS
 
 _MAX_REPEATS = 10
@@ -65,6 +66,10 @@ class ExternalRuntimeMetadata(BaseModel):
         legacy = migrated.pop("api_key_env", None)
         if "credential_env_var" not in migrated and legacy is not None:
             migrated["credential_env_var"] = legacy
+        if "credential_env_var" in migrated:
+            migrated["credential_env_var"] = safe_credential_env_var_name(
+                migrated["credential_env_var"]
+            )
         return migrated
 
 
@@ -109,6 +114,17 @@ class RunConfig(BaseModel):
         legacy = migrated.pop("api_key_env", None)
         if "credential_env_var" not in migrated and legacy is not None:
             migrated["credential_env_var"] = legacy
+        if "credential_env_var" in migrated:
+            migrated["credential_env_var"] = safe_credential_env_var_name(
+                migrated["credential_env_var"]
+            )
+        runtime = migrated.get("runtime")
+        if isinstance(runtime, dict) and "credential_env_var" in runtime:
+            runtime = dict(runtime)
+            runtime["credential_env_var"] = safe_credential_env_var_name(
+                runtime["credential_env_var"]
+            )
+            migrated["runtime"] = runtime
         return migrated
 
 
@@ -139,7 +155,7 @@ def build_external_runtime_metadata(
         local_only=profile.local_only,
         prompt_only=True,
         tool_execution=False,
-        credential_env_var=credential_env_var,
+        credential_env_var=safe_credential_env_var_name(credential_env_var),
         model_license_note=profile.model_license_note,
         recovery_guidance=list(profile.recovery_guidance),
     )
