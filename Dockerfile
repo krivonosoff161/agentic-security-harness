@@ -1,7 +1,7 @@
 # Local/offline image for the Agentic Security Harness CLI and the fake-server demo.
 # No secrets, no network at runtime by default. The external path stays opt-in: it only
 # calls a model endpoint when you run `ash run-external` (without --dry-run) yourself.
-FROM python:3.12-slim
+FROM python:3.12-slim@sha256:d764629ce0ddd8c71fd371e9901efb324a95789d2315a47db7e4d27e78f1b0e9
 
 # Don't write .pyc, unbuffered stdout for clean container logs.
 ENV PYTHONDONTWRITEBYTECODE=1 \
