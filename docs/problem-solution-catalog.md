@@ -25,7 +25,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 
 ---
 
-> **Implemented local demo corpus:** twenty-two of these failure modes are implemented as
+> **Implemented local demo corpus:** twenty-four of these failure modes are implemented as
 > deterministic, sanitized seed patterns in the harness: data-boundary failures, indirect
 > tool-output injection, memory poisoning and memory governance, tool-permission abuse,
 > provider-boundary leakage, delayed stored-content activation, audit suppression and
@@ -109,10 +109,10 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 ## 7. Cross-agent contamination
 
 - **What goes wrong:** one agent poisons another via shared memory / messages / tool outputs; the envelope/labels are stripped at handoff.
-- **Defensive scenario:** two mock agents; A passes content to B; check label survival and contamination.
+- **Defensive scenario:** two local toy agents; A passes content to B; check label survival and contamination.
 - **Detection signals:** envelope fields dropped at handoff; B treating A's untrusted content as trusted.
 - **Mitigation controls:** envelope propagation across handoffs, provenance, per-agent trust.
-- **Status:** current for label stripping; broader cross-agent contamination is planned.
+- **Status:** current for label stripping through `toy-multi-agent`; broader cross-agent contamination is planned.
 - **Harness test pattern:** `data_boundary_handoff_label_stripping` now; planned ID `cross_agent.contamination`.
 - **Planned reference-control idea:** a broker/gateway enforces the envelope on inter-agent messages.
 - **Human / process controls:** workflow review.
@@ -189,7 +189,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Defensive scenario:** a synthetic capability grants `read` for a narrow purpose; a delegated agent attempts to broaden it before handing it off.
 - **Detection signals:** child scope is not a subset of parent scope; TTL expands; issuer/subject chain missing; delegation depth not enforced.
 - **Mitigation controls:** most-restrictive-scope-wins, bounded delegation depth, TTL cannot expand, issuer/subject recorded in the trace.
-- **Status:** current (synthetic capability token only; no real host or cloud authority).
+- **Status:** current through the local `toy-multi-agent` handoff slice (synthetic capability token only; no real host or cloud authority).
 - **Harness test pattern:** `capability.delegation_chain_drift`.
 - **Planned reference-control idea:** authority-envelope enforcement at agent handoff and tool-call boundaries.
 - **Human / process controls:** least-privilege agent design; explicit review of delegated capabilities.
@@ -218,6 +218,30 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Planned reference-control idea:** future persistent trace store with stronger integrity hardening after the file-based story is stable.
 - **Human / process controls:** audit export review; protected storage for committed reports.
 - **Residual risk:** local hash chains show tampering but do not prove who made the change.
+
+## 16. Trust gate without a recovery path
+
+- **What goes wrong:** a trust gate rejects, blocks, or cannot verify a request, but leaves the user with only an opaque denial or silent dead end.
+- **Defensive scenario:** a local deterministic gate evaluates a synthetic verification request with insufficient evidence. The correct behavior is to refuse the unsafe action while still explaining the failure and next options.
+- **Detection signals:** missing failure reason, missing final/intermediate status, missing retry path, missing alternative route, missing artifact reference, or a user-facing message that does not explain the next step.
+- **Mitigation controls:** structured failure envelope with reason code, finality, retry command/conditions, alternative route, saved artifact path, and escalation owner/contact when applicable.
+- **Status:** designed candidate in [corpus-expansion-plan.md](corpus-expansion-plan.md); not implemented in the shipped corpus yet.
+- **Harness test pattern:** planned ID `recovery.trust_gate_no_path`.
+- **Planned reference-control idea:** every trust gate returns the same recovery envelope and writes a diagnostic artifact before ending the flow.
+- **Human / process controls:** document review ownership, retry policy, manual escalation conditions, and what evidence is safe to collect.
+- **Residual risk:** the harness can verify a recovery path exists and is coherent; it cannot guarantee a human reviewer, provider, or alternate route will resolve the issue.
+
+## 17. Memory read envelope drift
+
+- **What goes wrong:** a memory record is written with a restrictive envelope, but later read or used with a weaker envelope: recipients/purpose widen, class/source downgrades, TTL is removed, or expired data is treated as usable.
+- **Defensive scenario:** write a synthetic confidential memory item with one allowed recipient, one purpose, `can_forward=false`, immutable classification, trusted source, and short TTL; then attempt to read it with a weaker or expired read-time envelope.
+- **Detection signals:** read envelope is not equal to or more restrictive than the write envelope; TTL has expired relative to write time; a read-time envelope is missing, downgraded, or silently expanded.
+- **Mitigation controls:** bind the original envelope to the memory record, require `E_read <= E_write`, evaluate freshness from write time, and fail closed on missing/invalid read envelopes.
+- **Status:** current for deterministic synthetic write/read envelope drift. This is primary data-boundary coverage, not a claim of complete memory-governance behavior for real deployed stores.
+- **Harness test pattern:** `data_boundary_memory_envelope_drift`.
+- **Planned reference-control idea:** memory store middleware returns data only with the stored envelope and a read decision tied to the original write envelope.
+- **Human / process controls:** review memory-retention policy, allowed recipients, and TTL defaults for agent memory features.
+- **Residual risk:** real stores may transform, summarize, shard, or cache records outside the harness adapter; semantic reconstruction is not solved by field comparison alone.
 
 ---
 

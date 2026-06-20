@@ -28,6 +28,8 @@ _FALLBACK_FAMILY_MAP = {
     "data_boundary_handoff_label_stripping": "data_boundary",
     "tool_permission_abuse_sanitized": "tool_selection",
     "provider_boundary_leakage_sanitized": "provider_boundary",
+    "data_boundary_missing_envelope_recovery": "data_boundary",
+    "data_boundary_memory_envelope_drift": "data_boundary",
     "sleeping_prompt.delayed_activation": "memory_governance",
     "audit.spam_label_abuse": "audit_completeness",
     "budget.loop_abuse": "budget_control",

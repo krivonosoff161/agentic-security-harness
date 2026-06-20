@@ -110,10 +110,10 @@ ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenar
 ```
 
 This is the first step that makes requests - all to localhost. For a real endpoint you
-would add `--api-key-env ASH_EXTERNAL_API_KEY` after exporting the key:
+would add `--credential-env ASH_EXTERNAL_API_KEY` after exporting the key:
 
-- bash: `export ASH_EXTERNAL_API_KEY=your_key`
-- PowerShell: `$env:ASH_EXTERNAL_API_KEY = "your_key"`
+- bash: `export ASH_EXTERNAL_API_KEY=REDACTED_VALUE`
+- PowerShell: `$env:ASH_EXTERNAL_API_KEY = "REDACTED_VALUE"`
 
 The key value is never logged or stored - only the env var name is recorded.
 

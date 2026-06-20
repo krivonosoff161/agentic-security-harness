@@ -19,7 +19,7 @@ is driven, and no streaming is used. See [What is not supported yet](#13-what-is
 ### Presets (optional shortcut)
 
 `ash external-presets` lists connection presets that fill a default `base_url` and suggest
-an API-key env-var **name**. A preset is only a convenience - it does not add a provider
+a credential env-var **name**. A preset is only a convenience - it does not add a provider
 SDK, change the transport, or hide a network call.
 
 ```bash
@@ -33,6 +33,17 @@ Presets: `fake-local`, `vllm`, `ollama`, `lm-studio`, `deepseek`,
 overrides the preset; `generic-openai-compatible` requires you to pass your own
 `--base-url`. Vendor URLs are starting points - confirm the current value in the
 provider's docs.
+
+Every new `run-external` artifact records a `runtime` block in `run_config.json` with:
+
+- `runtime_name` / `runtime_family`;
+- `network_mode` (`local-only` for Ollama, LM Studio, vLLM, localhost, and the fake server;
+  `authorized-external` for cloud or remote OpenAI-compatible endpoints);
+- `authorization_mode` (`local_runtime`, `demo_synthetic`, or `authorized_external`);
+- `model_id` and a model license / policy note;
+- `prompt_only=true` and `tool_execution=false`;
+- recovery guidance for server-not-running, model-not-found, invalid JSON, timeout, and
+  inconclusive output.
 
 ### Stochastic models and repeats
 
@@ -64,19 +75,22 @@ request_count = patterns_in_scenario x variants x repeats
   records only the env-var *name*.
 - `base_url` is redacted before it is stored, so embedded credentials never land in a
   report.
+- Local runtime metadata is stored in `run_config.json`, `external_report.md`, and
+  `run_index.json`; the full endpoint is still redacted and credential values are never
+  stored.
 
 Scenario sizes (use these to estimate cost):
 
 | Scenario | Patterns | Default variants |
 |---|---|---|
-| `data-boundary` | 4 | 3 |
+| `data-boundary` | 6 | 3 |
 | `memory-governance` | 5 | 3 |
 | `tool-selection` | 3 | 3 |
 | `authority-control` | 2 | 2 |
 | `approval-audit` | 3 | 3 |
 | `budget-control` | 2 | 2 |
 | `perception-boundary` | 1 | 2 |
-| `all` | 22 | 4 |
+| `all` | 24 | 4 |
 
 `--max-variants 1` (the external default) keeps runs small. Run `ash scenarios --verbose`
 for the exact variant ids.
@@ -120,19 +134,19 @@ shape for every row; the recipes spell them out.
 
 ```powershell
 # (only for authenticated endpoints) set the key by ENV VAR NAME
-$env:ASH_EXTERNAL_API_KEY = "your_key_here"
+$env:ASH_EXTERNAL_API_KEY = "REDACTED_VALUE"
 
 # 1) preflight (no network)
 ash external-check --base-url https://YOUR-ENDPOINT/v1 --model your-model `
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY
 
 # 2) dry-run (no network, no files)
 ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model `
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --dry-run
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --dry-run
 
 # 3) small live run
 ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model `
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY `
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY `
   --out reports/external-run
 
 # 4) validate + read
@@ -150,19 +164,19 @@ PowerShell notes:
 
 ```bash
 # (only for authenticated endpoints) set the key by ENV VAR NAME
-export ASH_EXTERNAL_API_KEY=your_key_here
+export ASH_EXTERNAL_API_KEY=REDACTED_VALUE
 
 # 1) preflight (no network)
 ash external-check --base-url https://YOUR-ENDPOINT/v1 --model your-model \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY
 
 # 2) dry-run (no network, no files)
 ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --dry-run
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --dry-run
 
 # 3) small live run
 ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY \
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY \
   --out reports/external-run
 
 # 4) validate + read
@@ -205,7 +219,7 @@ ash validate reports/external-vllm
 ```
 
 If you started vLLM with an API key, set `export ASH_EXTERNAL_API_KEY=...` and add
-`--api-key-env ASH_EXTERNAL_API_KEY`. Use the exact model id vLLM reports (it is the
+`--credential-env ASH_EXTERNAL_API_KEY`. Use the exact model id vLLM reports (it is the
 `--model` you launched it with).
 
 ## 9. Recipe: DeepSeek API
@@ -214,13 +228,13 @@ DeepSeek exposes an OpenAI-compatible API. Confirm the current base URL and mode
 the DeepSeek API docs.
 
 ```bash
-export ASH_EXTERNAL_API_KEY=your_deepseek_key
+export ASH_EXTERNAL_API_KEY=REDACTED_VALUE
 ash external-check --base-url https://api.deepseek.com/v1 --model deepseek-chat \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY
 ash run-external  --base-url https://api.deepseek.com/v1 --model deepseek-chat \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --dry-run
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --dry-run
 ash run-external  --base-url https://api.deepseek.com/v1 --model deepseek-chat \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --out reports/external-deepseek
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --out reports/external-deepseek
 ash validate reports/external-deepseek
 ```
 
@@ -231,16 +245,16 @@ Model Studio offers an OpenAI **compatible-mode** endpoint. The host differs by 
 docs. International example:
 
 ```bash
-export ASH_EXTERNAL_API_KEY=your_dashscope_key
+export ASH_EXTERNAL_API_KEY=REDACTED_VALUE
 ash external-check \
   --base-url https://dashscope-intl.aliyuncs.com/compatible-mode/v1 \
-  --model qwen-plus --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY
+  --model qwen-plus --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY
 ash run-external \
   --base-url https://dashscope-intl.aliyuncs.com/compatible-mode/v1 \
-  --model qwen-plus --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --dry-run
+  --model qwen-plus --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --dry-run
 ash run-external \
   --base-url https://dashscope-intl.aliyuncs.com/compatible-mode/v1 \
-  --model qwen-plus --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY \
+  --model qwen-plus --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY \
   --out reports/external-qwen
 ash validate reports/external-qwen
 ```
@@ -254,13 +268,13 @@ Any gateway/proxy that exposes `/chat/completions` works. Substitute your endpoi
 auth.
 
 ```bash
-export ASH_EXTERNAL_API_KEY=your_key   # omit if the gateway needs no auth
+export ASH_EXTERNAL_API_KEY=REDACTED_VALUE   # omit if the gateway needs no auth
 ash external-check --base-url https://YOUR-ENDPOINT/v1 --model your-model-id \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY
 ash run-external  --base-url https://YOUR-ENDPOINT/v1 --model your-model-id \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --dry-run
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --dry-run
 ash run-external  --base-url https://YOUR-ENDPOINT/v1 --model your-model-id \
-  --scenario data-boundary --api-key-env ASH_EXTERNAL_API_KEY --out reports/external-gw
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --out reports/external-gw
 ash validate reports/external-gw
 ```
 
@@ -271,6 +285,22 @@ it, so both `https://host/v1` and `https://host/v1/chat/completions` work.
 
 Both **Ollama** and **LM Studio** expose a native OpenAI-compatible server, so they use
 the same path with **no API key**.
+
+For the low-memory maintainer smoke profile, start with
+[local-prometheus-workflow.md](local-prometheus-workflow.md). It uses the
+`prometheus-qwen15b-lowctx:latest` Ollama profile with strict request caps and explains
+how to read inconclusive/error results.
+
+Treat local runtime evaluation as a **local authorized lab**. Running a model on your own
+machine removes cloud-provider runtime dependency, but it does not remove model-license
+terms, acceptable-use policies, or the requirement to test only synthetic, owned, or
+authorized targets. See [authorized testing paths](authorized-testing-paths.md).
+
+For local presets, `run_config.json` records `network_mode=local-only`,
+`authorization_mode=local_runtime`, `prompt_only=true`, and `tool_execution=false`. If the
+server is down, the model is not loaded, or the model returns non-JSON / contradictory
+output, the result is `adapter_error` or `inconclusive` with a recovery hint; it is not a
+pass.
 
 Ollama (default port `11434`, OpenAI-compatible endpoint under `/v1`):
 
@@ -294,11 +324,15 @@ Small local models often return prose instead of strict JSON. The harness record
 as `inconclusive` (not `pass`/`finding`). Lower `--temperature 0.0` and prefer a model
 that follows JSON instructions if you see many inconclusive results.
 
+Recommended artifact note for local runs: review the generated `runtime` block before
+publishing results, and keep a private note of the exact model license/policy you checked
+if the model card or local registry metadata is not public.
+
 ## 13. Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| `API key environment variable 'X' is not set` | env var not exported in this shell | bash: `export X=...` - PowerShell: `$env:X='...'`; or omit `--api-key-env` for keyless local servers |
+| `Credential environment variable 'X' is not set` | env var not exported in this shell | set `X` in the current shell; or omit `--credential-env` for keyless local servers |
 | `Network error connecting to ...` / connection refused | server not running, wrong port/host | start the server; check the port; confirm `http`/`https` |
 | `HTTP 401` / `HTTP 403` | wrong/missing key, or wrong auth style | verify the key and that the endpoint expects `Authorization: Bearer` |
 | `HTTP 404` | wrong base URL path | most endpoints want `.../v1`; the harness adds `/chat/completions` |

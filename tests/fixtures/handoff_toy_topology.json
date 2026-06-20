@@ -1,0 +1,33 @@
+{
+  "schema_version": "handoff-toy-fixture-v0.1",
+  "description": "Synthetic local-only fixtures for the deterministic coordinator/worker handoff topology.",
+  "fixed_time": "2026-01-01T12:00:00Z",
+  "policy_version": "handoff-policy-v1",
+  "scenarios": [
+    {
+      "id": "summary_label_stripping",
+      "pattern_id": "data_boundary_handoff_label_stripping",
+      "payload_type": "summary",
+      "payload_hash": "b858a449d95347599a923df890d75b73c34ffa78ec267410f0b6d7974041daa3",
+      "sender_source_labels": ["trusted_policy", "synthetic_user_input"],
+      "receiver_source_labels": [],
+      "expected_verdict": "blocked",
+      "expected_failure_reasons": ["missing_provenance", "label_loss"],
+      "vulnerable_receiver_action": "consume_as_trusted_fact",
+      "protected_receiver_action": "block"
+    },
+    {
+      "id": "capability_scope_expansion",
+      "pattern_id": "capability.delegation_chain_drift",
+      "payload_type": "capability",
+      "parent_payload_hash": "19f88938392145f3b0d74e19fe71e4e92798976261a39de2c81ae676419839a2",
+      "delegated_payload_hash": "a736faa7af46205c01c066906fdecaefc18cd4c39999abac0f5e6d3c3cc63734",
+      "parent_authority_scope": ["read"],
+      "delegated_authority_scope": ["read", "write"],
+      "expected_verdict": "blocked",
+      "expected_failure_reasons": ["authority_expansion"],
+      "vulnerable_receiver_action": "consume_as_trusted_authority",
+      "protected_receiver_action": "block"
+    }
+  ]
+}

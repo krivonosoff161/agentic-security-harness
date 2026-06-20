@@ -50,6 +50,8 @@ use the GitHub "Defensive pattern proposal" template before code is written.
 
 ## Pull requests
 
+- **All changes go through a branch and pull request.** Do not push directly to `main`.
+  `main` is the stable, release-facing branch.
 - One logical change per PR; conventional commit style (`feat:`, `fix:`, `docs:`, `test:`).
 - Use the pull request template and keep issue templates aligned with the change type.
 - Include tests; keep `python -m pytest`, `python -m ruff check .`, and

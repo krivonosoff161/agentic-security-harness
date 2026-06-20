@@ -33,8 +33,8 @@ be built before the benchmark methodology stabilizes (see
 
 - A frozen, versioned trace schema and corpus manifest with a documented compatibility
   policy (a v1.0 blocker).
-- Second-reviewer verification of the OWASP LLM / NIST category mappings and a decision on
-  MITRE ATLAS (currently deferred).
+- Second-reviewer verification of the OWASP LLM / NIST category mappings and the current
+  MITRE ATLAS verified subset.
 - A documented statistical guidance note for interpreting flaky/inconclusive rates across
   repeats.
 

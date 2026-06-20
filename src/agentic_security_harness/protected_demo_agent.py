@@ -7,6 +7,7 @@ so the seed patterns produce PASS traces with no findings. Local, synthetic, no 
 
 from agentic_security_harness.demo_adapter import run_scenarios
 from agentic_security_harness.demo_agent import DemoAgent, MemoryRecord
+from agentic_security_harness.envelope_policy import validate_memory_read_envelope
 from agentic_security_harness.models import (
     AuditEntry,
     CapabilityToken,
@@ -86,6 +87,39 @@ class ProtectedDemoAgent(DemoAgent):
             self.log("forward_check", "agent", "control: can_forward=false; forwarding blocked")
             return False
         self.log("forward_check", "agent", "can_forward=true; item forwarded")
+        return False
+
+    def handle_missing_envelope(self, boundary: str) -> bool:
+        # Control: missing required envelope is not interpreted as public data.
+        self.log("boundary_action", "agent", f"started {boundary} without a data envelope")
+        self.log("envelope_check", "agent", "control: missing envelope; fail-closed")
+        return False
+
+    def read_memory_with_envelope_drift(
+        self,
+        key: str,
+        value: str,
+        write_envelope: DataEnvelope,
+        read_envelope: DataEnvelope,
+        elapsed_seconds: int,
+    ) -> bool:
+        self.memory[key] = MemoryRecord(value=value, envelope=write_envelope)
+        self.log("memory_write", "agent", "stored item with original data envelope")
+        self.log("memory_read", "agent", f"read memory key '{key}' after {elapsed_seconds}s")
+        result = validate_memory_read_envelope(
+            write_envelope=write_envelope,
+            stored_envelope=self.memory[key].envelope,
+            read_envelope=read_envelope,
+            elapsed_seconds=elapsed_seconds,
+        )
+        if not result.ok:
+            self.log(
+                "envelope_drift_check",
+                "agent",
+                "control: read-time envelope drift detected; memory use blocked",
+            )
+            return False
+        self.log("envelope_drift_check", "agent", "control: read-time envelope remained bounded")
         return False
 
     def store_retrieved_content(self, key: str, value: str, envelope: DataEnvelope) -> None:

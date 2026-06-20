@@ -5,6 +5,7 @@ from pathlib import Path
 from agentic_security_harness.corpus import corpus_manifest
 from agentic_security_harness.patterns import seed_patterns
 from agentic_security_harness.standards_mapping import (
+    MITRE_ATLAS_VERIFIED_TECHNIQUES,
     NIST_FUNCTIONS,
     standards_mapping,
     validate_standards_mapping,
@@ -23,8 +24,8 @@ def test_every_corpus_category_is_mapped() -> None:
 
 def test_pattern_ids_are_unique_and_stable() -> None:
     ids = [p.pattern_id for p in seed_patterns()]
-    assert len(ids) == 22
-    assert len(set(ids)) == 22
+    assert len(ids) == 24
+    assert len(set(ids)) == 24
 
 
 def test_owasp_agentic_single_sourced_from_corpus() -> None:
@@ -42,9 +43,27 @@ def test_nist_functions_are_valid() -> None:
             assert fn in NIST_FUNCTIONS
 
 
-def test_mitre_atlas_is_deferred_everywhere() -> None:
-    # Honest default: ATLAS technique ids are not asserted yet.
-    assert all(m.mitre_atlas == [] for m in standards_mapping())
+def test_mitre_atlas_verified_subset_is_asserted() -> None:
+    by_category = {m.category: m for m in standards_mapping()}
+
+    assert by_category["indirect_prompt_injection"].mitre_atlas == ["AML.T0051.001"]
+    assert by_category["memory_poisoning"].mitre_atlas == ["AML.T0080.000"]
+    assert by_category["sleeping_prompt"].mitre_atlas == ["AML.T0094"]
+    assert by_category["budget_exhaustion"].mitre_atlas == ["AML.T0034.002"]
+
+    still_deferred = {
+        "approval_laundering",
+        "audit_bypass",
+        "audit_integrity",
+        "capability_delegation",
+    }
+    assert {c for c, m in by_category.items() if not m.mitre_atlas} == still_deferred
+
+
+def test_mitre_atlas_ids_are_allow_listed() -> None:
+    asserted = {code for m in standards_mapping() for code in m.mitre_atlas}
+    assert asserted
+    assert asserted <= set(MITRE_ATLAS_VERIFIED_TECHNIQUES)
 
 
 def test_empty_owasp_llm_is_explicit_not_mapped() -> None:
