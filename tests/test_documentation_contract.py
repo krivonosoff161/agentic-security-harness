@@ -412,6 +412,11 @@ def test_research_claims_registry_exists_and_has_required_structure() -> None:
         assert claim in claims
 
     assert "docs/theory/data-boundary.md" in claims
+    assert "Memory and tool envelope uses are adjacent coverage, not primary proof." in claims
+    assert (
+        "cross-provider label survival are not yet covered as primary data-boundary claims"
+        in claims
+    )
 
 
 def test_research_claims_registry_status_definitions_are_unique() -> None:
