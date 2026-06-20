@@ -12,8 +12,12 @@ def test_readme_links_methodology_docs() -> None:
     for phrase in (
         "In plain English",
         "If you only have one minute",
+        "Visual evidence snapshot",
+        "flowchart LR",
         "trace-first benchmark",
         "committed before/after example",
+        "24 modeled findings",
+        "0 modeled findings",
     ):
         assert phrase in readme
     for link in (

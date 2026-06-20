@@ -51,6 +51,28 @@ If you only have one minute:
   [`docs/current-state.md`](docs/current-state.md).
 - Validate the public examples locally with `ash validate examples/`.
 
+## Visual evidence snapshot
+
+```mermaid
+flowchart LR
+    A[24 synthetic boundary patterns] --> B[Vulnerable demo-agent]
+    A --> C[Protected demo-agent]
+    B --> D[24 modeled findings]
+    C --> E[0 modeled findings]
+    D --> F[Validated comparison artifact]
+    E --> F
+    F --> G[Trace replay + scorecard + remediation]
+```
+
+| Demo question | Current public answer | Inspect |
+|---|---|---|
+| Can the corpus expose modeled boundary failures? | `demo-agent`: 24 findings | [`examples/demo-agent-report/`](examples/demo-agent-report/) |
+| Can a protected local target remove the modeled findings? | `protected-demo-agent`: 0 findings | [`examples/protected-demo-agent-report/`](examples/protected-demo-agent-report/) |
+| Is the before/after artifact reproducible? | `ash validate examples/` passes | [`examples/comparison-report/`](examples/comparison-report/) |
+
+This is a deterministic synthetic benchmark snapshot, not evidence that a production
+agent is secure.
+
 Read by role:
 
 - First-time user: [Getting started](docs/getting-started.md) and [User journey](docs/user-journey.md).
