@@ -37,8 +37,10 @@ each run as a **portable trace**, and derives a **scorecard**. The gateway is on
 
 Note on data-boundary checks: the current local checks that verify the
 [data envelope](harness.md#agentic-data-boundary-and-recipient-control) (classification
-mutation, recipient confusion, label stripping, leakage) already live inside the demo and
-protected target adapters. A generalized, standalone data-boundary checker is planned later.
+mutation, recipient confusion, label stripping, leakage, missing-envelope recovery, and
+memory read-time drift) live inside the demo and protected target adapters. The
+field-level restriction comparator for envelope drift is implemented in
+`envelope_policy.py`; a broader live-adapter data-boundary checker is still planned later.
 
 ## Attack graph
 

@@ -357,7 +357,7 @@ def test_run_external_dry_run(tmp_path: Path) -> None:
         out_dir=tmp_path / "ext",
         dry_run=True,
     )
-    assert summary.total_checks == 4
+    assert summary.total_checks == 6
     assert summary.total_repeats == 1
     # Dry run should not create output dir
     assert not (tmp_path / "ext").exists()
@@ -373,7 +373,7 @@ def test_run_external_dry_run_with_repeats(tmp_path: Path) -> None:
         max_variants=2,
         dry_run=True,
     )
-    assert summary.total_checks == 4 * 2  # 4 patterns x 2 variants
+    assert summary.total_checks == 6 * 2  # 6 patterns x 2 variants
     assert summary.total_repeats == 3
 
 
@@ -388,7 +388,7 @@ def test_run_external_mock_endpoint(tmp_path: Path) -> None:
             max_variants=1,
         )
 
-    assert summary.total_checks == 4
+    assert summary.total_checks == 6
     assert len(summary.patterns_with_findings) == 0
     assert (tmp_path / "ext" / "run_config.json").exists()
     assert (tmp_path / "ext" / "external_results.json").exists()
@@ -427,7 +427,7 @@ def test_run_external_finding_result(tmp_path: Path) -> None:
             repeats=1,
         )
 
-    assert len(summary.patterns_with_findings) == 4
+    assert len(summary.patterns_with_findings) == 6
 
 
 def test_classify_outcome_allow_but_preserve_is_inconclusive() -> None:
@@ -479,7 +479,7 @@ def test_run_external_writes_request_count(tmp_path: Path) -> None:
         )
 
     config = json.loads((tmp_path / "ext" / "run_config.json").read_text())
-    assert config["request_count"] == 4  # 4 patterns x 1 variant x 1 repeat
+    assert config["request_count"] == 6  # 6 patterns x 1 variant x 1 repeat
 
 
 def test_run_external_raw_response_limit_keeps_full_raw_artifact(tmp_path: Path) -> None:
@@ -572,7 +572,7 @@ def test_reproduce_command_includes_knobs_no_secret() -> None:
         max_variants=2,
         selected_variants=["a", "b"],
         credential_env_var="ASH_EXTERNAL_API_KEY",
-        request_count=24,
+        request_count=30,
     )
     cmd = "\n".join(_reproduce_command_lines(cfg))
     for flag in ("--repeats 3", "--temperature 0.0", "--timeout 20", "--retries 1",
@@ -626,7 +626,7 @@ def test_run_external_findings_control_family_and_recommendations(
         )
 
     # data-boundary patterns map to data_boundary + provider_boundary families.
-    assert summary.findings_by_control_family.get("data_boundary", 0) == 3
+    assert summary.findings_by_control_family.get("data_boundary", 0) == 5
     assert summary.findings_by_control_family.get("provider_boundary", 0) == 1
 
     report = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
@@ -646,7 +646,7 @@ def test_run_external_api_error(tmp_path: Path) -> None:
             repeats=1,
         )
 
-    assert len(summary.error_patterns) == 4
+    assert len(summary.error_patterns) == 6
 
 
 def test_stability_status_stable_pass(tmp_path: Path) -> None:
@@ -791,7 +791,7 @@ def test_cli_external_check_no_live_no_network(capsys: pytest.CaptureFixture[str
         mock_open.assert_not_called()
 
     out = capsys.readouterr().out
-    assert "Estimated requests: 16" in out
+    assert "Estimated requests: 24" in out
     assert "Runtime: local-openai-compatible" in out
     assert "Network mode: local-only" in out
     assert "Prompt-only: yes; tool execution: no" in out
@@ -867,7 +867,7 @@ def test_cli_run_external_exceeds_request_cap(
 ) -> None:
     from agentic_security_harness import cli
 
-    # 22 patterns x 4 variants x 1 repeat = 88 > default cap 50. The cap is
+    # 24 patterns x 4 variants x 1 repeat = 96 > default cap 50. The cap is
     # checked before any network call, even with --dry-run.
     with patch("urllib.request.urlopen") as mock_open:
         rc = cli.main([
@@ -899,7 +899,7 @@ def test_cli_run_external_dry_run_reports_no_files(
         assert rc == 0
         mock_open.assert_not_called()
     out = capsys.readouterr().out
-    assert "Estimated requests: 4" in out
+    assert "Estimated requests: 6" in out
     assert "runtime: local-openai-compatible" in out
     assert "network_mode: local-only" in out
     assert "No network call. No files written." in out

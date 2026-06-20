@@ -524,6 +524,44 @@ def build_parser() -> argparse.ArgumentParser:
         help="output directory for generated showcase markdown",
     )
 
+    suite_p = sub.add_parser(
+        "local-suite",
+        help="run a bounded, named local-model smoke profile (dry-run unless --execute)",
+    )
+    suite_p.add_argument(
+        "--profile",
+        default="prometheus-lowctx-smoke",
+        help="local profile name (default: prometheus-lowctx-smoke; see --list)",
+    )
+    suite_p.add_argument(
+        "--list",
+        dest="list_profiles",
+        action="store_true",
+        help="list the available bounded local profiles and exit",
+    )
+    suite_p.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="output directory (default: derived from the profile under reports/)",
+    )
+    suite_p.add_argument(
+        "--base-url",
+        default=None,
+        help="override the preset base URL (e.g. a non-default local runtime port)",
+    )
+    suite_p.add_argument(
+        "--execute",
+        action="store_true",
+        help="actually call the local model (default: dry-run, no network, no files)",
+    )
+    suite_p.add_argument(
+        "--showcase",
+        dest="run_showcase",
+        action="store_true",
+        help="after a validated run, generate failure cards with ash showcase",
+    )
+
     return parser
 
 
@@ -971,8 +1009,9 @@ def _diff_runs(left: Path, right: Path, out: Path) -> int:
     write_run_diff(diff, out)
     print(f"wrote run_diff.json, run_diff.md to {out.as_posix()}")
     print(
-        f"kind: {diff.kind}  fixed: {diff.fixed}  new: {diff.new}  "
-        f"changed: {diff.changed}  unchanged: {diff.unchanged}"
+        f"kind: {diff.kind}  finding_fixed: {diff.finding_fixed}  "
+        f"new_finding: {diff.new_finding}  changed_status: {diff.changed_status}  "
+        f"drift: {diff.inconclusive_error_drift}"
     )
     print("Diff is an artifact comparison, not a re-run or a certification.")
     print("Next: ash report --root " + out.as_posix() + "  (or open run_diff.md)")
@@ -997,9 +1036,12 @@ def _compare_models(left: Path, right: Path, out: Path, output_format: str = "te
         return 0
     print(f"wrote model comparison artifacts to {out.as_posix()}")
     print(
-        f"fixed: {diff.fixed}  new: {diff.new}  changed: {diff.changed}  "
-        f"unchanged: {diff.unchanged}"
+        f"finding_fixed: {diff.finding_fixed}  new_finding: {diff.new_finding}  "
+        f"changed_status: {diff.changed_status}  "
+        f"inconclusive_error_drift: {diff.inconclusive_error_drift}"
     )
+    print("inconclusive/error are not pass or finding; they never count as a fix or "
+          "new finding.")
     print("Comparison is based on recorded external artifacts; it does not call models.")
     return 0
 
@@ -1093,6 +1135,105 @@ def _showcase(root: Path, out: Path) -> int:
     print(f"wrote failure/weak-spot cards to {paths['failure_cards'].as_posix()}")
     print(f"runs discovered: {len(manifests)}  cards generated: {len(cards)}")
     print("JSON artifacts remain the source of truth; this is a reviewer aid.")
+    return 0
+
+
+def _print_local_profiles() -> int:
+    from agentic_security_harness.local_profiles import LOCAL_PROFILES, local_profile_names
+
+    print("Bounded local-model smoke profiles (prompt-only, no tools):")
+    for name in local_profile_names():
+        p = LOCAL_PROFILES[name]
+        print(
+            f"  {name}: preset={p.preset} model={p.model} scenario={p.scenario_id} "
+            f"variants={p.max_variants} repeats={p.repeats} timeout={p.timeout_seconds}s "
+            f"cap={p.max_requests}"
+        )
+    print("Run one with: ash local-suite --profile <name> --execute")
+    return 0
+
+
+def _local_suite(
+    profile_name: str,
+    out: Path | None,
+    base_url_override: str | None,
+    execute: bool,
+    run_showcase: bool,
+    list_profiles: bool,
+) -> int:
+    """Run a bounded, named local-model smoke profile. Dry-run unless ``execute``."""
+    from agentic_security_harness.local_profiles import (
+        default_output_dir,
+        resolve_local_profile,
+    )
+
+    if list_profiles:
+        return _print_local_profiles()
+    try:
+        profile = resolve_local_profile(profile_name)
+        base_url, credential_env_var, err = apply_preset(
+            profile.preset, base_url_override, ""
+        )
+    except KeyError as exc:
+        print(f"Error: {exc}")
+        return 1
+    if err:
+        print(f"Error: {err}")
+        return 1
+
+    out_dir = out or Path(default_output_dir(profile))
+    print(
+        f"profile: {profile.name}  model: {profile.model}  scenario: {profile.scenario_id}"
+    )
+    print(f"  preset {profile.preset} -> base_url {_redact_url(base_url)}")
+    print(
+        "Local runtime execution does not remove model-license / acceptable-use duties. "
+        "Stop if the machine becomes unusable or adapter errors repeat after a timeout "
+        "increase (see docs/local-model-profiles.md)."
+    )
+
+    rc = _run_external(
+        base_url,
+        profile.model,
+        profile.scenario_id,
+        out_dir,
+        profile.repeats,
+        0.0,
+        profile.timeout_seconds,
+        1,
+        profile.raw_response_limit,
+        credential_env_var,
+        profile.max_variants,
+        None,
+        not execute,
+        "openai-compatible",
+        profile.max_requests,
+        profile.preset,
+    )
+    if rc != 0:
+        return rc
+    if not execute:
+        print("Dry-run only. Re-run with --execute to call the local model.")
+        return 0
+
+    # Real run completed: validate the artifacts and report the weak-model classification.
+    from agentic_security_harness.validation import validate_path
+
+    result = validate_path(out_dir)
+    if not result.ok:
+        print(f"Validation FAILED for {redact_artifact_text(out_dir.as_posix())}:")
+        print(f"errors: {len(result.errors)}")
+        print("Use `ash validate --format json` for redacted machine-readable details.")
+        return 1
+    print(f"validated {out_dir.as_posix()} (artifact integrity only).")
+    print(
+        "Weak-model contradictions are classified as inconclusive/adapter_error, never "
+        "pass or finding."
+    )
+    if run_showcase:
+        showcase_out = out_dir.parent / f"{out_dir.name}-showcase"
+        return _showcase(out_dir, showcase_out)
+    print("Next: ash showcase --root " + out_dir.as_posix())
     return 0
 
 
@@ -1370,6 +1511,15 @@ def main(argv: list[str] | None = None) -> int:
         return _report(args.root, args.out)
     if args.command == "showcase":
         return _showcase(args.root, args.out)
+    if args.command == "local-suite":
+        return _local_suite(
+            args.profile,
+            args.out,
+            args.base_url,
+            args.execute,
+            args.run_showcase,
+            args.list_profiles,
+        )
     if args.command == "doctor":
         return _doctor(
             args.json, args.live_local, args.base_url, args.credential_env_var,

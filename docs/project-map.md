@@ -35,7 +35,7 @@ If those six points hold, the benchmark is coherent.
 
 | Piece | What it does | Where to look |
 |---|---|---|
-| Corpus | The 22 implemented defensive patterns and their expected outcomes. | [corpus.md](corpus.md), `src/agentic_security_harness/corpus.py` |
+| Corpus | The 24 implemented defensive patterns and their expected outcomes. | [corpus.md](corpus.md), `src/agentic_security_harness/corpus.py` |
 | Boundary model | The protection/boundary invariants the corpus is organized around. | [agentic-boundary-model.md](agentic-boundary-model.md) |
 | Evaluation topologies | The system shapes a target adapter can represent: local target, agent, memory loop, tool loop, model chain, handoff, provider boundary, recovery path. | [evaluation-topologies.md](evaluation-topologies.md) |
 | Corpus expansion plan | Invariant-based backlog for future patterns without full combinatorial expansion. | [corpus-expansion-plan.md](corpus-expansion-plan.md) |
@@ -43,9 +43,10 @@ If those six points hold, the benchmark is coherent.
 | Targets | Local systems under test: `mock`, `demo-agent`, `protected-demo-agent`, and toy adapters `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`. | `src/agentic_security_harness/*agent*.py`, `mock_target.py`, `toy_adapters.py` |
 | Runner | Converts `pattern + target` into traces. | `src/agentic_security_harness/runner.py` |
 | Scenario matrix | Runs scenario variants and aggregates stability (`run-matrix`). | `src/agentic_security_harness/matrix.py` |
-| Scenario timeline contract | Defines how longer multi-step, multi-actor scenario evidence should be modeled before implementation. | [scenario-timeline.md](scenario-timeline.md) |
+| Scenario timeline contract | Typed `ScenarioTimeline` model + fail-closed `validate_timeline()` + deterministic `replay_timeline()` for time-shaped multi-actor scenarios, with committed synthetic fixtures (delayed activation, priority drift, handoff provenance). Replay shows the modeled finding/PASS decision step; it is not a live multi-agent runtime. | `src/agentic_security_harness/scenario_timeline.py`, `tests/fixtures/timelines/`, [scenario-timeline.md](scenario-timeline.md) |
 | Inter-agent handoff integrity | Design track for provenance-preserving worker-to-senior handoffs before any benchmark code lands. | [inter-agent-handoff-integrity.md](inter-agent-handoff-integrity.md) |
 | External path | Experimental, opt-in OpenAI-compatible prompt-only model check (`run-external`, `external-check`, `external-presets`). | `src/agentic_security_harness/external_runner.py`, `presets.py`, [connect-models.md](connect-models.md) |
+| Local model suite | Bounded named local-model smoke profiles (`local-suite`); dry-run by default, validates and classifies weak-model output as inconclusive/adapter_error, never silently pass/finding. | `src/agentic_security_harness/local_profiles.py`, [local-prometheus-workflow.md](local-prometheus-workflow.md), [local-model-profiles.md](local-model-profiles.md) |
 | Reports | Writes `traces.json`, `scorecard.json`, `summary.md`, `executive.md`, remediation, comparison, and static HTML (`report`). | `src/agentic_security_harness/reporting.py`, `html_report.py`, `examples/` |
 | Showcase generator | Builds reviewer-facing weak-spot/finding cards from existing run artifacts (`showcase`). | `src/agentic_security_harness/showcase.py`, [showcase/index.md](showcase/index.md) |
 | Run diff | `diff-runs` compares two same-kind runs (`run_diff.json` / `run_diff.md`); `compare-models` wraps this for external model artifacts. | `src/agentic_security_harness/run_diff.py`, [run-diff.md](run-diff.md) |
@@ -121,8 +122,8 @@ If you still want the linear path:
    operating-environment boundary thesis.
 5. [Evaluation topologies](evaluation-topologies.md) - what kinds of systems can sit
    behind a target adapter.
-6. [Corpus coverage matrix](corpus.md) - the 22 implemented patterns.
-7. [Comparison example](../examples/comparison-report/README.md) - the visible 22 -> 0
+6. [Corpus coverage matrix](corpus.md) - the 24 implemented patterns.
+7. [Comparison example](../examples/comparison-report/README.md) - the visible 24 -> 0
    demonstration.
 8. [Authorized testing paths](authorized-testing-paths.md) - local, owned, authorized,
    provider-program, and standards-aligned use.
@@ -146,7 +147,7 @@ ash compare --baseline demo-agent --protected protected-demo-agent --out reports
 ash validate reports/comparison
 ```
 
-Expected current result: baseline has 22 findings; protected has 0 findings.
+Expected current result: baseline has 24 findings; protected has 0 findings.
 
 ## How to add a new research idea safely
 

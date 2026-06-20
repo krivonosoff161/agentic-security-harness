@@ -21,7 +21,7 @@ Every candidate below must follow the same project rules:
 
 ## Current coverage baseline
 
-The current local corpus has 22 deterministic seed patterns:
+The current local corpus has 24 deterministic seed patterns:
 
 1. `indirect_prompt_injection_via_tool_output`
 2. `data_boundary_recipient_confusion`
@@ -30,21 +30,23 @@ The current local corpus has 22 deterministic seed patterns:
 5. `data_boundary_handoff_label_stripping`
 6. `tool_permission_abuse_sanitized`
 7. `provider_boundary_leakage_sanitized`
-8. `sleeping_prompt.delayed_activation`
-9. `audit.spam_label_abuse`
-10. `budget.loop_abuse`
-11. `capability.delegation_chain_drift`
-12. `mcp.tool_schema_deception`
-13. `audit.hash_chain_tamper`
-14. `perception_boundary.sensor_command_confusion`
-15. `ambient_authority.environmental_privilege_escalation`
-16. `approval_laundering.underjustified_confirmation`
-17. `memory_governance.unscoped_memory_persistence`
-18. `memory_governance.environment_injected_poisoning`
-19. `memory_governance.unintentional_cross_user`
-20. `budget.recursive_execution_amplification`
-21. `mcp.tool_selection_manipulation`
-22. `indirect_instruction.multi_turn_escalation`
+8. `data_boundary_missing_envelope_recovery`
+9. `data_boundary_memory_envelope_drift`
+10. `sleeping_prompt.delayed_activation`
+11. `audit.spam_label_abuse`
+12. `budget.loop_abuse`
+13. `capability.delegation_chain_drift`
+14. `mcp.tool_schema_deception`
+15. `audit.hash_chain_tamper`
+16. `perception_boundary.sensor_command_confusion`
+17. `ambient_authority.environmental_privilege_escalation`
+18. `approval_laundering.underjustified_confirmation`
+19. `memory_governance.unscoped_memory_persistence`
+20. `memory_governance.environment_injected_poisoning`
+21. `memory_governance.unintentional_cross_user`
+22. `budget.recursive_execution_amplification`
+23. `mcp.tool_selection_manipulation`
+24. `indirect_instruction.multi_turn_escalation`
 
 The important distinction for future work:
 
@@ -61,6 +63,8 @@ The important distinction for future work:
   requests**, not social engineering or phishing-style manipulation.
 - `memory_governance.unscoped_memory_persistence` covers **provenance/TTL/trust-level
   governance**, not cross-session memory information-flow control.
+- `data_boundary_memory_envelope_drift` covers **synthetic write-envelope to read-envelope
+  non-weakening**, not complete memory-governance behavior for deployed memory stores.
 - No current pattern models cross-app contamination or semantic policy compliance beyond
   explicit data-envelope fields.
 
@@ -271,7 +275,7 @@ v0.7 added:
 
 ### v0.8 - perception boundary and ambient authority (done)
 
-Implemented in the 22-pattern corpus:
+Implemented in the 24-pattern corpus:
 
 - `perception_boundary.sensor_command_confusion` with synthetic OCR/ASR/HTML transcripts;
 - `ambient_authority.environmental_privilege_escalation` with synthetic host capability markers;

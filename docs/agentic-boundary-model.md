@@ -38,7 +38,7 @@ pattern selection, see [corpus-expansion-plan.md](corpus-expansion-plan.md).
 
 ## How to read current coverage
 
-- The current local corpus has 22 deterministic seed patterns; [corpus.md](corpus.md) is
+- The current local corpus has 24 deterministic seed patterns; [corpus.md](corpus.md) is
   the canonical implemented pattern matrix.
 - Some boundary models are represented by multiple current patterns. For example, memory
   governance includes direct memory poisoning, delayed activation, environment-injected

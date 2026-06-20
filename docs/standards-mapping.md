@@ -2,7 +2,7 @@
 
 > Last reviewed: 2026-06-16 (v0.13 + unreleased docs).
 >
-> Scope: implemented local corpus only (22 deterministic seed patterns across 14
+> Scope: implemented local corpus only (24 deterministic seed patterns across 14
 > categories). This page maps each pattern **category** to external security frameworks
 > at a coarse, defensive level. It helps reviewers understand what each category
 > exercises; it does **not** imply certification, complete coverage, or real-world

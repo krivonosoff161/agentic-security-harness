@@ -11,6 +11,8 @@ SEED_IDS = {
     "data_boundary_handoff_label_stripping",
     "tool_permission_abuse_sanitized",
     "provider_boundary_leakage_sanitized",
+    "data_boundary_missing_envelope_recovery",
+    "data_boundary_memory_envelope_drift",
     "sleeping_prompt.delayed_activation",
     "audit.spam_label_abuse",
     "budget.loop_abuse",
@@ -36,13 +38,13 @@ def _traces() -> list:
 def test_total_traces_matches() -> None:
     traces = _traces()
     card = build_scorecard(traces)
-    assert card.total_traces == len(traces) == 22
+    assert card.total_traces == len(traces) == 24
     assert card.target_name == "demo-mock-agent"
 
 
 def test_severity_counts() -> None:
     card = build_scorecard(_traces())
-    assert card.findings_by_severity.get("high") == 20
+    assert card.findings_by_severity.get("high") == 22
     assert card.findings_by_severity.get("medium") == 2
 
 

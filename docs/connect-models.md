@@ -83,14 +83,14 @@ Scenario sizes (use these to estimate cost):
 
 | Scenario | Patterns | Default variants |
 |---|---|---|
-| `data-boundary` | 4 | 3 |
+| `data-boundary` | 6 | 3 |
 | `memory-governance` | 5 | 3 |
 | `tool-selection` | 3 | 3 |
 | `authority-control` | 2 | 2 |
 | `approval-audit` | 3 | 3 |
 | `budget-control` | 2 | 2 |
 | `perception-boundary` | 1 | 2 |
-| `all` | 22 | 4 |
+| `all` | 24 | 4 |
 
 `--max-variants 1` (the external default) keeps runs small. Run `ash scenarios --verbose`
 for the exact variant ids.
@@ -287,9 +287,9 @@ Both **Ollama** and **LM Studio** expose a native OpenAI-compatible server, so t
 the same path with **no API key**.
 
 For the low-memory maintainer smoke profile, start with
-[local-prometheus-workflow.md](local-prometheus-workflow.md). It uses `qwen2.5:1.5b`
-through Ollama with strict request caps and explains how to read inconclusive/error
-results.
+[local-prometheus-workflow.md](local-prometheus-workflow.md). It uses the
+`prometheus-qwen15b-lowctx:latest` Ollama profile with strict request caps and explains
+how to read inconclusive/error results.
 
 Treat local runtime evaluation as a **local authorized lab**. Running a model on your own
 machine removes cloud-provider runtime dependency, but it does not remove model-license

@@ -9,6 +9,17 @@ def _read(path: str) -> str:
 
 def test_readme_links_methodology_docs() -> None:
     readme = _read("README.md")
+    for phrase in (
+        "In plain English",
+        "If you only have one minute",
+        "Visual evidence snapshot",
+        "flowchart LR",
+        "trace-first benchmark",
+        "committed before/after example",
+        "24 modeled findings",
+        "0 modeled findings",
+    ):
+        assert phrase in readme
     for link in (
         "docs/current-state.md",
         "docs/authorized-testing-paths.md",
@@ -194,6 +205,8 @@ def test_showcase_separates_weak_spots_findings_and_deepening() -> None:
         assert phrase in timeline
 
     for phrase in (
+        "prometheus-lowctx-smoke",
+        "prometheus-qwen15b-lowctx:latest",
         "prometheus-lowmem-smoke",
         "qwen2.5:1.5b",
         "Stop conditions",
@@ -231,6 +244,8 @@ def test_active_docs_do_not_use_stale_pattern_count() -> None:
         text = _read(path).lower()
         assert "passes all 13" not in text
         assert "implements 13" not in text
+        assert "twenty-three" not in text
+        assert "23-pattern" not in text
 
 
 def test_toy_multi_agent_status_is_documented_as_shipped() -> None:
@@ -301,7 +316,7 @@ def test_public_showcase_checklist_is_linked_from_release_and_example_docs() -> 
     assert "showcase-report-checklist.md" in examples_index
     assert "showcase-report-checklist.md" in comparison_readme
     assert "docs/showcase-report-checklist.md" in readme
-    assert "Findings reduced: **22 -> 0**" in comparison_readme
+    assert "Findings reduced: **24 -> 0**" in comparison_readme
     assert "Findings reduced: **17 -> 0**" not in comparison_readme
 
 
@@ -312,12 +327,29 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
     )[0]
     completed = tracker.split("## Recently completed in this track", 1)[1]
 
-    for issue in ("#22", "#23", "#24", "#25", "#30", "#31", "#32", "#33", "#34"):
+    for issue in (
+        "#21",
+        "#20",
+        "#22",
+        "#23",
+        "#24",
+        "#25",
+        "#29",
+        "#30",
+        "#31",
+        "#32",
+        "#33",
+        "#34",
+        "#19",
+    ):
         assert issue not in open_work
         assert issue in completed
-    for issue in ("#19", "#20", "#21"):
-        assert issue in open_work
-    assert "#29" in tracker.split("## Open maintenance work", 1)[1]
+    assert "None currently tracked." in open_work
+    open_maintenance = tracker.split("## Open maintenance work", 1)[1].split(
+        "## Recently completed in this track", 1
+    )[0]
+    assert "#29" not in open_maintenance
+    assert "None currently tracked." in open_maintenance
 
 
 def test_handoff_source_map_uses_corrected_research_ids() -> None:
@@ -412,6 +444,13 @@ def test_research_claims_registry_exists_and_has_required_structure() -> None:
         assert claim in claims
 
     assert "docs/theory/data-boundary.md" in claims
+    assert "fail-closed recovery for a missing required envelope" in claims
+    assert "memory write/read envelope drift" in claims
+    assert "Tool envelope uses are adjacent coverage, not primary proof." in claims
+    assert (
+        "cross-provider label survival are not yet covered as primary data-boundary claims"
+        in claims
+    )
 
 
 def test_research_claims_registry_status_definitions_are_unique() -> None:
@@ -517,16 +556,24 @@ def test_data_boundary_theory_separates_primary_adjacent_and_gaps() -> None:
         "data_boundary_classification_mutation",
         "data_boundary_handoff_label_stripping",
         "provider_boundary_leakage_sanitized",
+        "data_boundary_missing_envelope_recovery",
+        "data_boundary_memory_envelope_drift",
     ):
         assert pattern in theory
 
     for phrase in (
         "Primary Data-Boundary Patterns",
         "Adjacent Envelope-Field Patterns",
-        "individual patterns do not themselves prove the whole 22 -> 0 result",
+        "Restriction model",
+        "E_out <= E_in",
+        "set(E_out.allowed_recipients) subseteq set(E_in.allowed_recipients)",
+        "rank(E_out.data_class) >= rank(E_in.data_class)",
+        "t_use <= t_created + ttl_seconds",
+        "This is a partial order, not a universal security proof",
+        "individual patterns do not themselves prove the whole 24 -> 0 result",
         "Memory write/read envelope drift",
         "Missing envelope recovery",
-        "`planned`",
+        "`public_example`",
     ):
         assert phrase in theory
 
@@ -545,8 +592,8 @@ def test_data_boundary_theory_does_not_overclaim_memory_or_production_security()
     assert "every possible boundary type is covered" not in claim_section
 
     for phrase in (
-        "full memory write/read envelope preservation",
-        "missing-envelope recovery",
+        "complete memory-governance behavior for real deployed memory stores",
+        "complete recovery behavior",
         "complete formal security proof",
     ):
         assert phrase in limits_section

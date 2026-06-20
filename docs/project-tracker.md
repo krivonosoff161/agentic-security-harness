@@ -18,22 +18,20 @@ design-led inter-agent handoff integrity track.
 
 ## Open work in this track
 
-| Issue | Track | Exit focus |
-|---|---|---|
-| [#19 feature: local Prometheus suite](https://github.com/krivonosoff161/agentic-security-harness/issues/19) | Local runtime | Real local model-in-loop smoke run through Ollama/OpenAI-compatible runtime, with strict caps and validated artifacts. |
-| [#20 feature: scenario timeline](https://github.com/krivonosoff161/agentic-security-harness/issues/20) | Corpus / multi-turn | Multi-turn, delayed-trigger, context-overload, and handoff scenarios described as timelines with invariants and validators. |
-| [#21 feature: trace replay and failure cards](https://github.com/krivonosoff161/agentic-security-harness/issues/21) | Reports | Human-readable failure cards generated from trace artifacts, not hand-written marketing summaries. |
+None currently tracked.
 
 ## Open maintenance work
 
-| Issue | Track | Exit focus |
-|---|---|---|
-| [#29 fix: clarify external run diff status labels](https://github.com/krivonosoff161/agentic-security-harness/issues/29) | Reports / maintenance | Run-diff labels make fixed/new/changed/unchanged status unambiguous for external runs. |
+None currently tracked.
 
 ## Recently completed in this track
 
 | Issue | Track | Delivered focus |
 |---|---|---|
+| [#19 feature: local Prometheus suite](https://github.com/krivonosoff161/agentic-security-harness/issues/19) | Local runtime | `ash local-suite` runs bounded named local-model profiles through the prompt-only OpenAI-compatible path; the low-context Prometheus profile is first-class, dry-run is the default, real runs validate artifacts, and weak evidence remains explicitly pass/finding/inconclusive/adapter_error. |
+| [#20 feature: scenario timeline](https://github.com/krivonosoff161/agentic-security-harness/issues/20) | Corpus / multi-turn | `ScenarioTimeline` fixtures cover delayed activation, context overload, and handoff provenance; each has an invariant, deterministic validator expectation, and `replay_timeline()` shows the vulnerable finding/protected PASS decision step. |
+| [#21 feature: trace replay and failure cards](https://github.com/krivonosoff161/agentic-security-harness/issues/21) | Reports | `ash showcase` generates artifact-driven failure cards with trace replay steps, trace/remediation artifact references, reproduce commands, and explicit non-claims; committed generated example is reproducible from `examples/demo-agent-report`. |
+| [#29 fix: clarify external run diff status labels](https://github.com/krivonosoff161/agentic-security-harness/issues/29) | Reports / maintenance | Run-diff labels split decisive `finding_fixed`/`new_finding` from non-decisive `inconclusive_error_drift`/`stable_inconclusive`/`stable_error`; `error`/`adapter_error` transitions are never reported as security fixes. |
 | [#25 docs: public evidence showcase](https://github.com/krivonosoff161/agentic-security-harness/issues/25) | Showcase | Public showcase entry point and evidence pages exist for reviewer navigation. |
 | [#22 docs: metric contract](https://github.com/krivonosoff161/agentic-security-harness/issues/22) | Metrics | Stable vocabulary for GitHub traffic, benchmark evidence, runtime evidence, and project-process metrics. |
 | [#23 feature: showcase generator](https://github.com/krivonosoff161/agentic-security-harness/issues/23) | Reports / automation | `ash showcase` generates reviewer-facing Markdown from JSON artifacts. |
@@ -43,6 +41,18 @@ design-led inter-agent handoff integrity track.
 | [#33 research: define minimal typed handoff envelope](https://github.com/krivonosoff161/agentic-security-harness/issues/33) | Multi-agent / recovery | Envelope fields and payload-type requirements are explicit before fixtures/tests are added. |
 | [#30 research: design inter-agent handoff integrity contract](https://github.com/krivonosoff161/agentic-security-harness/issues/30) | Multi-agent / research | Design contract, claim boundary, failure classes, verifier outcomes, and staged work order are documented. |
 | [#34 feature: add deterministic toy topology for handoff integrity](https://github.com/krivonosoff161/agentic-security-harness/issues/34) | Multi-agent / corpus | Local synthetic verifier topology ships vulnerable/protected handoff traces for label loss and authority expansion. |
+
+## Recently completed local research closures
+
+These items close local research tasks that were not tracked as GitHub issues. They are
+kept separate from the issue table so the public tracker does not imply that a GitHub
+issue was closed when no issue number exists.
+
+| Local task | Track | Delivered focus | Public evidence | Private/local note |
+|---|---|---|---|---|
+| DB-1 | Data boundary / theory | Formalized the envelope restriction relation `E_out <= E_in`, field-level non-expansion rules, and explicit non-claims. | `docs/theory/data-boundary.md`, `docs/research-claims.md`, documentation contract tests. | Owner-retained local derivation note; not committed and not public evidence. |
+| DB-2 | Data boundary / corpus | Added `data_boundary_missing_envelope_recovery`, regenerated the then-current examples/golden snapshots, and updated external-run arithmetic. | `examples/comparison-report/`, `docs/showcase/generated/`, `tests/golden/`, `ash validate examples/`. | Owner-retained local verification checklist; not committed and not public evidence. |
+| DB-3 | Data boundary / memory read boundary | Added `data_boundary_memory_envelope_drift`, implemented field-level envelope restriction checks, regenerated the 24-pattern examples/golden snapshots, and updated data-boundary theory/claims. | `src/agentic_security_harness/envelope_policy.py`, `tests/test_envelope_policy.py`, `examples/comparison-report/`, `docs/theory/data-boundary.md`, `ash validate examples/`. | Owner-retained local verification checklist; not committed and not public evidence. |
 
 Supporting docs:
 
@@ -96,8 +106,8 @@ GitHub traffic graphs are useful, but they do not prove benchmark quality.
 2. For new methodology tracks such as inter-agent handoff integrity, write the design
    track and exit gates before adding code or corpus cases.
 3. Build the evidence showcase from existing deterministic artifacts first.
-4. Add local Prometheus/model-in-loop probes only after the showcase can explain how to
-   read evidence and limitations.
+4. Keep local Prometheus/model-in-loop probes bounded: named profiles, request caps,
+   dry-run first, validated artifacts, and explicit weak-evidence interpretation.
 5. Generate failure cards and metrics from artifacts. Do not hand-write conclusions that
    are stronger than the trace/scorecard data.
 6. Only then expand scenario timelines and local model profiles.
@@ -130,7 +140,7 @@ Allowed:
 
 Not allowed:
 
-- claiming local real-model probes are shipped before issue #19 is closed;
+- claiming local real-model probes are benchmark-grade or general model-safety evidence;
 - treating GitHub clone/view spikes as benchmark validation;
 - presenting weak local model runs as a universal model-safety conclusion;
 - presenting manually written showcase text as evidence without trace/scorecard links.

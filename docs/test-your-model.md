@@ -178,8 +178,8 @@ The number of requests is:
 requests = patterns_in_scenario x variants x repeats
 ```
 
-For example, `data-boundary` has 4 patterns. With 1 variant and 3 repeats:
-4 x 1 x 3 = **12 requests**.
+For example, `data-boundary` has 6 patterns. With 1 variant and 3 repeats:
+6 x 1 x 3 = **18 requests**.
 
 The `--max-variants` flag controls how many variants are tested. Default is 1.
 

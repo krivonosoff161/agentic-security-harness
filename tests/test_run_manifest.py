@@ -75,7 +75,7 @@ def test_write_and_load_manifest(tmp_path: Path) -> None:
         run_dir,
         target="mock",
         scenario="seed-corpus",
-        outcomes={"failed": 0, "passed": 22},
+        outcomes={"failed": 0, "passed": 24},
         artifacts=["executive.md"],
         tool_version="0.11.0",
         created_at="2026-06-14T00:00:00Z",
@@ -84,7 +84,7 @@ def test_write_and_load_manifest(tmp_path: Path) -> None:
     assert path.name == "run_index.json"
     loaded = RunManifest.model_validate(json.loads(path.read_text(encoding="utf-8")))
     assert loaded.run_id == manifest.run_id
-    assert loaded.outcomes == {"failed": 0, "passed": 22}
+    assert loaded.outcomes == {"failed": 0, "passed": 24}
 
 
 def test_load_run_manifests_skips_malformed(tmp_path: Path) -> None:

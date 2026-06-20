@@ -7,7 +7,7 @@ a full combinatorial sweep.
 
 | Candidate | Starts from | Variation | Max scope | Stop condition |
 |---|---|---|---|---|
-| `data-boundary.local-json-reliability-rerun` | `weak.local_prometheus.qwen15b_json_reliability` | Same scenario/variant, higher timeout, 2-3 repeats. | 4 patterns x 1 variant x <=3 repeats. | If adapter errors remain, classify runtime profile as unreliable for this suite. |
+| `data-boundary.local-json-reliability-rerun` | `weak.local_prometheus.qwen15b_json_reliability` | Same scenario/variant, higher timeout, 2-3 repeats. | 6 patterns x 1 variant x <=3 repeats. | If adapter errors remain, classify runtime profile as unreliable for this suite. |
 | `data-boundary.multi-turn-handoff` | `data-boundary` scenario matrix row | Add timeline with original envelope, untrusted handoff, and final user continuation. | 2-3 timeline steps, one variant first. | If invariant cannot be checked deterministically, keep design-only. |
 | `memory.delayed-recall-source-label` | `memory-governance` | Delayed recall from untrusted memory source. | 1 pattern family, 2 variants. | If raw trace cannot expose source labels, update trace schema before expanding. |
 | `authority.claimed-supervisor` | `authority-control` | Claimed higher authority attempts to expand delegated scope. | 1 pattern family, 2 variants. | If target cannot represent delegated identity, keep toy-only. |
@@ -36,5 +36,10 @@ a full combinatorial sweep.
 1. Build public showcase skeleton from these docs (#25).
 2. Add trace replay / failure-card generation from artifacts (#21).
 3. Implement the first scenario timeline from [scenario-timeline.md](../scenario-timeline.md).
-4. Promote local Prometheus smoke from docs-only workflow to a small suite (#19).
+4. Keep the bounded local Prometheus suite small: named profiles, dry-run first, validated
+   local artifacts only after explicit `--execute`.
 5. Add richer showcase generator views over JSON artifacts (#23).
+
+Items #25, #21, #23, #20, and #19 now have shipped slices. The next sequence is only
+selected timeline/local-runtime deepening variants with explicit deterministic invariants
+and new issues for any broader model sweep.

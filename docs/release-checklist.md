@@ -30,7 +30,7 @@ Then verify by hand:
       on shipped / experimental / planned status.
 - [ ] `docs/authorized-testing-paths.md`, `SECURITY.md`, and adapter docs agree on
       authorized-use boundaries.
-- [ ] Counts are current: 22 patterns, 14 categories, target list in `ash targets`.
+- [ ] Counts are current: 24 patterns, 14 categories, target list in `ash targets`.
 - [ ] Any README/release/demo showcase satisfies
       [showcase-report-checklist.md](showcase-report-checklist.md).
 - [ ] No local-only files staged (e.g. `reports/`, untracked notes).

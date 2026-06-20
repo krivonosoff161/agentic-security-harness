@@ -25,7 +25,7 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 
 ---
 
-> **Implemented local demo corpus:** twenty-two of these failure modes are implemented as
+> **Implemented local demo corpus:** twenty-four of these failure modes are implemented as
 > deterministic, sanitized seed patterns in the harness: data-boundary failures, indirect
 > tool-output injection, memory poisoning and memory governance, tool-permission abuse,
 > provider-boundary leakage, delayed stored-content activation, audit suppression and
@@ -230,6 +230,18 @@ encryption (encryption protects transport/storage; it does not solve prompt inje
 - **Planned reference-control idea:** every trust gate returns the same recovery envelope and writes a diagnostic artifact before ending the flow.
 - **Human / process controls:** document review ownership, retry policy, manual escalation conditions, and what evidence is safe to collect.
 - **Residual risk:** the harness can verify a recovery path exists and is coherent; it cannot guarantee a human reviewer, provider, or alternate route will resolve the issue.
+
+## 17. Memory read envelope drift
+
+- **What goes wrong:** a memory record is written with a restrictive envelope, but later read or used with a weaker envelope: recipients/purpose widen, class/source downgrades, TTL is removed, or expired data is treated as usable.
+- **Defensive scenario:** write a synthetic confidential memory item with one allowed recipient, one purpose, `can_forward=false`, immutable classification, trusted source, and short TTL; then attempt to read it with a weaker or expired read-time envelope.
+- **Detection signals:** read envelope is not equal to or more restrictive than the write envelope; TTL has expired relative to write time; a read-time envelope is missing, downgraded, or silently expanded.
+- **Mitigation controls:** bind the original envelope to the memory record, require `E_read <= E_write`, evaluate freshness from write time, and fail closed on missing/invalid read envelopes.
+- **Status:** current for deterministic synthetic write/read envelope drift. This is primary data-boundary coverage, not a claim of complete memory-governance behavior for real deployed stores.
+- **Harness test pattern:** `data_boundary_memory_envelope_drift`.
+- **Planned reference-control idea:** memory store middleware returns data only with the stored envelope and a read decision tied to the original write envelope.
+- **Human / process controls:** review memory-retention policy, allowed recipients, and TTL defaults for agent memory features.
+- **Residual risk:** real stores may transform, summarize, shard, or cache records outside the harness adapter; semantic reconstruction is not solved by field comparison alone.
 
 ---
 

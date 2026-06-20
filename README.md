@@ -1,12 +1,26 @@
 # Agentic Security Harness
 
+**A trace-first benchmark for agentic AI boundary failures.** It gives security engineers,
+AI platform teams, and researchers a safe way to reproduce synthetic agent failures,
+compare a vulnerable target with a protected target, and inspect the evidence as traces,
+scorecards, remediation, and static reports.
+
+In plain English: this repo answers three practical questions.
+
+1. Can a local agent-like system keep data labels, authority limits, memory provenance,
+   approval context, audit trails, and tool boundaries intact?
+2. If it fails, can the failure be shown as a replayable trace instead of a vague prompt
+   anecdote?
+3. If a protected version passes, can the before/after improvement be validated from
+   committed artifacts?
+
 ## Public quick read
 
 **Status:** pre-release, credible alpha. This is a working trace-first defensive benchmark prototype for agentic AI boundary failures, not a production certification benchmark.
 
 | Surface | Current status | Evidence |
 |---|---|---|
-| Local benchmark core | Shipped | 22 deterministic seed patterns, local targets, traces, scorecards, remediation, validation. |
+| Local benchmark core | Shipped | 24 deterministic seed patterns, local targets, traces, scorecards, remediation, validation. |
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
 | Committed examples | Shipped | `examples/` plus `ash validate examples/`. |
 | CI / package checks | Shipped | `.github/workflows/ci.yml` runs tests, ruff, mypy, package build, and example validation. |
@@ -26,6 +40,38 @@ ash validate reports/comparison
 ash validate examples/
 ash showcase --root reports --out docs/showcase/generated
 ```
+
+If you only have one minute:
+
+- Read the committed before/after example:
+  [`examples/comparison-report/README.md`](examples/comparison-report/README.md).
+- Inspect the public evidence entry point:
+  [`docs/showcase/index.md`](docs/showcase/index.md).
+- Check what is shipped versus planned:
+  [`docs/current-state.md`](docs/current-state.md).
+- Validate the public examples locally with `ash validate examples/`.
+
+## Visual evidence snapshot
+
+```mermaid
+flowchart LR
+    A[24 synthetic boundary patterns] --> B[Vulnerable demo-agent]
+    A --> C[Protected demo-agent]
+    B --> D[24 modeled findings]
+    C --> E[0 modeled findings]
+    D --> F[Validated comparison artifact]
+    E --> F
+    F --> G[Trace replay + scorecard + remediation]
+```
+
+| Demo question | Current public answer | Inspect |
+|---|---|---|
+| Can the corpus expose modeled boundary failures? | `demo-agent`: 24 findings | [`examples/demo-agent-report/`](examples/demo-agent-report/) |
+| Can a protected local target remove the modeled findings? | `protected-demo-agent`: 0 findings | [`examples/protected-demo-agent-report/`](examples/protected-demo-agent-report/) |
+| Is the before/after artifact reproducible? | `ash validate examples/` passes | [`examples/comparison-report/`](examples/comparison-report/) |
+
+This is a deterministic synthetic benchmark snapshot, not evidence that a production
+agent is secure.
 
 Read by role:
 
@@ -61,7 +107,7 @@ a target can be a local agent, a tool loop, a memory loop, a model chain, a mult
 handoff, or a future authorized runtime behind the same adapter contract.
 
 - **Trace-first** - every run is a portable, machine-readable failure trace, not just pass/fail.
-- **Agentic operating-environment boundary corpus** - 22 deterministic seed patterns for
+- **Agentic operating-environment boundary corpus** - 24 deterministic seed patterns for
   how sensitivity labels, recipients, storage, forwarding, audit, budget, delegated
   authority, tool schemas, perception boundaries, ambient authority, approval context,
   and memory governance break in agentic systems.
@@ -138,7 +184,7 @@ deterministic tests - honest residual risk. Full rules:
 
 ## Status
 
-**Pre-release, working.** The harness runs a **22-pattern local corpus centered on
+**Pre-release, working.** The harness runs a **24-pattern local corpus centered on
 agentic operating-environment boundary failures** - data-boundary, authority, perception,
 memory governance, approval, and audit integrity - against deterministic local targets,
 with baseline-vs-protected replay (see *What exists today*). Cross-app contamination,
@@ -155,9 +201,10 @@ See [docs/roadmap.md](docs/roadmap.md).
 
 - **Pydantic v2 models** - `DataEnvelope` (a policy label, **not** encryption), `Finding`,
   `TraceStep`, `TargetDescriptor`, `ExploitTrace`, `DefensivePattern`.
-- **Twenty-two sanitized seed patterns** - indirect prompt injection, data-boundary recipient
+- **Twenty-four sanitized seed patterns** - indirect prompt injection, data-boundary recipient
   confusion, memory poisoning, classification mutation, handoff label stripping,
-  tool-permission abuse, provider-boundary leakage, sleeping-prompt delayed activation,
+  tool-permission abuse, provider-boundary leakage, missing-envelope recovery,
+  sleeping-prompt delayed activation,
   audit spam-label abuse, budget loop abuse, capability delegation drift, mock
   tool-schema deception, audit hash-chain tampering, perception-boundary sensor-command
   confusion, ambient authority escalation, approval laundering, and memory governance.
@@ -166,7 +213,7 @@ See [docs/roadmap.md](docs/roadmap.md).
   mock tool calls, data-envelope propagation, recipient-control checks); intentionally
   vulnerable for the seed patterns. No network, no LLM.
 - **Protected demo agent (`protected-demo-agent`)** - the same agent with simple deterministic
-  controls; passes all twenty-two seed patterns. `ash compare` measures the reduction in findings.
+  controls; passes all twenty-four seed patterns. `ash compare` measures the reduction in findings.
 - **Runner** - `pattern -> target -> trace` (mock or demo-agent).
 - **Scorecard** - a deterministic aggregate derived from traces.
 - **Demo CLI (`ash`)** - `ash run --target {mock,demo-agent,protected-demo-agent}`,
@@ -215,7 +262,7 @@ only in the experimental `run-external` path and require an explicit command.
 
 | Area | Current release | Planned / future track |
 |---|---|---|
-| Benchmark | 22-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus via invariant-based expansion, mappings, report quality. |
+| Benchmark | 24-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus via invariant-based expansion, mappings, report quality. |
 | Targets | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, plus experimental OpenAI-compatible external model checks. | Native provider adapters and agent-host / tool-use adapters. |
 | Runtime | CLI-only (`run`, `compare`, `validate`, `targets`, `scenarios`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `list-runs`, `index-runs`, `stats`, `retention`, `report`, `doctor`). | Optional HTTP reference gateway and a web report viewer after the benchmark stabilizes. |
 | Network / providers | Off by default; `run-external` makes explicit OpenAI-compatible calls only when invoked without `--dry-run`. | More provider presets, config files, and verified local-runtime guides. |
@@ -265,16 +312,12 @@ leakage - delayed stored-content activation - audit suppression and audit tamper
 budget / loop abuse - capability delegation drift - mock MCP / tool-schema deception -
 perception-boundary confusion - ambient authority use - approval-context laundering.
 
-Twenty-two local seed patterns are implemented today: six data-boundary / recipient-control
-patterns, one indirect tool-output injection seed, three v0.6 additions
-(sleeping-prompt delayed activation, audit spam-label abuse, budget loop abuse),
-three v0.7 authority / integrity additions (capability delegation drift, mock
-tool-schema deception, audit hash-chain tampering), four v0.8 perception /
-authority / governance additions (perception-boundary sensor-command confusion,
-ambient authority escalation, approval laundering, memory governance), and five
-v0.9 deeper variants (environment-injected memory poisoning, unintentional
-cross-user contamination, recursive execution amplification, tool-selection
-manipulation, multi-turn indirect instruction escalation). The rest are on the
+Twenty-four local seed patterns are implemented today across data-boundary,
+provenance, tool/permission, provider-boundary, delayed activation, audit, budget,
+capability, perception, ambient authority, approval, memory-governance, and
+multi-turn escalation families. The exact current corpus is the machine-readable
+source of truth in [corpus.py](src/agentic_security_harness/corpus.py) and the
+reviewer-facing table in [corpus.md](docs/corpus.md). Future families are on the
 [roadmap](docs/roadmap.md).
 
 ## Reference defense (planned optional component)
@@ -474,7 +517,7 @@ reports/comparison/
 
 In the committed example
 ([`examples/comparison-report/comparison.md`](examples/comparison-report/comparison.md)) the
-baseline fails all 22 patterns (22 findings) and the protected agent passes all 22 (0 findings).
+baseline fails all 24 patterns (24 findings) and the protected agent passes all 24 (0 findings).
 
 > Educational and synthetic: risk reduction is measured from deterministic mock traces,
 > **not** a guarantee of real-world protection.
@@ -507,7 +550,7 @@ traces and deterministic baseline-vs-protected replay. Honest comparison:
 - **[Project map](docs/project-map.md)** - plain-language guide for reviewers and maintainers.
 - **[Use cases](docs/use-cases.md)** - how AI/security teams can evaluate and apply the benchmark.
 - **[Problem-solution catalog](docs/problem-solution-catalog.md)** - problem -> detection -> mitigation -> harness test -> reference control -> residual risk.
-- **[Corpus coverage matrix](docs/corpus.md)** - the 22 implemented seed patterns, baseline vs protected, and what each touches.
+- **[Corpus coverage matrix](docs/corpus.md)** - the 24 implemented seed patterns, baseline vs protected, and what each touches.
 - **[Research roadmap](docs/research-roadmap.md)** - cleaned intake map for future benchmark patterns.
 - **[Corpus expansion plan](docs/corpus-expansion-plan.md)** - invariant-based backlog for
   future patterns without combinatorial explosion.

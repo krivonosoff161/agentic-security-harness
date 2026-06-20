@@ -19,7 +19,7 @@ SCHEMA_VERSIONS: dict[str, str] = {
     "run_config": "0.1",      # run_config.json (external)
     "external_summary": "0.1",  # external_summary.json
     "run_manifest": "0.1",    # run_index.json
-    "run_diff": "0.1",        # run_diff.json
+    "run_diff": "0.2",        # run_diff.json (0.2: explicit decisive/non-decisive labels)
 }
 
 # Current implemented defensive corpus revision. Artifact schema versions describe file
@@ -32,6 +32,7 @@ CORPUS_VERSION = "0.13.0"
 KNOWN_SCHEMA_VERSIONS: dict[str, frozenset[str]] = {
     kind: frozenset({version}) for kind, version in SCHEMA_VERSIONS.items()
 }
+KNOWN_SCHEMA_VERSIONS["run_diff"] = frozenset({"0.1", SCHEMA_VERSIONS["run_diff"]})
 
 
 def schema_version(kind: str) -> str:

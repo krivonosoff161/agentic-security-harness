@@ -16,35 +16,71 @@ leaderboard target.
 
 | Profile | Model | Scenario scope | Timeout | Repeats | Expected use |
 |---|---|---|---|---|---|
+| `prometheus-lowctx-smoke` | `prometheus-qwen15b-lowctx:latest` | one scenario, one variant | 60s | 1 | Maintainer low-context Ollama profile; recovered the first smoke from timeout-only evidence. |
+| `prometheus-lowctx-reliability` | `prometheus-qwen15b-lowctx:latest` | same scenario/variant | 90s | 2-3 | Repeat the recovered low-context profile and classify stable pass/inconclusive/error states. |
 | `prometheus-lowmem-smoke` | `qwen2.5:1.5b` | one scenario, one variant | 60s | 1 | First local evidence; should fit this machine class. |
 | `prometheus-lowmem-reliability` | `qwen2.5:1.5b` | same scenario/variant | 90s | 2-3 | Check if inconclusive/timeout states repeat. |
 | `prometheus-3b-experimental` | `qwen2.5:3b` or `llama3.2:3b` | one pattern or one variant only | 120s | 1 | Only if the machine remains responsive. |
 | `fake-local-control` | `fake-model` via bundled fake server | one scenario | 30s | 1 | Verify the external artifact path without model variability. |
 
-## Current recommendation
+The `prometheus-lowctx-*` profiles assume the maintainer has created a local Ollama model
+alias with lower context/output settings, for example:
 
-Start with:
+```text
+FROM qwen2.5:1.5b
+PARAMETER num_ctx 2048
+PARAMETER num_predict 128
+PARAMETER temperature 0
+```
+
+```powershell
+ollama create prometheus-qwen15b-lowctx -f Modelfile.prometheus-lowctx
+```
+
+The generic `prometheus-lowmem-*` profiles remain documented because they are easier for a
+new user to reproduce after `ollama pull qwen2.5:1.5b`, but on the maintainer hardware the
+low-context alias is the preferred recovery profile.
+
+## Bounded suite command
+
+These profiles are implemented as named, bounded configurations in
+[`local_profiles.py`](../src/agentic_security_harness/local_profiles.py) and run through one
+command. It is **dry-run by default** (no network, no files) and only calls a model on
+explicit `--execute`:
+
+```powershell
+# list the bounded profiles
+python -m agentic_security_harness.cli local-suite --list
+
+# preview (dry-run): estimate requests, no network, no files written
+python -m agentic_security_harness.cli local-suite --profile prometheus-lowctx-smoke
+
+# real local run, then auto-validate and generate failure cards
+python -m agentic_security_harness.cli local-suite --profile prometheus-lowctx-smoke --execute --showcase
+```
+
+The command resolves the profile's preset/model/scenario/repeats/timeout/request-cap,
+enforces the request cap before any call, writes artifacts to a derived `reports/local-...`
+path, validates them, and reports the weak-model classification
+(`stable_pass`/`inconclusive`/`adapter_error`). It never executes tools.
+
+## Manual equivalent
+
+The suite above is equivalent to:
 
 ```powershell
 python -m agentic_security_harness.cli run-external `
   --preset ollama `
-  --model qwen2.5:1.5b `
+  --model prometheus-qwen15b-lowctx:latest `
   --scenario data-boundary `
   --max-variants 1 `
   --repeats 1 `
   --max-requests 10 `
   --timeout 60 `
   --raw-response-limit 0 `
-  --out reports/local-prometheus-qwen15b-smoke
-```
+  --out reports/local-prometheus-lowctx-smoke-prometheus-qwen15b-lowctx-latest
 
-Then:
-
-```powershell
-python -m agentic_security_harness.cli validate reports/local-prometheus-qwen15b-smoke
-python -m agentic_security_harness.cli showcase `
-  --root reports/local-prometheus-qwen15b-smoke `
-  --out reports/local-prometheus-qwen15b-showcase
+python -m agentic_security_harness.cli validate reports/local-prometheus-lowctx-smoke-prometheus-qwen15b-lowctx-latest
 ```
 
 ## How to interpret weak local models

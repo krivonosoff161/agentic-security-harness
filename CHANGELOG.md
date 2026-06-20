@@ -7,6 +7,18 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Scenario timeline fixtures and validator contract for delayed activation, context
+  overload, and handoff provenance scenarios. These are synthetic design fixtures, not a
+  live multi-agent executor.
+- Generated showcase failure cards from the committed demo-agent report, with trace
+  references and non-claim language for reviewer-facing evidence.
+- `ash local-suite` for bounded local Prometheus/Ollama smoke profiles. The command is
+  dry-run by default, enforces request caps, and validates real local-run artifacts after
+  explicit `--execute`.
+- First-class low-context Prometheus profiles (`prometheus-lowctx-smoke` and
+  `prometheus-lowctx-reliability`) for the maintainer Ollama alias
+  `prometheus-qwen15b-lowctx:latest`, keeping the recovered local smoke reproducible by
+  name instead of as an ad hoc command.
 - `docs/current-state.md`: reviewer-facing status snapshot that separates shipped,
   experimental, planned, active, and claim-boundary items.
 - `docs/authorized-testing-paths.md`: official/authorized use paths for synthetic local
@@ -55,8 +67,24 @@ All notable changes to this project are documented here. The format follows
 - `docs/v1-readiness.md`: stable-vs-experimental readiness matrix covering clean install,
   fake-server path, schema/corpus freeze expectations, showcase report gate, claim
   boundaries, and open v1.0 blockers.
+- Data-boundary theory module with an explicit envelope restriction relation
+  (`E_out <= E_in`), field-level non-expansion rules, and conservative policy-context
+  caveats for classification ordering, trusted sources, and TTL checks.
+- Data-boundary missing-envelope recovery pattern:
+  `data_boundary_missing_envelope_recovery` checks fail-closed behavior when a required
+  `DataEnvelope` is absent at a boundary action. The local corpus now has 23 deterministic
+  seed patterns; baseline demo targets fail all 23 and the protected demo target passes
+  all 23 under deterministic replay.
+- Data-boundary research closure records in the project tracker and claims registry,
+  separating public evidence artifacts from local-only derivation/audit notes.
 
 ### Changed
+- `run_diff.json` is now schema v0.2 with explicit decisive/non-decisive labels such as
+  `finding_fixed`, `new_finding`, and `inconclusive_error_drift`; v0.1 aliases and
+  validation support remain for compatibility.
+- Project tracker, project map, local Prometheus docs, and research claims now point to
+  the bounded local-suite workflow and clarify that weak local model evidence is
+  inconclusive/error unless the validated artifacts say otherwise.
 - `agentic-boundary-model.md` is now the canonical protection/boundary model catalog,
   including current coverage and missing situation families.
 - README, protocol, semantics, project map, roadmap, research roadmap, harness,
@@ -88,7 +116,7 @@ All notable changes to this project are documented here. The format follows
 - README, current-state, adapter contract, capability matrix, evaluation topologies,
   roadmap, boundary model, and project map now list `toy-multi-agent` as shipped while
   keeping live/cross-provider multi-agent workflows future-scoped.
-- The committed comparison example README now reflects the current 22-pattern corpus and
+- The committed comparison example README now reflects the current 23-pattern corpus and
   links to the public showcase checklist.
 
 ## [0.13.0] - 2026-06-14

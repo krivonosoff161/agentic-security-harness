@@ -25,7 +25,7 @@ def test_toy_rag_partial_coverage() -> None:
     failed = [t for t in traces if t.findings]
     passed = [t for t in traces if not t.findings]
     # RAG surface: data/memory/injection categories produce findings; rest PASS.
-    assert len(failed) == 10
+    assert len(failed) == 12
     assert len(passed) == 12
 
 

@@ -1,6 +1,6 @@
 # Current state
 
-> Last reviewed: 2026-06-18.
+> Last reviewed: 2026-06-20.
 >
 > Scope: public status of `agentic-security-harness` on `main`, version `0.13.0` plus
 > unreleased governance and evidence-hardening changes. This page is a reviewer-facing
@@ -18,16 +18,18 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 
 | Area | Status | Evidence |
 |---|---|---|
-| Local deterministic corpus | Shipped | 22 sanitized seed patterns in `corpus.py` and `patterns.py`. |
+| Local deterministic corpus | Shipped | 24 sanitized seed patterns in `corpus.py` and `patterns.py`. |
 | Local targets | Shipped | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, `protected-toy-multi-agent`. |
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
 | Inter-agent handoff verifier toy topology | Shipped local slice | `handoff_integrity.py`, `toy-multi-agent`, and `protected-toy-multi-agent` model deterministic label-loss and authority-expansion handoffs. |
+| Scenario timeline contract | Shipped local slice | `ScenarioTimeline`, `validate_timeline()`, three committed fixtures, and `replay_timeline()` model multi-turn/delayed/context-overload/handoff scenarios with explicit invariant and decision step. |
 | Portable artifacts | Shipped | `traces.json`, `scorecard.json`, `summary.md`, `executive.md`, remediation, run manifests. |
 | Static reports | Shipped | `ash report --root <run-dir>` writes a self-contained HTML report. |
 | Run history and maintenance | Shipped | `list-runs`, `index-runs`, `stats`, `retention`, `diff-runs`. |
 | External OpenAI-compatible prompt check | Experimental | `run-external`, prompt-only, explicit opt-in, no tool execution. |
 | External evidence cross-check | Shipped for experimental path | Pattern id, boundary assertion, control family, decision coherence, raw response files. |
 | Local-runtime metadata | Shipped for experimental path | `run_config.runtime`, report/runtime metadata, `local-only` mode for localhost/Ollama/LM Studio/vLLM, recovery guidance. |
+| Bounded local-model suite | Shipped local slice | `ash local-suite`, named Prometheus/Ollama profiles, dry-run by default, request caps, validated artifacts after explicit `--execute`, and weak-evidence classification. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
 | Public project process | Shipped locally | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, release artifact workflow. |
 
@@ -38,10 +40,13 @@ These features exist, but their results must be read conservatively:
 - `ash run-external`: prompt-only evaluation of an authorized OpenAI-compatible endpoint;
   local runtimes are labeled `local-only` and still require model-license /
   authorization review.
+- `ash local-suite`: a bounded wrapper around the external path for local Prometheus/Ollama
+  smoke profiles. It is useful for real local model-in-the-loop evidence, but it remains
+  weak evidence unless validated artifacts show a stable finding.
 - External model comparisons: useful for exploratory checks, not benchmark-grade
   leaderboards.
-- Scenario matrix variants: deterministic local replay metadata and pattern subsets, not
-  live multi-tool execution.
+- Scenario matrix and timeline variants: deterministic local replay metadata and pattern
+  subsets, not live multi-tool execution.
 
 External results are weak evidence until a stronger observation layer exists. The harness
 records contradictory or incomplete model self-reports as `inconclusive`.
@@ -54,7 +59,8 @@ These are roadmap items and must not be described as current capability:
 - live agent-host or tool-executing adapters;
 - live MCP server adapter;
 - cross-provider and cross-ecosystem handoff tests beyond the local toy adapter;
-- recovery-path pattern family implementation (first candidate is designed, not shipped);
+- broader recovery-path pattern family implementation beyond the shipped
+  `data_boundary_missing_envelope_recovery` case;
 - second-reviewer MITRE ATLAS mapping review and release-to-release upkeep;
 - interactive multi-run viewer;
 - persistent trace store beyond local manifests / SQLite metadata index;
@@ -69,10 +75,12 @@ The next public-development focus is:
    provider-program assessments.
 3. Verify standards mappings without implying certification.
 4. Expand the corpus by invariant and topology, not by prompt/model cross-products.
-5. Expand multi-agent-handoff coverage beyond the shipped local verifier toy topology
+5. Maintain the bounded local Prometheus profiles as a small smoke path, not a broad
+   model leaderboard.
+6. Expand multi-agent-handoff coverage beyond the shipped local verifier toy topology
    only when each new track has explicit safety gates; keep local-runtime metadata and
    recovery guidance current.
-6. Improve public demo/showcase reports with replayable, validated artifacts.
+7. Improve public demo/showcase reports with replayable, validated artifacts.
 
 ## Validation commands
 
@@ -95,7 +103,7 @@ ash report --root reports/comparison
 ```
 
 Expected current demonstration: the vulnerable baseline shows findings on the shipped
-22-pattern corpus; the protected demo target removes those modeled findings under the
+24-pattern corpus; the protected demo target removes those modeled findings under the
 same configuration.
 
 ## Claim boundary

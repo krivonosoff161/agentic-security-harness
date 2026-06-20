@@ -886,7 +886,7 @@ def _validate_comparison_md(
 
 def _validate_run_diff_dir(path: Path, root: Path, result: ValidationResult) -> None:
     """Validate a run-diff directory (run_diff.json + run_diff.md)."""
-    from agentic_security_harness.run_diff import RunDiff
+    from agentic_security_harness.run_diff import CHANGE_CLASSES, RunDiff
 
     diff_json = path / "run_diff.json"
     _check_schema_version_file(diff_json, "run_diff", root, result)
@@ -901,7 +901,9 @@ def _validate_run_diff_dir(path: Path, root: Path, result: ValidationResult) -> 
     rel = _rel(diff_json, root)
     if diff.kind not in {"run", "matrix", "external"}:
         result._err(f"{rel}: unknown diff kind '{diff.kind}'")
-    valid_changes = {"fixed", "new", "changed", "unchanged", "only_left", "only_right"}
+    schema_version = str(raw.get("schema_version") or "")
+    legacy_changes = {"fixed", "new", "changed", "unchanged", "only_left", "only_right"}
+    valid_changes = legacy_changes if schema_version == "0.1" else set(CHANGE_CLASSES)
     counts = {c: 0 for c in valid_changes}
     for entry in diff.entries:
         if entry.change not in valid_changes:
@@ -910,11 +912,14 @@ def _validate_run_diff_dir(path: Path, root: Path, result: ValidationResult) -> 
             counts[entry.change] += 1
         if not entry.pattern_id:
             result._err(f"{rel}: entry with empty pattern_id")
-    declared = {
-        "fixed": diff.fixed, "new": diff.new, "changed": diff.changed,
-        "unchanged": diff.unchanged, "only_left": diff.only_left,
-        "only_right": diff.only_right,
-    }
+    if schema_version == "0.1":
+        declared = {
+            "fixed": diff.fixed, "new": diff.new, "changed": diff.changed,
+            "unchanged": diff.unchanged, "only_left": diff.only_left,
+            "only_right": diff.only_right,
+        }
+    else:
+        declared = {c: getattr(diff, c) for c in CHANGE_CLASSES}
     if declared != counts:
         result._err(f"{rel}: change counts {declared} do not match entries {counts}")
     if not (path / "run_diff.md").exists():
