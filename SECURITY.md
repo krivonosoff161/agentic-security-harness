@@ -33,7 +33,8 @@ Please report security issues **privately**. Do not open a public issue for a
 vulnerability.
 
 - Preferred: open a private security advisory via GitHub
-  ("Security" -> "Report a vulnerability"), when available.
+  ("Security" -> "Report a vulnerability"), when available:
+  <https://github.com/krivonosoff161/agentic-security-harness/security/advisories/new>
 - Alternative: contact the maintainer through the address or profile links listed on the
   GitHub project owner profile.
 
@@ -44,8 +45,9 @@ reproduction cases are preferred.
 
 ## What to Expect
 
-- Acknowledgement of your report within a reasonable time.
-- An assessment and, where applicable, a fix and coordinated disclosure.
+- Acknowledgement of your report within 7 days.
+- An initial assessment within 30 days and, where applicable, a fix and coordinated
+  disclosure plan.
 - Credit for the finding if you would like it.
 
 > These are good-faith targets for an early-stage open-source project, not a contractual
