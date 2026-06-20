@@ -13,7 +13,7 @@ def test_dockerfile_is_safe_and_offline() -> None:
     # Runs as a non-root user.
     assert "USER ash" in text
     # Default command is the offline doctor, not a live external run.
-    assert 'CMD ["ash", "doctor"]' in text
+    assert 'CMD ["python", "-m", "agentic_security_harness.cli", "doctor"]' in text
     # No secrets anywhere.
     assert "sk-" not in text and "AKIA" not in text and "--api-key-env" not in text
     # No build/run step performs a live external call by default.
