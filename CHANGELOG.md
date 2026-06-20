@@ -7,6 +7,23 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Scenario timeline fixtures and validator contract for delayed activation, context
+  overload, and handoff provenance scenarios. These are synthetic design fixtures, not a
+  live multi-agent executor.
+- Generated showcase failure cards from the committed demo-agent report, with trace
+  references and non-claim language for reviewer-facing evidence.
+- `ash local-suite` for bounded local Prometheus/Ollama smoke profiles. The command is
+  dry-run by default, enforces request caps, and validates real local-run artifacts after
+  explicit `--execute`.
+- First-class low-context Prometheus profiles (`prometheus-lowctx-smoke` and
+  `prometheus-lowctx-reliability`) for the maintainer Ollama alias
+  `prometheus-qwen15b-lowctx:latest`, keeping the recovered local smoke reproducible by
+  name instead of as an ad hoc command.
+- `docs/current-state.md`: reviewer-facing status snapshot that separates shipped,
+  experimental, planned, active, and claim-boundary items.
+- `docs/authorized-testing-paths.md`: official/authorized use paths for synthetic local
+  labs, local runtimes, owned-system assessments, customer-authorized assessments,
+  provider-program testing, and standards-aligned benchmarking.
 - GitHub project-governance surface: PR template, issue templates for bugs/features/
   defensive pattern proposals, CODEOWNERS, Dependabot config, CodeQL, Scorecard, release
   artifact workflow, governance, maintainers, support, code-of-conduct, and citation files.
@@ -33,13 +50,48 @@ All notable changes to this project are documented here. The format follows
   expose the previously internal stats, retention, and external-run comparison logic.
 - External retry controls are part of the recorded run configuration and reproduction
   command (`--retries`, retry backoff in artifacts).
+- Local-runtime metadata for external runs: `run_config.runtime` records runtime name,
+  runtime family, `network_mode`, authorization mode, model id, model license/policy note,
+  prompt-only/tool-execution flags, and recovery guidance for local Ollama, LM Studio,
+  vLLM, localhost, and generic OpenAI-compatible endpoints.
+- Local toy multi-agent handoff target: `toy-multi-agent` models a deterministic
+  coordinator/worker handoff for data-label stripping and capability-delegation drift,
+  records before/after handoff evidence in trace steps, and remains offline with no
+  provider calls or live tools.
+- Recovery-path pattern design: `recovery.trust_gate_no_path` now has a documented
+  pre-implementation proposal covering invariant, topology, expected vulnerable behavior,
+  trace evidence, protected control, residual risk, and anti-combinatorial guardrails.
+- Public showcase report checklist: required commands, artifacts, validation result,
+  baseline/protected summary, claim-boundary language, and standards-mapping caveat before
+  any report is promoted in README or release material.
+- `docs/v1-readiness.md`: stable-vs-experimental readiness matrix covering clean install,
+  fake-server path, schema/corpus freeze expectations, showcase report gate, claim
+  boundaries, and open v1.0 blockers.
+- Data-boundary theory module with an explicit envelope restriction relation
+  (`E_out <= E_in`), field-level non-expansion rules, and conservative policy-context
+  caveats for classification ordering, trusted sources, and TTL checks.
+- Data-boundary missing-envelope recovery pattern:
+  `data_boundary_missing_envelope_recovery` checks fail-closed behavior when a required
+  `DataEnvelope` is absent at a boundary action. The local corpus now has 23 deterministic
+  seed patterns; baseline demo targets fail all 23 and the protected demo target passes
+  all 23 under deterministic replay.
+- Data-boundary research closure records in the project tracker and claims registry,
+  separating public evidence artifacts from local-only derivation/audit notes.
 
 ### Changed
+- `run_diff.json` is now schema v0.2 with explicit decisive/non-decisive labels such as
+  `finding_fixed`, `new_finding`, and `inconclusive_error_drift`; v0.1 aliases and
+  validation support remain for compatibility.
+- Project tracker, project map, local Prometheus docs, and research claims now point to
+  the bounded local-suite workflow and clarify that weak local model evidence is
+  inconclusive/error unless the validated artifacts say otherwise.
 - `agentic-boundary-model.md` is now the canonical protection/boundary model catalog,
   including current coverage and missing situation families.
 - README, protocol, semantics, project map, roadmap, research roadmap, harness,
   development, adapter contract, and release checklist now distinguish boundary
   invariants, evaluation topologies, shipped coverage, and planned work more explicitly.
+- README and project map now point reviewers to current-state and authorized-testing
+  documents before they infer status from scattered docs.
 - New external runs treat missing pattern ids, invalid boundary assertions, control-family
   mismatches, and contradictory verdict fields as `inconclusive` instead of PASS/FINDING.
 - The fake OpenAI-compatible demo server now echoes the requested pattern id and emits the
@@ -49,6 +101,23 @@ All notable changes to this project are documented here. The format follows
   `would_preserve_boundary=false`, are weak evidence and remain `inconclusive`.
 - Key CLI commands now have machine-readable output paths for automation while preserving
   the existing human-readable default output.
+- External credential metadata now uses `credential_env_var` and the preferred
+  `--credential-env` flag. The legacy `api_key_env` artifact field and `--api-key-env`
+  CLI alias remain readable for compatibility, but new artifacts and prompts avoid
+  secret-like plaintext patterns.
+- `ash validate` now hides validation message details in text output and redacts
+  secret-shaped strings in JSON output.
+- Standards mapping now asserts a small MITRE ATLAS 2026.05 verified subset for direct-fit
+  categories and keeps governance/audit/delegation categories deferred where the fit would
+  be speculative.
+- External reports and run manifests now surface runtime metadata and recovery guidance,
+  and the committed external demo report uses the same fake-local runtime metadata path
+  as a normal CLI run.
+- README, current-state, adapter contract, capability matrix, evaluation topologies,
+  roadmap, boundary model, and project map now list `toy-multi-agent` as shipped while
+  keeping live/cross-provider multi-agent workflows future-scoped.
+- The committed comparison example README now reflects the current 23-pattern corpus and
+  links to the public showcase checklist.
 
 ## [0.13.0] - 2026-06-14
 
@@ -67,7 +136,7 @@ All notable changes to this project are documented here. The format follows
   view. Still self-contained: no JS, no CDN, no network.
 - **External connection presets** (`ash external-presets`, `--preset`): fake-local, vllm,
   ollama, lm-studio, deepseek, alibaba-qwen-compatible, generic-openai-compatible. A preset
-  only fills a default base URL and a key env-var **name**; it adds no SDK and hides no
+  only fills a default base URL and a credential env-var **name**; it adds no SDK and hides no
   network call. `--base-url` is now optional when `--preset` is given.
 - **doctor v2**: adds a reports-dir writability check and an external-preset validation
   check (no network). New `--reports-root` flag.
@@ -105,7 +174,7 @@ All notable changes to this project are documented here. The format follows
 - **Stale "future" claims fixed**: `ash report`, toy-rag/toy-tools, adapter metadata, and
   the stochastic/inconclusive statuses are documented as shipped (were "planned/future").
 - **Fuller external reproduce command** in `external_report.md`: now includes temperature,
-  timeout, repeats, the selected variant or max-variants, the API key env-var **name**
+  timeout, repeats, the selected variant or max-variants, the credential env-var **name**
   (never the value), the redacted base_url, and `--max-requests` only when the cap would
   block the rerun; notes that `run_config.json` is authoritative.
 - `ash validate` success line now states it is artifact integrity only, not a safety
@@ -123,7 +192,7 @@ All notable changes to this project are documented here. The format follows
 - **`ash doctor`** — onboarding diagnostics (Python version, package import, CLI commands,
   examples/fake-server presence, writability, key-env presence (value never read),
   supported external adapters, next commands). Flags: `--json`, `--live-local`,
-  `--base-url`, `--api-key-env`. No network unless `--live-local`.
+  `--base-url`, `--credential-env`. No network unless `--live-local`.
 - **Toy adapters** — `toy-rag` (data/memory/injection surface) and `toy-tools`
   (tool/authority surface): deterministic, local, no network, with corpus-consistent
   findings and honest partial coverage. Registered in `ash targets`.

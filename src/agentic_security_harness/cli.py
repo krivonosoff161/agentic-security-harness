@@ -23,7 +23,12 @@ from pathlib import Path
 from agentic_security_harness import __version__
 from agentic_security_harness.adapters import list_targets, make_target, target_ids
 from agentic_security_harness.patterns import seed_patterns
-from agentic_security_harness.presets import apply_preset, list_presets, preset_names
+from agentic_security_harness.presets import (
+    apply_preset,
+    infer_runtime_profile,
+    list_presets,
+    preset_names,
+)
 from agentic_security_harness.reporting import write_comparison, write_reports
 from agentic_security_harness.run_config import (
     _MAX_REPEATS,
@@ -36,6 +41,7 @@ from agentic_security_harness.run_manifest import (
     write_run_manifest,
 )
 from agentic_security_harness.runner import HarnessRunner
+from agentic_security_harness.safe_io import redact_artifact_text
 from agentic_security_harness.scenarios import list_scenarios, scenario_ids
 from agentic_security_harness.scorecard import build_scorecard
 from agentic_security_harness.validation import validate_path
@@ -235,9 +241,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="chars kept in external_results.raw_response (0 = full; full text is always saved)",
     )
     ext_p.add_argument(
+        "--credential-env",
         "--api-key-env",
+        dest="credential_env_var",
         default="",
-        help="environment variable name containing the API key",
+        help="environment variable name containing an optional API credential",
     )
     ext_p.add_argument(
         "--max-variants",
@@ -297,9 +305,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="scenario id (default: data-boundary)",
     )
     check_p.add_argument(
+        "--credential-env",
         "--api-key-env",
+        dest="credential_env_var",
         default="",
-        help="environment variable name containing the API key",
+        help="environment variable name containing an optional API credential",
     )
     check_p.add_argument(
         "--repeats",
@@ -373,9 +383,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="local endpoint for --live-local (default: fake server)",
     )
     doctor_p.add_argument(
+        "--credential-env",
         "--api-key-env",
+        dest="credential_env_var",
         default="ASH_EXTERNAL_API_KEY",
-        help="env var name to check for presence (value never read/printed)",
+        help="credential env var name to check for presence (value never printed)",
     )
     doctor_p.add_argument(
         "--reports-root",
@@ -495,6 +507,61 @@ def build_parser() -> argparse.ArgumentParser:
         help="output HTML file (default: <root>/report.html)",
     )
 
+    showcase_p = sub.add_parser(
+        "showcase",
+        help="generate a Markdown evidence showcase from run artifacts",
+    )
+    showcase_p.add_argument(
+        "--root",
+        type=Path,
+        default=Path("reports"),
+        help="directory to scan for run manifests (default: reports)",
+    )
+    showcase_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path("docs/showcase/generated"),
+        help="output directory for generated showcase markdown",
+    )
+
+    suite_p = sub.add_parser(
+        "local-suite",
+        help="run a bounded, named local-model smoke profile (dry-run unless --execute)",
+    )
+    suite_p.add_argument(
+        "--profile",
+        default="prometheus-lowctx-smoke",
+        help="local profile name (default: prometheus-lowctx-smoke; see --list)",
+    )
+    suite_p.add_argument(
+        "--list",
+        dest="list_profiles",
+        action="store_true",
+        help="list the available bounded local profiles and exit",
+    )
+    suite_p.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="output directory (default: derived from the profile under reports/)",
+    )
+    suite_p.add_argument(
+        "--base-url",
+        default=None,
+        help="override the preset base URL (e.g. a non-default local runtime port)",
+    )
+    suite_p.add_argument(
+        "--execute",
+        action="store_true",
+        help="actually call the local model (default: dry-run, no network, no files)",
+    )
+    suite_p.add_argument(
+        "--showcase",
+        dest="run_showcase",
+        action="store_true",
+        help="after a validated run, generate failure cards with ash showcase",
+    )
+
     return parser
 
 
@@ -573,8 +640,15 @@ def _compare(baseline: str, protected: str, out: Path) -> int:
 
 def _validate(path: Path, output_format: str = "text") -> int:
     result = validate_path(path)
+    redacted_errors = [redact_artifact_text(msg) for msg in result.errors]
+    redacted_warnings = [redact_artifact_text(msg) for msg in result.warnings]
     if output_format == "json":
-        print(json.dumps(result.model_dump(mode="json"), indent=2))
+        safe_result = result.model_copy(
+            update={"errors": redacted_errors, "warnings": redacted_warnings}
+        )
+        # Validation messages are redacted before printing.
+        # codeql[py/clear-text-logging-sensitive-data]
+        print(json.dumps(safe_result.model_dump(mode="json"), indent=2))
         return 0 if result.ok else 1
     print(
         f"validated {len(result.report_dirs)} report dir(s), "
@@ -583,10 +657,12 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.run_diff_dirs)} run-diff dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
-    for warning in result.warnings:
-        print(f"  warning: {warning}")
-    for error in result.errors:
-        print(f"  error: {error}")
+    if redacted_errors or redacted_warnings:
+        print(
+            "Validation message details are hidden in text output to avoid "
+            "printing artifact contents."
+        )
+        print("Use `ash validate --format json` for redacted machine-readable details.")
     if result.ok:
         print(
             "OK: artifacts conform to the corpus manifest "
@@ -706,12 +782,13 @@ def _run_external(
     timeout: int,
     retries: int,
     raw_response_limit: int,
-    api_key_env: str,
+    credential_env_var: str,
     max_variants: int,
     variant_id: str | None,
     dry_run: bool,
     adapter: str,
     max_requests: int,
+    preset_name: str | None,
 ) -> int:
     from agentic_security_harness.external_runner import run_external
     from agentic_security_harness.scenarios import get_scenario, get_variants
@@ -732,6 +809,7 @@ def _run_external(
     if raw_response_limit < 0:
         print("Error: raw-response-limit must be >= 0")
         return 1
+    runtime_profile = infer_runtime_profile(preset_name, base_url)
 
     # Estimate request count and enforce the cost safety cap before any call.
     try:
@@ -762,20 +840,29 @@ def _run_external(
             timeout_seconds=timeout,
             max_retries=retries,
             raw_response_limit=raw_response_limit,
-            api_key_env=api_key_env,
+            credential_env_var=credential_env_var,
             max_variants=max_variants,
             only_variant_id=variant_id,
             dry_run=True,
+            preset_name=preset_name,
         )
         print("No network call. No files written. (dry run)")
-        if api_key_env:
-            print(f"  Set the key first: $env:{api_key_env}='...' (PowerShell)")
+        if credential_env_var:
+            print(
+                f"  Credential env var required: {credential_env_var} "
+                "(set its value in your shell before the live run)."
+            )
         print("Next: re-run without --dry-run to execute.")
         return 0
 
     print(f"Estimated requests: {estimate}  (cap: {max_requests})")
     print(f"Artifacts will be written to {out.as_posix()}")
-    print("API key value is never stored; only the env var name is recorded.")
+    print(
+        f"Runtime: {runtime_profile.runtime_name}  "
+        f"network_mode: {runtime_profile.network_mode}  "
+        f"prompt_only: true"
+    )
+    print("Credential values are never stored; only the env var name is recorded.")
 
     try:
         summary = run_external(
@@ -788,10 +875,11 @@ def _run_external(
             timeout_seconds=timeout,
             max_retries=retries,
             raw_response_limit=raw_response_limit,
-            api_key_env=api_key_env,
+            credential_env_var=credential_env_var,
             max_variants=max_variants,
             only_variant_id=variant_id,
             dry_run=False,
+            preset_name=preset_name,
         )
     except KeyError as exc:
         print(f"Error: {exc}")
@@ -823,8 +911,14 @@ def _run_external(
             "max_retries": retries,
             "raw_response_limit": raw_response_limit,
             "request_count": summary.total_repeats,
-            "network_mode": "explicit-external",
-            "api_key_env": api_key_env,
+            "runtime_name": runtime_profile.runtime_name,
+            "runtime_family": runtime_profile.runtime_family,
+            "network_mode": runtime_profile.network_mode,
+            "authorization_mode": runtime_profile.authorization_mode,
+            "local_only": runtime_profile.local_only,
+            "prompt_only": True,
+            "tool_execution": False,
+            "credential_env_var": credential_env_var,
         },
         artifacts=_artifact_names(out),
         tool_version=__version__,
@@ -854,7 +948,7 @@ def _doctor(
     as_json: bool,
     live_local: bool,
     base_url: str,
-    api_key_env: str,
+    credential_env_var: str,
     reports_root: Path | None,
 ) -> int:
     import json as _json
@@ -865,7 +959,7 @@ def _doctor(
         reports_root=reports_root,
         live_local=live_local,
         base_url=base_url,
-        api_key_env=api_key_env,
+        credential_env_var=credential_env_var,
     )
     if as_json:
         print(_json.dumps(report.model_dump(mode="json"), indent=2))
@@ -886,7 +980,10 @@ def _doctor(
 
 def _external_presets() -> int:
     print("Connection presets for the external OpenAI-compatible path:")
-    print("(presets only fill a default base URL + key env-var NAME; network is still opt-in)")
+    print(
+        "(presets only fill a default base URL + credential env-var NAME; "
+        "network is still opt-in)"
+    )
     print(f"{'preset':26s} {'key':4s} base_url")
     for p in list_presets():
         key = "yes" if p.needs_key else "no"
@@ -912,8 +1009,9 @@ def _diff_runs(left: Path, right: Path, out: Path) -> int:
     write_run_diff(diff, out)
     print(f"wrote run_diff.json, run_diff.md to {out.as_posix()}")
     print(
-        f"kind: {diff.kind}  fixed: {diff.fixed}  new: {diff.new}  "
-        f"changed: {diff.changed}  unchanged: {diff.unchanged}"
+        f"kind: {diff.kind}  finding_fixed: {diff.finding_fixed}  "
+        f"new_finding: {diff.new_finding}  changed_status: {diff.changed_status}  "
+        f"drift: {diff.inconclusive_error_drift}"
     )
     print("Diff is an artifact comparison, not a re-run or a certification.")
     print("Next: ash report --root " + out.as_posix() + "  (or open run_diff.md)")
@@ -938,9 +1036,12 @@ def _compare_models(left: Path, right: Path, out: Path, output_format: str = "te
         return 0
     print(f"wrote model comparison artifacts to {out.as_posix()}")
     print(
-        f"fixed: {diff.fixed}  new: {diff.new}  changed: {diff.changed}  "
-        f"unchanged: {diff.unchanged}"
+        f"finding_fixed: {diff.finding_fixed}  new_finding: {diff.new_finding}  "
+        f"changed_status: {diff.changed_status}  "
+        f"inconclusive_error_drift: {diff.inconclusive_error_drift}"
     )
+    print("inconclusive/error are not pass or finding; they never count as a fix or "
+          "new finding.")
     print("Comparison is based on recorded external artifacts; it does not call models.")
     return 0
 
@@ -1025,6 +1126,117 @@ def _report(root: Path, out: Path | None) -> int:
     return 0
 
 
+def _showcase(root: Path, out: Path) -> int:
+    from agentic_security_harness.showcase import build_showcase, write_showcase
+
+    manifests, cards = build_showcase(root)
+    paths = write_showcase(root, out)
+    print(f"wrote showcase index to {paths['index'].as_posix()}")
+    print(f"wrote failure/weak-spot cards to {paths['failure_cards'].as_posix()}")
+    print(f"runs discovered: {len(manifests)}  cards generated: {len(cards)}")
+    print("JSON artifacts remain the source of truth; this is a reviewer aid.")
+    return 0
+
+
+def _print_local_profiles() -> int:
+    from agentic_security_harness.local_profiles import LOCAL_PROFILES, local_profile_names
+
+    print("Bounded local-model smoke profiles (prompt-only, no tools):")
+    for name in local_profile_names():
+        p = LOCAL_PROFILES[name]
+        print(
+            f"  {name}: preset={p.preset} model={p.model} scenario={p.scenario_id} "
+            f"variants={p.max_variants} repeats={p.repeats} timeout={p.timeout_seconds}s "
+            f"cap={p.max_requests}"
+        )
+    print("Run one with: ash local-suite --profile <name> --execute")
+    return 0
+
+
+def _local_suite(
+    profile_name: str,
+    out: Path | None,
+    base_url_override: str | None,
+    execute: bool,
+    run_showcase: bool,
+    list_profiles: bool,
+) -> int:
+    """Run a bounded, named local-model smoke profile. Dry-run unless ``execute``."""
+    from agentic_security_harness.local_profiles import (
+        default_output_dir,
+        resolve_local_profile,
+    )
+
+    if list_profiles:
+        return _print_local_profiles()
+    try:
+        profile = resolve_local_profile(profile_name)
+        base_url, credential_env_var, err = apply_preset(
+            profile.preset, base_url_override, ""
+        )
+    except KeyError as exc:
+        print(f"Error: {exc}")
+        return 1
+    if err:
+        print(f"Error: {err}")
+        return 1
+
+    out_dir = out or Path(default_output_dir(profile))
+    print(
+        f"profile: {profile.name}  model: {profile.model}  scenario: {profile.scenario_id}"
+    )
+    print(f"  preset {profile.preset} -> base_url {_redact_url(base_url)}")
+    print(
+        "Local runtime execution does not remove model-license / acceptable-use duties. "
+        "Stop if the machine becomes unusable or adapter errors repeat after a timeout "
+        "increase (see docs/local-model-profiles.md)."
+    )
+
+    rc = _run_external(
+        base_url,
+        profile.model,
+        profile.scenario_id,
+        out_dir,
+        profile.repeats,
+        0.0,
+        profile.timeout_seconds,
+        1,
+        profile.raw_response_limit,
+        credential_env_var,
+        profile.max_variants,
+        None,
+        not execute,
+        "openai-compatible",
+        profile.max_requests,
+        profile.preset,
+    )
+    if rc != 0:
+        return rc
+    if not execute:
+        print("Dry-run only. Re-run with --execute to call the local model.")
+        return 0
+
+    # Real run completed: validate the artifacts and report the weak-model classification.
+    from agentic_security_harness.validation import validate_path
+
+    result = validate_path(out_dir)
+    if not result.ok:
+        print(f"Validation FAILED for {redact_artifact_text(out_dir.as_posix())}:")
+        print(f"errors: {len(result.errors)}")
+        print("Use `ash validate --format json` for redacted machine-readable details.")
+        return 1
+    print(f"validated {out_dir.as_posix()} (artifact integrity only).")
+    print(
+        "Weak-model contradictions are classified as inconclusive/adapter_error, never "
+        "pass or finding."
+    )
+    if run_showcase:
+        showcase_out = out_dir.parent / f"{out_dir.name}-showcase"
+        return _showcase(out_dir, showcase_out)
+    print("Next: ash showcase --root " + out_dir.as_posix())
+    return 0
+
+
 def _list_runs(root: Path, db: Path | None) -> int:
     if db is not None:
         from agentic_security_harness.rundb import list_db_runs
@@ -1080,11 +1292,12 @@ def _external_check(
     model: str,
     scenario_id: str,
     adapter: str,
-    api_key_env: str,
+    credential_env_var: str,
     repeats: int,
     max_variants: int,
     live: bool,
     max_requests: int,
+    preset_name: str | None,
 ) -> int:
     from agentic_security_harness.run_config import _redact_url
     from agentic_security_harness.scenarios import get_scenario, get_variants
@@ -1101,6 +1314,12 @@ def _external_check(
     # Check base URL
     redacted = _redact_url(base_url)
     print(f"  Base URL: {redacted}")
+    runtime_profile = infer_runtime_profile(preset_name, base_url)
+    print(f"  Runtime: {runtime_profile.runtime_name} ({runtime_profile.runtime_family})")
+    print(f"  Network mode: {runtime_profile.network_mode}")
+    print(f"  Authorization mode: {runtime_profile.authorization_mode}")
+    print("  Prompt-only: yes; tool execution: no")
+    print(f"  Model/license note: {runtime_profile.model_license_note}")
 
     # Check model
     if not model:
@@ -1137,19 +1356,19 @@ def _external_check(
     else:
         print(f"  Cost cap: {max_requests} (within budget)")
 
-    # Check API key env
-    if api_key_env:
+    # Check credential env var
+    if credential_env_var:
         import os
 
-        val = os.environ.get(api_key_env)
+        val = os.environ.get(credential_env_var)
         if val:
-            print(f"  API key env ({api_key_env}): SET (value hidden)")
+            print(f"  Credential env var ({credential_env_var}): SET (value hidden)")
         else:
-            print(f"  API key env ({api_key_env}): NOT SET")
-        print(f"    Linux/macOS: export {api_key_env}=your_key")
-        print(f"    PowerShell:  $env:{api_key_env}='your_key'")
+            print(f"  Credential env var ({credential_env_var}): NOT SET")
+        print("    Set this environment variable in your shell before a live run.")
+        print("    The value is only read for the request header; it is not printed.")
     else:
-        print("  API key env: not specified (local server may not need one)")
+        print("  Credential env var: not specified (local server may not need one)")
 
     # Check repeats
     from agentic_security_harness.run_config import _MAX_REPEATS
@@ -1172,12 +1391,15 @@ def _external_check(
                 model=model,
                 messages=[{"role": "user", "content": "ping"}],
                 timeout_seconds=10,
-                api_key_env=api_key_env,
+                credential_env_var=credential_env_var,
             )
             print("  Live request: SUCCESS")
             print(f"  Response model: {resp.get('model', 'unknown')}")
         except Exception as exc:
             print(f"  Live request: FAILED -- {exc}")
+            print("  Recovery:")
+            for hint in runtime_profile.recovery_guidance:
+                print(f"    - {hint}")
             return 1
     else:
         print(
@@ -1191,11 +1413,13 @@ def _external_check(
         "only --live and a real run-external do."
     )
     # Concrete copy-pasteable next step (dry-run first, then the live run).
-    key_flag = f" --api-key-env {api_key_env}" if api_key_env else ""
+    credential_flag = (
+        f" --credential-env {credential_env_var}" if credential_env_var else ""
+    )
     next_cmd = (
         f"ash run-external --base-url {redacted} --model {model} "
         f"--scenario {scenario_id} --repeats {repeats} "
-        f"--max-variants {max_variants}{key_flag}"
+        f"--max-variants {max_variants}{credential_flag}"
     )
     print("Next steps:")
     print(f"  1) dry-run (no network, no files): {next_cmd} --dry-run")
@@ -1229,8 +1453,8 @@ def main(argv: list[str] | None = None) -> int:
         return _external_presets()
     if args.command in ("run-external", "external-check"):
         try:
-            base_url, api_key_env, err = apply_preset(
-                args.preset, args.base_url, args.api_key_env
+            base_url, credential_env_var, err = apply_preset(
+                args.preset, args.base_url, args.credential_env_var
             )
         except KeyError as exc:
             print(f"Error: {exc}")
@@ -1251,23 +1475,25 @@ def main(argv: list[str] | None = None) -> int:
                 args.timeout,
                 args.retries,
                 args.raw_response_limit,
-                api_key_env,
+                credential_env_var,
                 args.max_variants,
                 args.variant,
                 args.dry_run,
                 args.adapter,
                 args.max_requests,
+                args.preset,
             )
         return _external_check(
             base_url,
             args.model,
             args.scenario,
             args.adapter,
-            api_key_env,
+            credential_env_var,
             args.repeats,
             args.max_variants,
             getattr(args, "live", False),
             args.max_requests,
+            args.preset,
         )
     if args.command == "list-runs":
         return _list_runs(args.root, args.db)
@@ -1283,9 +1509,20 @@ def main(argv: list[str] | None = None) -> int:
         return _retention(args.root, args.keep_last, args.kind, args.apply, args.format)
     if args.command == "report":
         return _report(args.root, args.out)
+    if args.command == "showcase":
+        return _showcase(args.root, args.out)
+    if args.command == "local-suite":
+        return _local_suite(
+            args.profile,
+            args.out,
+            args.base_url,
+            args.execute,
+            args.run_showcase,
+            args.list_profiles,
+        )
     if args.command == "doctor":
         return _doctor(
-            args.json, args.live_local, args.base_url, args.api_key_env,
+            args.json, args.live_local, args.base_url, args.credential_env_var,
             args.reports_root,
         )
     return 1

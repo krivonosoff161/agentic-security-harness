@@ -1,12 +1,26 @@
 # Agentic Security Harness
 
+**A trace-first benchmark for agentic AI boundary failures.** It gives security engineers,
+AI platform teams, and researchers a safe way to reproduce synthetic agent failures,
+compare a vulnerable target with a protected target, and inspect the evidence as traces,
+scorecards, remediation, and static reports.
+
+In plain English: this repo answers three practical questions.
+
+1. Can a local agent-like system keep data labels, authority limits, memory provenance,
+   approval context, audit trails, and tool boundaries intact?
+2. If it fails, can the failure be shown as a replayable trace instead of a vague prompt
+   anecdote?
+3. If a protected version passes, can the before/after improvement be validated from
+   committed artifacts?
+
 ## Public quick read
 
 **Status:** pre-release, credible alpha. This is a working trace-first defensive benchmark prototype for agentic AI boundary failures, not a production certification benchmark.
 
 | Surface | Current status | Evidence |
 |---|---|---|
-| Local benchmark core | Shipped | 22 deterministic seed patterns, local targets, traces, scorecards, remediation, validation. |
+| Local benchmark core | Shipped | 24 deterministic seed patterns, local targets, traces, scorecards, remediation, validation. |
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
 | Committed examples | Shipped | `examples/` plus `ash validate examples/`. |
 | CI / package checks | Shipped | `.github/workflows/ci.yml` runs tests, ruff, mypy, package build, and example validation. |
@@ -24,15 +38,62 @@ python -m mypy src tests
 ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison
 ash validate reports/comparison
 ash validate examples/
+ash showcase --root reports --out docs/showcase/generated
 ```
+
+If you only have one minute:
+
+- Read the committed before/after example:
+  [`examples/comparison-report/README.md`](examples/comparison-report/README.md).
+- Inspect the public evidence entry point:
+  [`docs/showcase/index.md`](docs/showcase/index.md).
+- Check what is shipped versus planned:
+  [`docs/current-state.md`](docs/current-state.md).
+- Validate the public examples locally with `ash validate examples/`.
+
+## Visual evidence snapshot
+
+```mermaid
+flowchart LR
+    A[24 synthetic boundary patterns] --> B[Vulnerable demo-agent]
+    A --> C[Protected demo-agent]
+    B --> D[24 modeled findings]
+    C --> E[0 modeled findings]
+    D --> F[Validated comparison artifact]
+    E --> F
+    F --> G[Trace replay + scorecard + remediation]
+```
+
+| Demo question | Current public answer | Inspect |
+|---|---|---|
+| Can the corpus expose modeled boundary failures? | `demo-agent`: 24 findings | [`examples/demo-agent-report/`](examples/demo-agent-report/) |
+| Can a protected local target remove the modeled findings? | `protected-demo-agent`: 0 findings | [`examples/protected-demo-agent-report/`](examples/protected-demo-agent-report/) |
+| Is the before/after artifact reproducible? | `ash validate examples/` passes | [`examples/comparison-report/`](examples/comparison-report/) |
+
+This is a deterministic synthetic benchmark snapshot, not evidence that a production
+agent is secure.
 
 Read by role:
 
 - First-time user: [Getting started](docs/getting-started.md) and [User journey](docs/user-journey.md).
+- Project status reviewer: [Current state](docs/current-state.md), [Capability matrix](docs/capability-matrix.md),
+  [Roadmap](docs/roadmap.md), [Project tracker](docs/project-tracker.md), and
+  [v1.0 readiness](docs/v1-readiness.md).
 - Benchmark reviewer: [Benchmark protocol](docs/benchmark-protocol.md), [Benchmark semantics](docs/benchmark-semantics.md), and [Artifact schemas](docs/artifact-schemas.md).
 - Adapter author: [Custom adapter tutorial](docs/custom-adapter-tutorial.md) and [Adapter contract](docs/adapter-contract.md).
-- Report reviewer: [Examples index](examples/README.md) and [comparison example](examples/comparison-report/README.md).
-- Safety reviewer: [Research rules](docs/research-rules.md), [Threat model](docs/threat-model.md), and [SECURITY.md](SECURITY.md).
+- Report reviewer: [Examples index](examples/README.md),
+  [comparison example](examples/comparison-report/README.md), and
+  [showcase checklist](docs/showcase-report-checklist.md).
+- Showcase reviewer: [Public evidence showcase](docs/showcase/index.md),
+  [scenario matrix](docs/showcase/scenario-matrix.md), and
+  [weak spots/findings ledger](docs/showcase/weak-spots-and-findings.md).
+- Scenario designer: [Scenario timeline contract](docs/scenario-timeline.md).
+- Multi-agent handoff reviewer: [Inter-agent handoff integrity](docs/inter-agent-handoff-integrity.md)
+  and [deterministic handoff toy topology](docs/handoff-toy-topology.md).
+- Local model reviewer: [Local Prometheus workflow](docs/local-prometheus-workflow.md),
+  [Local model profiles](docs/local-model-profiles.md), and [Metrics contract](docs/metric-contract.md).
+- Safety reviewer: [Research rules](docs/research-rules.md), [Authorized testing paths](docs/authorized-testing-paths.md),
+  [Threat model](docs/threat-model.md), and [SECURITY.md](SECURITY.md).
 
 Do not read a clean run as "the system is secure." A clean run only means the target handled the modeled synthetic patterns under the declared run configuration.
 
@@ -46,14 +107,15 @@ a target can be a local agent, a tool loop, a memory loop, a model chain, a mult
 handoff, or a future authorized runtime behind the same adapter contract.
 
 - **Trace-first** - every run is a portable, machine-readable failure trace, not just pass/fail.
-- **Agentic operating-environment boundary corpus** - 22 deterministic seed patterns for
+- **Agentic operating-environment boundary corpus** - 24 deterministic seed patterns for
   how sensitivity labels, recipients, storage, forwarding, audit, budget, delegated
   authority, tool schemas, perception boundaries, ambient authority, approval context,
   and memory governance break in agentic systems.
 - **Baseline vs protected replay** - a vulnerable demo agent vs a controlled one, on
   deterministic **local** targets, with a measured before/after scorecard.
 - **Standards-aware corpus** - implemented patterns include coarse OWASP Agentic Security
-  Initiative mappings; OWASP LLM and MITRE ATLAS mappings remain verification-gated.
+  Initiative mappings plus category-level OWASP LLM, NIST AI RMF, and verified MITRE
+  ATLAS mappings where there is a direct fit.
 
 Built-in/local targets are synthetic, deterministic, and offline - no network, no
 provider calls. The experimental `run-external` path calls an OpenAI-compatible endpoint
@@ -98,6 +160,8 @@ deterministic tests - honest residual risk. Full rules:
   `ash validate` does and does **not** prove? Read
   [benchmark semantics](docs/benchmark-semantics.md) and the
   [capability matrix](docs/capability-matrix.md).
+- Need to know what is shipped, experimental, planned, and safe to claim publicly? Read
+  [current state](docs/current-state.md) and the public [project tracker](docs/project-tracker.md).
 - Comparing two runs, reading artifact versions, or connecting a provider? See
   [run diff](docs/run-diff.md), [artifact schemas](docs/artifact-schemas.md), and
   [connect models](docs/connect-models.md).
@@ -111,6 +175,8 @@ deterministic tests - honest residual risk. Full rules:
   [comparison example](examples/comparison-report/README.md).
 - Reviewing standards coverage? Read the [standards mapping](docs/standards-mapping.md)
   and [corpus matrix](docs/corpus.md).
+- Reviewing authorization and legal/scope boundaries? Read
+  [authorized testing paths](docs/authorized-testing-paths.md).
 - Adding a new idea? Convert it into the safe structure in
   [project map](docs/project-map.md#how-to-add-a-new-research-idea-safely) before coding.
 - Prioritizing future patterns? Read the [research roadmap](docs/research-roadmap.md) and
@@ -118,12 +184,12 @@ deterministic tests - honest residual risk. Full rules:
 
 ## Status
 
-**Pre-release, working.** The harness runs a **22-pattern local corpus centered on
+**Pre-release, working.** The harness runs a **24-pattern local corpus centered on
 agentic operating-environment boundary failures** - data-boundary, authority, perception,
 memory governance, approval, and audit integrity - against deterministic local targets,
 with baseline-vs-protected replay (see *What exists today*). Cross-app contamination,
-real target adapters, live MCP adapters, richer multi-agent tests, full multimodal adapters,
-and the reference gateway come later.
+real target adapters, live MCP adapters, richer live multi-agent tests, full multimodal
+adapters, and the reference gateway come later.
 See [docs/roadmap.md](docs/roadmap.md).
 
 ![status](https://img.shields.io/badge/status-pre--release-orange)
@@ -135,9 +201,10 @@ See [docs/roadmap.md](docs/roadmap.md).
 
 - **Pydantic v2 models** - `DataEnvelope` (a policy label, **not** encryption), `Finding`,
   `TraceStep`, `TargetDescriptor`, `ExploitTrace`, `DefensivePattern`.
-- **Twenty-two sanitized seed patterns** - indirect prompt injection, data-boundary recipient
+- **Twenty-four sanitized seed patterns** - indirect prompt injection, data-boundary recipient
   confusion, memory poisoning, classification mutation, handoff label stripping,
-  tool-permission abuse, provider-boundary leakage, sleeping-prompt delayed activation,
+  tool-permission abuse, provider-boundary leakage, missing-envelope recovery,
+  sleeping-prompt delayed activation,
   audit spam-label abuse, budget loop abuse, capability delegation drift, mock
   tool-schema deception, audit hash-chain tampering, perception-boundary sensor-command
   confusion, ambient authority escalation, approval laundering, and memory governance.
@@ -146,7 +213,7 @@ See [docs/roadmap.md](docs/roadmap.md).
   mock tool calls, data-envelope propagation, recipient-control checks); intentionally
   vulnerable for the seed patterns. No network, no LLM.
 - **Protected demo agent (`protected-demo-agent`)** - the same agent with simple deterministic
-  controls; passes all twenty-two seed patterns. `ash compare` measures the reduction in findings.
+  controls; passes all twenty-four seed patterns. `ash compare` measures the reduction in findings.
 - **Runner** - `pattern -> target -> trace` (mock or demo-agent).
 - **Scorecard** - a deterministic aggregate derived from traces.
 - **Demo CLI (`ash`)** - `ash run --target {mock,demo-agent,protected-demo-agent}`,
@@ -165,11 +232,11 @@ See [docs/roadmap.md](docs/roadmap.md).
   passed to the external prompt as scenario context, but do not yet mutate the
   underlying pattern content; for the local `run-matrix` path they remain replay
   metadata only.
-- **Toy adapters** - `toy-rag` and `toy-tools` (plus the trivial pass-all
-  `toy-local-function`): deterministic local stand-ins for agentic systems that exercise
-  *different* surfaces (retrieval/memory vs tool/authority) and so legitimately PASS some
-  patterns and FAIL others. They show the harness can evaluate arbitrary systems, not
-  only the demo agents. No network, no dependencies.
+- **Toy adapters** - `toy-rag`, `toy-tools`, and `toy-multi-agent` (plus the trivial
+  pass-all `toy-local-function`): deterministic local stand-ins for agentic systems that
+  exercise *different* surfaces (retrieval/memory, tool/authority, and coordinator/worker
+  handoff) and so legitimately PASS some patterns and FAIL others. They show the harness
+  can evaluate arbitrary systems, not only the demo agents. No network, no dependencies.
 - **Static HTML reports** - `ash report --root <dir>` renders a self-contained
   `report.html` (no JS, no CDN, no network) with an executive summary, severity
   distribution, pattern table, and a coverage heatmap for matrix runs. JSON/Markdown
@@ -195,8 +262,8 @@ only in the experimental `run-external` path and require an explicit command.
 
 | Area | Current release | Planned / future track |
 |---|---|---|
-| Benchmark | 22-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus via invariant-based expansion, mappings, report quality. |
-| Targets | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, plus experimental OpenAI-compatible external model checks. | Native provider adapters and agent-host / tool-use adapters. |
+| Benchmark | 24-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus via invariant-based expansion, mappings, report quality. |
+| Targets | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, plus experimental OpenAI-compatible external model checks. | Native provider adapters and agent-host / tool-use adapters. |
 | Runtime | CLI-only (`run`, `compare`, `validate`, `targets`, `scenarios`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `list-runs`, `index-runs`, `stats`, `retention`, `report`, `doctor`). | Optional HTTP reference gateway and a web report viewer after the benchmark stabilizes. |
 | Network / providers | Off by default; `run-external` makes explicit OpenAI-compatible calls only when invoked without `--dry-run`. | More provider presets, config files, and verified local-runtime guides. |
 | Storage | Local report files and committed examples. | Optional persistent trace store after v1.0. |
@@ -228,8 +295,9 @@ ash validate examples/        # validate committed benchmark artifacts
   tool-schema provenance tests for the tools / permissions layer of the graph.
 - **Perception-boundary checks** - synthetic OCR / ASR / HTML transcript fixtures test
   whether observed content is treated as authority. Full multimodal adapters are planned.
-- **Cross-app and multi-agent contamination** (planned) - explicit tests for workflows
-  where one app surface or agent contaminates another.
+- **Cross-app and multi-agent contamination** - current local coverage includes a
+  toy coordinator/worker handoff for label stripping and capability drift; richer live
+  cross-app / multi-agent workflows remain planned.
 - **Scorecard from traces** - a derived, deterministic aggregate.
 - **Reference gateway** (planned) - an optional defense target design for future replay.
 
@@ -244,16 +312,12 @@ leakage - delayed stored-content activation - audit suppression and audit tamper
 budget / loop abuse - capability delegation drift - mock MCP / tool-schema deception -
 perception-boundary confusion - ambient authority use - approval-context laundering.
 
-Twenty-two local seed patterns are implemented today: six data-boundary / recipient-control
-patterns, one indirect tool-output injection seed, three v0.6 additions
-(sleeping-prompt delayed activation, audit spam-label abuse, budget loop abuse),
-three v0.7 authority / integrity additions (capability delegation drift, mock
-tool-schema deception, audit hash-chain tampering), four v0.8 perception /
-authority / governance additions (perception-boundary sensor-command confusion,
-ambient authority escalation, approval laundering, memory governance), and five
-v0.9 deeper variants (environment-injected memory poisoning, unintentional
-cross-user contamination, recursive execution amplification, tool-selection
-manipulation, multi-turn indirect instruction escalation). The rest are on the
+Twenty-four local seed patterns are implemented today across data-boundary,
+provenance, tool/permission, provider-boundary, delayed activation, audit, budget,
+capability, perception, ambient authority, approval, memory-governance, and
+multi-turn escalation families. The exact current corpus is the machine-readable
+source of truth in [corpus.py](src/agentic_security_harness/corpus.py) and the
+reviewer-facing table in [corpus.md](docs/corpus.md). Future families are on the
 [roadmap](docs/roadmap.md).
 
 ## Reference defense (planned optional component)
@@ -317,18 +381,18 @@ ash external-check --adapter openai-compatible \
   --scenario data-boundary
 
 # actual run (makes network calls)
-export ASH_EXTERNAL_API_KEY=your_key_here
+export ASH_EXTERNAL_API_KEY=REDACTED_VALUE
 ash run-external --adapter openai-compatible \
   --base-url http://localhost:8000/v1 \
   --model deepseek-chat \
   --scenario data-boundary \
   --repeats 3 \
-  --api-key-env ASH_EXTERNAL_API_KEY \
+  --credential-env ASH_EXTERNAL_API_KEY \
   --out reports/external-demo
 ```
 
 > The commands above are bash. On **Windows PowerShell**, set the key with
-> `$env:ASH_EXTERNAL_API_KEY = "your_key_here"` and use a backtick `` ` `` for line
+> `$env:ASH_EXTERNAL_API_KEY = "REDACTED_VALUE"` and use a backtick `` ` `` for line
 > continuation. Full per-stack PowerShell recipes:
 > [docs/connect-models.md](docs/connect-models.md). Full walkthrough:
 > [docs/user-journey.md](docs/user-journey.md).
@@ -363,7 +427,7 @@ ash validate reports/demo --format json
 (scenario-specific summary).
 
 `run-external` writes:
-- `run_config.json` - run configuration incl. `request_count` (API key env name only, never the value)
+- `run_config.json` - run configuration incl. `request_count` (credential env name only, never the value)
 - `external_results.json` - per-pattern evaluation results with structured errors,
   pattern-level assertion status, raw-response path, and sha256
 - `external_summary.json` - aggregated repeat summaries + `findings_by_control_family`
@@ -453,7 +517,7 @@ reports/comparison/
 
 In the committed example
 ([`examples/comparison-report/comparison.md`](examples/comparison-report/comparison.md)) the
-baseline fails all 22 patterns (22 findings) and the protected agent passes all 22 (0 findings).
+baseline fails all 24 patterns (24 findings) and the protected agent passes all 24 (0 findings).
 
 > Educational and synthetic: risk reduction is measured from deterministic mock traces,
 > **not** a guarantee of real-world protection.
@@ -486,7 +550,7 @@ traces and deterministic baseline-vs-protected replay. Honest comparison:
 - **[Project map](docs/project-map.md)** - plain-language guide for reviewers and maintainers.
 - **[Use cases](docs/use-cases.md)** - how AI/security teams can evaluate and apply the benchmark.
 - **[Problem-solution catalog](docs/problem-solution-catalog.md)** - problem -> detection -> mitigation -> harness test -> reference control -> residual risk.
-- **[Corpus coverage matrix](docs/corpus.md)** - the 22 implemented seed patterns, baseline vs protected, and what each touches.
+- **[Corpus coverage matrix](docs/corpus.md)** - the 24 implemented seed patterns, baseline vs protected, and what each touches.
 - **[Research roadmap](docs/research-roadmap.md)** - cleaned intake map for future benchmark patterns.
 - **[Corpus expansion plan](docs/corpus-expansion-plan.md)** - invariant-based backlog for
   future patterns without combinatorial explosion.

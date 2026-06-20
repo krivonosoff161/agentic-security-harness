@@ -7,7 +7,7 @@
 ## What the benchmark checks
 
 The benchmark measures whether **agentic operating-environment boundaries survive** across
-22 deterministic synthetic patterns. It checks:
+24 deterministic synthetic patterns. It checks:
 
 - data envelope propagation (labels, recipients, forwarding rules)
 - memory governance (provenance, trust levels, TTL, scope isolation)
@@ -132,13 +132,13 @@ ash run-external --adapter openai-compatible \
   --dry-run
 
 # Actual run (makes network calls)
-export ASH_EXTERNAL_API_KEY=your_key_here
+export ASH_EXTERNAL_API_KEY=REDACTED_VALUE
 ash run-external --adapter openai-compatible \
   --base-url http://localhost:8000/v1 \
   --model deepseek-chat \
   --scenario data-boundary \
   --repeats 3 \
-  --api-key-env ASH_EXTERNAL_API_KEY \
+  --credential-env ASH_EXTERNAL_API_KEY \
   --out reports/external-demo
 ```
 

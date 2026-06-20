@@ -122,16 +122,16 @@ def _check_writable(root: Path) -> DoctorCheck:
         return DoctorCheck(name="cwd_writable", ok=False, detail=f"not writable: {exc}")
 
 
-def _check_api_key_env(api_key_env: str) -> DoctorCheck:
+def _check_credential_env(credential_env_var: str) -> DoctorCheck:
     # Presence only; never read or print the value.
-    is_set = bool(os.environ.get(api_key_env))
+    is_set = bool(os.environ.get(credential_env_var))
     return DoctorCheck(
-        name="api_key_env",
+        name="credential_env_var",
         ok=None,
         detail=(
-            f"{api_key_env}: SET (value hidden)"
+            f"{credential_env_var}: SET (value hidden)"
             if is_set
-            else f"{api_key_env}: not set (only needed for authenticated endpoints)"
+            else f"{credential_env_var}: not set (only needed for authenticated endpoints)"
         ),
     )
 
@@ -184,7 +184,7 @@ def _check_reports_writable(reports_root: Path) -> DoctorCheck:
         )
 
 
-def _check_live_local(base_url: str, api_key_env: str) -> DoctorCheck:
+def _check_live_local(base_url: str, credential_env_var: str) -> DoctorCheck:
     from agentic_security_harness.external_openai_compatible import chat_completion
 
     try:
@@ -193,7 +193,9 @@ def _check_live_local(base_url: str, api_key_env: str) -> DoctorCheck:
             model="doctor-probe",
             messages=[{"role": "user", "content": "ping"}],
             timeout_seconds=5,
-            api_key_env=api_key_env if os.environ.get(api_key_env) else "",
+            credential_env_var=(
+                credential_env_var if os.environ.get(credential_env_var) else ""
+            ),
         )
         return DoctorCheck(
             name="live_local",
@@ -210,9 +212,12 @@ def run_doctor(
     reports_root: Path | None = None,
     live_local: bool = False,
     base_url: str = "http://127.0.0.1:8766/v1",
-    api_key_env: str = _DEFAULT_KEY_ENV,
+    credential_env_var: str = _DEFAULT_KEY_ENV,
+    api_key_env: str | None = None,
 ) -> DoctorReport:
     """Run all diagnostics. Network is only touched when ``live_local`` is true."""
+    if api_key_env is not None:
+        credential_env_var = api_key_env
     root = root or Path.cwd()
     reports_root = reports_root or (root / "reports")
     checks = [
@@ -224,12 +229,12 @@ def run_doctor(
         _check_writable(root),
         _check_reports_writable(reports_root),
         _check_build_tool(),
-        _check_api_key_env(api_key_env),
+        _check_credential_env(credential_env_var),
         _check_external_adapters(),
         _check_presets(),
     ]
     if live_local:
-        checks.append(_check_live_local(base_url, api_key_env))
+        checks.append(_check_live_local(base_url, credential_env_var))
 
     blocking = [c for c in checks if c.ok is False]
     ok = not blocking
