@@ -9,6 +9,13 @@ def _read(path: str) -> str:
 
 def test_readme_links_methodology_docs() -> None:
     readme = _read("README.md")
+    for phrase in (
+        "In plain English",
+        "If you only have one minute",
+        "trace-first benchmark",
+        "committed before/after example",
+    ):
+        assert phrase in readme
     for link in (
         "docs/current-state.md",
         "docs/authorized-testing-paths.md",
@@ -231,6 +238,8 @@ def test_active_docs_do_not_use_stale_pattern_count() -> None:
         text = _read(path).lower()
         assert "passes all 13" not in text
         assert "implements 13" not in text
+        assert "twenty-three" not in text
+        assert "23-pattern" not in text
 
 
 def test_toy_multi_agent_status_is_documented_as_shipped() -> None:

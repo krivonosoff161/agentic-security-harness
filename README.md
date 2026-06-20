@@ -1,5 +1,19 @@
 # Agentic Security Harness
 
+**A trace-first benchmark for agentic AI boundary failures.** It gives security engineers,
+AI platform teams, and researchers a safe way to reproduce synthetic agent failures,
+compare a vulnerable target with a protected target, and inspect the evidence as traces,
+scorecards, remediation, and static reports.
+
+In plain English: this repo answers three practical questions.
+
+1. Can a local agent-like system keep data labels, authority limits, memory provenance,
+   approval context, audit trails, and tool boundaries intact?
+2. If it fails, can the failure be shown as a replayable trace instead of a vague prompt
+   anecdote?
+3. If a protected version passes, can the before/after improvement be validated from
+   committed artifacts?
+
 ## Public quick read
 
 **Status:** pre-release, credible alpha. This is a working trace-first defensive benchmark prototype for agentic AI boundary failures, not a production certification benchmark.
@@ -26,6 +40,16 @@ ash validate reports/comparison
 ash validate examples/
 ash showcase --root reports --out docs/showcase/generated
 ```
+
+If you only have one minute:
+
+- Read the committed before/after example:
+  [`examples/comparison-report/README.md`](examples/comparison-report/README.md).
+- Inspect the public evidence entry point:
+  [`docs/showcase/index.md`](docs/showcase/index.md).
+- Check what is shipped versus planned:
+  [`docs/current-state.md`](docs/current-state.md).
+- Validate the public examples locally with `ash validate examples/`.
 
 Read by role:
 
@@ -155,7 +179,7 @@ See [docs/roadmap.md](docs/roadmap.md).
 
 - **Pydantic v2 models** - `DataEnvelope` (a policy label, **not** encryption), `Finding`,
   `TraceStep`, `TargetDescriptor`, `ExploitTrace`, `DefensivePattern`.
-- **Twenty-three sanitized seed patterns** - indirect prompt injection, data-boundary recipient
+- **Twenty-four sanitized seed patterns** - indirect prompt injection, data-boundary recipient
   confusion, memory poisoning, classification mutation, handoff label stripping,
   tool-permission abuse, provider-boundary leakage, missing-envelope recovery,
   sleeping-prompt delayed activation,
@@ -266,16 +290,12 @@ leakage - delayed stored-content activation - audit suppression and audit tamper
 budget / loop abuse - capability delegation drift - mock MCP / tool-schema deception -
 perception-boundary confusion - ambient authority use - approval-context laundering.
 
-Twenty-three local seed patterns are implemented today: seven data-boundary / recipient-control
-patterns including missing-envelope recovery, one indirect tool-output injection seed, three v0.6 additions
-(sleeping-prompt delayed activation, audit spam-label abuse, budget loop abuse),
-three v0.7 authority / integrity additions (capability delegation drift, mock
-tool-schema deception, audit hash-chain tampering), four v0.8 perception /
-authority / governance additions (perception-boundary sensor-command confusion,
-ambient authority escalation, approval laundering, memory governance), and five
-v0.9 deeper variants (environment-injected memory poisoning, unintentional
-cross-user contamination, recursive execution amplification, tool-selection
-manipulation, multi-turn indirect instruction escalation). The rest are on the
+Twenty-four local seed patterns are implemented today across data-boundary,
+provenance, tool/permission, provider-boundary, delayed activation, audit, budget,
+capability, perception, ambient authority, approval, memory-governance, and
+multi-turn escalation families. The exact current corpus is the machine-readable
+source of truth in [corpus.py](src/agentic_security_harness/corpus.py) and the
+reviewer-facing table in [corpus.md](docs/corpus.md). Future families are on the
 [roadmap](docs/roadmap.md).
 
 ## Reference defense (planned optional component)
