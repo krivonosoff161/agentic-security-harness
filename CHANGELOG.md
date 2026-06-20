@@ -15,6 +15,10 @@ All notable changes to this project are documented here. The format follows
 - `ash local-suite` for bounded local Prometheus/Ollama smoke profiles. The command is
   dry-run by default, enforces request caps, and validates real local-run artifacts after
   explicit `--execute`.
+- First-class low-context Prometheus profiles (`prometheus-lowctx-smoke` and
+  `prometheus-lowctx-reliability`) for the maintainer Ollama alias
+  `prometheus-qwen15b-lowctx:latest`, keeping the recovered local smoke reproducible by
+  name instead of as an ad hoc command.
 - `docs/current-state.md`: reviewer-facing status snapshot that separates shipped,
   experimental, planned, active, and claim-boundary items.
 - `docs/authorized-testing-paths.md`: official/authorized use paths for synthetic local

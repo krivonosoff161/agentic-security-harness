@@ -530,8 +530,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     suite_p.add_argument(
         "--profile",
-        default="prometheus-lowmem-smoke",
-        help="local profile name (default: prometheus-lowmem-smoke; see --list)",
+        default="prometheus-lowctx-smoke",
+        help="local profile name (default: prometheus-lowctx-smoke; see --list)",
     )
     suite_p.add_argument(
         "--list",

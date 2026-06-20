@@ -22,12 +22,12 @@ what the project currently proves.
 | Deterministic baseline/protected comparison | Validated example | [`examples/comparison-report/README.md`](../../examples/comparison-report/README.md) | The shipped synthetic corpus can produce a visible 24 -> 0 modeled-risk reduction between demo targets. | A real deployed agent is secure. |
 | Deterministic multi-agent handoff toy comparison | Local validated artifact | [`handoff-toy-topology.md`](../handoff-toy-topology.md) | The shipped local `toy-multi-agent` slice produces 2 modeled handoff findings, while `protected-toy-multi-agent` blocks the malformed handoffs under the same corpus. | Evidence about a live multi-agent framework, provider, or production handoff protocol. |
 | External fake-server run | Validated example | [`examples/external-demo-report/README.md`](../../examples/external-demo-report/README.md) | The experimental external artifact path can validate against a deterministic local fake OpenAI-compatible endpoint. | A real model/provider is safe. |
-| Local Prometheus/Ollama smoke | Local scratch only | [`local-prometheus-workflow.md`](../local-prometheus-workflow.md) | A weak local model can be exercised through the prompt-only external path; first smoke exposed evidence-quality/runtime limits. | Public benchmark finding; model leaderboard result. |
+| Local Prometheus/Ollama smoke | Shipped bounded local-suite; local scratch artifacts | [`local-prometheus-workflow.md`](../local-prometheus-workflow.md) | A weak local model can be exercised through a named prompt-only local-suite profile; first smokes exposed evidence-quality/runtime limits. | Public benchmark finding; model leaderboard result. |
 
 ## Current local Prometheus observation
 
-A maintainer local smoke run on a low-memory Ollama profile (`qwen2.5:1.5b`, one
-`data-boundary` variant, one repeat) produced:
+A maintainer local smoke run on the generic low-memory Ollama profile (`qwen2.5:1.5b`,
+one `data-boundary` variant, one repeat) produced:
 
 ```text
 checks: 4
@@ -37,10 +37,14 @@ adapter_error: 2
 validation: OK
 ```
 
-Interpretation: this is a weak-spot result, not a pass. The useful evidence is that the
-weak local model/runtime struggled with strict JSON verdict reliability and timeouts.
-The local report remains under `reports/` and is not committed as public evidence until
-the local runtime evidence is rerun, curated, and validated for public use.
+The recovered low-context profile (`prometheus-qwen15b-lowctx:latest`) turned the
+timeout-only path into validated pass/inconclusive evidence. Interpretation: both are
+weak-spot results, not model passes. The useful evidence is that the weak local
+model/runtime can be exercised safely while the harness keeps contradictory output as
+`inconclusive` instead of silently promoting it.
+
+Local reports remain under `reports/` and are not committed as public benchmark evidence
+until curated and validated for public use.
 
 ## Reproduce the safe deterministic showcase
 
@@ -70,21 +74,11 @@ Expected current result: `toy-multi-agent` records 2 deterministic modeled findi
 `protected-toy-multi-agent` records 0 findings by blocking consumption of the malformed
 handoffs. This remains a local synthetic topology, not a live multi-agent runtime claim.
 
-## Reproduce the low-memory local smoke
+## Reproduce the bounded local smoke
 
 ```powershell
-python -m agentic_security_harness.cli run-external `
-  --preset ollama `
-  --model qwen2.5:1.5b `
-  --scenario data-boundary `
-  --max-variants 1 `
-  --repeats 1 `
-  --max-requests 10 `
-  --timeout 60 `
-  --raw-response-limit 0 `
-  --out reports/local-prometheus-lowmem-smoke-qwen2.5-1.5b
-
-python -m agentic_security_harness.cli validate reports/local-prometheus-lowmem-smoke-qwen2.5-1.5b
+python -m agentic_security_harness.cli local-suite --profile prometheus-lowctx-smoke
+python -m agentic_security_harness.cli local-suite --profile prometheus-lowctx-smoke --execute
 ```
 
 ## Claim boundary

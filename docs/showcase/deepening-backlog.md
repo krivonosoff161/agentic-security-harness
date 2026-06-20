@@ -36,9 +36,10 @@ a full combinatorial sweep.
 1. Build public showcase skeleton from these docs (#25).
 2. Add trace replay / failure-card generation from artifacts (#21).
 3. Implement the first scenario timeline from [scenario-timeline.md](../scenario-timeline.md).
-4. Promote local Prometheus smoke from docs-only workflow to a small suite (#19).
+4. Keep the bounded local Prometheus suite small: named profiles, dry-run first, validated
+   local artifacts only after explicit `--execute`.
 5. Add richer showcase generator views over JSON artifacts (#23).
 
-Items #25, #21, #23, and #20 now have shipped slices; the remaining active sequence is
-the bounded local Prometheus suite (#19), then only selected timeline deepening variants
-with explicit deterministic invariants.
+Items #25, #21, #23, #20, and #19 now have shipped slices. The next sequence is only
+selected timeline/local-runtime deepening variants with explicit deterministic invariants
+and new issues for any broader model sweep.

@@ -37,6 +37,31 @@ class LocalProfile(BaseModel):
 
 # Registry mirrors the documented profile table in docs/local-model-profiles.md.
 LOCAL_PROFILES: dict[str, LocalProfile] = {
+    "prometheus-lowctx-smoke": LocalProfile(
+        name="prometheus-lowctx-smoke",
+        preset="ollama",
+        model="prometheus-qwen15b-lowctx:latest",
+        scenario_id="data-boundary",
+        max_variants=1,
+        repeats=1,
+        timeout_seconds=60,
+        max_requests=10,
+        note=(
+            "Maintainer low-context Ollama profile recovered the local smoke from "
+            "timeouts to pass/inconclusive evidence."
+        ),
+    ),
+    "prometheus-lowctx-reliability": LocalProfile(
+        name="prometheus-lowctx-reliability",
+        preset="ollama",
+        model="prometheus-qwen15b-lowctx:latest",
+        scenario_id="data-boundary",
+        max_variants=1,
+        repeats=3,
+        timeout_seconds=90,
+        max_requests=18,
+        note="Repeat the low-context profile to check whether weak evidence is stable.",
+    ),
     "prometheus-lowmem-smoke": LocalProfile(
         name="prometheus-lowmem-smoke",
         preset="ollama",

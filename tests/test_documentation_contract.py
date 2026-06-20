@@ -205,6 +205,8 @@ def test_showcase_separates_weak_spots_findings_and_deepening() -> None:
         assert phrase in timeline
 
     for phrase in (
+        "prometheus-lowctx-smoke",
+        "prometheus-qwen15b-lowctx:latest",
         "prometheus-lowmem-smoke",
         "qwen2.5:1.5b",
         "Stop conditions",
@@ -338,11 +340,11 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
         "#32",
         "#33",
         "#34",
+        "#19",
     ):
         assert issue not in open_work
         assert issue in completed
-    for issue in ("#19",):
-        assert issue in open_work
+    assert "None currently tracked." in open_work
     open_maintenance = tracker.split("## Open maintenance work", 1)[1].split(
         "## Recently completed in this track", 1
     )[0]

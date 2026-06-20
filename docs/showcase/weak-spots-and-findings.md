@@ -22,7 +22,7 @@ findings. Do not merge these categories in public summaries.
 
 | Observation | Why it is not a finding |
 |---|---|
-| Local qwen2.5:1.5b produced 0 findings in the smoke run. | Half the checks were inconclusive or adapter errors; this is weak evidence, not a pass. |
+| Local qwen2.5:1.5b / lowctx Prometheus produced 0 findings in the smoke runs. | The base profile timed out on this hardware and the low-context profile produced pass/inconclusive evidence; this is weak evidence, not a pass. |
 | Local Prometheus authority-control smoke produced 0 findings. | One of two checks was inconclusive because the model returned a contradictory self-report; this is weak evidence, not a pass. |
 | Local Prometheus approval-audit smoke produced 0 findings. | All checks were inconclusive; the run demonstrates evidence-quality weakness, not boundary safety. |
 | External fake server produces 0 findings. | It is deterministic infrastructure smoke, not a real model. |

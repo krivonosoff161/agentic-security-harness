@@ -18,7 +18,8 @@ Recommended first model:
 
 | Model id | Role | Why |
 |---|---|---|
-| `qwen2.5:1.5b` | Primary Prometheus smoke model | Already fits the low-memory profile and is small enough for repeated local tests. |
+| `prometheus-qwen15b-lowctx:latest` | Primary maintainer Prometheus smoke model | Local Ollama alias with lower context/output settings; recovered the smoke path from timeout-only evidence. |
+| `qwen2.5:1.5b` | Generic low-memory fallback | Easy to reproduce after `ollama pull qwen2.5:1.5b`, but may timeout on the observed machine unless wrapped in a low-context alias. |
 | `calculator:latest` | Alias / local operator model if it points to the same small model | Useful when the local setup already uses this name. |
 | `qwen2.5:3b` / `llama3.2:3b` | Experimental only on this hardware class | May work, but can cause slow responses, timeouts, or memory pressure. |
 
@@ -54,8 +55,8 @@ on `--execute`):
 
 ```powershell
 python -m agentic_security_harness.cli local-suite --list
-python -m agentic_security_harness.cli local-suite --profile prometheus-lowmem-smoke            # dry-run
-python -m agentic_security_harness.cli local-suite --profile prometheus-lowmem-smoke --execute  # real run + validate
+python -m agentic_security_harness.cli local-suite --profile prometheus-lowctx-smoke            # dry-run
+python -m agentic_security_harness.cli local-suite --profile prometheus-lowctx-smoke --execute  # real run + validate
 ```
 
 Profiles live in [`local_profiles.py`](../src/agentic_security_harness/local_profiles.py)
@@ -70,13 +71,13 @@ Run these from the repository root.
 # 1) confirm local runtime config; no benchmark request
 python -m agentic_security_harness.cli external-check `
   --preset ollama `
-  --model qwen2.5:1.5b `
+  --model prometheus-qwen15b-lowctx:latest `
   --scenario data-boundary
 
 # 2) preview the exact request count; no files written
 python -m agentic_security_harness.cli run-external `
   --preset ollama `
-  --model qwen2.5:1.5b `
+  --model prometheus-qwen15b-lowctx:latest `
   --scenario data-boundary `
   --max-variants 1 `
   --repeats 1 `
@@ -87,25 +88,26 @@ python -m agentic_security_harness.cli run-external `
 # 3) real local run; localhost only, prompt-only, no tools
 python -m agentic_security_harness.cli run-external `
   --preset ollama `
-  --model qwen2.5:1.5b `
+  --model prometheus-qwen15b-lowctx:latest `
   --scenario data-boundary `
   --max-variants 1 `
   --repeats 1 `
   --max-requests 10 `
   --timeout 60 `
   --raw-response-limit 0 `
-  --out reports/local-prometheus-lowmem-smoke-qwen2.5-1.5b
+  --out reports/local-prometheus-lowctx-smoke-prometheus-qwen15b-lowctx-latest
 
 # 4) validate artifacts
-python -m agentic_security_harness.cli validate reports/local-prometheus-lowmem-smoke-qwen2.5-1.5b
+python -m agentic_security_harness.cli validate reports/local-prometheus-lowctx-smoke-prometheus-qwen15b-lowctx-latest
 ```
 
 Expected request count for this smoke flow: 4.
 
 ## How to read first results
 
-On this hardware class, local `qwen2.5:1.5b` / `prometheus-qwen15b-lowctx:latest`
-runs produce valid artifacts but weak evidence. A current data-boundary reliability
+On this hardware class, the base `qwen2.5:1.5b` profile timed out while loading a large
+context. The recovered `prometheus-qwen15b-lowctx:latest` profile produces valid artifacts
+but weak evidence. A current data-boundary reliability
 rerun produced:
 
 ```text
@@ -167,15 +169,16 @@ showcase structure.
 | Timeout / `adapter_error` | Runtime was too slow or unavailable for the request. | Increase `--timeout`, close heavy processes, or use a smaller/faster model. |
 | `inconclusive` | Model returned contradictory or incomplete JSON verdict. | Inspect raw response; rerun with more repeats; try a stronger JSON-following model. |
 | No findings | No modeled finding was detected. | Do not call it safe; report pass/finding/inconclusive/error counts. |
-| Machine becomes unusable | Model too heavy for the current profile. | Stop the run; return to `qwen2.5:1.5b` or reduce scope. |
+| Machine becomes unusable | Model too heavy for the current profile. | Stop the run; return to `prometheus-qwen15b-lowctx:latest` or reduce scope. |
 
 ## Claim boundary
 
 Allowed:
 
 > Local Prometheus runs collect real model-in-the-loop evidence on synthetic benchmark
-> scenarios. The first low-memory profile is `qwen2.5:1.5b` through Ollama, prompt-only,
-> with validated artifacts and explicit inconclusive/error states.
+> scenarios. The first maintainer low-context profile is
+> `prometheus-qwen15b-lowctx:latest` through Ollama, prompt-only, with validated artifacts
+> and explicit inconclusive/error states.
 
 Not allowed:
 

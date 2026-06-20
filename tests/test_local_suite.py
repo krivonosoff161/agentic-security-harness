@@ -89,7 +89,7 @@ def test_profiles_match_docs() -> None:
 
 
 def test_default_output_dir_is_filesystem_safe() -> None:
-    out = default_output_dir(LOCAL_PROFILES["prometheus-lowmem-smoke"])
+    out = default_output_dir(LOCAL_PROFILES["prometheus-lowctx-smoke"])
     assert ":" not in out and out.startswith("reports/local-")
 
 
@@ -115,10 +115,17 @@ def test_cli_unknown_profile_returns_one() -> None:
 def test_dry_run_makes_no_network_call_and_no_files(tmp_path: Path) -> None:
     out = tmp_path / "smoke"
     with patch("urllib.request.urlopen", side_effect=_boom):
-        rc = cli.main(["local-suite", "--profile", "prometheus-lowmem-smoke",
+        rc = cli.main(["local-suite", "--profile", "prometheus-lowctx-smoke",
                        "--out", str(out)])  # no --execute -> dry-run
     assert rc == 0
     assert not out.exists()  # dry-run writes nothing
+
+
+def test_default_local_suite_profile_is_low_context(capsys: pytest.CaptureFixture[str]) -> None:
+    with patch("urllib.request.urlopen", side_effect=_boom):
+        rc = cli.main(["local-suite"])
+    assert rc == 0
+    assert "prometheus-lowctx-smoke" in capsys.readouterr().out
 
 
 def test_execute_with_mock_validates(tmp_path: Path) -> None:
