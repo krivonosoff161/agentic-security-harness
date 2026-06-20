@@ -1,5 +1,7 @@
 # Agentic Security Harness
 
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/13320/badge)](https://www.bestpractices.dev/projects/13320)
+
 **A trace-first benchmark for agentic AI boundary failures.** It gives security engineers,
 AI platform teams, and researchers a safe way to reproduce synthetic agent failures,
 compare a vulnerable target with a protected target, and inspect the evidence as traces,
