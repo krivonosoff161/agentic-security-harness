@@ -49,6 +49,30 @@ The fields support deterministic comparison, but several checks require explicit
 
 These invariants are intentionally field-level and synthetic. They are useful because they can be turned into trace checks without relying on open-ended model judgment.
 
+### 3.1 Restriction model
+
+Let `E_in` be the envelope before a boundary and `E_out` the envelope after that boundary. For deterministic checks, the verifier should treat an output envelope as acceptable only when it is equal to or more restrictive than the input envelope:
+
+```text
+E_out <= E_in
+```
+
+The relation is field-specific:
+
+| Field | Non-expansion / non-weakening rule |
+|---|---|
+| `allowed_recipients` | `set(E_out.allowed_recipients) subseteq set(E_in.allowed_recipients)` unless an explicit policy grants a new recipient. |
+| `allowed_purpose` | `set(E_out.allowed_purpose) subseteq set(E_in.allowed_purpose)` unless an explicit policy grants a new purpose. |
+| `data_class` | `rank(E_out.data_class) >= rank(E_in.data_class)` under a declared classification ordering, for example `public < internal < confidential < restricted`. |
+| `can_store` | `False <= True`; a boundary may change `True -> False`, but not `False -> True` without explicit policy evidence. |
+| `can_forward` | `False <= True`; a boundary may change `True -> False`, but not `False -> True` without explicit policy evidence. |
+| `ttl_seconds` | If both TTL values exist, `E_out.ttl_seconds <= E_in.ttl_seconds`; use must also satisfy `t_use <= t_created + ttl_seconds`. |
+| `requires_confirmation` | `True` is more restrictive than `False`; a boundary may require confirmation, but not remove it without trace evidence. |
+| `classification_source` | Source may stay the same or move to a more trusted source under a trusted-source policy; it must not silently become unknown/untrusted. |
+| `classification_mutable` | `False` is more restrictive than `True`; a boundary may freeze classification, but not make an immutable label mutable without policy evidence. |
+
+This is a partial order, not a universal security proof. The ordering for `data_class`, trusted source rank, and recipient identity must be supplied by policy. Without that policy context, the verifier can compare fields but must not claim semantic completeness.
+
 | # | Invariant | Check |
 |---|---|---|
 | 1 | Recipient allow-list preservation | Receiver recipients may narrow but not widen the sender envelope. |

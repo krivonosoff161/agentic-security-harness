@@ -63,6 +63,9 @@ All notable changes to this project are documented here. The format follows
 - `docs/v1-readiness.md`: stable-vs-experimental readiness matrix covering clean install,
   fake-server path, schema/corpus freeze expectations, showcase report gate, claim
   boundaries, and open v1.0 blockers.
+- Data-boundary theory module with an explicit envelope restriction relation
+  (`E_out <= E_in`), field-level non-expansion rules, and conservative policy-context
+  caveats for classification ordering, trusted sources, and TTL checks.
 
 ### Changed
 - `run_diff.json` is now schema v0.2 with explicit decisive/non-decisive labels such as

@@ -523,6 +523,12 @@ def test_data_boundary_theory_separates_primary_adjacent_and_gaps() -> None:
     for phrase in (
         "Primary Data-Boundary Patterns",
         "Adjacent Envelope-Field Patterns",
+        "Restriction model",
+        "E_out <= E_in",
+        "set(E_out.allowed_recipients) subseteq set(E_in.allowed_recipients)",
+        "rank(E_out.data_class) >= rank(E_in.data_class)",
+        "t_use <= t_created + ttl_seconds",
+        "This is a partial order, not a universal security proof",
         "individual patterns do not themselves prove the whole 22 -> 0 result",
         "Memory write/read envelope drift",
         "Missing envelope recovery",
