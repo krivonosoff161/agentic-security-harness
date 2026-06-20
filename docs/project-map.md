@@ -35,24 +35,30 @@ If those six points hold, the benchmark is coherent.
 
 | Piece | What it does | Where to look |
 |---|---|---|
-| Corpus | The 22 implemented defensive patterns and their expected outcomes. | [corpus.md](corpus.md), `src/agentic_security_harness/corpus.py` |
+| Corpus | The 24 implemented defensive patterns and their expected outcomes. | [corpus.md](corpus.md), `src/agentic_security_harness/corpus.py` |
 | Boundary model | The protection/boundary invariants the corpus is organized around. | [agentic-boundary-model.md](agentic-boundary-model.md) |
 | Evaluation topologies | The system shapes a target adapter can represent: local target, agent, memory loop, tool loop, model chain, handoff, provider boundary, recovery path. | [evaluation-topologies.md](evaluation-topologies.md) |
 | Corpus expansion plan | Invariant-based backlog for future patterns without full combinatorial expansion. | [corpus-expansion-plan.md](corpus-expansion-plan.md) |
 | Patterns | Sanitized test cases the runner sends to targets. | `src/agentic_security_harness/patterns.py` |
-| Targets | Local systems under test: `mock`, `demo-agent`, `protected-demo-agent`, and toy adapters `toy-local-function`, `toy-rag`, `toy-tools`. | `src/agentic_security_harness/*agent*.py`, `mock_target.py`, `toy_adapters.py` |
+| Targets | Local systems under test: `mock`, `demo-agent`, `protected-demo-agent`, and toy adapters `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`. | `src/agentic_security_harness/*agent*.py`, `mock_target.py`, `toy_adapters.py` |
 | Runner | Converts `pattern + target` into traces. | `src/agentic_security_harness/runner.py` |
 | Scenario matrix | Runs scenario variants and aggregates stability (`run-matrix`). | `src/agentic_security_harness/matrix.py` |
+| Scenario timeline contract | Typed `ScenarioTimeline` model + fail-closed `validate_timeline()` + deterministic `replay_timeline()` for time-shaped multi-actor scenarios, with committed synthetic fixtures (delayed activation, priority drift, handoff provenance). Replay shows the modeled finding/PASS decision step; it is not a live multi-agent runtime. | `src/agentic_security_harness/scenario_timeline.py`, `tests/fixtures/timelines/`, [scenario-timeline.md](scenario-timeline.md) |
+| Inter-agent handoff integrity | Design track for provenance-preserving worker-to-senior handoffs before any benchmark code lands. | [inter-agent-handoff-integrity.md](inter-agent-handoff-integrity.md) |
 | External path | Experimental, opt-in OpenAI-compatible prompt-only model check (`run-external`, `external-check`, `external-presets`). | `src/agentic_security_harness/external_runner.py`, `presets.py`, [connect-models.md](connect-models.md) |
+| Local model suite | Bounded named local-model smoke profiles (`local-suite`); dry-run by default, validates and classifies weak-model output as inconclusive/adapter_error, never silently pass/finding. | `src/agentic_security_harness/local_profiles.py`, [local-prometheus-workflow.md](local-prometheus-workflow.md), [local-model-profiles.md](local-model-profiles.md) |
 | Reports | Writes `traces.json`, `scorecard.json`, `summary.md`, `executive.md`, remediation, comparison, and static HTML (`report`). | `src/agentic_security_harness/reporting.py`, `html_report.py`, `examples/` |
+| Showcase generator | Builds reviewer-facing weak-spot/finding cards from existing run artifacts (`showcase`). | `src/agentic_security_harness/showcase.py`, [showcase/index.md](showcase/index.md) |
 | Run diff | `diff-runs` compares two same-kind runs (`run_diff.json` / `run_diff.md`); `compare-models` wraps this for external model artifacts. | `src/agentic_security_harness/run_diff.py`, [run-diff.md](run-diff.md) |
 | Run history | `run_index.json` manifest per run; `list-runs` lists them; `index-runs` builds a local SQLite metadata index; `stats` summarizes history; `retention` plans cleanup. | `src/agentic_security_harness/run_manifest.py`, `rundb.py`, `stats.py` |
 | Schemas | Every JSON artifact carries a `schema_version` from one registry. | `src/agentic_security_harness/schema_versions.py`, [artifact-schemas.md](artifact-schemas.md) |
 | Validation | Checks report/external/manifest/diff artifacts, schema versions, and standards-mapping consistency. | `src/agentic_security_harness/validation.py` |
 | Diagnostics | `doctor` checks the environment (no network by default). | `src/agentic_security_harness/doctor.py` |
-| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `validate`, `report`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
+| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `validate`, `report`, `showcase`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
 | Adapter contract | Rules and metadata models for future model/provider/runtime adapters. | [adapter-contract.md](adapter-contract.md), `models.py` |
 | Reporting design | How executive and technical reports should be shaped. | [reporting.md](reporting.md) |
+| Research claims registry | Status table tracking each research claim from hypothesis through evidence artifacts. | [research-claims.md](research-claims.md) |
+| Theory docs | Cleaned invariant statements, formal objects, and claim boundaries for research tracks. | [theory/](theory/) |
 
 ## Network model (important)
 
@@ -94,33 +100,44 @@ Start here by role:
 | Role | Read first | Why |
 |---|---|---|
 | First-time user | [Getting started](getting-started.md), [User journey](user-journey.md) | Run the deterministic local path and inspect output. |
+| Project status reviewer | [Current state](current-state.md), [Capability matrix](capability-matrix.md), [Roadmap](roadmap.md), [Project tracker](project-tracker.md) | Separate shipped, experimental, planned, blocked work, and visible GitHub issue flow. |
 | Benchmark reviewer | [Benchmark protocol](benchmark-protocol.md), [Benchmark semantics](benchmark-semantics.md), [Artifact schemas](artifact-schemas.md) | Understand what the benchmark proves and what it does not prove. |
 | Adapter author | [Custom adapter tutorial](custom-adapter-tutorial.md), [Adapter contract](adapter-contract.md), [Bring your own target](bring-your-own-target.md) | Implement a target without forking the benchmark model. |
 | Report reviewer | [Examples index](../examples/README.md), [Comparison example](../examples/comparison-report/README.md), [Reporting](reporting.md) | Inspect committed proof artifacts before running anything. |
-| Safety reviewer | [Research rules](research-rules.md), [Threat model](threat-model.md), [SECURITY](../SECURITY.md) | Confirm the project stays defensive, synthetic, and authorized. |
+| Showcase reviewer | [Public evidence showcase](showcase/index.md), [Scenario matrix](showcase/scenario-matrix.md), [Weak spots and findings](showcase/weak-spots-and-findings.md) | See scenarios, current evidence, weak spots, findings, and next variations without reading code. |
+| Scenario designer | [Scenario timeline contract](scenario-timeline.md) | Model multi-step, multi-actor, delayed, or cross-boundary situations before adding corpus cases. |
+| Handoff/integrity designer | [Inter-agent handoff integrity](inter-agent-handoff-integrity.md), [Scenario investigation workflow](scenario-investigation-workflow.md) | Keep inter-agent provenance, integrity, recovery, and operations work design-led before code is added. |
+| Local model reviewer | [Local Prometheus workflow](local-prometheus-workflow.md), [Local model profiles](local-model-profiles.md), [Metrics contract](metric-contract.md), [Connect models](connect-models.md) | Run a weak local model safely and read inconclusive/error evidence correctly. |
+| Safety reviewer | [Research rules](research-rules.md), [Authorized testing paths](authorized-testing-paths.md), [Threat model](threat-model.md), [SECURITY](../SECURITY.md) | Confirm the project stays defensive, synthetic, and authorized. |
+| Research reviewer | [Research claims registry](research-claims.md), [Theory docs](theory/), [Research roadmap](research-roadmap.md) | Track research claim status, invariant maturity, and evidence artifacts. |
 | Release reviewer | [Release checklist](release-checklist.md), [Changelog](../CHANGELOG.md), [CI workflow](../.github/workflows/ci.yml) | Verify public packaging and quality gates. |
 
 If you still want the linear path:
 
 1. [README](../README.md) - current status, commands, and high-level positioning.
-2. [Benchmark protocol](benchmark-protocol.md) - formal run semantics, scoring limits,
+2. [Current state](current-state.md) - shipped, experimental, planned, and active work.
+3. [Benchmark protocol](benchmark-protocol.md) - formal run semantics, scoring limits,
    and claim boundaries.
-3. [Positioning](positioning.md) and [boundary model](agentic-boundary-model.md) - the
+4. [Positioning](positioning.md) and [boundary model](agentic-boundary-model.md) - the
    operating-environment boundary thesis.
-4. [Evaluation topologies](evaluation-topologies.md) - what kinds of systems can sit
+5. [Evaluation topologies](evaluation-topologies.md) - what kinds of systems can sit
    behind a target adapter.
-5. [Corpus coverage matrix](corpus.md) - the 22 implemented patterns.
-6. [Comparison example](../examples/comparison-report/README.md) - the visible 22 -> 0
+6. [Corpus coverage matrix](corpus.md) - the 24 implemented patterns.
+7. [Comparison example](../examples/comparison-report/README.md) - the visible 24 -> 0
    demonstration.
-7. [Custom adapter tutorial](custom-adapter-tutorial.md) - the quickest path for a new
+8. [Authorized testing paths](authorized-testing-paths.md) - local, owned, authorized,
+   provider-program, and standards-aligned use.
+9. [Custom adapter tutorial](custom-adapter-tutorial.md) - the quickest path for a new
    local target.
-8. [Adapter contract](adapter-contract.md) - how future targets can implement the benchmark.
-9. [Reporting design](reporting.md) - what reviewers should see in reports.
-10. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,
+10. [Adapter contract](adapter-contract.md) - how future targets can implement the benchmark.
+11. [Reporting design](reporting.md) - what reviewers should see in reports.
+12. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,
    mitigations, and planned reference controls.
-11. [Corpus expansion plan](corpus-expansion-plan.md) - bounded backlog for future patterns.
-12. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
-13. [Roadmap](roadmap.md) - what is current, next, and future.
+13. [Corpus expansion plan](corpus-expansion-plan.md) - bounded backlog for future patterns.
+14. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
+15. [Research claims registry](research-claims.md) - status table for research claims from hypothesis through evidence.
+16. [Theory docs](theory/) - cleaned invariant statements and claim boundaries for research tracks.
+17. [Roadmap](roadmap.md) - what is current, next, and future.
 
 Then run:
 
@@ -130,7 +147,7 @@ ash compare --baseline demo-agent --protected protected-demo-agent --out reports
 ash validate reports/comparison
 ```
 
-Expected current result: baseline has 22 findings; protected has 0 findings.
+Expected current result: baseline has 24 findings; protected has 0 findings.
 
 ## How to add a new research idea safely
 

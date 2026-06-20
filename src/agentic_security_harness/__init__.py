@@ -62,6 +62,14 @@ from agentic_security_harness.run_manifest import (
 )
 from agentic_security_harness.rundb import index_runs, list_db_runs
 from agentic_security_harness.runner import HarnessRunner
+from agentic_security_harness.scenario_timeline import (
+    ScenarioTimeline,
+    TimelineReplay,
+    TimelineReplayStep,
+    TimelineValidatorResult,
+    replay_timeline,
+    validate_timeline,
+)
 from agentic_security_harness.schema_versions import (
     SCHEMA_VERSIONS,
     check_schema_version,
@@ -114,6 +122,12 @@ __all__ = [
     "RunDiff",
     "diff_runs",
     "write_run_diff",
+    "ScenarioTimeline",
+    "TimelineReplay",
+    "TimelineReplayStep",
+    "TimelineValidatorResult",
+    "replay_timeline",
+    "validate_timeline",
     "Preset",
     "list_presets",
     "apply_preset",

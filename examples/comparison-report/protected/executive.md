@@ -4,15 +4,15 @@ Target: `protected-demo-agent`
 
 ## Scope
 
-- Corpus patterns: 22
-- Categories covered: 17
+- Corpus patterns: 24
+- Categories covered: 19
 - Run mode: deterministic synthetic local benchmark
 - Network/provider calls: none in the built-in demo targets
 
 ## Headline result
 
 - Findings present: 0
-- Patterns with no findings: 22
+- Patterns with no findings: 24
 
 ## Recommended control families
 
@@ -27,6 +27,8 @@ Target: `protected-demo-agent`
 - capability
 - data_boundary_classification_mutation
 - data_boundary_handoff_label_stripping
+- data_boundary_memory_envelope_drift
+- data_boundary_missing_envelope_recovery
 - data_boundary_recipient_confusion
 - indirect_instruction
 - indirect_prompt_injection_via_tool_output

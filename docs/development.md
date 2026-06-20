@@ -21,7 +21,7 @@ ash validate examples/
 git diff --check
 ```
 
-Run these gates locally on Python 3.11+ before every commit. The 22-pattern corpus and
+Run these gates locally on Python 3.11+ before every commit. The 24-pattern corpus and
 the full test suite must pass. The false-negative count (patterns a target fails to
 defend) is recorded honestly per release; do not hide misses.
 
@@ -35,7 +35,7 @@ test file:
 - `tests/test_scorecard.py` - scorecard scoring.
 - `tests/test_cli.py` - the `ash` CLI commands.
 - `tests/test_demo_agent.py` - the vulnerable-by-design demo agent.
-- `tests/test_protected.py` - the protected demo agent (passes all 22).
+- `tests/test_protected.py` - the protected demo agent (passes all 24).
 - `tests/test_corpus.py` - corpus manifest consistency.
 - `tests/test_reporting.py` - report generation.
 - `tests/test_validation.py` - the `ash validate` checks.
@@ -71,8 +71,9 @@ of model/provider/framework variants. See [corpus-expansion-plan.md](corpus-expa
 
 Implement the target-adapter contract: drive a local / synthetic system under test and
 return observations the runner records into a trace. Today the targets are `mock`,
-`demo-agent` (vulnerable by design), and `protected-demo-agent`. New adapters stay
-local and deterministic - no real provider, gateway, or network calls.
+`demo-agent` (vulnerable by design), `protected-demo-agent`, `toy-local-function`,
+`toy-rag`, `toy-tools`, and `toy-multi-agent`. New adapters stay local and
+deterministic - no real provider, gateway, or network calls.
 
 ## Conventions
 

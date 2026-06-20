@@ -108,7 +108,7 @@ is safe".
 | Mode | What it is | Network | Determinism |
 |---|---|---|---|
 | Local deterministic target | `mock`, `demo-agent`, `protected-demo-agent` | offline | deterministic |
-| Toy target | `toy-local-function`, `toy-rag`, `toy-tools` - demo stand-ins exercising a subset of surfaces (legitimately PASS some patterns) | offline | deterministic |
+| Toy target | `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent` - demo stand-ins exercising a subset of surfaces (legitimately PASS some patterns) | offline | deterministic |
 | Scenario matrix | `run-matrix` replays scenario variants and aggregates stability | offline | deterministic |
 | External prompt-only check | `run-external` against an OpenAI-compatible endpoint | opt-in only | stochastic possible |
 | Native / agent-host adapter | provider SDK or tool-executing agent | - | **future, not shipped** |

@@ -105,9 +105,10 @@ risks that are not captured by the current corpus.
    attacks consistently outperform static defenses. The current synthetic patterns are
    deterministic and may underestimate adaptive adversary risk.
 
-4. **Standards mappings remain verification-gated.** OWASP LLM and MITRE ATLAS per-pattern
-   mappings are not yet filled. The `owasp_llm` and `mitre_atlas` fields in `corpus.py`
-   are empty until each ID is verified against primary sources.
+4. **Standards mappings remain conservative.** OWASP LLM, NIST AI RMF, and MITRE ATLAS
+   mappings are maintained at category level. MITRE ATLAS IDs are asserted only when
+   verified against the official ATLAS data release; otherwise the category remains
+   deferred instead of overclaiming.
 
 5. **Real adapters require authorization, redaction, and metadata.** Non-synthetic adapters
    must pass safety gates (no live exploitation, no real secrets, authorization model,

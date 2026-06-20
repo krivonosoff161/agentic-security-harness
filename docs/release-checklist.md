@@ -1,7 +1,8 @@
 # Release checklist
 
 Practical preflight for cutting a release. The project is **pre-1.0**; this list is the
-path toward a stable v1.0, not a claim that v1.0 is ready.
+path toward a stable v1.0, not a claim that v1.0 is ready. The broader readiness map is
+[v1-readiness.md](v1-readiness.md).
 
 ## Every release
 
@@ -25,7 +26,13 @@ Then verify by hand:
 - [ ] `ash --help` lists every command; no command errors on `--help`.
 - [ ] README "What exists today" / "Current vs planned" match the code (no future feature
       described as current).
-- [ ] Counts are current: 22 patterns, 14 categories, target list in `ash targets`.
+- [ ] `docs/current-state.md`, `docs/roadmap.md`, and `docs/capability-matrix.md` agree
+      on shipped / experimental / planned status.
+- [ ] `docs/authorized-testing-paths.md`, `SECURITY.md`, and adapter docs agree on
+      authorized-use boundaries.
+- [ ] Counts are current: 24 patterns, 14 categories, target list in `ash targets`.
+- [ ] Any README/release/demo showcase satisfies
+      [showcase-report-checklist.md](showcase-report-checklist.md).
 - [ ] No local-only files staged (e.g. `reports/`, untracked notes).
 - [ ] Fake-server E2E passes locally (see below).
 
@@ -49,7 +56,8 @@ v1.0 means a stable, dependable benchmark. Open blockers:
 - [ ] **Stable corpus manifest** - freeze pattern ids and the corpus fields; document a
       deprecation policy for renames.
 - [ ] **Standards mapping review** - verify OWASP LLM / NIST category mappings with a
-      second reviewer; decide MITRE ATLAS (currently deferred).
+      second reviewer; re-check the current MITRE ATLAS verified subset against the latest
+      official ATLAS release.
 - [ ] **Real adapter contract** - finalise the contract for non-synthetic adapters
       (still future; see [adapter-contract.md](adapter-contract.md)).
 - [ ] **Docs pass** - every doc cross-reference resolves; no stale counts; limitations
@@ -62,5 +70,5 @@ v1.0 means a stable, dependable benchmark. Open blockers:
 
 These remain future tracks (see [roadmap.md](roadmap.md)) and must not be presented as
 shipped: native provider adapters, agent-host / tool-use adapters, streaming, a web
-report viewer / dashboard, a persistent result database, Docker images, PyPI publishing,
-and any cross-model leaderboard.
+report viewer / dashboard, a persistent result database, published Docker images, PyPI
+publishing, and any cross-model leaderboard.
