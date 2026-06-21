@@ -1,18 +1,21 @@
 """Derived evidence-quality analysis for external/local model artifacts.
 
 This module does not call models. It reads existing ``run-external`` /
-``local-suite`` artifacts and summarizes whether the recorded evidence is usable,
-weak, flaky, or incomplete. The output is a research aid, not a model leaderboard.
+``local-suite`` artifacts plus ``local-swarm`` artifacts and summarizes whether
+the recorded evidence is usable, weak, flaky, incomplete, or contract-covered.
+The output is a research aid, not a model leaderboard.
 """
 
 from __future__ import annotations
 
 import json
 from collections import Counter, defaultdict
+from collections.abc import Iterable
 from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from agentic_security_harness.local_swarm import LocalSwarmSummary
 from agentic_security_harness.run_config import (
     ExternalResult,
     ExternalSummary,
@@ -63,6 +66,37 @@ class EvidenceQualityRun(BaseModel):
     assertion_binding_rate: float = 0.0
 
 
+class LocalSwarmEvidenceRun(BaseModel):
+    """Evidence-quality summary for one local-swarm artifact directory."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_dir: str
+    model: str = ""
+    executed_model_calls: bool = False
+    request_count: int = 0
+    max_requests: int = 0
+    scenarios: int = 0
+    modes: int = 0
+    results: int = 0
+    monolith_boundary_failures: int = 0
+    naive_swarm_boundary_failures: int = 0
+    bounded_swarm_boundary_failures: int = 0
+    verifier_blocks: int = 0
+    invalid_acceptances: int = 0
+    unique_blocked_reasons: int = 0
+    role_transcripts: int = 0
+    role_transcript_hashes: int = 0
+    adapter_errors: int = 0
+    contract_coverage: float = 0.0
+    evidence_completeness: float = 0.0
+    role_transcript_hash_coverage: float = 0.0
+    adapter_error_rate: float = 0.0
+    bounded_failure_reduction_vs_naive: float = 0.0
+    evidence_maturity: str = "deterministic_example"
+    runtime_mode_coverage_rate: float = 0.0
+
+
 class EvidenceQualityReport(BaseModel):
     """Aggregate evidence-quality report across one or more run directories."""
 
@@ -80,9 +114,18 @@ class EvidenceQualityReport(BaseModel):
     comparable_groups: int = 0
     disagreement_groups: int = 0
     cross_run_disagreement_rate: float = 0.0
+    local_swarm_runs_count: int = 0
+    local_swarm_results: int = 0
+    local_swarm_executed_runs: int = 0
+    local_swarm_contract_coverage_rate: float = 0.0
+    local_swarm_evidence_completeness_rate: float = 0.0
+    local_swarm_transcript_hash_coverage_rate: float = 0.0
+    local_swarm_adapter_error_rate: float = 0.0
+    local_swarm_runtime_mode_coverage_rate: float = 0.0
     outcome_counts: dict[str, int] = Field(default_factory=dict)
     stability_counts: dict[str, int] = Field(default_factory=dict)
     runs: list[EvidenceQualityRun] = Field(default_factory=list)
+    local_swarm_runs: list[LocalSwarmEvidenceRun] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
     safety_note: str = (
         "Derived evidence-quality analysis only. No model calls, no tool execution, "
@@ -93,8 +136,10 @@ class EvidenceQualityReport(BaseModel):
 def build_evidence_quality_report(root: Path) -> EvidenceQualityReport:
     """Build a derived report for all external/local run artifacts under ``root``."""
     run_dirs = discover_external_run_dirs(root)
+    local_swarm_dirs = discover_local_swarm_run_dirs(root)
     warnings: list[str] = []
     runs: list[EvidenceQualityRun] = []
+    local_swarm_runs: list[LocalSwarmEvidenceRun] = []
     summaries: list[tuple[str, ExternalSummary]] = []
 
     for run_dir in run_dirs:
@@ -105,6 +150,16 @@ def build_evidence_quality_report(root: Path) -> EvidenceQualityReport:
             continue
         runs.append(summarize_run(run_dir, config, results, summary))
         summaries.append((run_dir.as_posix(), summary))
+
+    for run_dir in local_swarm_dirs:
+        try:
+            local_swarm_summary = load_local_swarm_artifact(run_dir)
+        except ValueError as exc:
+            warnings.append(f"{run_dir.as_posix()}: {exc}")
+            continue
+        local_swarm_runs.append(
+            summarize_local_swarm_run(run_dir, local_swarm_summary)
+        )
 
     total_results = sum(r.total_results for r in runs)
     outcome_counts: Counter[str] = Counter()
@@ -126,6 +181,11 @@ def build_evidence_quality_report(root: Path) -> EvidenceQualityReport:
         })
 
     comparable, disagreements = _cross_run_disagreement(summaries)
+    local_results = sum(r.results for r in local_swarm_runs)
+    local_scenarios = sum(r.scenarios for r in local_swarm_runs)
+    local_transcripts = sum(r.role_transcripts for r in local_swarm_runs)
+    local_expected_modes = sum(r.modes for r in local_swarm_runs)
+    warnings.extend(_local_swarm_warnings(local_swarm_runs))
 
     return EvidenceQualityReport(
         total_runs=len(runs),
@@ -149,9 +209,33 @@ def build_evidence_quality_report(root: Path) -> EvidenceQualityReport:
         comparable_groups=comparable,
         disagreement_groups=disagreements,
         cross_run_disagreement_rate=_ratio(disagreements, comparable),
+        local_swarm_runs_count=len(local_swarm_runs),
+        local_swarm_results=local_results,
+        local_swarm_executed_runs=sum(1 for r in local_swarm_runs if r.executed_model_calls),
+        local_swarm_contract_coverage_rate=_weighted_rate(
+            ((r.contract_coverage, r.scenarios) for r in local_swarm_runs),
+            local_scenarios,
+        ),
+        local_swarm_evidence_completeness_rate=_weighted_rate(
+            ((r.evidence_completeness, r.results) for r in local_swarm_runs),
+            local_results,
+        ),
+        local_swarm_transcript_hash_coverage_rate=_ratio(
+            sum(r.role_transcript_hashes for r in local_swarm_runs),
+            local_transcripts,
+        ),
+        local_swarm_adapter_error_rate=_ratio(
+            sum(r.adapter_errors for r in local_swarm_runs),
+            local_transcripts,
+        ),
+        local_swarm_runtime_mode_coverage_rate=_weighted_rate(
+            ((r.runtime_mode_coverage_rate, r.modes) for r in local_swarm_runs),
+            local_expected_modes,
+        ),
         outcome_counts=dict(sorted(outcome_counts.items())),
         stability_counts=dict(sorted(stability_counts.items())),
         runs=runs,
+        local_swarm_runs=local_swarm_runs,
         warnings=warnings,
     )
 
@@ -166,6 +250,20 @@ def discover_external_run_dirs(root: Path) -> list[Path]:
     if (root / "external_results.json").is_file():
         candidates.add(root)
     for path in root.rglob("external_results.json"):
+        candidates.add(path.parent)
+    return sorted(candidates)
+
+
+def discover_local_swarm_run_dirs(root: Path) -> list[Path]:
+    """Return directories under ``root`` that contain local-swarm artifacts."""
+    if not root.exists():
+        return []
+    if root.is_file():
+        return []
+    candidates: set[Path] = set()
+    if (root / "local_swarm_summary.json").is_file():
+        candidates.add(root)
+    for path in root.rglob("local_swarm_summary.json"):
         candidates.add(path.parent)
     return sorted(candidates)
 
@@ -194,6 +292,17 @@ def load_external_artifacts(
     except Exception as exc:
         raise ValueError(f"invalid external artifact: {exc}") from exc
     return config, results, summary
+
+
+def load_local_swarm_artifact(run_dir: Path) -> LocalSwarmSummary:
+    """Load one local-swarm directory with the strict artifact model."""
+    summary_path = run_dir / "local_swarm_summary.json"
+    if not summary_path.is_file():
+        raise ValueError("missing required artifact: local_swarm_summary.json")
+    try:
+        return LocalSwarmSummary.model_validate(_load_json(summary_path))
+    except Exception as exc:
+        raise ValueError(f"invalid local-swarm artifact: {exc}") from exc
 
 
 def summarize_run(
@@ -268,6 +377,51 @@ def summarize_run(
     )
 
 
+def summarize_local_swarm_run(
+    run_dir: Path,
+    summary: LocalSwarmSummary,
+) -> LocalSwarmEvidenceRun:
+    """Summarize deterministic and model-evidence quality for one local-swarm run."""
+    transcript_count = 0
+    transcript_hash_count = 0
+    adapter_error_count = 0
+    for result in summary.results:
+        for transcript in result.role_transcripts:
+            transcript_count += 1
+            if transcript.prompt_sha256 and transcript.response_sha256:
+                transcript_hash_count += 1
+            if transcript.adapter_error:
+                adapter_error_count += 1
+    metrics = summary.metrics
+    runtime_mode_coverage = _local_swarm_runtime_mode_coverage(summary)
+    return LocalSwarmEvidenceRun(
+        run_dir=run_dir.as_posix(),
+        model=summary.model,
+        executed_model_calls=summary.executed_model_calls,
+        request_count=summary.request_count,
+        max_requests=summary.max_requests,
+        scenarios=len(summary.scenarios),
+        modes=len(summary.modes),
+        results=len(summary.results),
+        monolith_boundary_failures=metrics.monolith_boundary_failures,
+        naive_swarm_boundary_failures=metrics.naive_swarm_boundary_failures,
+        bounded_swarm_boundary_failures=metrics.bounded_swarm_boundary_failures,
+        verifier_blocks=metrics.verifier_blocks,
+        invalid_acceptances=metrics.invalid_acceptances,
+        unique_blocked_reasons=metrics.unique_blocked_reasons,
+        role_transcripts=transcript_count,
+        role_transcript_hashes=transcript_hash_count,
+        adapter_errors=adapter_error_count,
+        contract_coverage=metrics.contract_coverage,
+        evidence_completeness=metrics.evidence_completeness,
+        role_transcript_hash_coverage=metrics.role_transcript_hash_coverage,
+        adapter_error_rate=metrics.adapter_error_rate,
+        bounded_failure_reduction_vs_naive=metrics.bounded_failure_reduction_vs_naive,
+        evidence_maturity=_local_swarm_evidence_maturity(summary, runtime_mode_coverage),
+        runtime_mode_coverage_rate=runtime_mode_coverage,
+    )
+
+
 def write_evidence_quality(report: EvidenceQualityReport, out_dir: Path) -> dict[str, Path]:
     """Write JSON and Markdown evidence-quality artifacts."""
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -301,6 +455,16 @@ def build_evidence_quality_markdown(report: EvidenceQualityReport) -> str:
         f"- Assertion binding: {_pct(report.assertion_binding_rate)}",
         f"- Cross-run disagreement: {report.disagreement_groups}/"
         f"{report.comparable_groups} ({_pct(report.cross_run_disagreement_rate)})",
+        f"- Local-swarm runs: {report.local_swarm_runs_count}",
+        f"- Local-swarm results: {report.local_swarm_results}",
+        f"- Local-swarm contract coverage: "
+        f"{_pct(report.local_swarm_contract_coverage_rate)}",
+        f"- Local-swarm transcript hash coverage: "
+        f"{_pct(report.local_swarm_transcript_hash_coverage_rate)}",
+        f"- Local-swarm adapter error rate: "
+        f"{_pct(report.local_swarm_adapter_error_rate)}",
+        f"- Local-swarm runtime mode coverage: "
+        f"{_pct(report.local_swarm_runtime_mode_coverage_rate)}",
         "",
         "## Outcome counts",
         "",
@@ -326,6 +490,29 @@ def build_evidence_quality_markdown(report: EvidenceQualityReport) -> str:
             f"{weak_groups} |"
         )
 
+    if report.local_swarm_runs:
+        lines += [
+            "",
+            "## Local swarm runs",
+            "",
+            "| Run | Model | Exec | Scenarios | Modes | Results | Blocks | Contract | "
+            "Evidence | Transcript hash | Adapter errors | Runtime modes | Maturity |",
+            "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|",
+        ]
+        for swarm_run in report.local_swarm_runs:
+            lines.append(
+                f"| `{swarm_run.run_dir}` | `{swarm_run.model}` | "
+                f"{swarm_run.executed_model_calls} | {swarm_run.scenarios} | "
+                f"{swarm_run.modes} | {swarm_run.results} | "
+                f"{swarm_run.verifier_blocks} | "
+                f"{_pct(swarm_run.contract_coverage)} | "
+                f"{_pct(swarm_run.evidence_completeness)} | "
+                f"{_pct(swarm_run.role_transcript_hash_coverage)} | "
+                f"{swarm_run.adapter_errors} | "
+                f"{_pct(swarm_run.runtime_mode_coverage_rate)} | "
+                f"`{swarm_run.evidence_maturity}` |"
+            )
+
     if report.warnings:
         lines += ["", "## Warnings", ""]
         for warning in report.warnings:
@@ -338,6 +525,8 @@ def build_evidence_quality_markdown(report: EvidenceQualityReport) -> str:
         "- Decisive model self-reports are still checked by deterministic harness fields.",
         "- Inconclusive, adapter_error, and flaky outcomes are weak evidence, not pass/finding.",
         "- Raw local model responses remain local/private unless curated and promoted.",
+        "- Local-swarm role text is evidence context only; deterministic contracts decide "
+        "the boundary verdict.",
         "",
     ]
     return "\n".join(lines)
@@ -370,6 +559,58 @@ def _ratio(numerator: int, denominator: int) -> float:
     if denominator <= 0:
         return 0.0
     return round(numerator / denominator, 6)
+
+
+def _local_swarm_runtime_mode_coverage(summary: LocalSwarmSummary) -> float:
+    if not summary.executed_model_calls:
+        return 0.0
+    modes_with_transcripts = {
+        result.mode for result in summary.results if result.role_transcripts
+    }
+    return _ratio(len(modes_with_transcripts), len(summary.modes))
+
+
+def _local_swarm_evidence_maturity(
+    summary: LocalSwarmSummary,
+    runtime_mode_coverage: float,
+) -> str:
+    if not summary.executed_model_calls:
+        return "deterministic_example"
+    if runtime_mode_coverage >= 1.0 and len(summary.modes) >= 3:
+        return "full_runtime_comparison"
+    if "bounded_swarm" in summary.modes and runtime_mode_coverage > 0:
+        return "bounded_runtime_smoke"
+    return "incomplete_runtime_evidence"
+
+
+def _local_swarm_warnings(runs: list[LocalSwarmEvidenceRun]) -> list[str]:
+    warnings: list[str] = []
+    for run in runs:
+        if run.evidence_maturity == "bounded_runtime_smoke":
+            warnings.append(
+                f"{run.run_dir}: executed local-swarm evidence covers bounded mode only; "
+                "run all modes before comparing model-channel behavior."
+            )
+        if run.executed_model_calls and run.role_transcript_hash_coverage < 1.0:
+            warnings.append(
+                f"{run.run_dir}: executed local-swarm evidence has incomplete transcript "
+                "hash coverage."
+            )
+        if run.adapter_error_rate > 0:
+            warnings.append(
+                f"{run.run_dir}: local-swarm adapter errors are evidence-quality "
+                "weak spots, not verifier failures."
+            )
+    return warnings
+
+
+def _weighted_rate(items: Iterable[tuple[float, int]], denominator: int) -> float:
+    if denominator <= 0:
+        return 0.0
+    total = 0.0
+    for value, weight in items:
+        total += float(value) * int(weight)
+    return round(total / denominator, 6)
 
 
 def _pct(value: float) -> str:

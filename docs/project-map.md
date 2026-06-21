@@ -48,6 +48,7 @@ If those six points hold, the benchmark is coherent.
 | Memory governance invariant layer | Synthetic checks for memory envelope preservation, TTL from write time, provenance metadata, trust precedence, and scope isolation. | `src/agentic_security_harness/memory_governance.py`, [theory/memory-governance.md](theory/memory-governance.md) |
 | External path | Experimental, opt-in OpenAI-compatible prompt-only model check (`run-external`, `external-check`, `external-presets`). | `src/agentic_security_harness/external_runner.py`, `presets.py`, [connect-models.md](connect-models.md) |
 | Local model suite | Bounded named local-model smoke profiles (`local-suite`); dry-run by default, validates and classifies weak-model output as inconclusive/adapter_error, never silently pass/finding. | `src/agentic_security_harness/local_profiles.py`, [local-prometheus-workflow.md](local-prometheus-workflow.md), [local-model-profiles.md](local-model-profiles.md) |
+| Bounded local swarm | Research-only comparison of monolith, naive swarm, and bounded swarm over 15 deterministic handoff, memory, memory-poisoning, approval/tool, multi-hop laundering, and verifier-outage scenarios, with optional local model role-output hashes. The attack-variation matrix expands those scenarios into 33 declared prompt-only, delayed, recovery, audit-evidence, budget, cross-provider, and model-contradiction rows. | `src/agentic_security_harness/local_swarm.py`, `src/agentic_security_harness/local_swarm_matrix.py`, [bounded-local-swarm.md](bounded-local-swarm.md), [local-swarm-real-model-evaluation.md](local-swarm-real-model-evaluation.md), `examples/local-swarm-report/`, `examples/local-swarm-attack-matrix/` |
 | Reports | Writes `traces.json`, `scorecard.json`, `summary.md`, `executive.md`, remediation, comparison, and static HTML (`report`). | `src/agentic_security_harness/reporting.py`, `html_report.py`, `examples/` |
 | Showcase generator | Builds reviewer-facing weak-spot/finding cards from existing run artifacts (`showcase`). | `src/agentic_security_harness/showcase.py`, [showcase/index.md](showcase/index.md) |
 | Run diff | `diff-runs` compares two same-kind runs (`run_diff.json` / `run_diff.md`); `compare-models` wraps this for external model artifacts. | `src/agentic_security_harness/run_diff.py`, [run-diff.md](run-diff.md) |
@@ -62,6 +63,7 @@ If those six points hold, the benchmark is coherent.
 | Research claims registry | Status table tracking each research claim from hypothesis through evidence artifacts. | [research-claims.md](research-claims.md) |
 | Theory docs | Cleaned invariant statements, formal objects, and claim boundaries for research tracks. | [theory/](theory/) |
 | Boundary-layer evidence matrix | Public readout tying handoff, authority, and memory-governance variation rows to executable tests and explicit non-claims. | [boundary-layer-evidence-matrix.md](boundary-layer-evidence-matrix.md) |
+| Git evidence workflow | Public process contract for issue -> branch -> artifact -> PR -> GitHub checks -> merge/close. | [git-evidence-workflow.md](git-evidence-workflow.md), [agent-operating-guide.md](agent-operating-guide.md), [project-tracker.md](project-tracker.md) |
 
 ## Network model (important)
 
@@ -111,10 +113,12 @@ Start here by role:
 | Scenario designer | [Scenario timeline contract](scenario-timeline.md) | Model multi-step, multi-actor, delayed, or cross-boundary situations before adding corpus cases. |
 | Handoff/integrity designer | [Inter-agent handoff integrity](inter-agent-handoff-integrity.md), [Scenario investigation workflow](scenario-investigation-workflow.md) | Keep inter-agent provenance, integrity, recovery, and operations work design-led before code is added. |
 | Local model reviewer | [Local Prometheus workflow](local-prometheus-workflow.md), [Local model profiles](local-model-profiles.md), [Metrics contract](metric-contract.md), [Connect models](connect-models.md) | Run a weak local model safely and read inconclusive/error evidence correctly. |
+| Swarm reviewer | [Bounded local swarm](bounded-local-swarm.md), [Inter-agent handoff integrity](inter-agent-handoff-integrity.md), [Memory governance theory](theory/memory-governance.md) | Review monolith vs naive swarm vs bounded swarm behavior over deterministic contracts. |
 | Safety reviewer | [Research rules](research-rules.md), [Authorized testing paths](authorized-testing-paths.md), [Threat model](threat-model.md), [SECURITY](../SECURITY.md) | Confirm the project stays defensive, synthetic, and authorized. |
 | Research reviewer | [Research claims registry](research-claims.md), [Theory docs](theory/), [Research roadmap](research-roadmap.md) | Track research claim status, invariant maturity, and evidence artifacts. |
 | Boundary-layer reviewer | [Boundary-layer evidence matrix](boundary-layer-evidence-matrix.md), [Handoff theory](theory/handoff-integrity.md), [Authority theory](theory/authority-delegation.md), [Memory theory](theory/memory-governance.md) | Inspect which declared handoff, authority, and memory-governance variations are executable today. |
 | Release reviewer | [Release checklist](release-checklist.md), [Changelog](../CHANGELOG.md), [CI workflow](../.github/workflows/ci.yml) | Verify public packaging and quality gates. |
+| Git/process reviewer | [Git evidence workflow](git-evidence-workflow.md), [Agent operating guide](agent-operating-guide.md), [Project tracker](project-tracker.md) | Check that work is tied to issues, artifacts, verification, PR checks, and review gates. |
 
 If you still want the linear path:
 

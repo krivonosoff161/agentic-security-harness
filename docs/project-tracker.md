@@ -18,7 +18,14 @@ design-led inter-agent handoff integrity track.
 
 ## Open work in this track
 
-None currently tracked.
+| Issue | Track | Current focus |
+|---|---|---|
+| [#61 research: add bounded local swarm runner](https://github.com/krivonosoff161/agentic-security-harness/issues/61) | Local swarm / runtime | In PR #62; deterministic local-swarm runner and claim boundary are implemented, pending repository review gate. |
+| [#63 research: expand bounded local swarm evidence suite](https://github.com/krivonosoff161/agentic-security-harness/issues/63) | Local swarm / evidence | In PR #62; 15-scenario deterministic suite and committed example are implemented, pending repository review gate. |
+| [#64 research: add local-swarm evidence-quality calculations](https://github.com/krivonosoff161/agentic-security-harness/issues/64) | Local swarm / evidence quality | In PR #62; `ash evidence-quality` calculates local-swarm contract coverage, transcript hash coverage, adapter error rates, runtime-mode coverage, and evidence maturity from recorded artifacts. |
+| [#65 research: deepen local-swarm memory, tool, and multi-hop attacks](https://github.com/krivonosoff161/agentic-security-harness/issues/65) | Local swarm / deep variants | Add deterministic memory-poisoning, tool-output authority-confusion, and multi-hop laundering variants while keeping model calls as evidence-quality context only. |
+| [#66 research: run local Prometheus swarm evaluation](https://github.com/krivonosoff161/agentic-security-harness/issues/66) | Local swarm / local empirical | Full 15-scenario local Ollama runs completed for `prometheus-qwen15b-lowctx:latest` and `qwen2.5:1.5b`; public summary is in PR #62, pending repository review gate. |
+| [#67 research: add local-swarm attack variation matrix](https://github.com/krivonosoff161/agentic-security-harness/issues/67) | Local swarm / attack matrix | In PR #62; deterministic 33-row attack/slom matrix calculates prompt-only, delayed, recovery, audit-evidence, budget, cross-provider, and model-contradiction variants over the 15 local-swarm base scenarios. |
 
 ## Open maintenance work
 
@@ -74,10 +81,13 @@ Supporting docs:
   handoff, authority, and memory-governance variation rows to executable tests.
 - [local-prometheus-workflow.md](local-prometheus-workflow.md) defines the low-memory
   Ollama smoke workflow for real local model probes.
+- [local-swarm-real-model-evaluation.md](local-swarm-real-model-evaluation.md) records
+  the full local Ollama `local-swarm` evaluation for Prometheus and qwen2.5.
 - [local-model-profiles.md](local-model-profiles.md) records hardware-safe local model
   profiles and stop conditions.
 - `ash evidence-quality --root reports --out reports/evidence-quality` summarizes
-  evidence quality from recorded external/local artifacts without making model calls.
+  evidence quality from recorded external/local/local-swarm artifacts without making
+  model calls.
 - [showcase/index.md](showcase/index.md) is the public evidence entry point.
 - [scenario-investigation-workflow.md](scenario-investigation-workflow.md) keeps
   scenario design, weak spots, findings, and deepening variations separate.

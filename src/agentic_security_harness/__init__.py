@@ -13,6 +13,13 @@ from agentic_security_harness.demo_adapter import DemoAgentTarget, run_scenarios
 from agentic_security_harness.demo_agent import DemoAgent
 from agentic_security_harness.doctor import DoctorReport, run_doctor
 from agentic_security_harness.html_report import render_report, write_html_report
+from agentic_security_harness.local_swarm import (
+    LocalSwarmSummary,
+    SwarmMetrics,
+    SwarmScenarioResult,
+    estimate_request_count,
+    run_local_swarm,
+)
 from agentic_security_harness.mock_target import MockTarget
 from agentic_security_harness.models import (
     AuditEntry,
@@ -152,6 +159,11 @@ __all__ = [
     "load_run_manifests",
     "render_report",
     "write_html_report",
+    "LocalSwarmSummary",
+    "SwarmMetrics",
+    "SwarmScenarioResult",
+    "run_local_swarm",
+    "estimate_request_count",
     "run_doctor",
     "DoctorReport",
     "CategoryStandards",

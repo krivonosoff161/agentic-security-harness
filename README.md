@@ -25,6 +25,7 @@ In plain English: this repo answers three practical questions.
 | Local benchmark core | Shipped | 24 deterministic seed patterns, local targets, traces, scorecards, remediation, validation. |
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
 | Committed examples | Shipped | `examples/` plus `ash validate examples/`. |
+| Bounded local swarm evidence suite | Research-only example | `examples/local-swarm-report/` compares monolith, naive swarm, and bounded swarm over 15 deterministic boundary scenarios. |
 | CI / package checks | Shipped | `.github/workflows/ci.yml` runs tests, ruff, mypy, package build, and example validation. |
 | External model checks | Experimental | OpenAI-compatible, prompt-only, explicit opt-in, no tool execution. |
 | Native provider / agent-host adapters | Future | Not shipped; do not claim real agent or tool-execution coverage yet. |
@@ -92,6 +93,8 @@ Read by role:
 - Scenario designer: [Scenario timeline contract](docs/scenario-timeline.md).
 - Multi-agent handoff reviewer: [Inter-agent handoff integrity](docs/inter-agent-handoff-integrity.md)
   and [deterministic handoff toy topology](docs/handoff-toy-topology.md).
+- Swarm reviewer: [Bounded local swarm](docs/bounded-local-swarm.md) and
+  [`examples/local-swarm-report/`](examples/local-swarm-report/).
 - Local model reviewer: [Local Prometheus workflow](docs/local-prometheus-workflow.md),
   [Local model profiles](docs/local-model-profiles.md), and [Metrics contract](docs/metric-contract.md).
 - Safety reviewer: [Research rules](docs/research-rules.md), [Authorized testing paths](docs/authorized-testing-paths.md),
@@ -181,6 +184,9 @@ deterministic tests - honest residual risk. Full rules:
   [authorized testing paths](docs/authorized-testing-paths.md).
 - Adding a new idea? Convert it into the safe structure in
   [project map](docs/project-map.md#how-to-add-a-new-research-idea-safely) before coding.
+- Making a meaningful change? Follow the
+  [Git evidence workflow](docs/git-evidence-workflow.md): issue, branch/PR, artifacts,
+  verification, GitHub checks, and review gate.
 - Prioritizing future patterns? Read the [research roadmap](docs/research-roadmap.md) and
   [corpus expansion plan](docs/corpus-expansion-plan.md).
 
@@ -582,6 +588,8 @@ The project is **Agentic Security Harness** (repository `agentic-security-harnes
 ## Contributing & security
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) - add a test pattern / target adapter / trace detector.
+- [docs/git-evidence-workflow.md](docs/git-evidence-workflow.md) - how work moves from
+  issue to PR, evidence artifacts, checks, and merge.
 - [SECURITY.md](SECURITY.md) - responsible use + private vulnerability disclosure.
 - [GOVERNANCE.md](GOVERNANCE.md) - decision gates, corpus methodology, and release authority.
 

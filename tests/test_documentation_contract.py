@@ -347,8 +347,13 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
     ):
         assert issue not in open_work
         assert issue in completed
-    assert "None currently tracked." in open_work
-    assert "`ash evidence-quality` summarizes recorded external/local artifacts" in completed
+    for issue in ("#61", "#63", "#64", "#65", "#66", "#67"):
+        assert issue in open_work
+    assert "None currently tracked." not in open_work
+    assert (
+        "`ash evidence-quality` summarizes recorded external/local artifacts"
+        in completed
+    )
     assert "Fresh bounded Prometheus/Ollama rerun" in completed
     assert "boundary-layer-evidence-matrix.md" in completed
     open_maintenance = tracker.split("## Open maintenance work", 1)[1].split(
@@ -472,9 +477,30 @@ def test_small_model_swarm_handoff_claim_is_local_empirical_boundary() -> None:
     assert "`public_example`" not in row
     assert "Local scratch" in row
     assert "not committed public evidence" in row
+    assert "docs/local-swarm-real-model-evaluation.md" in row
+    assert "real local Ollama models" in row
     assert "leaderboard" in row
     assert "Live multi-agent runtime guarantee" in row
     assert "examples/" not in row
+
+
+def test_local_swarm_attack_matrix_is_documented_as_deterministic_example() -> None:
+    bounded = _read("docs/bounded-local-swarm.md")
+    showcase = _read("docs/showcase/index.md")
+    scenario_matrix = _read("docs/showcase/scenario-matrix.md")
+    project_map = _read("docs/project-map.md")
+    schemas = _read("docs/artifact-schemas.md")
+
+    for text in (bounded, showcase, scenario_matrix, project_map):
+        assert "examples/local-swarm-attack-matrix" in text
+
+    assert "local-swarm-matrix --write" in bounded
+    assert "cases=33" in bounded
+    assert "bounded-swarm boundary failures=0" in bounded
+    assert "cryptographic audit-chain integrity remains" in bounded
+    assert "separate project claim" in bounded
+    assert "local_swarm_attack_matrix.json" in schemas
+    assert "local_swarm_matrix" in schemas
 
 
 def test_research_claims_registry_status_definitions_are_unique() -> None:
@@ -714,6 +740,26 @@ def test_project_map_links_research_claims_and_theory() -> None:
     assert "Theory docs" in project_map
     assert "boundary-layer-evidence-matrix.md" in project_map
     assert "Boundary-layer reviewer" in project_map
+
+
+def test_git_evidence_workflow_is_publicly_linked() -> None:
+    workflow = _read("docs/git-evidence-workflow.md")
+    readme = _read("README.md")
+    contributing = _read("CONTRIBUTING.md")
+    agent_guide = _read("docs/agent-operating-guide.md")
+    project_map = _read("docs/project-map.md")
+
+    for phrase in (
+        "idea -> issue -> branch -> implementation -> tests/artifacts -> PR",
+        "GitHub checks",
+        "review gate",
+        "Definition Of Done",
+        "docs make a stronger claim than tests/artifacts prove",
+    ):
+        assert phrase in workflow
+
+    for text in (readme, contributing, agent_guide, project_map):
+        assert "git-evidence-workflow.md" in text
 
 
 def test_boundary_layer_evidence_matrix_is_explicit_and_bounded() -> None:
