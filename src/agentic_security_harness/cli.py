@@ -638,8 +638,8 @@ def build_parser() -> argparse.ArgumentParser:
     swarm_p.add_argument(
         "--max-requests",
         type=int,
-        default=20,
-        help="safety cap for role calls (default: 20)",
+        default=80,
+        help="safety cap for role calls (default: 80)",
     )
     swarm_p.add_argument(
         "--execute",

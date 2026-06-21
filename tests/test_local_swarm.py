@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from agentic_security_harness import cli
+from agentic_security_harness.external_openai_compatible import ExternalAPIError
 from agentic_security_harness.local_swarm import (
     SWARM_SCENARIOS,
     build_swarm_metrics,
@@ -58,10 +59,31 @@ def test_bounded_swarm_blocks_each_boundary_scenario(scenario: str) -> None:
 def test_metrics_show_bounded_reduction() -> None:
     summary = run_local_swarm(created_at="")
 
+    assert summary.metrics.scenarios == 10
     assert summary.metrics.monolith_boundary_failures == len(SWARM_SCENARIOS)
     assert summary.metrics.naive_swarm_boundary_failures == len(SWARM_SCENARIOS)
     assert summary.metrics.bounded_swarm_boundary_failures == 0
     assert summary.metrics.bounded_failure_reduction_vs_naive == 1.0
+    assert summary.metrics.contract_coverage == 1.0
+    assert summary.metrics.evidence_completeness == 1.0
+    assert summary.metrics.unique_blocked_reasons >= 7
+    assert summary.metrics.invalid_acceptances == len(SWARM_SCENARIOS) * 2
+
+
+def test_scenario_suite_covers_expected_boundary_classes() -> None:
+    expected = {
+        "handoff_label_stripping",
+        "authority_expansion",
+        "tool_result_injection",
+        "approval_laundering",
+        "missing_envelope_recovery",
+        "malformed_envelope",
+        "verifier_outage",
+        "memory_stale_recall",
+        "cross_user_memory",
+        "memory_trust_precedence",
+    }
+    assert set(SWARM_SCENARIOS) == expected
 
 
 def test_estimated_request_count_is_mode_role_sum() -> None:
@@ -121,7 +143,29 @@ def test_execute_collects_hashed_role_transcripts(tmp_path: Path) -> None:
     assert len(transcripts) == 4
     assert all(item.response_sha256 for item in transcripts)
     assert all("deterministic" in item.response_preview for item in transcripts)
+    assert summary.metrics.role_transcript_hash_coverage == 1.0
+    assert summary.metrics.adapter_error_rate == 0.0
     assert validate_path(out).ok
+
+
+def test_adapter_errors_are_counted_without_turning_into_contract_failures() -> None:
+    with patch(
+        "agentic_security_harness.local_swarm.chat_completion",
+        side_effect=ExternalAPIError("network unavailable"),
+    ):
+        summary = run_local_swarm(
+            scenarios=["handoff_label_stripping"],
+            modes=["bounded_swarm"],
+            execute_model_calls=True,
+            base_url="http://127.0.0.1:11434/v1",
+            model="prometheus-qwen15b-lowctx:latest",
+            max_requests=4,
+            created_at="",
+        )
+
+    assert summary.metrics.bounded_swarm_boundary_failures == 0
+    assert summary.metrics.adapter_error_rate == 1.0
+    assert summary.metrics.role_transcript_hash_coverage == 0.0
 
 
 def test_cli_dry_run_makes_no_network_call_and_no_files(tmp_path: Path) -> None:

@@ -25,6 +25,7 @@ In plain English: this repo answers three practical questions.
 | Local benchmark core | Shipped | 24 deterministic seed patterns, local targets, traces, scorecards, remediation, validation. |
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
 | Committed examples | Shipped | `examples/` plus `ash validate examples/`. |
+| Bounded local swarm evidence suite | Research-only example | `examples/local-swarm-report/` compares monolith, naive swarm, and bounded swarm over 10 deterministic boundary scenarios. |
 | CI / package checks | Shipped | `.github/workflows/ci.yml` runs tests, ruff, mypy, package build, and example validation. |
 | External model checks | Experimental | OpenAI-compatible, prompt-only, explicit opt-in, no tool execution. |
 | Native provider / agent-host adapters | Future | Not shipped; do not claim real agent or tool-execution coverage yet. |
@@ -92,6 +93,8 @@ Read by role:
 - Scenario designer: [Scenario timeline contract](docs/scenario-timeline.md).
 - Multi-agent handoff reviewer: [Inter-agent handoff integrity](docs/inter-agent-handoff-integrity.md)
   and [deterministic handoff toy topology](docs/handoff-toy-topology.md).
+- Swarm reviewer: [Bounded local swarm](docs/bounded-local-swarm.md) and
+  [`examples/local-swarm-report/`](examples/local-swarm-report/).
 - Local model reviewer: [Local Prometheus workflow](docs/local-prometheus-workflow.md),
   [Local model profiles](docs/local-model-profiles.md), and [Metrics contract](docs/metric-contract.md).
 - Safety reviewer: [Research rules](docs/research-rules.md), [Authorized testing paths](docs/authorized-testing-paths.md),
