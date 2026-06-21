@@ -341,13 +341,14 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
         "#33",
         "#34",
         "#19",
+        "#48",
+        "#50",
     ):
         assert issue not in open_work
         assert issue in completed
-    assert "#48" in open_work
-    assert "Small-model swarm handoff evidence quality" in open_work
-    assert "live multi-agent runtime claim" in open_work
-    assert "#48" not in completed
+    assert "None currently tracked." in open_work
+    assert "`ash evidence-quality` summarizes recorded external/local artifacts" in completed
+    assert "Fresh bounded Prometheus/Ollama rerun" in completed
     open_maintenance = tracker.split("## Open maintenance work", 1)[1].split(
         "## Recently completed in this track", 1
     )[0]
