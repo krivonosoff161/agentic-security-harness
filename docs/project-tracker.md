@@ -46,6 +46,7 @@ None currently tracked.
 | [#53 research: deepen authority delegation public evidence](https://github.com/krivonosoff161/agentic-security-harness/issues/53) | Multi-agent / authority | Authority delegation evidence now covers issuer, scope, purpose, TTL, and delegation-depth non-expansion in verifier tests and public theory docs; revocation remains explicitly out of scope. |
 | [#54 research: publish inter-agent handoff toy evidence](https://github.com/krivonosoff161/agentic-security-harness/issues/54) | Multi-agent / handoff | `examples/handoff-toy-comparison/` is a committed public artifact for toy coordinator/worker handoff evidence, validated by `ash validate examples/handoff-toy-comparison`. |
 | [#55 research: define memory-governance invariant layer](https://github.com/krivonosoff161/agentic-security-harness/issues/55) | Memory governance / theory | `memory_governance.py` adds executable synthetic checks for TTL-from-write, envelope drift, provenance metadata, trust floor, trust precedence, and scope isolation, with public theory docs and tests. |
+| [#57 research: harden boundary layer evidence matrices](https://github.com/krivonosoff161/agentic-security-harness/issues/57) | Boundary-layer research | `boundary-layer-evidence-matrix.md` ties 22 declared handoff, authority, and memory-governance variation rows to executable tests while keeping private scratch calculations out of public evidence. |
 
 ## Recently completed local research closures
 
@@ -69,6 +70,8 @@ Supporting docs:
   synthetic verifier topology for malformed summary and capability handoffs.
 - [research-claims.md](research-claims.md) tracks research claims from hypothesis
   through validated evidence artifacts.
+- [boundary-layer-evidence-matrix.md](boundary-layer-evidence-matrix.md) maps the current
+  handoff, authority, and memory-governance variation rows to executable tests.
 - [local-prometheus-workflow.md](local-prometheus-workflow.md) defines the low-memory
   Ollama smoke workflow for real local model probes.
 - [local-model-profiles.md](local-model-profiles.md) records hardware-safe local model

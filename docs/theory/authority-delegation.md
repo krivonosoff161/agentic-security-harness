@@ -62,6 +62,22 @@ normalization would require a policy table that is not part of this public examp
 | `tests/test_handoff_integrity.py::test_committed_handoff_fixture_matches_verifier_expectations` | The committed topology fixture matches verifier behavior. |
 | `tests/test_toy_multi_agent.py` | Vulnerable toy consumes the malformed handoff; protected toy blocks it. |
 | `tests/test_validation.py` | The committed example artifacts validate under `ash validate examples`. |
+| `tests/test_boundary_variation_matrices.py::test_authority_non_expansion_matrix_blocks_every_observable_axis` | Issuer, scope, purpose, TTL, and depth are checked as an explicit variation matrix. |
+
+## 5.1 Variation matrix readout
+
+The declared authority matrix has 5 observable non-expansion axes:
+
+```text
+issuer + scope + purpose + TTL + delegation_depth = 5
+```
+
+The clean parent/child grant passes. Each one-axis mutation blocks with
+`authority_expansion`. This verifies that the current local rule is not only a prose
+statement: every declared axis is executable in tests.
+
+The broader public matrix is documented in
+[`../boundary-layer-evidence-matrix.md`](../boundary-layer-evidence-matrix.md).
 
 ## 6. Evidence
 
@@ -86,6 +102,7 @@ This theory module does not claim:
 - live multi-agent framework coverage;
 - cryptographic capability-token standardization;
 - revocation propagation;
+- purpose hierarchy or semantic near-synonym matching;
 - semantic correctness of the delegated payload.
 
 It only claims that the local deterministic verifier and toy topology exercise observable
