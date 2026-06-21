@@ -433,6 +433,29 @@ def build_parser() -> argparse.ArgumentParser:
         help="output format (default: text)",
     )
 
+    eq_p = sub.add_parser(
+        "evidence-quality",
+        help="summarize evidence quality from recorded external/local run artifacts",
+    )
+    eq_p.add_argument(
+        "--root",
+        type=Path,
+        default=Path("reports"),
+        help="external/local run directory or root to scan (default: reports)",
+    )
+    eq_p.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="optional output directory for evidence_quality.json / evidence_quality.md",
+    )
+    eq_p.add_argument(
+        "--format",
+        choices=("text", "json"),
+        default="text",
+        help="output format (default: text)",
+    )
+
     stats_p = sub.add_parser(
         "stats",
         help="summarize run history from run_index.json manifests",
@@ -1046,6 +1069,43 @@ def _compare_models(left: Path, right: Path, out: Path, output_format: str = "te
     return 0
 
 
+def _evidence_quality(root: Path, out: Path | None, output_format: str = "text") -> int:
+    from agentic_security_harness.evidence_quality import (
+        build_evidence_quality_report,
+        write_evidence_quality,
+    )
+
+    report = build_evidence_quality_report(root)
+    if out is not None:
+        paths = write_evidence_quality(report, out)
+    else:
+        paths = {}
+
+    if output_format == "json":
+        print(json.dumps(report.model_dump(mode="json"), indent=2))
+        return 0
+
+    print(f"Evidence quality for {root.as_posix()}")
+    print(f"  runs: {report.total_runs}")
+    print(f"  results: {report.total_results}")
+    print(f"  decisive_rate: {report.decisive_rate:.3f}")
+    print(f"  weak_evidence_rate: {report.weak_evidence_rate:.3f}")
+    print(f"  raw_hash_coverage_rate: {report.raw_hash_coverage_rate:.3f}")
+    print(f"  assertion_binding_rate: {report.assertion_binding_rate:.3f}")
+    print(
+        "  cross_run_disagreement: "
+        f"{report.disagreement_groups}/{report.comparable_groups} "
+        f"({report.cross_run_disagreement_rate:.3f})"
+    )
+    if paths:
+        print(f"wrote evidence_quality.json to {paths['json'].as_posix()}")
+        print(f"wrote evidence_quality.md to {paths['markdown'].as_posix()}")
+    if report.warnings:
+        print(f"warnings: {len(report.warnings)}")
+    print("Derived analysis only: no model calls, no leaderboard, no safety proof.")
+    return 0
+
+
 def _stats(root: Path, out: Path | None, output_format: str = "text") -> int:
     from agentic_security_harness.stats import build_run_stats, write_run_stats
 
@@ -1503,6 +1563,8 @@ def main(argv: list[str] | None = None) -> int:
         return _diff_runs(args.left, args.right, args.out)
     if args.command == "compare-models":
         return _compare_models(args.left, args.right, args.out, args.format)
+    if args.command == "evidence-quality":
+        return _evidence_quality(args.root, args.out, args.format)
     if args.command == "stats":
         return _stats(args.root, args.out, args.format)
     if args.command == "retention":

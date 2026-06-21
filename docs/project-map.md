@@ -50,11 +50,12 @@ If those six points hold, the benchmark is coherent.
 | Reports | Writes `traces.json`, `scorecard.json`, `summary.md`, `executive.md`, remediation, comparison, and static HTML (`report`). | `src/agentic_security_harness/reporting.py`, `html_report.py`, `examples/` |
 | Showcase generator | Builds reviewer-facing weak-spot/finding cards from existing run artifacts (`showcase`). | `src/agentic_security_harness/showcase.py`, [showcase/index.md](showcase/index.md) |
 | Run diff | `diff-runs` compares two same-kind runs (`run_diff.json` / `run_diff.md`); `compare-models` wraps this for external model artifacts. | `src/agentic_security_harness/run_diff.py`, [run-diff.md](run-diff.md) |
+| Evidence quality | `evidence-quality` summarizes recorded external/local artifact quality without making model calls or leaderboard claims. | `src/agentic_security_harness/evidence_quality.py`, [evidence-quality.md](evidence-quality.md) |
 | Run history | `run_index.json` manifest per run; `list-runs` lists them; `index-runs` builds a local SQLite metadata index; `stats` summarizes history; `retention` plans cleanup. | `src/agentic_security_harness/run_manifest.py`, `rundb.py`, `stats.py` |
 | Schemas | Every JSON artifact carries a `schema_version` from one registry. | `src/agentic_security_harness/schema_versions.py`, [artifact-schemas.md](artifact-schemas.md) |
 | Validation | Checks report/external/manifest/diff artifacts, schema versions, and standards-mapping consistency. | `src/agentic_security_harness/validation.py` |
 | Diagnostics | `doctor` checks the environment (no network by default). | `src/agentic_security_harness/doctor.py` |
-| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `validate`, `report`, `showcase`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
+| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `evidence-quality`, `validate`, `report`, `showcase`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
 | Adapter contract | Rules and metadata models for future model/provider/runtime adapters. | [adapter-contract.md](adapter-contract.md), `models.py` |
 | Reporting design | How executive and technical reports should be shaped. | [reporting.md](reporting.md) |
 | Research claims registry | Status table tracking each research claim from hypothesis through evidence artifacts. | [research-claims.md](research-claims.md) |

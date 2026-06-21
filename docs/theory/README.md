@@ -30,6 +30,7 @@
 | Deterministic check specifications. | Machine-specific captures. |
 | Claim boundaries. | Private organizational details. |
 | Links to code, tests, evidence. | Uncurated experiment logs. |
+| Local-empirical summaries with explicit claim boundaries. | Raw local model responses and scratch `reports/`. |
 
 ## Structure
 
@@ -48,3 +49,5 @@
 - Theory docs link to code, tests, and evidence artifacts — they are not standalone.
 - Planned files are stubs only; they describe the intended scope, not a finished model.
 - Heavy research stays in private/local scratch until it is ready for public cleaning.
+- `local_empirical` claims may be referenced publicly only as bounded summaries; raw
+  scratch artifacts remain private/local unless curated and promoted.

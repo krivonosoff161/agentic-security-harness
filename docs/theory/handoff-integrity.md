@@ -123,6 +123,8 @@ ash validate reports/handoff-toy-comparison
 - Mathematical proof of security for real multi-agent systems.
 - Semantic truthfulness is solved by hash checks.
 - A live multi-agent framework preserves handoff integrity.
+- Small-model swarm handoff probes are evidence-quality probes, not evidence that a live
+  multi-agent framework preserves handoff integrity.
 - The verdict is a score (it is a blocker decision; scores are metadata).
 - The test coverage is complete for all handoff failure classes.
 

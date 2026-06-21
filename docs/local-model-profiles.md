@@ -83,6 +83,24 @@ python -m agentic_security_harness.cli run-external `
 python -m agentic_security_harness.cli validate reports/local-prometheus-lowctx-smoke-prometheus-qwen15b-lowctx-latest
 ```
 
+## Planned local-empirical handoff profiles
+
+`Small-model swarm handoff evidence quality` is not yet a named runnable profile. It may
+become one only after issue #48 defines model caps, request caps, handoff roles, repeat
+counts, validation, and stop conditions.
+
+Today, the supported shipped step is offline analysis of already recorded artifacts:
+
+```powershell
+python -m agentic_security_harness.cli evidence-quality `
+  --root reports `
+  --out reports/evidence-quality
+```
+
+The equivalent installed CLI form is `ash evidence-quality --root reports --out reports/evidence-quality`.
+
+This reports evidence quality, not model safety, handoff correctness, or a leaderboard.
+
 ## How to interpret weak local models
 
 | Result | Interpretation | Next step |
