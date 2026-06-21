@@ -18,12 +18,7 @@ design-led inter-agent handoff integrity track.
 
 ## Open work in this track
 
-| Issue | Track | Open focus |
-|---|---|---|
-| [#48 research: measure local small-model swarm evidence quality](https://github.com/krivonosoff161/agentic-security-harness/issues/48) | Small-model swarm handoff evidence quality | Define and implement bounded evidence-quality analysis for recorded local/external model artifacts: schema adherence, raw-response/hash coverage, deterministic-validator agreement, inconclusive/error/flaky split, and cross-run disagreement without creating a new runner or model leaderboard. |
-
-This is open local-empirical work, not a public benchmark finding, model leaderboard, or
-live multi-agent runtime claim.
+None currently tracked.
 
 ## Open maintenance work
 
@@ -46,6 +41,8 @@ None currently tracked.
 | [#33 research: define minimal typed handoff envelope](https://github.com/krivonosoff161/agentic-security-harness/issues/33) | Multi-agent / recovery | Envelope fields and payload-type requirements are explicit before fixtures/tests are added. |
 | [#30 research: design inter-agent handoff integrity contract](https://github.com/krivonosoff161/agentic-security-harness/issues/30) | Multi-agent / research | Design contract, claim boundary, failure classes, verifier outcomes, and staged work order are documented. |
 | [#34 feature: add deterministic toy topology for handoff integrity](https://github.com/krivonosoff161/agentic-security-harness/issues/34) | Multi-agent / corpus | Local synthetic verifier topology ships vulnerable/protected handoff traces for label loss and authority expansion. |
+| [#48 research: measure local small-model swarm evidence quality](https://github.com/krivonosoff161/agentic-security-harness/issues/48) | Local empirical / evidence quality | `ash evidence-quality` summarizes recorded external/local artifacts for schema adherence, raw-response/hash coverage, deterministic-validator agreement, inconclusive/error/flaky split, and cross-run disagreement without creating a model leaderboard. |
+| [#50 research: rerun local Prometheus probes and publish evidence-quality summary](https://github.com/krivonosoff161/agentic-security-harness/issues/50) | Local runtime / evidence quality | Fresh bounded Prometheus/Ollama rerun recorded 11 local-model checks across `data-boundary`, `authority-control`, and `approval-audit`; docs summarize 3 pass, 8 inconclusive, 0 findings, and fresh-only evidence-quality metrics with raw responses kept local/private. |
 
 ## Recently completed local research closures
 
