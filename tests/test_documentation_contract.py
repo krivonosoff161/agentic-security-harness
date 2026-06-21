@@ -347,7 +347,7 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
     ):
         assert issue not in open_work
         assert issue in completed
-    for issue in ("#61", "#63", "#64", "#65", "#66"):
+    for issue in ("#61", "#63", "#64", "#65", "#66", "#67"):
         assert issue in open_work
     assert "None currently tracked." not in open_work
     assert (
@@ -482,6 +482,25 @@ def test_small_model_swarm_handoff_claim_is_local_empirical_boundary() -> None:
     assert "leaderboard" in row
     assert "Live multi-agent runtime guarantee" in row
     assert "examples/" not in row
+
+
+def test_local_swarm_attack_matrix_is_documented_as_deterministic_example() -> None:
+    bounded = _read("docs/bounded-local-swarm.md")
+    showcase = _read("docs/showcase/index.md")
+    scenario_matrix = _read("docs/showcase/scenario-matrix.md")
+    project_map = _read("docs/project-map.md")
+    schemas = _read("docs/artifact-schemas.md")
+
+    for text in (bounded, showcase, scenario_matrix, project_map):
+        assert "examples/local-swarm-attack-matrix" in text
+
+    assert "local-swarm-matrix --write" in bounded
+    assert "cases=33" in bounded
+    assert "bounded-swarm boundary failures=0" in bounded
+    assert "cryptographic audit-chain integrity remains" in bounded
+    assert "separate project claim" in bounded
+    assert "local_swarm_attack_matrix.json" in schemas
+    assert "local_swarm_matrix" in schemas
 
 
 def test_research_claims_registry_status_definitions_are_unique() -> None:

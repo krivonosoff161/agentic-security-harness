@@ -652,6 +652,28 @@ def build_parser() -> argparse.ArgumentParser:
         help="write deterministic artifacts without model calls",
     )
 
+    swarm_matrix_p = sub.add_parser(
+        "local-swarm-matrix",
+        help="calculate deterministic local-swarm attack variation coverage",
+    )
+    swarm_matrix_p.add_argument(
+        "--list",
+        dest="list_swarm_matrix",
+        action="store_true",
+        help="list matrix cases and variation families",
+    )
+    swarm_matrix_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path("reports/local-swarm-attack-matrix"),
+        help="output directory for matrix artifacts",
+    )
+    swarm_matrix_p.add_argument(
+        "--write",
+        action="store_true",
+        help="write deterministic matrix artifacts (default: dry-run only)",
+    )
+
     return parser
 
 
@@ -745,7 +767,8 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.comparison_dirs)} comparison dir(s), "
         f"{len(result.external_dirs)} external dir(s), "
         f"{len(result.run_diff_dirs)} run-diff dir(s), "
-        f"{len(result.local_swarm_dirs)} local-swarm dir(s)"
+        f"{len(result.local_swarm_dirs)} local-swarm dir(s), "
+        f"{len(result.local_swarm_matrix_dirs)} local-swarm-matrix dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
     if redacted_errors or redacted_warnings:
@@ -1484,6 +1507,57 @@ def _local_swarm(
     return 0
 
 
+def _local_swarm_matrix(list_matrix: bool, out: Path, write: bool) -> int:
+    from agentic_security_harness.local_swarm_matrix import (
+        VARIATION_FAMILIES,
+        build_local_swarm_attack_matrix,
+        declared_matrix_cases,
+        write_local_swarm_matrix_artifacts,
+    )
+    from agentic_security_harness.validation import validate_path
+
+    if list_matrix:
+        print("Local swarm matrix variation families:")
+        for family in VARIATION_FAMILIES:
+            print(f"  {family}")
+        print("Local swarm matrix cases:")
+        for case in declared_matrix_cases():
+            print(f"  {case.case_id} -> {case.base_scenario} ({case.family})")
+        return 0
+
+    matrix = build_local_swarm_attack_matrix()
+    metrics = matrix.metrics
+    print(
+        f"local-swarm-matrix cases={metrics.cases} "
+        f"families={metrics.variation_families} "
+        f"base_scenarios={metrics.base_scenarios}"
+    )
+    print(
+        "boundary failures: "
+        f"monolith={metrics.monolith_boundary_failures} "
+        f"naive={metrics.naive_swarm_boundary_failures} "
+        f"bounded={metrics.bounded_swarm_boundary_failures}; "
+        f"bounded_blocks={metrics.bounded_blocks}"
+    )
+    print(
+        "Deterministic matrix only: no model calls, no network, no production-safety claim."
+    )
+    if not write:
+        print("Dry-run only. Add --write to write artifacts.")
+        return 0
+
+    paths = write_local_swarm_matrix_artifacts(out, matrix)
+    for path in paths:
+        print(f"wrote {path.as_posix()}")
+    result = validate_path(out)
+    if not result.ok:
+        print(f"Validation FAILED for {redact_artifact_text(out.as_posix())}:")
+        print(f"errors: {len(result.errors)}")
+        return 1
+    print(f"validated {out.as_posix()} (artifact integrity only).")
+    return 0
+
+
 def _list_runs(root: Path, db: Path | None) -> int:
     if db is not None:
         from agentic_security_harness.rundb import list_db_runs
@@ -1782,6 +1856,12 @@ def main(argv: list[str] | None = None) -> int:
             args.max_requests,
             args.execute,
             args.write_dry_run,
+        )
+    if args.command == "local-swarm-matrix":
+        return _local_swarm_matrix(
+            args.list_swarm_matrix,
+            args.out,
+            args.write,
         )
     if args.command == "doctor":
         return _doctor(

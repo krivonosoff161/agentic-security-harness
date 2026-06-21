@@ -22,6 +22,7 @@ what the project currently proves.
 | Deterministic baseline/protected comparison | Validated example | [`examples/comparison-report/README.md`](../../examples/comparison-report/README.md) | The shipped synthetic corpus can produce a visible 24 -> 0 modeled-risk reduction between demo targets. | A real deployed agent is secure. |
 | Deterministic multi-agent handoff toy comparison | Local validated artifact | [`handoff-toy-topology.md`](../handoff-toy-topology.md) | The shipped local `toy-multi-agent` slice produces 2 modeled handoff findings, while `protected-toy-multi-agent` blocks the malformed handoffs under the same corpus. | Evidence about a live multi-agent framework, provider, or production handoff protocol. |
 | Bounded local swarm evidence suite | Validated example | [`examples/local-swarm-report/local_swarm_report.md`](../../examples/local-swarm-report/local_swarm_report.md) | The research-only `bounded_swarm` topology blocks 15 synthetic handoff, memory, memory-poisoning, approval/tool, multi-hop laundering, and verifier-outage boundary failures that `naive_swarm` accepts. | A real model, provider, framework, or production swarm is safe. |
+| Local swarm attack variation matrix | Validated example | [`examples/local-swarm-attack-matrix/local_swarm_attack_matrix.md`](../../examples/local-swarm-attack-matrix/local_swarm_attack_matrix.md) | The 15 local-swarm scenarios are expanded into 33 declared prompt-only, delayed, recovery, audit-evidence, budget, cross-provider, and model-contradiction variations; `bounded_swarm` blocks all declared rows under deterministic contracts. | Exhaustive attack coverage, cryptographic audit-log proof, or live-framework safety. |
 | Local swarm real-model evaluation | Local empirical summary | [`local-swarm-real-model-evaluation.md`](../local-swarm-real-model-evaluation.md) | Two local Ollama models executed the full 15-scenario local-swarm suite with 100% transcript-hash coverage and 0% adapter-error rate. | The local models passed a safety benchmark or production swarm behavior is proven. |
 | External fake-server run | Validated example | [`examples/external-demo-report/README.md`](../../examples/external-demo-report/README.md) | The experimental external artifact path can validate against a deterministic local fake OpenAI-compatible endpoint. | A real model/provider is safe. |
 | Local Prometheus/Ollama smoke | Shipped bounded local-suite; local scratch artifacts | [`local-prometheus-workflow.md`](../local-prometheus-workflow.md) | A weak local model can be exercised through a named prompt-only local-suite profile; first smokes exposed evidence-quality/runtime limits. | Public benchmark finding; model leaderboard result. |
@@ -94,6 +95,22 @@ Expected current result: `monolith` and `naive_swarm` each accept 15 modeled bou
 failures, while `bounded_swarm` blocks all 15 through deterministic handoff and memory
 contracts. Optional local-model role calls are evidence-quality context only; they do
 not decide pass/block.
+
+Calculate the attack/slom variation matrix:
+
+```bash
+ash local-swarm-matrix --write --out reports/local-swarm-attack-matrix
+ash validate reports/local-swarm-attack-matrix
+```
+
+The committed matrix lives at `examples/local-swarm-attack-matrix/` and validates with:
+
+```bash
+ash validate examples/local-swarm-attack-matrix
+```
+
+Expected current result: 33 declared variation rows, 8 variation families, 33 naive
+boundary failures, 0 bounded boundary failures, and 33 deterministic bounded blocks.
 
 ## Reproduce the bounded local smoke
 

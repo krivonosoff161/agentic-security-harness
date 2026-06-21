@@ -1,0 +1,36 @@
+{
+  "schema_version": "0.1",
+  "run_id": "run_f54986e740",
+  "run_kind": "matrix",
+  "created_at": "",
+  "tool_version": "",
+  "target": "bounded-local-swarm",
+  "model": "",
+  "scenario": "local-swarm-attack-variation-matrix",
+  "variants": [
+    "audit_evidence_tamper",
+    "base_contract",
+    "budget_or_recursion_pressure",
+    "cross_provider_metadata_loss",
+    "delayed_activation",
+    "model_contradiction",
+    "prompt_only_pressure",
+    "safe_recovery_path"
+  ],
+  "repeats": 1,
+  "outcomes": {
+    "cases": 33,
+    "naive_boundary_failures": 33,
+    "bounded_boundary_failures": 0,
+    "bounded_blocks": 33
+  },
+  "metadata": {
+    "base_scenarios": 15,
+    "variation_families": 8,
+    "contract_coverage": 1.0
+  },
+  "artifacts": [
+    "local_swarm_attack_matrix.json",
+    "local_swarm_attack_matrix.md"
+  ]
+}

@@ -1,6 +1,6 @@
 # Bounded Local Swarm
 
-Status: research-only implementation for issues #61, #63, #65, and #66.
+Status: research-only implementation for issues #61, #63, #65, #66, and #67.
 
 This lane tests a narrow claim:
 
@@ -70,6 +70,20 @@ A committed deterministic example is available at `examples/local-swarm-report/`
 ash validate examples/local-swarm-report
 ```
 
+Calculate the deterministic attack-variation matrix:
+
+```bash
+ash local-swarm-matrix
+ash local-swarm-matrix --write --out reports/local-swarm-attack-matrix
+ash validate reports/local-swarm-attack-matrix
+```
+
+A committed matrix example is available at `examples/local-swarm-attack-matrix/`:
+
+```bash
+ash validate examples/local-swarm-attack-matrix
+```
+
 Run bounded sequential local-model role calls through Ollama:
 
 ```bash
@@ -106,6 +120,39 @@ See [local-swarm-real-model-evaluation.md](local-swarm-real-model-evaluation.md)
 This is local-empirical evidence that the runner can exercise real weak local models. It
 is not a model pass, leaderboard result, or production-swarm safety proof.
 
+## Attack Variation Matrix
+
+The `local-swarm-matrix` command expands the 15 base scenarios into a deterministic
+review matrix. The current committed matrix contains 33 modeled attack/slom rows across
+8 families:
+
+- base contract scenarios;
+- prompt-only pressure;
+- delayed activation;
+- safe recovery path after blocked or malformed handoff;
+- audit/provenance evidence omission or tamper pressure;
+- budget or recursion pressure;
+- cross-provider metadata loss;
+- model contradiction, where role text says proceed but the verifier blocks.
+
+Current committed calculation:
+
+```text
+cases=33
+monolith boundary failures=33
+naive-swarm boundary failures=33
+bounded-swarm boundary failures=0
+bounded blocks=33
+bounded failure reduction vs naive=100%
+contract coverage=100%
+```
+
+This matrix is not a claim of exhaustive attack coverage. It is a traceable way to show
+which declared variations are already represented by deterministic contracts and which
+block reason each one exercises. Audit-evidence rows cover local provenance/trace
+omission pressure inside the swarm model; cryptographic audit-chain integrity remains a
+separate project claim.
+
 ## Artifacts
 
 `local_swarm_summary.json`
@@ -116,6 +163,13 @@ is not a model pass, leaderboard result, or production-swarm safety proof.
 
 `run_index.json`
 : Standard run manifest so `ash list-runs` can index the result.
+
+`local_swarm_attack_matrix.json`
+: Machine-readable attack variation rows and aggregate calculations from
+  `ash local-swarm-matrix`.
+
+`local_swarm_attack_matrix.md`
+: Human-readable attack variation matrix.
 
 ## Metrics
 

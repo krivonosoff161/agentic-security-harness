@@ -25,6 +25,7 @@ registry compatibility, standards mapping, and forbidden marker scans.
 | `run_diff.json` | `run_diff` | 0.2 | `ash diff-runs` | `ash validate` |
 | `evidence_quality.json` | `evidence_quality` | 0.2 | `ash evidence-quality` | derived artifact; schema-versioned, not a replacement for `ash validate` |
 | `local_swarm_summary.json` | `local_swarm` | 0.1 | `ash local-swarm` | `ash validate` |
+| `local_swarm_attack_matrix.json` | `local_swarm_matrix` | 0.1 | `ash local-swarm-matrix` | `ash validate` |
 
 `run_diff` v0.2 replaces the ambiguous v0.1 coarse labels (`fixed`, `new`,
 `changed`, `unchanged`) with explicit decisive/non-decisive counters such as
@@ -49,6 +50,9 @@ Non-versioned by design:
   from `external_results.json` by relative path and sha256.
 - `evidence_quality.json` is a derived analysis over recorded external/local artifacts.
   It does not call a model and does not certify model safety.
+- `local_swarm_attack_matrix.json` is a deterministic attack-variation analysis over
+  existing local-swarm contracts. It does not call a model and does not claim exhaustive
+  attack coverage.
 - A `comparison` is represented as two report directories (`baseline/`, `protected/`) plus
   `comparison.md`; there is no separate `comparison.json`. Use `ash diff-runs` for an
   arbitrary run-vs-run diff (which does emit a versioned `run_diff.json`).

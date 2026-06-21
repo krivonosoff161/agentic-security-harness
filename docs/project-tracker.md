@@ -25,6 +25,7 @@ design-led inter-agent handoff integrity track.
 | [#64 research: add local-swarm evidence-quality calculations](https://github.com/krivonosoff161/agentic-security-harness/issues/64) | Local swarm / evidence quality | In PR #62; `ash evidence-quality` calculates local-swarm contract coverage, transcript hash coverage, adapter error rates, runtime-mode coverage, and evidence maturity from recorded artifacts. |
 | [#65 research: deepen local-swarm memory, tool, and multi-hop attacks](https://github.com/krivonosoff161/agentic-security-harness/issues/65) | Local swarm / deep variants | Add deterministic memory-poisoning, tool-output authority-confusion, and multi-hop laundering variants while keeping model calls as evidence-quality context only. |
 | [#66 research: run local Prometheus swarm evaluation](https://github.com/krivonosoff161/agentic-security-harness/issues/66) | Local swarm / local empirical | Full 15-scenario local Ollama runs completed for `prometheus-qwen15b-lowctx:latest` and `qwen2.5:1.5b`; public summary is in PR #62, pending repository review gate. |
+| [#67 research: add local-swarm attack variation matrix](https://github.com/krivonosoff161/agentic-security-harness/issues/67) | Local swarm / attack matrix | In PR #62; deterministic 33-row attack/slom matrix calculates prompt-only, delayed, recovery, audit-evidence, budget, cross-provider, and model-contradiction variants over the 15 local-swarm base scenarios. |
 
 ## Open maintenance work
 
