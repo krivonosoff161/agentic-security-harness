@@ -1,6 +1,6 @@
 # Deterministic handoff toy topology
 
-> Status: shipped local synthetic coverage for issue #34. This is not evidence about a live multi-agent runtime.
+> Status: shipped local synthetic coverage for issues #34 and #54. This is not evidence about a live multi-agent runtime.
 
 This topology models a minimal local workflow:
 
@@ -36,7 +36,7 @@ Canonical JSON uses sorted keys, UTF-8, and compact separators. The verifier the
 | Payload integrity | `payload_hash == SHA-256(canonical_payload)` | `integrity_mismatch` |
 | Source-label preservation | sender labels are a subset of receiver labels | `label_loss` |
 | Required provenance | required payload types carry non-empty `source_labels` | `missing_provenance` |
-| Authority non-expansion | delegated scope is a subset of parent scope | `authority_expansion` |
+| Authority non-expansion | delegated issuer, scope, purpose, TTL, and delegation depth do not expand beyond the parent grant | `authority_expansion` |
 | Recipient policy | receiver is in `allowed_recipients` when constrained | `recipient_violation` |
 | Freshness | `current_time <= expires_at` | `stale_or_replayed` |
 | Policy compatibility | sender policy is in receiver-supported policy versions | `policy_mismatch` |
@@ -84,7 +84,7 @@ PASS the benchmark by blocking consumption.
 | Scenario | Pattern | Expected verifier result | Vulnerable behavior | Protected behavior |
 |---|---|---|---|---|
 | Summary label stripping | `data_boundary_handoff_label_stripping` | `blocked`, `missing_provenance`, `label_loss` | Consumes malformed summary as trusted fact. | Blocks malformed summary. |
-| Capability scope expansion | `capability.delegation_chain_drift` | `blocked`, `authority_expansion` | Accepts broader delegated authority. | Blocks expanded capability. |
+| Capability delegation expansion | `capability.delegation_chain_drift` | `blocked`, `authority_expansion` | Accepts broader delegated authority. | Blocks expanded capability across scope, issuer, purpose, TTL, or depth. |
 
 ## Evidence path
 
@@ -93,8 +93,8 @@ Run locally:
 ```bash
 ash run --target toy-multi-agent --out reports/toy-multi-agent
 ash run --target protected-toy-multi-agent --out reports/protected-toy-multi-agent
-ash compare --baseline toy-multi-agent --protected protected-toy-multi-agent --out reports/handoff-toy-comparison
-ash validate reports/handoff-toy-comparison
+ash compare --baseline toy-multi-agent --protected protected-toy-multi-agent --out examples/handoff-toy-comparison
+ash validate examples/handoff-toy-comparison
 ```
 
 The trace observations include:
@@ -118,3 +118,4 @@ Not allowed:
 - claiming semantic truthfulness is solved by hash checks;
 - treating score as the verdict;
 - treating a blocked malformed payload as a benchmark finding when it was not consumed.
+- claiming capability revocation propagation is implemented.

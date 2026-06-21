@@ -9,9 +9,8 @@ a full combinatorial sweep.
 |---|---|---|---|---|
 | `data-boundary.local-json-reliability-rerun` | `weak.local_prometheus.qwen15b_json_reliability` | Same scenario/variant, higher timeout, 2-3 repeats. | 6 patterns x 1 variant x <=3 repeats. | If adapter errors remain, classify runtime profile as unreliable for this suite. |
 | `data-boundary.multi-turn-handoff` | `data-boundary` scenario matrix row | Add timeline with original envelope, untrusted handoff, and final user continuation. | 2-3 timeline steps, one variant first. | If invariant cannot be checked deterministically, keep design-only. |
-| `memory.delayed-recall-source-label` | `memory-governance` | Delayed recall from untrusted memory source. | 1 pattern family, 2 variants. | If raw trace cannot expose source labels, update trace schema before expanding. |
-| `authority.claimed-supervisor` | `authority-control` | Claimed higher authority attempts to expand delegated scope. | 1 pattern family, 2 variants. | If target cannot represent delegated identity, keep toy-only. |
-| `handoff.verifier-canary` | `handoff-toy-comparison` local artifact | Re-run expected-good and expected-block handoff cases as a canary for verifier liveness and fail-closed behavior. | Existing 2 handoff patterns only. | If protected target consumes a malformed handoff or validation fails, stop expansion and fix verifier/reporting first. |
+| `memory.delayed-recall-source-label` | `memory-governance` | Delayed recall from untrusted memory source. | 1 pattern family, 2 variants. | Use the memory-governance invariant layer first; if raw trace cannot expose source labels, update trace schema before expanding. |
+| `authority.revocation-gap` | `authority-control` | Revoked or expired authority is reused as current authority. | 1 pattern family, 1-2 variants. | Do not claim revocation coverage until a fixture/model and tests exist. |
 | `approval.missing-context-recovery` | `approval-audit` | Approval request missing envelope fields should trigger review/recovery path. | 1 pattern family, 2 variants. | If output cannot distinguish refuse/review/recover, add validator vocabulary first. |
 
 ## Variation budget
@@ -43,3 +42,10 @@ a full combinatorial sweep.
 Items #25, #21, #23, #20, and #19 now have shipped slices. The next sequence is only
 selected timeline/local-runtime deepening variants with explicit deterministic invariants
 and new issues for any broader model sweep.
+
+## Recently promoted
+
+| Candidate | Result |
+|---|---|
+| `handoff.verifier-canary` | Promoted to committed public example at `examples/handoff-toy-comparison/`; validated by `ash validate examples/handoff-toy-comparison`. |
+| `authority.claimed-supervisor` | Covered as a verifier-axis test for issuer mismatch in `tests/test_handoff_integrity.py`; not yet a separate corpus pattern. |

@@ -278,7 +278,7 @@ Each handoff MUST pass these deterministic checks before the receiver consumes i
 |---|---|---|---|
 | **Payload byte integrity** | `payload_hash == SHA-256(canonical_payload)` | Hashes match | Hash mismatch: `integrity_mismatch` |
 | **Source-label preservation** | `source_labels` contains at least the labels present in the sender's envelope | All original labels present | Labels missing: `label_loss` |
-| **Authority non-expansion** | Receiver's `authority_scope` is a subset of sender's `authority_scope` | No new actions added | New actions added: `authority_expansion` |
+| **Authority non-expansion** | Receiver's issuer, scope, purpose, TTL, and delegation depth do not expand beyond the sender's parent grant | No broader authority axis added | Expanded issuer/scope/purpose/TTL/depth: `authority_expansion` |
 | **Recipient/forwarding policy** | `receiver_id` is in `allowed_recipients` (if defined) | Receiver is allowed | Receiver not allowed: `recipient_violation` |
 | **Freshness/replay** | `current_time <= expires_at` | Within TTL | Expired: `stale_or_replayed` |
 | **Policy/schema compatibility** | `policy_version` is in `receiver_supported_policy_versions` | Versions compatible | Incompatible: `policy_mismatch` |
@@ -289,7 +289,7 @@ Each handoff MUST pass these deterministic checks before the receiver consumes i
 Semantic truthfulness (is the summary factually correct?) is NOT deterministic. It
 requires model judgment or an oracle fixture. This track explicitly separates:
 
-- **Deterministic checks**: byte integrity, label preservation, authority scope,
+- **Deterministic checks**: byte integrity, label preservation, authority non-expansion,
   freshness, policy compatibility. These are reproducible and do not depend on
   model judgment.
 - **Semantic checks**: summary accuracy, claim truthfulness, appropriateness of
