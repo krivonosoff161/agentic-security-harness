@@ -7,6 +7,8 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Git evidence workflow documenting the issue -> branch -> artifact -> PR -> GitHub
+  checks -> review gate -> merge/close process as a public project norm.
 - Scenario timeline fixtures and validator contract for delayed activation, context
   overload, and handoff provenance scenarios. These are synthetic design fixtures, not a
   live multi-agent executor.
