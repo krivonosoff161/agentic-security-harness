@@ -25,7 +25,7 @@ In plain English: this repo answers three practical questions.
 | Local benchmark core | Shipped | 24 deterministic seed patterns, local targets, traces, scorecards, remediation, validation. |
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
 | Committed examples | Shipped | `examples/` plus `ash validate examples/`. |
-| Bounded local swarm evidence suite | Research-only example | `examples/local-swarm-report/` compares monolith, naive swarm, and bounded swarm over 10 deterministic boundary scenarios. |
+| Bounded local swarm evidence suite | Research-only example | `examples/local-swarm-report/` compares monolith, naive swarm, and bounded swarm over 15 deterministic boundary scenarios. |
 | CI / package checks | Shipped | `.github/workflows/ci.yml` runs tests, ruff, mypy, package build, and example validation. |
 | External model checks | Experimental | OpenAI-compatible, prompt-only, explicit opt-in, no tool execution. |
 | Native provider / agent-host adapters | Future | Not shipped; do not claim real agent or tool-execution coverage yet. |

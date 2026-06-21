@@ -1,6 +1,6 @@
 # Bounded Local Swarm
 
-Status: research-only implementation for issues #61 and #63.
+Status: research-only implementation for issues #61, #63, and #65.
 
 This lane tests a narrow claim:
 
@@ -37,6 +37,11 @@ Current scenarios:
 | `memory_stale_recall` | `validate_memory_read` catches stale recall after TTL expiry. |
 | `cross_user_memory` | `validate_memory_read` catches scope crossing. |
 | `memory_trust_precedence` | `validate_memory_read` catches lower-trust memory overriding higher-trust memory. |
+| `memory_poisoned_recall` | `validate_memory_read` catches tool-output memory below the required trust floor. |
+| `memory_envelope_widening` | `validate_memory_read` catches stored memory that widened recipients or purpose. |
+| `tool_output_authority_confusion` | `verify_handoff` catches tool output that tries to expand authority into an external action. |
+| `multi_hop_label_laundering` | `verify_handoff` catches restricted labels washed through an intermediate summary hop. |
+| `multi_hop_authority_laundering` | `verify_handoff` catches read-only authority washed into send authority through an intermediate hop. |
 
 ## Commands
 
@@ -70,7 +75,7 @@ Run bounded sequential local-model role calls through Ollama:
 ```bash
 ash local-swarm --execute \
   --model prometheus-qwen15b-lowctx:latest \
-  --max-requests 80 \
+  --max-requests 120 \
   --out reports/local-swarm-prometheus
 ash validate reports/local-swarm-prometheus
 ```
@@ -108,7 +113,7 @@ The main metric is the difference between naive and bounded failure counts:
 bounded_failure_reduction_vs_naive = (naive_failures - bounded_failures) / naive_failures
 ```
 
-For the current deterministic scenario set, `bounded_swarm` should block all ten modeled
+For the current deterministic scenario set, `bounded_swarm` should block all 15 modeled
 boundary failures that `naive_swarm` accepts.
 
 The summary also reports:
@@ -123,8 +128,8 @@ The summary also reports:
 
 Allowed:
 
-- "The bounded swarm blocks these synthetic handoff, memory, approval/tool, and verifier
-  outage boundary failures."
+- "The bounded swarm blocks these synthetic handoff, memory, memory-poisoning,
+  approval/tool, multi-hop laundering, and verifier-outage boundary failures."
 - "The optional local model produced role text, but deterministic contracts made the
   safety decision."
 - "This supports the research hypothesis that role separation needs enforceable

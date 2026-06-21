@@ -347,7 +347,7 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
     ):
         assert issue not in open_work
         assert issue in completed
-    for issue in ("#61", "#63", "#64"):
+    for issue in ("#61", "#63", "#64", "#65"):
         assert issue in open_work
     assert "None currently tracked." not in open_work
     assert (

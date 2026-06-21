@@ -21,8 +21,9 @@ design-led inter-agent handoff integrity track.
 | Issue | Track | Current focus |
 |---|---|---|
 | [#61 research: add bounded local swarm runner](https://github.com/krivonosoff161/agentic-security-harness/issues/61) | Local swarm / runtime | In PR #62; deterministic local-swarm runner and claim boundary are implemented, pending repository review gate. |
-| [#63 research: expand bounded local swarm evidence suite](https://github.com/krivonosoff161/agentic-security-harness/issues/63) | Local swarm / evidence | In PR #62; ten-scenario deterministic suite and committed example are implemented, pending repository review gate. |
-| [#64 research: add local-swarm evidence-quality calculations](https://github.com/krivonosoff161/agentic-security-harness/issues/64) | Local swarm / evidence quality | Extend `ash evidence-quality` to calculate local-swarm contract coverage, transcript hash coverage, and adapter error rates from recorded artifacts. |
+| [#63 research: expand bounded local swarm evidence suite](https://github.com/krivonosoff161/agentic-security-harness/issues/63) | Local swarm / evidence | In PR #62; 15-scenario deterministic suite and committed example are implemented, pending repository review gate. |
+| [#64 research: add local-swarm evidence-quality calculations](https://github.com/krivonosoff161/agentic-security-harness/issues/64) | Local swarm / evidence quality | In PR #62; `ash evidence-quality` calculates local-swarm contract coverage, transcript hash coverage, adapter error rates, runtime-mode coverage, and evidence maturity from recorded artifacts. |
+| [#65 research: deepen local-swarm memory, tool, and multi-hop attacks](https://github.com/krivonosoff161/agentic-security-harness/issues/65) | Local swarm / deep variants | Add deterministic memory-poisoning, tool-output authority-confusion, and multi-hop laundering variants while keeping model calls as evidence-quality context only. |
 
 ## Open maintenance work
 

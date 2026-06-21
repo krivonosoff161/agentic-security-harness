@@ -2,7 +2,7 @@
 
 Committed deterministic example for the bounded local-swarm research lane.
 
-It compares three synthetic execution shapes over the same boundary scenarios:
+It compares three synthetic execution shapes over the same 15 boundary scenarios:
 
 - `monolith`: one role consumes unsafe context without a contract gate;
 - `naive_swarm`: roles exist, but checks are advisory or absent;

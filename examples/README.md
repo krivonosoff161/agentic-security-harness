@@ -27,7 +27,7 @@ ash validate examples/
 | [`demo-agent-report/`](demo-agent-report/) | A run against the vulnerable-by-design local `demo-agent`. | `ash run --target demo-agent --out reports/demo-agent` |
 | [`protected-demo-agent-report/`](protected-demo-agent-report/) | The protected agent passing all patterns (no findings, no remediation). | `ash run --target protected-demo-agent --out reports/protected` |
 | [`comparison-report/`](comparison-report/) | Baseline vs protected risk-reduction comparison. See its own [README](comparison-report/README.md). | `ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison` |
-| [`local-swarm-report/`](local-swarm-report/) | Research-only monolith vs naive swarm vs bounded swarm evidence suite over 10 deterministic boundary scenarios. | `ash local-swarm --write-dry-run --out reports/local-swarm` |
+| [`local-swarm-report/`](local-swarm-report/) | Research-only monolith vs naive swarm vs bounded swarm evidence suite over 15 deterministic boundary scenarios. | `ash local-swarm --write-dry-run --out reports/local-swarm` |
 | [`external-demo-report/`](external-demo-report/) | An external OpenAI-compatible run against the bundled fake server. | see below |
 | [`fake_openai_server.py`](fake_openai_server.py) | A deterministic local OpenAI-compatible server for the external path (no key, localhost only). | `python examples/fake_openai_server.py` |
 

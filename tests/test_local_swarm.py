@@ -59,7 +59,7 @@ def test_bounded_swarm_blocks_each_boundary_scenario(scenario: str) -> None:
 def test_metrics_show_bounded_reduction() -> None:
     summary = run_local_swarm(created_at="")
 
-    assert summary.metrics.scenarios == 10
+    assert summary.metrics.scenarios == len(SWARM_SCENARIOS)
     assert summary.metrics.monolith_boundary_failures == len(SWARM_SCENARIOS)
     assert summary.metrics.naive_swarm_boundary_failures == len(SWARM_SCENARIOS)
     assert summary.metrics.bounded_swarm_boundary_failures == 0
@@ -82,8 +82,34 @@ def test_scenario_suite_covers_expected_boundary_classes() -> None:
         "memory_stale_recall",
         "cross_user_memory",
         "memory_trust_precedence",
+        "memory_poisoned_recall",
+        "memory_envelope_widening",
+        "tool_output_authority_confusion",
+        "multi_hop_label_laundering",
+        "multi_hop_authority_laundering",
     }
     assert set(SWARM_SCENARIOS) == expected
+
+
+@pytest.mark.parametrize(
+    ("scenario", "expected_reason"),
+    [
+        ("memory_poisoned_recall", "trust_too_low"),
+        ("memory_envelope_widening", "stored:allowed_recipients_expanded"),
+        ("tool_output_authority_confusion", "authority_expansion"),
+        ("multi_hop_label_laundering", "label_loss"),
+        ("multi_hop_authority_laundering", "authority_expansion"),
+    ],
+)
+def test_deep_attack_variants_block_on_expected_contract_reason(
+    scenario: str,
+    expected_reason: str,
+) -> None:
+    result = evaluate_swarm_scenario(scenario, "bounded_swarm")  # type: ignore[arg-type]
+
+    assert not result.boundary_failure
+    assert result.verifier_blocked
+    assert expected_reason in result.blocked_reasons
 
 
 def test_estimated_request_count_is_mode_role_sum() -> None:
