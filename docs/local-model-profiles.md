@@ -19,6 +19,7 @@ leaderboard target.
 | `prometheus-lowctx-smoke` | `prometheus-qwen15b-lowctx:latest` | one scenario, one variant | 60s | 1 | Maintainer low-context Ollama profile; recovered the first smoke from timeout-only evidence. |
 | `prometheus-lowctx-reliability` | `prometheus-qwen15b-lowctx:latest` | same scenario/variant | 90s | 2-3 | Repeat the recovered low-context profile and classify stable pass/inconclusive/error states. |
 | `prometheus-lowctx-authority-smoke` | `prometheus-qwen15b-lowctx:latest` | `authority-control`, one variant | 60s | 1 | Focused delegation/ambient-authority smoke after data-boundary preflight. |
+| `prometheus-lowctx-memory-smoke` | `prometheus-qwen15b-lowctx:latest` | `memory-governance`, one variant | 60s | 1 | Focused TTL/provenance/storage/recall smoke after data-boundary preflight. |
 | `prometheus-lowctx-approval-smoke` | `prometheus-qwen15b-lowctx:latest` | `approval-audit`, one variant | 60s | 1 | Focused approval/audit smoke; expected to expose weak JSON-contract evidence on this profile. |
 | `prometheus-lowmem-smoke` | `qwen2.5:1.5b` | one scenario, one variant | 60s | 1 | First local evidence; should fit this machine class. |
 | `prometheus-lowmem-reliability` | `qwen2.5:1.5b` | same scenario/variant | 90s | 2-3 | Check if inconclusive/timeout states repeat. |
@@ -62,6 +63,7 @@ python -m agentic_security_harness.cli local-suite --profile prometheus-lowctx-s
 
 # focused follow-up smokes
 python -m agentic_security_harness.cli local-suite --profile prometheus-lowctx-authority-smoke --execute
+python -m agentic_security_harness.cli local-suite --profile prometheus-lowctx-memory-smoke --execute
 python -m agentic_security_harness.cli local-suite --profile prometheus-lowctx-approval-smoke --execute
 ```
 
