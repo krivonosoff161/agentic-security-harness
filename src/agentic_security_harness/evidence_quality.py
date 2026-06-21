@@ -93,6 +93,8 @@ class LocalSwarmEvidenceRun(BaseModel):
     role_transcript_hash_coverage: float = 0.0
     adapter_error_rate: float = 0.0
     bounded_failure_reduction_vs_naive: float = 0.0
+    evidence_maturity: str = "deterministic_example"
+    runtime_mode_coverage_rate: float = 0.0
 
 
 class EvidenceQualityReport(BaseModel):
@@ -119,6 +121,7 @@ class EvidenceQualityReport(BaseModel):
     local_swarm_evidence_completeness_rate: float = 0.0
     local_swarm_transcript_hash_coverage_rate: float = 0.0
     local_swarm_adapter_error_rate: float = 0.0
+    local_swarm_runtime_mode_coverage_rate: float = 0.0
     outcome_counts: dict[str, int] = Field(default_factory=dict)
     stability_counts: dict[str, int] = Field(default_factory=dict)
     runs: list[EvidenceQualityRun] = Field(default_factory=list)
@@ -181,6 +184,8 @@ def build_evidence_quality_report(root: Path) -> EvidenceQualityReport:
     local_results = sum(r.results for r in local_swarm_runs)
     local_scenarios = sum(r.scenarios for r in local_swarm_runs)
     local_transcripts = sum(r.role_transcripts for r in local_swarm_runs)
+    local_expected_modes = sum(r.modes for r in local_swarm_runs)
+    warnings.extend(_local_swarm_warnings(local_swarm_runs))
 
     return EvidenceQualityReport(
         total_runs=len(runs),
@@ -222,6 +227,10 @@ def build_evidence_quality_report(root: Path) -> EvidenceQualityReport:
         local_swarm_adapter_error_rate=_ratio(
             sum(r.adapter_errors for r in local_swarm_runs),
             local_transcripts,
+        ),
+        local_swarm_runtime_mode_coverage_rate=_weighted_rate(
+            ((r.runtime_mode_coverage_rate, r.modes) for r in local_swarm_runs),
+            local_expected_modes,
         ),
         outcome_counts=dict(sorted(outcome_counts.items())),
         stability_counts=dict(sorted(stability_counts.items())),
@@ -384,6 +393,7 @@ def summarize_local_swarm_run(
             if transcript.adapter_error:
                 adapter_error_count += 1
     metrics = summary.metrics
+    runtime_mode_coverage = _local_swarm_runtime_mode_coverage(summary)
     return LocalSwarmEvidenceRun(
         run_dir=run_dir.as_posix(),
         model=summary.model,
@@ -407,6 +417,8 @@ def summarize_local_swarm_run(
         role_transcript_hash_coverage=metrics.role_transcript_hash_coverage,
         adapter_error_rate=metrics.adapter_error_rate,
         bounded_failure_reduction_vs_naive=metrics.bounded_failure_reduction_vs_naive,
+        evidence_maturity=_local_swarm_evidence_maturity(summary, runtime_mode_coverage),
+        runtime_mode_coverage_rate=runtime_mode_coverage,
     )
 
 
@@ -451,6 +463,8 @@ def build_evidence_quality_markdown(report: EvidenceQualityReport) -> str:
         f"{_pct(report.local_swarm_transcript_hash_coverage_rate)}",
         f"- Local-swarm adapter error rate: "
         f"{_pct(report.local_swarm_adapter_error_rate)}",
+        f"- Local-swarm runtime mode coverage: "
+        f"{_pct(report.local_swarm_runtime_mode_coverage_rate)}",
         "",
         "## Outcome counts",
         "",
@@ -482,8 +496,8 @@ def build_evidence_quality_markdown(report: EvidenceQualityReport) -> str:
             "## Local swarm runs",
             "",
             "| Run | Model | Exec | Scenarios | Modes | Results | Blocks | Contract | "
-            "Evidence | Transcript hash | Adapter errors |",
-            "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+            "Evidence | Transcript hash | Adapter errors | Runtime modes | Maturity |",
+            "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|",
         ]
         for swarm_run in report.local_swarm_runs:
             lines.append(
@@ -494,7 +508,9 @@ def build_evidence_quality_markdown(report: EvidenceQualityReport) -> str:
                 f"{_pct(swarm_run.contract_coverage)} | "
                 f"{_pct(swarm_run.evidence_completeness)} | "
                 f"{_pct(swarm_run.role_transcript_hash_coverage)} | "
-                f"{swarm_run.adapter_errors} |"
+                f"{swarm_run.adapter_errors} | "
+                f"{_pct(swarm_run.runtime_mode_coverage_rate)} | "
+                f"`{swarm_run.evidence_maturity}` |"
             )
 
     if report.warnings:
@@ -543,6 +559,49 @@ def _ratio(numerator: int, denominator: int) -> float:
     if denominator <= 0:
         return 0.0
     return round(numerator / denominator, 6)
+
+
+def _local_swarm_runtime_mode_coverage(summary: LocalSwarmSummary) -> float:
+    if not summary.executed_model_calls:
+        return 0.0
+    modes_with_transcripts = {
+        result.mode for result in summary.results if result.role_transcripts
+    }
+    return _ratio(len(modes_with_transcripts), len(summary.modes))
+
+
+def _local_swarm_evidence_maturity(
+    summary: LocalSwarmSummary,
+    runtime_mode_coverage: float,
+) -> str:
+    if not summary.executed_model_calls:
+        return "deterministic_example"
+    if runtime_mode_coverage >= 1.0 and len(summary.modes) >= 3:
+        return "full_runtime_comparison"
+    if "bounded_swarm" in summary.modes and runtime_mode_coverage > 0:
+        return "bounded_runtime_smoke"
+    return "incomplete_runtime_evidence"
+
+
+def _local_swarm_warnings(runs: list[LocalSwarmEvidenceRun]) -> list[str]:
+    warnings: list[str] = []
+    for run in runs:
+        if run.evidence_maturity == "bounded_runtime_smoke":
+            warnings.append(
+                f"{run.run_dir}: executed local-swarm evidence covers bounded mode only; "
+                "run all modes before comparing model-channel behavior."
+            )
+        if run.executed_model_calls and run.role_transcript_hash_coverage < 1.0:
+            warnings.append(
+                f"{run.run_dir}: executed local-swarm evidence has incomplete transcript "
+                "hash coverage."
+            )
+        if run.adapter_error_rate > 0:
+            warnings.append(
+                f"{run.run_dir}: local-swarm adapter errors are evidence-quality "
+                "weak spots, not verifier failures."
+            )
+    return warnings
 
 
 def _weighted_rate(items: Iterable[tuple[float, int]], denominator: int) -> float:

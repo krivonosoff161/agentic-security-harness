@@ -11,6 +11,7 @@ from agentic_security_harness.evidence_quality import (
 )
 from agentic_security_harness.local_swarm import (
     RoleTranscript,
+    SwarmMode,
     run_local_swarm,
 )
 from agentic_security_harness.run_config import (
@@ -98,35 +99,41 @@ def _write_local_swarm_run(
     *,
     executed: bool = False,
     adapter_error: bool = False,
+    modes: list[SwarmMode] | None = None,
 ) -> Path:
     run = root / name
     run.mkdir(parents=True)
     summary = run_local_swarm(
         scenarios=["handoff_label_stripping"],
-        modes=["bounded_swarm"],
+        modes=modes or ["bounded_swarm"],
         max_requests=4,
         model="prometheus-qwen15b-lowctx:latest" if executed else "",
     )
     if executed:
         summary.executed_model_calls = True
         summary.request_count = 4
-        summary.results[0].role_transcripts = [
-            RoleTranscript(
-                role="coordinator",
-                prompt_sha256="a" * 64,
-                response_sha256="b" * 64,
-                response_preview="bounded context summary",
-            ),
-            RoleTranscript(
-                role="verifier",
-                prompt_sha256="c" * 64,
-                response_sha256="" if adapter_error else "d" * 64,
-                response_preview="" if adapter_error else "blocked",
-                adapter_error="timeout" if adapter_error else "",
-            ),
-        ]
+        for result_index, result in enumerate(summary.results):
+            result.role_transcripts = [
+                RoleTranscript(
+                    role="coordinator",
+                    prompt_sha256=f"{result_index}a".ljust(64, "a")[:64],
+                    response_sha256=f"{result_index}b".ljust(64, "b")[:64],
+                    response_preview="bounded context summary",
+                ),
+                RoleTranscript(
+                    role="verifier",
+                    prompt_sha256=f"{result_index}c".ljust(64, "c")[:64],
+                    response_sha256=(
+                        "" if adapter_error else f"{result_index}d".ljust(64, "d")[:64]
+                    ),
+                    response_preview="" if adapter_error else "blocked",
+                    adapter_error="timeout" if adapter_error else "",
+                ),
+            ]
+        transcript_count = len(summary.results) * 2
+        error_count = len(summary.results) if adapter_error else 0
         summary.metrics.role_transcript_hash_coverage = 0.5 if adapter_error else 1.0
-        summary.metrics.adapter_error_rate = 0.5 if adapter_error else 0.0
+        summary.metrics.adapter_error_rate = round(error_count / transcript_count, 6)
     (run / "local_swarm_summary.json").write_text(
         json.dumps(summary.model_dump(mode="json"), indent=2) + "\n",
         encoding="utf-8",
@@ -196,9 +203,11 @@ def test_evidence_quality_report_counts_local_swarm_dry_run(tmp_path: Path) -> N
     assert report.local_swarm_evidence_completeness_rate == 1.0
     assert report.local_swarm_transcript_hash_coverage_rate == 0.0
     assert report.local_swarm_adapter_error_rate == 0.0
+    assert report.local_swarm_runtime_mode_coverage_rate == 0.0
     run = report.local_swarm_runs[0]
     assert run.verifier_blocks == 1
     assert run.bounded_swarm_boundary_failures == 0
+    assert run.evidence_maturity == "deterministic_example"
 
 
 def test_evidence_quality_report_counts_local_swarm_executed_hashes_and_errors(
@@ -216,6 +225,27 @@ def test_evidence_quality_report_counts_local_swarm_executed_hashes_and_errors(
     assert run.role_transcripts == 2
     assert run.role_transcript_hashes == 1
     assert run.adapter_errors == 1
+    assert run.evidence_maturity == "bounded_runtime_smoke"
+    assert report.warnings
+
+
+def test_evidence_quality_marks_full_local_swarm_runtime_comparison(
+    tmp_path: Path,
+) -> None:
+    _write_local_swarm_run(
+        tmp_path,
+        "swarm",
+        executed=True,
+        modes=["monolith", "naive_swarm", "bounded_swarm"],
+    )
+
+    report = build_evidence_quality_report(tmp_path)
+
+    assert report.local_swarm_runtime_mode_coverage_rate == 1.0
+    run = report.local_swarm_runs[0]
+    assert run.evidence_maturity == "full_runtime_comparison"
+    assert run.runtime_mode_coverage_rate == 1.0
+    assert not report.warnings
 
 
 def test_cross_run_disagreement_is_counted_per_pattern_variant(tmp_path: Path) -> None:
@@ -260,6 +290,7 @@ def test_write_evidence_quality_outputs_json_and_markdown(tmp_path: Path) -> Non
     assert "Derived analysis only" in md
     assert "Raw hash coverage" in md
     assert "Local swarm runs" in md
+    assert "Maturity" in md
 
 
 def test_cli_evidence_quality_writes_artifacts(
@@ -290,3 +321,4 @@ def test_cli_evidence_quality_writes_artifacts(
     assert "Derived analysis only" in out
     assert "weak_evidence_rate" in out
     assert "local_swarm_runs" in out
+    assert "local_swarm_runtime_mode_coverage_rate" in out

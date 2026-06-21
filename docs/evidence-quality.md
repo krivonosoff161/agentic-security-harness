@@ -44,6 +44,7 @@ It writes:
 | `local_swarm_evidence_completeness_rate` | Result-weighted deterministic verdict/evidence completeness across local-swarm artifacts. |
 | `local_swarm_transcript_hash_coverage_rate` | Fraction of recorded local-swarm role transcripts with prompt and response hashes. |
 | `local_swarm_adapter_error_rate` | Fraction of recorded local-swarm role transcripts that failed at the adapter layer. |
+| `local_swarm_runtime_mode_coverage_rate` | Fraction of local-swarm modes with recorded role transcripts in executed runs. |
 
 ## How to read it
 
@@ -58,6 +59,15 @@ For `local-swarm` artifacts, contract coverage and verifier blocks describe dete
 ASH checks, not model wisdom. Transcript hash coverage says whether optional model role
 text was captured as evidence context. A local model can produce coherent role text while
 the deterministic verifier remains the only pass/block authority.
+
+The local-swarm section also labels evidence maturity:
+
+| Maturity | Meaning |
+|---|---|
+| `deterministic_example` | No model calls; useful for reproducible contract evidence. |
+| `bounded_runtime_smoke` | Local model calls were recorded for bounded mode only; useful for adapter/model-channel smoke, not for comparing swarm shapes. |
+| `full_runtime_comparison` | Local model calls were recorded for monolith, naive-swarm, and bounded-swarm modes. |
+| `incomplete_runtime_evidence` | Model calls were attempted, but the recorded mode coverage is insufficient or inconsistent. |
 
 ## Claim boundary
 
