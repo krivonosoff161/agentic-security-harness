@@ -63,6 +63,7 @@ If those six points hold, the benchmark is coherent.
 | Research claims registry | Status table tracking each research claim from hypothesis through evidence artifacts. | [research-claims.md](research-claims.md) |
 | Theory docs | Cleaned invariant statements, formal objects, and claim boundaries for research tracks. | [theory/](theory/) |
 | Boundary-layer evidence matrix | Public readout tying handoff, authority, and memory-governance variation rows to executable tests and explicit non-claims. | [boundary-layer-evidence-matrix.md](boundary-layer-evidence-matrix.md) |
+| Git evidence workflow | Public process contract for issue -> branch -> artifact -> PR -> GitHub checks -> merge/close. | [git-evidence-workflow.md](git-evidence-workflow.md), [agent-operating-guide.md](agent-operating-guide.md), [project-tracker.md](project-tracker.md) |
 
 ## Network model (important)
 
@@ -117,6 +118,7 @@ Start here by role:
 | Research reviewer | [Research claims registry](research-claims.md), [Theory docs](theory/), [Research roadmap](research-roadmap.md) | Track research claim status, invariant maturity, and evidence artifacts. |
 | Boundary-layer reviewer | [Boundary-layer evidence matrix](boundary-layer-evidence-matrix.md), [Handoff theory](theory/handoff-integrity.md), [Authority theory](theory/authority-delegation.md), [Memory theory](theory/memory-governance.md) | Inspect which declared handoff, authority, and memory-governance variations are executable today. |
 | Release reviewer | [Release checklist](release-checklist.md), [Changelog](../CHANGELOG.md), [CI workflow](../.github/workflows/ci.yml) | Verify public packaging and quality gates. |
+| Git/process reviewer | [Git evidence workflow](git-evidence-workflow.md), [Agent operating guide](agent-operating-guide.md), [Project tracker](project-tracker.md) | Check that work is tied to issues, artifacts, verification, PR checks, and review gates. |
 
 If you still want the linear path:
 

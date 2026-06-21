@@ -124,6 +124,9 @@ Required:
 ## Git Discipline
 
 Git history is part of the product evidence.
+The canonical issue -> branch -> artifact -> PR -> GitHub checks workflow is
+[git-evidence-workflow.md](git-evidence-workflow.md). Use this guide for agent behavior
+and the workflow doc for the public process contract.
 
 Before editing:
 
@@ -384,4 +387,3 @@ Next:
 ```
 
 Keep it short, factual, and tied to evidence.
-

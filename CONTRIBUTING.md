@@ -19,7 +19,9 @@ ash validate examples/
 
 See [docs/development.md](docs/development.md) for the full layout and extension points.
 Project decision gates are in [GOVERNANCE.md](GOVERNANCE.md). Pattern proposals should
-use the GitHub "Defensive pattern proposal" template before code is written.
+use the GitHub "Defensive pattern proposal" template before code is written. For the
+project's issue -> PR -> artifact -> verification workflow, see
+[docs/git-evidence-workflow.md](docs/git-evidence-workflow.md).
 
 ## Ways to contribute
 
@@ -54,6 +56,9 @@ use the GitHub "Defensive pattern proposal" template before code is written.
   `main` is the stable, release-facing branch.
 - One logical change per PR; conventional commit style (`feat:`, `fix:`, `docs:`, `test:`).
 - Use the pull request template and keep issue templates aligned with the change type.
+- Keep the PR evidence trail aligned with
+  [docs/git-evidence-workflow.md](docs/git-evidence-workflow.md): issue, artifacts,
+  verification commands, claim boundaries, and remaining work.
 - Include tests; keep `python -m pytest`, `python -m ruff check .`, and
   `python -m mypy src tests` green.
 - Keep the committed examples synchronized — if your change affects output, regenerate

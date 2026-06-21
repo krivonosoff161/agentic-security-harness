@@ -184,6 +184,9 @@ deterministic tests - honest residual risk. Full rules:
   [authorized testing paths](docs/authorized-testing-paths.md).
 - Adding a new idea? Convert it into the safe structure in
   [project map](docs/project-map.md#how-to-add-a-new-research-idea-safely) before coding.
+- Making a meaningful change? Follow the
+  [Git evidence workflow](docs/git-evidence-workflow.md): issue, branch/PR, artifacts,
+  verification, GitHub checks, and review gate.
 - Prioritizing future patterns? Read the [research roadmap](docs/research-roadmap.md) and
   [corpus expansion plan](docs/corpus-expansion-plan.md).
 
@@ -585,6 +588,8 @@ The project is **Agentic Security Harness** (repository `agentic-security-harnes
 ## Contributing & security
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) - add a test pattern / target adapter / trace detector.
+- [docs/git-evidence-workflow.md](docs/git-evidence-workflow.md) - how work moves from
+  issue to PR, evidence artifacts, checks, and merge.
 - [SECURITY.md](SECURITY.md) - responsible use + private vulnerability disclosure.
 - [GOVERNANCE.md](GOVERNANCE.md) - decision gates, corpus methodology, and release authority.
 

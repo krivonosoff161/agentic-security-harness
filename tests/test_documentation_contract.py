@@ -742,6 +742,26 @@ def test_project_map_links_research_claims_and_theory() -> None:
     assert "Boundary-layer reviewer" in project_map
 
 
+def test_git_evidence_workflow_is_publicly_linked() -> None:
+    workflow = _read("docs/git-evidence-workflow.md")
+    readme = _read("README.md")
+    contributing = _read("CONTRIBUTING.md")
+    agent_guide = _read("docs/agent-operating-guide.md")
+    project_map = _read("docs/project-map.md")
+
+    for phrase in (
+        "idea -> issue -> branch -> implementation -> tests/artifacts -> PR",
+        "GitHub checks",
+        "review gate",
+        "Definition Of Done",
+        "docs make a stronger claim than tests/artifacts prove",
+    ):
+        assert phrase in workflow
+
+    for text in (readme, contributing, agent_guide, project_map):
+        assert "git-evidence-workflow.md" in text
+
+
 def test_boundary_layer_evidence_matrix_is_explicit_and_bounded() -> None:
     matrix = _read("docs/boundary-layer-evidence-matrix.md")
 
