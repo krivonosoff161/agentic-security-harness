@@ -585,6 +585,73 @@ def build_parser() -> argparse.ArgumentParser:
         help="after a validated run, generate failure cards with ash showcase",
     )
 
+    swarm_p = sub.add_parser(
+        "local-swarm",
+        help="compare monolith, naive swarm, and bounded swarm on local contracts",
+    )
+    swarm_p.add_argument(
+        "--scenario",
+        action="append",
+        default=[],
+        help="scenario id to run; may be repeated (default: all; use --list)",
+    )
+    swarm_p.add_argument(
+        "--mode",
+        action="append",
+        default=[],
+        help="mode to run; may be repeated (default: all; use --list)",
+    )
+    swarm_p.add_argument(
+        "--list",
+        dest="list_swarm",
+        action="store_true",
+        help="list available local-swarm scenarios and modes",
+    )
+    swarm_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path("reports/local-swarm"),
+        help="output directory for --execute or --write-dry-run (default: reports/local-swarm)",
+    )
+    swarm_p.add_argument(
+        "--preset",
+        default="ollama",
+        choices=preset_names(),
+        help="connection preset for --execute (default: ollama)",
+    )
+    swarm_p.add_argument(
+        "--base-url",
+        default=None,
+        help="override preset base URL for --execute",
+    )
+    swarm_p.add_argument(
+        "--model",
+        default="prometheus-qwen15b-lowctx:latest",
+        help="local model for optional role calls (calculator is refused)",
+    )
+    swarm_p.add_argument(
+        "--timeout",
+        type=int,
+        default=60,
+        help="request timeout in seconds for --execute (default: 60)",
+    )
+    swarm_p.add_argument(
+        "--max-requests",
+        type=int,
+        default=20,
+        help="safety cap for role calls (default: 20)",
+    )
+    swarm_p.add_argument(
+        "--execute",
+        action="store_true",
+        help="call the local model and write artifacts (default: dry-run only)",
+    )
+    swarm_p.add_argument(
+        "--write-dry-run",
+        action="store_true",
+        help="write deterministic artifacts without model calls",
+    )
+
     return parser
 
 
@@ -677,7 +744,8 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"validated {len(result.report_dirs)} report dir(s), "
         f"{len(result.comparison_dirs)} comparison dir(s), "
         f"{len(result.external_dirs)} external dir(s), "
-        f"{len(result.run_diff_dirs)} run-diff dir(s)"
+        f"{len(result.run_diff_dirs)} run-diff dir(s), "
+        f"{len(result.local_swarm_dirs)} local-swarm dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
     if redacted_errors or redacted_warnings:
@@ -1297,6 +1365,107 @@ def _local_suite(
     return 0
 
 
+def _local_swarm(
+    scenarios: list[str],
+    modes: list[str],
+    list_swarm: bool,
+    out: Path,
+    preset: str,
+    base_url_override: str | None,
+    model: str,
+    timeout: int,
+    max_requests: int,
+    execute: bool,
+    write_dry_run: bool,
+) -> int:
+    from agentic_security_harness.local_swarm import (
+        SWARM_MODES,
+        SWARM_SCENARIOS,
+        estimate_request_count,
+        model_is_forbidden,
+        run_local_swarm,
+        write_local_swarm_artifacts,
+    )
+
+    if list_swarm:
+        print("Local swarm scenarios:")
+        for scenario in SWARM_SCENARIOS:
+            print(f"  {scenario}")
+        print("Local swarm modes:")
+        for mode in SWARM_MODES:
+            print(f"  {mode}")
+        return 0
+
+    selected_scenarios = list(SWARM_SCENARIOS) if not scenarios else scenarios
+    selected_modes = list(SWARM_MODES) if not modes else modes
+    request_count = estimate_request_count(selected_scenarios, selected_modes)  # type: ignore[arg-type]
+    print(
+        f"local-swarm scenarios={len(selected_scenarios)} modes={len(selected_modes)} "
+        f"estimated_role_calls={request_count}"
+    )
+    print(
+        "Deterministic contracts decide pass/block; optional model text is hashed "
+        "evidence context only."
+    )
+
+    base_url = ""
+    if execute:
+        if model_is_forbidden(model):
+            print("Error: calculator model is reserved for the trading project; refused.")
+            return 1
+        try:
+            base_url, credential_env_var, err = apply_preset(preset, base_url_override, "")
+        except KeyError as exc:
+            print(f"Error: {exc}")
+            return 1
+        if err:
+            print(f"Error: {err}")
+            return 1
+        if credential_env_var:
+            print("Error: local-swarm accepts only keyless local presets in this pass.")
+            return 1
+        print(f"Using preset '{preset}': base_url {_redact_url(base_url)}")
+
+    try:
+        summary = run_local_swarm(
+            scenarios=selected_scenarios,  # type: ignore[arg-type]
+            modes=selected_modes,  # type: ignore[arg-type]
+            execute_model_calls=execute,
+            base_url=base_url,
+            model=model if execute else "",
+            timeout_seconds=timeout,
+            max_requests=max_requests,
+            created_at=_now_utc(),
+        )
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
+
+    metrics = summary.metrics
+    print(
+        "boundary failures: "
+        f"monolith={metrics.monolith_boundary_failures} "
+        f"naive={metrics.naive_swarm_boundary_failures} "
+        f"bounded={metrics.bounded_swarm_boundary_failures}; "
+        f"verifier_blocks={metrics.verifier_blocks}"
+    )
+
+    if not execute and not write_dry_run:
+        print("Dry-run only. Add --write-dry-run for deterministic artifacts or --execute.")
+        return 0
+
+    paths = write_local_swarm_artifacts(out, summary)
+    for path in paths:
+        print(f"wrote {path.as_posix()}")
+    result = validate_path(out)
+    if not result.ok:
+        print(f"Validation FAILED for {redact_artifact_text(out.as_posix())}:")
+        print(f"errors: {len(result.errors)}")
+        return 1
+    print(f"validated {out.as_posix()} (artifact integrity only).")
+    return 0
+
+
 def _list_runs(root: Path, db: Path | None) -> int:
     if db is not None:
         from agentic_security_harness.rundb import list_db_runs
@@ -1581,6 +1750,20 @@ def main(argv: list[str] | None = None) -> int:
             args.execute,
             args.run_showcase,
             args.list_profiles,
+        )
+    if args.command == "local-swarm":
+        return _local_swarm(
+            args.scenario,
+            args.mode,
+            args.list_swarm,
+            args.out,
+            args.preset,
+            args.base_url,
+            args.model,
+            args.timeout,
+            args.max_requests,
+            args.execute,
+            args.write_dry_run,
         )
     if args.command == "doctor":
         return _doctor(

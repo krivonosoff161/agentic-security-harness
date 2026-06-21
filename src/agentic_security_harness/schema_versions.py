@@ -21,6 +21,7 @@ SCHEMA_VERSIONS: dict[str, str] = {
     "run_manifest": "0.1",    # run_index.json
     "run_diff": "0.2",        # run_diff.json (0.2: explicit decisive/non-decisive labels)
     "evidence_quality": "0.1",  # evidence_quality.json (derived external/local analysis)
+    "local_swarm": "0.1",     # local_swarm_summary.json (bounded local swarm research)
 }
 
 # Current implemented defensive corpus revision. Artifact schema versions describe file

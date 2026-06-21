@@ -63,6 +63,7 @@ class ValidationResult(BaseModel):
     comparison_dirs: list[str] = Field(default_factory=list)
     external_dirs: list[str] = Field(default_factory=list)
     run_diff_dirs: list[str] = Field(default_factory=list)
+    local_swarm_dirs: list[str] = Field(default_factory=list)
 
     def _err(self, msg: str) -> None:
         self.errors.append(msg)
@@ -97,6 +98,10 @@ def _is_external_dir(path: Path) -> bool:
     )
 
 
+def _is_local_swarm_dir(path: Path) -> bool:
+    return (path / "local_swarm_summary.json").exists()
+
+
 def validate_path(path: Path) -> ValidationResult:
     """Validate a report dir, a comparison dir, or a directory of such dirs.
 
@@ -125,6 +130,9 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
     elif _is_external_dir(path):
         result.external_dirs.append(_rel(path, root))
         _validate_external_dir(path, root, result)
+    elif _is_local_swarm_dir(path):
+        result.local_swarm_dirs.append(_rel(path, root))
+        _validate_local_swarm_dir(path, root, result)
     elif (path / "run_diff.json").exists():
         result.run_diff_dirs.append(_rel(path, root))
         _validate_run_diff_dir(path, root, result)
@@ -138,6 +146,33 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
             return
         for child in children:
             _validate_into(child, root, result)
+
+
+def _validate_local_swarm_dir(path: Path, root: Path, result: ValidationResult) -> None:
+    rel = _rel(path / "local_swarm_summary.json", root)
+    raw = _load_json(path / "local_swarm_summary.json", root, result)
+    if raw is None:
+        return
+    _check_schema_version_file(path / "local_swarm_summary.json", "local_swarm", root, result)
+    from agentic_security_harness.local_swarm import LocalSwarmSummary
+
+    try:
+        summary = LocalSwarmSummary.model_validate(raw)
+    except ValidationError as exc:
+        result._err(f"{rel}: schema: {_fmt_error(exc)}")
+        return
+    if (
+        summary.metrics.bounded_swarm_boundary_failures
+        > summary.metrics.naive_swarm_boundary_failures
+    ):
+        result._err(f"{rel}: bounded failures exceed naive failures")
+    if summary.executed_model_calls and summary.request_count <= 0:
+        result._err(f"{rel}: executed_model_calls true but request_count is zero")
+    if not (path / "local_swarm_report.md").exists():
+        result._err(f"{_rel(path / 'local_swarm_report.md', root)}: missing")
+    _validate_run_manifest(path, root, result)
+    _scan_secrets(path / "local_swarm_summary.json", root, result)
+    _scan_secrets(path / "local_swarm_report.md", root, result)
 
 
 def _load_json(path: Path, root: Path, result: ValidationResult) -> Any:
