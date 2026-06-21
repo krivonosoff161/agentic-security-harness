@@ -18,7 +18,11 @@ design-led inter-agent handoff integrity track.
 
 ## Open work in this track
 
-None currently tracked.
+| Issue | Track | Current focus |
+|---|---|---|
+| [#61 research: add bounded local swarm runner](https://github.com/krivonosoff161/agentic-security-harness/issues/61) | Local swarm / runtime | In PR #62; deterministic local-swarm runner and claim boundary are implemented, pending repository review gate. |
+| [#63 research: expand bounded local swarm evidence suite](https://github.com/krivonosoff161/agentic-security-harness/issues/63) | Local swarm / evidence | In PR #62; ten-scenario deterministic suite and committed example are implemented, pending repository review gate. |
+| [#64 research: add local-swarm evidence-quality calculations](https://github.com/krivonosoff161/agentic-security-harness/issues/64) | Local swarm / evidence quality | Extend `ash evidence-quality` to calculate local-swarm contract coverage, transcript hash coverage, and adapter error rates from recorded artifacts. |
 
 ## Open maintenance work
 
@@ -77,7 +81,8 @@ Supporting docs:
 - [local-model-profiles.md](local-model-profiles.md) records hardware-safe local model
   profiles and stop conditions.
 - `ash evidence-quality --root reports --out reports/evidence-quality` summarizes
-  evidence quality from recorded external/local artifacts without making model calls.
+  evidence quality from recorded external/local/local-swarm artifacts without making
+  model calls.
 - [showcase/index.md](showcase/index.md) is the public evidence entry point.
 - [scenario-investigation-workflow.md](scenario-investigation-workflow.md) keeps
   scenario design, weak spots, findings, and deepening variations separate.

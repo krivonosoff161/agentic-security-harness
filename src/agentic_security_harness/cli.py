@@ -1165,6 +1165,20 @@ def _evidence_quality(root: Path, out: Path | None, output_format: str = "text")
         f"{report.disagreement_groups}/{report.comparable_groups} "
         f"({report.cross_run_disagreement_rate:.3f})"
     )
+    print(f"  local_swarm_runs: {report.local_swarm_runs_count}")
+    print(f"  local_swarm_results: {report.local_swarm_results}")
+    print(
+        "  local_swarm_contract_coverage_rate: "
+        f"{report.local_swarm_contract_coverage_rate:.3f}"
+    )
+    print(
+        "  local_swarm_transcript_hash_coverage_rate: "
+        f"{report.local_swarm_transcript_hash_coverage_rate:.3f}"
+    )
+    print(
+        "  local_swarm_adapter_error_rate: "
+        f"{report.local_swarm_adapter_error_rate:.3f}"
+    )
     if paths:
         print(f"wrote evidence_quality.json to {paths['json'].as_posix()}")
         print(f"wrote evidence_quality.md to {paths['markdown'].as_posix()}")

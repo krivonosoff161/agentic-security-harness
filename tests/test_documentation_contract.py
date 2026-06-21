@@ -347,8 +347,13 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
     ):
         assert issue not in open_work
         assert issue in completed
-    assert "None currently tracked." in open_work
-    assert "`ash evidence-quality` summarizes recorded external/local artifacts" in completed
+    for issue in ("#61", "#63", "#64"):
+        assert issue in open_work
+    assert "None currently tracked." not in open_work
+    assert (
+        "`ash evidence-quality` summarizes recorded external/local artifacts"
+        in completed
+    )
     assert "Fresh bounded Prometheus/Ollama rerun" in completed
     assert "boundary-layer-evidence-matrix.md" in completed
     open_maintenance = tracker.split("## Open maintenance work", 1)[1].split(

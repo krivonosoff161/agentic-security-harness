@@ -23,7 +23,7 @@ registry compatibility, standards mapping, and forbidden marker scans.
 | `external_summary.json` | `external_summary` | 0.1 | `ash run-external` | `ash validate` |
 | `run_index.json` | `run_manifest` | 0.1 | every run (manifest) | `ash validate` |
 | `run_diff.json` | `run_diff` | 0.2 | `ash diff-runs` | `ash validate` |
-| `evidence_quality.json` | `evidence_quality` | 0.1 | `ash evidence-quality` | derived artifact; schema-versioned, not a replacement for `ash validate` |
+| `evidence_quality.json` | `evidence_quality` | 0.2 | `ash evidence-quality` | derived artifact; schema-versioned, not a replacement for `ash validate` |
 | `local_swarm_summary.json` | `local_swarm` | 0.1 | `ash local-swarm` | `ash validate` |
 
 `run_diff` v0.2 replaces the ambiguous v0.1 coarse labels (`fixed`, `new`,
