@@ -36,6 +36,7 @@ def test_valid_examples_pass() -> None:
         "demo-agent-report",
         "protected-demo-agent-report",
         "comparison-report",
+        "handoff-toy-comparison",
     ):
         result = validate_path(EXAMPLES / name)
         assert result.ok, result.errors
@@ -44,8 +45,8 @@ def test_valid_examples_pass() -> None:
 def test_validate_examples_root_ok() -> None:
     result = validate_path(EXAMPLES)
     assert result.ok
-    assert len(result.report_dirs) == 5
-    assert len(result.comparison_dirs) == 1
+    assert len(result.report_dirs) == 7
+    assert len(result.comparison_dirs) == 2
     assert len(result.external_dirs) == 1
 
 

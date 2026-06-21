@@ -65,8 +65,8 @@ The generated files are a reviewer aid. JSON artifacts remain the source of trut
 ## Reproduce the local handoff toy comparison
 
 ```bash
-ash compare --baseline toy-multi-agent --protected protected-toy-multi-agent --out reports/handoff-toy-comparison
-ash validate reports/handoff-toy-comparison
+ash compare --baseline toy-multi-agent --protected protected-toy-multi-agent --out examples/handoff-toy-comparison
+ash validate examples/handoff-toy-comparison
 ```
 
 Expected current result: `toy-multi-agent` records 2 deterministic modeled findings

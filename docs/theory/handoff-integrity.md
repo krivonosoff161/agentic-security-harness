@@ -3,7 +3,7 @@
 > Status: pilot theory module. Formal executable invariant prototype validated on
 > deterministic synthetic topology.
 >
-> Last reviewed: 2026-06-18.
+> Last reviewed: 2026-06-21.
 
 ## 1. Claim
 
@@ -31,7 +31,7 @@ on synthetic topologies.
 | Payload byte integrity | `payload_hash == SHA-256(JSON-canonical(payload))` | `integrity_mismatch` |
 | Source-label preservation | Sender labels are a subset of receiver labels | `label_loss` |
 | Required provenance | Required payload types carry non-empty `source_labels` | `missing_provenance` |
-| Authority non-expansion | Delegated scope is a subset of parent scope | `authority_expansion` |
+| Authority non-expansion | Delegated issuer, scope, purpose, TTL, and delegation depth do not expand beyond the parent grant | `authority_expansion` |
 | Recipient policy | Receiver is in `allowed_recipients` when constrained | `recipient_violation` |
 | Freshness | `current_time <= expires_at` | `stale_or_replayed` |
 | Policy compatibility | Sender policy is in receiver-supported policy versions | `policy_mismatch` |
@@ -76,7 +76,7 @@ Current fixture scenarios:
 | Scenario | Pattern | Expected verdict | Failure reasons |
 |---|---|---|---|
 | Summary label stripping | `data_boundary_handoff_label_stripping` | `blocked` | `missing_provenance`, `label_loss` |
-| Capability scope expansion | `capability.delegation_chain_drift` | `blocked` | `authority_expansion` |
+| Capability delegation expansion | `capability.delegation_chain_drift` | `blocked` | `authority_expansion` |
 
 ## 7. Code mapping
 
@@ -96,6 +96,10 @@ Current fixture scenarios:
 | `test_clean_summary_handoff_passes_with_zero_scores` | `tests/test_handoff_integrity.py` | Clean handoff passes with zero scores. |
 | `test_missing_labels_are_blocked_and_scored_structurally` | `tests/test_handoff_integrity.py` | Missing provenance triggers `blocked` with `S_structural=1.0`. |
 | `test_capability_scope_expansion_is_hard_blocker_with_multiplier` | `tests/test_handoff_integrity.py` | Authority expansion triggers `blocked` with multiplier. |
+| `test_capability_authority_non_expansion_axes` | `tests/test_handoff_integrity.py` | Scope, issuer, purpose, TTL, and depth expansion are all hard blockers. |
+| `test_handoff_hard_blocker_axes` | `tests/test_handoff_integrity.py` | Integrity, recipient, freshness, and policy blockers fail closed individually. |
+| `test_raw_missing_envelope_fails_closed` | `tests/test_handoff_integrity.py` | Missing raw envelope fails closed as `missing_envelope`. |
+| `test_raw_malformed_envelope_fails_closed_as_verifier_error` | `tests/test_handoff_integrity.py` | Malformed raw envelope fails closed as `verifier_error`. |
 | `test_integrity_policy_recipient_and_freshness_fail_closed` | `tests/test_handoff_integrity.py` | Multiple hard blockers fire simultaneously. |
 | `test_verifier_outage_is_blocked_not_pass` | `tests/test_handoff_integrity.py` | Verifier outage blocks, not passes. |
 | `test_committed_handoff_fixture_matches_verifier_expectations` | `tests/test_handoff_integrity.py` | Fixture scenarios match verifier expectations. |
@@ -104,16 +108,16 @@ Current fixture scenarios:
 
 | Artifact | Location | Status |
 |---|---|---|
-| Handoff toy comparison | `reports/handoff-toy-comparison` | Local validated artifact. |
-| Vulnerable trace | `reports/toy-multi-agent/traces.json` | 2 modeled findings. |
-| Protected trace | `reports/protected-toy-multi-agent/traces.json` | 0 findings (blocked). |
-| Comparison report | `reports/handoff-toy-comparison/comparison.md` | Side-by-side view. |
+| Handoff toy comparison | `examples/handoff-toy-comparison` | Committed curated public example. |
+| Vulnerable trace | `examples/handoff-toy-comparison/baseline/traces.json` | 2 modeled findings. |
+| Protected trace | `examples/handoff-toy-comparison/protected/traces.json` | 0 findings (blocked). |
+| Comparison report | `examples/handoff-toy-comparison/comparison.md` | Side-by-side view. |
 
 Reproduce:
 
 ```bash
-ash compare --baseline toy-multi-agent --protected protected-toy-multi-agent --out reports/handoff-toy-comparison
-ash validate reports/handoff-toy-comparison
+ash compare --baseline toy-multi-agent --protected protected-toy-multi-agent --out examples/handoff-toy-comparison
+ash validate examples/handoff-toy-comparison
 ```
 
 ## 10. Limits / non-claims
@@ -125,6 +129,7 @@ ash validate reports/handoff-toy-comparison
 - A live multi-agent framework preserves handoff integrity.
 - Small-model swarm handoff probes are evidence-quality probes, not evidence that a live
   multi-agent framework preserves handoff integrity.
+- Capability revocation propagation is implemented by this verifier.
 - The verdict is a score (it is a blocker decision; scores are metadata).
 - The test coverage is complete for all handoff failure classes.
 

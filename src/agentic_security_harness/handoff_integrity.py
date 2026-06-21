@@ -10,10 +10,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Mapping
 from datetime import UTC, datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 HandoffPayloadType = Literal[
     "summary",
@@ -139,6 +140,9 @@ def verify_handoff(
     current_time: datetime | None = None,
     parent_source_labels: list[str] | None = None,
     parent_authority_scope: list[str] | None = None,
+    parent_authority_issuer: str | None = None,
+    parent_purpose: str | None = None,
+    parent_ttl_seconds: int | None = None,
     unsafe_consumptions: int = 0,
     total_consumptions: int = 0,
     verifier_available: bool = True,
@@ -187,6 +191,15 @@ def verify_handoff(
         set(parent_authority_scope)
     ):
         hard_blockers.append("authority_expansion")
+    if (
+        parent_authority_issuer is not None
+        and envelope.authority_issuer != parent_authority_issuer
+    ):
+        hard_blockers.append("authority_expansion")
+    if parent_purpose is not None and envelope.purpose != parent_purpose:
+        hard_blockers.append("authority_expansion")
+    if parent_ttl_seconds is not None and envelope.ttl_seconds > parent_ttl_seconds:
+        hard_blockers.append("authority_expansion")
     if envelope.allowed_recipients and envelope.receiver_id not in envelope.allowed_recipients:
         hard_blockers.append("recipient_violation")
     if now > envelope.expires_at:
@@ -215,6 +228,68 @@ def verify_handoff(
     )
 
 
+def verify_raw_handoff(
+    raw_envelope: Mapping[str, Any] | None,
+    payload: Any,
+    *,
+    current_time: datetime | None = None,
+    parent_source_labels: list[str] | None = None,
+    parent_authority_scope: list[str] | None = None,
+    parent_authority_issuer: str | None = None,
+    parent_purpose: str | None = None,
+    parent_ttl_seconds: int | None = None,
+    unsafe_consumptions: int = 0,
+    total_consumptions: int = 0,
+    verifier_available: bool = True,
+) -> HandoffVerification:
+    """Validate a raw envelope dict and fail closed instead of throwing.
+
+    External handoff boundaries often receive JSON-like metadata before it has been
+    typed. This helper keeps malformed envelope handling deterministic: absent metadata
+    is a missing envelope, and schema-invalid metadata is a verifier failure.
+    """
+    now = current_time or datetime.now(UTC)
+    if raw_envelope is None:
+        return verify_handoff(
+            None,
+            payload,
+            current_time=now,
+            parent_source_labels=parent_source_labels,
+            parent_authority_scope=parent_authority_scope,
+            parent_authority_issuer=parent_authority_issuer,
+            parent_purpose=parent_purpose,
+            parent_ttl_seconds=parent_ttl_seconds,
+            unsafe_consumptions=unsafe_consumptions,
+            total_consumptions=total_consumptions,
+            verifier_available=verifier_available,
+        )
+    try:
+        envelope = HandoffEnvelope.model_validate(raw_envelope)
+    except ValidationError:
+        return _result(
+            payload_type=_raw_payload_type(raw_envelope),
+            hard_blockers=["verifier_error"],
+            review_reasons=[],
+            semantic_score=_semantic_score(unsafe_consumptions, total_consumptions),
+            unsafe_consumptions=unsafe_consumptions,
+            total_consumptions=total_consumptions,
+            checked_at=now,
+        )
+    return verify_handoff(
+        envelope,
+        payload,
+        current_time=now,
+        parent_source_labels=parent_source_labels,
+        parent_authority_scope=parent_authority_scope,
+        parent_authority_issuer=parent_authority_issuer,
+        parent_purpose=parent_purpose,
+        parent_ttl_seconds=parent_ttl_seconds,
+        unsafe_consumptions=unsafe_consumptions,
+        total_consumptions=total_consumptions,
+        verifier_available=verifier_available,
+    )
+
+
 def format_verification_summary(result: HandoffVerification) -> str:
     """Compact deterministic text for trace observations."""
     reasons = ",".join(result.failure_reasons) if result.failure_reasons else "-"
@@ -235,6 +310,13 @@ def _semantic_score(unsafe_consumptions: int, total_consumptions: int) -> float:
 def _ordered_unique(reasons: list[FailureReason]) -> list[FailureReason]:
     present = set(reasons)
     return [reason for reason in _HARD_REASON_ORDER if reason in present]
+
+
+def _raw_payload_type(raw_envelope: Mapping[str, Any]) -> HandoffPayloadType:
+    payload_type = raw_envelope.get("payload_type")
+    if payload_type in _PAYLOAD_MULTIPLIERS:
+        return payload_type
+    return "summary"
 
 
 def _result(

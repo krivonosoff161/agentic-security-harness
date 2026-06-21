@@ -96,7 +96,7 @@ Use these as research anchors, not as certification claims:
 
 | Priority | Candidate pattern | Current coverage | Why it matters | Safe implementation shape |
 |---|---|---|---|---|
-| Done | `capability.delegation_chain_drift` | Current in v0.7. | Multi-agent systems pass authority, not only data. Scope, TTL, issuer, delegatee, and revocation can drift across handoffs. | Mock capability token; a delegated hop attempts broader scope/purpose/TTL; protected target preserves the original authority envelope. |
+| Done | `capability.delegation_chain_drift` | Current in v0.7 plus verifier-axis tests for issuer/purpose/TTL/depth. | Multi-agent systems pass authority, not only data. Scope, TTL, issuer, and delegatee can drift across handoffs; revocation remains a separate future gap. | Mock capability token; a delegated hop attempts broader issuer/scope/purpose/TTL/depth; protected target preserves the original authority envelope. |
 | Done | `mcp.tool_schema_deception` | Current in v0.7 for a mock schema record. | MCP clients rely on tool metadata, schemas, annotations, and server trust. A deceptive or changed schema can steer an agent into the wrong call. | Mock MCP-like schema record; schema hash changes; protected target pins schema provenance and rejects drift / untrusted annotations. |
 | Done | `audit.hash_chain_tamper` | Current in v0.7. | Portable traces need integrity checks: deletion, reorder, and edit attempts should be detectable. | Append-only audit entries with `previous_hash`; vulnerable target accepts edit; protected target detects chain break. |
 | Done | `ambient_authority.environmental_privilege_escalation` | Current in v0.8 for synthetic host capability markers. | Agents can inherit host, runtime, file, or tool authority beyond the declared data envelope. | Synthetic host capability only; no real credentials. Protected target requires explicit capability binding and rejects unscoped ambient authority. |
@@ -142,7 +142,7 @@ grant.
 - bounded delegation depth;
 - TTL cannot expand;
 - issuer, subject, and chain are recorded in the trace;
-- revocation / expiry is checked at each hop.
+- expiry is checked at each hop; revocation requires a separate future fixture/model.
 
 **Why this comes first:** it extends the project's existing data-envelope wedge into
 authority-envelope behavior without needing a live MCP server or real provider.

@@ -5,11 +5,14 @@ from collections.abc import Mapping
 from datetime import UTC, datetime
 from pathlib import Path
 
+import pytest
+
 from agentic_security_harness.handoff_integrity import (
     HandoffEnvelope,
     canonical_payload_bytes,
     payload_sha256,
     verify_handoff,
+    verify_raw_handoff,
 )
 
 NOW = datetime(2026, 1, 1, 12, 0, tzinfo=UTC)
@@ -131,6 +134,54 @@ def test_capability_scope_expansion_is_hard_blocker_with_multiplier() -> None:
     assert result.combined_score == 0.7
 
 
+@pytest.mark.parametrize(
+    ("update", "expected"),
+    [
+        ({"authority_scope": ["read", "write"]}, ["authority_expansion"]),
+        ({"authority_issuer": "claimed_supervisor"}, ["authority_expansion"]),
+        ({"purpose": "any"}, ["authority_expansion"]),
+        ({"ttl_seconds": 3600}, ["authority_expansion"]),
+        ({"delegation_depth": 2, "max_delegation_depth": 1}, ["authority_expansion"]),
+    ],
+)
+def test_capability_authority_non_expansion_axes(
+    update: Mapping[str, object], expected: list[str]
+) -> None:
+    payload = {"capability_id": "cap-2", "scope": ["read"]}
+    envelope = HandoffEnvelope(
+        envelope_id="env-cap",
+        created_at=NOW,
+        sender_id="worker",
+        receiver_id="delegate",
+        payload_type="capability",
+        payload_hash=payload_sha256(payload),
+        authority_issuer="senior",
+        authority_scope=["read"],
+        purpose="summarize",
+        delegation_depth=1,
+        max_delegation_depth=1,
+        can_delegate=True,
+        allowed_recipients=["delegate"],
+        ttl_seconds=60,
+        expires_at=EXPIRES,
+        policy_version="handoff-policy-v1",
+        receiver_supported_policy_versions=["handoff-policy-v1"],
+    ).model_copy(update=dict(update))
+
+    result = verify_handoff(
+        envelope,
+        payload,
+        current_time=NOW,
+        parent_authority_scope=["read"],
+        parent_authority_issuer="senior",
+        parent_purpose="summarize",
+        parent_ttl_seconds=60,
+    )
+
+    assert result.verdict == "blocked"
+    assert result.failure_reasons == expected
+
+
 def test_integrity_policy_recipient_and_freshness_fail_closed() -> None:
     payload = {"summary": "original"}
     envelope = _summary_envelope(payload).model_copy(
@@ -153,6 +204,25 @@ def test_integrity_policy_recipient_and_freshness_fail_closed() -> None:
     ]
 
 
+@pytest.mark.parametrize(
+    ("update", "expected"),
+    [
+        ({"payload_hash": payload_sha256({"summary": "different"})}, "integrity_mismatch"),
+        ({"receiver_id": "unexpected_receiver"}, "recipient_violation"),
+        ({"expires_at": datetime(2026, 1, 1, 11, 59, tzinfo=UTC)}, "stale_or_replayed"),
+        ({"policy_version": "handoff-policy-v2"}, "policy_mismatch"),
+    ],
+)
+def test_handoff_hard_blocker_axes(update: Mapping[str, object], expected: str) -> None:
+    payload = {"summary": "original"}
+    envelope = _summary_envelope(payload).model_copy(update=dict(update))
+
+    result = verify_handoff(envelope, payload, current_time=NOW)
+
+    assert result.verdict == "blocked"
+    assert result.failure_reasons == [expected]
+
+
 def test_verifier_outage_is_blocked_not_pass() -> None:
     result = verify_handoff(
         None,
@@ -164,6 +234,23 @@ def test_verifier_outage_is_blocked_not_pass() -> None:
     assert result.verdict == "blocked"
     assert result.failure_reasons == ["verifier_error"]
     assert result.structural_score == 1.0
+
+
+def test_raw_missing_envelope_fails_closed() -> None:
+    result = verify_raw_handoff(None, {"summary": "unverified"}, current_time=NOW)
+
+    assert result.verdict == "blocked"
+    assert result.failure_reasons == ["missing_envelope"]
+
+
+def test_raw_malformed_envelope_fails_closed_as_verifier_error() -> None:
+    raw = _summary_envelope({"summary": "original"}).model_dump(mode="json")
+    del raw["payload_hash"]
+
+    result = verify_raw_handoff(raw, {"summary": "original"}, current_time=NOW)
+
+    assert result.verdict == "blocked"
+    assert result.failure_reasons == ["verifier_error"]
 
 
 def test_committed_handoff_fixture_matches_verifier_expectations() -> None:
@@ -225,6 +312,9 @@ def test_committed_handoff_fixture_matches_verifier_expectations() -> None:
         delegated_payload,
         current_time=NOW,
         parent_authority_scope=capability["parent_authority_scope"],
+        parent_authority_issuer=capability["parent_authority_issuer"],
+        parent_purpose=capability["parent_purpose"],
+        parent_ttl_seconds=capability["parent_ttl_seconds"],
     )
     assert capability_result.verdict == capability["expected_verdict"]
     assert capability_result.failure_reasons == capability["expected_failure_reasons"]

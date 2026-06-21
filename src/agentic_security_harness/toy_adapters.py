@@ -403,6 +403,9 @@ class ToyMultiAgentHandoffTarget(TargetAdapterBase):
             delegated_payload,
             current_time=_HANDOFF_NOW,
             parent_authority_scope=parent_scope,
+            parent_authority_issuer="senior",
+            parent_purpose="summarize",
+            parent_ttl_seconds=60,
             unsafe_consumptions=0 if self.protected else 1,
             total_consumptions=1,
         )
