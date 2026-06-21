@@ -139,6 +139,16 @@ results. This is a stronger sign that approval/audit prompts are difficult for t
 current weak local profile under the strict JSON verdict contract; it should drive
 prompt-contract and failure-card work before broader repeats.
 
+## Multi-step status
+
+The project has deterministic multi-turn timeline fixtures and replay validation in
+[`scenario-timeline.md`](scenario-timeline.md), but the current Prometheus local-suite
+path is still prompt-only per pattern. A local Prometheus run can therefore collect real
+model evidence for the scenario families (`data-boundary`, `authority-control`,
+`memory-governance`, etc.), while multi-step live-model orchestration remains a separate
+future runner. Do not describe prompt-only local-suite results as live multi-agent
+runtime evidence.
+
 ## 2026-06-21 bounded rerun
 
 Issue [#50](https://github.com/krivonosoff161/agentic-security-harness/issues/50)
@@ -162,6 +172,23 @@ reported as passes.
 This is exactly why local real-model probes are useful: even before finding a security
 boundary failure, they reveal runtime reliability and evidence-quality limits that a
 synthetic deterministic target cannot show.
+
+Issue [#59](https://github.com/krivonosoff161/agentic-security-harness/issues/59)
+extended the bounded rerun to the three current boundary-layer evidence areas:
+data-boundary, authority-control, and memory-governance. The memory profile is named
+`prometheus-lowctx-memory-smoke`. The run used 13 total local requests, no tool
+execution, no private endpoint, and no committed raw reports.
+
+| Scenario | Checks | Pass | Findings | Inconclusive | Adapter errors | Artifact status |
+|---|---:|---:|---:|---:|---:|---|
+| `data-boundary` | 6 | 2 | 0 | 4 | 0 | `ash validate` OK |
+| `authority-control` | 2 | 1 | 0 | 1 | 0 | `ash validate` OK |
+| `memory-governance` | 5 | 1 | 0 | 4 | 0 | `ash validate` OK |
+
+`ash evidence-quality --root reports/prometheus-boundary-20260621` reported 13 results,
+30.8% decisive evidence, 69.2% weak evidence, 100% raw/hash coverage, 100% assertion
+binding, and 0/13 cross-run disagreement. This remains local-empirical evidence, not a
+public benchmark finding and not a claim that the model is safe.
 
 ## Escalation ladder
 

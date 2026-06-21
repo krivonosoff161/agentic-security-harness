@@ -76,6 +76,20 @@ LOCAL_PROFILES: dict[str, LocalProfile] = {
             "ambient-authority evidence quality."
         ),
     ),
+    "prometheus-lowctx-memory-smoke": LocalProfile(
+        name="prometheus-lowctx-memory-smoke",
+        preset="ollama",
+        model="prometheus-qwen15b-lowctx:latest",
+        scenario_id="memory-governance",
+        max_variants=1,
+        repeats=1,
+        timeout_seconds=60,
+        max_requests=10,
+        note=(
+            "Focused low-context memory-governance smoke for TTL, provenance, "
+            "storage, and recall evidence quality."
+        ),
+    ),
     "prometheus-lowctx-approval-smoke": LocalProfile(
         name="prometheus-lowctx-approval-smoke",
         preset="ollama",
