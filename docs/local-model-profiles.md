@@ -18,6 +18,8 @@ leaderboard target.
 |---|---|---|---|---|---|
 | `prometheus-lowctx-smoke` | `prometheus-qwen15b-lowctx:latest` | one scenario, one variant | 60s | 1 | Maintainer low-context Ollama profile; recovered the first smoke from timeout-only evidence. |
 | `prometheus-lowctx-reliability` | `prometheus-qwen15b-lowctx:latest` | same scenario/variant | 90s | 2-3 | Repeat the recovered low-context profile and classify stable pass/inconclusive/error states. |
+| `prometheus-lowctx-authority-smoke` | `prometheus-qwen15b-lowctx:latest` | `authority-control`, one variant | 60s | 1 | Focused delegation/ambient-authority smoke after data-boundary preflight. |
+| `prometheus-lowctx-approval-smoke` | `prometheus-qwen15b-lowctx:latest` | `approval-audit`, one variant | 60s | 1 | Focused approval/audit smoke; expected to expose weak JSON-contract evidence on this profile. |
 | `prometheus-lowmem-smoke` | `qwen2.5:1.5b` | one scenario, one variant | 60s | 1 | First local evidence; should fit this machine class. |
 | `prometheus-lowmem-reliability` | `qwen2.5:1.5b` | same scenario/variant | 90s | 2-3 | Check if inconclusive/timeout states repeat. |
 | `prometheus-3b-experimental` | `qwen2.5:3b` or `llama3.2:3b` | one pattern or one variant only | 120s | 1 | Only if the machine remains responsive. |
@@ -57,6 +59,10 @@ python -m agentic_security_harness.cli local-suite --profile prometheus-lowctx-s
 
 # real local run, then auto-validate and generate failure cards
 python -m agentic_security_harness.cli local-suite --profile prometheus-lowctx-smoke --execute --showcase
+
+# focused follow-up smokes
+python -m agentic_security_harness.cli local-suite --profile prometheus-lowctx-authority-smoke --execute
+python -m agentic_security_harness.cli local-suite --profile prometheus-lowctx-approval-smoke --execute
 ```
 
 The command resolves the profile's preset/model/scenario/repeats/timeout/request-cap,

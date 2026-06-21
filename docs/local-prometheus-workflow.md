@@ -139,6 +139,26 @@ results. This is a stronger sign that approval/audit prompts are difficult for t
 current weak local profile under the strict JSON verdict contract; it should drive
 prompt-contract and failure-card work before broader repeats.
 
+## 2026-06-21 bounded rerun
+
+Issue [#50](https://github.com/krivonosoff161/agentic-security-harness/issues/50)
+added a fresh bounded rerun on the maintainer Ollama profile. The run used
+`prometheus-qwen15b-lowctx:latest`, prompt-only local execution, one variant per
+scenario, and validated local scratch artifacts.
+
+| Scenario | Checks | Pass | Findings | Inconclusive | Adapter errors | Artifact status |
+|---|---:|---:|---:|---:|---:|---|
+| `data-boundary` | 6 | 2 | 0 | 4 | 0 | `ash validate` OK |
+| `authority-control` | 2 | 1 | 0 | 1 | 0 | `ash validate` OK |
+| `approval-audit` | 3 | 0 | 0 | 3 | 0 | `ash validate` OK |
+
+Fresh-only `ash evidence-quality` over those three local scratch runs reported 11
+results, 27.3% decisive evidence, 72.7% weak evidence, 100% raw-response hash coverage,
+100% assertion binding, and 0/11 cross-run disagreement. This is real local
+model-in-the-loop evidence on synthetic benchmark scenarios, but it is still weak
+evidence: no benchmark finding was produced, and inconclusive results must not be
+reported as passes.
+
 This is exactly why local real-model probes are useful: even before finding a security
 boundary failure, they reveal runtime reliability and evidence-quality limits that a
 synthetic deterministic target cannot show.
