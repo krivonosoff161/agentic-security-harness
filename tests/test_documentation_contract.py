@@ -343,12 +343,14 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
         "#19",
         "#48",
         "#50",
+        "#57",
     ):
         assert issue not in open_work
         assert issue in completed
     assert "None currently tracked." in open_work
     assert "`ash evidence-quality` summarizes recorded external/local artifacts" in completed
     assert "Fresh bounded Prometheus/Ollama rerun" in completed
+    assert "boundary-layer-evidence-matrix.md" in completed
     open_maintenance = tracker.split("## Open maintenance work", 1)[1].split(
         "## Recently completed in this track", 1
     )[0]
@@ -710,6 +712,55 @@ def test_project_map_links_research_claims_and_theory() -> None:
     assert "theory/" in project_map
     assert "Research claims registry" in project_map
     assert "Theory docs" in project_map
+    assert "boundary-layer-evidence-matrix.md" in project_map
+    assert "Boundary-layer reviewer" in project_map
+
+
+def test_boundary_layer_evidence_matrix_is_explicit_and_bounded() -> None:
+    matrix = _read("docs/boundary-layer-evidence-matrix.md")
+
+    for phrase in (
+        "declared_matrix_rows = 9 + 5 + 8 = 22",
+        "validated_declared_rows = 22",
+        "declared_matrix_coverage = 22 / 22 = 1.0",
+        "tests/test_boundary_variation_matrices.py",
+        "missing_envelope",
+        "authority_expansion",
+        "trust_precedence_violation",
+        "Private calculations may guide a public doc",
+        "Private scratch calculations are public evidence",
+    ):
+        assert phrase in matrix
+
+    limits = matrix.split("## Gaps", 1)[1]
+    for phrase in (
+        "Live multi-agent runtime handoff behavior",
+        "Capability revocation propagation",
+        "Purpose hierarchy / semantic purpose matching",
+        "Production memory-store isolation",
+        "Semantic truthfulness of payload or memory content",
+    ):
+        assert phrase in limits
+
+
+def test_theory_docs_link_to_boundary_layer_matrix() -> None:
+    docs = (
+        "docs/theory/handoff-integrity.md",
+        "docs/theory/authority-delegation.md",
+        "docs/theory/memory-governance.md",
+        "docs/theory/README.md",
+    )
+    for path in docs:
+        text = _read(path)
+        assert "boundary-layer-evidence-matrix.md" in text, path
+
+    handoff = _read("docs/theory/handoff-integrity.md")
+    authority = _read("docs/theory/authority-delegation.md")
+    memory = _read("docs/theory/memory-governance.md")
+
+    assert "The public variation matrix currently declares 9 handoff rows" in handoff
+    assert "issuer + scope + purpose + TTL + delegation_depth = 5" in authority
+    assert "The declared memory-governance matrix has 8 rows" in memory
 
 
 def test_no_mathematically_proven_overclaim_in_docs() -> None:

@@ -39,6 +39,7 @@
 | `handoff-integrity.md` | Active | Pilot theory module for inter-agent handoff integrity. |
 | `data-boundary.md` | Active | Theory for data envelope / label preservation. |
 | `authority-delegation.md` | Active | Theory for capability delegation and authority non-expansion. |
+| `../boundary-layer-evidence-matrix.md` | Active | Public matrix tying handoff, authority, and memory-governance claim axes to executable tests. |
 | `audit-integrity.md` | Planned | Theory for append-only audit hash-chain integrity. |
 | `memory-governance.md` | Active | Theory for memory provenance, TTL, trust precedence, and scope isolation. |
 
@@ -51,3 +52,5 @@
 - Heavy research stays in private/local scratch until it is ready for public cleaning.
 - `local_empirical` claims may be referenced publicly only as bounded summaries; raw
   scratch artifacts remain private/local unless curated and promoted.
+- A claim matrix row is public evidence only when it maps to a committed test or curated
+  artifact; private scratch calculations alone do not upgrade a claim.

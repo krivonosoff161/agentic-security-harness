@@ -61,6 +61,7 @@ If those six points hold, the benchmark is coherent.
 | Reporting design | How executive and technical reports should be shaped. | [reporting.md](reporting.md) |
 | Research claims registry | Status table tracking each research claim from hypothesis through evidence artifacts. | [research-claims.md](research-claims.md) |
 | Theory docs | Cleaned invariant statements, formal objects, and claim boundaries for research tracks. | [theory/](theory/) |
+| Boundary-layer evidence matrix | Public readout tying handoff, authority, and memory-governance variation rows to executable tests and explicit non-claims. | [boundary-layer-evidence-matrix.md](boundary-layer-evidence-matrix.md) |
 
 ## Network model (important)
 
@@ -112,6 +113,7 @@ Start here by role:
 | Local model reviewer | [Local Prometheus workflow](local-prometheus-workflow.md), [Local model profiles](local-model-profiles.md), [Metrics contract](metric-contract.md), [Connect models](connect-models.md) | Run a weak local model safely and read inconclusive/error evidence correctly. |
 | Safety reviewer | [Research rules](research-rules.md), [Authorized testing paths](authorized-testing-paths.md), [Threat model](threat-model.md), [SECURITY](../SECURITY.md) | Confirm the project stays defensive, synthetic, and authorized. |
 | Research reviewer | [Research claims registry](research-claims.md), [Theory docs](theory/), [Research roadmap](research-roadmap.md) | Track research claim status, invariant maturity, and evidence artifacts. |
+| Boundary-layer reviewer | [Boundary-layer evidence matrix](boundary-layer-evidence-matrix.md), [Handoff theory](theory/handoff-integrity.md), [Authority theory](theory/authority-delegation.md), [Memory theory](theory/memory-governance.md) | Inspect which declared handoff, authority, and memory-governance variations are executable today. |
 | Release reviewer | [Release checklist](release-checklist.md), [Changelog](../CHANGELOG.md), [CI workflow](../.github/workflows/ci.yml) | Verify public packaging and quality gates. |
 
 If you still want the linear path:

@@ -61,6 +61,29 @@ truth for data-boundary math.
 | `tests/test_memory_governance.py::test_memory_read_rejects_low_trust_record` | Trust floor is enforced. |
 | `tests/test_memory_governance.py::test_memory_read_rejects_lower_trust_override_when_higher_trust_record_exists` | Lower-trust overwrite is detected. |
 | `tests/test_memory_governance.py::test_select_governed_memory_prefers_higher_trust_over_newer_lower_trust` | Selection prefers higher trust over newer lower-trust entries. |
+| `tests/test_boundary_variation_matrices.py::test_memory_governance_variation_matrix_blocks_each_declared_axis` | The declared memory-governance variation matrix blocks key, scope, time, trust, envelope, TTL, and trust-precedence violations. |
+
+## 5.1 Variation matrix readout
+
+The declared memory-governance matrix has 8 rows:
+
+```text
+key binding
+scope isolation
+time direction
+minimum trust
+stored envelope preservation
+read envelope preservation
+TTL from write time
+trust precedence
+```
+
+All 8 rows are covered by `tests/test_boundary_variation_matrices.py`. The count is a
+coverage statement for the declared local synthetic matrix. It does not imply complete
+coverage of production memory-store behavior.
+
+The broader public matrix and private/public evidence rules are documented in
+[`../boundary-layer-evidence-matrix.md`](../boundary-layer-evidence-matrix.md).
 
 ## 6. Evidence Status
 
@@ -78,6 +101,7 @@ This theory module does not claim:
 - production memory-store isolation;
 - semantic truthfulness of remembered content;
 - deletion authorization or revocation propagation;
+- cross-agent memory rehydration in a live framework;
 - that every deployed agent memory architecture maps to this toy model.
 
 It does claim that the public codebase now has an executable invariant layer for the

@@ -103,6 +103,28 @@ Current fixture scenarios:
 | `test_integrity_policy_recipient_and_freshness_fail_closed` | `tests/test_handoff_integrity.py` | Multiple hard blockers fire simultaneously. |
 | `test_verifier_outage_is_blocked_not_pass` | `tests/test_handoff_integrity.py` | Verifier outage blocks, not passes. |
 | `test_committed_handoff_fixture_matches_verifier_expectations` | `tests/test_handoff_integrity.py` | Fixture scenarios match verifier expectations. |
+| `test_handoff_variation_matrix_blocks_each_declared_hard_reason_once` | `tests/test_boundary_variation_matrices.py` | The declared handoff hard-blocker matrix is executable row by row. |
+
+## 8.1 Variation matrix readout
+
+The public variation matrix currently declares 9 handoff rows:
+
+```text
+missing_envelope
+verifier_error for malformed raw envelope
+integrity_mismatch
+missing_provenance
+label_loss
+recipient_violation
+stale_or_replayed
+policy_mismatch
+verifier_error for verifier outage
+```
+
+All 9 rows are covered by `tests/test_boundary_variation_matrices.py`. This is a local
+synthetic coverage statement, not a claim of complete live-runtime handoff coverage.
+The cleaned matrix and public/private evidence rules are documented in
+[`../boundary-layer-evidence-matrix.md`](../boundary-layer-evidence-matrix.md).
 
 ## 9. Evidence
 
