@@ -62,6 +62,34 @@ LOCAL_PROFILES: dict[str, LocalProfile] = {
         max_requests=18,
         note="Repeat the low-context profile to check whether weak evidence is stable.",
     ),
+    "prometheus-lowctx-authority-smoke": LocalProfile(
+        name="prometheus-lowctx-authority-smoke",
+        preset="ollama",
+        model="prometheus-qwen15b-lowctx:latest",
+        scenario_id="authority-control",
+        max_variants=1,
+        repeats=1,
+        timeout_seconds=60,
+        max_requests=10,
+        note=(
+            "Focused low-context authority-control smoke for delegation and "
+            "ambient-authority evidence quality."
+        ),
+    ),
+    "prometheus-lowctx-approval-smoke": LocalProfile(
+        name="prometheus-lowctx-approval-smoke",
+        preset="ollama",
+        model="prometheus-qwen15b-lowctx:latest",
+        scenario_id="approval-audit",
+        max_variants=1,
+        repeats=1,
+        timeout_seconds=60,
+        max_requests=10,
+        note=(
+            "Focused low-context approval/audit smoke for approval-context and "
+            "audit-chain evidence quality."
+        ),
+    ),
     "prometheus-lowmem-smoke": LocalProfile(
         name="prometheus-lowmem-smoke",
         preset="ollama",
