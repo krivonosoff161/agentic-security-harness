@@ -347,7 +347,7 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
     ):
         assert issue not in open_work
         assert issue in completed
-    for issue in ("#61", "#63", "#64", "#65"):
+    for issue in ("#61", "#63", "#64", "#65", "#66"):
         assert issue in open_work
     assert "None currently tracked." not in open_work
     assert (
@@ -477,6 +477,8 @@ def test_small_model_swarm_handoff_claim_is_local_empirical_boundary() -> None:
     assert "`public_example`" not in row
     assert "Local scratch" in row
     assert "not committed public evidence" in row
+    assert "docs/local-swarm-real-model-evaluation.md" in row
+    assert "real local Ollama models" in row
     assert "leaderboard" in row
     assert "Live multi-agent runtime guarantee" in row
     assert "examples/" not in row

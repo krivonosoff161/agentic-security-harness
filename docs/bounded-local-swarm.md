@@ -1,6 +1,6 @@
 # Bounded Local Swarm
 
-Status: research-only implementation for issues #61, #63, and #65.
+Status: research-only implementation for issues #61, #63, #65, and #66.
 
 This lane tests a narrow claim:
 
@@ -93,6 +93,18 @@ ash local-swarm --execute \
 
 The command refuses `calculator` / `calculator:latest`. That local model is reserved for
 the trading research project and must not be consumed by ASH runs.
+
+## Local Real-Model Evaluation
+
+The 15-scenario suite was run against two local Ollama models on 2026-06-21:
+`prometheus-qwen15b-lowctx:latest` and `qwen2.5:1.5b`. Both runs covered all three modes
+and 120 role calls per model. `ash validate` passed, `ash evidence-quality` reported 100%
+contract coverage, 100% transcript-hash coverage, and 0% adapter-error rate for both.
+
+See [local-swarm-real-model-evaluation.md](local-swarm-real-model-evaluation.md).
+
+This is local-empirical evidence that the runner can exercise real weak local models. It
+is not a model pass, leaderboard result, or production-swarm safety proof.
 
 ## Artifacts
 
