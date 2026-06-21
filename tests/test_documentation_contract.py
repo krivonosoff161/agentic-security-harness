@@ -221,7 +221,7 @@ def test_showcase_includes_handoff_topology_evidence_boundary() -> None:
 
     for phrase in (
         "ash compare --baseline toy-multi-agent --protected protected-toy-multi-agent",
-        "ash validate reports/handoff-toy-comparison",
+        "ash validate examples/handoff-toy-comparison",
         "not a live multi-agent runtime claim",
     ):
         assert phrase in index
@@ -559,6 +559,46 @@ def test_handoff_theory_links_claim_to_code_tests_evidence() -> None:
         assert link in theory
 
 
+def test_authority_delegation_theory_links_axes_and_nonclaims() -> None:
+    theory = _read("docs/theory/authority-delegation.md")
+
+    for phrase in (
+        "issuer, scope, purpose, TTL, or delegation depth",
+        "child.issuer == parent.issuer",
+        "set(child.scope) subseteq set(parent.scope)",
+        "child.ttl_seconds <= parent.ttl_seconds",
+        "authority_expansion",
+        "examples/handoff-toy-comparison",
+        "test_capability_authority_non_expansion_axes",
+        "revocation propagation",
+    ):
+        assert phrase in theory
+
+    non_claims = theory.split("## 7. Limits / Non-Claims", 1)[1].lower()
+    assert "production authorization semantics" in non_claims
+    assert "live multi-agent framework coverage" in non_claims
+
+
+def test_memory_governance_theory_links_invariant_layer() -> None:
+    theory = _read("docs/theory/memory-governance.md")
+
+    for phrase in (
+        "MemoryGovernanceRecord",
+        "MemoryReadRequest",
+        "untrusted < tool_output < user < trusted_policy < system",
+        "TTL from write time",
+        "trust_precedence_violation",
+        "src/agentic_security_harness/memory_governance.py",
+        "tests/test_memory_governance.py",
+        "synthetic_validation",
+    ):
+        assert phrase in theory
+
+    non_claims = theory.split("## 7. Limits / Non-Claims", 1)[1].lower()
+    assert "production memory-store isolation" in non_claims
+    assert "semantic truthfulness" in non_claims
+
+
 def test_data_boundary_theory_separates_primary_adjacent_and_gaps() -> None:
     theory = _read("docs/theory/data-boundary.md")
 
@@ -640,6 +680,8 @@ def test_theory_readme_documents_public_private_boundary() -> None:
 
     assert "handoff-integrity.md" in readme
     assert "| `data-boundary.md` | Active |" in readme
+    assert "| `authority-delegation.md` | Active |" in readme
+    assert "| `memory-governance.md` | Active |" in readme
 
 
 def test_small_model_swarm_handoff_track_is_bounded_not_shipped_profile() -> None:
@@ -676,6 +718,8 @@ def test_no_mathematically_proven_overclaim_in_docs() -> None:
         "docs/handoff-toy-topology.md",
         "docs/theory/handoff-integrity.md",
         "docs/theory/data-boundary.md",
+        "docs/theory/authority-delegation.md",
+        "docs/theory/memory-governance.md",
     ):
         text = _read(path).lower()
         assert "mathematically proven" not in text, path
