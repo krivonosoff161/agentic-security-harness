@@ -65,6 +65,8 @@ class ValidationResult(BaseModel):
     run_diff_dirs: list[str] = Field(default_factory=list)
     local_swarm_dirs: list[str] = Field(default_factory=list)
     local_swarm_matrix_dirs: list[str] = Field(default_factory=list)
+    local_swarm_allowed_dirs: list[str] = Field(default_factory=list)
+    local_swarm_ablation_dirs: list[str] = Field(default_factory=list)
 
     def _err(self, msg: str) -> None:
         self.errors.append(msg)
@@ -107,6 +109,14 @@ def _is_local_swarm_matrix_dir(path: Path) -> bool:
     return (path / "local_swarm_attack_matrix.json").exists()
 
 
+def _is_local_swarm_allowed_dir(path: Path) -> bool:
+    return (path / "local_swarm_allowed_flows.json").exists()
+
+
+def _is_local_swarm_ablation_dir(path: Path) -> bool:
+    return (path / "local_swarm_ablation_matrix.json").exists()
+
+
 def validate_path(path: Path) -> ValidationResult:
     """Validate a report dir, a comparison dir, or a directory of such dirs.
 
@@ -141,6 +151,12 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
     elif _is_local_swarm_matrix_dir(path):
         result.local_swarm_matrix_dirs.append(_rel(path, root))
         _validate_local_swarm_matrix_dir(path, root, result)
+    elif _is_local_swarm_allowed_dir(path):
+        result.local_swarm_allowed_dirs.append(_rel(path, root))
+        _validate_local_swarm_allowed_dir(path, root, result)
+    elif _is_local_swarm_ablation_dir(path):
+        result.local_swarm_ablation_dirs.append(_rel(path, root))
+        _validate_local_swarm_ablation_dir(path, root, result)
     elif (path / "run_diff.json").exists():
         result.run_diff_dirs.append(_rel(path, root))
         _validate_run_diff_dir(path, root, result)
@@ -214,6 +230,68 @@ def _validate_local_swarm_matrix_dir(
     _validate_run_manifest(path, root, result)
     _scan_secrets(path / "local_swarm_attack_matrix.json", root, result)
     _scan_secrets(path / "local_swarm_attack_matrix.md", root, result)
+
+
+def _validate_local_swarm_allowed_dir(
+    path: Path, root: Path, result: ValidationResult
+) -> None:
+    rel = _rel(path / "local_swarm_allowed_flows.json", root)
+    raw = _load_json(path / "local_swarm_allowed_flows.json", root, result)
+    if raw is None:
+        return
+    _check_schema_version_file(
+        path / "local_swarm_allowed_flows.json",
+        "local_swarm_allowed",
+        root,
+        result,
+    )
+    from agentic_security_harness.local_swarm_allowed import AllowedFlowSuite
+
+    try:
+        suite = AllowedFlowSuite.model_validate(raw)
+    except ValidationError as exc:
+        result._err(f"{rel}: schema: {_fmt_error(exc)}")
+        return
+    if suite.metrics.unexpected_blocks:
+        result._err(f"{rel}: allowed-flow suite has unexpected blocks")
+    if suite.metrics.allowed_passes != suite.metrics.flows:
+        result._err(f"{rel}: not every allowed flow passed")
+    if not (path / "local_swarm_allowed_flows.md").exists():
+        result._err(f"{_rel(path / 'local_swarm_allowed_flows.md', root)}: missing")
+    _validate_run_manifest(path, root, result)
+    _scan_secrets(path / "local_swarm_allowed_flows.json", root, result)
+    _scan_secrets(path / "local_swarm_allowed_flows.md", root, result)
+
+
+def _validate_local_swarm_ablation_dir(
+    path: Path, root: Path, result: ValidationResult
+) -> None:
+    rel = _rel(path / "local_swarm_ablation_matrix.json", root)
+    raw = _load_json(path / "local_swarm_ablation_matrix.json", root, result)
+    if raw is None:
+        return
+    _check_schema_version_file(
+        path / "local_swarm_ablation_matrix.json",
+        "local_swarm_ablation",
+        root,
+        result,
+    )
+    from agentic_security_harness.local_swarm_ablation import SwarmAblationMatrix
+
+    try:
+        matrix = SwarmAblationMatrix.model_validate(raw)
+    except ValidationError as exc:
+        result._err(f"{rel}: schema: {_fmt_error(exc)}")
+        return
+    if matrix.metrics.bounded_blocks != matrix.metrics.rows:
+        result._err(f"{rel}: not every ablation row is blocked with all controls")
+    if matrix.metrics.vulnerable_when_primary_removed != matrix.metrics.rows:
+        result._err(f"{rel}: not every row is vulnerable when primary control is removed")
+    if not (path / "local_swarm_ablation_matrix.md").exists():
+        result._err(f"{_rel(path / 'local_swarm_ablation_matrix.md', root)}: missing")
+    _validate_run_manifest(path, root, result)
+    _scan_secrets(path / "local_swarm_ablation_matrix.json", root, result)
+    _scan_secrets(path / "local_swarm_ablation_matrix.md", root, result)
 
 
 def _load_json(path: Path, root: Path, result: ValidationResult) -> Any:

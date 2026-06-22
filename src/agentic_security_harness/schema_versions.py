@@ -23,6 +23,9 @@ SCHEMA_VERSIONS: dict[str, str] = {
     "evidence_quality": "0.2",  # evidence_quality.json (derived external/local/swarm analysis)
     "local_swarm": "0.1",     # local_swarm_summary.json (bounded local swarm research)
     "local_swarm_matrix": "0.1",  # local_swarm_attack_matrix.json
+    "local_swarm_allowed": "0.1",  # local_swarm_allowed_flows.json
+    "local_swarm_ablation": "0.1",  # local_swarm_ablation_matrix.json
+    "reproducibility_report": "0.1",  # reproducibility_report.json
 }
 
 # Current implemented defensive corpus revision. Artifact schema versions describe file

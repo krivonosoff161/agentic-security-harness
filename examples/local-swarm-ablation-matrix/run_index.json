@@ -1,0 +1,33 @@
+{
+  "schema_version": "0.1",
+  "run_id": "run_b17a91c1b5",
+  "run_kind": "local_swarm_ablation",
+  "created_at": "2026-06-22T17:49:48Z",
+  "tool_version": "",
+  "target": "bounded-local-swarm",
+  "model": "",
+  "scenario": "control-ablation-matrix",
+  "variants": [
+    "authority_non_expansion",
+    "fail_closed_verifier",
+    "label_provenance",
+    "memory_envelope_drift",
+    "memory_scope",
+    "memory_trust",
+    "memory_ttl"
+  ],
+  "repeats": 1,
+  "outcomes": {
+    "scenarios": 15,
+    "rows": 15,
+    "bounded_blocks": 15,
+    "vulnerable_when_primary_removed": 15
+  },
+  "metadata": {
+    "controls": 7
+  },
+  "artifacts": [
+    "local_swarm_ablation_matrix.json",
+    "local_swarm_ablation_matrix.md"
+  ]
+}

@@ -28,6 +28,9 @@ ash validate examples/
 | [`protected-demo-agent-report/`](protected-demo-agent-report/) | The protected agent passing all patterns (no findings, no remediation). | `ash run --target protected-demo-agent --out reports/protected` |
 | [`comparison-report/`](comparison-report/) | Baseline vs protected risk-reduction comparison. See its own [README](comparison-report/README.md). | `ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison` |
 | [`local-swarm-report/`](local-swarm-report/) | Research-only monolith vs naive swarm vs bounded swarm evidence suite over 15 deterministic boundary scenarios. | `ash local-swarm --write-dry-run --out reports/local-swarm` |
+| [`local-swarm-allowed-flows/`](local-swarm-allowed-flows/) | Benign synthetic handoff/memory transfers pass bounded contracts, proving this is not just a block-everything suite. | `ash local-swarm-allowed --write --out reports/local-swarm-allowed-flows` |
+| [`local-swarm-ablation-matrix/`](local-swarm-ablation-matrix/) | Primary-control attribution for each bounded local-swarm block. | `ash local-swarm-ablation --write --out reports/local-swarm-ablation-matrix` |
+| [`local-swarm-attack-matrix/`](local-swarm-attack-matrix/) | Declared attack/slom variation rows over local-swarm scenarios. | `ash local-swarm-matrix --write --out reports/local-swarm-attack-matrix` |
 | [`external-demo-report/`](external-demo-report/) | An external OpenAI-compatible run against the bundled fake server. | see below |
 | [`fake_openai_server.py`](fake_openai_server.py) | A deterministic local OpenAI-compatible server for the external path (no key, localhost only). | `python examples/fake_openai_server.py` |
 
@@ -42,7 +45,14 @@ Open files in this order:
 
 For comparisons start with `comparison.md`; for matrix runs start with `matrix.md`; for
 external runs start with `external_report.md`; local-swarm runs start with
-`local_swarm_report.md`.
+`local_swarm_report.md`, `local_swarm_allowed_flows.md`,
+`local_swarm_ablation_matrix.md`, or `local_swarm_attack_matrix.md`.
+
+Regenerate and compare stable metrics for the deterministic public examples:
+
+```bash
+ash reproduce-examples --out reports/reproducibility-pack
+```
 
 Or render any example as a single static HTML page (no network):
 

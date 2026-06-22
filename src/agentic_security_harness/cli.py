@@ -674,6 +674,55 @@ def build_parser() -> argparse.ArgumentParser:
         help="write deterministic matrix artifacts (default: dry-run only)",
     )
 
+    swarm_allowed_p = sub.add_parser(
+        "local-swarm-allowed",
+        help="calculate benign allowed-flow utility checks for bounded local-swarm",
+    )
+    swarm_allowed_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path("reports/local-swarm-allowed-flows"),
+        help="output directory for allowed-flow artifacts",
+    )
+    swarm_allowed_p.add_argument(
+        "--write",
+        action="store_true",
+        help="write deterministic allowed-flow artifacts (default: dry-run only)",
+    )
+
+    swarm_ablation_p = sub.add_parser(
+        "local-swarm-ablation",
+        help="calculate which bounded-swarm control catches each synthetic failure",
+    )
+    swarm_ablation_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path("reports/local-swarm-ablation-matrix"),
+        help="output directory for ablation artifacts",
+    )
+    swarm_ablation_p.add_argument(
+        "--write",
+        action="store_true",
+        help="write deterministic ablation artifacts (default: dry-run only)",
+    )
+
+    repro_p = sub.add_parser(
+        "reproduce-examples",
+        help="regenerate deterministic committed examples and compare stable metrics",
+    )
+    repro_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path("reports/reproducibility-pack"),
+        help="output directory for regenerated examples and report",
+    )
+    repro_p.add_argument(
+        "--examples-root",
+        type=Path,
+        default=Path("examples"),
+        help="committed examples directory to compare against",
+    )
+
     return parser
 
 
@@ -768,7 +817,9 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.external_dirs)} external dir(s), "
         f"{len(result.run_diff_dirs)} run-diff dir(s), "
         f"{len(result.local_swarm_dirs)} local-swarm dir(s), "
-        f"{len(result.local_swarm_matrix_dirs)} local-swarm-matrix dir(s)"
+        f"{len(result.local_swarm_matrix_dirs)} local-swarm-matrix dir(s), "
+        f"{len(result.local_swarm_allowed_dirs)} local-swarm-allowed dir(s), "
+        f"{len(result.local_swarm_ablation_dirs)} local-swarm-ablation dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
     if redacted_errors or redacted_warnings:
@@ -1558,6 +1609,81 @@ def _local_swarm_matrix(list_matrix: bool, out: Path, write: bool) -> int:
     return 0
 
 
+def _local_swarm_allowed(out: Path, write: bool) -> int:
+    from agentic_security_harness.local_swarm_allowed import (
+        build_allowed_flow_suite,
+        write_allowed_flow_artifacts,
+    )
+    from agentic_security_harness.validation import validate_path
+
+    suite = build_allowed_flow_suite(created_at=_now_utc())
+    metrics = suite.metrics
+    print(
+        f"local-swarm-allowed flows={metrics.flows} "
+        f"allowed_passes={metrics.allowed_passes} "
+        f"unexpected_blocks={metrics.unexpected_blocks}"
+    )
+    print("Deterministic utility suite only: no model calls and no network.")
+    if not write:
+        print("Dry-run only. Add --write to write artifacts.")
+        return 0
+
+    paths = write_allowed_flow_artifacts(out, suite)
+    for path in paths:
+        print(f"wrote {path.as_posix()}")
+    result = validate_path(out)
+    if not result.ok:
+        print(f"Validation FAILED for {redact_artifact_text(out.as_posix())}:")
+        print(f"errors: {len(result.errors)}")
+        return 1
+    print(f"validated {out.as_posix()} (artifact integrity only).")
+    return 0
+
+
+def _local_swarm_ablation(out: Path, write: bool) -> int:
+    from agentic_security_harness.local_swarm_ablation import (
+        build_local_swarm_ablation_matrix,
+        write_local_swarm_ablation_artifacts,
+    )
+    from agentic_security_harness.validation import validate_path
+
+    matrix = build_local_swarm_ablation_matrix(created_at=_now_utc())
+    metrics = matrix.metrics
+    print(
+        f"local-swarm-ablation scenarios={metrics.scenarios} "
+        f"controls={metrics.controls} "
+        f"bounded_blocks={metrics.bounded_blocks}"
+    )
+    print("Deterministic control-attribution matrix only: no model calls and no network.")
+    if not write:
+        print("Dry-run only. Add --write to write artifacts.")
+        return 0
+
+    paths = write_local_swarm_ablation_artifacts(out, matrix)
+    for path in paths:
+        print(f"wrote {path.as_posix()}")
+    result = validate_path(out)
+    if not result.ok:
+        print(f"Validation FAILED for {redact_artifact_text(out.as_posix())}:")
+        print(f"errors: {len(result.errors)}")
+        return 1
+    print(f"validated {out.as_posix()} (artifact integrity only).")
+    return 0
+
+
+def _reproduce_examples(out: Path, examples_root: Path) -> int:
+    from agentic_security_harness.reproducibility import rebuild_and_compare_examples
+
+    report = rebuild_and_compare_examples(out_dir=out, examples_root=examples_root)
+    print(
+        f"reproduce-examples examples={report.examples} "
+        f"validation_failures={report.validation_failures} "
+        f"metric_mismatches={report.metric_mismatches}"
+    )
+    print(f"wrote {(out / 'reproducibility_report.md').as_posix()}")
+    return 0 if report.ok else 1
+
+
 def _list_runs(root: Path, db: Path | None) -> int:
     if db is not None:
         from agentic_security_harness.rundb import list_db_runs
@@ -1863,6 +1989,12 @@ def main(argv: list[str] | None = None) -> int:
             args.out,
             args.write,
         )
+    if args.command == "local-swarm-allowed":
+        return _local_swarm_allowed(args.out, args.write)
+    if args.command == "local-swarm-ablation":
+        return _local_swarm_ablation(args.out, args.write)
+    if args.command == "reproduce-examples":
+        return _reproduce_examples(args.out, args.examples_root)
     if args.command == "doctor":
         return _doctor(
             args.json, args.live_local, args.base_url, args.credential_env_var,

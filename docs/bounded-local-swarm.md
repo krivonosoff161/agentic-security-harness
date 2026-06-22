@@ -84,6 +84,22 @@ A committed matrix example is available at `examples/local-swarm-attack-matrix/`
 ash validate examples/local-swarm-attack-matrix
 ```
 
+Check benign utility flows and control attribution:
+
+```bash
+ash local-swarm-allowed --write --out reports/local-swarm-allowed-flows
+ash validate reports/local-swarm-allowed-flows
+ash local-swarm-ablation --write --out reports/local-swarm-ablation-matrix
+ash validate reports/local-swarm-ablation-matrix
+```
+
+Committed utility/ablation examples are available at:
+
+```bash
+ash validate examples/local-swarm-allowed-flows
+ash validate examples/local-swarm-ablation-matrix
+```
+
 Run bounded sequential local-model role calls through Ollama:
 
 ```bash
@@ -153,6 +169,32 @@ block reason each one exercises. Audit-evidence rows cover local provenance/trac
 omission pressure inside the swarm model; cryptographic audit-chain integrity remains a
 separate project claim.
 
+## Allowed Flows And Ablation
+
+The attack suite alone could be misread as "the bounded swarm just blocks everything."
+`local-swarm-allowed` is the counter-check: it verifies six benign synthetic transfers
+across handoff and memory boundaries. Current committed result:
+
+```text
+flows=6
+allowed passes=6
+unexpected blocks=0
+false-positive rate=0%
+```
+
+`local-swarm-ablation` maps every modeled block to the primary control family that catches
+it. Current committed result:
+
+```text
+scenarios=15
+bounded blocks with all controls=15
+vulnerable when primary control removed=15
+represented controls=7
+```
+
+This is deterministic control attribution, not proof that those controls are the only
+possible defenses.
+
 ## Artifacts
 
 `local_swarm_summary.json`
@@ -170,6 +212,12 @@ separate project claim.
 
 `local_swarm_attack_matrix.md`
 : Human-readable attack variation matrix.
+
+`local_swarm_allowed_flows.json` / `local_swarm_allowed_flows.md`
+: Benign synthetic transfers that should pass the bounded contracts.
+
+`local_swarm_ablation_matrix.json` / `local_swarm_ablation_matrix.md`
+: Primary-control attribution for each modeled bounded-swarm block.
 
 ## Metrics
 
