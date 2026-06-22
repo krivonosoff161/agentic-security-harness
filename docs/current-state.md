@@ -31,6 +31,9 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | External evidence cross-check | Shipped for experimental path | Pattern id, boundary assertion, control family, decision coherence, raw response files. |
 | Local-runtime metadata | Shipped for experimental path | `run_config.runtime`, report/runtime metadata, `local-only` mode for localhost/Ollama/LM Studio/vLLM, recovery guidance. |
 | Bounded local-model suite | Shipped local slice | `ash local-suite`, named Prometheus/Ollama profiles, dry-run by default, request caps, validated artifacts after explicit `--execute`, and weak-evidence classification. |
+| Bounded local-swarm utility and ablation | Shipped local slice | `ash local-swarm-allowed` proves benign synthetic flows pass; `ash local-swarm-ablation` maps each modeled block to the primary catching control. |
+| Reproducibility pack | Shipped | `ash reproduce-examples` regenerates deterministic public examples and compares stable metrics against committed artifacts. |
+| Artifact integrity model | Shipped docs | `docs/crypto-integrity-model.md` defines current TCB, hashes, canonical JSON, replay/timestamp limits, future signatures, and non-claims. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
 | Public project process | Shipped locally | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, release artifact workflow. |
 
@@ -92,6 +95,7 @@ python -m pytest
 python -m ruff check .
 python -m mypy src tests
 ash validate examples/
+ash reproduce-examples --out reports/reproducibility-pack
 git diff --check
 ```
 

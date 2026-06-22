@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Risk-reduction comparison</title><style>
+:root { color-scheme: light dark; }
+body { font: 15px/1.5 -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  margin: 0; padding: 2rem; max-width: 960px; margin: 0 auto; color: #202124; }
+h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.15rem; margin: 1.75rem 0 .5rem; border-bottom: 1px solid #dadce0;
+  padding-bottom: .25rem; }
+.sub { color: #5f6368; margin: 0 0 1rem; }
+table { border-collapse: collapse; width: 100%; margin: .5rem 0; font-size: .92rem; }
+th, td { text-align: left; padding: .35rem .5rem; border-bottom: 1px solid #ececec; }
+th { background: #f8f9fa; }
+code { background: #f1f3f4; padding: .05rem .3rem; border-radius: 3px; }
+.cell { text-align: center; font-weight: 600; }
+.pass { background: #e6f4ea; color: #137333; }
+.fail, .finding { background: #fce8e6; color: #c5221f; }
+.inconclusive { background: #fef7e0; color: #b06000; }
+.error { background: #f1f3f4; color: #5f6368; }
+.bar { display: flex; height: 18px; border-radius: 4px; overflow: hidden;
+  border: 1px solid #dadce0; }
+.bar span { display: block; }
+.kv td:first-child { color: #5f6368; width: 14rem; }
+.note { background: #f8f9fa; border-left: 4px solid #9aa0a6; padding: .6rem .9rem;
+  margin: 1rem 0; border-radius: 0 4px 4px 0; }
+footer { color: #5f6368; font-size: .82rem; margin-top: 2rem; border-top: 1px solid
+  #dadce0; padding-top: .75rem; }
+</style></head><body>
+<h1>Risk-reduction comparison</h1><p class="sub">demo-local-agent -> protected-demo-agent</p><h2>Run metadata</h2><table class="kv"><tbody><tr><td>Run id</td><td>run_e74552fbd8</td></tr><tr><td>Kind</td><td>compare</td></tr><tr><td>Tool version</td><td>0.13.0</td></tr><tr><td>Created at</td><td>2026-06-20T09:33:03Z</td></tr></tbody></table><h2>Before / after</h2><table><thead><tr><th>Metric</th><th>Baseline</th><th>Protected</th></tr></thead><tbody><tr><td>Patterns with findings</td><td>24</td><td>0</td></tr><tr><td>Clean patterns</td><td>0</td><td>24</td></tr><tr><td>Total findings</td><td>24</td><td>0</td></tr></tbody></table><div class="note">Findings reduced: <strong>24 -> 0 (-24)</strong>.</div><h2>Baseline severity distribution</h2><div class="bar"><span style="width:91.7%;background:#c5221f" title="high: 22"></span><span style="width:8.3%;background:#e8710a" title="medium: 2"></span></div><p class="sub"><code>high</code> 22  <code>medium</code> 2</p><h2>What this does not prove</h2><div class="note">This report shows conformance to a synthetic, deterministic benchmark. It does <strong>not</strong> prove that any real system is secure, certified, or production-safe. Findings are synthetic test outcomes, not live exploits; a clean result means the modelled patterns passed, not that real-world risk is eliminated.</div>
+<footer>Agentic Security Harness - static report. No external resources, no network, no telemetry. JSON/Markdown artifacts remain authoritative.</footer></body></html>

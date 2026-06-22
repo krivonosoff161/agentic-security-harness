@@ -7,6 +7,15 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Public showcase hardening: a shorter README proof path, static HTML comparison preview,
+  crypto/artifact integrity model, reproducibility pack, local-swarm allowed-flow suite,
+  and bounded-swarm control ablation matrix.
+- `ash local-swarm-allowed` for deterministic benign handoff/memory flows that must pass
+  bounded contracts instead of showing a block-only system.
+- `ash local-swarm-ablation` for deterministic primary-control attribution across
+  local-swarm boundary failures.
+- `ash reproduce-examples` for regenerating deterministic committed examples and
+  comparing stable metrics against repository artifacts.
 - Git evidence workflow documenting the issue -> branch -> artifact -> PR -> GitHub
   checks -> review gate -> merge/close process as a public project norm.
 - Scenario timeline fixtures and validator contract for delayed activation, context
@@ -74,9 +83,9 @@ All notable changes to this project are documented here. The format follows
   caveats for classification ordering, trusted sources, and TTL checks.
 - Data-boundary missing-envelope recovery pattern:
   `data_boundary_missing_envelope_recovery` checks fail-closed behavior when a required
-  `DataEnvelope` is absent at a boundary action. The local corpus now has 23 deterministic
-  seed patterns; baseline demo targets fail all 23 and the protected demo target passes
-  all 23 under deterministic replay.
+  `DataEnvelope` is absent at a boundary action. The local corpus now has 24 deterministic
+  seed patterns; baseline demo targets fail all 24 and the protected demo target passes
+  all 24 under deterministic replay.
 - Data-boundary research closure records in the project tracker and claims registry,
   separating public evidence artifacts from local-only derivation/audit notes.
 
@@ -118,7 +127,7 @@ All notable changes to this project are documented here. The format follows
 - README, current-state, adapter contract, capability matrix, evaluation topologies,
   roadmap, boundary model, and project map now list `toy-multi-agent` as shipped while
   keeping live/cross-provider multi-agent workflows future-scoped.
-- The committed comparison example README now reflects the current 23-pattern corpus and
+- The committed comparison example README now reflects the current 24-pattern corpus and
   links to the public showcase checklist.
 
 ## [0.13.0] - 2026-06-14

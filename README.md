@@ -2,59 +2,69 @@
 
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/13320/badge)](https://www.bestpractices.dev/projects/13320)
 
-**A trace-first benchmark for agentic AI boundary failures.** It gives security engineers,
-AI platform teams, and researchers a safe way to reproduce synthetic agent failures,
-compare a vulnerable target with a protected target, and inspect the evidence as traces,
-scorecards, remediation, and static reports.
+**A trace-first defensive benchmark for agentic AI boundary failures.** It gives security
+engineers, AI platform teams, and researchers a safe way to reproduce synthetic boundary
+failures, compare a vulnerable target with a protected target, and inspect the evidence as
+portable traces, scorecards, remediation, and static reports.
 
-In plain English: this repo answers three practical questions.
+Short version: this is a **trace-first benchmark** with a committed before/after example,
+not a live exploitation tool or a production-security certificate.
 
-1. Can a local agent-like system keep data labels, authority limits, memory provenance,
-   approval context, audit trails, and tool boundaries intact?
-2. If it fails, can the failure be shown as a replayable trace instead of a vague prompt
-   anecdote?
-3. If a protected version passes, can the before/after improvement be validated from
-   committed artifacts?
+## What This Is
 
-## Public quick read
+### In plain English
 
-**Status:** pre-release, credible alpha. This is a working trace-first defensive benchmark prototype for agentic AI boundary failures, not a production certification benchmark.
+Agentic systems fail at boundaries: data labels get stripped, delegated authority expands,
+memory is trusted out of scope, tool output becomes an instruction, approval context is
+laundered, or a verifier is skipped. ASH models those failures as deterministic,
+replayable test patterns, not just standalone model answers.
 
-| Surface | Current status | Evidence |
-|---|---|---|
-| Local benchmark core | Shipped | 24 deterministic seed patterns, local targets, traces, scorecards, remediation, validation. |
-| Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
-| Committed examples | Shipped | `examples/` plus `ash validate examples/`. |
-| Bounded local swarm evidence suite | Research-only example | `examples/local-swarm-report/` compares monolith, naive swarm, and bounded swarm over 15 deterministic boundary scenarios. |
-| CI / package checks | Shipped | `.github/workflows/ci.yml` runs tests, ruff, mypy, package build, and example validation. |
-| External model checks | Experimental | OpenAI-compatible, prompt-only, explicit opt-in, no tool execution. |
-| Native provider / agent-host adapters | Future | Not shipped; do not claim real agent or tool-execution coverage yet. |
-| Reference gateway | Future optional defense target | Not implemented in this release; not the main product. |
+The public alpha currently ships:
 
-Proof commands:
+- **24 deterministic seed patterns** over local synthetic targets.
+- A validated before/after demo: vulnerable `demo-agent` produces **24 modeled findings**;
+  `protected-demo-agent` produces **0 modeled findings** on the same corpus.
+- A bounded-swarm research suite comparing `monolith`, `naive_swarm`, and
+  `bounded_swarm` over handoff, memory, tool, approval, multi-hop laundering, and
+  verifier-outage scenarios.
+- Artifact validation, schema versions, static HTML reports, generated failure cards,
+  and CI gates for tests, ruff, mypy, package build, CodeQL, and example validation.
+
+## Who It Is For
+
+| Role | Use it for |
+|---|---|
+| Security engineer | Reproduce and explain agent boundary failures as traces, not anecdotes. |
+| AI platform team | Compare a vulnerable local target against a protected one before adapting the harness. |
+| Research reviewer | Check claim boundaries, deterministic artifacts, ablations, and non-claims. |
+| Adapter author | Bring an owned target behind the adapter contract without changing the corpus. |
+
+## One-Minute Demo
+
+### If you only have one minute
 
 ```bash
 pip install -e ".[dev]"
-python -m pytest
-python -m ruff check .
-python -m mypy src tests
 ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison
 ash validate reports/comparison
-ash validate examples/
-ash showcase --root reports --out docs/showcase/generated
+ash report --root reports/comparison
 ```
 
-If you only have one minute:
+Expected deterministic result:
 
-- Read the committed before/after example:
-  [`examples/comparison-report/README.md`](examples/comparison-report/README.md).
-- Inspect the public evidence entry point:
-  [`docs/showcase/index.md`](docs/showcase/index.md).
-- Check what is shipped versus planned:
-  [`docs/current-state.md`](docs/current-state.md).
-- Validate the public examples locally with `ash validate examples/`.
+```text
+demo-agent: 24 modeled findings
+protected-demo-agent: 0 modeled findings
+```
 
-## Visual evidence snapshot
+For the committed artifact, start with
+[`examples/comparison-report/README.md`](examples/comparison-report/README.md). For a
+browser-readable preview, open
+[`docs/showcase/generated/comparison-report-preview.html`](docs/showcase/generated/comparison-report-preview.html).
+
+## Visual Proof
+
+### Visual evidence snapshot
 
 ```mermaid
 flowchart LR
@@ -72,63 +82,48 @@ flowchart LR
 | Can the corpus expose modeled boundary failures? | `demo-agent`: 24 findings | [`examples/demo-agent-report/`](examples/demo-agent-report/) |
 | Can a protected local target remove the modeled findings? | `protected-demo-agent`: 0 findings | [`examples/protected-demo-agent-report/`](examples/protected-demo-agent-report/) |
 | Is the before/after artifact reproducible? | `ash validate examples/` passes | [`examples/comparison-report/`](examples/comparison-report/) |
+| Can the examples be regenerated and compared? | `ash reproduce-examples` compares stable metrics | [`docs/reproducibility-pack.md`](docs/reproducibility-pack.md) |
 
-This is a deterministic synthetic benchmark snapshot, not evidence that a production
-agent is secure.
+## What It Proves / Does Not Prove
 
-Read by role:
+| Claim | Current status |
+|---|---|
+| The shipped synthetic corpus can show a **24 -> 0** modeled-risk reduction between two local demo targets. | Supported by committed examples and `ash validate examples/`. |
+| A bounded synthetic swarm can block declared handoff/memory/tool/approval failures that a naive swarm accepts. | Supported by `examples/local-swarm-report/` and ablation/allowed-flow artifacts. |
+| Benign synthetic transfers are not simply blocked by default. | Supported by `examples/local-swarm-allowed-flows/`. |
+| A production agent, provider, or model is secure. | **Not claimed.** |
+| The project is a model leaderboard or live exploitation tool. | **Not claimed.** |
 
-- First-time user: [Getting started](docs/getting-started.md) and [User journey](docs/user-journey.md).
-- Project status reviewer: [Current state](docs/current-state.md), [Capability matrix](docs/capability-matrix.md),
-  [Roadmap](docs/roadmap.md), [Project tracker](docs/project-tracker.md), and
-  [v1.0 readiness](docs/v1-readiness.md).
-- Benchmark reviewer: [Benchmark protocol](docs/benchmark-protocol.md), [Benchmark semantics](docs/benchmark-semantics.md), and [Artifact schemas](docs/artifact-schemas.md).
-- Adapter author: [Custom adapter tutorial](docs/custom-adapter-tutorial.md) and [Adapter contract](docs/adapter-contract.md).
-- Report reviewer: [Examples index](examples/README.md),
-  [comparison example](examples/comparison-report/README.md), and
-  [showcase checklist](docs/showcase-report-checklist.md).
-- Showcase reviewer: [Public evidence showcase](docs/showcase/index.md),
-  [scenario matrix](docs/showcase/scenario-matrix.md), and
-  [weak spots/findings ledger](docs/showcase/weak-spots-and-findings.md).
-- Scenario designer: [Scenario timeline contract](docs/scenario-timeline.md).
-- Multi-agent handoff reviewer: [Inter-agent handoff integrity](docs/inter-agent-handoff-integrity.md)
-  and [deterministic handoff toy topology](docs/handoff-toy-topology.md).
-- Swarm reviewer: [Bounded local swarm](docs/bounded-local-swarm.md) and
-  [`examples/local-swarm-report/`](examples/local-swarm-report/).
-- Local model reviewer: [Local Prometheus workflow](docs/local-prometheus-workflow.md),
-  [Local model profiles](docs/local-model-profiles.md), and [Metrics contract](docs/metric-contract.md).
-- Safety reviewer: [Research rules](docs/research-rules.md), [Authorized testing paths](docs/authorized-testing-paths.md),
-  [Threat model](docs/threat-model.md), and [SECURITY.md](SECURITY.md).
+Do not read a clean run as "the system is secure." A clean run only means the target
+handled the modeled synthetic patterns under the declared run configuration.
 
-Do not read a clean run as "the system is secure." A clean run only means the target handled the modeled synthetic patterns under the declared run configuration.
+## Start Reading
 
-> **Agentic Security Harness** - open-source - Apache-2.0 - repository `agentic-security-harness`
+- Public evidence: [docs/showcase/index.md](docs/showcase/index.md)
+- Current shipped/planned boundary: [docs/current-state.md](docs/current-state.md)
+- Benchmark semantics: [docs/benchmark-semantics.md](docs/benchmark-semantics.md)
+- Crypto/artifact integrity model: [docs/crypto-integrity-model.md](docs/crypto-integrity-model.md)
+- Bounded swarm: [docs/bounded-local-swarm.md](docs/bounded-local-swarm.md)
+- Handoff toy topology: [docs/handoff-toy-topology.md](docs/handoff-toy-topology.md)
+- Showcase checklist: [docs/showcase-report-checklist.md](docs/showcase-report-checklist.md)
+- v1 readiness boundary: [docs/v1-readiness.md](docs/v1-readiness.md)
+- Adapter path: [docs/custom-adapter-tutorial.md](docs/custom-adapter-tutorial.md)
+- Responsible use: [SECURITY.md](SECURITY.md)
 
-**A trace-first defensive benchmark for agentic AI failure modes.** It reproduces how LLM
-agents, tool chains, and data boundaries fail, captures each run as a **portable failure
-trace**, and **measures risk reduction** by replaying a baseline target against a protected one.
-It evaluates boundary failures in **agentic systems**, not just standalone model answers:
-a target can be a local agent, a tool loop, a memory loop, a model chain, a multi-agent
-handoff, or a future authorized runtime behind the same adapter contract.
+Methodology map:
 
-- **Trace-first** - every run is a portable, machine-readable failure trace, not just pass/fail.
-- **Agentic operating-environment boundary corpus** - 24 deterministic seed patterns for
-  how sensitivity labels, recipients, storage, forwarding, audit, budget, delegated
-  authority, tool schemas, perception boundaries, ambient authority, approval context,
-  and memory governance break in agentic systems.
-- **Baseline vs protected replay** - a vulnerable demo agent vs a controlled one, on
-  deterministic **local** targets, with a measured before/after scorecard.
-- **Standards-aware corpus** - implemented patterns include coarse OWASP Agentic Security
-  Initiative mappings plus category-level OWASP LLM, NIST AI RMF, and verified MITRE
-  ATLAS mappings where there is a direct fit.
-
-Built-in/local targets are synthetic, deterministic, and offline - no network, no
-provider calls. The experimental `run-external` path calls an OpenAI-compatible endpoint
-only on explicit opt-in (prompt-only, no tool execution); native provider and agent-host
-adapters are future. See [docs/benchmark-semantics.md](docs/benchmark-semantics.md).
-
-> The **gateway** is an optional **reference defense** component used as a replay target -
-> not the main product, and not implemented in the current release.
+- Authorized test boundaries: [docs/authorized-testing-paths.md](docs/authorized-testing-paths.md)
+- Evaluation topologies: [docs/evaluation-topologies.md](docs/evaluation-topologies.md)
+- Corpus expansion plan: [docs/corpus-expansion-plan.md](docs/corpus-expansion-plan.md)
+- Agentic boundary model: [docs/agentic-boundary-model.md](docs/agentic-boundary-model.md)
+- Public project tracker: [docs/project-tracker.md](docs/project-tracker.md)
+- Metric contract: [docs/metric-contract.md](docs/metric-contract.md)
+- Local Prometheus workflow: [docs/local-prometheus-workflow.md](docs/local-prometheus-workflow.md)
+- Local model profiles: [docs/local-model-profiles.md](docs/local-model-profiles.md)
+- Scenario timeline: [docs/scenario-timeline.md](docs/scenario-timeline.md)
+- Scenario matrix: [docs/showcase/scenario-matrix.md](docs/showcase/scenario-matrix.md)
+- Weak spots and findings: [docs/showcase/weak-spots-and-findings.md](docs/showcase/weak-spots-and-findings.md)
+- Governance: [GOVERNANCE.md](GOVERNANCE.md)
 
 ---
 

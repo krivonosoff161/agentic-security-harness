@@ -11,6 +11,7 @@ what the project currently proves.
 | [Scenario matrix](scenario-matrix.md) | What scenario families exist and what topology each one tests. |
 | [Weak spots and findings](weak-spots-and-findings.md) | Separates findings from inconclusive/error/runtime weak spots. |
 | [Deepening backlog](deepening-backlog.md) | Bounded follow-up variations selected from evidence, not a full cross-product. |
+| [Experimental local runtime evidence](experimental-local-runtime.md) | Local Prometheus/Ollama details kept out of the primary public proof path. |
 | [Metrics contract](../metric-contract.md) | How to read traffic, benchmark, runtime, and process metrics. |
 | [Scenario investigation workflow](../scenario-investigation-workflow.md) | How scenarios become evidence and then deeper checks. |
 | [Generated failure cards](generated/failure-cards.md) | Artifact-driven failure/replay cards generated from a committed run (`ash showcase --root examples/demo-agent-report --out docs/showcase/generated`); every card links a trace reference. |
@@ -23,31 +24,18 @@ what the project currently proves.
 | Deterministic multi-agent handoff toy comparison | Local validated artifact | [`handoff-toy-topology.md`](../handoff-toy-topology.md) | The shipped local `toy-multi-agent` slice produces 2 modeled handoff findings, while `protected-toy-multi-agent` blocks the malformed handoffs under the same corpus. | Evidence about a live multi-agent framework, provider, or production handoff protocol. |
 | Bounded local swarm evidence suite | Validated example | [`examples/local-swarm-report/local_swarm_report.md`](../../examples/local-swarm-report/local_swarm_report.md) | The research-only `bounded_swarm` topology blocks 15 synthetic handoff, memory, memory-poisoning, approval/tool, multi-hop laundering, and verifier-outage boundary failures that `naive_swarm` accepts. | A real model, provider, framework, or production swarm is safe. |
 | Local swarm attack variation matrix | Validated example | [`examples/local-swarm-attack-matrix/local_swarm_attack_matrix.md`](../../examples/local-swarm-attack-matrix/local_swarm_attack_matrix.md) | The 15 local-swarm scenarios are expanded into 33 declared prompt-only, delayed, recovery, audit-evidence, budget, cross-provider, and model-contradiction variations; `bounded_swarm` blocks all declared rows under deterministic contracts. | Exhaustive attack coverage, cryptographic audit-log proof, or live-framework safety. |
+| Local swarm allowed-flow suite | Validated example | [`examples/local-swarm-allowed-flows/local_swarm_allowed_flows.md`](../../examples/local-swarm-allowed-flows/local_swarm_allowed_flows.md) | Benign synthetic handoff and memory transfers pass, showing the bounded swarm is not simply "block everything." | A production false-positive rate. |
+| Local swarm control ablation matrix | Validated example | [`examples/local-swarm-ablation-matrix/local_swarm_ablation_matrix.md`](../../examples/local-swarm-ablation-matrix/local_swarm_ablation_matrix.md) | Each local-swarm failure is attributed to the primary deterministic control that catches it. | Proof that the listed control is the only possible implementation defense. |
 | Local swarm real-model evaluation | Local empirical summary | [`local-swarm-real-model-evaluation.md`](../local-swarm-real-model-evaluation.md) | Two local Ollama models executed the full 15-scenario local-swarm suite with 100% transcript-hash coverage and 0% adapter-error rate. | The local models passed a safety benchmark or production swarm behavior is proven. |
 | External fake-server run | Validated example | [`examples/external-demo-report/README.md`](../../examples/external-demo-report/README.md) | The experimental external artifact path can validate against a deterministic local fake OpenAI-compatible endpoint. | A real model/provider is safe. |
-| Local Prometheus/Ollama smoke | Shipped bounded local-suite; local scratch artifacts | [`local-prometheus-workflow.md`](../local-prometheus-workflow.md) | A weak local model can be exercised through a named prompt-only local-suite profile; first smokes exposed evidence-quality/runtime limits. | Public benchmark finding; model leaderboard result. |
+| Local Prometheus/Ollama smoke | Experimental local-runtime path | [`experimental-local-runtime.md`](experimental-local-runtime.md) | A weak local model can be exercised through a named prompt-only local-suite profile; first smokes exposed evidence-quality/runtime limits. | Public benchmark finding; model leaderboard result. |
 
-## Current local Prometheus observation
+## Experimental local Prometheus observation
 
-A maintainer local smoke run on the generic low-memory Ollama profile (`qwen2.5:1.5b`,
-one `data-boundary` variant, one repeat) produced:
-
-```text
-checks: 4
-findings: 0
-inconclusive: 2
-adapter_error: 2
-validation: OK
-```
-
-The recovered low-context profile (`prometheus-qwen15b-lowctx:latest`) turned the
-timeout-only path into validated pass/inconclusive evidence. Interpretation: both are
-weak-spot results, not model passes. The useful evidence is that the weak local
-model/runtime can be exercised safely while the harness keeps contradictory output as
-`inconclusive` instead of silently promoting it.
-
-Local reports remain under `reports/` and are not committed as public benchmark evidence
-until curated and validated for public use.
+The local Prometheus/Ollama path is intentionally kept in
+[experimental-local-runtime.md](experimental-local-runtime.md). Public benchmark evidence
+starts with committed deterministic examples; local model raw responses remain local unless
+curated and validated for public release.
 
 ## Reproduce the safe deterministic showcase
 
@@ -111,6 +99,21 @@ ash validate examples/local-swarm-attack-matrix
 
 Expected current result: 33 declared variation rows, 8 variation families, 33 naive
 boundary failures, 0 bounded boundary failures, and 33 deterministic bounded blocks.
+
+Check benign utility and control attribution:
+
+```bash
+ash local-swarm-allowed --write --out reports/local-swarm-allowed-flows
+ash local-swarm-ablation --write --out reports/local-swarm-ablation-matrix
+ash validate reports/local-swarm-allowed-flows
+ash validate reports/local-swarm-ablation-matrix
+```
+
+Regenerate deterministic committed examples and compare stable metrics:
+
+```bash
+ash reproduce-examples --out reports/reproducibility-pack
+```
 
 ## Reproduce the bounded local smoke
 
