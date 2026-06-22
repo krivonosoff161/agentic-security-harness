@@ -1,4 +1,4 @@
 -r runtime.in
 pytest==9.0.3
-ruff==0.15.16
+ruff==0.15.18
 mypy==1.18.2
