@@ -1,6 +1,6 @@
 # Local Swarm Real-Model Evaluation
 
-Status: local-empirical evidence for issue #66.
+Status: local-empirical evidence for issue #66. Last refreshed: 2026-06-23.
 
 This page records a bounded local Ollama evaluation of the `local-swarm` runner. It is
 evidence about runtime execution and artifact quality, not a model-safety result.
@@ -37,33 +37,45 @@ memory-governance contracts.
 ```bash
 ash local-swarm --execute \
   --model prometheus-qwen15b-lowctx:latest \
-  --max-requests 120 \
-  --timeout 120 \
-  --out reports/local-swarm-prometheus-full-20260621
+  --max-requests 140 \
+  --timeout 60 \
+  --out .internal/local-swarm-prometheus/2026-06-23-full-clean
 
-ash validate reports/local-swarm-prometheus-full-20260621
+ash validate .internal/local-swarm-prometheus/2026-06-23-full-clean
 
 ash evidence-quality \
-  --root reports/local-swarm-prometheus-full-20260621 \
-  --out reports/evidence-quality-local-swarm-prometheus-full-20260621
+  --root .internal/local-swarm-prometheus/2026-06-23-full-clean \
+  --out .internal/evidence-quality/2026-06-23-full-clean
 ```
 
 ```bash
 ash local-swarm --execute \
   --model qwen2.5:1.5b \
-  --max-requests 120 \
-  --timeout 120 \
-  --out reports/local-swarm-qwen25-15b-full-20260621
+  --max-requests 140 \
+  --timeout 60 \
+  --out .internal/local-swarm-qwen25/2026-06-23-full-clean
 
-ash validate reports/local-swarm-qwen25-15b-full-20260621
+ash validate .internal/local-swarm-qwen25/2026-06-23-full-clean
 
 ash evidence-quality \
-  --root reports/local-swarm-qwen25-15b-full-20260621 \
-  --out reports/evidence-quality-local-swarm-qwen25-15b-full-20260621
+  --root .internal/local-swarm-qwen25/2026-06-23-full-clean \
+  --out .internal/evidence-quality/2026-06-23-full-clean
 ```
 
-Raw model-response artifacts stay in local ignored `reports/` directories. The public
-repository records only aggregate evidence-quality metrics and claim boundaries.
+Raw model-response artifacts stay in local ignored `.internal/` or `reports/`
+directories. The public repository records only aggregate evidence-quality metrics,
+artifact schemas, sanitized examples, and claim boundaries.
+
+The 2026-06-23 evidence-quality refresh over local scratch artifacts reported:
+
+```text
+local_swarm_runs: 5
+local_swarm_results: 138
+local_swarm_contract_coverage_rate: 1.000
+local_swarm_transcript_hash_coverage_rate: 1.000
+local_swarm_adapter_error_rate: 0.000
+local_swarm_runtime_mode_coverage_rate: 1.000
+```
 
 ## Interpretation
 

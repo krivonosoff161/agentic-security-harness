@@ -23,28 +23,32 @@ what the project currently proves.
 | Deterministic multi-agent handoff toy comparison | Local validated artifact | [`handoff-toy-topology.md`](../handoff-toy-topology.md) | The shipped local `toy-multi-agent` slice produces 2 modeled handoff findings, while `protected-toy-multi-agent` blocks the malformed handoffs under the same corpus. | Evidence about a live multi-agent framework, provider, or production handoff protocol. |
 | Bounded local swarm evidence suite | Validated example | [`examples/local-swarm-report/local_swarm_report.md`](../../examples/local-swarm-report/local_swarm_report.md) | The research-only `bounded_swarm` topology blocks 15 synthetic handoff, memory, memory-poisoning, approval/tool, multi-hop laundering, and verifier-outage boundary failures that `naive_swarm` accepts. | A real model, provider, framework, or production swarm is safe. |
 | Local swarm attack variation matrix | Validated example | [`examples/local-swarm-attack-matrix/local_swarm_attack_matrix.md`](../../examples/local-swarm-attack-matrix/local_swarm_attack_matrix.md) | The 15 local-swarm scenarios are expanded into 33 declared prompt-only, delayed, recovery, audit-evidence, budget, cross-provider, and model-contradiction variations; `bounded_swarm` blocks all declared rows under deterministic contracts. | Exhaustive attack coverage, cryptographic audit-log proof, or live-framework safety. |
+| Evidence campaign | Validated example | [`examples/evidence-campaign-sanitized/evidence_campaign_report.md`](../../examples/evidence-campaign-sanitized/evidence_campaign_report.md) | Across 24 cases / 72 observations / 4 claim families, bounded mode reaches attack block rate 100%, benign pass rate 100%, false-block rate 0%, and records control-ablation regressions when responsible controls are disabled. | A production guarantee, complete benign usability proof, model safety result, or proof that every possible bypass is covered. |
 | Local swarm real-model evaluation | Local empirical summary | [`local-swarm-real-model-evaluation.md`](../local-swarm-real-model-evaluation.md) | Two local Ollama models executed the full 15-scenario local-swarm suite with 100% transcript-hash coverage and 0% adapter-error rate. | The local models passed a safety benchmark or production swarm behavior is proven. |
 | External fake-server run | Validated example | [`examples/external-demo-report/README.md`](../../examples/external-demo-report/README.md) | The experimental external artifact path can validate against a deterministic local fake OpenAI-compatible endpoint. | A real model/provider is safe. |
-| Local Prometheus/Ollama smoke | Shipped bounded local-suite; local scratch artifacts | [`local-prometheus-workflow.md`](../local-prometheus-workflow.md) | A weak local model can be exercised through a named prompt-only local-suite profile; first smokes exposed evidence-quality/runtime limits. | Public benchmark finding; model leaderboard result. |
+| Local Prometheus/Ollama smoke | Shipped bounded local-suite; local scratch artifacts | [`local-prometheus-workflow.md`](../local-prometheus-workflow.md) | A weak local model can be exercised through a named prompt-only local-suite profile; first local Prometheus smokes exposed evidence-quality/runtime limits. | Public benchmark finding; model leaderboard result. |
 
-## Current local Prometheus observation
+## Current local model observation
 
-A maintainer local smoke run on the generic low-memory Ollama profile (`qwen2.5:1.5b`,
-one `data-boundary` variant, one repeat) produced:
+A maintainer local full run executed the 15-scenario `local-swarm` suite against
+`prometheus-qwen15b-lowctx:latest` and `qwen2.5:1.5b`. Each run produced:
 
 ```text
-checks: 4
-findings: 0
-inconclusive: 2
-adapter_error: 2
-validation: OK
+scenarios: 15
+modes: 3
+estimated role calls: 120
+monolith boundary failures: 15
+naive-swarm boundary failures: 15
+bounded-swarm boundary failures: 0
+verifier blocks: 15
+transcript hash coverage: 100%
+adapter error rate: 0%
 ```
 
-The recovered low-context profile (`prometheus-qwen15b-lowctx:latest`) turned the
-timeout-only path into validated pass/inconclusive evidence. Interpretation: both are
-weak-spot results, not model passes. The useful evidence is that the weak local
-model/runtime can be exercised safely while the harness keeps contradictory output as
-`inconclusive` instead of silently promoting it.
+Interpretation: this is runtime/evidence-quality data for a bounded local swarm path, not
+a model safety result. The useful evidence is that weak local models can produce role text
+under request caps while deterministic ASH contracts make every pass/block decision and
+record transcript hashes for review.
 
 Local reports remain under `reports/` and are not committed as public benchmark evidence
 until curated and validated for public use.
@@ -112,6 +116,24 @@ ash validate examples/local-swarm-attack-matrix
 Expected current result: 33 declared variation rows, 8 variation families, 33 naive
 boundary failures, 0 bounded boundary failures, and 33 deterministic bounded blocks.
 
+Calculate the evidence campaign metrics:
+
+```bash
+ash evidence-campaign --write --out .internal/evidence-campaign/latest
+ash validate .internal/evidence-campaign/latest
+```
+
+The committed sanitized example lives at `examples/evidence-campaign-sanitized/` and
+validates with:
+
+```bash
+ash validate examples/evidence-campaign-sanitized
+```
+
+Expected current result: 24 cases, 72 observations, 4 claim families, bounded attack
+block rate 100%, bounded benign pass rate 100%, bounded false-block rate 0%, and
+control-ablation rows that show which declared control carries each unsafe decision.
+
 ## Reproduce the bounded local smoke
 
 ```powershell
@@ -124,8 +146,8 @@ python -m agentic_security_harness.cli local-suite --profile prometheus-lowctx-s
 Allowed:
 
 > The project has a trace-first deterministic showcase and a documented path for local
-> real-model probes. Local weak-model runs are interpreted through explicit
-> finding/inconclusive/error states.
+> real-model probes. Bounded-swarm and evidence-campaign metrics are interpreted through
+> explicit claim boundaries, deterministic contracts, and validation commands.
 
 Not allowed:
 

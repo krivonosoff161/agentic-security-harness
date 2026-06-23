@@ -674,6 +674,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="write deterministic matrix artifacts (default: dry-run only)",
     )
 
+    campaign_p = sub.add_parser(
+        "evidence-campaign",
+        help="calculate the private-ready bounded swarm evidence campaign",
+    )
+    campaign_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path(".internal/evidence-campaign/latest"),
+        help="output directory for --write (default: .internal/evidence-campaign/latest)",
+    )
+    campaign_p.add_argument(
+        "--write",
+        action="store_true",
+        help="write campaign artifacts (default: dry-run only)",
+    )
+
     return parser
 
 
@@ -768,7 +784,8 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.external_dirs)} external dir(s), "
         f"{len(result.run_diff_dirs)} run-diff dir(s), "
         f"{len(result.local_swarm_dirs)} local-swarm dir(s), "
-        f"{len(result.local_swarm_matrix_dirs)} local-swarm-matrix dir(s)"
+        f"{len(result.local_swarm_matrix_dirs)} local-swarm-matrix dir(s), "
+        f"{len(result.evidence_campaign_dirs)} evidence-campaign dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
     if redacted_errors or redacted_warnings:
@@ -1558,6 +1575,60 @@ def _local_swarm_matrix(list_matrix: bool, out: Path, write: bool) -> int:
     return 0
 
 
+def _evidence_campaign(out: Path, write: bool) -> int:
+    from agentic_security_harness.evidence_campaign import (
+        build_evidence_campaign,
+        write_evidence_campaign_artifacts,
+    )
+    from agentic_security_harness.validation import validate_path
+
+    summary = build_evidence_campaign(created_at=_now_utc())
+    metrics = summary.metrics
+    bounded = metrics.by_mode["bounded_swarm"]
+    naive = metrics.by_mode["naive_swarm"]
+    print(
+        f"evidence-campaign cases={metrics.cases} observations={metrics.observations} "
+        f"families={metrics.claim_families}"
+    )
+    print(
+        "bounded: "
+        f"TP={bounded.true_positive} FP={bounded.false_positive} "
+        f"TN={bounded.true_negative} FN={bounded.false_negative} "
+        f"inconclusive={bounded.inconclusive}"
+    )
+    print(
+        "effect: "
+        f"naive_failure={naive.failure_rate:.2%} "
+        f"bounded_failure={bounded.failure_rate:.2%} "
+        f"control_effect={metrics.control_effect_naive_to_bounded:.2%} "
+        f"usability_cost={metrics.usability_cost_naive_to_bounded:.2%}"
+    )
+    ablation = summary.ablation_metrics
+    print(
+        "ablation: "
+        f"unsafe_regressions={ablation.unsafe_regressions}/{ablation.unsafe_cases} "
+        f"benign_regressions={ablation.benign_regressions}/{ablation.safe_cases}"
+    )
+    print(
+        "Raw model outputs are not required here; write artifacts under .internal/ "
+        "unless intentionally curating a public example."
+    )
+    if not write:
+        print("Dry-run only. Add --write to write private-ready artifacts.")
+        return 0
+
+    paths = write_evidence_campaign_artifacts(out, summary)
+    for path in paths:
+        print(f"wrote {path.as_posix()}")
+    result = validate_path(out)
+    if not result.ok:
+        print(f"Validation FAILED for {redact_artifact_text(out.as_posix())}:")
+        print(f"errors: {len(result.errors)}")
+        return 1
+    print(f"validated {out.as_posix()} (artifact integrity only).")
+    return 0
+
+
 def _list_runs(root: Path, db: Path | None) -> int:
     if db is not None:
         from agentic_security_harness.rundb import list_db_runs
@@ -1863,6 +1934,8 @@ def main(argv: list[str] | None = None) -> int:
             args.out,
             args.write,
         )
+    if args.command == "evidence-campaign":
+        return _evidence_campaign(args.out, args.write)
     if args.command == "doctor":
         return _doctor(
             args.json, args.live_local, args.base_url, args.credential_env_var,

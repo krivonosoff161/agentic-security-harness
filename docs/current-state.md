@@ -1,6 +1,6 @@
 # Current state
 
-> Last reviewed: 2026-06-20.
+> Last reviewed: 2026-06-23.
 >
 > Scope: public status of `agentic-security-harness` on `main`, version `0.13.0` plus
 > unreleased governance and evidence-hardening changes. This page is a reviewer-facing
@@ -8,8 +8,10 @@
 
 ## One-line status
 
-Agentic Security Harness is a **pre-release credible alpha**: a working trace-first,
-defensive benchmark prototype for agentic AI boundary failures.
+Agentic Security Harness is a **pre-release research toolkit**: a working trace-first,
+defensive benchmark prototype for agentic AI boundary failures with committed
+deterministic examples, bounded local-swarm evidence, and an evidence-campaign metric
+layer.
 
 It is strong enough to show as a public alpha benchmark/toolkit. It is not a production
 certification benchmark, a general pentest tool, or a claim that a target is secure.
@@ -31,6 +33,10 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | External evidence cross-check | Shipped for experimental path | Pattern id, boundary assertion, control family, decision coherence, raw response files. |
 | Local-runtime metadata | Shipped for experimental path | `run_config.runtime`, report/runtime metadata, `local-only` mode for localhost/Ollama/LM Studio/vLLM, recovery guidance. |
 | Bounded local-model suite | Shipped local slice | `ash local-suite`, named Prometheus/Ollama profiles, dry-run by default, request caps, validated artifacts after explicit `--execute`, and weak-evidence classification. |
+| Bounded local swarm | Shipped research slice | `ash local-swarm` compares monolith, naive swarm, and bounded swarm across 15 deterministic handoff, memory, approval/tool, multi-hop laundering, and verifier-outage scenarios. |
+| Attack variation matrix | Shipped research slice | `ash local-swarm-matrix` expands the 15 swarm scenarios into 33 declared variations across 8 families. |
+| Evidence campaign | Shipped research slice | `ash evidence-campaign` calculates TP/FP/FN/TN, attack block rate, benign pass rate, false-block rate, control effect, usability cost, and control-ablation regressions across 24 cases / 72 observations / 4 claim families. |
+| Local real-model swarm probes | Local empirical | Prometheus and qwen2.5 have executed the full 15-scenario swarm suite with 100% transcript-hash coverage and 0% adapter-error rate; model text remains evidence-quality context only. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
 | Public project process | Shipped locally | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, release artifact workflow. |
 
@@ -44,6 +50,9 @@ These features exist, but their results must be read conservatively:
 - `ash local-suite`: a bounded wrapper around the external path for local Prometheus/Ollama
   smoke profiles. It is useful for real local model-in-the-loop evidence, but it remains
   weak evidence unless validated artifacts show a stable finding.
+- `ash local-swarm --execute`: real local model role text can be collected through
+  bounded swarm scenarios. Deterministic contracts, not the model text, make pass/block
+  decisions.
 - External model comparisons: useful for exploratory checks, not benchmark-grade
   leaderboards.
 - Scenario matrix and timeline variants: deterministic local replay metadata and pattern
@@ -78,10 +87,13 @@ The next public-development focus is:
 4. Expand the corpus by invariant and topology, not by prompt/model cross-products.
 5. Maintain the bounded local Prometheus profiles as a small smoke path, not a broad
    model leaderboard.
-6. Expand multi-agent-handoff coverage beyond the shipped local verifier toy topology
+6. Keep the public evidence layer close to the committed artifacts: comparison,
+   local-swarm, attack matrix, evidence campaign, and showcase pages must agree on
+   counts and claim boundaries.
+7. Expand multi-agent-handoff coverage beyond the shipped local verifier toy topology
    only when each new track has explicit safety gates; keep local-runtime metadata and
    recovery guidance current.
-7. Improve public demo/showcase reports with replayable, validated artifacts.
+8. Improve public demo/showcase reports with replayable, validated artifacts.
 
 ## Validation commands
 
@@ -107,13 +119,19 @@ Expected current demonstration: the vulnerable baseline shows findings on the sh
 24-pattern corpus; the protected demo target removes those modeled findings under the
 same configuration.
 
+Expected research-swarm demonstration: `monolith` and `naive_swarm` accept the 15
+declared modeled boundary failures, while `bounded_swarm` blocks them through
+deterministic handoff, authority, memory, and verifier/auditor contracts. The 33-row
+attack matrix and 24-case evidence campaign extend that same claim boundary; they do not
+prove production swarm safety.
+
 ## Claim boundary
 
 Allowed public claim:
 
 > Trace-first defensive benchmark prototype for reproducible agentic AI boundary-failure
-> evaluation, with local deterministic targets, validated artifacts, and experimental
-> opt-in external model checks.
+> evaluation, with local deterministic targets, validated artifacts, bounded local-swarm
+> evidence, and experimental opt-in external/local model checks.
 
 Do not claim:
 

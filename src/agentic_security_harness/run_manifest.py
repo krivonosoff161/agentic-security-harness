@@ -19,7 +19,9 @@ from pydantic import BaseModel, ConfigDict, Field
 from agentic_security_harness.safe_io import write_text_artifact
 from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 
-_RUN_KINDS = frozenset({"run", "compare", "matrix", "external", "local_swarm"})
+_RUN_KINDS = frozenset(
+    {"run", "compare", "matrix", "external", "local_swarm", "evidence_campaign"}
+)
 
 
 class RunManifest(BaseModel):
