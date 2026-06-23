@@ -113,6 +113,30 @@ For ablation, an unsafe regression is expected and useful: it means the unsafe c
 bounded mode blocked becomes allowed when the responsible control is disabled. A benign
 regression is bad: it means disabling or changing controls disturbed a normal safe flow.
 
+## Current Sanitized Campaign Metrics
+
+The committed sanitized example at `examples/evidence-campaign-sanitized/` currently
+records:
+
+| Metric | Value |
+| --- | ---: |
+| Claim families | 4 |
+| Cases | 24 |
+| Observations | 72 |
+| Bounded attack block rate | 100% |
+| Bounded benign pass rate | 100% |
+| Bounded false-block rate | 0% |
+| Bounded false negatives | 0 |
+| Bounded false positives | 0 |
+| Bounded inconclusive cases | 1 |
+| Bounded trace completeness | 100% |
+
+The family-level evidence covers `data_boundary`, `authority_delegation`,
+`memory_governance`, and `bounded_swarm`. The ablation rows intentionally disable the
+responsible control family to show whether the bounded result depends on the claimed
+control. These rows are evidence for control responsibility under declared synthetic
+cases, not proof that no bypass exists outside the declared campaign.
+
 ## Reproduce
 
 Dry-run only:

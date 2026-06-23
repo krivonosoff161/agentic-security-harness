@@ -2,10 +2,13 @@
 
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/13320/badge)](https://www.bestpractices.dev/projects/13320)
 
-**A trace-first benchmark for agentic AI boundary failures.** It gives security engineers,
-AI platform teams, and researchers a safe way to reproduce synthetic agent failures,
-compare a vulnerable target with a protected target, and inspect the evidence as traces,
-scorecards, remediation, and static reports.
+**A trace-first defensive benchmark for agentic AI boundary failures.** It gives
+security engineers, AI platform teams, and researchers a safe way to reproduce
+synthetic agent failures, compare vulnerable and protected targets, and inspect the
+evidence as traces, scorecards, remediation, and static reports.
+
+Short form: this is a **trace-first benchmark** for defensive agentic AI boundary
+evaluation.
 
 In plain English: this repo answers three practical questions.
 
@@ -16,9 +19,27 @@ In plain English: this repo answers three practical questions.
 3. If a protected version passes, can the before/after improvement be validated from
    committed artifacts?
 
-## Public quick read
+## What is proven today
 
-**Status:** pre-release, credible alpha. This is a working trace-first defensive benchmark prototype for agentic AI boundary failures, not a production certification benchmark.
+**Status:** pre-release research toolkit. The project is strong enough to inspect as a
+working defensive benchmark, but it is not a production certification system and does
+not claim that any deployed agent or model is secure.
+
+| Evidence track | Current result | Start here |
+|---|---:|---|
+| Deterministic corpus | 24 synthetic boundary patterns | [`docs/corpus.md`](docs/corpus.md) |
+| Baseline vs protected demo | modeled findings reduced `24 -> 0` | [`examples/comparison-report/`](examples/comparison-report/) |
+| Bounded local swarm | `15` scenarios: monolith `15` failures, naive swarm `15`, bounded swarm `0` | [`examples/local-swarm-report/`](examples/local-swarm-report/) |
+| Attack variation matrix | `33` declared variations across `8` families; bounded failures `0` | [`examples/local-swarm-attack-matrix/`](examples/local-swarm-attack-matrix/) |
+| Evidence campaign | `24` cases, `72` observations, `4` claim families; bounded attack block rate `100%`, false-block rate `0%` | [`examples/evidence-campaign-sanitized/`](examples/evidence-campaign-sanitized/) |
+| Local model probes | Prometheus and qwen2.5 executed the full 15-scenario swarm suite with transcript-hash coverage `100%` and adapter-error rate `0%` | [`docs/local-swarm-real-model-evaluation.md`](docs/local-swarm-real-model-evaluation.md) |
+
+What these numbers mean: the declared synthetic situations are reproducible and the
+bounded contracts block the modeled unsafe transfers without blocking the declared benign
+flows. What they do **not** mean: real-world agent safety, exhaustive attack coverage, a
+model leaderboard, or a CVE-grade vulnerability claim.
+
+## Public quick read
 
 | Surface | Current status | Evidence |
 |---|---|---|
@@ -26,6 +47,8 @@ In plain English: this repo answers three practical questions.
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
 | Committed examples | Shipped | `examples/` plus `ash validate examples/`. |
 | Bounded local swarm evidence suite | Research-only example | `examples/local-swarm-report/` compares monolith, naive swarm, and bounded swarm over 15 deterministic boundary scenarios. |
+| Attack variation matrix | Research-only example | `examples/local-swarm-attack-matrix/` expands the swarm situations into 33 declared variations. |
+| Evidence campaign | Research-only example | `examples/evidence-campaign-sanitized/` exposes aggregate TP/FP/FN/TN, control effect, usability cost, and ablation metrics. |
 | CI / package checks | Shipped | `.github/workflows/ci.yml` runs tests, ruff, mypy, package build, and example validation. |
 | External model checks | Experimental | OpenAI-compatible, prompt-only, explicit opt-in, no tool execution. |
 | Native provider / agent-host adapters | Future | Not shipped; do not claim real agent or tool-execution coverage yet. |
@@ -41,6 +64,10 @@ python -m mypy src tests
 ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison
 ash validate reports/comparison
 ash validate examples/
+ash local-swarm --write-dry-run --out reports/local-swarm
+ash validate reports/local-swarm
+ash evidence-campaign --write --out .internal/evidence-campaign/latest
+ash validate .internal/evidence-campaign/latest
 ash showcase --root reports --out docs/showcase/generated
 ```
 
@@ -58,20 +85,22 @@ If you only have one minute:
 
 ```mermaid
 flowchart LR
-    A[24 synthetic boundary patterns] --> B[Vulnerable demo-agent]
-    A --> C[Protected demo-agent]
-    B --> D[24 modeled findings]
-    C --> E[0 modeled findings]
-    D --> F[Validated comparison artifact]
+    A[Declared synthetic situations] --> B[Vulnerable / naive flows]
+    A --> C[Protected / bounded flows]
+    B --> D[Modeled boundary failures]
+    C --> E[Deterministic blocks or passes]
+    D --> F[Validated artifacts]
     E --> F
-    F --> G[Trace replay + scorecard + remediation]
+    F --> G[Trace replay + scorecard + evidence metrics]
 ```
 
 | Demo question | Current public answer | Inspect |
 |---|---|---|
-| Can the corpus expose modeled boundary failures? | `demo-agent`: 24 findings | [`examples/demo-agent-report/`](examples/demo-agent-report/) |
-| Can a protected local target remove the modeled findings? | `protected-demo-agent`: 0 findings | [`examples/protected-demo-agent-report/`](examples/protected-demo-agent-report/) |
+| Can the corpus expose modeled boundary failures? | `demo-agent`: 24 modeled findings | [`examples/demo-agent-report/`](examples/demo-agent-report/) |
+| Can a protected local target remove the modeled findings? | `protected-demo-agent`: 0 modeled findings | [`examples/protected-demo-agent-report/`](examples/protected-demo-agent-report/) |
 | Is the before/after artifact reproducible? | `ash validate examples/` passes | [`examples/comparison-report/`](examples/comparison-report/) |
+| Does role separation alone fix swarm handoff failures? | No: `naive_swarm` still accepts 15 modeled failures | [`examples/local-swarm-report/`](examples/local-swarm-report/) |
+| Do deterministic bounded contracts change the outcome? | Yes, for the declared suite: bounded failures `0` | [`docs/evidence-assurance-model.md`](docs/evidence-assurance-model.md) |
 
 This is a deterministic synthetic benchmark snapshot, not evidence that a production
 agent is secure.

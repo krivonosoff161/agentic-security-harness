@@ -28,6 +28,8 @@ ash validate examples/
 | [`protected-demo-agent-report/`](protected-demo-agent-report/) | The protected agent passing all patterns (no findings, no remediation). | `ash run --target protected-demo-agent --out reports/protected` |
 | [`comparison-report/`](comparison-report/) | Baseline vs protected risk-reduction comparison. See its own [README](comparison-report/README.md). | `ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison` |
 | [`local-swarm-report/`](local-swarm-report/) | Research-only monolith vs naive swarm vs bounded swarm evidence suite over 15 deterministic boundary scenarios. | `ash local-swarm --write-dry-run --out reports/local-swarm` |
+| [`local-swarm-attack-matrix/`](local-swarm-attack-matrix/) | Research-only 33-row attack variation matrix across prompt-only, delayed, recovery, audit-evidence, budget, cross-provider, and model-contradiction families. | `ash local-swarm-matrix --write --out reports/local-swarm-attack-matrix` |
+| [`evidence-campaign-sanitized/`](evidence-campaign-sanitized/) | Sanitized evidence-campaign example: 24 cases / 72 observations / 4 claim families with TP/FP/FN/TN, control effect, usability cost, and ablation metrics. | `ash evidence-campaign --write --out .internal/evidence-campaign/latest` |
 | [`external-demo-report/`](external-demo-report/) | An external OpenAI-compatible run against the bundled fake server. | see below |
 | [`fake_openai_server.py`](fake_openai_server.py) | A deterministic local OpenAI-compatible server for the external path (no key, localhost only). | `python examples/fake_openai_server.py` |
 
@@ -42,7 +44,8 @@ Open files in this order:
 
 For comparisons start with `comparison.md`; for matrix runs start with `matrix.md`; for
 external runs start with `external_report.md`; local-swarm runs start with
-`local_swarm_report.md`.
+`local_swarm_report.md`; evidence-campaign runs start with
+`evidence_campaign_report.md`.
 
 Or render any example as a single static HTML page (no network):
 
