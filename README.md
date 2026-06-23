@@ -32,6 +32,7 @@ not claim that any deployed agent or model is secure.
 | Bounded local swarm | `15` scenarios: monolith `15` failures, naive swarm `15`, bounded swarm `0` | [`examples/local-swarm-report/`](examples/local-swarm-report/) |
 | Attack variation matrix | `33` declared variations across `8` families; bounded failures `0` | [`examples/local-swarm-attack-matrix/`](examples/local-swarm-attack-matrix/) |
 | Evidence campaign | `24` cases, `72` observations, `4` claim families; bounded attack block rate `100%`, false-block rate `0%` | [`examples/evidence-campaign-sanitized/`](examples/evidence-campaign-sanitized/) |
+| Synthetic secret-leak campaign | `4` secret-egress topologies, `23` observations; naive leaks `4/4`, bounded leaks `0/4`, ablation leaks `11/11` | [`examples/secret-leak-campaign-sanitized/`](examples/secret-leak-campaign-sanitized/) |
 | Local model probes | Prometheus and qwen2.5 executed the full 15-scenario swarm suite with transcript-hash coverage `100%` and adapter-error rate `0%` | [`docs/local-swarm-real-model-evaluation.md`](docs/local-swarm-real-model-evaluation.md) |
 
 What these numbers mean: the declared synthetic situations are reproducible and the
@@ -49,6 +50,7 @@ model leaderboard, or a CVE-grade vulnerability claim.
 | Bounded local swarm evidence suite | Research-only example | `examples/local-swarm-report/` compares monolith, naive swarm, and bounded swarm over 15 deterministic boundary scenarios. |
 | Attack variation matrix | Research-only example | `examples/local-swarm-attack-matrix/` expands the swarm situations into 33 declared variations. |
 | Evidence campaign | Research-only example | `examples/evidence-campaign-sanitized/` exposes aggregate TP/FP/FN/TN, control effect, usability cost, and ablation metrics. |
+| Synthetic secret-leak campaign | Research-only example | `examples/secret-leak-campaign-sanitized/` shows label laundering, stale memory, tool authority confusion, and split-secret recombination with raw canaries kept private. |
 | CI / package checks | Shipped | `.github/workflows/ci.yml` runs tests, ruff, mypy, package build, and example validation. |
 | External model checks | Experimental | OpenAI-compatible, prompt-only, explicit opt-in, no tool execution. |
 | Native provider / agent-host adapters | Future | Not shipped; do not claim real agent or tool-execution coverage yet. |
@@ -68,6 +70,8 @@ ash local-swarm --write-dry-run --out reports/local-swarm
 ash validate reports/local-swarm
 ash evidence-campaign --write --out .internal/evidence-campaign/latest
 ash validate .internal/evidence-campaign/latest
+ash secret-leak-campaign --write --out .internal/secret-leak-campaign/latest
+ash validate .internal/secret-leak-campaign/latest
 ash showcase --root reports --out docs/showcase/generated
 ```
 
@@ -101,6 +105,7 @@ flowchart LR
 | Is the before/after artifact reproducible? | `ash validate examples/` passes | [`examples/comparison-report/`](examples/comparison-report/) |
 | Does role separation alone fix swarm handoff failures? | No: `naive_swarm` still accepts 15 modeled failures | [`examples/local-swarm-report/`](examples/local-swarm-report/) |
 | Do deterministic bounded contracts change the outcome? | Yes, for the declared suite: bounded failures `0` | [`docs/evidence-assurance-model.md`](docs/evidence-assurance-model.md) |
+| Can synthetic secret egress be attributed to missing controls? | Yes, in the declared suite: bounded leaks `0`, ablation leaks `11` | [`docs/synthetic-secret-leak-campaign.md`](docs/synthetic-secret-leak-campaign.md) |
 
 This is a deterministic synthetic benchmark snapshot, not evidence that a production
 agent is secure.
