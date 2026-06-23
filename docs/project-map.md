@@ -53,11 +53,12 @@ If those six points hold, the benchmark is coherent.
 | Showcase generator | Builds reviewer-facing weak-spot/finding cards from existing run artifacts (`showcase`). | `src/agentic_security_harness/showcase.py`, [showcase/index.md](showcase/index.md) |
 | Run diff | `diff-runs` compares two same-kind runs (`run_diff.json` / `run_diff.md`); `compare-models` wraps this for external model artifacts. | `src/agentic_security_harness/run_diff.py`, [run-diff.md](run-diff.md) |
 | Evidence quality | `evidence-quality` summarizes recorded external/local artifact quality without making model calls or leaderboard claims. | `src/agentic_security_harness/evidence_quality.py`, [evidence-quality.md](evidence-quality.md) |
+| Evidence assurance | `evidence-campaign` calculates TP/FP/FN/TN, control effect, usability cost, and private/public evidence boundaries for bounded swarm claims. | `src/agentic_security_harness/evidence_campaign.py`, [evidence-assurance-model.md](evidence-assurance-model.md) |
 | Run history | `run_index.json` manifest per run; `list-runs` lists them; `index-runs` builds a local SQLite metadata index; `stats` summarizes history; `retention` plans cleanup. | `src/agentic_security_harness/run_manifest.py`, `rundb.py`, `stats.py` |
 | Schemas | Every JSON artifact carries a `schema_version` from one registry. | `src/agentic_security_harness/schema_versions.py`, [artifact-schemas.md](artifact-schemas.md) |
 | Validation | Checks report/external/manifest/diff artifacts, schema versions, and standards-mapping consistency. | `src/agentic_security_harness/validation.py` |
 | Diagnostics | `doctor` checks the environment (no network by default). | `src/agentic_security_harness/doctor.py` |
-| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `evidence-quality`, `validate`, `report`, `showcase`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
+| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `evidence-quality`, `evidence-campaign`, `validate`, `report`, `showcase`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
 | Adapter contract | Rules and metadata models for future model/provider/runtime adapters. | [adapter-contract.md](adapter-contract.md), `models.py` |
 | Reporting design | How executive and technical reports should be shaped. | [reporting.md](reporting.md) |
 | Research claims registry | Status table tracking each research claim from hypothesis through evidence artifacts. | [research-claims.md](research-claims.md) |
@@ -115,7 +116,7 @@ Start here by role:
 | Local model reviewer | [Local Prometheus workflow](local-prometheus-workflow.md), [Local model profiles](local-model-profiles.md), [Metrics contract](metric-contract.md), [Connect models](connect-models.md) | Run a weak local model safely and read inconclusive/error evidence correctly. |
 | Swarm reviewer | [Bounded local swarm](bounded-local-swarm.md), [Inter-agent handoff integrity](inter-agent-handoff-integrity.md), [Memory governance theory](theory/memory-governance.md) | Review monolith vs naive swarm vs bounded swarm behavior over deterministic contracts. |
 | Safety reviewer | [Research rules](research-rules.md), [Authorized testing paths](authorized-testing-paths.md), [Threat model](threat-model.md), [SECURITY](../SECURITY.md) | Confirm the project stays defensive, synthetic, and authorized. |
-| Research reviewer | [Research claims registry](research-claims.md), [Theory docs](theory/), [Research roadmap](research-roadmap.md) | Track research claim status, invariant maturity, and evidence artifacts. |
+| Research reviewer | [Research claims registry](research-claims.md), [Theory docs](theory/), [Evidence assurance model](evidence-assurance-model.md), [Research roadmap](research-roadmap.md) | Track research claim status, invariant maturity, and evidence artifacts. |
 | Boundary-layer reviewer | [Boundary-layer evidence matrix](boundary-layer-evidence-matrix.md), [Handoff theory](theory/handoff-integrity.md), [Authority theory](theory/authority-delegation.md), [Memory theory](theory/memory-governance.md) | Inspect which declared handoff, authority, and memory-governance variations are executable today. |
 | Release reviewer | [Release checklist](release-checklist.md), [Changelog](../CHANGELOG.md), [CI workflow](../.github/workflows/ci.yml) | Verify public packaging and quality gates. |
 | Git/process reviewer | [Git evidence workflow](git-evidence-workflow.md), [Agent operating guide](agent-operating-guide.md), [Project tracker](project-tracker.md) | Check that work is tied to issues, artifacts, verification, PR checks, and review gates. |
@@ -145,7 +146,8 @@ If you still want the linear path:
 14. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
 15. [Research claims registry](research-claims.md) - status table for research claims from hypothesis through evidence.
 16. [Theory docs](theory/) - cleaned invariant statements and claim boundaries for research tracks.
-17. [Roadmap](roadmap.md) - what is current, next, and future.
+17. [Evidence assurance model](evidence-assurance-model.md) - private-to-public evidence rules and bounded-swarm campaign metrics.
+18. [Roadmap](roadmap.md) - what is current, next, and future.
 
 Then run:
 

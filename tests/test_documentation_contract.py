@@ -503,6 +503,31 @@ def test_local_swarm_attack_matrix_is_documented_as_deterministic_example() -> N
     assert "local_swarm_matrix" in schemas
 
 
+def test_evidence_assurance_model_documents_campaign_metrics() -> None:
+    doc = _read("docs/evidence-assurance-model.md")
+    project_map = _read("docs/project-map.md")
+    claims = _read("docs/research-claims.md")
+    schemas = _read("docs/artifact-schemas.md")
+
+    for phrase in (
+        "Private/Public Boundary",
+        "attack_block_rate = TP / unsafe_cases",
+        "benign_pass_rate = TN / safe_cases",
+        "control_effect = naive_swarm.failure_rate - bounded_swarm.failure_rate",
+        "usability_cost = bounded_swarm.false_block_rate - naive_swarm.false_block_rate",
+        "ash evidence-campaign --write --out .internal/evidence-campaign/latest",
+        "not a production safety proof",
+    ):
+        assert phrase in doc
+
+    assert "evidence-assurance-model.md" in project_map
+    assert "evidence_campaign.py" in project_map
+    assert "docs/evidence-assurance-model.md" in claims
+    assert "tests/test_evidence_campaign.py" in claims
+    assert "evidence_campaign_summary.json" in schemas
+    assert "evidence_campaign" in schemas
+
+
 def test_research_claims_registry_status_definitions_are_unique() -> None:
     claims = _read("docs/research-claims.md")
     definitions = claims.split("## Status definitions", 1)[1].split("## Claim registry", 1)[0]

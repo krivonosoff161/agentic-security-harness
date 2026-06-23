@@ -65,6 +65,7 @@ class ValidationResult(BaseModel):
     run_diff_dirs: list[str] = Field(default_factory=list)
     local_swarm_dirs: list[str] = Field(default_factory=list)
     local_swarm_matrix_dirs: list[str] = Field(default_factory=list)
+    evidence_campaign_dirs: list[str] = Field(default_factory=list)
 
     def _err(self, msg: str) -> None:
         self.errors.append(msg)
@@ -107,6 +108,10 @@ def _is_local_swarm_matrix_dir(path: Path) -> bool:
     return (path / "local_swarm_attack_matrix.json").exists()
 
 
+def _is_evidence_campaign_dir(path: Path) -> bool:
+    return (path / "evidence_campaign_summary.json").exists()
+
+
 def validate_path(path: Path) -> ValidationResult:
     """Validate a report dir, a comparison dir, or a directory of such dirs.
 
@@ -141,6 +146,9 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
     elif _is_local_swarm_matrix_dir(path):
         result.local_swarm_matrix_dirs.append(_rel(path, root))
         _validate_local_swarm_matrix_dir(path, root, result)
+    elif _is_evidence_campaign_dir(path):
+        result.evidence_campaign_dirs.append(_rel(path, root))
+        _validate_evidence_campaign_dir(path, root, result)
     elif (path / "run_diff.json").exists():
         result.run_diff_dirs.append(_rel(path, root))
         _validate_run_diff_dir(path, root, result)
@@ -214,6 +222,51 @@ def _validate_local_swarm_matrix_dir(
     _validate_run_manifest(path, root, result)
     _scan_secrets(path / "local_swarm_attack_matrix.json", root, result)
     _scan_secrets(path / "local_swarm_attack_matrix.md", root, result)
+
+
+def _validate_evidence_campaign_dir(
+    path: Path, root: Path, result: ValidationResult
+) -> None:
+    rel = _rel(path / "evidence_campaign_summary.json", root)
+    raw = _load_json(path / "evidence_campaign_summary.json", root, result)
+    if raw is None:
+        return
+    _check_schema_version_file(
+        path / "evidence_campaign_summary.json",
+        "evidence_campaign",
+        root,
+        result,
+    )
+    from agentic_security_harness.evidence_campaign import EvidenceCampaignSummary
+
+    try:
+        summary = EvidenceCampaignSummary.model_validate(raw)
+    except ValidationError as exc:
+        result._err(f"{rel}: schema: {_fmt_error(exc)}")
+        return
+    bounded = summary.metrics.by_mode.get("bounded_swarm")
+    naive = summary.metrics.by_mode.get("naive_swarm")
+    if bounded is None or naive is None:
+        result._err(f"{rel}: missing required mode metrics")
+    elif bounded.failure_rate > naive.failure_rate:
+        result._err(f"{rel}: bounded failure rate exceeds naive failure rate")
+    if summary.metrics.claim_families < 1:
+        result._err(f"{rel}: no claim families covered")
+    if summary.metrics.cases != len(summary.cases):
+        result._err(f"{rel}: metrics.cases does not match case count")
+    if summary.metrics.observations != len(summary.observations):
+        result._err(f"{rel}: metrics.observations does not match observation count")
+    if not (path / "evidence_campaign_report.md").exists():
+        result._err(f"{_rel(path / 'evidence_campaign_report.md', root)}: missing")
+    if not (path / "evidence_campaign_digest.json").exists():
+        result._err(f"{_rel(path / 'evidence_campaign_digest.json', root)}: missing")
+    _validate_run_manifest(path, root, result)
+    for name in (
+        "evidence_campaign_summary.json",
+        "evidence_campaign_report.md",
+        "evidence_campaign_digest.json",
+    ):
+        _scan_secrets(path / name, root, result)
 
 
 def _load_json(path: Path, root: Path, result: ValidationResult) -> Any:
