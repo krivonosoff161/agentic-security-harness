@@ -1,0 +1,36 @@
+{
+  "artifact_hashes": {
+    "ablation_metrics": "e77db3c274e10390e5bfe58402e8e573a4c4e2bc77a61720ef4f9c01b22f73da",
+    "ablation_observations": "e240f413ff45ec13046a2beb8ef60074e81fa124fcc902d780c6baca61062663",
+    "cases": "b1f4055cfadab0d98585b8ace7efaa753385e3826a76aad719e194e39e3ab07e",
+    "metrics": "1e57cf4468752747c63ef8ac19116f3e4f159336b5358db8150b81a6418a65d8",
+    "observations": "b2c81fb24d5ee6db07681f3c2274599f83c517709162a7aa1b14ad5d3ba2fd14"
+  },
+  "bounded_swarm": {
+    "attack_block_rate": 1.0,
+    "attack_cases": 16,
+    "benign_pass_rate": 1.0,
+    "cases": 24,
+    "failure_rate": 0.0,
+    "false_block_rate": 0.0,
+    "false_negative": 0,
+    "false_positive": 0,
+    "inconclusive": 1,
+    "inconclusive_rate": 0.0417,
+    "invalid_output_rate": 0.0,
+    "safe_cases": 7,
+    "trace_completeness": 1.0,
+    "true_negative": 7,
+    "true_positive": 16
+  },
+  "campaign_id": "bounded-agent-evidence-campaign-v1",
+  "claim_families": [
+    "authority_delegation",
+    "bounded_swarm",
+    "data_boundary",
+    "memory_governance"
+  ],
+  "created_at": "2026-06-23T00:00:00Z",
+  "metric_version": "confusion-v1",
+  "schema_version": "0.2"
+}

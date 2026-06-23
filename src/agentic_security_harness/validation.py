@@ -256,6 +256,18 @@ def _validate_evidence_campaign_dir(
         result._err(f"{rel}: metrics.cases does not match case count")
     if summary.metrics.observations != len(summary.observations):
         result._err(f"{rel}: metrics.observations does not match observation count")
+    if summary.ablation_metrics.observations != len(summary.ablation_observations):
+        result._err(
+            f"{rel}: ablation_metrics.observations does not match ablation count"
+        )
+    if summary.ablation_metrics.observations != summary.metrics.cases:
+        result._err(f"{rel}: ablation observations do not cover every campaign case")
+    if summary.ablation_metrics.benign_regressions:
+        result._err(f"{rel}: ablation introduced benign regressions")
+    if summary.ablation_metrics.unsafe_regressions < summary.metrics.by_mode[
+        "bounded_swarm"
+    ].true_positive:
+        result._err(f"{rel}: ablation does not explain every bounded true positive")
     if not (path / "evidence_campaign_report.md").exists():
         result._err(f"{_rel(path / 'evidence_campaign_report.md', root)}: missing")
     if not (path / "evidence_campaign_digest.json").exists():

@@ -1603,6 +1603,12 @@ def _evidence_campaign(out: Path, write: bool) -> int:
         f"control_effect={metrics.control_effect_naive_to_bounded:.2%} "
         f"usability_cost={metrics.usability_cost_naive_to_bounded:.2%}"
     )
+    ablation = summary.ablation_metrics
+    print(
+        "ablation: "
+        f"unsafe_regressions={ablation.unsafe_regressions}/{ablation.unsafe_cases} "
+        f"benign_regressions={ablation.benign_regressions}/{ablation.safe_cases}"
+    )
     print(
         "Raw model outputs are not required here; write artifacts under .internal/ "
         "unless intentionally curating a public example."

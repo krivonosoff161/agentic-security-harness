@@ -47,20 +47,20 @@ def test_campaign_covers_four_claim_families_and_case_kinds() -> None:
 def test_campaign_confusion_metrics_are_calculated_from_observations() -> None:
     summary = build_evidence_campaign(created_at="2026-06-23T00:00:00Z")
 
-    assert summary.metrics.cases == 16
-    assert summary.metrics.observations == 16 * len(CAMPAIGN_MODES)
+    assert summary.metrics.cases == 24
+    assert summary.metrics.observations == 24 * len(CAMPAIGN_MODES)
     assert summary.metrics.claim_families == 4
 
     monolith = summary.metrics.by_mode["monolith"]
     naive = summary.metrics.by_mode["naive_swarm"]
     bounded = summary.metrics.by_mode["bounded_swarm"]
 
-    assert monolith.false_negative == 11
-    assert naive.false_negative == 11
-    assert bounded.true_positive == 11
+    assert monolith.false_negative == 16
+    assert naive.false_negative == 16
+    assert bounded.true_positive == 16
     assert bounded.false_negative == 0
     assert bounded.false_positive == 0
-    assert bounded.true_negative == 4
+    assert bounded.true_negative == 7
     assert bounded.inconclusive == 1
     assert bounded.attack_block_rate == 1.0
     assert bounded.benign_pass_rate == 1.0
@@ -84,6 +84,35 @@ def test_campaign_family_metrics_keep_control_effect_and_usability_cost() -> Non
         assert metrics.usability_cost_naive_to_bounded == 0.0
 
 
+def test_campaign_ablation_matrix_shows_control_contribution() -> None:
+    summary = build_evidence_campaign()
+
+    assert summary.ablation_metrics.controls == 4
+    assert summary.ablation_metrics.observations == summary.metrics.cases
+    assert summary.ablation_metrics.unsafe_cases == 16
+    assert summary.ablation_metrics.safe_cases == 7
+    assert summary.ablation_metrics.unsafe_regressions == 16
+    assert summary.ablation_metrics.benign_regressions == 0
+    assert summary.ablation_metrics.unsafe_regression_rate == 1.0
+    assert summary.ablation_metrics.benign_regression_rate == 0.0
+    assert summary.ablation_metrics.regression_by_control == {
+        "authority_verifier": 4,
+        "envelope_verifier": 5,
+        "memory_governance": 4,
+        "swarm_verifier_auditor": 3,
+    }
+    assert all(
+        item.ablated_confusion == "FN"
+        for item in summary.ablation_observations
+        if item.ground_truth == "unsafe"
+    )
+    assert all(
+        item.ablated_confusion == "TN"
+        for item in summary.ablation_observations
+        if item.ground_truth == "safe"
+    )
+
+
 def test_campaign_report_keeps_non_claims_and_private_boundary() -> None:
     summary = build_evidence_campaign()
     text = render_campaign_report(summary)
@@ -93,6 +122,8 @@ def test_campaign_report_keeps_non_claims_and_private_boundary() -> None:
     assert "not a production safety proof" in text
     assert "No live multi-agent framework is certified" in text
     assert "Failure rate" in text
+    assert "Control Ablation" in text
+    assert "Unsafe regression rate" in text
     assert "`bounded_swarm`" in text
 
 
@@ -114,8 +145,10 @@ def test_campaign_artifacts_validate_and_digest_is_private_ready(tmp_path: Path)
         (out / "evidence_campaign_summary.json").read_text(encoding="utf-8")
     )
     assert loaded.metrics.by_mode["bounded_swarm"].false_negative == 0
+    assert loaded.ablation_metrics.unsafe_regressions == 16
     digest = (out / "evidence_campaign_digest.json").read_text(encoding="utf-8")
     assert "artifact_hashes" in digest
+    assert "ablation_metrics" in digest
     assert "Raw model responses" not in digest
 
 
@@ -134,3 +167,10 @@ def test_cli_evidence_campaign_writes_valid_artifacts(tmp_path: Path) -> None:
 
     assert rc == 0
     assert validate_path(out).ok
+
+
+def test_public_sanitized_evidence_campaign_example_validates() -> None:
+    result = validate_path(Path("examples/evidence-campaign-sanitized"))
+
+    assert result.ok
+    assert result.evidence_campaign_dirs == ["evidence-campaign-sanitized"]
