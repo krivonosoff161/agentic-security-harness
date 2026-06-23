@@ -30,7 +30,7 @@ not claim that any deployed agent or model is secure.
 | Deterministic corpus | 24 synthetic boundary patterns | [`docs/corpus.md`](docs/corpus.md) |
 | Baseline vs protected demo | modeled findings reduced `24 -> 0` | [`examples/comparison-report/`](examples/comparison-report/) |
 | Bounded local swarm | `15` scenarios: monolith `15` failures, naive swarm `15`, bounded swarm `0` | [`examples/local-swarm-report/`](examples/local-swarm-report/) |
-| Attack variation matrix | `33` declared variations across `8` families; bounded failures `0` | [`examples/local-swarm-attack-matrix/`](examples/local-swarm-attack-matrix/) |
+| Attack variation matrix | `43` rows across `9` families, including `10` executable deep probes; bounded failures `0` | [`examples/local-swarm-attack-matrix/`](examples/local-swarm-attack-matrix/) |
 | Evidence campaign | `24` cases, `72` observations, `4` claim families; bounded attack block rate `100%`, false-block rate `0%` | [`examples/evidence-campaign-sanitized/`](examples/evidence-campaign-sanitized/) |
 | Local model probes | Prometheus and qwen2.5 executed the full 15-scenario swarm suite with transcript-hash coverage `100%` and adapter-error rate `0%` | [`docs/local-swarm-real-model-evaluation.md`](docs/local-swarm-real-model-evaluation.md) |
 
@@ -47,7 +47,7 @@ model leaderboard, or a CVE-grade vulnerability claim.
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
 | Committed examples | Shipped | `examples/` plus `ash validate examples/`. |
 | Bounded local swarm evidence suite | Research-only example | `examples/local-swarm-report/` compares monolith, naive swarm, and bounded swarm over 15 deterministic boundary scenarios. |
-| Attack variation matrix | Research-only example | `examples/local-swarm-attack-matrix/` expands the swarm situations into 33 declared variations. |
+| Attack variation matrix | Research-only example | `examples/local-swarm-attack-matrix/` expands the swarm situations into 43 rows, including 10 executable deep invariant probes. |
 | Evidence campaign | Research-only example | `examples/evidence-campaign-sanitized/` exposes aggregate TP/FP/FN/TN, control effect, usability cost, and ablation metrics. |
 | CI / package checks | Shipped | `.github/workflows/ci.yml` runs tests, ruff, mypy, package build, and example validation. |
 | External model checks | Experimental | OpenAI-compatible, prompt-only, explicit opt-in, no tool execution. |

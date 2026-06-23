@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1",
-  "run_id": "run_f54986e740",
+  "run_id": "run_e9f499e396",
   "run_kind": "matrix",
   "created_at": "",
   "tool_version": "",
@@ -12,6 +12,7 @@
     "base_contract",
     "budget_or_recursion_pressure",
     "cross_provider_metadata_loss",
+    "deep_invariant_probe",
     "delayed_activation",
     "model_contradiction",
     "prompt_only_pressure",
@@ -19,14 +20,14 @@
   ],
   "repeats": 1,
   "outcomes": {
-    "cases": 33,
-    "naive_boundary_failures": 33,
+    "cases": 43,
+    "naive_boundary_failures": 43,
     "bounded_boundary_failures": 0,
-    "bounded_blocks": 33
+    "bounded_blocks": 43
   },
   "metadata": {
     "base_scenarios": 15,
-    "variation_families": 8,
+    "variation_families": 9,
     "contract_coverage": 1.0
   },
   "artifacts": [

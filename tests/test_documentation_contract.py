@@ -495,7 +495,8 @@ def test_local_swarm_attack_matrix_is_documented_as_deterministic_example() -> N
         assert "examples/local-swarm-attack-matrix" in text
 
     assert "local-swarm-matrix --write" in bounded
-    assert "cases=33" in bounded
+    assert "cases=43" in bounded
+    assert "deep probe cases=10" in bounded
     assert "bounded-swarm boundary failures=0" in bounded
     assert "cryptographic audit-chain integrity remains" in bounded
     assert "separate project claim" in bounded

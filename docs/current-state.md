@@ -34,7 +34,7 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | Local-runtime metadata | Shipped for experimental path | `run_config.runtime`, report/runtime metadata, `local-only` mode for localhost/Ollama/LM Studio/vLLM, recovery guidance. |
 | Bounded local-model suite | Shipped local slice | `ash local-suite`, named Prometheus/Ollama profiles, dry-run by default, request caps, validated artifacts after explicit `--execute`, and weak-evidence classification. |
 | Bounded local swarm | Shipped research slice | `ash local-swarm` compares monolith, naive swarm, and bounded swarm across 15 deterministic handoff, memory, approval/tool, multi-hop laundering, and verifier-outage scenarios. |
-| Attack variation matrix | Shipped research slice | `ash local-swarm-matrix` expands the 15 swarm scenarios into 33 declared variations across 8 families. |
+| Attack variation matrix | Shipped research slice | `ash local-swarm-matrix` expands the 15 swarm scenarios into 43 rows across 9 families, including 10 executable deep probes over handoff and memory verifier mutations. |
 | Evidence campaign | Shipped research slice | `ash evidence-campaign` calculates TP/FP/FN/TN, attack block rate, benign pass rate, false-block rate, control effect, usability cost, and control-ablation regressions across 24 cases / 72 observations / 4 claim families. |
 | Local real-model swarm probes | Local empirical | Prometheus and qwen2.5 have executed the full 15-scenario swarm suite with 100% transcript-hash coverage and 0% adapter-error rate; model text remains evidence-quality context only. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
@@ -121,9 +121,11 @@ same configuration.
 
 Expected research-swarm demonstration: `monolith` and `naive_swarm` accept the 15
 declared modeled boundary failures, while `bounded_swarm` blocks them through
-deterministic handoff, authority, memory, and verifier/auditor contracts. The 33-row
+deterministic handoff, authority, memory, and verifier/auditor contracts. The 43-row
 attack matrix and 24-case evidence campaign extend that same claim boundary; they do not
-prove production swarm safety.
+prove production swarm safety. Ten matrix rows are executable deep probes that model
+harmful weak-model consumption attempts while deterministic contracts still make the
+pass/block decision.
 
 ## Claim boundary
 
