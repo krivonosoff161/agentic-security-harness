@@ -29,6 +29,7 @@ registry compatibility, standards mapping, and forbidden marker scans.
 | `evidence_campaign_summary.json` | `evidence_campaign` | 0.2 | `ash evidence-campaign` | `ash validate` |
 | `secret_leak_campaign_summary.json` | `secret_leak_campaign` | 0.1 | `ash secret-leak-campaign` | `ash validate` |
 | `secret_leak_variation_summary.json` | `secret_leak_variations` | 0.1 | `ash secret-leak-campaign --execute-variations` | `ash validate` |
+| `semantic_drift_summary.json` | `semantic_drift_campaign` | 0.1 | `ash semantic-drift-campaign` | `ash validate` |
 
 `run_diff` v0.2 replaces the ambiguous v0.1 coarse labels (`fixed`, `new`,
 `changed`, `unchanged`) with explicit decisive/non-decisive counters such as
@@ -67,6 +68,11 @@ Non-versioned by design:
   local-model secret-egress variation probes. Raw prompts, raw responses, and synthetic
   canary values remain under `.internal/`; the public artifact keeps only hashes,
   classifications, and aggregate metrics.
+- `semantic_drift_summary.json` is a sanitized aggregate over deterministic and private
+  local-model semantic-parameter drift probes. Raw prompts, raw responses, canonical
+  state hashes, and synthetic canary values remain under `.internal/`; the public
+  artifact keeps only response hashes, classifications, model names, pressure labels,
+  and aggregate verifier metrics.
 - A `comparison` is represented as two report directories (`baseline/`, `protected/`) plus
   `comparison.md`; there is no separate `comparison.json`. Use `ash diff-runs` for an
   arbitrary run-vs-run diff (which does emit a versioned `run_diff.json`).

@@ -7,6 +7,12 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Semantic parameter drift campaign: `ash semantic-drift-campaign` writes sanitized
+  public artifacts for 4 synthetic local mini-swarm handoff cases, including
+  deterministic bounded-vs-ablation contract results, local-model observation
+  aggregates, response-hash coverage, and validator support. Raw prompts, raw
+  responses, canonical-state hashes, and synthetic canaries stay private under
+  `.internal/`.
 - Git evidence workflow documenting the issue -> branch -> artifact -> PR -> GitHub
   checks -> review gate -> merge/close process as a public project norm.
 - Scenario timeline fixtures and validator contract for delayed activation, context
