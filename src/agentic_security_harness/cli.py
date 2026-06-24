@@ -857,6 +857,70 @@ def build_parser() -> argparse.ArgumentParser:
         help="pressure mode to include; repeatable (default: all)",
     )
 
+    propagation_p = sub.add_parser(
+        "semantic-propagation-campaign",
+        help="measure synthetic semantic drift propagation from worker to chief",
+    )
+    propagation_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path(".internal/semantic-propagation/latest"),
+        help="output directory (private by default)",
+    )
+    propagation_p.add_argument(
+        "--write",
+        action="store_true",
+        help="write sanitized deterministic propagation artifacts",
+    )
+    propagation_p.add_argument(
+        "--execute",
+        action="store_true",
+        help="run private local-model worker-to-chief probes; --out must be under .internal",
+    )
+    propagation_p.add_argument(
+        "--worker-model",
+        action="append",
+        default=None,
+        help="local worker model to probe; repeatable",
+    )
+    propagation_p.add_argument(
+        "--chief-model",
+        action="append",
+        default=None,
+        help="local chief model to probe; repeatable",
+    )
+    propagation_p.add_argument(
+        "--summary-out",
+        type=Path,
+        default=None,
+        help="optional sanitized output dir for semantic propagation summary",
+    )
+    propagation_p.add_argument(
+        "--preset",
+        default="ollama",
+        choices=preset_names(),
+        help="keyless local preset for local model probes (default: ollama)",
+    )
+    propagation_p.add_argument("--base-url", help="override preset base URL")
+    propagation_p.add_argument(
+        "--timeout",
+        type=int,
+        default=60,
+        help="per-request timeout for local model probes",
+    )
+    propagation_p.add_argument(
+        "--max-chains",
+        type=int,
+        default=64,
+        help="hard cap for worker-to-chief chains",
+    )
+    propagation_p.add_argument(
+        "--pressure-mode",
+        action="append",
+        choices=["gentle_reframe", "authority_pressure", "pseudo_code", "memory_rewrite"],
+        help="pressure mode to include; repeatable (default: all)",
+    )
+
     return parser
 
 
@@ -955,7 +1019,8 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.evidence_campaign_dirs)} evidence-campaign dir(s), "
         f"{len(result.secret_leak_campaign_dirs)} secret-leak-campaign dir(s), "
         f"{len(result.secret_leak_variation_dirs)} secret-leak-variation dir(s), "
-        f"{len(result.semantic_drift_campaign_dirs)} semantic-drift dir(s)"
+        f"{len(result.semantic_drift_campaign_dirs)} semantic-drift dir(s), "
+        f"{len(result.semantic_propagation_campaign_dirs)} semantic-propagation dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
     if redacted_errors or redacted_warnings:
@@ -2131,6 +2196,116 @@ def _semantic_drift_campaign(
     return 0
 
 
+def _semantic_propagation_campaign(
+    out: Path,
+    write: bool,
+    execute: bool,
+    worker_models: list[str] | None,
+    chief_models: list[str] | None,
+    summary_out: Path | None,
+    preset: str,
+    base_url_override: str | None,
+    timeout: int,
+    max_chains: int,
+    pressure_modes: list[str] | None,
+) -> int:
+    from agentic_security_harness.local_swarm import model_is_forbidden
+    from agentic_security_harness.semantic_propagation_campaign import (
+        PRESSURE_MODES,
+        build_semantic_propagation_campaign,
+        run_semantic_propagation_probe,
+        write_semantic_propagation_artifacts,
+        write_semantic_propagation_private_artifacts,
+    )
+    from agentic_security_harness.validation import validate_path
+
+    summary = build_semantic_propagation_campaign(created_at=_now_utc())
+    print("semantic-propagation campaign prepared.")
+    print(
+        "Public artifacts are sanitized. Raw worker/chief prompts, responses, "
+        "and synthetic markers, if collected, must stay under .internal/."
+    )
+
+    if write:
+        paths = write_semantic_propagation_artifacts(out, summary)
+        for path in paths:
+            print(f"wrote {path.as_posix()}")
+        result = validate_path(out)
+        if not result.ok:
+            print(f"Validation FAILED for {redact_artifact_text(out.as_posix())}:")
+            print(f"errors: {len(result.errors)}")
+            return 1
+        print(f"validated {out.as_posix()} (artifact integrity only).")
+
+    if execute:
+        if ".internal" not in out.parts:
+            print("Error: --execute requires --out under .internal/.")
+            return 1
+        selected_workers = worker_models or ["qwen2.5:0.5b"]
+        selected_chiefs = chief_models or ["prometheus-qwen15b-lowctx:latest"]
+        forbidden = [
+            item for item in [*selected_workers, *selected_chiefs] if model_is_forbidden(item)
+        ]
+        if forbidden:
+            print(
+                "Error: calculator model is reserved for the trading project; refused: "
+                + ", ".join(forbidden)
+            )
+            return 1
+        try:
+            base_url, credential_env_var, err = apply_preset(preset, base_url_override, "")
+        except KeyError as exc:
+            print(f"Error: {exc}")
+            return 1
+        if err:
+            print(f"Error: {err}")
+            return 1
+        if credential_env_var:
+            print("Error: semantic propagation probes accept only keyless local presets.")
+            return 1
+        selected_pressures = pressure_modes or list(PRESSURE_MODES)
+        print(
+            f"Using preset '{preset}': base_url {_redact_url(base_url)}; "
+            f"workers={', '.join(selected_workers)}; chiefs={', '.join(selected_chiefs)}"
+        )
+        try:
+            private_run = run_semantic_propagation_probe(
+                base_url=base_url,
+                worker_models=selected_workers,
+                chief_models=selected_chiefs,
+                pressure_modes=selected_pressures,  # type: ignore[arg-type]
+                timeout_seconds=timeout,
+                max_chains=max_chains,
+                created_at=_now_utc(),
+            )
+        except ValueError as exc:
+            print(f"Error: {exc}")
+            return 1
+        private_dir = out / "private_semantic_propagation_probe"
+        write_semantic_propagation_private_artifacts(private_dir, private_run)
+        print("wrote private semantic-propagation artifacts.")
+        live_summary = build_semantic_propagation_campaign(
+            private_run,
+            created_at=_now_utc(),
+        )
+        if summary_out is not None:
+            write_semantic_propagation_artifacts(summary_out, live_summary)
+            print("wrote sanitized semantic-propagation artifacts.")
+            result = validate_path(summary_out)
+            if not result.ok:
+                print(
+                    "Validation FAILED for "
+                    f"{redact_artifact_text(summary_out.as_posix())}:"
+                )
+                print(f"errors: {len(result.errors)}")
+                return 1
+            print(f"validated {summary_out.as_posix()} (artifact integrity only).")
+
+    if not write and not execute:
+        print("Dry-run only. Add --write and/or --execute.")
+    return 0
+
+
 def _list_runs(root: Path, db: Path | None) -> int:
     if db is not None:
         from agentic_security_harness.rundb import list_db_runs
@@ -2471,6 +2646,20 @@ def main(argv: list[str] | None = None) -> int:
             args.base_url,
             args.timeout,
             args.max_requests,
+            args.pressure_mode,
+        )
+    if args.command == "semantic-propagation-campaign":
+        return _semantic_propagation_campaign(
+            args.out,
+            args.write,
+            args.execute,
+            args.worker_model,
+            args.chief_model,
+            args.summary_out,
+            args.preset,
+            args.base_url,
+            args.timeout,
+            args.max_chains,
             args.pressure_mode,
         )
     if args.command == "doctor":

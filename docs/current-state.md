@@ -39,6 +39,7 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | Synthetic secret-leak campaign | Shipped research slice | `ash secret-leak-campaign` models four synthetic secret-egress topologies: naive leaks 4/4, bounded leaks 0/4, ablation leaks 11/11, benign leaks 0/4. |
 | Secret-leak variation probes | Shipped local empirical slice | `ash secret-leak-campaign --execute-variations` runs private local-model probes across 8 variation cases, 4 pressure modes, and selected Ollama models, then writes a sanitized public summary with raw prompts/responses kept under `.internal/`. |
 | Semantic parameter drift probes | Shipped local empirical slice | `ash semantic-drift-campaign` models slow relabeling pressure in a local mini-swarm: deterministic bounded mode accepts 0 drift attempts, ablation modes accept 19, and the latest private local-model smoke records 80 observations with 13 drift detections, 4 synthetic canary leaks, and 15 verifier blocks. |
+| Semantic propagation probes | Shipped local empirical slice | `ash semantic-propagation-campaign` models worker-to-chief propagation after semantic relabeling pressure: deterministic bounded mode accepts 0 propagation attempts, ablation modes accept 20, and the latest private local-model smoke records 8 observations with 2 worker drift detections, 3 chief acceptances, 2 synthetic canary leaks, and 3 verifier blocks. |
 | Local real-model swarm probes | Local empirical | Prometheus and qwen2.5 have executed the full 15-scenario swarm suite with 100% transcript-hash coverage and 0% adapter-error rate; model text remains evidence-quality context only. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
 | Public project process | Shipped locally | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, release artifact workflow. |
@@ -64,6 +65,10 @@ These features exist, but their results must be read conservatively:
 - `ash semantic-drift-campaign --execute`: private local-model semantic relabeling probes
   over synthetic mini-swarm handoff cases. Public summaries are sanitized; raw prompts,
   responses, canonical-state hashes, and canaries stay under `.internal/`.
+- `ash semantic-propagation-campaign --execute`: private local-model worker-to-chief
+  propagation probes over synthetic drifted summaries. Public summaries are sanitized;
+  raw worker/chief prompts, responses, canonical-state hashes, and canaries stay under
+  `.internal/`.
 - Scenario matrix and timeline variants: deterministic local replay metadata and pattern
   subsets, not live multi-tool execution.
 
