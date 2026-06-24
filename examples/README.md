@@ -1,10 +1,12 @@
 # Examples - committed, validated benchmark artifacts
 
-These directories are **curated, deterministic snapshots** of real `ash` output. They are
-checked by `ash validate examples/` in CI, so they always match the current corpus and
-report format. Nothing here contains secrets, real payloads, or local absolute paths.
-Each report directory has its own README that explains what produced it, how to read it,
-how to validate it, and what it does not prove.
+These directories are curated snapshots of real `ash` output. Some are deterministic
+local benchmark examples; others are sanitized local-empirical campaign summaries whose
+raw prompts, responses, canonical-state hashes, and synthetic canaries stay private under
+`.internal/`. They are checked by `ash validate examples/` in CI, so they always match
+the current artifact format. Nothing here contains secrets, real payloads, or local
+absolute paths. Each report directory has its own README that explains what produced it,
+how to read it, how to validate it, and what it does not prove.
 Before promoting any example as a public demo or release showcase, use the
 [public showcase report checklist](../docs/showcase-report-checklist.md).
 
@@ -33,7 +35,7 @@ ash validate examples/
 | [`secret-leak-campaign-sanitized/`](secret-leak-campaign-sanitized/) | Sanitized secret-leak campaign: 4 synthetic secret-egress topologies / 23 observations with naive, bounded, ablation, and benign modes. | `ash secret-leak-campaign --write --out .internal/secret-leak-campaign/latest` |
 | [`secret-leak-variations-sanitized/`](secret-leak-variations-sanitized/) | Sanitized live local-model variation smoke: 8 secret-egress pressure cases x 4 pressure modes x 2 Ollama models, with raw prompts/responses kept private. | `ash secret-leak-campaign --execute-variations --out .internal/secret-leak-variations/latest --variation-summary-out reports/secret-leak-variations` |
 | [`semantic-drift-sanitized/`](semantic-drift-sanitized/) | Sanitized semantic parameter-drift campaign: 4 relabeling cases x 4 pressure modes x 5 Ollama models, with raw prompts/responses/canaries kept private. | `ash semantic-drift-campaign --execute --out .internal/semantic-drift/latest --summary-out reports/semantic-drift` |
-| [`semantic-propagation-sanitized/`](semantic-propagation-sanitized/) | Sanitized worker-to-chief propagation smoke: 4 propagation cases, 2 pressure modes, qwen2.5 worker, llama3.2 chief, with raw prompts/responses/canaries kept private. | `ash semantic-propagation-campaign --execute --out .internal/semantic-propagation/latest --summary-out reports/semantic-propagation` |
+| [`semantic-propagation-sanitized/`](semantic-propagation-sanitized/) | Sanitized worker-to-chief propagation smoke: 4 propagation cases, 2 pressure modes, qwen2.5 worker, llama3.2 chief, 1 adapter error, and 87.5% response-hash coverage, with raw prompts/responses/canaries kept private. | `ash semantic-propagation-campaign --execute --out .internal/semantic-propagation/latest --summary-out reports/semantic-propagation` |
 | [`external-demo-report/`](external-demo-report/) | An external OpenAI-compatible run against the bundled fake server. | see below |
 | [`fake_openai_server.py`](fake_openai_server.py) | A deterministic local OpenAI-compatible server for the external path (no key, localhost only). | `python examples/fake_openai_server.py` |
 
@@ -83,5 +85,5 @@ a separate PowerShell window (no trailing `&`).
 See [docs/connect-models.md](../docs/connect-models.md) for recipes with vLLM, DeepSeek,
 Alibaba/Qwen, Ollama, LM Studio, and generic OpenAI-compatible gateways.
 
-> All artifacts here are deterministic and synthetic. Passing validation means they
-> conform to the corpus manifest - **not** that any system is secure.
+> Passing validation means the artifacts conform to the expected schema and safety
+> checks - **not** that any model, provider, or deployed system is secure.

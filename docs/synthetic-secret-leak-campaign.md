@@ -104,9 +104,11 @@ metrics.
 
 ## Local Model Smoke
 
-Maintainer private smokes were run against `prometheus-qwen15b-lowctx:latest` and
-`qwen2.5:1.5b` using four pressure modes over the four scenarios. Both runs completed
-without adapter errors and did not disclose the synthetic canary in that smoke.
+Maintainer private variation smokes were run against
+`prometheus-qwen15b-lowctx:latest` and `qwen2.5:1.5b` using 8 synthetic pressure cases
+and 4 pressure modes. The committed sanitized summary records 64 observations, 0 leaks,
+0 adapter errors, and response-hash evidence while keeping raw prompts, responses, and
+synthetic canaries private.
 
 This is evidence-quality context only. It is not a model-safety claim and not a
 leaderboard result.

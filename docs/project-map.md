@@ -40,7 +40,7 @@ If those six points hold, the benchmark is coherent.
 | Evaluation topologies | The system shapes a target adapter can represent: local target, agent, memory loop, tool loop, model chain, handoff, provider boundary, recovery path. | [evaluation-topologies.md](evaluation-topologies.md) |
 | Corpus expansion plan | Invariant-based backlog for future patterns without full combinatorial expansion. | [corpus-expansion-plan.md](corpus-expansion-plan.md) |
 | Patterns | Sanitized test cases the runner sends to targets. | `src/agentic_security_harness/patterns.py` |
-| Targets | Local systems under test: `mock`, `demo-agent`, `protected-demo-agent`, and toy adapters `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`. | `src/agentic_security_harness/*agent*.py`, `mock_target.py`, `toy_adapters.py` |
+| Targets | Local systems under test: `mock`, `demo-agent`, `protected-demo-agent`, and toy adapters `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, `protected-toy-multi-agent`. | `src/agentic_security_harness/*agent*.py`, `mock_target.py`, `toy_adapters.py` |
 | Runner | Converts `pattern + target` into traces. | `src/agentic_security_harness/runner.py` |
 | Scenario matrix | Runs scenario variants and aggregates stability (`run-matrix`). | `src/agentic_security_harness/matrix.py` |
 | Scenario timeline contract | Typed `ScenarioTimeline` model + fail-closed `validate_timeline()` + deterministic `replay_timeline()` for time-shaped multi-actor scenarios, with committed synthetic fixtures (delayed activation, priority drift, handoff provenance). Replay shows the modeled finding/PASS decision step; it is not a live multi-agent runtime. | `src/agentic_security_harness/scenario_timeline.py`, `tests/fixtures/timelines/`, [scenario-timeline.md](scenario-timeline.md) |
@@ -55,11 +55,13 @@ If those six points hold, the benchmark is coherent.
 | Evidence quality | `evidence-quality` summarizes recorded external/local artifact quality without making model calls or leaderboard claims. | `src/agentic_security_harness/evidence_quality.py`, [evidence-quality.md](evidence-quality.md) |
 | Evidence assurance | `evidence-campaign` calculates TP/FP/FN/TN, control effect, usability cost, control ablation, and private/public evidence boundaries for bounded swarm claims. | `src/agentic_security_harness/evidence_campaign.py`, [evidence-assurance-model.md](evidence-assurance-model.md), `examples/evidence-campaign-sanitized/` |
 | Secret-egress research | `secret-leak-campaign` calculates deterministic synthetic secret-egress controls, control ablation, and optional private local-model variation probes with sanitized summaries. | `src/agentic_security_harness/secret_leak_campaign.py`, [synthetic-secret-leak-campaign.md](synthetic-secret-leak-campaign.md), `examples/secret-leak-campaign-sanitized/`, `examples/secret-leak-variations-sanitized/` |
+| Semantic drift research | `semantic-drift-campaign` measures slow relabeling pressure over local mini-swarm cases, with deterministic bounded/ablation rows and optional private local-model probes. | `src/agentic_security_harness/semantic_drift_campaign.py`, `examples/semantic-drift-sanitized/`, [showcase/evidence-map.md](showcase/evidence-map.md) |
+| Semantic propagation research | `semantic-propagation-campaign` measures whether drifted worker summaries propagate into a chief decision, while surfacing adapter errors and response-hash coverage in sanitized public artifacts. | `src/agentic_security_harness/semantic_propagation_campaign.py`, `examples/semantic-propagation-sanitized/`, [showcase/evidence-map.md](showcase/evidence-map.md) |
 | Run history | `run_index.json` manifest per run; `list-runs` lists them; `index-runs` builds a local SQLite metadata index; `stats` summarizes history; `retention` plans cleanup. | `src/agentic_security_harness/run_manifest.py`, `rundb.py`, `stats.py` |
 | Schemas | Every JSON artifact carries a `schema_version` from one registry. | `src/agentic_security_harness/schema_versions.py`, [artifact-schemas.md](artifact-schemas.md) |
 | Validation | Checks report/external/manifest/diff artifacts, schema versions, and standards-mapping consistency. | `src/agentic_security_harness/validation.py` |
 | Diagnostics | `doctor` checks the environment (no network by default). | `src/agentic_security_harness/doctor.py` |
-| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `evidence-quality`, `evidence-campaign`, `validate`, `report`, `showcase`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
+| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `local-suite`, `local-swarm`, `local-swarm-matrix`, `diff-runs`, `compare-models`, `evidence-quality`, `evidence-campaign`, `secret-leak-campaign`, `semantic-drift-campaign`, `semantic-propagation-campaign`, `validate`, `report`, `showcase`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
 | Adapter contract | Rules and metadata models for future model/provider/runtime adapters. | [adapter-contract.md](adapter-contract.md), `models.py` |
 | Reporting design | How executive and technical reports should be shaped. | [reporting.md](reporting.md) |
 | Research claims registry | Status table tracking each research claim from hypothesis through evidence artifacts. | [research-claims.md](research-claims.md) |
@@ -83,7 +85,8 @@ If those six points hold, the benchmark is coherent.
 - No streaming, multi-turn agent host, or MCP server adapter.
 - No multimodal/audio generation.
 - No HTTP reference gateway runtime.
-- No database, persistent trace store, or web dashboard.
+- No durable production trace database or web dashboard. The shipped SQLite run metadata
+  index is local optional metadata only; JSON/Markdown artifacts remain authoritative.
 
 These are roadmap or future-track items. They should not be described as shipped behavior.
 

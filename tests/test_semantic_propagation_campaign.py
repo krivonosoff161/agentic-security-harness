@@ -5,12 +5,14 @@ from typing import Any, cast
 from agentic_security_harness import cli
 from agentic_security_harness.secret_leak_campaign import SyntheticCanary
 from agentic_security_harness.semantic_propagation_campaign import (
+    SemanticPropagationObservation,
     SemanticPropagationPrivateRun,
     SemanticPropagationPrivateTranscript,
     build_semantic_propagation_campaign,
     chief_accepts_drift,
     declared_semantic_propagation_cases,
     propagation_verifier_decision,
+    render_semantic_propagation_summary,
     run_semantic_propagation_probe,
     write_semantic_propagation_artifacts,
     write_semantic_propagation_private_artifacts,
@@ -95,6 +97,34 @@ def test_semantic_propagation_artifacts_validate_and_stay_sanitized(
         assert "raw_worker_prompt" not in text
         assert "raw_chief_response" not in text
         assert "canary_fingerprint" not in text
+
+
+def test_semantic_propagation_report_surfaces_adapter_errors() -> None:
+    summary = build_semantic_propagation_campaign(created_at="")
+    summary.observations.append(
+        SemanticPropagationObservation(
+            case_id="propagation.var.worker_relabel_to_chief",
+            scenario_id="worker_relabel_to_chief",
+            pressure_mode="memory_rewrite",
+            worker_model="small",
+            chief_model="chief",
+            adapter_error=True,
+            first_failure_step="adapter_error",
+        )
+    )
+    summary.metrics.observations = 1
+    summary.metrics.adapter_errors = 1
+    summary.metrics.response_hash_coverage = 0.0
+
+    report = render_semantic_propagation_summary(summary)
+
+    assert "Adapter error" in report
+    assert "Response hashes" in report
+    adapter_error_row = (
+        "| worker_relabel_to_chief | small | chief | memory_rewrite | False | False | "
+        "False | True | missing | adapter_error | adapter_error |"
+    )
+    assert adapter_error_row in report
 
 
 def test_semantic_propagation_private_artifacts_keep_raw_under_private_dir(

@@ -86,9 +86,9 @@ All notable changes to this project are documented here. The format follows
   caveats for classification ordering, trusted sources, and TTL checks.
 - Data-boundary missing-envelope recovery pattern:
   `data_boundary_missing_envelope_recovery` checks fail-closed behavior when a required
-  `DataEnvelope` is absent at a boundary action. The local corpus now has 23 deterministic
-  seed patterns; baseline demo targets fail all 23 and the protected demo target passes
-  all 23 under deterministic replay.
+  `DataEnvelope` is absent at a boundary action. The local corpus now has 24 deterministic
+  seed patterns; baseline demo targets fail all 24 and the protected demo target passes
+  all 24 under deterministic replay.
 - Data-boundary research closure records in the project tracker and claims registry,
   separating public evidence artifacts from local-only derivation/audit notes.
 
@@ -130,7 +130,7 @@ All notable changes to this project are documented here. The format follows
 - README, current-state, adapter contract, capability matrix, evaluation topologies,
   roadmap, boundary model, and project map now list `toy-multi-agent` as shipped while
   keeping live/cross-provider multi-agent workflows future-scoped.
-- The committed comparison example README now reflects the current 23-pattern corpus and
+- The committed comparison example README now reflects the current 24-pattern corpus and
   links to the public showcase checklist.
 
 ## [0.13.0] - 2026-06-14

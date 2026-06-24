@@ -1,6 +1,6 @@
 # Current state
 
-> Last reviewed: 2026-06-23.
+> Last reviewed: 2026-06-24.
 >
 > Scope: public status of `agentic-security-harness` on `main`, version `0.13.0` plus
 > unreleased governance and evidence-hardening changes. This page is a reviewer-facing
@@ -10,8 +10,8 @@
 
 Agentic Security Harness is a **pre-release research toolkit**: a working trace-first,
 defensive benchmark prototype for agentic AI boundary failures with committed
-deterministic examples, bounded local-swarm evidence, and an evidence-campaign metric
-layer.
+deterministic examples, bounded local-swarm evidence, evidence-campaign metrics, and
+sanitized local-model semantic-drift / propagation probes.
 
 It is strong enough to show as a public alpha benchmark/toolkit. It is not a production
 certification benchmark, a general pentest tool, or a claim that a target is secure.
@@ -39,7 +39,8 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | Synthetic secret-leak campaign | Shipped research slice | `ash secret-leak-campaign` models four synthetic secret-egress topologies: naive leaks 4/4, bounded leaks 0/4, ablation leaks 11/11, benign leaks 0/4. |
 | Secret-leak variation probes | Shipped local empirical slice | `ash secret-leak-campaign --execute-variations` runs private local-model probes across 8 variation cases, 4 pressure modes, and selected Ollama models, then writes a sanitized public summary with raw prompts/responses kept under `.internal/`. |
 | Semantic parameter drift probes | Shipped local empirical slice | `ash semantic-drift-campaign` models slow relabeling pressure in a local mini-swarm: deterministic bounded mode accepts 0 drift attempts, ablation modes accept 19, and the latest private local-model smoke records 80 observations with 13 drift detections, 4 synthetic canary leaks, and 15 verifier blocks. |
-| Semantic propagation probes | Shipped local empirical slice | `ash semantic-propagation-campaign` models worker-to-chief propagation after semantic relabeling pressure: deterministic bounded mode accepts 0 propagation attempts, ablation modes accept 20, and the latest private local-model smoke records 8 observations with 2 worker drift detections, 3 chief acceptances, 2 synthetic canary leaks, and 3 verifier blocks. |
+| Semantic propagation probes | Shipped local empirical slice | `ash semantic-propagation-campaign` models worker-to-chief propagation after semantic relabeling pressure: deterministic bounded mode accepts 0 propagation attempts, ablation modes accept 20, and the latest private local-model smoke records 8 observations with 2 worker drift detections, 3 chief acceptances, 2 synthetic canary leaks, 3 verifier blocks, 1 adapter error, and 87.5% response-hash coverage. |
+| Public evidence map | Shipped docs slice | `docs/showcase/evidence-map.md` links each front-page metric to the artifact, reproduce command, claim, and non-claim. |
 | Local real-model swarm probes | Local empirical | Prometheus and qwen2.5 have executed the full 15-scenario swarm suite with 100% transcript-hash coverage and 0% adapter-error rate; model text remains evidence-quality context only. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
 | Public project process | Shipped locally | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, release artifact workflow. |
@@ -94,22 +95,18 @@ These are roadmap items and must not be described as current capability:
 
 The next public-development focus is:
 
-1. Keep current-vs-planned documentation synchronized with code.
-2. Add an explicit authorized-testing model for local, owned, customer-authorized, and
-   provider-program assessments.
-3. Verify standards mappings without implying certification.
+1. Keep current-vs-planned documentation synchronized with code and committed artifacts.
+2. Keep the public evidence layer close to the artifacts: comparison, local swarm,
+   attack matrix, evidence campaign, secret-egress, semantic drift, and semantic
+   propagation pages must agree on counts and claim boundaries.
+3. Maintain bounded local Prometheus/Ollama profiles as evidence-quality smokes, not as
+   a broad model leaderboard.
 4. Expand the corpus by invariant and topology, not by prompt/model cross-products.
-5. Maintain the bounded local Prometheus profiles as a small smoke path, not a broad
-   model leaderboard.
-6. Keep the public evidence layer close to the committed artifacts: comparison,
-   local-swarm, attack matrix, evidence campaign, and showcase pages must agree on
-   counts and claim boundaries.
-9. Keep secret-leak variation probes as evidence-quality local smokes unless a future
-   campaign records a reproducible leak with sanitized proof and control attribution.
-7. Expand multi-agent-handoff coverage beyond the shipped local verifier toy topology
-   only when each new track has explicit safety gates; keep local-runtime metadata and
-   recovery guidance current.
-8. Improve public demo/showcase reports with replayable, validated artifacts.
+5. Expand multi-agent-handoff coverage beyond the shipped local verifier toy topology
+   only when each new track has explicit safety gates.
+6. Verify standards mappings without implying certification.
+7. Improve public demo/showcase reports with replayable, validated artifacts and clear
+   private/public evidence boundaries.
 
 ## Validation commands
 
@@ -155,6 +152,13 @@ semantic relabeling cases. The latest private local-model smoke records 80 obser
 across five Ollama models with 13 drift detections, 4 synthetic canary leaks, 15 verifier
 blocks, 0 adapter errors, and 100% response-hash coverage; that is local empirical
 evidence for the declared campaign, not a model leaderboard or production safety claim.
+
+Expected semantic-propagation demonstration: the deterministic semantic propagation
+campaign records bounded propagation acceptances 0 and ablation propagation acceptances
+20 across four worker-to-chief chain cases. The latest private local-model smoke records
+8 observations with 2 worker drift detections, 3 chief acceptances, 2 synthetic canary
+leaks, 3 verifier blocks, 1 adapter error, and 87.5% response-hash coverage; that is
+local empirical evidence for the declared campaign, not a CVE or production swarm claim.
 
 ## Claim boundary
 

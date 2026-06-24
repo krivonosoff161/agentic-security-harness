@@ -32,6 +32,7 @@ def test_readme_links_methodology_docs() -> None:
         "docs/local-model-profiles.md",
         "docs/scenario-timeline.md",
         "docs/showcase/index.md",
+        "docs/showcase/evidence-map.md",
         "docs/showcase/scenario-matrix.md",
         "docs/showcase/weak-spots-and-findings.md",
         "GOVERNANCE.md",
@@ -162,6 +163,7 @@ def test_showcase_separates_weak_spots_findings_and_deepening() -> None:
     profiles = _read("docs/local-model-profiles.md")
 
     for phrase in (
+        "Evidence map",
         "Scenario matrix",
         "Weak spots and findings",
         "Deepening backlog",
@@ -344,11 +346,19 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
         "#48",
         "#50",
         "#57",
+        "#61",
+        "#63",
+        "#64",
+        "#65",
+        "#66",
+        "#67",
+        "#80",
+        "#82",
+        "#84",
     ):
         assert issue not in open_work
         assert issue in completed
-    for issue in ("#61", "#63", "#64", "#65", "#66", "#67"):
-        assert issue in open_work
+    assert "#87" in open_work
     assert "None currently tracked." not in open_work
     assert (
         "`ash evidence-quality` summarizes recorded external/local artifacts"
@@ -361,6 +371,7 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
     )[0]
     assert "#29" not in open_maintenance
     assert "None currently tracked." in open_maintenance
+    assert "pending repository review/merge" not in tracker
 
 
 def test_handoff_source_map_uses_corrected_research_ids() -> None:
@@ -452,6 +463,10 @@ def test_research_claims_registry_exists_and_has_required_structure() -> None:
         "Inter-agent handoff integrity",
         "Local Prometheus weak-model evidence quality",
         "Small-model swarm handoff evidence quality",
+        "Synthetic secret-egress control attribution",
+        "Secret-egress local variation evidence quality",
+        "Semantic parameter drift in local mini-swarm",
+        "Semantic drift propagation in worker-to-chief chains",
     ):
         assert claim in claims
 
@@ -527,6 +542,35 @@ def test_evidence_assurance_model_documents_campaign_metrics() -> None:
     assert "tests/test_evidence_campaign.py" in claims
     assert "evidence_campaign_summary.json" in schemas
     assert "evidence_campaign" in schemas
+
+
+def test_public_evidence_map_links_current_campaign_metrics() -> None:
+    evidence_map = _read("docs/showcase/evidence-map.md")
+    readme = _read("README.md")
+    showcase = _read("docs/showcase/index.md")
+    prop_report = _read(
+        "examples/semantic-propagation-sanitized/semantic_propagation_report.md"
+    )
+
+    for phrase in (
+        "Deterministic corpus comparison",
+        "Semantic propagation chain",
+        "adapter errors `1`",
+        "response hash coverage `87.5%`",
+        "private calculations that must stay under `.internal/`",
+        "Adapter errors are passes",
+    ):
+        assert phrase in evidence_map
+
+    assert "docs/showcase/evidence-map.md" in readme
+    assert "Evidence map" in showcase
+    assert "Adapter error" in prop_report
+    assert "Response hashes" in prop_report
+    adapter_error_row = (
+        "| worker_relabel_to_chief | qwen2.5:0.5b | llama3.2:1b | pseudo_code | "
+        "True | False | False | True | worker_only | adapter_error | - |"
+    )
+    assert adapter_error_row in prop_report
 
 
 def test_research_claims_registry_status_definitions_are_unique() -> None:
