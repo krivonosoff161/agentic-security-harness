@@ -27,6 +27,7 @@ design-led inter-agent handoff integrity track.
 | [#66 research: run local Prometheus swarm evaluation](https://github.com/krivonosoff161/agentic-security-harness/issues/66) | Local swarm / local empirical | Full 15-scenario local Ollama runs completed for `prometheus-qwen15b-lowctx:latest` and `qwen2.5:1.5b`; public summary is pending repository review/merge. |
 | [#67 research: add local-swarm attack variation matrix](https://github.com/krivonosoff161/agentic-security-harness/issues/67) | Local swarm / attack matrix | Implemented; deterministic 43-row attack/slom matrix calculates prompt-only, delayed, recovery, audit-evidence, budget, cross-provider, model-contradiction, and executable deep invariant probes over the 15 local-swarm base scenarios. |
 | [#75 PR: adversarial evidence campaign](https://github.com/krivonosoff161/agentic-security-harness/pull/75) | Git / review | Active PR for the current evidence branch. GitHub checks are green; merge is blocked only by the repository review rule. |
+| [#80 research: live local-model secret-leak variation campaign](https://github.com/krivonosoff161/agentic-security-harness/issues/80) | Secret-egress / local empirical | Active branch measures 8 synthetic secret-egress pressure variations across local Ollama models, stores raw prompts/responses under `.internal/`, and publishes only sanitized aggregate metrics. |
 
 ## Open maintenance work
 
@@ -55,6 +56,7 @@ None currently tracked.
 | [#54 research: publish inter-agent handoff toy evidence](https://github.com/krivonosoff161/agentic-security-harness/issues/54) | Multi-agent / handoff | `examples/handoff-toy-comparison/` is a committed public artifact for toy coordinator/worker handoff evidence, validated by `ash validate examples/handoff-toy-comparison`. |
 | [#55 research: define memory-governance invariant layer](https://github.com/krivonosoff161/agentic-security-harness/issues/55) | Memory governance / theory | `memory_governance.py` adds executable synthetic checks for TTL-from-write, envelope drift, provenance metadata, trust floor, trust precedence, and scope isolation, with public theory docs and tests. |
 | [#57 research: harden boundary layer evidence matrices](https://github.com/krivonosoff161/agentic-security-harness/issues/57) | Boundary-layer research | `boundary-layer-evidence-matrix.md` ties 22 declared handoff, authority, and memory-governance variation rows to executable tests while keeping private scratch calculations out of public evidence. |
+| [#78 research: add synthetic secret-leak campaign](https://github.com/krivonosoff161/agentic-security-harness/issues/78) | Secret-egress / evidence | `ash secret-leak-campaign` adds 4 deterministic synthetic secret-egress topologies with naive, bounded, ablation, and benign modes; committed sanitized artifacts validate without raw canaries. |
 
 ## Recently completed local research closures
 

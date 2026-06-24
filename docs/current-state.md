@@ -36,6 +36,8 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | Bounded local swarm | Shipped research slice | `ash local-swarm` compares monolith, naive swarm, and bounded swarm across 15 deterministic handoff, memory, approval/tool, multi-hop laundering, and verifier-outage scenarios. |
 | Attack variation matrix | Shipped research slice | `ash local-swarm-matrix` expands the 15 swarm scenarios into 43 rows across 9 families, including 10 executable deep probes over handoff and memory verifier mutations. |
 | Evidence campaign | Shipped research slice | `ash evidence-campaign` calculates TP/FP/FN/TN, attack block rate, benign pass rate, false-block rate, control effect, usability cost, and control-ablation regressions across 24 cases / 72 observations / 4 claim families. |
+| Synthetic secret-leak campaign | Shipped research slice | `ash secret-leak-campaign` models four synthetic secret-egress topologies: naive leaks 4/4, bounded leaks 0/4, ablation leaks 11/11, benign leaks 0/4. |
+| Secret-leak variation probes | Shipped local empirical slice | `ash secret-leak-campaign --execute-variations` runs private local-model probes across 8 variation cases, 4 pressure modes, and selected Ollama models, then writes a sanitized public summary with raw prompts/responses kept under `.internal/`. |
 | Local real-model swarm probes | Local empirical | Prometheus and qwen2.5 have executed the full 15-scenario swarm suite with 100% transcript-hash coverage and 0% adapter-error rate; model text remains evidence-quality context only. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
 | Public project process | Shipped locally | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, release artifact workflow. |
@@ -55,6 +57,9 @@ These features exist, but their results must be read conservatively:
   decisions.
 - External model comparisons: useful for exploratory checks, not benchmark-grade
   leaderboards.
+- `ash secret-leak-campaign --execute-variations`: private local-model pressure probes
+  over synthetic secret-egress cases. Public summaries are sanitized; raw prompts,
+  responses, and canaries stay under `.internal/`.
 - Scenario matrix and timeline variants: deterministic local replay metadata and pattern
   subsets, not live multi-tool execution.
 
@@ -90,6 +95,8 @@ The next public-development focus is:
 6. Keep the public evidence layer close to the committed artifacts: comparison,
    local-swarm, attack matrix, evidence campaign, and showcase pages must agree on
    counts and claim boundaries.
+9. Keep secret-leak variation probes as evidence-quality local smokes unless a future
+   campaign records a reproducible leak with sanitized proof and control attribution.
 7. Expand multi-agent-handoff coverage beyond the shipped local verifier toy topology
    only when each new track has explicit safety gates; keep local-runtime metadata and
    recovery guidance current.
@@ -126,6 +133,12 @@ attack matrix and 24-case evidence campaign extend that same claim boundary; the
 prove production swarm safety. Ten matrix rows are executable deep probes that model
 harmful weak-model consumption attempts while deterministic contracts still make the
 pass/block decision.
+
+Expected secret-egress demonstration: the deterministic secret-leak campaign records
+naive leaks 4/4, bounded leaks 0/4, ablation leaks 11/11, and benign leaks 0/4. The
+Phase 2 variation smoke currently records 64 private local-model observations across two
+Ollama models with 0 leaks and 0 adapter errors; that is evidence-quality context, not a
+model safety proof.
 
 ## Claim boundary
 

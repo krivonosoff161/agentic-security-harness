@@ -68,6 +68,7 @@ class ValidationResult(BaseModel):
     local_swarm_matrix_dirs: list[str] = Field(default_factory=list)
     evidence_campaign_dirs: list[str] = Field(default_factory=list)
     secret_leak_campaign_dirs: list[str] = Field(default_factory=list)
+    secret_leak_variation_dirs: list[str] = Field(default_factory=list)
 
     def _err(self, msg: str) -> None:
         self.errors.append(msg)
@@ -118,6 +119,10 @@ def _is_secret_leak_campaign_dir(path: Path) -> bool:
     return (path / "secret_leak_campaign_summary.json").exists()
 
 
+def _is_secret_leak_variation_dir(path: Path) -> bool:
+    return (path / "secret_leak_variation_summary.json").exists()
+
+
 def validate_path(path: Path) -> ValidationResult:
     """Validate a report dir, a comparison dir, or a directory of such dirs.
 
@@ -158,6 +163,9 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
     elif _is_secret_leak_campaign_dir(path):
         result.secret_leak_campaign_dirs.append(_rel(path, root))
         _validate_secret_leak_campaign_dir(path, root, result)
+    elif _is_secret_leak_variation_dir(path):
+        result.secret_leak_variation_dirs.append(_rel(path, root))
+        _validate_secret_leak_variation_dir(path, root, result)
     elif (path / "run_diff.json").exists():
         result.run_diff_dirs.append(_rel(path, root))
         _validate_run_diff_dir(path, root, result)
@@ -337,6 +345,55 @@ def _validate_secret_leak_campaign_dir(
         "secret_leak_campaign_summary.json",
         "secret_leak_campaign_report.md",
         "secret_leak_campaign_digest.json",
+    ):
+        _scan_secrets(path / name, root, result)
+
+
+def _validate_secret_leak_variation_dir(
+    path: Path, root: Path, result: ValidationResult
+) -> None:
+    rel = _rel(path / "secret_leak_variation_summary.json", root)
+    raw = _load_json(path / "secret_leak_variation_summary.json", root, result)
+    if raw is None:
+        return
+    _check_schema_version_file(
+        path / "secret_leak_variation_summary.json",
+        "secret_leak_variations",
+        root,
+        result,
+    )
+    from agentic_security_harness.secret_leak_campaign import (
+        SecretLeakVariationSummary,
+    )
+
+    try:
+        summary = SecretLeakVariationSummary.model_validate(raw)
+    except ValidationError as exc:
+        result._err(f"{rel}: schema: {_fmt_error(exc)}")
+        return
+    if summary.metrics.cases != len(summary.cases):
+        result._err(f"{rel}: metrics.cases does not match case count")
+    if summary.metrics.observations != len(summary.observations):
+        result._err(f"{rel}: metrics.observations does not match observation count")
+    if summary.metrics.models != len({item.model for item in summary.observations}):
+        result._err(f"{rel}: metrics.models does not match observation models")
+    if summary.metrics.leaks != sum(1 for item in summary.observations if item.leaked):
+        result._err(f"{rel}: metrics.leaks does not match observations")
+    if summary.metrics.adapter_errors != sum(
+        1 for item in summary.observations if item.adapter_error
+    ):
+        result._err(f"{rel}: metrics.adapter_errors does not match observations")
+    if _contains_forbidden_raw_fields(raw):
+        result._err(f"{rel}: public artifact contains raw prompt/response/value fields")
+    if not (path / "secret_leak_variation_report.md").exists():
+        result._err(f"{_rel(path / 'secret_leak_variation_report.md', root)}: missing")
+    if not (path / "secret_leak_variation_digest.json").exists():
+        result._err(f"{_rel(path / 'secret_leak_variation_digest.json', root)}: missing")
+    _validate_run_manifest(path, root, result)
+    for name in (
+        "secret_leak_variation_summary.json",
+        "secret_leak_variation_report.md",
+        "secret_leak_variation_digest.json",
     ):
         _scan_secrets(path / name, root, result)
 
