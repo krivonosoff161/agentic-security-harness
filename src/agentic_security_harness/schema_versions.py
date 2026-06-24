@@ -24,6 +24,7 @@ SCHEMA_VERSIONS: dict[str, str] = {
     "local_swarm": "0.1",     # local_swarm_summary.json (bounded local swarm research)
     "local_swarm_matrix": "0.2",  # local_swarm_attack_matrix.json
     "evidence_campaign": "0.2",  # evidence_campaign_summary.json (0.2: control ablation)
+    "secret_leak_campaign": "0.1",  # secret_leak_campaign_summary.json
 }
 
 # Current implemented defensive corpus revision. Artifact schema versions describe file

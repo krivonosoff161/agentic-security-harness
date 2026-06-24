@@ -30,6 +30,7 @@ ash validate examples/
 | [`local-swarm-report/`](local-swarm-report/) | Research-only monolith vs naive swarm vs bounded swarm evidence suite over 15 deterministic boundary scenarios. | `ash local-swarm --write-dry-run --out reports/local-swarm` |
 | [`local-swarm-attack-matrix/`](local-swarm-attack-matrix/) | Research-only 43-row attack variation matrix across 9 families, including 10 executable deep invariant probes for handoff/memory mutations. | `ash local-swarm-matrix --write --out reports/local-swarm-attack-matrix` |
 | [`evidence-campaign-sanitized/`](evidence-campaign-sanitized/) | Sanitized evidence-campaign example: 24 cases / 72 observations / 4 claim families with TP/FP/FN/TN, control effect, usability cost, and ablation metrics. | `ash evidence-campaign --write --out .internal/evidence-campaign/latest` |
+| [`secret-leak-campaign-sanitized/`](secret-leak-campaign-sanitized/) | Sanitized secret-leak campaign: 4 synthetic secret-egress topologies / 23 observations with naive, bounded, ablation, and benign modes. | `ash secret-leak-campaign --write --out .internal/secret-leak-campaign/latest` |
 | [`external-demo-report/`](external-demo-report/) | An external OpenAI-compatible run against the bundled fake server. | see below |
 | [`fake_openai_server.py`](fake_openai_server.py) | A deterministic local OpenAI-compatible server for the external path (no key, localhost only). | `python examples/fake_openai_server.py` |
 
@@ -45,7 +46,8 @@ Open files in this order:
 For comparisons start with `comparison.md`; for matrix runs start with `matrix.md`; for
 external runs start with `external_report.md`; local-swarm runs start with
 `local_swarm_report.md`; evidence-campaign runs start with
-`evidence_campaign_report.md`.
+`evidence_campaign_report.md`; secret-leak campaign runs start with
+`secret_leak_campaign_report.md`.
 
 Or render any example as a single static HTML page (no network):
 

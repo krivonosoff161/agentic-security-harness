@@ -27,6 +27,7 @@ registry compatibility, standards mapping, and forbidden marker scans.
 | `local_swarm_summary.json` | `local_swarm` | 0.1 | `ash local-swarm` | `ash validate` |
 | `local_swarm_attack_matrix.json` | `local_swarm_matrix` | 0.2 | `ash local-swarm-matrix` | `ash validate` |
 | `evidence_campaign_summary.json` | `evidence_campaign` | 0.2 | `ash evidence-campaign` | `ash validate` |
+| `secret_leak_campaign_summary.json` | `secret_leak_campaign` | 0.1 | `ash secret-leak-campaign` | `ash validate` |
 
 `run_diff` v0.2 replaces the ambiguous v0.1 coarse labels (`fixed`, `new`,
 `changed`, `unchanged`) with explicit decisive/non-decisive counters such as
@@ -58,6 +59,9 @@ Non-versioned by design:
   that calculates TP/FP/FN/TN, control effect, usability cost, and control-ablation
   regressions across declared agentic-boundary situations. It is not a
   production-safety proof.
+- `secret_leak_campaign_summary.json` is a sanitized deterministic campaign artifact for
+  synthetic secret-egress topologies. Raw canary values, prompts, and local-model
+  responses are private calculation artifacts and must remain under `.internal/`.
 - A `comparison` is represented as two report directories (`baseline/`, `protected/`) plus
   `comparison.md`; there is no separate `comparison.json`. Use `ash diff-runs` for an
   arbitrary run-vs-run diff (which does emit a versioned `run_diff.json`).
