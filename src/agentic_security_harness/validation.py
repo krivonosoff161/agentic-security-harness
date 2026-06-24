@@ -50,6 +50,7 @@ _SECRET_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("BEGIN PRIVATE KEY", re.compile(r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY")),
     ("ASH-CANARY", re.compile(r"ASH-CANARY-[A-F0-9]{8,}-[A-F0-9]{8,}")),
     ("ASH-SEMDRIFT", re.compile(r"ASH-SEMDRIFT-[A-F0-9]{8,}-[A-F0-9]{8,}")),
+    ("ASH-SEMPROP", re.compile(r"ASH-SEMPROP-[A-F0-9]{8,}-[A-F0-9]{8,}")),
 ]
 
 
@@ -71,6 +72,7 @@ class ValidationResult(BaseModel):
     secret_leak_campaign_dirs: list[str] = Field(default_factory=list)
     secret_leak_variation_dirs: list[str] = Field(default_factory=list)
     semantic_drift_campaign_dirs: list[str] = Field(default_factory=list)
+    semantic_propagation_campaign_dirs: list[str] = Field(default_factory=list)
 
     def _err(self, msg: str) -> None:
         self.errors.append(msg)
@@ -129,6 +131,10 @@ def _is_semantic_drift_campaign_dir(path: Path) -> bool:
     return (path / "semantic_drift_summary.json").exists()
 
 
+def _is_semantic_propagation_campaign_dir(path: Path) -> bool:
+    return (path / "semantic_propagation_summary.json").exists()
+
+
 def validate_path(path: Path) -> ValidationResult:
     """Validate a report dir, a comparison dir, or a directory of such dirs.
 
@@ -175,6 +181,9 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
     elif _is_semantic_drift_campaign_dir(path):
         result.semantic_drift_campaign_dirs.append(_rel(path, root))
         _validate_semantic_drift_campaign_dir(path, root, result)
+    elif _is_semantic_propagation_campaign_dir(path):
+        result.semantic_propagation_campaign_dirs.append(_rel(path, root))
+        _validate_semantic_propagation_campaign_dir(path, root, result)
     elif (path / "run_diff.json").exists():
         result.run_diff_dirs.append(_rel(path, root))
         _validate_run_diff_dir(path, root, result)
@@ -485,10 +494,109 @@ def _validate_semantic_drift_campaign_dir(
             _scan_secrets(candidate, root, result)
 
 
+def _validate_semantic_propagation_campaign_dir(
+    path: Path, root: Path, result: ValidationResult
+) -> None:
+    rel = _rel(path / "semantic_propagation_summary.json", root)
+    raw = _load_json(path / "semantic_propagation_summary.json", root, result)
+    if raw is None:
+        return
+    _check_schema_version_file(
+        path / "semantic_propagation_summary.json",
+        "semantic_propagation_campaign",
+        root,
+        result,
+    )
+    from agentic_security_harness.semantic_propagation_campaign import (
+        SemanticPropagationSummary,
+    )
+
+    try:
+        summary = SemanticPropagationSummary.model_validate(raw)
+    except ValidationError as exc:
+        result._err(f"{rel}: schema: {_fmt_error(exc)}")
+        return
+    if summary.metrics.cases != len(summary.cases):
+        result._err(f"{rel}: metrics.cases does not match case count")
+    if summary.metrics.observations != len(summary.observations):
+        result._err(f"{rel}: metrics.observations does not match observation count")
+    if summary.metrics.deterministic_results != len(summary.deterministic_results):
+        result._err(
+            f"{rel}: metrics.deterministic_results does not match deterministic rows"
+        )
+    if summary.metrics.worker_models != len(
+        {item.worker_model for item in summary.observations}
+    ):
+        result._err(f"{rel}: metrics.worker_models does not match observations")
+    if summary.metrics.chief_models != len(
+        {item.chief_model for item in summary.observations}
+    ):
+        result._err(f"{rel}: metrics.chief_models does not match observations")
+    if summary.metrics.worker_drift_detections != sum(
+        1 for item in summary.observations if item.worker_drift_detected
+    ):
+        result._err(f"{rel}: metrics.worker_drift_detections mismatch")
+    if summary.metrics.chief_acceptances != sum(
+        1 for item in summary.observations if item.chief_accepted_drift
+    ):
+        result._err(f"{rel}: metrics.chief_acceptances mismatch")
+    if summary.metrics.canary_leaks != sum(
+        1 for item in summary.observations if item.canary_leaked
+    ):
+        result._err(f"{rel}: metrics.canary_leaks mismatch")
+    if summary.metrics.adapter_errors != sum(
+        1 for item in summary.observations if item.adapter_error
+    ):
+        result._err(f"{rel}: metrics.adapter_errors mismatch")
+    if summary.metrics.bounded_propagation_acceptances != sum(
+        1
+        for item in summary.deterministic_results
+        if item.mode == "bounded_chain" and item.propagation_accepted
+    ):
+        result._err(
+            f"{rel}: metrics.bounded_propagation_acceptances does not match rows"
+        )
+    if _contains_forbidden_raw_fields(raw):
+        result._err(f"{rel}: public artifact contains raw prompt/response/value fields")
+    if _contains_forbidden_key(raw, "canary_fingerprint"):
+        result._err(f"{rel}: public artifact contains private canary fingerprint")
+    if _contains_forbidden_key(raw, "canonical_state_hash"):
+        result._err(f"{rel}: public artifact contains private canonical state hash")
+    for required in (
+        "semantic_propagation_report.md",
+        "semantic_propagation_digest.json",
+    ):
+        if not (path / required).exists():
+            result._err(f"{_rel(path / required, root)}: missing")
+    for private_name in (
+        "semantic_propagation_private.json",
+        "semantic_propagation_private.md",
+    ):
+        if (path / private_name).exists():
+            result._err(
+                f"{_rel(path / private_name, root)}: private semantic propagation "
+                "artifact must stay under .internal/"
+            )
+    _validate_run_manifest(path, root, result)
+    for name in (
+        "semantic_propagation_summary.json",
+        "semantic_propagation_report.md",
+        "semantic_propagation_digest.json",
+        "README.md",
+    ):
+        candidate = path / name
+        if candidate.exists():
+            _scan_secrets(candidate, root, result)
+
+
 def _contains_forbidden_raw_fields(value: Any) -> bool:
     forbidden = {
         "raw_prompt",
         "raw_response",
+        "raw_worker_prompt",
+        "raw_worker_response",
+        "raw_chief_prompt",
+        "raw_chief_response",
         "value",
         "canary",
         "canary_value",
