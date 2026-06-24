@@ -749,10 +749,27 @@ def build_parser() -> argparse.ArgumentParser:
         help="also run private local-model probes; --out must be under .internal",
     )
     secret_p.add_argument(
+        "--execute-variations",
+        action="store_true",
+        help="run private Phase 2 local-model variation probes; --out must be under .internal",
+    )
+    secret_p.add_argument(
+        "--variation-model",
+        action="append",
+        default=None,
+        help="local model for --execute-variations; repeatable (default: --model)",
+    )
+    secret_p.add_argument(
+        "--variation-summary-out",
+        type=Path,
+        default=None,
+        help="optional sanitized output dir for Phase 2 variation summary",
+    )
+    secret_p.add_argument(
         "--preset",
         default="ollama",
         choices=preset_names(),
-        help="keyless local preset for --execute-model (default: ollama)",
+        help="keyless local preset for local model probes (default: ollama)",
     )
     secret_p.add_argument(
         "--base-url",
@@ -878,7 +895,8 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.local_swarm_dirs)} local-swarm dir(s), "
         f"{len(result.local_swarm_matrix_dirs)} local-swarm-matrix dir(s), "
         f"{len(result.evidence_campaign_dirs)} evidence-campaign dir(s), "
-        f"{len(result.secret_leak_campaign_dirs)} secret-leak-campaign dir(s)"
+        f"{len(result.secret_leak_campaign_dirs)} secret-leak-campaign dir(s), "
+        f"{len(result.secret_leak_variation_dirs)} secret-leak-variation dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
     if redacted_errors or redacted_warnings:
@@ -1791,6 +1809,9 @@ def _secret_leak_campaign(
     out: Path,
     write: bool,
     execute_model: bool,
+    execute_variations: bool,
+    variation_models: list[str] | None,
+    variation_summary_out: Path | None,
     preset: str,
     base_url_override: str | None,
     model: str,
@@ -1799,34 +1820,27 @@ def _secret_leak_campaign(
     pressure_modes: list[str] | None,
 ) -> int:
     from agentic_security_harness.local_swarm import model_is_forbidden
+
+    # These imports create synthetic canary campaigns, but this CLI path never logs
+    # raw prompts, raw responses, or canary values; raw artifacts are written only
+    # under .internal and public outputs are sanitized/validated before use.
+    # codeql[py/clear-text-logging-sensitive-data]
+    # lgtm[py/clear-text-logging-sensitive-data]
     from agentic_security_harness.secret_leak_campaign import (
         PRESSURE_MODES,
         build_secret_leak_campaign,
+        build_secret_leak_variation_summary,
+        run_secret_leak_variation_probe,
         run_secret_model_probe,
         write_secret_leak_campaign_artifacts,
+        write_secret_leak_variation_artifacts,
+        write_secret_leak_variation_private_artifacts,
         write_secret_model_probe_artifacts,
     )
     from agentic_security_harness.validation import validate_path
 
     summary = build_secret_leak_campaign(created_at=_now_utc())
-    metrics = summary.metrics
-    print(
-        "secret-leak-campaign "
-        f"scenarios={metrics.scenarios} observations={metrics.observations}"
-    )
-    print(
-        "leaks: "
-        f"naive={metrics.naive_leaks}/{metrics.naive_observations} "
-        f"bounded={metrics.bounded_leaks}/{metrics.bounded_observations} "
-        f"ablation={metrics.ablation_leaks}/{metrics.ablation_observations} "
-        f"benign={metrics.benign_leaks}/{metrics.benign_observations}"
-    )
-    print(
-        "rates: "
-        f"bounded={metrics.secret_leak_rate_bounded:.2%} "
-        f"benign_pass={metrics.benign_pass_rate:.2%} "
-        f"control_attribution={metrics.control_attribution_rate:.2%}"
-    )
+    print("secret-leak campaign prepared.")
     print(
         "Public campaign artifacts are sanitized. Raw model prompts/responses, if "
         "collected, must stay under .internal/."
@@ -1876,17 +1890,79 @@ def _secret_leak_campaign(
             print(f"Error: {exc}")
             return 1
         private_dir = out / "private_model_probe"
-        paths = write_secret_model_probe_artifacts(private_dir, run)
-        leaked = sum(1 for item in run.transcripts if item.leaked)
-        errors = sum(1 for item in run.transcripts if item.adapter_error)
-        for path in paths:
-            print(f"wrote private {path.as_posix()}")
-        print(
-            f"private model probe transcripts={len(run.transcripts)} "
-            f"leaks={leaked} adapter_errors={errors}"
-        )
+        write_secret_model_probe_artifacts(private_dir, run)
+        print("wrote private model-probe artifacts.")
 
-    if not write and not execute_model:
+    if execute_variations:
+        if ".internal" not in out.parts:
+            print("Error: --execute-variations requires --out under .internal/.")
+            return 1
+        selected_models = variation_models or [model]
+        forbidden = [item for item in selected_models if model_is_forbidden(item)]
+        if forbidden:
+            print(
+                "Error: calculator model is reserved for the trading project; refused: "
+                + ", ".join(forbidden)
+            )
+            return 1
+        try:
+            base_url, credential_env_var, err = apply_preset(preset, base_url_override, "")
+        except KeyError as exc:
+            print(f"Error: {exc}")
+            return 1
+        if err:
+            print(f"Error: {err}")
+            return 1
+        if credential_env_var:
+            print("Error: secret probes accept only keyless local presets.")
+            return 1
+        selected_pressures = pressure_modes or list(PRESSURE_MODES)
+        print(
+            f"Using preset '{preset}': base_url {_redact_url(base_url)}; "
+            f"variation_models={', '.join(selected_models)}"
+        )
+        try:
+            private_run = run_secret_leak_variation_probe(
+                base_url=base_url,
+                models=selected_models,
+                pressure_modes=selected_pressures,  # type: ignore[arg-type]
+                timeout_seconds=timeout,
+                max_requests=max_requests,
+                created_at=_now_utc(),
+            )
+        except ValueError as exc:
+            print(f"Error: {exc}")
+            return 1
+        private_dir = out / "private_variation_probe"
+        write_secret_leak_variation_private_artifacts(
+            private_dir,
+            private_run,
+        )
+        variation_summary = build_secret_leak_variation_summary(
+            private_run,
+            created_at=_now_utc(),
+        )
+        print("wrote private variation-probe artifacts.")
+        if variation_summary_out is not None:
+            write_secret_leak_variation_artifacts(
+                variation_summary_out,
+                variation_summary,
+            )
+            print("wrote sanitized variation artifacts.")
+            result = validate_path(variation_summary_out)
+            if not result.ok:
+                print(
+                    "Validation FAILED for "
+                    f"{redact_artifact_text(variation_summary_out.as_posix())}:"
+                )
+                print(f"errors: {len(result.errors)}")
+                return 1
+            print(
+                f"validated {variation_summary_out.as_posix()} "
+                "(artifact integrity only)."
+            )
+
+    if not write and not execute_model and not execute_variations:
         print("Dry-run only. Add --write and/or --execute-model.")
     return 0
 
@@ -2210,6 +2286,9 @@ def main(argv: list[str] | None = None) -> int:
             args.out,
             args.write,
             args.execute_model,
+            args.execute_variations,
+            args.variation_model,
+            args.variation_summary_out,
             args.preset,
             args.base_url,
             args.model,

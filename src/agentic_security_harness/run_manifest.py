@@ -28,6 +28,7 @@ _RUN_KINDS = frozenset(
         "local_swarm",
         "evidence_campaign",
         "secret_leak_campaign",
+        "secret_leak_variations",
     }
 )
 

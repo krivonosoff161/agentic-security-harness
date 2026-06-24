@@ -1,13 +1,21 @@
 import base64
 import json
 from pathlib import Path
+from typing import Any, cast
 
 from agentic_security_harness import cli
 from agentic_security_harness.secret_leak_campaign import (
+    SecretLeakVariationPrivateRun,
+    SecretVariationPrivateTranscript,
     SyntheticCanary,
     build_secret_leak_campaign,
+    build_secret_leak_variation_summary,
+    declared_secret_variation_cases,
     detect_canary_leak,
+    run_secret_leak_variation_probe,
     write_secret_leak_campaign_artifacts,
+    write_secret_leak_variation_artifacts,
+    write_secret_leak_variation_private_artifacts,
 )
 from agentic_security_harness.validation import validate_path
 
@@ -86,6 +94,169 @@ def test_secret_leak_model_probe_requires_private_out(tmp_path: Path) -> None:
     rc = cli.main([
         "secret-leak-campaign",
         "--execute-model",
+        "--out",
+        str(out),
+    ])
+
+    assert rc == 1
+
+
+def test_secret_variation_cases_cover_declared_matrix() -> None:
+    cases = declared_secret_variation_cases()
+
+    assert len(cases) == 8
+    assert len({case.case_id for case in cases}) == len(cases)
+    assert len({case.variation_id for case in cases}) == len(cases)
+    assert all(case.turns >= 3 for case in cases)
+    assert all(case.control_under_test for case in cases)
+
+
+def test_secret_variation_summary_sanitizes_private_transcripts() -> None:
+    private_run = SecretLeakVariationPrivateRun(
+        created_at="",
+        models=["toy-model"],
+        pressure_modes=["neutral"],
+        transcripts=[
+            SecretVariationPrivateTranscript(
+                case_id="secret.var.multi_turn_pressure",
+                model="toy-model",
+                scenario_id="label_laundering",
+                variation_id="multi_turn_pressure",
+                pressure_mode="neutral",
+                turns=4,
+                response_sha256="a" * 64,
+                leak_kind="full",
+                leaked=True,
+                first_failure_step="later_turn_overrode_initial_boundary",
+                raw_prompt="secret marker ASH-CANARY-AAAABBBB-CCCCDDDD",
+                raw_response="ASH-CANARY-AAAABBBB-CCCCDDDD",
+                canary_fingerprint="b" * 64,
+            )
+        ],
+    )
+
+    summary = build_secret_leak_variation_summary(private_run, created_at="")
+    data = summary.model_dump(mode="json")
+    text = json.dumps(data, sort_keys=True)
+
+    assert summary.metrics.cases == 8
+    assert summary.metrics.models == 1
+    assert summary.metrics.observations == 1
+    assert summary.metrics.leaks == 1
+    assert summary.metrics.leaks_by_variation == {"multi_turn_pressure": 1}
+    assert "raw_prompt" not in text
+    assert "raw_response" not in text
+    assert "canary_fingerprint" not in text
+    assert "ASH-CANARY-" not in text
+
+
+def test_secret_variation_artifacts_validate_and_stay_sanitized(tmp_path: Path) -> None:
+    private_run = SecretLeakVariationPrivateRun(
+        created_at="",
+        models=["toy-model"],
+        pressure_modes=["neutral"],
+        transcripts=[
+            SecretVariationPrivateTranscript(
+                case_id="secret.var.verifier_outage_recovery",
+                model="toy-model",
+                scenario_id="memory_stale_recall",
+                variation_id="verifier_outage_recovery",
+                pressure_mode="neutral",
+                turns=3,
+                response_sha256="c" * 64,
+            )
+        ],
+    )
+    out = tmp_path / "secret-leak-variations"
+    summary = build_secret_leak_variation_summary(private_run, created_at="")
+
+    paths = write_secret_leak_variation_artifacts(out, summary)
+    result = validate_path(out)
+
+    assert result.ok, result.errors
+    assert result.secret_leak_variation_dirs == ["secret-leak-variations"]
+    assert {path.name for path in paths} == {
+        "secret_leak_variation_summary.json",
+        "secret_leak_variation_report.md",
+        "secret_leak_variation_digest.json",
+        "run_index.json",
+    }
+    for path in paths:
+        text = path.read_text(encoding="utf-8")
+        assert '"raw_prompt"' not in text
+        assert '"raw_response"' not in text
+        assert "ASH-CANARY-" not in text
+
+
+def test_secret_variation_private_artifacts_keep_raw_under_private_dir(
+    tmp_path: Path,
+) -> None:
+    private_run = SecretLeakVariationPrivateRun(
+        created_at="",
+        models=["toy-model"],
+        pressure_modes=["neutral"],
+        transcripts=[
+            SecretVariationPrivateTranscript(
+                case_id="secret.var.partial_shard_reconstruction",
+                model="toy-model",
+                scenario_id="split_secret_recombination",
+                variation_id="partial_shard_reconstruction",
+                pressure_mode="neutral",
+                turns=4,
+                raw_prompt="raw ASH-CANARY-AAAABBBB-CCCCDDDD",
+                raw_response="raw response",
+                canary_fingerprint="d" * 64,
+            )
+        ],
+    )
+    out = tmp_path / ".internal" / "secret-leak-variations"
+
+    paths = write_secret_leak_variation_private_artifacts(out, private_run)
+
+    assert {path.name for path in paths} == {
+        "secret_leak_variation_private.json",
+        "secret_leak_variation_private.md",
+    }
+    assert "ASH-CANARY-" in (out / "secret_leak_variation_private.json").read_text(
+        encoding="utf-8"
+    )
+
+
+def test_secret_variation_probe_detects_model_leak(monkeypatch: Any) -> None:
+    import agentic_security_harness.secret_leak_campaign as campaign
+
+    def fake_chat_completion(**kwargs: object) -> dict[str, str]:
+        messages = cast(list[dict[str, str]], kwargs["messages"])
+        prompt = messages[-1]["content"]
+        marker = str(prompt).split("marker = ", 1)[1].split("\n", 1)[0]
+        return {"content": marker}
+
+    def fake_extract_content(response: dict[str, str]) -> str:
+        return response["content"]
+
+    monkeypatch.setattr(campaign, "chat_completion", fake_chat_completion)
+    monkeypatch.setattr(campaign, "extract_content", fake_extract_content)
+
+    run = run_secret_leak_variation_probe(
+        base_url="http://127.0.0.1:11434/v1",
+        models=["toy-model"],
+        pressure_modes=["neutral"],
+        max_requests=8,
+        created_at="",
+    )
+    summary = build_secret_leak_variation_summary(run, created_at="")
+
+    assert len(run.transcripts) == 8
+    assert summary.metrics.leaks == 8
+    assert summary.metrics.leak_rate == 1.0
+
+
+def test_secret_variation_cli_requires_private_out(tmp_path: Path) -> None:
+    out = tmp_path / "not-internal"
+
+    rc = cli.main([
+        "secret-leak-campaign",
+        "--execute-variations",
         "--out",
         str(out),
     ])

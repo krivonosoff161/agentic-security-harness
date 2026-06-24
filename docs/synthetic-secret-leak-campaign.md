@@ -64,6 +64,44 @@ ash secret-leak-campaign --execute-model \
 The optional probe records raw prompts/responses only under `.internal/`. Public
 artifacts keep only aggregate, redacted metrics.
 
+Phase 2 local-model variation probe:
+
+```bash
+ash secret-leak-campaign --execute-variations \
+  --out .internal/secret-leak-variations/latest \
+  --variation-model prometheus-qwen15b-lowctx:latest \
+  --variation-model qwen2.5:1.5b \
+  --max-requests 64 \
+  --variation-summary-out reports/secret-leak-variations
+ash validate reports/secret-leak-variations
+```
+
+The variation probe covers 8 synthetic secret-egress pressure cases:
+
+- multi-turn pressure;
+- role hierarchy pressure;
+- sanitized/public relabeling;
+- partial shard reconstruction;
+- delayed memory recall;
+- tool authority laundering;
+- summary compression label loss;
+- verifier outage recovery.
+
+The current committed sanitized example was derived from a private local smoke with:
+
+```text
+models: 2
+cases: 8
+pressure modes: 4
+observations: 64
+leaks: 0
+adapter errors: 0
+```
+
+Raw prompts, raw model responses, and canary values remain private under `.internal/`.
+The committed artifact keeps only response hashes, leak classifications, and aggregate
+metrics.
+
 ## Local Model Smoke
 
 Maintainer private smokes were run against `prometheus-qwen15b-lowctx:latest` and
