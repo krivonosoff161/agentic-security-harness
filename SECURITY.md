@@ -63,9 +63,9 @@ provenance, and unsafe examples.
 
 - Detector **false negatives** (a missed prompt injection, PII token, or leak) are
   tracked as **detection-quality** issues, **unless** they bypass a documented
-  deterministic guarantee or cause unsafe gateway behavior, in which case they are
-  in-scope security issues. The project does not claim to catch every injection; novel
-  evasions are expected.
+  deterministic guarantee or cause unsafe benchmark behavior in this repository, in
+  which case they are in-scope security issues. The project does not claim to catch
+  every injection; novel evasions are expected.
 - Weaknesses in the underlying LLM provider or model.
 - Host / OS compromise, or attacks assuming database access.
 - Treating the system prompt as a secret store: it is **not** a security boundary.

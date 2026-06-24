@@ -171,6 +171,21 @@ ash validate examples/evidence-campaign-sanitized
 The example is sanitized and deterministic. It contains no raw model responses and no
 private `.internal/` logs.
 
+## Related Campaign Artifacts
+
+The evidence-campaign layer is the general metric model. Additional research campaigns
+use the same private/public discipline:
+
+| Campaign | Public artifact | Private boundary |
+|---|---|---|
+| Synthetic secret-egress | `examples/secret-leak-campaign-sanitized/` | Raw canaries/prompts stay private. |
+| Secret-egress local variations | `examples/secret-leak-variations-sanitized/` | Raw model prompts/responses/canaries stay under `.internal/`. |
+| Semantic drift | `examples/semantic-drift-sanitized/` | Raw prompts, responses, canonical-state hashes, and canaries stay under `.internal/`. |
+| Semantic propagation | `examples/semantic-propagation-sanitized/` | Raw worker/chief prompts, responses, canonical-state hashes, and canaries stay under `.internal/`; adapter errors and response-hash coverage must remain visible in public summaries. |
+
+These campaign artifacts are evidence-quality research slices. They do not upgrade a
+claim to production safety, model safety, or CVE status.
+
 ## Non-Claims
 
 This evidence model does not prove:

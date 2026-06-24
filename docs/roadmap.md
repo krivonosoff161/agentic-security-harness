@@ -56,6 +56,10 @@ agent-host adapters are future.
 - **Post-v0.13 local multi-agent handoff slice:** `toy-multi-agent` adds a deterministic
   coordinator/worker target for data-label handoff and capability-delegation drift traces
   without provider calls, live tools, or network access.
+- **Post-v0.13 evidence and semantic-pressure campaigns:** local-swarm, attack-matrix,
+  evidence-campaign, secret-egress, semantic-drift, and semantic-propagation artifacts
+  are shipped as research slices with sanitized public summaries and private raw
+  local-model calculations under `.internal/`.
 
 ---
 
@@ -76,16 +80,19 @@ The next work is ordered by credibility, not by feature volume:
 4. **Cross-app contamination and audit context split:** implement only after each pattern
    proposal states the invariant, topology, trace evidence, protected control, and
    residual risk.
-5. **Multi-agent handoff expansion:** keep the shipped `toy-multi-agent` slice current,
+5. **Public evidence showcase upkeep:** keep README, `docs/showcase/evidence-map.md`,
+   examples, and claim registries synchronized so front-page metrics match committed
+   artifacts.
+6. **Multi-agent handoff expansion:** keep the shipped `toy-multi-agent` slice current,
    then add only reviewed handoff patterns with explicit invariants, trace evidence, and
    safety gates.
-6. **Local-runtime evidence upkeep:** keep the Ollama / LM Studio / vLLM prompt-only path
+7. **Local-runtime evidence upkeep:** keep the Ollama / LM Studio / vLLM prompt-only path
    explicit in artifacts, including model-license notes, `local-only` mode, and recovery
    guidance.
-7. **Recovery-path corpus design:** `recovery.trust_gate_no_path` is designed in the
+8. **Recovery-path corpus design:** `recovery.trust_gate_no_path` is designed in the
    corpus expansion plan; implementation must stay deterministic and avoid provider-
    specific appeal workflows.
-8. **v1.0 stable benchmark release:** stable trace schema, stable corpus manifest, stable
+9. **v1.0 stable benchmark release:** stable trace schema, stable corpus manifest, stable
    CLI, validated examples, coherent docs, public tag (see
    [release-checklist.md](release-checklist.md)).
 

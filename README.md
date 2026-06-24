@@ -1,99 +1,51 @@
 # Agentic Security Harness
 
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/13320/badge)](https://www.bestpractices.dev/projects/13320)
+[![CI](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
+![Python](https://img.shields.io/badge/python-3.11%2B-blue)
+![License](https://img.shields.io/badge/license-Apache--2.0-green)
+![Status](https://img.shields.io/badge/status-pre--release-orange)
 
-**A trace-first defensive benchmark for agentic AI boundary failures.** It gives
-security engineers, AI platform teams, and researchers a safe way to reproduce
-synthetic agent failures, compare vulnerable and protected targets, and inspect the
-evidence as traces, scorecards, remediation, and static reports.
-
-Short form: this is a **trace-first benchmark** for defensive agentic AI boundary
-evaluation.
+**Agentic Security Harness is a trace-first benchmark for defensive testing of
+agentic AI boundary failures.** It gives security engineers, AI platform teams, and
+researchers a safe way to reproduce synthetic agent failures, compare vulnerable and
+protected targets, and inspect the evidence as traces, scorecards, remediation, static
+reports, and sanitized campaign artifacts.
 
 In plain English: this repo answers three practical questions.
 
-1. Can a local agent-like system keep data labels, authority limits, memory provenance,
-   approval context, audit trails, and tool boundaries intact?
-2. If it fails, can the failure be shown as a replayable trace instead of a vague prompt
+1. Can an agent-like system preserve data labels, authority limits, memory provenance,
+   approval context, audit trails, and tool boundaries?
+2. If it fails, can the failure be shown as a replayable trace instead of a prompt
    anecdote?
 3. If a protected version passes, can the before/after improvement be validated from
    committed artifacts?
 
-## What is proven today
+## Evidence snapshot
 
-**Status:** pre-release research toolkit. The project is strong enough to inspect as a
-working defensive benchmark, but it is not a production certification system and does
-not claim that any deployed agent or model is secure.
+**Status:** pre-release research toolkit. This is a working defensive benchmark, not a
+production certification system, model leaderboard, CVE claim, or proof that any deployed
+agent is secure.
 
-| Evidence track | Current result | Start here |
+| Evidence track | Current public result | Inspect |
 |---|---:|---|
-| Deterministic corpus | 24 synthetic boundary patterns | [`docs/corpus.md`](docs/corpus.md) |
-| Baseline vs protected demo | modeled findings reduced `24 -> 0` | [`examples/comparison-report/`](examples/comparison-report/) |
-| Bounded local swarm | `15` scenarios: monolith `15` failures, naive swarm `15`, bounded swarm `0` | [`examples/local-swarm-report/`](examples/local-swarm-report/) |
-| Attack variation matrix | `43` rows across `9` families, including `10` executable deep probes; bounded failures `0` | [`examples/local-swarm-attack-matrix/`](examples/local-swarm-attack-matrix/) |
-| Evidence campaign | `24` cases, `72` observations, `4` claim families; bounded attack block rate `100%`, false-block rate `0%` | [`examples/evidence-campaign-sanitized/`](examples/evidence-campaign-sanitized/) |
-| Synthetic secret-leak campaign | `4` secret-egress topologies, `23` observations; naive leaks `4/4`, bounded leaks `0/4`, ablation leaks `11/11` | [`examples/secret-leak-campaign-sanitized/`](examples/secret-leak-campaign-sanitized/) |
-| Secret-leak variation probes | `8` live local-model variation cases x `4` pressure modes x `2` Ollama models; `64` observations, leaks `0`, adapter errors `0` | [`examples/secret-leak-variations-sanitized/`](examples/secret-leak-variations-sanitized/) |
-| Semantic drift mini-swarm probes | `4` semantic relabeling cases x `4` pressure modes x `5` Ollama models; `80` observations, drift detections `13`, canary leaks `4`, verifier blocks `15` | [`examples/semantic-drift-sanitized/`](examples/semantic-drift-sanitized/) |
-| Local model probes | Prometheus and qwen2.5 executed the full 15-scenario swarm suite with transcript-hash coverage `100%` and adapter-error rate `0%` | [`docs/local-swarm-real-model-evaluation.md`](docs/local-swarm-real-model-evaluation.md) |
+| Deterministic corpus | `24` synthetic boundary patterns | [`docs/corpus.md`](docs/corpus.md) |
+| Baseline vs protected replay | `24 modeled findings -> 0 modeled findings` | [`examples/comparison-report/`](examples/comparison-report/) |
+| Bounded local swarm | `15` modeled swarm failures accepted by naive mode, `0` by bounded mode | [`examples/local-swarm-report/`](examples/local-swarm-report/) |
+| Attack variation matrix | `43` rows, `9` families, `10` executable deep probes, bounded failures `0` | [`examples/local-swarm-attack-matrix/`](examples/local-swarm-attack-matrix/) |
+| Evidence campaign | `24` cases / `72` observations / `4` claim families; bounded false-block rate `0%` | [`examples/evidence-campaign-sanitized/`](examples/evidence-campaign-sanitized/) |
+| Synthetic secret-egress campaign | `4` topologies / `23` observations; naive leaks `4/4`, bounded leaks `0/4` | [`examples/secret-leak-campaign-sanitized/`](examples/secret-leak-campaign-sanitized/) |
+| Semantic drift probes | `80` local-model observations; drift detections `13`, canary leaks `4`, verifier blocks `15` | [`examples/semantic-drift-sanitized/`](examples/semantic-drift-sanitized/) |
+| Semantic propagation probes | `8` worker-to-chief observations; chief acceptances `3`, verifier blocks `3`, adapter errors `1`, hash coverage `87.5%` | [`examples/semantic-propagation-sanitized/`](examples/semantic-propagation-sanitized/) |
 
-What these numbers mean: the declared synthetic situations are reproducible and the
-bounded contracts block the modeled unsafe transfers without blocking the declared benign
-flows. What they do **not** mean: real-world agent safety, exhaustive attack coverage, a
-model leaderboard, or a CVE-grade vulnerability claim.
-
-## Public quick read
-
-| Surface | Current status | Evidence |
-|---|---|---|
-| Local benchmark core | Shipped | 24 deterministic seed patterns, local targets, traces, scorecards, remediation, validation. |
-| Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
-| Committed examples | Shipped | `examples/` plus `ash validate examples/`. |
-| Bounded local swarm evidence suite | Research-only example | `examples/local-swarm-report/` compares monolith, naive swarm, and bounded swarm over 15 deterministic boundary scenarios. |
-| Attack variation matrix | Research-only example | `examples/local-swarm-attack-matrix/` expands the swarm situations into 43 rows, including 10 executable deep invariant probes. |
-| Evidence campaign | Research-only example | `examples/evidence-campaign-sanitized/` exposes aggregate TP/FP/FN/TN, control effect, usability cost, and ablation metrics. |
-| Synthetic secret-leak campaign | Research-only example | `examples/secret-leak-campaign-sanitized/` shows label laundering, stale memory, tool authority confusion, and split-secret recombination with raw canaries kept private. |
-| Secret-leak variation probes | Research-only local-model example | `examples/secret-leak-variations-sanitized/` summarizes private Prometheus/qwen2.5 variation probes without raw prompts, responses, or canaries. |
-| Semantic parameter drift probes | Research-only local-model example | `examples/semantic-drift-sanitized/` summarizes private mini-swarm probes where small agents are pressured to relabel canonical parameters, with raw prompts, responses, and canaries kept private. |
-| CI / package checks | Shipped | `.github/workflows/ci.yml` runs tests, ruff, mypy, package build, and example validation. |
-| External model checks | Experimental | OpenAI-compatible, prompt-only, explicit opt-in, no tool execution. |
-| Native provider / agent-host adapters | Future | Not shipped; do not claim real agent or tool-execution coverage yet. |
-| Reference gateway | Future optional defense target | Not implemented in this release; not the main product. |
-
-Proof commands:
-
-```bash
-pip install -e ".[dev]"
-python -m pytest
-python -m ruff check .
-python -m mypy src tests
-ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison
-ash validate reports/comparison
-ash validate examples/
-ash local-swarm --write-dry-run --out reports/local-swarm
-ash validate reports/local-swarm
-ash evidence-campaign --write --out .internal/evidence-campaign/latest
-ash validate .internal/evidence-campaign/latest
-ash secret-leak-campaign --write --out .internal/secret-leak-campaign/latest
-ash validate .internal/secret-leak-campaign/latest
-ash secret-leak-campaign --execute-variations --out .internal/secret-leak-variations/latest --variation-model prometheus-qwen15b-lowctx:latest --variation-model qwen2.5:1.5b --variation-summary-out reports/secret-leak-variations
-ash validate reports/secret-leak-variations
-ash semantic-drift-campaign --execute --out .internal/semantic-drift/latest --summary-out reports/semantic-drift --model qwen2.5:0.5b --model llama3.2:1b --model qwen2.5-coder:0.5b-instruct --model qwen2.5:1.5b --model prometheus-qwen15b-lowctx:latest
-ash validate reports/semantic-drift
-ash showcase --root reports --out docs/showcase/generated
-```
-
-If you only have one minute:
-
-- Read the committed before/after example:
-  [`examples/comparison-report/README.md`](examples/comparison-report/README.md).
-- Inspect the public evidence entry point:
-  [`docs/showcase/index.md`](docs/showcase/index.md).
-- Check what is shipped versus planned:
-  [`docs/current-state.md`](docs/current-state.md).
-- Validate the public examples locally with `ash validate examples/`.
+The deterministic rows measure declared synthetic situations. The local-model rows are
+sanitized evidence-quality snapshots with raw prompts, responses, canonical state hashes,
+and synthetic canaries kept private under `.internal/`.
 
 ## Visual evidence snapshot
+
+![Evidence flow](docs/assets/evidence-flow.svg)
 
 ```mermaid
 flowchart LR
@@ -106,20 +58,44 @@ flowchart LR
     F --> G[Trace replay + scorecard + evidence metrics]
 ```
 
-| Demo question | Current public answer | Inspect |
-|---|---|---|
-| Can the corpus expose modeled boundary failures? | `demo-agent`: 24 modeled findings | [`examples/demo-agent-report/`](examples/demo-agent-report/) |
-| Can a protected local target remove the modeled findings? | `protected-demo-agent`: 0 modeled findings | [`examples/protected-demo-agent-report/`](examples/protected-demo-agent-report/) |
-| Is the before/after artifact reproducible? | `ash validate examples/` passes | [`examples/comparison-report/`](examples/comparison-report/) |
-| Does role separation alone fix swarm handoff failures? | No: `naive_swarm` still accepts 15 modeled failures | [`examples/local-swarm-report/`](examples/local-swarm-report/) |
-| Do deterministic bounded contracts change the outcome? | Yes, for the declared suite: bounded failures `0` | [`docs/evidence-assurance-model.md`](docs/evidence-assurance-model.md) |
-| Can synthetic secret egress be attributed to missing controls? | Yes, in the declared suite: bounded leaks `0`, ablation leaks `11` | [`docs/synthetic-secret-leak-campaign.md`](docs/synthetic-secret-leak-campaign.md) |
-| Do local small models leak synthetic canaries under the Phase 2 pressure matrix? | In the current private smoke: no leaks across 64 observations | [`examples/secret-leak-variations-sanitized/secret_leak_variation_report.md`](examples/secret-leak-variations-sanitized/secret_leak_variation_report.md) |
-| Can slow semantic relabeling pressure be caught before a senior agent accepts it? | In the current private smoke: 13 drift detections and 4 canary leaks across 80 observations; the verifier blocked all 15 flagged observations | [`examples/semantic-drift-sanitized/semantic_drift_report.md`](examples/semantic-drift-sanitized/semantic_drift_report.md) |
-| Can a drifted worker summary poison a downstream chief decision? | In the current private smoke: 8 worker-to-chief observations, 2 worker drift detections, 3 chief acceptances, 2 synthetic canary leaks, and 3 verifier blocks; bounded deterministic mode accepted 0 propagation attempts | [`examples/semantic-propagation-sanitized/semantic_propagation_report.md`](examples/semantic-propagation-sanitized/semantic_propagation_report.md) |
+## Quick demo
 
-This is a deterministic synthetic benchmark snapshot, not evidence that a production
-agent is secure.
+```bash
+pip install -e ".[dev]"
+ash validate examples/
+ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison
+ash validate reports/comparison
+```
+
+Expected public demo: the vulnerable `demo-agent` records `24 modeled findings`; the
+`protected-demo-agent` records `0 modeled findings` on the same corpus. The committed
+before/after example is [`examples/comparison-report/README.md`](examples/comparison-report/README.md).
+
+If you only have one minute:
+
+- Read the committed before/after example:
+  [`examples/comparison-report/README.md`](examples/comparison-report/README.md).
+- Inspect the public evidence entry point:
+  [`docs/showcase/index.md`](docs/showcase/index.md) and
+  [`docs/showcase/evidence-map.md`](docs/showcase/evidence-map.md).
+- Check what is shipped versus planned:
+  [`docs/current-state.md`](docs/current-state.md).
+- Validate the public examples locally with `ash validate examples/`.
+
+## What this is / is not
+
+| This project is | This project is not |
+|---|---|
+| A trace-first benchmark for defensive agentic AI boundary evaluation. | A production safety certification. |
+| A synthetic, authorized, reproducible test lab. | A hacking manual or live exploitation toolkit. |
+| A way to compare vulnerable vs protected local targets with portable artifacts. | A claim that a real provider, model, or deployed agent is secure. |
+| A research spine for local swarm, memory, authority, audit, and semantic-drift probes. | A model leaderboard or CVE-grade vulnerability database. |
+
+Built-in/local targets are synthetic, deterministic, and offline. The experimental
+`run-external` path calls an OpenAI-compatible endpoint only on explicit opt-in
+(prompt-only, no tool execution); native provider and agent-host adapters are future.
+The benchmark focuses on agent operating-environment boundaries, not just standalone model answers.
+See [docs/benchmark-semantics.md](docs/benchmark-semantics.md).
 
 Read by role:
 
@@ -133,6 +109,7 @@ Read by role:
   [comparison example](examples/comparison-report/README.md), and
   [showcase checklist](docs/showcase-report-checklist.md).
 - Showcase reviewer: [Public evidence showcase](docs/showcase/index.md),
+  [evidence map](docs/showcase/evidence-map.md),
   [scenario matrix](docs/showcase/scenario-matrix.md), and
   [weak spots/findings ledger](docs/showcase/weak-spots-and-findings.md).
 - Scenario designer: [Scenario timeline contract](docs/scenario-timeline.md).
@@ -145,49 +122,8 @@ Read by role:
 - Safety reviewer: [Research rules](docs/research-rules.md), [Authorized testing paths](docs/authorized-testing-paths.md),
   [Threat model](docs/threat-model.md), and [SECURITY.md](SECURITY.md).
 
-Do not read a clean run as "the system is secure." A clean run only means the target handled the modeled synthetic patterns under the declared run configuration.
-
-> **Agentic Security Harness** - open-source - Apache-2.0 - repository `agentic-security-harness`
-
-**A trace-first defensive benchmark for agentic AI failure modes.** It reproduces how LLM
-agents, tool chains, and data boundaries fail, captures each run as a **portable failure
-trace**, and **measures risk reduction** by replaying a baseline target against a protected one.
-It evaluates boundary failures in **agentic systems**, not just standalone model answers:
-a target can be a local agent, a tool loop, a memory loop, a model chain, a multi-agent
-handoff, or a future authorized runtime behind the same adapter contract.
-
-- **Trace-first** - every run is a portable, machine-readable failure trace, not just pass/fail.
-- **Agentic operating-environment boundary corpus** - 24 deterministic seed patterns for
-  how sensitivity labels, recipients, storage, forwarding, audit, budget, delegated
-  authority, tool schemas, perception boundaries, ambient authority, approval context,
-  and memory governance break in agentic systems.
-- **Baseline vs protected replay** - a vulnerable demo agent vs a controlled one, on
-  deterministic **local** targets, with a measured before/after scorecard.
-- **Standards-aware corpus** - implemented patterns include coarse OWASP Agentic Security
-  Initiative mappings plus category-level OWASP LLM, NIST AI RMF, and verified MITRE
-  ATLAS mappings where there is a direct fit.
-
-Built-in/local targets are synthetic, deterministic, and offline - no network, no
-provider calls. The experimental `run-external` path calls an OpenAI-compatible endpoint
-only on explicit opt-in (prompt-only, no tool execution); native provider and agent-host
-adapters are future. See [docs/benchmark-semantics.md](docs/benchmark-semantics.md).
-
-> The **gateway** is an optional **reference defense** component used as a replay target -
-> not the main product, and not implemented in the current release.
-
----
-
-> ### WARNING: This is an authorized defensive testing harness - not a hacking manual.
->
-> Attack chains are documented as **defensive test patterns**: sanitized, reproducible,
-> run against **mock / demo / authorized targets only**, with expected vulnerable behavior
-> and a mitigation. No real credential theft, no live exploitation, no instructions for
-> abusing third-party systems. See [SECURITY.md](SECURITY.md#responsible-use).
->
-> It does **risk reduction, observability, and measurement** - not 100% protection.
-> Detectors have false negatives. See [docs/threat-model.md](docs/threat-model.md).
-
----
+Do not read a clean run as "the system is secure." A clean run only means the target
+handled the modeled synthetic patterns under the declared run configuration.
 
 ## Mission
 

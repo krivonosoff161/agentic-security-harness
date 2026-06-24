@@ -21,6 +21,7 @@ not mean production certification, real-target coverage, or a model leaderboard.
 | Run manifest / run diff schemas | Stable enough for CLI history | Versioned and validated | Keep `run_index.json` and `run_diff.json` schema checks green. |
 | Static HTML / Markdown reports | View layer, not canonical schema | Shipped | JSON remains authoritative; HTML/Markdown must not make stronger claims. |
 | Local targets | Stable demo surfaces | `mock`, `demo-agent`, `protected-demo-agent`, toy targets shipped | `ash targets`, full pytest, and examples validation. |
+| Research campaign artifacts | Experimental/research surface | Local-swarm, evidence-campaign, secret-egress, semantic-drift, and semantic-propagation examples validate, but remain research slices | Keep private raw transcripts/canaries out of git; public summaries must state adapter errors, hash coverage, and non-claims. |
 | External OpenAI-compatible path | Experimental beyond v1.0 unless observation improves | Prompt-only, opt-in | Keep labeled experimental; no leaderboard claims. |
 | Native provider / agent-host adapters | Future | Not shipped | Requires authorization model and adapter safety gates. |
 | Reference gateway | Future optional defense target | Not shipped | Must not be described as current runtime. |

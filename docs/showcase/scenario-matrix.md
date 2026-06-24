@@ -12,6 +12,8 @@ registry.
 | `authority-control` | capability delegation, ambient authority, issuer/scope/purpose/TTL/depth non-expansion | delegated agent / host authority | Implemented deterministic scenario family; handoff verifier now covers issuer, scope, purpose, TTL, and depth axes. | Add revocation/expiry variant only after a bounded fixture and tests exist. |
 | `inter-agent-handoff` | provenance, source labels, payload integrity, authority non-expansion across worker handoff | local synthetic coordinator/worker handoff | Shipped public toy topology: `toy-multi-agent` exposes label-loss and authority-expansion findings; `protected-toy-multi-agent` blocks them; committed comparison validates with `ash validate examples/handoff-toy-comparison`. | Add only new handoff variants with explicit deterministic invariants; malformed raw-envelope recovery is currently verifier-level, not corpus-level. |
 | `local-swarm` | role separation plus enforceable contracts across handoff, memory, approval/tool, multi-hop laundering, and verifier-outage boundaries | monolith vs naive swarm vs bounded swarm | Shipped research-only evidence suite: committed `examples/local-swarm-report/` shows 15 modeled boundary failures accepted by `naive_swarm` and blocked by `bounded_swarm`; committed `examples/local-swarm-attack-matrix/` expands them into 43 rows across 9 families, including 10 executable deep invariant probes for handoff and memory mutations. | Run bounded local-model role calls as evidence-quality probes; add new matrix rows only when the deterministic invariant and non-claim boundary are explicit. |
+| `semantic-drift-campaign` | semantic relabeling pressure against canonical parameter meaning | local mini-swarm / private local-model probes | Shipped research-only campaign artifact: committed `examples/semantic-drift-sanitized/` summarizes deterministic bounded-vs-ablation rows and local-model observations without raw prompts, responses, canaries, or canonical-state hashes. | Add new pressure cases only after the public/private boundary and response-hash metrics remain explicit. |
+| `semantic-propagation-campaign` | worker-to-chief propagation after semantic drift | local mini-swarm chain / private local-model probes | Shipped research-only campaign artifact: committed `examples/semantic-propagation-sanitized/` records 8 observations with 1 adapter error and 87.5% response-hash coverage; bounded deterministic mode accepts 0 propagation attempts. | Deepen long-session propagation only with adapter-error accounting and explicit non-claims. |
 | `approval-audit` | approval context, audit completeness, hash-chain integrity | human approval loop / audit trail | Implemented deterministic scenario family. | Add missing-context approval and recovery-path variants. |
 | `budget-control` | loop, recursion, step budget | multi-step local target | Implemented deterministic scenario family. | Add recursion-depth evidence cards and stop-condition reporting. |
 | `perception-boundary` | sensor/OCR/transcript content mistaken for instruction | perception transcript | Implemented deterministic scenario family. | Keep sanitized transcript-only; do not add real media before multimodal policy exists. |
@@ -39,3 +41,11 @@ one scenario -> one variant -> one runtime profile -> validate -> classify evide
 ```
 
 Only after classification should a variation be added to the deepening backlog.
+
+## Campaign Artifacts vs Corpus Scenarios
+
+`semantic-drift-campaign`, `semantic-propagation-campaign`,
+`secret-leak-campaign`, and `evidence-campaign` are campaign artifacts, not one-for-one
+corpus patterns. They aggregate declared cases, deterministic contract rows, and optional
+private local-model observations. They can inform future corpus candidates, but they do
+not automatically become shipped corpus coverage.
