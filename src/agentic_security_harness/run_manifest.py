@@ -30,6 +30,7 @@ _RUN_KINDS = frozenset(
         "secret_leak_campaign",
         "secret_leak_variations",
         "semantic_drift_campaign",
+        "semantic_propagation_campaign",
     }
 )
 

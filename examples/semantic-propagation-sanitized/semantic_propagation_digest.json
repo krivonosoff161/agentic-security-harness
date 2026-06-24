@@ -1,0 +1,15 @@
+{
+  "ablation_propagation_acceptances": 20,
+  "adapter_errors": 1,
+  "bounded_propagation_acceptances": 0,
+  "canary_leaks": 2,
+  "cases": 4,
+  "chief_acceptances": 3,
+  "deterministic_results": 32,
+  "observations": 8,
+  "response_hash_coverage": 0.875,
+  "run_kind": "semantic_propagation_campaign",
+  "schema_version": "0.1",
+  "verifier_blocks": 3,
+  "worker_drift_detections": 2
+}
