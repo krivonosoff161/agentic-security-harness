@@ -673,6 +673,44 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="write deterministic matrix artifacts (default: dry-run only)",
     )
+    swarm_matrix_p.add_argument(
+        "--execute-model",
+        action="store_true",
+        help="run local model evidence-quality probes for executable deep matrix rows",
+    )
+    swarm_matrix_p.add_argument(
+        "--preset",
+        default="ollama",
+        help="local preset for --execute-model (default: ollama)",
+    )
+    swarm_matrix_p.add_argument(
+        "--base-url",
+        default="",
+        help="override local OpenAI-compatible base URL for --execute-model",
+    )
+    swarm_matrix_p.add_argument(
+        "--model",
+        default="",
+        help="local model name for --execute-model",
+    )
+    swarm_matrix_p.add_argument(
+        "--timeout",
+        type=float,
+        default=60.0,
+        help="per-request timeout for --execute-model",
+    )
+    swarm_matrix_p.add_argument(
+        "--max-requests",
+        type=int,
+        default=20,
+        help="maximum model calls allowed for --execute-model",
+    )
+    swarm_matrix_p.add_argument(
+        "--pressure-mode",
+        choices=["neutral", "coercive"],
+        default="neutral",
+        help="model-probe pressure mode for --execute-model",
+    )
 
     campaign_p = sub.add_parser(
         "evidence-campaign",
@@ -1524,12 +1562,26 @@ def _local_swarm(
     return 0
 
 
-def _local_swarm_matrix(list_matrix: bool, out: Path, write: bool) -> int:
+def _local_swarm_matrix(
+    list_matrix: bool,
+    out: Path,
+    write: bool,
+    execute_model: bool,
+    preset: str,
+    base_url_override: str,
+    model: str,
+    timeout: float,
+    max_requests: int,
+    pressure_mode: str,
+) -> int:
+    from agentic_security_harness.local_swarm import model_is_forbidden
     from agentic_security_harness.local_swarm_matrix import (
         VARIATION_FAMILIES,
         build_local_swarm_attack_matrix,
         declared_matrix_cases,
+        run_matrix_model_probe,
         write_local_swarm_matrix_artifacts,
+        write_matrix_model_probe_artifacts,
     )
     from agentic_security_harness.validation import validate_path
 
@@ -1556,11 +1608,62 @@ def _local_swarm_matrix(list_matrix: bool, out: Path, write: bool) -> int:
         f"bounded={metrics.bounded_swarm_boundary_failures}; "
         f"bounded_blocks={metrics.bounded_blocks}"
     )
-    print(
-        "Deterministic matrix only: no model calls, no network, no production-safety claim."
-    )
+    if execute_model:
+        print(
+            "Deterministic matrix plus explicit local model evidence-quality probes; "
+            "model text never decides pass/block."
+        )
+    else:
+        print(
+            "Deterministic matrix only: no model calls, no network, "
+            "no production-safety claim."
+        )
+    if execute_model:
+        if model_is_forbidden(model):
+            print("Error: calculator model is reserved for the trading project; refused.")
+            return 1
+        try:
+            base_url, credential_env_var, err = apply_preset(preset, base_url_override, "")
+        except KeyError as exc:
+            print(f"Error: {exc}")
+            return 1
+        if err:
+            print(f"Error: {err}")
+            return 1
+        if credential_env_var:
+            print("Error: matrix model probes accept only keyless local presets.")
+            return 1
+        if not model:
+            print("Error: --model is required with --execute-model")
+            return 1
+        print(f"Using preset '{preset}': base_url {_redact_url(base_url)}")
+        try:
+            probe_run = run_matrix_model_probe(
+                base_url=base_url,
+                model=model,
+                timeout_seconds=int(timeout),
+                max_requests=max_requests,
+                pressure_mode=pressure_mode,  # type: ignore[arg-type]
+                created_at=datetime.now(UTC),
+            )
+        except ValueError as exc:
+            print(f"Error: {exc}")
+            return 1
+        probe_paths = write_matrix_model_probe_artifacts(out, probe_run)
+        for path in probe_paths:
+            print(f"wrote {path.as_posix()}")
+        print(
+            "model-probe evidence quality: "
+            f"responses={probe_run.metrics.responses} "
+            f"adapter_errors={probe_run.metrics.adapter_errors} "
+            f"weakness_observations={probe_run.metrics.weakness_observations}"
+        )
+
     if not write:
-        print("Dry-run only. Add --write to write artifacts.")
+        if execute_model:
+            print("Deterministic matrix artifacts not written. Add --write to write them too.")
+        else:
+            print("Dry-run only. Add --write to write artifacts.")
         return 0
 
     paths = write_local_swarm_matrix_artifacts(out, matrix)
@@ -1933,6 +2036,13 @@ def main(argv: list[str] | None = None) -> int:
             args.list_swarm_matrix,
             args.out,
             args.write,
+            args.execute_model,
+            args.preset,
+            args.base_url,
+            args.model,
+            args.timeout,
+            args.max_requests,
+            args.pressure_mode,
         )
     if args.command == "evidence-campaign":
         return _evidence_campaign(args.out, args.write)

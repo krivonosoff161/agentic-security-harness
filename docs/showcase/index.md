@@ -11,6 +11,7 @@ what the project currently proves.
 | [Scenario matrix](scenario-matrix.md) | What scenario families exist and what topology each one tests. |
 | [Weak spots and findings](weak-spots-and-findings.md) | Separates findings from inconclusive/error/runtime weak spots. |
 | [Deepening backlog](deepening-backlog.md) | Bounded follow-up variations selected from evidence, not a full cross-product. |
+| [Local swarm deep probes](../local-swarm-deep-probes.md) | Executable handoff/memory mutation probes plus private local-model evidence-quality runs. |
 | [Metrics contract](../metric-contract.md) | How to read traffic, benchmark, runtime, and process metrics. |
 | [Scenario investigation workflow](../scenario-investigation-workflow.md) | How scenarios become evidence and then deeper checks. |
 | [Generated failure cards](generated/failure-cards.md) | Artifact-driven failure/replay cards generated from a committed run (`ash showcase --root examples/demo-agent-report --out docs/showcase/generated`); every card links a trace reference. |
@@ -22,7 +23,7 @@ what the project currently proves.
 | Deterministic baseline/protected comparison | Validated example | [`examples/comparison-report/README.md`](../../examples/comparison-report/README.md) | The shipped synthetic corpus can produce a visible 24 -> 0 modeled-risk reduction between demo targets. | A real deployed agent is secure. |
 | Deterministic multi-agent handoff toy comparison | Local validated artifact | [`handoff-toy-topology.md`](../handoff-toy-topology.md) | The shipped local `toy-multi-agent` slice produces 2 modeled handoff findings, while `protected-toy-multi-agent` blocks the malformed handoffs under the same corpus. | Evidence about a live multi-agent framework, provider, or production handoff protocol. |
 | Bounded local swarm evidence suite | Validated example | [`examples/local-swarm-report/local_swarm_report.md`](../../examples/local-swarm-report/local_swarm_report.md) | The research-only `bounded_swarm` topology blocks 15 synthetic handoff, memory, memory-poisoning, approval/tool, multi-hop laundering, and verifier-outage boundary failures that `naive_swarm` accepts. | A real model, provider, framework, or production swarm is safe. |
-| Local swarm attack variation matrix | Validated example | [`examples/local-swarm-attack-matrix/local_swarm_attack_matrix.md`](../../examples/local-swarm-attack-matrix/local_swarm_attack_matrix.md) | The 15 local-swarm scenarios are expanded into 33 declared prompt-only, delayed, recovery, audit-evidence, budget, cross-provider, and model-contradiction variations; `bounded_swarm` blocks all declared rows under deterministic contracts. | Exhaustive attack coverage, cryptographic audit-log proof, or live-framework safety. |
+| Local swarm attack variation matrix | Validated example | [`examples/local-swarm-attack-matrix/local_swarm_attack_matrix.md`](../../examples/local-swarm-attack-matrix/local_swarm_attack_matrix.md) | The 15 local-swarm scenarios are expanded into 43 rows across 9 families, including 10 executable deep probes for hash mismatch, recipient switch, stale replay, policy mismatch, tool-output authority confusion, and memory drift; `bounded_swarm` blocks all declared rows under deterministic contracts. | Exhaustive attack coverage, cryptographic audit-log proof, model understanding, or live-framework safety. |
 | Evidence campaign | Validated example | [`examples/evidence-campaign-sanitized/evidence_campaign_report.md`](../../examples/evidence-campaign-sanitized/evidence_campaign_report.md) | Across 24 cases / 72 observations / 4 claim families, bounded mode reaches attack block rate 100%, benign pass rate 100%, false-block rate 0%, and records control-ablation regressions when responsible controls are disabled. | A production guarantee, complete benign usability proof, model safety result, or proof that every possible bypass is covered. |
 | Local swarm real-model evaluation | Local empirical summary | [`local-swarm-real-model-evaluation.md`](../local-swarm-real-model-evaluation.md) | Two local Ollama models executed the full 15-scenario local-swarm suite with 100% transcript-hash coverage and 0% adapter-error rate. | The local models passed a safety benchmark or production swarm behavior is proven. |
 | External fake-server run | Validated example | [`examples/external-demo-report/README.md`](../../examples/external-demo-report/README.md) | The experimental external artifact path can validate against a deterministic local fake OpenAI-compatible endpoint. | A real model/provider is safe. |
@@ -113,8 +114,9 @@ The committed matrix lives at `examples/local-swarm-attack-matrix/` and validate
 ash validate examples/local-swarm-attack-matrix
 ```
 
-Expected current result: 33 declared variation rows, 8 variation families, 33 naive
-boundary failures, 0 bounded boundary failures, and 33 deterministic bounded blocks.
+Expected current result: 43 declared variation rows, 9 variation families, 10 deep
+invariant probes, 43 naive boundary failures, 0 bounded boundary failures, and 43
+deterministic bounded blocks.
 
 Calculate the evidence campaign metrics:
 

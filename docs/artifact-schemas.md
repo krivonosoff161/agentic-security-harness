@@ -25,7 +25,7 @@ registry compatibility, standards mapping, and forbidden marker scans.
 | `run_diff.json` | `run_diff` | 0.2 | `ash diff-runs` | `ash validate` |
 | `evidence_quality.json` | `evidence_quality` | 0.2 | `ash evidence-quality` | derived artifact; schema-versioned, not a replacement for `ash validate` |
 | `local_swarm_summary.json` | `local_swarm` | 0.1 | `ash local-swarm` | `ash validate` |
-| `local_swarm_attack_matrix.json` | `local_swarm_matrix` | 0.1 | `ash local-swarm-matrix` | `ash validate` |
+| `local_swarm_attack_matrix.json` | `local_swarm_matrix` | 0.2 | `ash local-swarm-matrix` | `ash validate` |
 | `evidence_campaign_summary.json` | `evidence_campaign` | 0.2 | `ash evidence-campaign` | `ash validate` |
 
 `run_diff` v0.2 replaces the ambiguous v0.1 coarse labels (`fixed`, `new`,
