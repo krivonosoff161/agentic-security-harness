@@ -33,6 +33,7 @@ ash validate examples/
 | [`secret-leak-campaign-sanitized/`](secret-leak-campaign-sanitized/) | Sanitized secret-leak campaign: 4 synthetic secret-egress topologies / 23 observations with naive, bounded, ablation, and benign modes. | `ash secret-leak-campaign --write --out .internal/secret-leak-campaign/latest` |
 | [`secret-leak-variations-sanitized/`](secret-leak-variations-sanitized/) | Sanitized live local-model variation smoke: 8 secret-egress pressure cases x 4 pressure modes x 2 Ollama models, with raw prompts/responses kept private. | `ash secret-leak-campaign --execute-variations --out .internal/secret-leak-variations/latest --variation-summary-out reports/secret-leak-variations` |
 | [`semantic-drift-sanitized/`](semantic-drift-sanitized/) | Sanitized semantic parameter-drift campaign: 4 relabeling cases x 4 pressure modes x 5 Ollama models, with raw prompts/responses/canaries kept private. | `ash semantic-drift-campaign --execute --out .internal/semantic-drift/latest --summary-out reports/semantic-drift` |
+| [`semantic-propagation-sanitized/`](semantic-propagation-sanitized/) | Sanitized worker-to-chief propagation smoke: 4 propagation cases, 2 pressure modes, qwen2.5 worker, llama3.2 chief, with raw prompts/responses/canaries kept private. | `ash semantic-propagation-campaign --execute --out .internal/semantic-propagation/latest --summary-out reports/semantic-propagation` |
 | [`external-demo-report/`](external-demo-report/) | An external OpenAI-compatible run against the bundled fake server. | see below |
 | [`fake_openai_server.py`](fake_openai_server.py) | A deterministic local OpenAI-compatible server for the external path (no key, localhost only). | `python examples/fake_openai_server.py` |
 
@@ -51,7 +52,8 @@ external runs start with `external_report.md`; local-swarm runs start with
 `evidence_campaign_report.md`; secret-leak campaign runs start with
 `secret_leak_campaign_report.md`; secret-leak variation runs start with
 `secret_leak_variation_report.md`; semantic-drift runs start with
-`semantic_drift_report.md`.
+`semantic_drift_report.md`; semantic-propagation runs start with
+`semantic_propagation_report.md`.
 
 Or render any example as a single static HTML page (no network):
 

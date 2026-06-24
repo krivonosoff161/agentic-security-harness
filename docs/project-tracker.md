@@ -58,6 +58,7 @@ None currently tracked.
 | [#55 research: define memory-governance invariant layer](https://github.com/krivonosoff161/agentic-security-harness/issues/55) | Memory governance / theory | `memory_governance.py` adds executable synthetic checks for TTL-from-write, envelope drift, provenance metadata, trust floor, trust precedence, and scope isolation, with public theory docs and tests. |
 | [#57 research: harden boundary layer evidence matrices](https://github.com/krivonosoff161/agentic-security-harness/issues/57) | Boundary-layer research | `boundary-layer-evidence-matrix.md` ties 22 declared handoff, authority, and memory-governance variation rows to executable tests while keeping private scratch calculations out of public evidence. |
 | [#78 research: add synthetic secret-leak campaign](https://github.com/krivonosoff161/agentic-security-harness/issues/78) | Secret-egress / evidence | `ash secret-leak-campaign` adds 4 deterministic synthetic secret-egress topologies with naive, bounded, ablation, and benign modes; committed sanitized artifacts validate without raw canaries. |
+| [#84 research: semantic drift propagation in worker-to-chief chains](https://github.com/krivonosoff161/agentic-security-harness/issues/84) | Semantic drift / local empirical | `ash semantic-propagation-campaign` adds deterministic and local-model worker-to-chief propagation probes, with public sanitized artifacts and private raw transcripts kept under `.internal/`. |
 
 ## Recently completed local research closures
 

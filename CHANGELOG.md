@@ -7,6 +7,12 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Semantic propagation campaign: `ash semantic-propagation-campaign` writes sanitized
+  public artifacts for worker-to-chief semantic drift propagation probes, including
+  deterministic bounded-vs-ablation contract results, local-model observation
+  aggregates, response-hash coverage, and validator support. Raw worker/chief prompts,
+  responses, canonical-state hashes, and synthetic canaries stay private under
+  `.internal/`.
 - Semantic parameter drift campaign: `ash semantic-drift-campaign` writes sanitized
   public artifacts for 4 synthetic local mini-swarm handoff cases, including
   deterministic bounded-vs-ablation contract results, local-model observation

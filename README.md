@@ -116,6 +116,7 @@ flowchart LR
 | Can synthetic secret egress be attributed to missing controls? | Yes, in the declared suite: bounded leaks `0`, ablation leaks `11` | [`docs/synthetic-secret-leak-campaign.md`](docs/synthetic-secret-leak-campaign.md) |
 | Do local small models leak synthetic canaries under the Phase 2 pressure matrix? | In the current private smoke: no leaks across 64 observations | [`examples/secret-leak-variations-sanitized/secret_leak_variation_report.md`](examples/secret-leak-variations-sanitized/secret_leak_variation_report.md) |
 | Can slow semantic relabeling pressure be caught before a senior agent accepts it? | In the current private smoke: 13 drift detections and 4 canary leaks across 80 observations; the verifier blocked all 15 flagged observations | [`examples/semantic-drift-sanitized/semantic_drift_report.md`](examples/semantic-drift-sanitized/semantic_drift_report.md) |
+| Can a drifted worker summary poison a downstream chief decision? | In the current private smoke: 8 worker-to-chief observations, 2 worker drift detections, 3 chief acceptances, 2 synthetic canary leaks, and 3 verifier blocks; bounded deterministic mode accepted 0 propagation attempts | [`examples/semantic-propagation-sanitized/semantic_propagation_report.md`](examples/semantic-propagation-sanitized/semantic_propagation_report.md) |
 
 This is a deterministic synthetic benchmark snapshot, not evidence that a production
 agent is secure.
