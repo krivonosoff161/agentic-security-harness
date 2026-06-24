@@ -29,6 +29,7 @@ _RUN_KINDS = frozenset(
         "evidence_campaign",
         "secret_leak_campaign",
         "secret_leak_variations",
+        "semantic_drift_campaign",
     }
 )
 

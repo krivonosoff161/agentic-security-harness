@@ -49,6 +49,7 @@ _SECRET_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("Bearer", re.compile(r"Bearer\s+[A-Za-z0-9._~+/=-]{16,}")),
     ("BEGIN PRIVATE KEY", re.compile(r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY")),
     ("ASH-CANARY", re.compile(r"ASH-CANARY-[A-F0-9]{8,}-[A-F0-9]{8,}")),
+    ("ASH-SEMDRIFT", re.compile(r"ASH-SEMDRIFT-[A-F0-9]{8,}-[A-F0-9]{8,}")),
 ]
 
 
@@ -69,6 +70,7 @@ class ValidationResult(BaseModel):
     evidence_campaign_dirs: list[str] = Field(default_factory=list)
     secret_leak_campaign_dirs: list[str] = Field(default_factory=list)
     secret_leak_variation_dirs: list[str] = Field(default_factory=list)
+    semantic_drift_campaign_dirs: list[str] = Field(default_factory=list)
 
     def _err(self, msg: str) -> None:
         self.errors.append(msg)
@@ -123,6 +125,10 @@ def _is_secret_leak_variation_dir(path: Path) -> bool:
     return (path / "secret_leak_variation_summary.json").exists()
 
 
+def _is_semantic_drift_campaign_dir(path: Path) -> bool:
+    return (path / "semantic_drift_summary.json").exists()
+
+
 def validate_path(path: Path) -> ValidationResult:
     """Validate a report dir, a comparison dir, or a directory of such dirs.
 
@@ -166,6 +172,9 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
     elif _is_secret_leak_variation_dir(path):
         result.secret_leak_variation_dirs.append(_rel(path, root))
         _validate_secret_leak_variation_dir(path, root, result)
+    elif _is_semantic_drift_campaign_dir(path):
+        result.semantic_drift_campaign_dirs.append(_rel(path, root))
+        _validate_semantic_drift_campaign_dir(path, root, result)
     elif (path / "run_diff.json").exists():
         result.run_diff_dirs.append(_rel(path, root))
         _validate_run_diff_dir(path, root, result)
@@ -398,14 +407,109 @@ def _validate_secret_leak_variation_dir(
         _scan_secrets(path / name, root, result)
 
 
+def _validate_semantic_drift_campaign_dir(
+    path: Path, root: Path, result: ValidationResult
+) -> None:
+    rel = _rel(path / "semantic_drift_summary.json", root)
+    raw = _load_json(path / "semantic_drift_summary.json", root, result)
+    if raw is None:
+        return
+    _check_schema_version_file(
+        path / "semantic_drift_summary.json",
+        "semantic_drift_campaign",
+        root,
+        result,
+    )
+    from agentic_security_harness.semantic_drift_campaign import SemanticDriftSummary
+
+    try:
+        summary = SemanticDriftSummary.model_validate(raw)
+    except ValidationError as exc:
+        result._err(f"{rel}: schema: {_fmt_error(exc)}")
+        return
+    if summary.metrics.cases != len(summary.cases):
+        result._err(f"{rel}: metrics.cases does not match case count")
+    if summary.metrics.observations != len(summary.observations):
+        result._err(f"{rel}: metrics.observations does not match observation count")
+    if summary.metrics.deterministic_results != len(summary.deterministic_results):
+        result._err(
+            f"{rel}: metrics.deterministic_results does not match deterministic rows"
+        )
+    if summary.metrics.models != len({item.model for item in summary.observations}):
+        result._err(f"{rel}: metrics.models does not match observation models")
+    if summary.metrics.drift_detections != sum(
+        1 for item in summary.observations if item.drift_detected
+    ):
+        result._err(f"{rel}: metrics.drift_detections does not match observations")
+    if summary.metrics.canary_leaks != sum(
+        1 for item in summary.observations if item.canary_leaked
+    ):
+        result._err(f"{rel}: metrics.canary_leaks does not match observations")
+    if summary.metrics.adapter_errors != sum(
+        1 for item in summary.observations if item.adapter_error
+    ):
+        result._err(f"{rel}: metrics.adapter_errors does not match observations")
+    if summary.metrics.bounded_drift_acceptances != sum(
+        1
+        for item in summary.deterministic_results
+        if item.mode == "bounded_swarm" and item.drift_accepted
+    ):
+        result._err(
+            f"{rel}: metrics.bounded_drift_acceptances does not match deterministic rows"
+        )
+    if _contains_forbidden_raw_fields(raw):
+        result._err(f"{rel}: public artifact contains raw prompt/response/value fields")
+    if _contains_forbidden_key(raw, "canary_fingerprint"):
+        result._err(f"{rel}: public artifact contains private canary fingerprint")
+    if _contains_forbidden_key(raw, "canonical_state_hash"):
+        result._err(f"{rel}: public artifact contains private canonical state hash")
+    if not (path / "semantic_drift_report.md").exists():
+        result._err(f"{_rel(path / 'semantic_drift_report.md', root)}: missing")
+    if not (path / "semantic_drift_digest.json").exists():
+        result._err(f"{_rel(path / 'semantic_drift_digest.json', root)}: missing")
+    for private_name in ("semantic_drift_private.json", "semantic_drift_private.md"):
+        if (path / private_name).exists():
+            result._err(
+                f"{_rel(path / private_name, root)}: private semantic drift artifact "
+                "must stay under .internal/"
+            )
+    _validate_run_manifest(path, root, result)
+    for name in (
+        "semantic_drift_summary.json",
+        "semantic_drift_report.md",
+        "semantic_drift_digest.json",
+        "README.md",
+    ):
+        candidate = path / name
+        if candidate.exists():
+            _scan_secrets(candidate, root, result)
+
+
 def _contains_forbidden_raw_fields(value: Any) -> bool:
-    forbidden = {"raw_prompt", "raw_response", "value", "canary", "canary_value"}
+    forbidden = {
+        "raw_prompt",
+        "raw_response",
+        "value",
+        "canary",
+        "canary_value",
+        "canonical_state_hash",
+    }
     if isinstance(value, dict):
         return any(key in forbidden for key in value) or any(
             _contains_forbidden_raw_fields(item) for item in value.values()
         )
     if isinstance(value, list):
         return any(_contains_forbidden_raw_fields(item) for item in value)
+    return False
+
+
+def _contains_forbidden_key(value: Any, key_name: str) -> bool:
+    if isinstance(value, dict):
+        return key_name in value or any(
+            _contains_forbidden_key(item, key_name) for item in value.values()
+        )
+    if isinstance(value, list):
+        return any(_contains_forbidden_key(item, key_name) for item in value)
     return False
 
 

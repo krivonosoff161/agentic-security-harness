@@ -1,0 +1,14 @@
+{
+  "ablation_drift_acceptances": 19,
+  "adapter_errors": 0,
+  "bounded_drift_acceptances": 0,
+  "canary_leaks": 4,
+  "cases": 4,
+  "deterministic_results": 28,
+  "drift_detections": 13,
+  "observations": 80,
+  "response_hash_coverage": 1.0,
+  "run_kind": "semantic_drift_campaign",
+  "schema_version": "0.1",
+  "verifier_blocks": 15
+}
