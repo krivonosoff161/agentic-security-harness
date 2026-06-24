@@ -799,6 +799,64 @@ def build_parser() -> argparse.ArgumentParser:
         help="pressure mode to include; repeatable (default: all)",
     )
 
+    semantic_p = sub.add_parser(
+        "semantic-drift-campaign",
+        help="measure synthetic semantic-parameter drift in local mini-swarms",
+    )
+    semantic_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path(".internal/semantic-drift/latest"),
+        help="output directory (private by default)",
+    )
+    semantic_p.add_argument(
+        "--write",
+        action="store_true",
+        help="write sanitized deterministic campaign artifacts",
+    )
+    semantic_p.add_argument(
+        "--execute",
+        action="store_true",
+        help="run private local-model semantic drift probes; --out must be under .internal",
+    )
+    semantic_p.add_argument(
+        "--model",
+        action="append",
+        default=None,
+        help="local model to probe; repeatable (default: prometheus-qwen15b-lowctx:latest)",
+    )
+    semantic_p.add_argument(
+        "--summary-out",
+        type=Path,
+        default=None,
+        help="optional sanitized output dir for semantic drift summary",
+    )
+    semantic_p.add_argument(
+        "--preset",
+        default="ollama",
+        choices=preset_names(),
+        help="keyless local preset for local model probes (default: ollama)",
+    )
+    semantic_p.add_argument("--base-url", help="override preset base URL")
+    semantic_p.add_argument(
+        "--timeout",
+        type=int,
+        default=60,
+        help="per-request timeout for local model probes",
+    )
+    semantic_p.add_argument(
+        "--max-requests",
+        type=int,
+        default=80,
+        help="hard cap for local model probe requests",
+    )
+    semantic_p.add_argument(
+        "--pressure-mode",
+        action="append",
+        choices=["gentle_reframe", "authority_pressure", "pseudo_code", "memory_rewrite"],
+        help="pressure mode to include; repeatable (default: all)",
+    )
+
     return parser
 
 
@@ -896,7 +954,8 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.local_swarm_matrix_dirs)} local-swarm-matrix dir(s), "
         f"{len(result.evidence_campaign_dirs)} evidence-campaign dir(s), "
         f"{len(result.secret_leak_campaign_dirs)} secret-leak-campaign dir(s), "
-        f"{len(result.secret_leak_variation_dirs)} secret-leak-variation dir(s)"
+        f"{len(result.secret_leak_variation_dirs)} secret-leak-variation dir(s), "
+        f"{len(result.semantic_drift_campaign_dirs)} semantic-drift dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
     if redacted_errors or redacted_warnings:
@@ -1967,6 +2026,111 @@ def _secret_leak_campaign(
     return 0
 
 
+def _semantic_drift_campaign(
+    out: Path,
+    write: bool,
+    execute: bool,
+    models: list[str] | None,
+    summary_out: Path | None,
+    preset: str,
+    base_url_override: str | None,
+    timeout: int,
+    max_requests: int,
+    pressure_modes: list[str] | None,
+) -> int:
+    from agentic_security_harness.local_swarm import model_is_forbidden
+    from agentic_security_harness.semantic_drift_campaign import (
+        PRESSURE_MODES,
+        build_semantic_drift_campaign,
+        run_semantic_drift_probe,
+        write_semantic_drift_artifacts,
+        write_semantic_drift_private_artifacts,
+    )
+    from agentic_security_harness.validation import validate_path
+
+    summary = build_semantic_drift_campaign(created_at=_now_utc())
+    print("semantic-drift campaign prepared.")
+    print(
+        "Public artifacts are sanitized. Raw prompts/responses and synthetic markers, "
+        "if collected, must stay under .internal/."
+    )
+
+    if write:
+        paths = write_semantic_drift_artifacts(out, summary)
+        for path in paths:
+            print(f"wrote {path.as_posix()}")
+        result = validate_path(out)
+        if not result.ok:
+            print(f"Validation FAILED for {redact_artifact_text(out.as_posix())}:")
+            print(f"errors: {len(result.errors)}")
+            return 1
+        print(f"validated {out.as_posix()} (artifact integrity only).")
+
+    if execute:
+        if ".internal" not in out.parts:
+            print("Error: --execute requires --out under .internal/.")
+            return 1
+        selected_models = models or ["prometheus-qwen15b-lowctx:latest"]
+        forbidden = [item for item in selected_models if model_is_forbidden(item)]
+        if forbidden:
+            print(
+                "Error: calculator model is reserved for the trading project; refused: "
+                + ", ".join(forbidden)
+            )
+            return 1
+        try:
+            base_url, credential_env_var, err = apply_preset(preset, base_url_override, "")
+        except KeyError as exc:
+            print(f"Error: {exc}")
+            return 1
+        if err:
+            print(f"Error: {err}")
+            return 1
+        if credential_env_var:
+            print("Error: semantic drift probes accept only keyless local presets.")
+            return 1
+        selected_pressures = pressure_modes or list(PRESSURE_MODES)
+        print(
+            f"Using preset '{preset}': base_url {_redact_url(base_url)}; "
+            f"models={', '.join(selected_models)}"
+        )
+        try:
+            private_run = run_semantic_drift_probe(
+                base_url=base_url,
+                models=selected_models,
+                pressure_modes=selected_pressures,  # type: ignore[arg-type]
+                timeout_seconds=timeout,
+                max_requests=max_requests,
+                created_at=_now_utc(),
+            )
+        except ValueError as exc:
+            print(f"Error: {exc}")
+            return 1
+        private_dir = out / "private_semantic_drift_probe"
+        write_semantic_drift_private_artifacts(private_dir, private_run)
+        print("wrote private semantic-drift artifacts.")
+        live_summary = build_semantic_drift_campaign(
+            private_run,
+            created_at=_now_utc(),
+        )
+        if summary_out is not None:
+            write_semantic_drift_artifacts(summary_out, live_summary)
+            print("wrote sanitized semantic-drift artifacts.")
+            result = validate_path(summary_out)
+            if not result.ok:
+                print(
+                    "Validation FAILED for "
+                    f"{redact_artifact_text(summary_out.as_posix())}:"
+                )
+                print(f"errors: {len(result.errors)}")
+                return 1
+            print(f"validated {summary_out.as_posix()} (artifact integrity only).")
+
+    if not write and not execute:
+        print("Dry-run only. Add --write and/or --execute.")
+    return 0
+
+
 def _list_runs(root: Path, db: Path | None) -> int:
     if db is not None:
         from agentic_security_harness.rundb import list_db_runs
@@ -2292,6 +2456,19 @@ def main(argv: list[str] | None = None) -> int:
             args.preset,
             args.base_url,
             args.model,
+            args.timeout,
+            args.max_requests,
+            args.pressure_mode,
+        )
+    if args.command == "semantic-drift-campaign":
+        return _semantic_drift_campaign(
+            args.out,
+            args.write,
+            args.execute,
+            args.model,
+            args.summary_out,
+            args.preset,
+            args.base_url,
             args.timeout,
             args.max_requests,
             args.pressure_mode,

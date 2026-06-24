@@ -38,6 +38,7 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | Evidence campaign | Shipped research slice | `ash evidence-campaign` calculates TP/FP/FN/TN, attack block rate, benign pass rate, false-block rate, control effect, usability cost, and control-ablation regressions across 24 cases / 72 observations / 4 claim families. |
 | Synthetic secret-leak campaign | Shipped research slice | `ash secret-leak-campaign` models four synthetic secret-egress topologies: naive leaks 4/4, bounded leaks 0/4, ablation leaks 11/11, benign leaks 0/4. |
 | Secret-leak variation probes | Shipped local empirical slice | `ash secret-leak-campaign --execute-variations` runs private local-model probes across 8 variation cases, 4 pressure modes, and selected Ollama models, then writes a sanitized public summary with raw prompts/responses kept under `.internal/`. |
+| Semantic parameter drift probes | Shipped local empirical slice | `ash semantic-drift-campaign` models slow relabeling pressure in a local mini-swarm: deterministic bounded mode accepts 0 drift attempts, ablation modes accept 19, and the latest private local-model smoke records 80 observations with 13 drift detections, 4 synthetic canary leaks, and 15 verifier blocks. |
 | Local real-model swarm probes | Local empirical | Prometheus and qwen2.5 have executed the full 15-scenario swarm suite with 100% transcript-hash coverage and 0% adapter-error rate; model text remains evidence-quality context only. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
 | Public project process | Shipped locally | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, release artifact workflow. |
@@ -60,6 +61,9 @@ These features exist, but their results must be read conservatively:
 - `ash secret-leak-campaign --execute-variations`: private local-model pressure probes
   over synthetic secret-egress cases. Public summaries are sanitized; raw prompts,
   responses, and canaries stay under `.internal/`.
+- `ash semantic-drift-campaign --execute`: private local-model semantic relabeling probes
+  over synthetic mini-swarm handoff cases. Public summaries are sanitized; raw prompts,
+  responses, canonical-state hashes, and canaries stay under `.internal/`.
 - Scenario matrix and timeline variants: deterministic local replay metadata and pattern
   subsets, not live multi-tool execution.
 
@@ -139,6 +143,13 @@ naive leaks 4/4, bounded leaks 0/4, ablation leaks 11/11, and benign leaks 0/4. 
 Phase 2 variation smoke currently records 64 private local-model observations across two
 Ollama models with 0 leaks and 0 adapter errors; that is evidence-quality context, not a
 model safety proof.
+
+Expected semantic-drift demonstration: the deterministic semantic drift campaign records
+bounded drift acceptances 0 and ablation drift acceptances 19 across four synthetic
+semantic relabeling cases. The latest private local-model smoke records 80 observations
+across five Ollama models with 13 drift detections, 4 synthetic canary leaks, 15 verifier
+blocks, 0 adapter errors, and 100% response-hash coverage; that is local empirical
+evidence for the declared campaign, not a model leaderboard or production safety claim.
 
 ## Claim boundary
 

@@ -34,6 +34,7 @@ not claim that any deployed agent or model is secure.
 | Evidence campaign | `24` cases, `72` observations, `4` claim families; bounded attack block rate `100%`, false-block rate `0%` | [`examples/evidence-campaign-sanitized/`](examples/evidence-campaign-sanitized/) |
 | Synthetic secret-leak campaign | `4` secret-egress topologies, `23` observations; naive leaks `4/4`, bounded leaks `0/4`, ablation leaks `11/11` | [`examples/secret-leak-campaign-sanitized/`](examples/secret-leak-campaign-sanitized/) |
 | Secret-leak variation probes | `8` live local-model variation cases x `4` pressure modes x `2` Ollama models; `64` observations, leaks `0`, adapter errors `0` | [`examples/secret-leak-variations-sanitized/`](examples/secret-leak-variations-sanitized/) |
+| Semantic drift mini-swarm probes | `4` semantic relabeling cases x `4` pressure modes x `5` Ollama models; `80` observations, drift detections `13`, canary leaks `4`, verifier blocks `15` | [`examples/semantic-drift-sanitized/`](examples/semantic-drift-sanitized/) |
 | Local model probes | Prometheus and qwen2.5 executed the full 15-scenario swarm suite with transcript-hash coverage `100%` and adapter-error rate `0%` | [`docs/local-swarm-real-model-evaluation.md`](docs/local-swarm-real-model-evaluation.md) |
 
 What these numbers mean: the declared synthetic situations are reproducible and the
@@ -53,6 +54,7 @@ model leaderboard, or a CVE-grade vulnerability claim.
 | Evidence campaign | Research-only example | `examples/evidence-campaign-sanitized/` exposes aggregate TP/FP/FN/TN, control effect, usability cost, and ablation metrics. |
 | Synthetic secret-leak campaign | Research-only example | `examples/secret-leak-campaign-sanitized/` shows label laundering, stale memory, tool authority confusion, and split-secret recombination with raw canaries kept private. |
 | Secret-leak variation probes | Research-only local-model example | `examples/secret-leak-variations-sanitized/` summarizes private Prometheus/qwen2.5 variation probes without raw prompts, responses, or canaries. |
+| Semantic parameter drift probes | Research-only local-model example | `examples/semantic-drift-sanitized/` summarizes private mini-swarm probes where small agents are pressured to relabel canonical parameters, with raw prompts, responses, and canaries kept private. |
 | CI / package checks | Shipped | `.github/workflows/ci.yml` runs tests, ruff, mypy, package build, and example validation. |
 | External model checks | Experimental | OpenAI-compatible, prompt-only, explicit opt-in, no tool execution. |
 | Native provider / agent-host adapters | Future | Not shipped; do not claim real agent or tool-execution coverage yet. |
@@ -76,6 +78,8 @@ ash secret-leak-campaign --write --out .internal/secret-leak-campaign/latest
 ash validate .internal/secret-leak-campaign/latest
 ash secret-leak-campaign --execute-variations --out .internal/secret-leak-variations/latest --variation-model prometheus-qwen15b-lowctx:latest --variation-model qwen2.5:1.5b --variation-summary-out reports/secret-leak-variations
 ash validate reports/secret-leak-variations
+ash semantic-drift-campaign --execute --out .internal/semantic-drift/latest --summary-out reports/semantic-drift --model qwen2.5:0.5b --model llama3.2:1b --model qwen2.5-coder:0.5b-instruct --model qwen2.5:1.5b --model prometheus-qwen15b-lowctx:latest
+ash validate reports/semantic-drift
 ash showcase --root reports --out docs/showcase/generated
 ```
 
@@ -111,6 +115,7 @@ flowchart LR
 | Do deterministic bounded contracts change the outcome? | Yes, for the declared suite: bounded failures `0` | [`docs/evidence-assurance-model.md`](docs/evidence-assurance-model.md) |
 | Can synthetic secret egress be attributed to missing controls? | Yes, in the declared suite: bounded leaks `0`, ablation leaks `11` | [`docs/synthetic-secret-leak-campaign.md`](docs/synthetic-secret-leak-campaign.md) |
 | Do local small models leak synthetic canaries under the Phase 2 pressure matrix? | In the current private smoke: no leaks across 64 observations | [`examples/secret-leak-variations-sanitized/secret_leak_variation_report.md`](examples/secret-leak-variations-sanitized/secret_leak_variation_report.md) |
+| Can slow semantic relabeling pressure be caught before a senior agent accepts it? | In the current private smoke: 13 drift detections and 4 canary leaks across 80 observations; the verifier blocked all 15 flagged observations | [`examples/semantic-drift-sanitized/semantic_drift_report.md`](examples/semantic-drift-sanitized/semantic_drift_report.md) |
 
 This is a deterministic synthetic benchmark snapshot, not evidence that a production
 agent is secure.

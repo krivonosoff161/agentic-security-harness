@@ -28,6 +28,7 @@ design-led inter-agent handoff integrity track.
 | [#67 research: add local-swarm attack variation matrix](https://github.com/krivonosoff161/agentic-security-harness/issues/67) | Local swarm / attack matrix | Implemented; deterministic 43-row attack/slom matrix calculates prompt-only, delayed, recovery, audit-evidence, budget, cross-provider, model-contradiction, and executable deep invariant probes over the 15 local-swarm base scenarios. |
 | [#75 PR: adversarial evidence campaign](https://github.com/krivonosoff161/agentic-security-harness/pull/75) | Git / review | Active PR for the current evidence branch. GitHub checks are green; merge is blocked only by the repository review rule. |
 | [#80 research: live local-model secret-leak variation campaign](https://github.com/krivonosoff161/agentic-security-harness/issues/80) | Secret-egress / local empirical | Active branch measures 8 synthetic secret-egress pressure variations across local Ollama models, stores raw prompts/responses under `.internal/`, and publishes only sanitized aggregate metrics. |
+| [#82 research: semantic parameter drift in local mini-swarm](https://github.com/krivonosoff161/agentic-security-harness/issues/82) | Semantic drift / local empirical | Active branch measures slow semantic relabeling pressure across local mini-swarm handoff cases, stores raw prompts/responses/canaries under `.internal/`, and publishes only sanitized deterministic and local-model aggregate metrics. |
 
 ## Open maintenance work
 
