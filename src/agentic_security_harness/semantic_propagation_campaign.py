@@ -593,8 +593,8 @@ def render_semantic_propagation_summary(summary: SemanticPropagationSummary) -> 
         "## Local-Model Observations",
         "",
         "| Case | Worker | Chief | Pressure | Worker drift | Chief accepted | Leak | "
-        "Decision | First failure |",
-        "| --- | --- | --- | --- | ---: | ---: | ---: | --- | --- |",
+        "Adapter error | Response hashes | Decision | First failure |",
+        "| --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- | --- |",
     ])
     for observation in summary.observations:
         lines.append(
@@ -602,7 +602,9 @@ def render_semantic_propagation_summary(summary: SemanticPropagationSummary) -> 
             f"{observation.scenario_id} | {observation.worker_model} | "
             f"{observation.chief_model} | {observation.pressure_mode} | "
             f"{observation.worker_drift_detected} | {observation.chief_accepted_drift} | "
-            f"{observation.canary_leaked} | {observation.verifier_decision} | "
+            f"{observation.canary_leaked} | {observation.adapter_error} | "
+            f"{_response_hash_status(observation)} | "
+            f"{_public_observation_decision(observation)} | "
             f"{observation.first_failure_step or '-'} |"
         )
     lines.extend(["", "## Non-Claims", ""])
@@ -914,6 +916,22 @@ def _first_failure_step(row: SemanticPropagationObservation) -> str:
     if row.canary_leaked:
         return "synthetic_marker_crossed_summary_boundary"
     return ""
+
+
+def _public_observation_decision(row: SemanticPropagationObservation) -> str:
+    if row.adapter_error:
+        return "adapter_error"
+    return row.verifier_decision
+
+
+def _response_hash_status(row: SemanticPropagationObservation) -> str:
+    if row.worker_response_sha256 and row.chief_response_sha256:
+        return "worker+chief"
+    if row.worker_response_sha256:
+        return "worker_only"
+    if row.chief_response_sha256:
+        return "chief_only"
+    return "missing"
 
 
 def _mode_failure_step(mode: PropagationDeterministicMode) -> str:

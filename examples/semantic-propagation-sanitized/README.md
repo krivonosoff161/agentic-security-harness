@@ -13,6 +13,20 @@ Validate it with:
 ash validate examples/semantic-propagation-sanitized
 ```
 
+Regenerate the deterministic sanitized form with:
+
+```bash
+ash semantic-propagation-campaign --write --out reports/semantic-propagation
+ash validate reports/semantic-propagation
+```
+
+Run an optional private local-model smoke with raw transcripts under `.internal/`:
+
+```bash
+ash semantic-propagation-campaign --execute --out .internal/semantic-propagation/latest --summary-out reports/semantic-propagation --worker-model qwen2.5:0.5b --chief-model llama3.2:1b --pressure-mode pseudo_code --pressure-mode memory_rewrite --max-chains 8
+ash validate reports/semantic-propagation
+```
+
 ## What It Shows
 
 - 4 synthetic worker-to-chief propagation cases.
@@ -22,6 +36,8 @@ ash validate examples/semantic-propagation-sanitized
 - The current private local-model smoke recorded 8 observations, 2 worker drift
   detections, 3 chief acceptances, 2 synthetic canary leaks, 3 verifier blocks, and 1
   adapter error.
+- The current public summary has 87.5% response-hash coverage because the adapter-error
+  row has a worker response hash but no chief response hash.
 
 ## What It Does Not Prove
 

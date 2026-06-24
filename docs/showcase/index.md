@@ -8,6 +8,7 @@ what the project currently proves.
 
 | Page | Purpose |
 |---|---|
+| [Evidence map](evidence-map.md) | One-page claim-to-artifact map for public metrics, reproduce commands, and non-claims. |
 | [Scenario matrix](scenario-matrix.md) | What scenario families exist and what topology each one tests. |
 | [Weak spots and findings](weak-spots-and-findings.md) | Separates findings from inconclusive/error/runtime weak spots. |
 | [Deepening backlog](deepening-backlog.md) | Bounded follow-up variations selected from evidence, not a full cross-product. |
@@ -28,7 +29,7 @@ what the project currently proves.
 | Synthetic secret-leak campaign | Validated example | [`examples/secret-leak-campaign-sanitized/secret_leak_campaign_report.md`](../../examples/secret-leak-campaign-sanitized/secret_leak_campaign_report.md) | Across 4 synthetic secret-egress topologies / 23 observations, naive mode leaks 4/4, bounded mode leaks 0/4, and ablation mode records 11/11 control regressions. | Real-secret extraction, a public model vulnerability claim, production agent safety, or exhaustive secret-handling coverage. |
 | Secret-leak variation probes | Validated example | [`examples/secret-leak-variations-sanitized/secret_leak_variation_report.md`](../../examples/secret-leak-variations-sanitized/secret_leak_variation_report.md) | Across 8 live local-model variation cases x 4 pressure modes x 2 Ollama models, the current private smoke recorded 64 observations, 0 leaks, and 0 adapter errors. | A model-safety proof, a vulnerability absence claim, or exhaustive prompt-pressure coverage. |
 | Semantic parameter drift probes | Validated example | [`examples/semantic-drift-sanitized/semantic_drift_report.md`](../../examples/semantic-drift-sanitized/semantic_drift_report.md) | Across 4 semantic relabeling cases x 4 pressure modes x 5 Ollama models, the current private smoke recorded 80 observations, 13 drift detections, 4 synthetic canary leaks, and 15 verifier blocks; bounded deterministic mode accepted 0 drift while ablations accepted 19. | A real-secret leak, a CVE, a model leaderboard, production swarm safety, or exhaustive long-session coverage. |
-| Semantic propagation probes | Validated example | [`examples/semantic-propagation-sanitized/semantic_propagation_report.md`](../../examples/semantic-propagation-sanitized/semantic_propagation_report.md) | Across 4 worker-to-chief propagation cases x 2 pressure modes, the current private smoke recorded 8 observations, 2 worker drift detections, 3 chief acceptances, 2 synthetic canary leaks, and 3 verifier blocks; bounded deterministic mode accepted 0 propagation while ablations accepted 20. | A real-secret leak, a CVE, a model leaderboard, production swarm safety, or exhaustive long-session coverage. |
+| Semantic propagation probes | Validated example | [`examples/semantic-propagation-sanitized/semantic_propagation_report.md`](../../examples/semantic-propagation-sanitized/semantic_propagation_report.md) | Across 4 worker-to-chief propagation cases x 2 pressure modes, the current private smoke recorded 8 observations, 2 worker drift detections, 3 chief acceptances, 2 synthetic canary leaks, 3 verifier blocks, 1 adapter error, and 87.5% response-hash coverage; bounded deterministic mode accepted 0 propagation while ablations accepted 20. | A real-secret leak, a CVE, a model leaderboard, production swarm safety, exhaustive long-session coverage, or a claim that adapter errors are passes. |
 | Local swarm real-model evaluation | Local empirical summary | [`local-swarm-real-model-evaluation.md`](../local-swarm-real-model-evaluation.md) | Two local Ollama models executed the full 15-scenario local-swarm suite with 100% transcript-hash coverage and 0% adapter-error rate. | The local models passed a safety benchmark or production swarm behavior is proven. |
 | External fake-server run | Validated example | [`examples/external-demo-report/README.md`](../../examples/external-demo-report/README.md) | The experimental external artifact path can validate against a deterministic local fake OpenAI-compatible endpoint. | A real model/provider is safe. |
 | Local Prometheus/Ollama smoke | Shipped bounded local-suite; local scratch artifacts | [`local-prometheus-workflow.md`](../local-prometheus-workflow.md) | A weak local model can be exercised through a named prompt-only local-suite profile; first local Prometheus smokes exposed evidence-quality/runtime limits. | Public benchmark finding; model leaderboard result. |
@@ -179,8 +180,9 @@ ash validate reports/semantic-propagation
 
 Expected current result for the committed sanitized example: 4 cases, 32 deterministic
 contract rows, bounded deterministic propagation acceptances 0, ablation acceptances 20,
-and 8 local-model observations in the latest maintainer smoke. Raw worker/chief prompts,
-responses, canonical-state hashes, and canaries remain private.
+and 8 local-model observations in the latest maintainer smoke, including 1 adapter
+error and 87.5% response-hash coverage. Raw worker/chief prompts, responses,
+canonical-state hashes, and canaries remain private.
 
 ## Reproduce the bounded local smoke
 

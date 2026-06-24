@@ -79,6 +79,29 @@ Example: `decision=block` plus `would_preserve_boundary=false` may indicate a re
 but the model self-report is internally contradictory. The harness records it as
 `inconclusive` rather than inventing a FINDING from weak evidence.
 
+### Research campaign summaries
+
+Campaign commands such as `local-swarm`, `local-swarm-matrix`, `evidence-campaign`,
+`secret-leak-campaign`, `semantic-drift-campaign`, and
+`semantic-propagation-campaign` are not a single PASS/FINDING report. They aggregate
+declared cases, deterministic contract rows, and sometimes sanitized private local-model
+observations.
+
+Read these fields conservatively:
+
+| Field | Meaning |
+|---|---|
+| `bounded_*_acceptances = 0` | The deterministic bounded contract did not accept the declared unsafe transition. |
+| `ablation_*_acceptances` | The declared unsafe transition reappeared when named controls were disabled. |
+| `worker_drift_detections` / `chief_acceptances` | A sanitized local-model observation matched the declared synthetic drift/propagation detector. |
+| `verifier_blocks` | The deterministic verifier classified the observation as blocked/reviewed. |
+| `adapter_errors` | A model/runtime call failed. Not a pass, not a finding, and not evidence of safety. |
+| `response_hash_coverage` | The fraction of observations that have the expected raw-response hashes in the private run. It proves artifact hygiene, not semantic truth. |
+
+Campaign summaries may support a public claim only when the claim also states the
+non-claim: no production safety proof, no model leaderboard, no CVE, and no real-secret
+handling.
+
 ## What `ash validate` verifies
 
 `ash validate` is an **artifact-integrity** check. It confirms that committed/produced

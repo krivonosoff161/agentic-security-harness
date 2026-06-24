@@ -1,8 +1,8 @@
 # Artifact schemas and versioning
 
-Every machine-readable JSON artifact this benchmark writes carries a `schema_version`, so
-a consumer (a CI job, another tool, or a future version of `ash`) can tell whether it can
-read the file. The single source of truth is
+Every top-level machine-readable JSON artifact this benchmark writes carries a
+`schema_version`, so a consumer (a CI job, another tool, or a future version of `ash`) can
+tell whether it can read the file. The single source of truth is
 [`src/agentic_security_harness/schema_versions.py`](../src/agentic_security_harness/schema_versions.py);
 the models and the validator both read it, so they cannot drift.
 
@@ -78,7 +78,13 @@ Non-versioned by design:
   private local-model worker-to-chief propagation probes. Raw worker/chief prompts,
   raw responses, canonical-state hashes, and synthetic canary values remain under
   `.internal/`; the public artifact keeps only response hashes, classifications, model
-  names, pressure labels, and aggregate verifier metrics.
+  names, pressure labels, adapter-error counts, response-hash coverage, and aggregate
+  verifier metrics.
+- Campaign digest files such as `evidence_campaign_digest.json`,
+  `secret_leak_campaign_digest.json`, `semantic_drift_digest.json`, and
+  `semantic_propagation_digest.json` are derived public summary indexes next to the
+  versioned summaries. They are validated as part of their campaign directory, but the
+  summary JSON remains the canonical schema-versioned artifact.
 - A `comparison` is represented as two report directories (`baseline/`, `protected/`) plus
   `comparison.md`; there is no separate `comparison.json`. Use `ash diff-runs` for an
   arbitrary run-vs-run diff (which does emit a versioned `run_diff.json`).
