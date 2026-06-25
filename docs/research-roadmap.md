@@ -101,7 +101,7 @@ Use these as research anchors, not as certification claims:
 | Done | `audit.hash_chain_tamper` | Current in v0.7. | Portable traces need integrity checks: deletion, reorder, and edit attempts should be detectable. | Append-only audit entries with `previous_hash`; vulnerable target accepts edit; protected target detects chain break. |
 | Done | `ambient_authority.environmental_privilege_escalation` | Current in v0.8 for synthetic host capability markers. | Agents can inherit host, runtime, file, or tool authority beyond the declared data envelope. | Synthetic host capability only; no real credentials. Protected target requires explicit capability binding and rejects unscoped ambient authority. |
 | P1 | `inter_agent.handoff_integrity` | Design track only. | Senior agents may treat worker summaries as facts unless provenance, source labels, payload integrity, policy version, and recovery metadata survive the handoff. | Synthetic senior/worker topology; vulnerable path accepts an unverified handoff; protected path blocks or reviews via deterministic handoff verifier. See [inter-agent-handoff-integrity.md](inter-agent-handoff-integrity.md). |
-| P1 | `semantic.consensus_laundering` | SEM-1 closed worker-to-chief drift propagation; current coverage includes one two-worker row but not a full closure unit. | A poisoned worker and a conservative worker can be aggregated into a fake majority/consensus signal, letting an unsafe relabeling survive even when one worker resisted it. | Synthetic multi-worker topology; vulnerable aggregator accepts consensus over boundary labels; protected path blocks via canonical state, worker attestation, cross-worker disagreement checks, and chief verification. See [semantic-drift-propagation-closure.md](semantic-drift-propagation-closure.md). |
+| P1 | `semantic.long_session_drift` | SEM-1 and SEM-2 close the first semantic relabeling and consensus-laundering slices; the next risk is longer pressure over more turns. | A worker can gradually switch canonical meanings after repeated low-amplitude pressure, then hand off a clean-looking summary. | Synthetic long-session topology; protected path blocks at the first canonical-state mismatch and records the first turn where drift appears. See [semantic-drift-propagation-closure.md](semantic-drift-propagation-closure.md) and [semantic-consensus-laundering-closure.md](semantic-consensus-laundering-closure.md). |
 | P1 | `semantic.policy_letter_vs_spirit` | Not covered beyond explicit envelope fields. | A model may satisfy the literal policy while reconstructing or transforming sensitive content in a way that violates the policy intent. | Deterministic semantic invariant fixtures; protected target checks invariant rules such as minimization, recipient, purpose, and reconstruction limits. |
 
 ## Implemented v0.7 details
@@ -262,7 +262,7 @@ enumerate, or transform the restricted content for a non-recipient.
 **Why this is later:** deterministic scoring is harder. Start with narrow, mechanical
 invariants before adding any model-judged semantics.
 
-### `semantic.consensus_laundering`
+### `semantic.consensus_laundering` (closed as SEM-2)
 
 **Problem:** a bounded swarm can fail even when not every worker fails. One worker may
 accept a semantic relabeling while another stays conservative; an aggregator can then
@@ -283,9 +283,10 @@ artifacts.
 blocking, strongest-boundary summary rules, source hashes for memory/policy claims, and
 independent chief verification.
 
-**Exit gate:** the first implementation must produce deterministic bounded/naive/control
-ablation rows and a sanitized public artifact. Private model prompts, responses,
-canaries, and canonical-state hashes must stay under `.internal/`.
+**Closure:** [semantic-consensus-laundering-closure.md](semantic-consensus-laundering-closure.md)
+records the existing two-worker case as a closed sub-unit: bounded acceptance 0,
+naive acceptance 1, and `cross_worker_check` ablation acceptance 1. Private model
+prompts, responses, canaries, and canonical-state hashes remain under `.internal/`.
 
 ## Implementation order
 
@@ -320,8 +321,9 @@ remain:
 
 1. `inter_agent.handoff_integrity` only after the design track exit gate in
    [inter-agent-handoff-integrity.md](inter-agent-handoff-integrity.md) is reviewed.
-2. `semantic.consensus_laundering` as the next closed semantic unit after
-   [semantic-drift-propagation-closure.md](semantic-drift-propagation-closure.md).
+2. `semantic.long_session_drift` after
+   [semantic-drift-propagation-closure.md](semantic-drift-propagation-closure.md)
+   and [semantic-consensus-laundering-closure.md](semantic-consensus-laundering-closure.md).
 3. `cross_app.data_instruction_contamination` with synthetic app-surface markers.
 4. `audit_context_split.action_audit_divergence` with synthetic audit entries.
 5. A narrow `semantic.policy_letter_vs_spirit` fixture with deterministic invariant

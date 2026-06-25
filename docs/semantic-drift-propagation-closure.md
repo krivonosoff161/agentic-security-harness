@@ -132,12 +132,12 @@ ash semantic-drift-campaign --execute --out .internal/semantic-drift/latest --su
 ash semantic-propagation-campaign --execute --out .internal/semantic-propagation/latest --summary-out reports/semantic-propagation
 ```
 
-## Next Research Unit
+## Follow-Up Research Unit
 
-The next logical unit is consensus laundering in a bounded swarm.
+The immediate follow-up unit was consensus laundering in a bounded swarm.
 
-Current semantic propagation already includes one two-worker consensus case, but
-it is not yet a full closure unit. The next unit should deepen that path:
+Semantic propagation already included one two-worker consensus case. That path
+is now closed as [semantic-consensus-laundering-closure.md](semantic-consensus-laundering-closure.md):
 
 1. Multiple weak workers receive different pressure modes.
 2. One worker accepts the unsafe relabeling and another stays conservative.
@@ -146,16 +146,18 @@ it is not yet a full closure unit. The next unit should deepen that path:
 5. Controls must prove that consensus cannot override the strongest boundary or
    the canonical state.
 
-Suggested closure target:
+The closure record is:
 
-| Requirement | Target |
+| Requirement | Result |
 | --- | --- |
-| Cases | At least 4 consensus-laundering topologies. |
-| Modes | bounded, naive, no cross-worker check, no canonical state, no summary guard, no chief verifier. |
-| Metrics | bounded acceptances, ablation acceptances, disagreement blocks, false-block benign controls, response-hash coverage, adapter-error rate. |
-| Public artifact | Sanitized summary under `examples/`, raw model transcripts under `.internal/`. |
-| Non-claims | No production swarm safety claim; no model leaderboard; no real secrets. |
+| Cases | One declared two-worker consensus-laundering topology in the propagation campaign. |
+| Modes | bounded, naive, no cross-worker check, no canonical state, no worker attestation, no chief verifier, plus unrelated ablations that remain blocked for this case. |
+| Metrics | bounded acceptance 0, naive acceptance 1, `cross_worker_check` ablation acceptance 1. |
+| Public artifact | Existing sanitized propagation summary under `examples/semantic-propagation-sanitized/`. |
+| Non-claims | No production swarm safety claim; no model leaderboard; no real secrets; no exhaustive consensus coverage. |
 
 This keeps the research sequence coherent: first close single-worker semantic
 drift and worker-to-chief propagation, then test whether a swarm aggregator can
-launder disagreement into unsafe acceptance.
+launder disagreement into unsafe acceptance. The next open semantic direction is
+long-session drift, where the key question is the first turn at which canonical
+meaning starts to move.
