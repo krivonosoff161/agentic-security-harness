@@ -7,6 +7,9 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Semantic propagation defense model v0.2: sanitized public artifacts now include a
+  defensive control catalog, control-effect ablation rows, validator checks, and a
+  reviewer note documenting the public/private evidence boundary.
 - Semantic propagation campaign: `ash semantic-propagation-campaign` writes sanitized
   public artifacts for worker-to-chief semantic drift propagation probes, including
   deterministic bounded-vs-ablation contract results, local-model observation

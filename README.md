@@ -37,7 +37,7 @@ agent is secure.
 | Evidence campaign | `24` cases / `72` observations / `4` claim families; bounded false-block rate `0%` | [`examples/evidence-campaign-sanitized/`](examples/evidence-campaign-sanitized/) |
 | Synthetic secret-egress campaign | `4` topologies / `23` observations; naive leaks `4/4`, bounded leaks `0/4` | [`examples/secret-leak-campaign-sanitized/`](examples/secret-leak-campaign-sanitized/) |
 | Semantic drift probes | `80` local-model observations; drift detections `13`, canary leaks `4`, verifier blocks `15` | [`examples/semantic-drift-sanitized/`](examples/semantic-drift-sanitized/) |
-| Semantic propagation probes | `8` worker-to-chief observations; chief acceptances `3`, verifier blocks `3`, adapter errors `1`, hash coverage `87.5%` | [`examples/semantic-propagation-sanitized/`](examples/semantic-propagation-sanitized/) |
+| Semantic propagation defense | `6` controls; bounded acceptances `0`, ablation acceptances `20`; `8` worker-to-chief observations | [`examples/semantic-propagation-sanitized/`](examples/semantic-propagation-sanitized/) / [`model`](docs/semantic-propagation-defense-model.md) |
 
 The deterministic rows measure declared synthetic situations. The local-model rows are
 sanitized evidence-quality snapshots with raw prompts, responses, canonical state hashes,

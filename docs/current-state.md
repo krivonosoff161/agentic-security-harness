@@ -154,11 +154,12 @@ blocks, 0 adapter errors, and 100% response-hash coverage; that is local empiric
 evidence for the declared campaign, not a model leaderboard or production safety claim.
 
 Expected semantic-propagation demonstration: the deterministic semantic propagation
-campaign records bounded propagation acceptances 0 and ablation propagation acceptances
-20 across four worker-to-chief chain cases. The latest private local-model smoke records
-8 observations with 2 worker drift detections, 3 chief acceptances, 2 synthetic canary
-leaks, 3 verifier blocks, 1 adapter error, and 87.5% response-hash coverage; that is
-local empirical evidence for the declared campaign, not a CVE or production swarm claim.
+campaign records 6 declared controls, 6 control-effect rows, bounded propagation
+acceptances 0, and ablation propagation acceptances 20 across four worker-to-chief chain
+cases. The latest private local-model smoke records 8 observations with 2 worker drift
+detections, 3 chief acceptances, 2 synthetic canary leaks, 3 verifier blocks, 1 adapter
+error, and 87.5% response-hash coverage; that is local empirical evidence for the
+declared defense model, not a CVE or production swarm claim.
 
 ## Claim boundary
 

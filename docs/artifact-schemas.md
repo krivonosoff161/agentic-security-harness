@@ -30,7 +30,7 @@ registry compatibility, standards mapping, and forbidden marker scans.
 | `secret_leak_campaign_summary.json` | `secret_leak_campaign` | 0.1 | `ash secret-leak-campaign` | `ash validate` |
 | `secret_leak_variation_summary.json` | `secret_leak_variations` | 0.1 | `ash secret-leak-campaign --execute-variations` | `ash validate` |
 | `semantic_drift_summary.json` | `semantic_drift_campaign` | 0.1 | `ash semantic-drift-campaign` | `ash validate` |
-| `semantic_propagation_summary.json` | `semantic_propagation_campaign` | 0.1 | `ash semantic-propagation-campaign` | `ash validate` |
+| `semantic_propagation_summary.json` | `semantic_propagation_campaign` | 0.2 | `ash semantic-propagation-campaign` | `ash validate` |
 
 `run_diff` v0.2 replaces the ambiguous v0.1 coarse labels (`fixed`, `new`,
 `changed`, `unchanged`) with explicit decisive/non-decisive counters such as
@@ -78,8 +78,10 @@ Non-versioned by design:
   private local-model worker-to-chief propagation probes. Raw worker/chief prompts,
   raw responses, canonical-state hashes, and synthetic canary values remain under
   `.internal/`; the public artifact keeps only response hashes, classifications, model
-  names, pressure labels, adapter-error counts, response-hash coverage, and aggregate
-  verifier metrics.
+  names, pressure labels, adapter-error counts, response-hash coverage, control catalog
+  rows, control-effect rows, and aggregate verifier metrics. Version 0.2 adds the
+  public-safe defense control model and deterministic ablation attribution; 0.1 remains
+  readable for older local artifacts.
 - Campaign digest files such as `evidence_campaign_digest.json`,
   `secret_leak_campaign_digest.json`, `semantic_drift_digest.json`, and
   `semantic_propagation_digest.json` are derived public summary indexes next to the
