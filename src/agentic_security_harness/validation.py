@@ -720,6 +720,22 @@ def _validate_swarm_defense_live_campaign_dir(
         1 for item in summary.observations if item.verifier_decision == "block"
     ):
         result._err(f"{rel}: metrics.verifier_blocks mismatch")
+    if summary.metrics.max_session_turns != max(
+        (item.session_turns for item in summary.observations),
+        default=0,
+    ):
+        result._err(f"{rel}: metrics.max_session_turns mismatch")
+    if summary.metrics.long_session_observations != sum(
+        1 for item in summary.observations if item.session_turns > 1
+    ):
+        result._err(f"{rel}: metrics.long_session_observations mismatch")
+    if any(
+        item.worker_turn_response_sha256
+        and len(item.worker_turn_response_sha256) != item.session_turns
+        and not item.adapter_error
+        for item in summary.observations
+    ):
+        result._err(f"{rel}: worker_turn_response_sha256 length mismatch")
     ablation_by_control: dict[str, int] = {}
     for item in summary.observations:
         if item.verifier_decision != "block":

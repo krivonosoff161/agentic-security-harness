@@ -84,6 +84,8 @@ def test_live_summary_strips_private_fields() -> None:
     assert summary.metrics.worker_drift_detections == 1
     assert summary.metrics.chief_acceptances == 1
     assert summary.metrics.verifier_blocks == 1
+    assert summary.metrics.max_session_turns == 1
+    assert summary.metrics.long_session_observations == 0
     assert summary.metrics.ablation_reopenings == 2
     assert summary.metrics.ablation_reopening_rate == 1.0
     assert summary.metrics.ablation_reopenings_by_control == {
@@ -178,4 +180,30 @@ def test_cli_swarm_defense_live_dry_run(capsys: pytest.CaptureFixture[str]) -> N
     assert rc == 0
     out = capsys.readouterr().out
     assert "estimated_requests<=6" in out
+    assert "session_turns=1" in out
     assert "Dry-run only" in out
+
+
+def test_cli_swarm_defense_live_long_session_dry_run(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    rc = cli.main(
+        [
+            "swarm-defense-live-campaign",
+            "--max-topologies",
+            "2",
+            "--worker-model",
+            "qwen2.5:0.5b",
+            "--chief-model",
+            "llama3.2:1b",
+            "--pressure-mode",
+            "long_session_relabel",
+            "--session-turns",
+            "3",
+        ]
+    )
+
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "session_turns=3" in out
+    assert "estimated_requests<=10" in out

@@ -31,7 +31,7 @@ registry compatibility, standards mapping, and forbidden marker scans.
 | `secret_leak_variation_summary.json` | `secret_leak_variations` | 0.1 | `ash secret-leak-campaign --execute-variations` | `ash validate` |
 | `semantic_drift_summary.json` | `semantic_drift_campaign` | 0.1 | `ash semantic-drift-campaign` | `ash validate` |
 | `semantic_propagation_summary.json` | `semantic_propagation_campaign` | 0.2 | `ash semantic-propagation-campaign` | `ash validate` |
-| `swarm_defense_live_summary.json` | `swarm_defense_live_campaign` | 0.2 | `ash swarm-defense-live-campaign` | `ash validate` |
+| `swarm_defense_live_summary.json` | `swarm_defense_live_campaign` | 0.3 | `ash swarm-defense-live-campaign` | `ash validate` |
 
 `run_diff` v0.2 replaces the ambiguous v0.1 coarse labels (`fixed`, `new`,
 `changed`, `unchanged`) with explicit decisive/non-decisive counters such as
@@ -88,7 +88,8 @@ Non-versioned by design:
   raw responses, synthetic canary values, and calculation notes remain under
   `.internal/`; the public artifact keeps only response hashes, aggregate labels,
   pressure labels, control attribution, adapter-error counts, and response-hash
-  coverage. Version 0.2 adds public-safe replay-ablation reopenings; 0.1 remains
+  coverage. Version 0.2 adds public-safe replay-ablation reopenings. Version 0.3 adds
+  long-session metrics and per-turn public response hashes. Versions 0.1 and 0.2 remain
   readable for older local artifacts.
 - Campaign digest files such as `evidence_campaign_digest.json`,
   `secret_leak_campaign_digest.json`, `semantic_drift_digest.json`,

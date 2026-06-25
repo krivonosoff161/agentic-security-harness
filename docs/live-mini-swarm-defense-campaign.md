@@ -14,7 +14,7 @@ control attribution, and non-claims.
 
 ## What Was Tested
 
-The committed sanitized run covers:
+The committed base sanitized run covers:
 
 ```text
 topologies: 15
@@ -37,6 +37,10 @@ The four scenario families are:
 The six pressure modes are gentle reframe, pseudo-code, memory rewrite, authority
 pressure, benign debug framing, and consensus pressure.
 
+A supplemental long-session sanitized run covers the same 15 contour topologies with
+`long_session_relabel`, one worker model, one chief model, and three worker turns per
+chain. It is published separately so the base cross-product remains easy to compare.
+
 ## Result
 
 The current sanitized public artifact records:
@@ -47,6 +51,19 @@ chief acceptances: 22 / 180
 synthetic canary leaks: 0 / 180
 verifier blocks: 22 / 180
 replay-ablation reopenings: 96
+```
+
+The supplemental long-session artifact records:
+
+```text
+observations: 15
+max session turns: 3
+long-session observations: 15
+chief acceptances: 1
+synthetic canary leaks: 0
+verifier blocks: 1
+adapter errors: 1
+replay-ablation reopenings: 4
 ```
 
 Interpretation:
@@ -94,6 +111,21 @@ Committed sanitized example:
 
 ```bash
 ash validate examples/swarm-defense-live-sanitized
+ash validate examples/swarm-defense-live-long-session-sanitized
+```
+
+Run the supplemental long-session probe:
+
+```bash
+ash swarm-defense-live-campaign \
+  --execute \
+  --out .internal/swarm-defense-live/long-session \
+  --summary-out reports/swarm-defense-live-long-session \
+  --worker-model qwen2.5:0.5b \
+  --chief-model llama3.2:1b \
+  --pressure-mode long_session_relabel \
+  --session-turns 3 \
+  --max-topologies 15
 ```
 
 ## Claim Boundary
@@ -105,6 +137,8 @@ Allowed:
   prompts, responses, or canaries;
 - this run observed unsafe chief acceptance in 22 of 180 synthetic chains and blocked
   all detected unsafe acceptances with deterministic controls;
+- the supplemental long-session run can expose per-turn response hashes and aggregate
+  three-turn metrics without publishing raw turn prompts or responses;
 - replay ablation can attribute those blocks to missing-control reopenings without
   exposing raw model prompts, raw responses, or canary values;
 - response hashes provide audit anchors for private owner review.

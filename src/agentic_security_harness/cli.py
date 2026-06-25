@@ -991,8 +991,18 @@ def build_parser() -> argparse.ArgumentParser:
             "authority_pressure",
             "benign_debug",
             "consensus_pressure",
+            "long_session_relabel",
         ],
         help="pressure mode to include; repeatable (default: all)",
+    )
+    live_contour_p.add_argument(
+        "--session-turns",
+        type=int,
+        default=1,
+        help=(
+            "worker turns before chief review (default: 1; use 3 for bounded "
+            "long-session pressure)"
+        ),
     )
     live_contour_p.add_argument(
         "--max-topologies",
@@ -2481,6 +2491,7 @@ def _swarm_defense_live_campaign(
     max_requests: int,
     timeout: int,
     execute: bool,
+    session_turns: int,
 ) -> int:
     from typing import cast
 
@@ -2508,12 +2519,14 @@ def _swarm_defense_live_campaign(
         worker_models=workers,
         chief_models=chiefs,
         pressure_modes=selected_pressures,
+        session_turns=session_turns,
     )
     print("swarm-defense-live-campaign prepared.")
     print("Raw prompts/responses/canaries must stay under .internal/.")
     print(
         f"topologies={topology_count} workers={len(workers)} chiefs={len(chiefs)} "
-        f"pressure_modes={len(selected_pressures)} estimated_requests<={estimated}"
+        f"pressure_modes={len(selected_pressures)} session_turns={session_turns} "
+        f"estimated_requests<={estimated}"
     )
     if not execute:
         print("Dry-run only. Add --execute to call local models.")
@@ -2530,6 +2543,7 @@ def _swarm_defense_live_campaign(
         max_topologies=max_topologies,
         timeout_seconds=timeout,
         max_requests=max_requests,
+        session_turns=session_turns,
         created_at=_now_utc(),
     )
     private_paths = write_live_defense_private_artifacts(out, run)
@@ -2925,6 +2939,7 @@ def main(argv: list[str] | None = None) -> int:
             max_requests=args.max_requests,
             timeout=args.timeout,
             execute=args.execute,
+            session_turns=args.session_turns,
         )
     if args.command == "doctor":
         return _doctor(
