@@ -57,6 +57,8 @@ If those six points hold, the benchmark is coherent.
 | Secret-egress research | `secret-leak-campaign` calculates deterministic synthetic secret-egress controls, control ablation, and optional private local-model variation probes with sanitized summaries. | `src/agentic_security_harness/secret_leak_campaign.py`, [synthetic-secret-leak-campaign.md](synthetic-secret-leak-campaign.md), `examples/secret-leak-campaign-sanitized/`, `examples/secret-leak-variations-sanitized/` |
 | Semantic drift research | `semantic-drift-campaign` measures slow relabeling pressure over local mini-swarm cases, with deterministic bounded/ablation rows and optional private local-model probes. | `src/agentic_security_harness/semantic_drift_campaign.py`, `examples/semantic-drift-sanitized/`, [showcase/evidence-map.md](showcase/evidence-map.md) |
 | Semantic propagation research | `semantic-propagation-campaign` measures whether drifted worker summaries propagate into a chief decision, while surfacing adapter errors and response-hash coverage in sanitized public artifacts. | `src/agentic_security_harness/semantic_propagation_campaign.py`, `examples/semantic-propagation-sanitized/`, [showcase/evidence-map.md](showcase/evidence-map.md) |
+| Semantic closure unit | Reviewer-facing closure note tying semantic drift, worker-to-chief propagation, control ablations, local observations, private/public boundaries, and non-claims into one research slice. | [semantic-drift-propagation-closure.md](semantic-drift-propagation-closure.md), [research-claims.md](research-claims.md), [showcase/evidence-map.md](showcase/evidence-map.md) |
+| Semantic consensus closure | Reviewer-facing sub-unit for the two-worker consensus-laundering case inside semantic propagation. | [semantic-consensus-laundering-closure.md](semantic-consensus-laundering-closure.md), `examples/semantic-propagation-sanitized/`, `tests/test_semantic_propagation_campaign.py` |
 | Run history | `run_index.json` manifest per run; `list-runs` lists them; `index-runs` builds a local SQLite metadata index; `stats` summarizes history; `retention` plans cleanup. | `src/agentic_security_harness/run_manifest.py`, `rundb.py`, `stats.py` |
 | Schemas | Every JSON artifact carries a `schema_version` from one registry. | `src/agentic_security_harness/schema_versions.py`, [artifact-schemas.md](artifact-schemas.md) |
 | Validation | Checks report/external/manifest/diff artifacts, schema versions, and standards-mapping consistency. | `src/agentic_security_harness/validation.py` |
@@ -120,7 +122,7 @@ Start here by role:
 | Local model reviewer | [Local Prometheus workflow](local-prometheus-workflow.md), [Local model profiles](local-model-profiles.md), [Metrics contract](metric-contract.md), [Connect models](connect-models.md) | Run a weak local model safely and read inconclusive/error evidence correctly. |
 | Swarm reviewer | [Bounded local swarm](bounded-local-swarm.md), [Inter-agent handoff integrity](inter-agent-handoff-integrity.md), [Memory governance theory](theory/memory-governance.md) | Review monolith vs naive swarm vs bounded swarm behavior over deterministic contracts. |
 | Safety reviewer | [Research rules](research-rules.md), [Authorized testing paths](authorized-testing-paths.md), [Threat model](threat-model.md), [SECURITY](../SECURITY.md) | Confirm the project stays defensive, synthetic, and authorized. |
-| Research reviewer | [Research claims registry](research-claims.md), [Theory docs](theory/), [Evidence assurance model](evidence-assurance-model.md), [Research roadmap](research-roadmap.md) | Track research claim status, invariant maturity, and evidence artifacts. |
+| Research reviewer | [Research claims registry](research-claims.md), [Theory docs](theory/), [Semantic drift propagation closure](semantic-drift-propagation-closure.md), [Evidence assurance model](evidence-assurance-model.md), [Research roadmap](research-roadmap.md) | Track research claim status, invariant maturity, closed research units, and evidence artifacts. |
 | Boundary-layer reviewer | [Boundary-layer evidence matrix](boundary-layer-evidence-matrix.md), [Handoff theory](theory/handoff-integrity.md), [Authority theory](theory/authority-delegation.md), [Memory theory](theory/memory-governance.md) | Inspect which declared handoff, authority, and memory-governance variations are executable today. |
 | Release reviewer | [Release checklist](release-checklist.md), [Changelog](../CHANGELOG.md), [CI workflow](../.github/workflows/ci.yml) | Verify public packaging and quality gates. |
 | Git/process reviewer | [Git evidence workflow](git-evidence-workflow.md), [Agent operating guide](agent-operating-guide.md), [Project tracker](project-tracker.md) | Check that work is tied to issues, artifacts, verification, PR checks, and review gates. |
@@ -150,8 +152,9 @@ If you still want the linear path:
 14. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
 15. [Research claims registry](research-claims.md) - status table for research claims from hypothesis through evidence.
 16. [Theory docs](theory/) - cleaned invariant statements and claim boundaries for research tracks.
-17. [Evidence assurance model](evidence-assurance-model.md) - private-to-public evidence rules and bounded-swarm campaign metrics.
-18. [Roadmap](roadmap.md) - what is current, next, and future.
+17. [Semantic drift propagation closure](semantic-drift-propagation-closure.md) - closed first semantic mini-swarm unit and next deepening target.
+18. [Evidence assurance model](evidence-assurance-model.md) - private-to-public evidence rules and bounded-swarm campaign metrics.
+19. [Roadmap](roadmap.md) - what is current, next, and future.
 
 Then run:
 

@@ -108,6 +108,28 @@ ash local-swarm --execute \
 The command refuses `calculator` / `calculator:latest`. That local model is reserved for
 the trading research project and must not be consumed by ASH runs.
 
+Run a heterogeneous local swarm, with a coordinator/chief model and smaller helper
+models:
+
+```bash
+ash local-swarm --execute \
+  --model <chief-local-model> \
+  --role-model coordinator=<chief-local-model> \
+  --role-model worker=<small-worker-model> \
+  --role-model verifier=<small-verifier-model> \
+  --role-model auditor=<small-auditor-model> \
+  --scenario handoff_label_stripping \
+  --mode bounded_swarm \
+  --max-requests 4 \
+  --out reports/local-swarm-roster-smoke
+ash validate reports/local-swarm-roster-smoke
+```
+
+The deterministic verifier still makes the pass/block decision. Role-specific model
+outputs are evidence-quality context and are stored as hashes plus short previews. This
+lets a maintainer test a realistic weak-model swarm shape without giving any local model
+authority over the security verdict.
+
 ## Local Real-Model Evaluation
 
 The 15-scenario suite was run against two local Ollama models on 2026-06-21:

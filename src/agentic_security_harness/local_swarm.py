@@ -94,6 +94,7 @@ class RoleTranscript(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     role: SwarmRole
+    model: str = ""
     prompt_sha256: str
     response_sha256: str = ""
     response_preview: str = ""
@@ -154,6 +155,8 @@ class LocalSwarmSummary(BaseModel):
     run_kind: Literal["local_swarm"] = "local_swarm"
     created_at: str = ""
     model: str = ""
+    chief_model: str = ""
+    role_models: dict[str, str] = Field(default_factory=dict)
     base_url: str = ""
     executed_model_calls: bool = False
     request_count: int = 0
@@ -175,6 +178,28 @@ def model_is_forbidden(model: str) -> bool:
     return model.strip().lower() in FORBIDDEN_LOCAL_MODELS
 
 
+def normalize_role_models(role_models: dict[str, str] | None) -> dict[str, str]:
+    """Validate and normalize explicit role->model assignments."""
+
+    if not role_models:
+        return {}
+    valid_roles = {"coordinator", "worker", "memory", "verifier", "auditor"}
+    normalized: dict[str, str] = {}
+    bad_roles = sorted(set(role_models) - valid_roles)
+    if bad_roles:
+        raise ValueError(f"unknown local swarm role(s): {bad_roles}")
+    for role, model in role_models.items():
+        clean = model.strip()
+        if not clean:
+            raise ValueError(f"empty model for local swarm role: {role}")
+        if model_is_forbidden(clean):
+            raise ValueError(
+                "calculator model is reserved for the trading project and is refused here"
+            )
+        normalized[role] = clean
+    return normalized
+
+
 def estimate_request_count(
     scenarios: list[SwarmScenarioId],
     modes: list[SwarmMode],
@@ -191,6 +216,7 @@ def run_local_swarm(
     execute_model_calls: bool = False,
     base_url: str = "",
     model: str = "",
+    role_models: dict[str, str] | None = None,
     timeout_seconds: int = 60,
     max_requests: int = 80,
     created_at: str = "",
@@ -203,6 +229,7 @@ def run_local_swarm(
 
     request_count = estimate_request_count(selected_scenarios, selected_modes)
     if execute_model_calls:
+        normalized_role_models = normalize_role_models(role_models)
         if not base_url:
             raise ValueError("base_url is required when execute_model_calls=True")
         if not model:
@@ -215,6 +242,8 @@ def run_local_swarm(
             raise ValueError(
                 f"request count {request_count} exceeds max_requests {max_requests}"
             )
+    else:
+        normalized_role_models = normalize_role_models(role_models)
 
     results: list[SwarmScenarioResult] = []
     for scenario_id in selected_scenarios:
@@ -228,6 +257,7 @@ def run_local_swarm(
                         result=result,
                         base_url=base_url,
                         model=model,
+                        role_models=normalized_role_models,
                         timeout_seconds=timeout_seconds,
                     )
                 )
@@ -237,6 +267,10 @@ def run_local_swarm(
     return LocalSwarmSummary(
         created_at=created_at,
         model=model,
+        chief_model=normalized_role_models.get("coordinator", model),
+        role_models=_effective_role_models(selected_modes, model, normalized_role_models)
+        if execute_model_calls
+        else normalized_role_models,
         base_url=_redact_local_url(base_url),
         executed_model_calls=execute_model_calls,
         request_count=request_count if execute_model_calls else 0,
@@ -346,6 +380,8 @@ def render_swarm_report(summary: LocalSwarmSummary) -> str:
         "",
         f"- Model calls executed: `{summary.executed_model_calls}`",
         f"- Model: `{summary.model or 'n/a'}`",
+        f"- Chief model: `{summary.chief_model or summary.model or 'n/a'}`",
+        f"- Role models: `{_render_role_models(summary.role_models)}`",
         f"- Requests: `{summary.request_count}/{summary.max_requests}`",
         f"- Scenarios: `{', '.join(summary.scenarios)}`",
         f"- Modes: `{', '.join(summary.modes)}`",
@@ -900,6 +936,21 @@ def _roles_for_mode(mode: SwarmMode) -> tuple[SwarmRole, ...]:
     return ("coordinator", "worker", "verifier", "auditor")
 
 
+def _effective_role_models(
+    modes: list[SwarmMode],
+    default_model: str,
+    role_models: dict[str, str],
+) -> dict[str, str]:
+    roles = {role for mode in modes for role in _roles_for_mode(mode)}
+    return {role: role_models.get(role, default_model) for role in sorted(roles)}
+
+
+def _render_role_models(role_models: dict[str, str]) -> str:
+    if not role_models:
+        return "n/a"
+    return ", ".join(f"{role}={model}" for role, model in sorted(role_models.items()))
+
+
 def _collect_role_transcripts(
     *,
     scenario_id: SwarmScenarioId,
@@ -907,16 +958,18 @@ def _collect_role_transcripts(
     result: SwarmScenarioResult,
     base_url: str,
     model: str,
+    role_models: dict[str, str],
     timeout_seconds: int,
 ) -> list[RoleTranscript]:
     transcripts: list[RoleTranscript] = []
     for role in _roles_for_mode(mode):
+        role_model = role_models.get(role, model)
         prompt = _role_prompt(scenario_id, mode, role, result)
         prompt_sha = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
         try:
             response = chat_completion(
                 base_url=base_url,
-                model=model,
+                model=role_model,
                 messages=[
                     {
                         "role": "system",
@@ -936,6 +989,7 @@ def _collect_role_transcripts(
             transcripts.append(
                 RoleTranscript(
                     role=role,
+                    model=role_model,
                     prompt_sha256=prompt_sha,
                     response_sha256=hashlib.sha256(content.encode("utf-8")).hexdigest(),
                     response_preview=content[:240],
@@ -945,6 +999,7 @@ def _collect_role_transcripts(
             transcripts.append(
                 RoleTranscript(
                     role=role,
+                    model=role_model,
                     prompt_sha256=prompt_sha,
                     adapter_error=f"{type(exc).__name__}: {str(exc)[:180]}",
                 )

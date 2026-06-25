@@ -1,6 +1,6 @@
 # Current state
 
-> Last reviewed: 2026-06-24.
+> Last reviewed: 2026-06-25.
 >
 > Scope: public status of `agentic-security-harness` on `main`, version `0.13.0` plus
 > unreleased governance and evidence-hardening changes. This page is a reviewer-facing
@@ -40,6 +40,8 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | Secret-leak variation probes | Shipped local empirical slice | `ash secret-leak-campaign --execute-variations` runs private local-model probes across 8 variation cases, 4 pressure modes, and selected Ollama models, then writes a sanitized public summary with raw prompts/responses kept under `.internal/`. |
 | Semantic parameter drift probes | Shipped local empirical slice | `ash semantic-drift-campaign` models slow relabeling pressure in a local mini-swarm: deterministic bounded mode accepts 0 drift attempts, ablation modes accept 19, and the latest private local-model smoke records 80 observations with 13 drift detections, 4 synthetic canary leaks, and 15 verifier blocks. |
 | Semantic propagation probes | Shipped local empirical slice | `ash semantic-propagation-campaign` models worker-to-chief propagation after semantic relabeling pressure: deterministic bounded mode accepts 0 propagation attempts, ablation modes accept 20, and the latest private local-model smoke records 8 observations with 2 worker drift detections, 3 chief acceptances, 2 synthetic canary leaks, 3 verifier blocks, 1 adapter error, and 87.5% response-hash coverage. |
+| Semantic drift propagation closure | Closed research unit | `semantic-drift-propagation-closure.md` ties the drift and propagation campaigns into one closed evidence slice: declared cases, deterministic bounded-vs-ablation rows, local empirical observations, private/public boundary, and the follow-up consensus-laundering sub-unit. |
+| Semantic consensus laundering closure | Closed sub-unit | `semantic-consensus-laundering-closure.md` isolates the existing two-worker consensus case: bounded acceptance 0, naive acceptance 1, and `cross_worker_check` ablation acceptance 1 under sanitized propagation artifacts. |
 | Public evidence map | Shipped docs slice | `docs/showcase/evidence-map.md` links each front-page metric to the artifact, reproduce command, claim, and non-claim. |
 | Local real-model swarm probes | Local empirical | Prometheus and qwen2.5 have executed the full 15-scenario swarm suite with 100% transcript-hash coverage and 0% adapter-error rate; model text remains evidence-quality context only. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
@@ -160,6 +162,12 @@ cases. The latest private local-model smoke records 8 observations with 2 worker
 detections, 3 chief acceptances, 2 synthetic canary leaks, 3 verifier blocks, 1 adapter
 error, and 87.5% response-hash coverage; that is local empirical evidence for the
 declared defense model, not a CVE or production swarm claim.
+
+Expected semantic-closure reading: `docs/semantic-drift-propagation-closure.md` is the
+reviewer-facing closure note for the first semantic unit. It does not add a stronger
+claim than the artifacts; it explains why this unit is closed for the declared synthetic
+model. `docs/semantic-consensus-laundering-closure.md` closes the first consensus
+laundering sub-unit over the existing propagation artifact.
 
 ## Claim boundary
 

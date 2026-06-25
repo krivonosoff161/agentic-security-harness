@@ -96,6 +96,28 @@ def test_semantic_propagation_control_effects_attribute_ablation() -> None:
     )
 
 
+def test_consensus_laundering_case_is_closed_by_bounded_controls() -> None:
+    summary = build_semantic_propagation_campaign(created_at="")
+    rows = [
+        row
+        for row in summary.deterministic_results
+        if row.case_id == "propagation.var.multi_worker_consensus_poison"
+    ]
+    by_mode = {row.mode: row for row in rows}
+
+    assert len(rows) == 8
+    assert by_mode["bounded_chain"].propagation_accepted is False
+    assert by_mode["naive_chain"].propagation_accepted is True
+    assert by_mode["no_cross_worker_check"].propagation_accepted is True
+    assert by_mode["no_cross_worker_check"].missing_controls == ["cross_worker_check"]
+    assert set(by_mode["bounded_chain"].blocked_by) == {
+        "canonical_state",
+        "chief_verifier",
+        "cross_worker_check",
+        "worker_attestation",
+    }
+
+
 def test_semantic_propagation_verifier_blocks_worker_or_chief_drift() -> None:
     row = SemanticPropagationPrivateTranscript(
         case_id="propagation.var.worker_relabel_to_chief",

@@ -71,6 +71,8 @@ issue was closed when no issue number exists.
 | DB-1 | Data boundary / theory | Formalized the envelope restriction relation `E_out <= E_in`, field-level non-expansion rules, and explicit non-claims. | `docs/theory/data-boundary.md`, `docs/research-claims.md`, documentation contract tests. | Owner-retained local derivation note; not committed and not public evidence. |
 | DB-2 | Data boundary / corpus | Added `data_boundary_missing_envelope_recovery`, regenerated the then-current examples/golden snapshots, and updated external-run arithmetic. | `examples/comparison-report/`, `docs/showcase/generated/`, `tests/golden/`, `ash validate examples/`. | Owner-retained local verification checklist; not committed and not public evidence. |
 | DB-3 | Data boundary / memory read boundary | Added `data_boundary_memory_envelope_drift`, implemented field-level envelope restriction checks, regenerated the 24-pattern examples/golden snapshots, and updated data-boundary theory/claims. | `src/agentic_security_harness/envelope_policy.py`, `tests/test_envelope_policy.py`, `examples/comparison-report/`, `docs/theory/data-boundary.md`, `ash validate examples/`. | Owner-retained local verification checklist; not committed and not public evidence. |
+| SEM-1 | Semantic drift propagation | Closed the first semantic mini-swarm research unit: slow `A -> C` relabeling, worker-to-chief propagation, deterministic controls, ablation reopenings, local-model observations, and explicit non-claims. | `docs/semantic-drift-propagation-closure.md`, `examples/semantic-drift-sanitized/`, `examples/semantic-propagation-sanitized/`, `tests/test_semantic_drift_campaign.py`, `tests/test_semantic_propagation_campaign.py`. | Raw prompts, raw responses, synthetic canaries, canonical-state hashes, and calculation notes remain private under `.internal/`. |
+| SEM-2 | Semantic consensus laundering | Closed the first consensus-laundering sub-unit: one poisoned worker plus one conservative worker cannot be averaged into acceptance when worker attestation, canonical state, cross-worker checks, and chief verification hold. | `docs/semantic-consensus-laundering-closure.md`, `examples/semantic-propagation-sanitized/`, `tests/test_semantic_propagation_campaign.py`. | This is a declared two-worker synthetic topology, not production swarm coverage or a model vulnerability claim. |
 
 Supporting docs:
 
@@ -82,6 +84,11 @@ Supporting docs:
   synthetic verifier topology for malformed summary and capability handoffs.
 - [research-claims.md](research-claims.md) tracks research claims from hypothesis
   through validated evidence artifacts.
+- [semantic-drift-propagation-closure.md](semantic-drift-propagation-closure.md)
+  closes the first semantic mini-swarm research unit.
+- [semantic-consensus-laundering-closure.md](semantic-consensus-laundering-closure.md)
+  closes the first consensus-laundering sub-unit over the existing propagation
+  campaign artifact.
 - [boundary-layer-evidence-matrix.md](boundary-layer-evidence-matrix.md) maps the current
   handoff, authority, and memory-governance variation rows to executable tests.
 - [local-prometheus-workflow.md](local-prometheus-workflow.md) defines the low-memory

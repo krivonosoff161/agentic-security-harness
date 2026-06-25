@@ -15,6 +15,7 @@ from agentic_security_harness.local_swarm import (
     estimate_request_count,
     evaluate_swarm_scenario,
     model_is_forbidden,
+    normalize_role_models,
     run_local_swarm,
     write_local_swarm_artifacts,
 )
@@ -130,6 +131,49 @@ def test_calculator_model_is_refused() -> None:
         )
 
 
+def test_calculator_model_is_refused_as_role_model() -> None:
+    with pytest.raises(ValueError, match="calculator model"):
+        normalize_role_models({"worker": "calculator:latest"})
+
+
+def test_execute_routes_roles_to_declared_models() -> None:
+    calls: list[str] = []
+
+    def _fake_chat_completion(**kwargs: object) -> dict[str, object]:
+        calls.append(str(kwargs["model"]))
+        return {"choices": [{"message": {"content": f"model={kwargs['model']}"}}]}
+
+    with patch(
+        "agentic_security_harness.local_swarm.chat_completion",
+        side_effect=_fake_chat_completion,
+    ):
+        summary = run_local_swarm(
+            scenarios=["handoff_label_stripping"],
+            modes=["bounded_swarm"],
+            execute_model_calls=True,
+            base_url="http://127.0.0.1:11434/v1",
+            model="chief-local-model:latest",
+            role_models={
+                "worker": "small-worker-model:latest",
+                "verifier": "small-verifier-model:latest",
+                "auditor": "small-auditor-model:latest",
+            },
+            max_requests=4,
+            created_at="",
+        )
+
+    assert calls == [
+        "chief-local-model:latest",
+        "small-worker-model:latest",
+        "small-verifier-model:latest",
+        "small-auditor-model:latest",
+    ]
+    assert summary.chief_model == "chief-local-model:latest"
+    assert summary.role_models["coordinator"] == "chief-local-model:latest"
+    assert summary.role_models["worker"] == "small-worker-model:latest"
+    assert {item.model for item in summary.results[0].role_transcripts} == set(calls)
+
+
 def test_request_cap_is_enforced() -> None:
     with pytest.raises(ValueError, match="exceeds max_requests"):
         run_local_swarm(
@@ -216,6 +260,22 @@ def test_cli_refuses_calculator_before_network(tmp_path: Path) -> None:
     with patch("urllib.request.urlopen", side_effect=_boom):
         rc = cli.main(["local-swarm", "--execute", "--model", "calculator:latest",
                        "--out", str(out)])
+
+    assert rc == 1
+    assert not out.exists()
+
+
+def test_cli_refuses_calculator_role_model_before_network(tmp_path: Path) -> None:
+    out = tmp_path / "blocked"
+    with patch("urllib.request.urlopen", side_effect=_boom):
+        rc = cli.main([
+            "local-swarm",
+            "--execute",
+            "--role-model",
+            "worker=calculator:latest",
+            "--out",
+            str(out),
+        ])
 
     assert rc == 1
     assert not out.exists()
