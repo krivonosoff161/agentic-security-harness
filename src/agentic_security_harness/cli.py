@@ -630,6 +630,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="local model for optional role calls (calculator is refused)",
     )
     swarm_p.add_argument(
+        "--role-model",
+        action="append",
+        default=[],
+        metavar="ROLE=MODEL",
+        help=(
+            "override the model for a local-swarm role; may be repeated "
+            "(roles: coordinator, worker, memory, verifier, auditor)"
+        ),
+    )
+    swarm_p.add_argument(
         "--timeout",
         type=int,
         default=60,
@@ -1666,6 +1676,7 @@ def _local_swarm(
     preset: str,
     base_url_override: str | None,
     model: str,
+    role_model_args: list[str],
     timeout: int,
     max_requests: int,
     execute: bool,
@@ -1676,6 +1687,7 @@ def _local_swarm(
         SWARM_SCENARIOS,
         estimate_request_count,
         model_is_forbidden,
+        normalize_role_models,
         run_local_swarm,
         write_local_swarm_artifacts,
     )
@@ -1702,6 +1714,12 @@ def _local_swarm(
     )
 
     base_url = ""
+    try:
+        role_models = _parse_role_model_args(role_model_args)
+        role_models = normalize_role_models(role_models)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
     if execute:
         if model_is_forbidden(model):
             print("Error: calculator model is reserved for the trading project; refused.")
@@ -1718,6 +1736,9 @@ def _local_swarm(
             print("Error: local-swarm accepts only keyless local presets in this pass.")
             return 1
         print(f"Using preset '{preset}': base_url {_redact_url(base_url)}")
+        if role_models:
+            rendered = ", ".join(f"{role}={m}" for role, m in sorted(role_models.items()))
+            print(f"Using role model roster: {rendered}")
 
     try:
         summary = run_local_swarm(
@@ -1726,6 +1747,7 @@ def _local_swarm(
             execute_model_calls=execute,
             base_url=base_url,
             model=model if execute else "",
+            role_models=role_models,
             timeout_seconds=timeout,
             max_requests=max_requests,
             created_at=_now_utc(),
@@ -1757,6 +1779,24 @@ def _local_swarm(
         return 1
     print(f"validated {out.as_posix()} (artifact integrity only).")
     return 0
+
+
+def _parse_role_model_args(items: list[str]) -> dict[str, str]:
+    parsed: dict[str, str] = {}
+    for item in items:
+        if "=" not in item:
+            raise ValueError(
+                f"invalid --role-model value '{item}', expected ROLE=MODEL"
+            )
+        role, model = item.split("=", 1)
+        role = role.strip()
+        model = model.strip()
+        if not role or not model:
+            raise ValueError(
+                f"invalid --role-model value '{item}', expected ROLE=MODEL"
+            )
+        parsed[role] = model
+    return parsed
 
 
 def _local_swarm_matrix(
@@ -2600,6 +2640,7 @@ def main(argv: list[str] | None = None) -> int:
             args.preset,
             args.base_url,
             args.model,
+            args.role_model,
             args.timeout,
             args.max_requests,
             args.execute,
