@@ -947,6 +947,77 @@ def build_parser() -> argparse.ArgumentParser:
         help="write sanitized deterministic defense-contour artifacts",
     )
 
+    live_contour_p = sub.add_parser(
+        "swarm-defense-live-campaign",
+        help="run private local-model probes over the swarm defense contour",
+    )
+    live_contour_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path(".internal/swarm-defense-live/latest"),
+        help="private output directory (default: .internal/swarm-defense-live/latest)",
+    )
+    live_contour_p.add_argument(
+        "--summary-out",
+        type=Path,
+        default=Path("reports/swarm-defense-live"),
+        help="sanitized output directory (default: reports/swarm-defense-live)",
+    )
+    live_contour_p.add_argument(
+        "--base-url",
+        default="http://127.0.0.1:11434/v1",
+        help="OpenAI-compatible local base URL (default: Ollama)",
+    )
+    live_contour_p.add_argument(
+        "--worker-model",
+        action="append",
+        default=None,
+        help="local worker model; repeatable (default: qwen2.5:0.5b)",
+    )
+    live_contour_p.add_argument(
+        "--chief-model",
+        action="append",
+        default=None,
+        help="local chief model; repeatable (default: llama3.2:1b)",
+    )
+    live_contour_p.add_argument(
+        "--pressure-mode",
+        action="append",
+        default=None,
+        choices=[
+            "gentle_reframe",
+            "pseudo_code",
+            "memory_rewrite",
+            "authority_pressure",
+            "benign_debug",
+            "consensus_pressure",
+        ],
+        help="pressure mode to include; repeatable (default: all)",
+    )
+    live_contour_p.add_argument(
+        "--max-topologies",
+        type=int,
+        default=15,
+        help="maximum topology combinations to probe (default: 15)",
+    )
+    live_contour_p.add_argument(
+        "--max-requests",
+        type=int,
+        default=600,
+        help="hard cap on estimated model requests (default: 600)",
+    )
+    live_contour_p.add_argument(
+        "--timeout",
+        type=int,
+        default=60,
+        help="per-request timeout in seconds (default: 60)",
+    )
+    live_contour_p.add_argument(
+        "--execute",
+        action="store_true",
+        help="actually call local models and write private/sanitized artifacts",
+    )
+
     return parser
 
 
@@ -1047,7 +1118,9 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.secret_leak_variation_dirs)} secret-leak-variation dir(s), "
         f"{len(result.semantic_drift_campaign_dirs)} semantic-drift dir(s), "
         f"{len(result.semantic_propagation_campaign_dirs)} semantic-propagation dir(s), "
-        f"{len(result.swarm_defense_contour_dirs)} swarm-defense-contour dir(s)"
+        f"{len(result.swarm_defense_contour_dirs)} swarm-defense-contour dir(s), "
+        f"{len(result.swarm_defense_live_campaign_dirs)} "
+        "swarm-defense-live-campaign dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
     if redacted_errors or redacted_warnings:
@@ -2396,6 +2469,91 @@ def _swarm_defense_contour(out: Path, write: bool) -> int:
     return 0
 
 
+def _swarm_defense_live_campaign(
+    *,
+    out: Path,
+    summary_out: Path,
+    base_url: str,
+    worker_models: list[str] | None,
+    chief_models: list[str] | None,
+    pressure_modes: list[str] | None,
+    max_topologies: int,
+    max_requests: int,
+    timeout: int,
+    execute: bool,
+) -> int:
+    from typing import cast
+
+    from agentic_security_harness.swarm_defense_live_campaign import (
+        PRESSURE_MODES,
+        LivePressureMode,
+        build_live_defense_summary,
+        estimate_live_request_count,
+        run_live_defense_campaign,
+        write_live_defense_artifacts,
+        write_live_defense_private_artifacts,
+    )
+    from agentic_security_harness.validation import validate_path
+
+    workers = worker_models or ["qwen2.5:0.5b"]
+    chiefs = chief_models or ["llama3.2:1b"]
+    selected_pressures: list[LivePressureMode] = (
+        cast(list[LivePressureMode], pressure_modes)
+        if pressure_modes is not None
+        else list(PRESSURE_MODES)
+    )
+    topology_count = min(max_topologies, 15)
+    estimated = estimate_live_request_count(
+        topology_count=topology_count,
+        worker_models=workers,
+        chief_models=chiefs,
+        pressure_modes=selected_pressures,
+    )
+    print("swarm-defense-live-campaign prepared.")
+    print("Raw prompts/responses/canaries must stay under .internal/.")
+    print(
+        f"topologies={topology_count} workers={len(workers)} chiefs={len(chiefs)} "
+        f"pressure_modes={len(selected_pressures)} estimated_requests<={estimated}"
+    )
+    if not execute:
+        print("Dry-run only. Add --execute to call local models.")
+        return 0
+    if ".internal" not in out.parts:
+        print("Error: --out for live campaign must be under .internal/")
+        return 1
+
+    run = run_live_defense_campaign(
+        base_url=base_url,
+        worker_models=workers,
+        chief_models=chiefs,
+        pressure_modes=selected_pressures,
+        max_topologies=max_topologies,
+        timeout_seconds=timeout,
+        max_requests=max_requests,
+        created_at=_now_utc(),
+    )
+    private_paths = write_live_defense_private_artifacts(out, run)
+    summary = build_live_defense_summary(run, created_at=_now_utc())
+    public_paths = write_live_defense_artifacts(summary_out, summary)
+    print(f"wrote {len(private_paths)} private artifact(s) to {out.as_posix()}")
+    for path in public_paths:
+        print(f"wrote {path.as_posix()}")
+    result = validate_path(summary_out)
+    if not result.ok:
+        print(f"Validation FAILED for {redact_artifact_text(summary_out.as_posix())}:")
+        print(f"errors: {len(result.errors)}")
+        return 1
+    print(f"validated {summary_out.as_posix()} (artifact integrity only).")
+    print(
+        f"observations={summary.metrics.observations} "
+        f"worker_drift={summary.metrics.worker_drift_detections} "
+        f"chief_accept={summary.metrics.chief_acceptances} "
+        f"canary_leaks={summary.metrics.canary_leaks} "
+        f"blocks={summary.metrics.verifier_blocks}"
+    )
+    return 0
+
+
 def _list_runs(root: Path, db: Path | None) -> int:
     if db is not None:
         from agentic_security_harness.rundb import list_db_runs
@@ -2755,6 +2913,19 @@ def main(argv: list[str] | None = None) -> int:
         )
     if args.command == "swarm-defense-contour":
         return _swarm_defense_contour(args.out, args.write)
+    if args.command == "swarm-defense-live-campaign":
+        return _swarm_defense_live_campaign(
+            out=args.out,
+            summary_out=args.summary_out,
+            base_url=args.base_url,
+            worker_models=args.worker_model,
+            chief_models=args.chief_model,
+            pressure_modes=args.pressure_mode,
+            max_topologies=args.max_topologies,
+            max_requests=args.max_requests,
+            timeout=args.timeout,
+            execute=args.execute,
+        )
     if args.command == "doctor":
         return _doctor(
             args.json, args.live_local, args.base_url, args.credential_env_var,
