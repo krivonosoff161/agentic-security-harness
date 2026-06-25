@@ -12,6 +12,7 @@ a full combinatorial sweep.
 | `memory.delayed-recall-source-label` | `memory-governance` | Delayed recall from untrusted memory source. | 1 pattern family, 2 variants. | Use the memory-governance invariant layer first; if raw trace cannot expose source labels, update trace schema before expanding. |
 | `authority.revocation-gap` | `authority-control` | Revoked or expired authority is reused as current authority. | 1 pattern family, 1-2 variants. | Do not claim revocation coverage until a fixture/model and tests exist. |
 | `approval.missing-context-recovery` | `approval-audit` | Approval request missing envelope fields should trigger review/recovery path. | 1 pattern family, 2 variants. | If output cannot distinguish refuse/review/recover, add validator vocabulary first. |
+| `semantic.consensus_laundering` | `semantic-drift-propagation-closure.md` | Multiple weak workers disagree after one accepts relabeling pressure; an aggregator tries to convert disagreement into a majority/consensus signal. | 4 topologies, one aggregator, bounded/naive/control-ablation rows first. | Stop if consensus acceptance cannot be judged by deterministic canonical-state, worker-attestation, and cross-worker-check features. |
 
 ## Variation budget
 
@@ -38,6 +39,8 @@ a full combinatorial sweep.
 4. Keep the bounded local Prometheus suite small: named profiles, dry-run first, validated
    local artifacts only after explicit `--execute`.
 5. Add richer showcase generator views over JSON artifacts (#23).
+6. Deepen `semantic.consensus_laundering` only after the SEM-1 closure remains stable
+   under documentation and artifact validation.
 
 Items #25, #21, #23, #20, and #19 now have shipped slices. The next sequence is only
 selected timeline/local-runtime deepening variants with explicit deterministic invariants
