@@ -73,6 +73,7 @@ class ValidationResult(BaseModel):
     secret_leak_variation_dirs: list[str] = Field(default_factory=list)
     semantic_drift_campaign_dirs: list[str] = Field(default_factory=list)
     semantic_propagation_campaign_dirs: list[str] = Field(default_factory=list)
+    swarm_defense_contour_dirs: list[str] = Field(default_factory=list)
 
     def _err(self, msg: str) -> None:
         self.errors.append(msg)
@@ -135,6 +136,10 @@ def _is_semantic_propagation_campaign_dir(path: Path) -> bool:
     return (path / "semantic_propagation_summary.json").exists()
 
 
+def _is_swarm_defense_contour_dir(path: Path) -> bool:
+    return (path / "swarm_defense_contour_summary.json").exists()
+
+
 def validate_path(path: Path) -> ValidationResult:
     """Validate a report dir, a comparison dir, or a directory of such dirs.
 
@@ -184,6 +189,9 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
     elif _is_semantic_propagation_campaign_dir(path):
         result.semantic_propagation_campaign_dirs.append(_rel(path, root))
         _validate_semantic_propagation_campaign_dir(path, root, result)
+    elif _is_swarm_defense_contour_dir(path):
+        result.swarm_defense_contour_dirs.append(_rel(path, root))
+        _validate_swarm_defense_contour_dir(path, root, result)
     elif (path / "run_diff.json").exists():
         result.run_diff_dirs.append(_rel(path, root))
         _validate_run_diff_dir(path, root, result)
@@ -593,6 +601,75 @@ def _validate_semantic_propagation_campaign_dir(
             _scan_secrets(candidate, root, result)
 
 
+def _validate_swarm_defense_contour_dir(
+    path: Path, root: Path, result: ValidationResult
+) -> None:
+    rel = _rel(path / "swarm_defense_contour_summary.json", root)
+    raw = _load_json(path / "swarm_defense_contour_summary.json", root, result)
+    if raw is None:
+        return
+    _check_schema_version_file(
+        path / "swarm_defense_contour_summary.json",
+        "swarm_defense_contour",
+        root,
+        result,
+    )
+    from agentic_security_harness.swarm_defense_contour import DefenseContourSummary
+
+    try:
+        summary = DefenseContourSummary.model_validate(raw)
+    except ValidationError as exc:
+        result._err(f"{rel}: schema: {_fmt_error(exc)}")
+        return
+    if summary.metrics.scenarios != len(summary.scenarios):
+        result._err(f"{rel}: metrics.scenarios does not match scenario count")
+    if summary.metrics.topologies != len(summary.topologies):
+        result._err(f"{rel}: metrics.topologies does not match topology count")
+    if summary.metrics.results != len(summary.results):
+        result._err(f"{rel}: metrics.results does not match result rows")
+    if summary.metrics.control_effect_rows != len(summary.control_effects):
+        result._err(f"{rel}: metrics.control_effect_rows mismatch")
+    if summary.metrics.bounded_acceptances != sum(
+        1
+        for item in summary.results
+        if item.mode == "bounded_swarm" and item.attack_accepted
+    ):
+        result._err(f"{rel}: metrics.bounded_acceptances mismatch")
+    if summary.metrics.naive_acceptances != sum(
+        1
+        for item in summary.results
+        if item.mode == "naive_swarm" and item.attack_accepted
+    ):
+        result._err(f"{rel}: metrics.naive_acceptances mismatch")
+    if _contains_forbidden_raw_fields(raw):
+        result._err(f"{rel}: public artifact contains raw/private fields")
+    for required in (
+        "swarm_defense_contour_report.md",
+        "swarm_defense_contour_digest.json",
+    ):
+        if not (path / required).exists():
+            result._err(f"{_rel(path / required, root)}: missing")
+    for private_name in (
+        "swarm_defense_contour_private.json",
+        "swarm_defense_contour_private.md",
+    ):
+        if (path / private_name).exists():
+            result._err(
+                f"{_rel(path / private_name, root)}: private defense-contour "
+                "artifact must stay under .internal/"
+            )
+    _validate_run_manifest(path, root, result)
+    for name in (
+        "swarm_defense_contour_summary.json",
+        "swarm_defense_contour_report.md",
+        "swarm_defense_contour_digest.json",
+        "README.md",
+    ):
+        candidate = path / name
+        if candidate.exists():
+            _scan_secrets(candidate, root, result)
+
+
 def _contains_forbidden_raw_fields(value: Any) -> bool:
     forbidden = {
         "raw_prompt",
@@ -605,6 +682,8 @@ def _contains_forbidden_raw_fields(value: Any) -> bool:
         "canary",
         "canary_value",
         "canonical_state_hash",
+        "raw_transcript",
+        "synthetic_canary",
     }
     if isinstance(value, dict):
         return any(key in forbidden for key in value) or any(

@@ -1,0 +1,15 @@
+{
+  "ablation_acceptances": 112,
+  "bounded_acceptances": 0,
+  "naive_acceptances": 15,
+  "non_claims": [
+    "No real secrets were used.",
+    "This is not a CVE or a production-safety claim.",
+    "The contour proves declared contract behavior, not semantic truth.",
+    "Local model transcripts, if collected, are private evidence-quality inputs."
+  ],
+  "run_kind": "swarm_defense_contour",
+  "scenarios": 4,
+  "schema_version": "0.1",
+  "topologies": 15
+}

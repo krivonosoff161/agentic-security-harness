@@ -28,6 +28,7 @@ SCHEMA_VERSIONS: dict[str, str] = {
     "secret_leak_variations": "0.1",  # secret_leak_variation_summary.json
     "semantic_drift_campaign": "0.1",  # semantic_drift_summary.json
     "semantic_propagation_campaign": "0.2",  # semantic_propagation_summary.json
+    "swarm_defense_contour": "0.1",  # swarm_defense_contour_summary.json
 }
 
 # Current implemented defensive corpus revision. Artifact schema versions describe file

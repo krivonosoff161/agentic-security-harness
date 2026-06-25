@@ -931,6 +931,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="pressure mode to include; repeatable (default: all)",
     )
 
+    contour_p = sub.add_parser(
+        "swarm-defense-contour",
+        help="build the sanitized defense contour for local mini-swarm scenarios",
+    )
+    contour_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path("reports/swarm-defense-contour"),
+        help="sanitized output directory (default: reports/swarm-defense-contour)",
+    )
+    contour_p.add_argument(
+        "--write",
+        action="store_true",
+        help="write sanitized deterministic defense-contour artifacts",
+    )
+
     return parser
 
 
@@ -1030,7 +1046,8 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.secret_leak_campaign_dirs)} secret-leak-campaign dir(s), "
         f"{len(result.secret_leak_variation_dirs)} secret-leak-variation dir(s), "
         f"{len(result.semantic_drift_campaign_dirs)} semantic-drift dir(s), "
-        f"{len(result.semantic_propagation_campaign_dirs)} semantic-propagation dir(s)"
+        f"{len(result.semantic_propagation_campaign_dirs)} semantic-propagation dir(s), "
+        f"{len(result.swarm_defense_contour_dirs)} swarm-defense-contour dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
     if redacted_errors or redacted_warnings:
@@ -2346,6 +2363,39 @@ def _semantic_propagation_campaign(
     return 0
 
 
+def _swarm_defense_contour(out: Path, write: bool) -> int:
+    from agentic_security_harness.swarm_defense_contour import (
+        build_swarm_defense_contour,
+        write_swarm_defense_contour_artifacts,
+    )
+    from agentic_security_harness.validation import validate_path
+
+    summary = build_swarm_defense_contour(created_at=_now_utc())
+    print("swarm-defense-contour prepared.")
+    print(
+        "Public artifacts are sanitized. Raw local-model transcripts and synthetic "
+        "canaries, if collected by deeper probes, must stay under .internal/."
+    )
+    print(
+        f"scenarios={summary.metrics.scenarios} topologies={summary.metrics.topologies} "
+        f"bounded_acceptances={summary.metrics.bounded_acceptances} "
+        f"naive_acceptances={summary.metrics.naive_acceptances}"
+    )
+    if write:
+        paths = write_swarm_defense_contour_artifacts(out, summary)
+        for path in paths:
+            print(f"wrote {path.as_posix()}")
+        result = validate_path(out)
+        if not result.ok:
+            print(f"Validation FAILED for {redact_artifact_text(out.as_posix())}:")
+            print(f"errors: {len(result.errors)}")
+            return 1
+        print(f"validated {out.as_posix()} (artifact integrity only).")
+    else:
+        print("Dry-run only. Add --write.")
+    return 0
+
+
 def _list_runs(root: Path, db: Path | None) -> int:
     if db is not None:
         from agentic_security_harness.rundb import list_db_runs
@@ -2703,6 +2753,8 @@ def main(argv: list[str] | None = None) -> int:
             args.max_chains,
             args.pressure_mode,
         )
+    if args.command == "swarm-defense-contour":
+        return _swarm_defense_contour(args.out, args.write)
     if args.command == "doctor":
         return _doctor(
             args.json, args.live_local, args.base_url, args.credential_env_var,

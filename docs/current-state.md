@@ -42,6 +42,7 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | Semantic propagation probes | Shipped local empirical slice | `ash semantic-propagation-campaign` models worker-to-chief propagation after semantic relabeling pressure: deterministic bounded mode accepts 0 propagation attempts, ablation modes accept 20, and the latest private local-model smoke records 8 observations with 2 worker drift detections, 3 chief acceptances, 2 synthetic canary leaks, 3 verifier blocks, 1 adapter error, and 87.5% response-hash coverage. |
 | Semantic drift propagation closure | Closed research unit | `semantic-drift-propagation-closure.md` ties the drift and propagation campaigns into one closed evidence slice: declared cases, deterministic bounded-vs-ablation rows, local empirical observations, private/public boundary, and the follow-up consensus-laundering sub-unit. |
 | Semantic consensus laundering closure | Closed sub-unit | `semantic-consensus-laundering-closure.md` isolates the existing two-worker consensus case: bounded acceptance 0, naive acceptance 1, and `cross_worker_check` ablation acceptance 1 under sanitized propagation artifacts. |
+| Local swarm defense contour | Shipped synthetic defense slice | `ash swarm-defense-contour` combines four local-swarm failure families across 15 non-empty family combinations; bounded acceptances are 0, naive acceptances are 15, and control ablations reopen the declared dependent paths. Raw local-model probes remain private. |
 | Public evidence map | Shipped docs slice | `docs/showcase/evidence-map.md` links each front-page metric to the artifact, reproduce command, claim, and non-claim. |
 | Local real-model swarm probes | Local empirical | Prometheus and qwen2.5 have executed the full 15-scenario swarm suite with 100% transcript-hash coverage and 0% adapter-error rate; model text remains evidence-quality context only. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
@@ -168,6 +169,11 @@ reviewer-facing closure note for the first semantic unit. It does not add a stro
 claim than the artifacts; it explains why this unit is closed for the declared synthetic
 model. `docs/semantic-consensus-laundering-closure.md` closes the first consensus
 laundering sub-unit over the existing propagation artifact.
+
+Expected defense-contour demonstration: the deterministic local swarm defense contour
+records 4 scenario families, 15 non-empty combination topologies, bounded acceptances 0,
+naive acceptances 15, and control-ablation reopenings for the declared dependent paths.
+It is a synthetic control-attribution layer, not a live model or production-swarm proof.
 
 ## Claim boundary
 
