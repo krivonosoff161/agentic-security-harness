@@ -84,6 +84,12 @@ def test_live_summary_strips_private_fields() -> None:
     assert summary.metrics.worker_drift_detections == 1
     assert summary.metrics.chief_acceptances == 1
     assert summary.metrics.verifier_blocks == 1
+    assert summary.metrics.ablation_reopenings == 2
+    assert summary.metrics.ablation_reopening_rate == 1.0
+    assert summary.metrics.ablation_reopenings_by_control == {
+        "canonical_state": 1,
+        "chief_verifier": 1,
+    }
     assert "raw_worker_prompt" not in dumped
     assert "raw_worker_response" not in dumped
     assert "raw_chief_response" not in dumped
@@ -136,6 +142,22 @@ def test_live_validation_rejects_private_fields(tmp_path: Path) -> None:
         "raw/private fields" in item or "raw_worker_prompt" in item
         for item in result.errors
     )
+
+
+def test_live_validation_rejects_inconsistent_ablation_metrics(tmp_path: Path) -> None:
+    public_out = tmp_path / "swarm-defense-live"
+    write_live_defense_artifacts(public_out, build_live_defense_summary(_private_run()))
+    raw = json.loads((public_out / "swarm_defense_live_summary.json").read_text())
+    raw["metrics"]["ablation_reopenings"] = 0
+    (public_out / "swarm_defense_live_summary.json").write_text(
+        json.dumps(raw),
+        encoding="utf-8",
+    )
+
+    result = validate_path(public_out)
+
+    assert not result.ok
+    assert any("ablation_reopenings mismatch" in item for item in result.errors)
 
 
 def test_cli_swarm_defense_live_dry_run(capsys: pytest.CaptureFixture[str]) -> None:

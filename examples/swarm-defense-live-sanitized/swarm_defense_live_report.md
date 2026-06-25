@@ -25,6 +25,25 @@ Status: sanitized public summary over private local-model probes.
 | `transition_table` | 1 | 0 |
 | `worker_attestation` | 1 | 1 |
 
+## Replay ablation
+
+Replay ablation does not make new model calls. It replays the sanitized
+verifier decisions from the private live run and asks which blocked
+unsafe decisions would reopen if a named required control were absent.
+
+- replay ablation reopenings: 96
+- replay ablation reopening rate: 1.00
+
+| Removed control | Reopened decisions |
+|---|---:|
+| `audit_hash_chain` | 22 |
+| `canonical_state` | 1 |
+| `chief_verifier` | 22 |
+| `cross_worker_check` | 17 |
+| `source_hash` | 16 |
+| `summary_guard` | 17 |
+| `worker_attestation` | 1 |
+
 ## Non-claims
 
 - No real secrets were used.

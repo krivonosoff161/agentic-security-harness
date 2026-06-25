@@ -720,6 +720,34 @@ def _validate_swarm_defense_live_campaign_dir(
         1 for item in summary.observations if item.verifier_decision == "block"
     ):
         result._err(f"{rel}: metrics.verifier_blocks mismatch")
+    ablation_by_control: dict[str, int] = {}
+    for item in summary.observations:
+        if item.verifier_decision != "block":
+            continue
+        for control in item.missing_control_acceptances:
+            key = str(control)
+            ablation_by_control[key] = ablation_by_control.get(key, 0) + 1
+    blocked_observations = sum(
+        1 for item in summary.observations if item.verifier_decision == "block"
+    )
+    reopened_observations = sum(
+        1
+        for item in summary.observations
+        if item.verifier_decision == "block" and item.missing_control_acceptances
+    )
+    expected_reopening_rate = (
+        reopened_observations / blocked_observations
+        if blocked_observations
+        else 0.0
+    )
+    if summary.metrics.ablation_reopenings != sum(ablation_by_control.values()):
+        result._err(f"{rel}: metrics.ablation_reopenings mismatch")
+    if summary.metrics.ablation_reopening_rate != expected_reopening_rate:
+        result._err(f"{rel}: metrics.ablation_reopening_rate mismatch")
+    if summary.metrics.ablation_reopenings_by_control != ablation_by_control:
+        result._err(f"{rel}: metrics.ablation_reopenings_by_control mismatch")
+    if summary.metrics.reopened_by_missing_control != ablation_by_control:
+        result._err(f"{rel}: metrics.reopened_by_missing_control mismatch")
     if _contains_forbidden_raw_fields(raw):
         result._err(f"{rel}: public artifact contains raw/private fields")
     for required in (

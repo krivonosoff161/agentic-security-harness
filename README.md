@@ -39,7 +39,7 @@ agent is secure.
 | Semantic drift probes | `80` local-model observations; drift detections `13`, canary leaks `4`, verifier blocks `15` | [`examples/semantic-drift-sanitized/`](examples/semantic-drift-sanitized/) |
 | Semantic propagation defense | `6` controls; bounded acceptances `0`, ablation acceptances `20`; `8` worker-to-chief observations | [`examples/semantic-propagation-sanitized/`](examples/semantic-propagation-sanitized/) / [`model`](docs/semantic-propagation-defense-model.md) |
 | Local swarm defense contour | `4` failure families, `15` combination topologies; bounded acceptances `0`, naive acceptances `15` | [`examples/swarm-defense-contour-sanitized/`](examples/swarm-defense-contour-sanitized/) / [`model`](docs/local-swarm-defense-contour.md) |
-| Live mini-swarm defense campaign | `180` local-model observations; chief acceptances `22`, verifier blocks `22`, canary leaks `0` | [`examples/swarm-defense-live-sanitized/`](examples/swarm-defense-live-sanitized/) / [`model`](docs/live-mini-swarm-defense-campaign.md) |
+| Live mini-swarm defense campaign | `180` local-model observations; chief acceptances `22`, verifier blocks `22`, replay-ablation reopenings `96`, canary leaks `0` | [`examples/swarm-defense-live-sanitized/`](examples/swarm-defense-live-sanitized/) / [`model`](docs/live-mini-swarm-defense-campaign.md) |
 
 The deterministic rows measure declared synthetic situations. The local-model rows are
 sanitized evidence-quality snapshots with raw prompts, responses, canonical state hashes,

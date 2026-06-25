@@ -1,7 +1,7 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "run_kind": "swarm_defense_live_campaign",
-  "created_at": "2026-06-25T21:43:48Z",
+  "created_at": "2026-06-25T21:32:44Z",
   "metrics": {
     "topologies": 15,
     "observations": 180,
@@ -32,6 +32,17 @@
       "worker_attestation": 1
     },
     "reopened_by_missing_control": {
+      "audit_hash_chain": 22,
+      "canonical_state": 1,
+      "chief_verifier": 22,
+      "cross_worker_check": 17,
+      "worker_attestation": 1,
+      "source_hash": 16,
+      "summary_guard": 17
+    },
+    "ablation_reopenings": 96,
+    "ablation_reopening_rate": 1.0,
+    "ablation_reopenings_by_control": {
       "audit_hash_chain": 22,
       "canonical_state": 1,
       "chief_verifier": 22,

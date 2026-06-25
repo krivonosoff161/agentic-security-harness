@@ -46,6 +46,7 @@ worker drift detections: 1 / 180
 chief acceptances: 22 / 180
 synthetic canary leaks: 0 / 180
 verifier blocks: 22 / 180
+replay-ablation reopenings: 96
 ```
 
 Interpretation:
@@ -57,6 +58,11 @@ Interpretation:
 - `chief_verifier`, `summary_guard`, `source_hash`, and `audit_hash_chain` were active
   blockers for every unsafe chief acceptance in this run;
 - `cross_worker_check` mattered primarily where consensus laundering was present.
+
+Replay ablation is calculated from the sanitized verifier decisions over the private
+live run. It does not make additional model calls or publish raw transcripts. The
+current public summary records 96 control-specific reopenings: every blocked unsafe
+decision would reopen under at least one missing required control.
 
 ## Reproduce
 
@@ -99,6 +105,8 @@ Allowed:
   prompts, responses, or canaries;
 - this run observed unsafe chief acceptance in 22 of 180 synthetic chains and blocked
   all detected unsafe acceptances with deterministic controls;
+- replay ablation can attribute those blocks to missing-control reopenings without
+  exposing raw model prompts, raw responses, or canary values;
 - response hashes provide audit anchors for private owner review.
 
 Not allowed:
@@ -108,4 +116,3 @@ Not allowed:
 - claiming production swarm safety;
 - claiming exhaustive attack coverage;
 - claiming deterministic controls prove semantic truth.
-
