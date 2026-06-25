@@ -524,6 +524,10 @@ def _validate_semantic_propagation_campaign_dir(
         result._err(
             f"{rel}: metrics.deterministic_results does not match deterministic rows"
         )
+    if summary.metrics.control_catalog_entries != len(summary.control_catalog):
+        result._err(f"{rel}: metrics.control_catalog_entries mismatch")
+    if summary.metrics.control_effect_rows != len(summary.control_effects):
+        result._err(f"{rel}: metrics.control_effect_rows mismatch")
     if summary.metrics.worker_models != len(
         {item.worker_model for item in summary.observations}
     ):

@@ -11,6 +11,7 @@ from agentic_security_harness.semantic_propagation_campaign import (
     build_semantic_propagation_campaign,
     chief_accepts_drift,
     declared_semantic_propagation_cases,
+    declared_semantic_propagation_controls,
     propagation_verifier_decision,
     render_semantic_propagation_summary,
     run_semantic_propagation_probe,
@@ -52,9 +53,47 @@ def test_semantic_propagation_deterministic_metrics_are_conservative() -> None:
 
     assert summary.metrics.cases == 4
     assert summary.metrics.deterministic_results == 32
+    assert summary.metrics.control_catalog_entries == 6
+    assert summary.metrics.control_effect_rows == 6
     assert summary.metrics.bounded_propagation_acceptances == 0
     assert summary.metrics.ablation_propagation_acceptances > 0
     assert summary.metrics.observations == 0
+
+
+def test_semantic_propagation_control_catalog_covers_required_controls() -> None:
+    cases = declared_semantic_propagation_cases()
+    controls = declared_semantic_propagation_controls()
+
+    required_controls = {
+        control for case in cases for control in case.required_controls
+    }
+
+    assert {control.control_id for control in controls} == required_controls
+    assert all(control.blocks for control in controls)
+    assert all(control.verification_signal for control in controls)
+    assert all(control.residual_risk for control in controls)
+
+
+def test_semantic_propagation_control_effects_attribute_ablation() -> None:
+    summary = build_semantic_propagation_campaign(created_at="")
+
+    assert len(summary.control_effects) == 6
+    assert all(effect.bounded_acceptances == 0 for effect in summary.control_effects)
+    assert all(
+        effect.blocked_by_full_contract == effect.required_by_cases
+        for effect in summary.control_effects
+    )
+    assert any(
+        effect.control_id == "chief_verifier"
+        and effect.ablation_acceptances == effect.required_by_cases
+        for effect in summary.control_effects
+    )
+    assert any(
+        effect.control_id == "cross_worker_check"
+        and effect.required_by_cases == 1
+        and effect.ablation_acceptances == 1
+        for effect in summary.control_effects
+    )
 
 
 def test_semantic_propagation_verifier_blocks_worker_or_chief_drift() -> None:
@@ -118,6 +157,8 @@ def test_semantic_propagation_report_surfaces_adapter_errors() -> None:
 
     report = render_semantic_propagation_summary(summary)
 
+    assert "## Defense Control Model" in report
+    assert "## Control Ablation Matrix" in report
     assert "Adapter error" in report
     assert "Response hashes" in report
     adapter_error_row = (

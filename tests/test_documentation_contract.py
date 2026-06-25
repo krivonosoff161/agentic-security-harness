@@ -554,9 +554,10 @@ def test_public_evidence_map_links_current_campaign_metrics() -> None:
 
     for phrase in (
         "Deterministic corpus comparison",
-        "Semantic propagation chain",
+        "Semantic propagation defense",
+        "bounded acceptances `0`",
+        "ablation acceptances `20`",
         "adapter errors `1`",
-        "response hash coverage `87.5%`",
         "private calculations that must stay under `.internal/`",
         "Adapter errors are passes",
     ):
@@ -564,6 +565,8 @@ def test_public_evidence_map_links_current_campaign_metrics() -> None:
 
     assert "docs/showcase/evidence-map.md" in readme
     assert "Evidence map" in showcase
+    assert "Defense Control Model" in prop_report
+    assert "Control Ablation Matrix" in prop_report
     assert "Adapter error" in prop_report
     assert "Response hashes" in prop_report
     adapter_error_row = (

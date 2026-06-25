@@ -27,7 +27,7 @@ SCHEMA_VERSIONS: dict[str, str] = {
     "secret_leak_campaign": "0.1",  # secret_leak_campaign_summary.json
     "secret_leak_variations": "0.1",  # secret_leak_variation_summary.json
     "semantic_drift_campaign": "0.1",  # semantic_drift_summary.json
-    "semantic_propagation_campaign": "0.1",  # semantic_propagation_summary.json
+    "semantic_propagation_campaign": "0.2",  # semantic_propagation_summary.json
 }
 
 # Current implemented defensive corpus revision. Artifact schema versions describe file
@@ -44,6 +44,10 @@ KNOWN_SCHEMA_VERSIONS["run_diff"] = frozenset({"0.1", SCHEMA_VERSIONS["run_diff"
 KNOWN_SCHEMA_VERSIONS["evidence_quality"] = frozenset({
     "0.1",
     SCHEMA_VERSIONS["evidence_quality"],
+})
+KNOWN_SCHEMA_VERSIONS["semantic_propagation_campaign"] = frozenset({
+    "0.1",
+    SCHEMA_VERSIONS["semantic_propagation_campaign"],
 })
 
 

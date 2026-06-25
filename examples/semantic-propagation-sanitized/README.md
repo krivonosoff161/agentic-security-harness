@@ -6,6 +6,8 @@ propagation campaign.
 Start with [`semantic_propagation_report.md`](semantic_propagation_report.md). The
 authoritative machine-readable artifact is
 [`semantic_propagation_summary.json`](semantic_propagation_summary.json).
+The public defense model is documented in
+[`docs/semantic-propagation-defense-model.md`](../../docs/semantic-propagation-defense-model.md).
 
 Validate it with:
 
@@ -31,6 +33,7 @@ ash validate reports/semantic-propagation
 
 - 4 synthetic worker-to-chief propagation cases.
 - 32 deterministic contract rows.
+- 6 declared defensive controls and 6 control-effect rows.
 - Bounded deterministic mode accepts 0 propagation attempts.
 - Ablation modes accept 20 propagation attempts when required controls are disabled.
 - The current private local-model smoke recorded 8 observations, 2 worker drift
