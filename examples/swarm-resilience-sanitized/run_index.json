@@ -1,0 +1,22 @@
+{
+  "schema_version": "0.1",
+  "run_id": "run_8cfaab937c",
+  "run_kind": "swarm_resilience_campaign",
+  "created_at": "",
+  "tool_version": "",
+  "target": "deterministic-mini-swarm-resilience",
+  "model": "",
+  "scenario": "seven-family-resilience-stability-model",
+  "variants": [],
+  "repeats": 1,
+  "outcomes": {},
+  "metadata": {
+    "command": "ash swarm-resilience-campaign --write --summary-out <dir>",
+    "raw_artifacts_private": true
+  },
+  "artifacts": [
+    "swarm_resilience_digest.json",
+    "swarm_resilience_report.md",
+    "swarm_resilience_summary.json"
+  ]
+}
