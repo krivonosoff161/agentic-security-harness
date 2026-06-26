@@ -88,6 +88,17 @@ def test_live_summary_strips_private_fields() -> None:
     assert summary.metrics.long_session_observations == 0
     assert summary.metrics.ablation_reopenings == 2
     assert summary.metrics.ablation_reopening_rate == 1.0
+    assert summary.metrics.unsafe_observations == 1
+    assert summary.metrics.benign_observations == 0
+    assert summary.metrics.unsafe_block_rate == 1.0
+    assert summary.metrics.benign_allow_rate == 0.0
+    assert summary.metrics.verifier_block_rate == 1.0
+    assert summary.metrics.turn_hash_coverage == 0.0
+    assert "chief_acceptance_rate" in summary.metrics.rate_confidence_intervals
+    assert summary.metrics.observations_by_worker_model == {"qwen2.5:0.5b": 1}
+    assert summary.metrics.chief_acceptance_by_worker_model == {"qwen2.5:0.5b": 1}
+    assert summary.metrics.observations_by_chief_model == {"llama3.2:1b": 1}
+    assert summary.metrics.chief_acceptance_by_chief_model == {"llama3.2:1b": 1}
     assert summary.metrics.ablation_reopenings_by_control == {
         "canonical_state": 1,
         "chief_verifier": 1,
@@ -97,6 +108,62 @@ def test_live_summary_strips_private_fields() -> None:
     assert "raw_chief_response" not in dumped
     assert "ASH-CANARY-" not in dumped
     assert "canary_fingerprint" not in dumped
+
+
+def test_live_summary_tracks_benign_and_model_breakdowns() -> None:
+    topology = build_defense_topologies(declared_defense_scenarios())[0]
+    run = LiveDefensePrivateRun(
+        worker_models=["qwen2.5:0.5b", "qwen2.5-coder:0.5b-instruct"],
+        chief_models=["llama3.2:1b"],
+        pressure_modes=["pseudo_code"],
+        transcripts=[
+            LiveDefensePrivateTranscript(
+                topology_id=topology.topology_id,
+                scenarios=topology.scenarios,
+                pressure_mode="pseudo_code",
+                worker_model="qwen2.5:0.5b",
+                chief_model="llama3.2:1b",
+                worker_response_sha256="a" * 64,
+                worker_turn_response_sha256=["a" * 64],
+                chief_response_sha256="b" * 64,
+                worker_drift_detected=True,
+                chief_accepted_drift=True,
+                verifier_decision="block",
+                blocked_by=["audit_hash_chain", "canonical_state", "chief_verifier"],
+                missing_control_acceptances=["canonical_state", "chief_verifier"],
+                first_failure_step="worker_drift",
+            ),
+            LiveDefensePrivateTranscript(
+                topology_id=topology.topology_id,
+                scenarios=topology.scenarios,
+                pressure_mode="pseudo_code",
+                worker_model="qwen2.5-coder:0.5b-instruct",
+                chief_model="llama3.2:1b",
+                worker_response_sha256="c" * 64,
+                worker_turn_response_sha256=["c" * 64],
+                chief_response_sha256="d" * 64,
+                verifier_decision="allow",
+            ),
+        ],
+    )
+
+    summary = build_live_defense_summary(run)
+
+    assert summary.metrics.observations == 2
+    assert summary.metrics.unsafe_observations == 1
+    assert summary.metrics.benign_observations == 1
+    assert summary.metrics.unsafe_block_rate == 1.0
+    assert summary.metrics.benign_allow_rate == 1.0
+    assert summary.metrics.turn_hash_coverage == 1.0
+    assert summary.metrics.observations_by_worker_model == {
+        "qwen2.5-coder:0.5b-instruct": 1,
+        "qwen2.5:0.5b": 1,
+    }
+    assert summary.metrics.chief_acceptance_by_worker_model == {"qwen2.5:0.5b": 1}
+    assert summary.metrics.chief_acceptance_by_chief_model == {"llama3.2:1b": 1}
+    assert summary.metrics.verifier_blocks_by_pressure == {"pseudo_code": 1}
+    low, high = summary.metrics.rate_confidence_intervals["chief_acceptance_rate"]
+    assert 0.0 <= low < high <= 1.0
 
 
 def test_live_artifacts_validate_and_stay_sanitized(tmp_path: Path) -> None:
@@ -195,6 +262,26 @@ def test_live_validation_rejects_inconsistent_ablation_metrics(tmp_path: Path) -
 
     assert not result.ok
     assert any("ablation_reopenings mismatch" in item for item in result.errors)
+
+
+def test_live_validation_rejects_inconsistent_extended_metrics(tmp_path: Path) -> None:
+    public_out = tmp_path / "swarm-defense-live"
+    write_live_defense_artifacts(public_out, build_live_defense_summary(_private_run()))
+    raw = json.loads((public_out / "swarm_defense_live_summary.json").read_text())
+    raw["metrics"]["unsafe_observations"] = 0
+    raw["metrics"]["unsafe_block_rate"] = 0.0
+    raw["metrics"]["turn_hash_coverage"] = 1.0
+    (public_out / "swarm_defense_live_summary.json").write_text(
+        json.dumps(raw),
+        encoding="utf-8",
+    )
+
+    result = validate_path(public_out)
+
+    assert not result.ok
+    assert any("unsafe_observations mismatch" in item for item in result.errors)
+    assert any("unsafe_block_rate mismatch" in item for item in result.errors)
+    assert any("turn_hash_coverage mismatch" in item for item in result.errors)
 
 
 def test_cli_swarm_defense_live_dry_run(capsys: pytest.CaptureFixture[str]) -> None:

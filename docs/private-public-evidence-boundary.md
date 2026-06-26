@@ -22,6 +22,8 @@ Sanitized local empirical artifacts may publish:
 - response SHA-256 hashes and per-turn response SHA-256 hashes;
 - aggregate classifications such as drift detections, chief acceptances, verifier
   blocks, and canary-leak counts;
+- unsafe/benign aggregate counts and rates, with confidence intervals;
+- model-level aggregate breakdowns, without publishing raw model text;
 - verifier/control attribution, replay-ablation metrics, and non-claims;
 - schema version, run kind, command shape, and validation commands.
 
@@ -74,6 +76,7 @@ For public review:
 ash validate examples/
 ash validate examples/swarm-defense-live-sanitized
 ash validate examples/swarm-defense-live-long-session-sanitized
+ash validate examples/swarm-defense-live-deep-sanitized
 ```
 
 For owner-side replay, compare the public response hashes with the private raw run kept
