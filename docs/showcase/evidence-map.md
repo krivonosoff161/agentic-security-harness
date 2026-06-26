@@ -7,6 +7,9 @@ things separate:
 - sanitized local-model evidence-quality snapshots;
 - private calculations that must stay under `.internal/`.
 
+The field-level publication rule is defined in
+[Private/Public Evidence Boundary](../private-public-evidence-boundary.md).
+
 ## Public Evidence Tracks
 
 | Track | Source artifact | Reproduce / validate | Current metrics | Public claim | Non-claim |
@@ -21,7 +24,7 @@ things separate:
 | Semantic propagation defense | `examples/semantic-propagation-sanitized/` + `docs/semantic-propagation-defense-model.md` + `docs/semantic-drift-propagation-closure.md` | `ash validate examples/semantic-propagation-sanitized` | `6` controls, bounded acceptances `0`, ablation acceptances `20`, `8` observations, adapter errors `1` | Declared worker-to-chief drift propagation paths are blocked by the full bounded contract and reopen when responsible controls are ablated; the closure note ties the drift and propagation layers into one reviewer-readable research unit. | Adapter errors are passes; this is a CVE, leaderboard, or production-swarm proof. |
 | Consensus laundering sub-unit | `examples/semantic-propagation-sanitized/` + `docs/semantic-consensus-laundering-closure.md` | `ash validate examples/semantic-propagation-sanitized` | consensus case rows `8`, bounded acceptance `0`, naive acceptance `1`, `cross_worker_check` ablation acceptance `1` | The declared two-worker path cannot turn disagreement into acceptance under the full bounded contract, and reopens when the cross-worker check is disabled. | Exhaustive consensus coverage or production swarm safety. |
 | Local swarm defense contour | `examples/swarm-defense-contour-sanitized/` + `docs/local-swarm-defense-contour.md` | `ash validate examples/swarm-defense-contour-sanitized` | `4` scenario families, `15` non-empty combination topologies, bounded acceptances `0`, naive acceptances `15`, ablation acceptances `68` | The four declared semantic/local-swarm defense families are evaluated together, and each bounded block is tied to deterministic controls plus ablation reopenings. | A live local model is safe, a production swarm is safe, or the four families are exhaustively covered. |
-| Live mini-swarm defense campaign | `examples/swarm-defense-live-sanitized/`, `examples/swarm-defense-live-long-session-sanitized/` + `docs/live-mini-swarm-defense-campaign.md` | `ash validate examples/swarm-defense-live-sanitized` and `ash validate examples/swarm-defense-live-long-session-sanitized` | Base: `180` observations, chief acceptances `22`, worker drift detections `1`, canary leaks `0`, verifier blocks `22`, replay-ablation reopenings `96`, adapter errors `0`, response-hash coverage `100%`. Long-session supplement: `15` three-turn observations, chief acceptances `1`, canary leaks `0`, verifier blocks `1`, replay-ablation reopenings `4`, adapter errors `1`. | The private local worker/chief probes exercise the four-family contour with real local model text, while public artifacts expose only response hashes, per-turn response hashes, aggregate labels, verifier block attribution, and replay-ablation control attribution. | A CVE, a real-secret leak, a model leaderboard, production swarm safety, or exhaustive attack coverage. |
+| Sanitized local-model mini-swarm campaign | `examples/swarm-defense-live-sanitized/`, `examples/swarm-defense-live-long-session-sanitized/` + `docs/live-mini-swarm-defense-campaign.md` | `ash validate examples/swarm-defense-live-sanitized` and `ash validate examples/swarm-defense-live-long-session-sanitized` | Base: `180` observations, chief acceptances `22`, worker drift detections `1`, canary leaks `0`, verifier blocks `22`, replay-ablation reopenings `96`, adapter errors `0`, response-hash coverage `100%`. Long-session supplement: `15` observations, each with `3` worker turns, chief acceptances `1`, canary leaks `0`, verifier blocks `1`, replay-ablation reopenings `4`, adapter errors `1`. | The private local worker/chief probes exercise the four-family contour with real local model text, while public artifacts expose safe model ids, roles, topology ids, pressure labels, response/per-turn hashes, aggregate labels, verifier block attribution, adapter flags, and replay-ablation control attribution. Public artifacts do not include raw transcripts, but every private response is anchored by a public SHA-256 hash for owner-side audit replay. | A CVE, a real-secret leak, a model leaderboard, production swarm safety, or exhaustive attack coverage. |
 
 ## Private Calculation Boundary
 
@@ -31,8 +34,9 @@ artifacts and must remain under `.internal/`.
 
 Public summaries may include:
 
-- aggregate counters;
-- response hashes or hash-coverage rates;
+- safe model ids, runtime roles, topology ids, scenario ids, and pressure labels;
+- aggregate counters and per-observation classifications;
+- response hashes, per-turn response hashes, and hash-coverage rates;
 - adapter-error counts;
 - deterministic control-ablation metrics;
 - conservative non-claims.

@@ -35,6 +35,7 @@ def test_readme_links_methodology_docs() -> None:
         "docs/showcase/evidence-map.md",
         "docs/showcase/scenario-matrix.md",
         "docs/showcase/weak-spots-and-findings.md",
+        "docs/private-public-evidence-boundary.md",
         "GOVERNANCE.md",
     ):
         assert link in readme
@@ -359,6 +360,7 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
         assert issue not in open_work
         assert issue in completed
     assert "#87" in open_work
+    assert "#96" in open_work
     assert "None currently tracked." not in open_work
     assert (
         "`ash evidence-quality` summarizes recorded external/local artifacts"
@@ -574,6 +576,76 @@ def test_public_evidence_map_links_current_campaign_metrics() -> None:
         "True | False | False | True | worker_only | adapter_error | - |"
     )
     assert adapter_error_row in prop_report
+
+
+def test_private_public_evidence_boundary_is_linked_and_specific() -> None:
+    boundary = _read("docs/private-public-evidence-boundary.md")
+    readme = _read("README.md")
+    evidence_map = _read("docs/showcase/evidence-map.md")
+    live_doc = _read("docs/live-mini-swarm-defense-campaign.md")
+    examples_index = _read("examples/README.md")
+
+    for phrase in (
+        "Public artifacts do not include raw transcripts",
+        "public SHA-256 hash",
+        "model names and runtime family labels",
+        "worker/chief/runtime roles",
+        "topology ids, scenario ids, pressure labels",
+        "response SHA-256 hashes",
+        "replay-ablation metrics",
+        "raw prompts and prompt chains",
+        "raw model responses and raw transcripts",
+        "synthetic canary values",
+        "local absolute paths",
+        "not a general model-safety conclusion",
+    ):
+        assert phrase in boundary
+
+    for text in (readme, evidence_map, live_doc, examples_index):
+        assert "private-public-evidence-boundary.md" in text
+
+    assert ".internal/external-demo/latest" in readme
+    assert "Do not" in readme
+    assert "commit `raw_responses/`" in readme
+
+
+def test_live_mini_swarm_reproduce_command_pins_base_pressure_modes() -> None:
+    live_doc = _read("docs/live-mini-swarm-defense-campaign.md")
+    examples_index = _read("examples/README.md")
+
+    for mode in (
+        "gentle_reframe",
+        "pseudo_code",
+        "memory_rewrite",
+        "authority_pressure",
+        "benign_debug",
+        "consensus_pressure",
+    ):
+        assert f"--pressure-mode {mode}" in live_doc
+        assert f"--pressure-mode {mode}" in examples_index
+
+    assert "--pressure-mode long_session_relabel" in live_doc
+    assert "legacy-readable schema `0.2`" in live_doc
+    assert "schema `0.3`" in live_doc
+
+
+def test_live_mini_swarm_claim_remains_local_empirical() -> None:
+    claims = _read("docs/research-claims.md")
+    row = next(
+        line
+        for line in claims.splitlines()
+        if line.startswith("| Sanitized local-model mini-swarm campaign |")
+    )
+    closure = next(
+        line for line in claims.splitlines() if line.startswith("| SEM-4 |")
+    )
+
+    assert "| `local_empirical` |" in row
+    assert "`public_example`" not in row
+    assert "committed sanitized public examples" in row
+    assert "docs/private-public-evidence-boundary.md" in row
+    assert "`local_empirical` with committed sanitized public examples" in closure
+    assert "public_example" not in closure
 
 
 def test_research_claims_registry_status_definitions_are_unique() -> None:

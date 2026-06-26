@@ -1,4 +1,4 @@
-# Live Mini-Swarm Defense Campaign
+# Sanitized Local-Model Mini-Swarm Campaign
 
 Status: sanitized public summary over private local-model probes.
 
@@ -9,8 +9,11 @@ then asks small local models to play worker roles and a local chief model to con
 their summaries.
 
 Raw prompts, raw responses, synthetic canary values, and detailed calculation notes stay
-under `.internal/`. Public artifacts contain only response hashes, aggregate labels,
-control attribution, and non-claims.
+under `.internal/`. Public artifacts contain safe model ids, worker/chief roles,
+topology ids, pressure labels, response hashes, per-turn response hashes, aggregate
+labels, adapter flags, verifier attribution, replay-ablation metrics, and non-claims.
+The field-level rule is in
+[private-public-evidence-boundary.md](private-public-evidence-boundary.md).
 
 ## What Was Tested
 
@@ -40,6 +43,8 @@ pressure, benign debug framing, and consensus pressure.
 A supplemental long-session sanitized run covers the same 15 contour topologies with
 `long_session_relabel`, one worker model, one chief model, and three worker turns per
 chain. It is published separately so the base cross-product remains easy to compare.
+The committed base example is legacy-readable schema `0.2`; the long-session supplement
+uses schema `0.3`.
 
 ## Result
 
@@ -98,7 +103,13 @@ ash swarm-defense-live-campaign \
   --summary-out reports/swarm-defense-live-full \
   --worker-model qwen2.5:0.5b \
   --worker-model qwen2.5-coder:0.5b-instruct \
-  --chief-model llama3.2:1b
+  --chief-model llama3.2:1b \
+  --pressure-mode gentle_reframe \
+  --pressure-mode pseudo_code \
+  --pressure-mode memory_rewrite \
+  --pressure-mode authority_pressure \
+  --pressure-mode benign_debug \
+  --pressure-mode consensus_pressure
 ```
 
 Validate the sanitized output:
@@ -142,6 +153,9 @@ Allowed:
 - replay ablation can attribute those blocks to missing-control reopenings without
   exposing raw model prompts, raw responses, or canary values;
 - response hashes provide audit anchors for private owner review.
+- the run uses real local model outputs, but ASH publishes only sanitized hash-anchored
+  summaries; the evidence supports the declared control-path claim, not a general
+  model-safety conclusion.
 
 Not allowed:
 

@@ -146,6 +146,41 @@ def test_live_validation_rejects_private_fields(tmp_path: Path) -> None:
     )
 
 
+def test_live_validation_rejects_malformed_response_hash(tmp_path: Path) -> None:
+    public_out = tmp_path / "swarm-defense-live"
+    write_live_defense_artifacts(public_out, build_live_defense_summary(_private_run()))
+    raw = json.loads((public_out / "swarm_defense_live_summary.json").read_text())
+    raw["observations"][0]["worker_response_sha256"] = "not-a-sha256"
+    (public_out / "swarm_defense_live_summary.json").write_text(
+        json.dumps(raw),
+        encoding="utf-8",
+    )
+
+    result = validate_path(public_out)
+
+    assert not result.ok
+    assert any("expected lowercase SHA-256 hex digest" in item for item in result.errors)
+
+
+def test_live_validation_rejects_digest_metric_drift(tmp_path: Path) -> None:
+    public_out = tmp_path / "swarm-defense-live"
+    write_live_defense_artifacts(public_out, build_live_defense_summary(_private_run()))
+    raw = json.loads((public_out / "swarm_defense_live_digest.json").read_text())
+    raw["metrics"]["observations"] = 999
+    (public_out / "swarm_defense_live_digest.json").write_text(
+        json.dumps(raw),
+        encoding="utf-8",
+    )
+
+    result = validate_path(public_out)
+
+    assert not result.ok
+    assert any(
+        "swarm_defense_live_digest.json: metrics.observations mismatch" in item
+        for item in result.errors
+    )
+
+
 def test_live_validation_rejects_inconsistent_ablation_metrics(tmp_path: Path) -> None:
     public_out = tmp_path / "swarm-defense-live"
     write_live_defense_artifacts(public_out, build_live_defense_summary(_private_run()))

@@ -28,6 +28,11 @@ In plain English: this repo answers three practical questions.
 production certification system, model leaderboard, CVE claim, or proof that any deployed
 agent is secure.
 
+Tracks below are either deterministic artifact checks or sanitized local-model
+evidence-quality snapshots. None are certification, vendor benchmark, CVE, or
+production-safety claims. The private/public split for local empirical evidence is
+defined in [docs/private-public-evidence-boundary.md](docs/private-public-evidence-boundary.md).
+
 | Evidence track | Current public result | Inspect |
 |---|---:|---|
 | Deterministic corpus | `24` synthetic boundary patterns | [`docs/corpus.md`](docs/corpus.md) |
@@ -39,11 +44,13 @@ agent is secure.
 | Semantic drift probes | `80` local-model observations; drift detections `13`, canary leaks `4`, verifier blocks `15` | [`examples/semantic-drift-sanitized/`](examples/semantic-drift-sanitized/) |
 | Semantic propagation defense | `6` controls; bounded acceptances `0`, ablation acceptances `20`; `8` worker-to-chief observations | [`examples/semantic-propagation-sanitized/`](examples/semantic-propagation-sanitized/) / [`model`](docs/semantic-propagation-defense-model.md) |
 | Local swarm defense contour | `4` failure families, `15` combination topologies; bounded acceptances `0`, naive acceptances `15` | [`examples/swarm-defense-contour-sanitized/`](examples/swarm-defense-contour-sanitized/) / [`model`](docs/local-swarm-defense-contour.md) |
-| Live mini-swarm defense campaign | `180` base observations; chief acceptances `22`, verifier blocks `22`, replay-ablation reopenings `96`, canary leaks `0`; plus a `15`-observation 3-turn long-session supplement | [`examples/swarm-defense-live-sanitized/`](examples/swarm-defense-live-sanitized/) / [`long-session`](examples/swarm-defense-live-long-session-sanitized/) / [`model`](docs/live-mini-swarm-defense-campaign.md) |
+| Sanitized local-model mini-swarm campaign | `180` base observations; chief acceptances `22`, verifier blocks `22`, replay-ablation reopenings `96`, canary leaks `0`; plus `15` long-session observations, each with `3` worker turns | [`examples/swarm-defense-live-sanitized/`](examples/swarm-defense-live-sanitized/) / [`long-session`](examples/swarm-defense-live-long-session-sanitized/) / [`model`](docs/live-mini-swarm-defense-campaign.md) |
 
 The deterministic rows measure declared synthetic situations. The local-model rows are
-sanitized evidence-quality snapshots with raw prompts, responses, canonical state hashes,
-and synthetic canaries kept private under `.internal/`.
+sanitized evidence-quality snapshots. Public artifacts may expose model names, roles,
+observation counts, response hashes, aggregate labels, verifier attribution, and
+replay-ablation metrics; raw prompts, responses, canonical state hashes, and synthetic
+canaries stay private under `.internal/`.
 
 ## Visual evidence snapshot
 
@@ -80,6 +87,8 @@ If you only have one minute:
 - Inspect the public evidence entry point:
   [`docs/showcase/index.md`](docs/showcase/index.md) and
   [`docs/showcase/evidence-map.md`](docs/showcase/evidence-map.md).
+- Check the private/public evidence rule for local model campaigns:
+  [`docs/private-public-evidence-boundary.md`](docs/private-public-evidence-boundary.md).
 - Check what is shipped versus planned:
   [`docs/current-state.md`](docs/current-state.md).
 - Validate the public examples locally with `ash validate examples/`.
@@ -204,7 +213,8 @@ See [docs/roadmap.md](docs/roadmap.md).
   mock tool calls, data-envelope propagation, recipient-control checks); intentionally
   vulnerable for the seed patterns. No network, no LLM.
 - **Protected demo agent (`protected-demo-agent`)** - the same agent with simple deterministic
-  controls; passes all twenty-four seed patterns. `ash compare` measures the reduction in findings.
+  controls; records 0 modeled findings on the current 24-pattern synthetic corpus.
+  `ash compare` measures the reduction in findings.
 - **Runner** - `pattern -> target -> trace` (mock or demo-agent).
 - **Scorecard** - a deterministic aggregate derived from traces.
 - **Demo CLI (`ash`)** - `ash run --target {mock,demo-agent,protected-demo-agent}`,
@@ -371,7 +381,7 @@ ash external-check --adapter openai-compatible \
   --model deepseek-chat \
   --scenario data-boundary
 
-# actual run (makes network calls)
+# actual run (makes network calls; keep raw responses in ignored/private storage)
 export ASH_EXTERNAL_API_KEY=REDACTED_VALUE
 ash run-external --adapter openai-compatible \
   --base-url http://localhost:8000/v1 \
@@ -379,7 +389,7 @@ ash run-external --adapter openai-compatible \
   --scenario data-boundary \
   --repeats 3 \
   --credential-env ASH_EXTERNAL_API_KEY \
-  --out reports/external-demo
+  --out .internal/external-demo/latest
 ```
 
 > The commands above are bash. On **Windows PowerShell**, set the key with
@@ -427,6 +437,11 @@ ash validate reports/demo --format json
   architecture fix, verification, residual risk), plus a "how to reproduce / validate" section
 - `raw_responses/` - full raw model response text per request; `--raw-response-limit`
   controls only the preview stored inside `external_results.json` (`0` = full preview)
+
+For real or local model runs, publish only sanitized summaries: model names, roles,
+observation counts, response hashes, aggregate metrics, and ablation metrics. Do not
+commit `raw_responses/`. Raw responses are public only in the deterministic fake-server
+demo under `examples/external-demo-report/`.
 
 `run-external` refuses to start if the estimated request count
 (`patterns x variants x repeats`) exceeds `--max-requests` (default 50); raise it
