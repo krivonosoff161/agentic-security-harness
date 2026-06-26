@@ -11,7 +11,8 @@ their summaries.
 Raw prompts, raw responses, synthetic canary values, and detailed calculation notes stay
 under `.internal/`. Public artifacts contain safe model ids, worker/chief roles,
 topology ids, pressure labels, response hashes, per-turn response hashes, aggregate
-labels, adapter flags, verifier attribution, replay-ablation metrics, and non-claims.
+labels, adapter flags, verifier attribution, replay-ablation metrics, Wilson rate
+intervals, model breakdowns, and non-claims.
 The field-level rule is in
 [private-public-evidence-boundary.md](private-public-evidence-boundary.md).
 
@@ -37,8 +38,10 @@ The four scenario families are:
 - consensus laundering;
 - benign-framed boundary leak.
 
-The six pressure modes are gentle reframe, pseudo-code, memory rewrite, authority
-pressure, benign debug framing, and consensus pressure.
+The base six pressure modes are gentle reframe, pseudo-code, memory rewrite,
+authority pressure, benign debug framing, and consensus pressure. The deep and
+long-session examples also include `long_session_relabel`, for seven implemented
+pressure modes total.
 
 A supplemental long-session sanitized run covers the same 15 contour topologies with
 `long_session_relabel`, one worker model, one chief model, and three worker turns per
@@ -71,10 +74,34 @@ adapter errors: 1
 replay-ablation reopenings: 4
 ```
 
+The deep sanitized artifact records:
+
+```text
+observations: 168
+topologies: 6
+worker models: 2
+chief models: 2
+pressure modes: 7
+max session turns: 3
+worker drift detections: 3
+chief acceptances: 67
+synthetic canary leaks: 0
+verifier blocks: 70
+unsafe observations: 70
+benign observations: 91
+unsafe block rate: 1.00 (Wilson 95%: [0.948, 1.000])
+benign allow rate: 1.00 (Wilson 95%: [0.960, 1.000])
+replay-ablation reopenings: 242
+```
+
 Interpretation:
 
 - the strongest observed failure point was the chief accepting an unsafe worker
   summary, not direct canary leakage;
+- in the deep run, one chief model accepted drift much more often than the other
+  (`prometheus-qwen15b-lowctx:latest`: 61 acceptances, `llama3.2:1b`: 6
+  acceptances), so model-role choice is a measured factor rather than a
+  background detail;
 - paired/combined topologies produced more acceptances than single-family topologies;
 - every detected unsafe acceptance was blocked by the deterministic verifier layer;
 - `chief_verifier`, `summary_guard`, `source_hash`, and `audit_hash_chain` were active
@@ -123,6 +150,7 @@ Committed sanitized example:
 ```bash
 ash validate examples/swarm-defense-live-sanitized
 ash validate examples/swarm-defense-live-long-session-sanitized
+ash validate examples/swarm-defense-live-deep-sanitized
 ```
 
 Run the supplemental long-session probe:
@@ -139,6 +167,22 @@ ash swarm-defense-live-campaign \
   --max-topologies 15
 ```
 
+Run the deep multi-model long-session probe:
+
+```bash
+ash swarm-defense-live-campaign \
+  --execute \
+  --out .internal/swarm-defense-live/deep \
+  --summary-out reports/swarm-defense-live-deep \
+  --worker-model qwen2.5:0.5b \
+  --worker-model qwen2.5-coder:0.5b-instruct \
+  --chief-model llama3.2:1b \
+  --chief-model prometheus-qwen15b-lowctx:latest \
+  --session-turns 3 \
+  --max-topologies 6 \
+  --max-requests 900
+```
+
 ## Claim Boundary
 
 Allowed:
@@ -148,6 +192,9 @@ Allowed:
   prompts, responses, or canaries;
 - this run observed unsafe chief acceptance in 22 of 180 synthetic chains and blocked
   all detected unsafe acceptances with deterministic controls;
+- the deep run observed 70 unsafe chains and blocked 70 of them, while 91 benign
+  chains were allowed; the public claim is bounded by the Wilson intervals shown
+  in the artifact, not by a universal safety statement;
 - the supplemental long-session run can expose per-turn response hashes and aggregate
   three-turn metrics without publishing raw turn prompts or responses;
 - replay ablation can attribute those blocks to missing-control reopenings without

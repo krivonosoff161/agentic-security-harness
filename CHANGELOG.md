@@ -7,6 +7,10 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Deep sanitized local-model mini-swarm evidence pack:
+  `examples/swarm-defense-live-deep-sanitized/` records 168 private local-model
+  observations as public-safe hashes and aggregate metrics, including unsafe/benign
+  rates, Wilson intervals, model breakdowns, and replay-ablation attribution.
 - `docs/run-your-model.md`: a single cross-platform operator path for deterministic
   demo, one OpenAI-compatible model, and local mini-swarm campaigns.
 - `docs/evidence-pack-format.md`: public rules for promoting private/local research

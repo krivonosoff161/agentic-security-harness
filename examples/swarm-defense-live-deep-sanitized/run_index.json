@@ -1,0 +1,22 @@
+{
+  "schema_version": "0.1",
+  "run_id": "run_04aa6a8ab0",
+  "run_kind": "swarm_defense_live_campaign",
+  "created_at": "",
+  "tool_version": "",
+  "target": "local-model-swarm-defense-live",
+  "model": "",
+  "scenario": "local-swarm-defense-contour-live",
+  "variants": [],
+  "repeats": 1,
+  "outcomes": {},
+  "metadata": {
+    "command": "ash swarm-defense-live-campaign --execute --summary-out <dir>",
+    "raw_artifacts_private": true
+  },
+  "artifacts": [
+    "swarm_defense_live_digest.json",
+    "swarm_defense_live_report.md",
+    "swarm_defense_live_summary.json"
+  ]
+}
