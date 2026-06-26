@@ -1,0 +1,23 @@
+{
+  "schema_version": "0.1",
+  "run_id": "run_335a11da23",
+  "run_kind": "marketing_web_live_campaign",
+  "created_at": "",
+  "tool_version": "",
+  "target": "local-model-marketing-web-swarm",
+  "model": "",
+  "scenario": "owned-local-web-injection-against-marketing-swarm",
+  "variants": [],
+  "repeats": 1,
+  "outcomes": {},
+  "metadata": {
+    "command": "ash marketing-web-live-campaign --execute --summary-out <dir>",
+    "raw_artifacts_private": true,
+    "network": "owned-local-http-and-local-openai-compatible-models"
+  },
+  "artifacts": [
+    "marketing_web_live_digest.json",
+    "marketing_web_live_report.md",
+    "marketing_web_live_summary.json"
+  ]
+}

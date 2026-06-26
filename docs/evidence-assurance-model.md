@@ -182,6 +182,7 @@ use the same private/public discipline:
 | Secret-egress local variations | `examples/secret-leak-variations-sanitized/` | Raw model prompts/responses/canaries stay under `.internal/`. |
 | Semantic drift | `examples/semantic-drift-sanitized/` | Raw prompts, responses, canonical-state hashes, and canaries stay under `.internal/`. |
 | Semantic propagation | `examples/semantic-propagation-sanitized/` | Raw worker/chief prompts, responses, canonical-state hashes, and canaries stay under `.internal/`; adapter errors and response-hash coverage must remain visible in public summaries. |
+| Marketing web-injection | `examples/marketing-web-injection-sanitized/` | Raw hostile pages, prompts, responses, synthetic strategy values, and owner calculation notes stay under `.internal/`. |
 
 These campaign artifacts are evidence-quality research slices. They do not upgrade a
 claim to production safety, model safety, or CVE status.

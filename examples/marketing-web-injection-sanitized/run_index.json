@@ -1,0 +1,23 @@
+{
+  "schema_version": "0.1",
+  "run_id": "run_259b793d43",
+  "run_kind": "marketing_web_injection_campaign",
+  "created_at": "",
+  "tool_version": "",
+  "target": "controlled-marketing-web-swarm",
+  "model": "",
+  "scenario": "external-web-injection-against-marketing-analytics-swarm",
+  "variants": [],
+  "repeats": 1,
+  "outcomes": {},
+  "metadata": {
+    "command": "ash marketing-web-injection-campaign --write",
+    "raw_artifacts_private": true,
+    "network": "none"
+  },
+  "artifacts": [
+    "marketing_web_injection_digest.json",
+    "marketing_web_injection_report.md",
+    "marketing_web_injection_summary.json"
+  ]
+}

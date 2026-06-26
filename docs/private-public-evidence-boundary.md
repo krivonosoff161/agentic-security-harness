@@ -77,6 +77,7 @@ ash validate examples/
 ash validate examples/swarm-defense-live-sanitized
 ash validate examples/swarm-defense-live-long-session-sanitized
 ash validate examples/swarm-defense-live-deep-sanitized
+ash validate examples/marketing-web-live-sanitized
 ```
 
 For owner-side replay, compare the public response hashes with the private raw run kept
