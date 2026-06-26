@@ -1056,6 +1056,28 @@ def build_parser() -> argparse.ArgumentParser:
         help="write private raw and sanitized public artifacts",
     )
 
+    resilience_p = sub.add_parser(
+        "swarm-resilience-campaign",
+        help="build a seven-family swarm resilience/stability campaign",
+    )
+    resilience_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path(".internal/swarm-resilience/latest"),
+        help="private output directory (default: .internal/swarm-resilience/latest)",
+    )
+    resilience_p.add_argument(
+        "--summary-out",
+        type=Path,
+        default=Path("reports/swarm-resilience"),
+        help="sanitized output directory (default: reports/swarm-resilience)",
+    )
+    resilience_p.add_argument(
+        "--write",
+        action="store_true",
+        help="write private calculation and sanitized public artifacts",
+    )
+
     marketing_web_live_p = sub.add_parser(
         "marketing-web-live-campaign",
         help="run private local-model probes over an owned local web-injection stand",
@@ -1225,7 +1247,9 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.marketing_web_injection_campaign_dirs)} "
         "marketing-web-injection-campaign dir(s), "
         f"{len(result.marketing_web_live_campaign_dirs)} "
-        "marketing-web-live-campaign dir(s)"
+        "marketing-web-live-campaign dir(s), "
+        f"{len(result.swarm_resilience_campaign_dirs)} "
+        "swarm-resilience-campaign dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
     if redacted_errors or redacted_warnings:
@@ -2711,6 +2735,54 @@ def _marketing_web_injection_campaign(
     return 0
 
 
+def _swarm_resilience_campaign(
+    *,
+    out: Path,
+    summary_out: Path,
+    write: bool,
+) -> int:
+    from agentic_security_harness.swarm_resilience_campaign import (
+        build_resilience_private_run,
+        build_resilience_summary,
+        write_resilience_artifacts,
+        write_resilience_private_artifacts,
+    )
+    from agentic_security_harness.validation import validate_path
+
+    private_run = build_resilience_private_run(created_at=_now_utc())
+    summary = build_resilience_summary(private_run, created_at=_now_utc())
+    print("swarm-resilience-campaign prepared.")
+    print("Network/model calls: none. This is a deterministic stability model.")
+    print("Synthetic payload notes and calculation traces must stay under .internal/.")
+    print(
+        f"scenarios={summary.metrics.scenarios} "
+        f"observations={summary.metrics.observations} "
+        f"naive_unsafe={summary.metrics.naive_unsafe_acceptances} "
+        f"bounded_unsafe={summary.metrics.bounded_unsafe_acceptances} "
+        f"ablation_unsafe={summary.metrics.ablation_unsafe_acceptances} "
+        f"benign_false_blocks={summary.metrics.benign_false_blocks}"
+    )
+    if not write:
+        print("Dry-run only. Add --write to write private and sanitized artifacts.")
+        return 0
+    try:
+        private_paths = write_resilience_private_artifacts(out, private_run)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
+    public_paths = write_resilience_artifacts(summary_out, summary)
+    print(f"wrote {len(private_paths)} private artifact(s) to {out.as_posix()}")
+    for path in public_paths:
+        print(f"wrote {path.as_posix()}")
+    result = validate_path(summary_out)
+    if not result.ok:
+        print(f"Validation FAILED for {redact_artifact_text(summary_out.as_posix())}:")
+        print(f"errors: {len(result.errors)}")
+        return 1
+    print(f"validated {summary_out.as_posix()} (artifact integrity only).")
+    return 0
+
+
 def _marketing_web_live_campaign(
     *,
     out: Path,
@@ -3167,6 +3239,12 @@ def main(argv: list[str] | None = None) -> int:
         )
     if args.command == "marketing-web-injection-campaign":
         return _marketing_web_injection_campaign(
+            out=args.out,
+            summary_out=args.summary_out,
+            write=args.write,
+        )
+    if args.command == "swarm-resilience-campaign":
+        return _swarm_resilience_campaign(
             out=args.out,
             summary_out=args.summary_out,
             write=args.write,

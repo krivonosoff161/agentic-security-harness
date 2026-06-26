@@ -78,6 +78,7 @@ class ValidationResult(BaseModel):
     swarm_defense_live_campaign_dirs: list[str] = Field(default_factory=list)
     marketing_web_injection_campaign_dirs: list[str] = Field(default_factory=list)
     marketing_web_live_campaign_dirs: list[str] = Field(default_factory=list)
+    swarm_resilience_campaign_dirs: list[str] = Field(default_factory=list)
 
     def _err(self, msg: str) -> None:
         self.errors.append(msg)
@@ -156,6 +157,10 @@ def _is_marketing_web_live_campaign_dir(path: Path) -> bool:
     return (path / "marketing_web_live_summary.json").exists()
 
 
+def _is_swarm_resilience_campaign_dir(path: Path) -> bool:
+    return (path / "swarm_resilience_summary.json").exists()
+
+
 def validate_path(path: Path) -> ValidationResult:
     """Validate a report dir, a comparison dir, or a directory of such dirs.
 
@@ -217,6 +222,9 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
     elif _is_marketing_web_live_campaign_dir(path):
         result.marketing_web_live_campaign_dirs.append(_rel(path, root))
         _validate_marketing_web_live_campaign_dir(path, root, result)
+    elif _is_swarm_resilience_campaign_dir(path):
+        result.swarm_resilience_campaign_dirs.append(_rel(path, root))
+        _validate_swarm_resilience_campaign_dir(path, root, result)
     elif (path / "run_diff.json").exists():
         result.run_diff_dirs.append(_rel(path, root))
         _validate_run_diff_dir(path, root, result)
@@ -1052,6 +1060,133 @@ def _validate_marketing_web_injection_campaign_dir(
             _scan_secrets(candidate, root, result)
 
 
+def _validate_swarm_resilience_campaign_dir(
+    path: Path, root: Path, result: ValidationResult
+) -> None:
+    rel = _rel(path / "swarm_resilience_summary.json", root)
+    raw = _load_json(path / "swarm_resilience_summary.json", root, result)
+    if raw is None:
+        return
+    _check_schema_version_file(
+        path / "swarm_resilience_summary.json",
+        "swarm_resilience_campaign",
+        root,
+        result,
+    )
+    from agentic_security_harness.swarm_resilience_campaign import ResilienceSummary
+
+    try:
+        summary = ResilienceSummary.model_validate(raw)
+    except ValidationError as exc:
+        result._err(f"{rel}: schema: {_fmt_error(exc)}")
+        return
+    if summary.metrics.observations != len(summary.observations):
+        result._err(f"{rel}: metrics.observations does not match observation count")
+    if summary.metrics.scenarios != len(summary.scenarios):
+        result._err(f"{rel}: metrics.scenarios mismatch")
+    for key, expected in (
+        (
+            "naive_unsafe_acceptances",
+            sum(
+                1
+                for item in summary.observations
+                if item.mode == "naive" and item.accepted_unsafe
+            ),
+        ),
+        (
+            "bounded_unsafe_acceptances",
+            sum(
+                1
+                for item in summary.observations
+                if item.mode == "bounded" and item.accepted_unsafe
+            ),
+        ),
+        (
+            "ablation_unsafe_acceptances",
+            sum(
+                1
+                for item in summary.observations
+                if item.mode == "ablation" and item.accepted_unsafe
+            ),
+        ),
+        (
+            "benign_false_blocks",
+            sum(1 for item in summary.observations if item.mode == "benign" and item.false_block),
+        ),
+        (
+            "verifier_blocks",
+            sum(1 for item in summary.observations if item.verifier_verdict == "blocked"),
+        ),
+        (
+            "stability_returns",
+            sum(1 for item in summary.observations if item.recovered_to_safe),
+        ),
+        (
+            "stability_divergences",
+            sum(1 for item in summary.observations if item.diverged),
+        ),
+    ):
+        if getattr(summary.metrics, key) != expected:
+            result._err(f"{rel}: metrics.{key} mismatch")
+    hash_slots = sum(item.turns for item in summary.observations)
+    hash_present = sum(len(item.state_hashes) for item in summary.observations)
+    expected_hash_coverage = hash_present / hash_slots if hash_slots else 0.0
+    if summary.metrics.response_hash_coverage != expected_hash_coverage:
+        result._err(f"{rel}: metrics.response_hash_coverage mismatch")
+    for idx, item in enumerate(summary.observations):
+        if len(item.state_hashes) != item.turns:
+            result._err(f"{rel}: observations[{idx}].state_hashes length mismatch")
+        for turn_idx, digest in enumerate(item.state_hashes):
+            _validate_optional_sha256(
+                digest,
+                f"{rel}: observations[{idx}].state_hashes[{turn_idx}]",
+                result,
+            )
+        if item.mode == "bounded" and item.accepted_unsafe:
+            result._err(f"{rel}: observations[{idx}] bounded accepted unsafe")
+        if item.mode == "benign" and item.false_block:
+            result._err(f"{rel}: observations[{idx}] benign false block")
+    ablation_by_control: dict[str, int] = {}
+    for item in summary.observations:
+        if item.mode != "ablation" or not item.accepted_unsafe:
+            continue
+        for control in item.missing_control_acceptances:
+            key = str(control)
+            ablation_by_control[key] = ablation_by_control.get(key, 0) + 1
+    if summary.metrics.ablation_reopenings_by_control != ablation_by_control:
+        result._err(f"{rel}: metrics.ablation_reopenings_by_control mismatch")
+    if _contains_forbidden_raw_fields(raw):
+        result._err(f"{rel}: public artifact contains raw/private fields")
+    for required in ("swarm_resilience_report.md", "swarm_resilience_digest.json"):
+        if not (path / required).exists():
+            result._err(f"{_rel(path / required, root)}: missing")
+    _validate_swarm_resilience_digest(
+        path / "swarm_resilience_digest.json",
+        summary,
+        root,
+        result,
+    )
+    for private_name in (
+        "swarm_resilience_private.json",
+        "swarm_resilience_private.md",
+    ):
+        if (path / private_name).exists():
+            result._err(
+                f"{_rel(path / private_name, root)}: private resilience "
+                "artifact must stay under .internal/"
+            )
+    _validate_run_manifest(path, root, result)
+    for name in (
+        "swarm_resilience_summary.json",
+        "swarm_resilience_report.md",
+        "swarm_resilience_digest.json",
+        "README.md",
+    ):
+        candidate = path / name
+        if candidate.exists():
+            _scan_secrets(candidate, root, result)
+
+
 def _validate_marketing_web_live_campaign_dir(
     path: Path, root: Path, result: ValidationResult
 ) -> None:
@@ -1311,6 +1446,43 @@ def _validate_marketing_web_live_digest(
             result._err(f"{rel}: metrics.{key} mismatch")
 
 
+def _validate_swarm_resilience_digest(
+    digest_path: Path,
+    summary: Any,
+    root: Path,
+    result: ValidationResult,
+) -> None:
+    if not digest_path.exists():
+        return
+    rel = _rel(digest_path, root)
+    raw = _load_json(digest_path, root, result)
+    if raw is None:
+        return
+    for key, expected in (
+        ("schema_version", summary.schema_version),
+        ("run_kind", summary.run_kind),
+        ("created_at", summary.created_at),
+    ):
+        if raw.get(key) != expected:
+            result._err(f"{rel}: {key} mismatch")
+    for key in (
+        "synthetic_payload_notes_present",
+        "private_calculation_traces_present",
+        "raw_prompts_present",
+        "raw_responses_present",
+    ):
+        if raw.get(key) is not False:
+            result._err(f"{rel}: {key} must be false")
+    digest_metrics = raw.get("metrics")
+    if not isinstance(digest_metrics, dict):
+        result._err(f"{rel}: metrics missing or not an object")
+        return
+    summary_metrics = summary.metrics.model_dump()
+    for key, value in digest_metrics.items():
+        if summary_metrics.get(key) != value:
+            result._err(f"{rel}: metrics.{key} mismatch")
+
+
 def _contains_forbidden_raw_fields(value: Any) -> bool:
     forbidden = {
         "raw_prompt",
@@ -1331,6 +1503,9 @@ def _contains_forbidden_raw_fields(value: Any) -> bool:
         "canonical_state_hash",
         "raw_transcript",
         "synthetic_canary",
+        "synthetic_payload_notes",
+        "state_vectors_by_step",
+        "calculation_notes",
     }
     if isinstance(value, dict):
         return any(key in forbidden for key in value) or any(

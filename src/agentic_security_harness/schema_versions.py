@@ -32,6 +32,7 @@ SCHEMA_VERSIONS: dict[str, str] = {
     "swarm_defense_live_campaign": "0.3",  # swarm_defense_live_summary.json
     "marketing_web_injection_campaign": "0.1",  # marketing_web_injection_summary.json
     "marketing_web_live_campaign": "0.1",  # marketing_web_live_summary.json
+    "swarm_resilience_campaign": "0.1",  # swarm_resilience_summary.json
 }
 
 # Current implemented defensive corpus revision. Artifact schema versions describe file
