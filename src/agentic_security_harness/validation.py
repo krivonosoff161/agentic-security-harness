@@ -52,6 +52,7 @@ _SECRET_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("ASH-SEMDRIFT", re.compile(r"ASH-SEMDRIFT-[A-F0-9]{8,}-[A-F0-9]{8,}")),
     ("ASH-SEMPROP", re.compile(r"ASH-SEMPROP-[A-F0-9]{8,}-[A-F0-9]{8,}")),
 ]
+_SHA256_HEX = re.compile(r"^[0-9a-f]{64}$")
 
 
 class ValidationResult(BaseModel):
@@ -736,6 +737,40 @@ def _validate_swarm_defense_live_campaign_dir(
         for item in summary.observations
     ):
         result._err(f"{rel}: worker_turn_response_sha256 length mismatch")
+    for idx, item in enumerate(summary.observations):
+        _validate_optional_sha256(
+            item.worker_response_sha256,
+            f"{rel}: observations[{idx}].worker_response_sha256",
+            result,
+        )
+        _validate_optional_sha256(
+            item.counter_worker_response_sha256,
+            f"{rel}: observations[{idx}].counter_worker_response_sha256",
+            result,
+        )
+        _validate_optional_sha256(
+            item.chief_response_sha256,
+            f"{rel}: observations[{idx}].chief_response_sha256",
+            result,
+        )
+        for turn_idx, digest in enumerate(item.worker_turn_response_sha256):
+            _validate_optional_sha256(
+                digest,
+                (
+                    f"{rel}: observations[{idx}].worker_turn_response_sha256"
+                    f"[{turn_idx}]"
+                ),
+                result,
+            )
+        if not item.adapter_error:
+            if not item.worker_response_sha256:
+                result._err(
+                    f"{rel}: observations[{idx}].worker_response_sha256 missing"
+                )
+            if not item.chief_response_sha256:
+                result._err(
+                    f"{rel}: observations[{idx}].chief_response_sha256 missing"
+                )
     ablation_by_control: dict[str, int] = {}
     for item in summary.observations:
         if item.verifier_decision != "block":
@@ -772,6 +807,12 @@ def _validate_swarm_defense_live_campaign_dir(
     ):
         if not (path / required).exists():
             result._err(f"{_rel(path / required, root)}: missing")
+    _validate_swarm_defense_live_digest(
+        path / "swarm_defense_live_digest.json",
+        summary,
+        root,
+        result,
+    )
     for private_name in (
         "swarm_defense_live_private.json",
         "swarm_defense_live_private.md",
@@ -791,6 +832,49 @@ def _validate_swarm_defense_live_campaign_dir(
         candidate = path / name
         if candidate.exists():
             _scan_secrets(candidate, root, result)
+
+
+def _validate_optional_sha256(
+    value: str, label: str, result: ValidationResult
+) -> None:
+    if value and not _SHA256_HEX.fullmatch(value):
+        result._err(f"{label}: expected lowercase SHA-256 hex digest")
+
+
+def _validate_swarm_defense_live_digest(
+    digest_path: Path,
+    summary: Any,
+    root: Path,
+    result: ValidationResult,
+) -> None:
+    if not digest_path.exists():
+        return
+    rel = _rel(digest_path, root)
+    raw = _load_json(digest_path, root, result)
+    if raw is None:
+        return
+    for key, expected in (
+        ("schema_version", summary.schema_version),
+        ("run_kind", summary.run_kind),
+        ("created_at", summary.created_at),
+    ):
+        if raw.get(key) != expected:
+            result._err(f"{rel}: {key} mismatch")
+    for key in (
+        "raw_prompts_present",
+        "raw_responses_present",
+        "canary_values_present",
+    ):
+        if raw.get(key) is not False:
+            result._err(f"{rel}: {key} must be false")
+    digest_metrics = raw.get("metrics")
+    if not isinstance(digest_metrics, dict):
+        result._err(f"{rel}: metrics missing or not an object")
+        return
+    summary_metrics = summary.metrics.model_dump()
+    for key, value in digest_metrics.items():
+        if summary_metrics.get(key) != value:
+            result._err(f"{rel}: metrics.{key} mismatch")
 
 
 def _contains_forbidden_raw_fields(value: Any) -> bool:

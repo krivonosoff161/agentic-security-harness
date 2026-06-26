@@ -3,12 +3,15 @@
 These directories are curated snapshots of real `ash` output. Some are deterministic
 local benchmark examples; others are sanitized local-empirical campaign summaries whose
 raw prompts, responses, canonical-state hashes, and synthetic canaries stay private under
-`.internal/`. They are checked by `ash validate examples/` in CI, so they always match
-the current artifact format. Nothing here contains secrets, real payloads, or local
+`.internal/`. They are checked by `ash validate examples/` in CI against artifact
+formats supported by the current tool; some curated examples may intentionally remain on
+older readable schema versions. Nothing here contains secrets, real payloads, or local
 absolute paths. Each report directory has its own README that explains what produced it,
 how to read it, how to validate it, and what it does not prove.
 Before promoting any example as a public demo or release showcase, use the
 [public showcase report checklist](../docs/showcase-report-checklist.md).
+For local-model campaign publication rules, read
+[private-public-evidence-boundary.md](../docs/private-public-evidence-boundary.md).
 
 ```bash
 # validate every example in one shot
@@ -36,8 +39,8 @@ ash validate examples/
 | [`secret-leak-variations-sanitized/`](secret-leak-variations-sanitized/) | Sanitized live local-model variation smoke: 8 secret-egress pressure cases x 4 pressure modes x 2 Ollama models, with raw prompts/responses kept private. | `ash secret-leak-campaign --execute-variations --out .internal/secret-leak-variations/latest --variation-summary-out reports/secret-leak-variations` |
 | [`semantic-drift-sanitized/`](semantic-drift-sanitized/) | Sanitized semantic parameter-drift campaign: 4 relabeling cases x 4 pressure modes x 5 Ollama models, with raw prompts/responses/canaries kept private. | `ash semantic-drift-campaign --execute --out .internal/semantic-drift/latest --summary-out reports/semantic-drift` |
 | [`semantic-propagation-sanitized/`](semantic-propagation-sanitized/) | Sanitized worker-to-chief propagation smoke: 4 propagation cases, 2 pressure modes, qwen2.5 worker, llama3.2 chief, 1 adapter error, and 87.5% response-hash coverage, with raw prompts/responses/canaries kept private. | `ash semantic-propagation-campaign --execute --out .internal/semantic-propagation/latest --summary-out reports/semantic-propagation` |
-| [`swarm-defense-live-sanitized/`](swarm-defense-live-sanitized/) | Sanitized live mini-swarm defense campaign: 15 contour topologies x 6 pressure modes x 2 worker models x 1 chief model, with replay-ablation attribution and raw prompts/responses/canaries kept private. | `ash swarm-defense-live-campaign --execute --out .internal/swarm-defense-live/full --summary-out reports/swarm-defense-live-full` |
-| [`swarm-defense-live-long-session-sanitized/`](swarm-defense-live-long-session-sanitized/) | Sanitized long-session supplement: 15 contour topologies x 3 worker turns under `long_session_relabel`, with public per-turn response hashes and raw prompts/responses/canaries kept private. | `ash swarm-defense-live-campaign --execute --out .internal/swarm-defense-live/long-session --summary-out reports/swarm-defense-live-long-session --pressure-mode long_session_relabel --session-turns 3` |
+| [`swarm-defense-live-sanitized/`](swarm-defense-live-sanitized/) | Sanitized local-model mini-swarm campaign: 15 contour topologies x 6 pressure modes x 2 worker models x 1 chief model, with replay-ablation attribution and raw prompts/responses/canaries kept private. | `ash swarm-defense-live-campaign --execute --out .internal/swarm-defense-live/full --summary-out reports/swarm-defense-live-full --pressure-mode gentle_reframe --pressure-mode pseudo_code --pressure-mode memory_rewrite --pressure-mode authority_pressure --pressure-mode benign_debug --pressure-mode consensus_pressure` |
+| [`swarm-defense-live-long-session-sanitized/`](swarm-defense-live-long-session-sanitized/) | Sanitized long-session supplement: 15 observations, each with 3 worker turns under `long_session_relabel`, with public per-turn response hashes and raw prompts/responses/canaries kept private. | `ash swarm-defense-live-campaign --execute --out .internal/swarm-defense-live/long-session --summary-out reports/swarm-defense-live-long-session --pressure-mode long_session_relabel --session-turns 3` |
 | [`external-demo-report/`](external-demo-report/) | An external OpenAI-compatible run against the bundled fake server. | see below |
 | [`fake_openai_server.py`](fake_openai_server.py) | A deterministic local OpenAI-compatible server for the external path (no key, localhost only). | `python examples/fake_openai_server.py` |
 
@@ -57,7 +60,7 @@ external runs start with `external_report.md`; local-swarm runs start with
 `secret_leak_campaign_report.md`; secret-leak variation runs start with
 `secret_leak_variation_report.md`; semantic-drift runs start with
 `semantic_drift_report.md`; semantic-propagation runs start with
-`semantic_propagation_report.md`; live mini-swarm defense runs start with
+`semantic_propagation_report.md`; sanitized local-model mini-swarm runs start with
 `swarm_defense_live_report.md`.
 
 Or render any example as a single static HTML page (no network):

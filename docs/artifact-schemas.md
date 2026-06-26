@@ -6,10 +6,12 @@ tell whether it can read the file. The single source of truth is
 [`src/agentic_security_harness/schema_versions.py`](../src/agentic_security_harness/schema_versions.py);
 the models and the validator both read it, so they cannot drift.
 
-Public JSON Schema files live under [`../schemas/`](../schemas/). They are integration
-aids for external tools and document the top-level artifact contract. `ash validate`
-remains the authoritative validator because it also checks corpus consistency, schema
-registry compatibility, standards mapping, and forbidden marker scans.
+Public JSON Schema files live under [`../schemas/`](../schemas/) for stable core
+artifacts. Campaign artifacts that are not listed in `schemas/` are still
+schema-versioned and are validated by `ash validate` through the corresponding Pydantic
+models and consistency checks. `ash validate` remains the authoritative validator
+because it also checks corpus consistency, schema registry compatibility, standards
+mapping, and forbidden marker scans.
 
 ## Artifacts
 
@@ -86,11 +88,13 @@ Non-versioned by design:
 - `swarm_defense_live_summary.json` is a sanitized aggregate over private local-model
   worker/chief probes across the four-family local swarm defense contour. Raw prompts,
   raw responses, synthetic canary values, and calculation notes remain under
-  `.internal/`; the public artifact keeps only response hashes, aggregate labels,
-  pressure labels, control attribution, adapter-error counts, and response-hash
-  coverage. Version 0.2 adds public-safe replay-ablation reopenings. Version 0.3 adds
-  long-session metrics and per-turn public response hashes. Versions 0.1 and 0.2 remain
-  readable for older local artifacts.
+  `.internal/`; the public artifact keeps safe model ids, runtime roles, topology ids,
+  scenario ids, pressure labels, response hashes, per-turn response hashes, aggregate
+  labels, adapter-error flags, verifier block attribution, replay-ablation metrics, and
+  response-hash coverage. Version 0.2 adds public-safe replay-ablation reopenings.
+  Version 0.3 adds long-session metrics and per-turn public response hashes. The
+  committed base example is legacy-readable schema 0.2; the long-session supplement is
+  schema 0.3. Versions 0.1 and 0.2 remain readable for older local artifacts.
 - Campaign digest files such as `evidence_campaign_digest.json`,
   `secret_leak_campaign_digest.json`, `semantic_drift_digest.json`,
   `semantic_propagation_digest.json`, and `swarm_defense_live_digest.json` are derived
