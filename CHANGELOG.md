@@ -7,6 +7,12 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- `docs/run-your-model.md`: a single cross-platform operator path for deterministic
+  demo, one OpenAI-compatible model, and local mini-swarm campaigns.
+- `docs/evidence-pack-format.md`: public rules for promoting private/local research
+  into sanitized, hash-anchored evidence updates with claim rows, tests, and validation.
+- `instruction-integrity` scenario family so named scenario groups cover the full
+  24-pattern corpus instead of leaving prompt/instruction patterns only under `all`.
 - Semantic propagation defense model v0.2: sanitized public artifacts now include a
   defensive control catalog, control-effect ablation rows, validator checks, and a
   reviewer note documenting the public/private evidence boundary.

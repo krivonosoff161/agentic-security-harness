@@ -26,6 +26,10 @@ Then verify by hand:
 - [ ] `ash --help` lists every command; no command errors on `--help`.
 - [ ] README "What exists today" / "Current vs planned" match the code (no future feature
       described as current).
+- [ ] `docs/run-your-model.md` still works as the shortest external operator path for
+      deterministic demo, one OpenAI-compatible model, and local mini-swarm runs.
+- [ ] Any new research result follows [evidence-pack-format.md](evidence-pack-format.md)
+      and the [private/public evidence boundary](private-public-evidence-boundary.md).
 - [ ] `docs/current-state.md`, `docs/roadmap.md`, and `docs/capability-matrix.md` agree
       on shipped / experimental / planned status.
 - [ ] `docs/authorized-testing-paths.md`, `SECURITY.md`, and adapter docs agree on
