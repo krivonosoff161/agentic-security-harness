@@ -34,6 +34,7 @@ mapping, and forbidden marker scans.
 | `semantic_drift_summary.json` | `semantic_drift_campaign` | 0.1 | `ash semantic-drift-campaign` | `ash validate` |
 | `semantic_propagation_summary.json` | `semantic_propagation_campaign` | 0.2 | `ash semantic-propagation-campaign` | `ash validate` |
 | `swarm_defense_live_summary.json` | `swarm_defense_live_campaign` | 0.3 | `ash swarm-defense-live-campaign` | `ash validate` |
+| `marketing_web_live_summary.json` | `marketing_web_live_campaign` | 0.1 | `ash marketing-web-live-campaign` | `ash validate` |
 
 `run_diff` v0.2 replaces the ambiguous v0.1 coarse labels (`fixed`, `new`,
 `changed`, `unchanged`) with explicit decisive/non-decisive counters such as
@@ -95,6 +96,13 @@ Non-versioned by design:
   Version 0.3 adds long-session metrics and per-turn public response hashes. The
   committed base example is legacy-readable schema 0.2; the long-session supplement is
   schema 0.3. Versions 0.1 and 0.2 remain readable for older local artifacts.
+- `marketing_web_live_summary.json` is a sanitized aggregate over private local-model
+  worker/chief probes against an owned local web stand. Raw local HTML pages, prompts,
+  model responses, synthetic strategy values, and calculation notes remain under
+  `.internal/`; the public artifact keeps scenario ids, modes, safe model ids,
+  page URL/content hashes, worker/chief response hashes, per-turn response hashes, leak
+  kind labels, verifier decisions, control attribution, aggregate metrics, and
+  non-claims.
 - Campaign digest files such as `evidence_campaign_digest.json`,
   `secret_leak_campaign_digest.json`, `semantic_drift_digest.json`,
   `semantic_propagation_digest.json`, and `swarm_defense_live_digest.json` are derived

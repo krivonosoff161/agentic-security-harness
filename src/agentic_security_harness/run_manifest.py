@@ -34,6 +34,7 @@ _RUN_KINDS = frozenset(
         "swarm_defense_contour",
         "swarm_defense_live_campaign",
         "marketing_web_injection_campaign",
+        "marketing_web_live_campaign",
     }
 )
 

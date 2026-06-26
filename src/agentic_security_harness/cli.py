@@ -1056,6 +1056,69 @@ def build_parser() -> argparse.ArgumentParser:
         help="write private raw and sanitized public artifacts",
     )
 
+    marketing_web_live_p = sub.add_parser(
+        "marketing-web-live-campaign",
+        help="run private local-model probes over an owned local web-injection stand",
+    )
+    marketing_web_live_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path(".internal/marketing-web-live/latest"),
+        help="private output directory (default: .internal/marketing-web-live/latest)",
+    )
+    marketing_web_live_p.add_argument(
+        "--summary-out",
+        type=Path,
+        default=Path("reports/marketing-web-live"),
+        help="sanitized output directory (default: reports/marketing-web-live)",
+    )
+    marketing_web_live_p.add_argument(
+        "--base-url",
+        default="http://127.0.0.1:11434/v1",
+        help="OpenAI-compatible local base URL (default: Ollama)",
+    )
+    marketing_web_live_p.add_argument(
+        "--worker-model",
+        action="append",
+        default=None,
+        help="local worker model; repeatable (default: qwen2.5:0.5b)",
+    )
+    marketing_web_live_p.add_argument(
+        "--chief-model",
+        action="append",
+        default=None,
+        help="local chief model; repeatable (default: llama3.2:1b)",
+    )
+    marketing_web_live_p.add_argument(
+        "--max-scenarios",
+        type=int,
+        default=5,
+        help="maximum scenario count to probe (default: 5)",
+    )
+    marketing_web_live_p.add_argument(
+        "--session-turns",
+        type=int,
+        default=3,
+        help="worker turns before chief review for unsafe rows (default: 3)",
+    )
+    marketing_web_live_p.add_argument(
+        "--max-requests",
+        type=int,
+        default=500,
+        help="hard cap on estimated model requests (default: 500)",
+    )
+    marketing_web_live_p.add_argument(
+        "--timeout",
+        type=int,
+        default=60,
+        help="per-request timeout in seconds (default: 60)",
+    )
+    marketing_web_live_p.add_argument(
+        "--execute",
+        action="store_true",
+        help="actually call local models and write private/sanitized artifacts",
+    )
+
     return parser
 
 
@@ -1160,7 +1223,9 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.swarm_defense_live_campaign_dirs)} "
         "swarm-defense-live-campaign dir(s), "
         f"{len(result.marketing_web_injection_campaign_dirs)} "
-        "marketing-web-injection-campaign dir(s)"
+        "marketing-web-injection-campaign dir(s), "
+        f"{len(result.marketing_web_live_campaign_dirs)} "
+        "marketing-web-live-campaign dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
     if redacted_errors or redacted_warnings:
@@ -2646,6 +2711,87 @@ def _marketing_web_injection_campaign(
     return 0
 
 
+def _marketing_web_live_campaign(
+    *,
+    out: Path,
+    summary_out: Path,
+    base_url: str,
+    worker_models: list[str] | None,
+    chief_models: list[str] | None,
+    max_scenarios: int,
+    session_turns: int,
+    max_requests: int,
+    timeout: int,
+    execute: bool,
+) -> int:
+    from agentic_security_harness.marketing_web_live_campaign import (
+        build_live_marketing_web_summary,
+        estimate_live_marketing_request_count,
+        run_live_marketing_web_campaign,
+        write_live_marketing_web_artifacts,
+        write_live_marketing_web_private_artifacts,
+    )
+    from agentic_security_harness.validation import validate_path
+
+    workers = worker_models or ["qwen2.5:0.5b"]
+    chiefs = chief_models or ["llama3.2:1b"]
+    estimated = estimate_live_marketing_request_count(
+        scenario_count=max_scenarios,
+        worker_models=workers,
+        chief_models=chiefs,
+        session_turns=session_turns,
+    )
+    print("marketing-web-live-campaign prepared.")
+    print("Scope: owned local HTTP pages + local OpenAI-compatible models only.")
+    print("Raw pages/prompts/responses/synthetic strategy values must stay under .internal/.")
+    print(
+        f"worker_models={workers} chief_models={chiefs} "
+        f"max_scenarios={max_scenarios} session_turns={session_turns} "
+        f"estimated_requests={estimated} max_requests={max_requests}"
+    )
+    if not execute:
+        print("Dry-run only. Add --execute to call local models and write artifacts.")
+        return 0
+    if ".internal" not in out.parts:
+        print("Error: --out for live campaign must be under .internal/")
+        return 1
+    try:
+        private_run = run_live_marketing_web_campaign(
+            base_url=base_url,
+            worker_models=workers,
+            chief_models=chiefs,
+            max_scenarios=max_scenarios,
+            session_turns=session_turns,
+            timeout_seconds=timeout,
+            max_requests=max_requests,
+            created_at=_now_utc(),
+        )
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
+    summary = build_live_marketing_web_summary(private_run, created_at=_now_utc())
+    private_paths = write_live_marketing_web_private_artifacts(out, private_run)
+    public_paths = write_live_marketing_web_artifacts(summary_out, summary)
+    print(f"wrote {len(private_paths)} private artifact(s) to {out.as_posix()}")
+    for path in public_paths:
+        print(f"wrote {path.as_posix()}")
+    result = validate_path(summary_out)
+    if not result.ok:
+        print(f"Validation FAILED for {redact_artifact_text(summary_out.as_posix())}:")
+        print(f"errors: {len(result.errors)}")
+        return 1
+    print(f"validated {summary_out.as_posix()} (artifact integrity only).")
+    print(
+        f"observations={summary.metrics.observations} "
+        f"naive_final_leaks={summary.metrics.naive_final_leaks} "
+        f"bounded_final_leaks={summary.metrics.bounded_final_leaks} "
+        f"ablation_final_leaks={summary.metrics.ablation_final_leaks} "
+        f"benign_final_leaks={summary.metrics.benign_final_leaks} "
+        f"blocks={summary.metrics.verifier_blocks}"
+    )
+    return 0
+
+
 def _list_runs(root: Path, db: Path | None) -> int:
     if db is not None:
         from agentic_security_harness.rundb import list_db_runs
@@ -3024,6 +3170,19 @@ def main(argv: list[str] | None = None) -> int:
             out=args.out,
             summary_out=args.summary_out,
             write=args.write,
+        )
+    if args.command == "marketing-web-live-campaign":
+        return _marketing_web_live_campaign(
+            out=args.out,
+            summary_out=args.summary_out,
+            base_url=args.base_url,
+            worker_models=args.worker_model,
+            chief_models=args.chief_model,
+            max_scenarios=args.max_scenarios,
+            session_turns=args.session_turns,
+            max_requests=args.max_requests,
+            timeout=args.timeout,
+            execute=args.execute,
         )
     if args.command == "doctor":
         return _doctor(

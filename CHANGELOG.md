@@ -7,6 +7,11 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Live local-model marketing web-injection campaign: `ash marketing-web-live-campaign`
+  runs an owned localhost web stand against local worker/chief models, writes raw
+  pages/prompts/responses under `.internal/`, publishes a sanitized example under
+  `examples/marketing-web-live-sanitized/`, and validates public page/response hashes,
+  control attribution, bounded-vs-ablation outcomes, and benign pass behavior.
 - Marketing web-injection campaign: `ash marketing-web-injection-campaign` models a
   controlled offline marketing/ads analytics swarm reading hostile web-like material,
   writes private raw artifacts under `.internal/`, publishes a sanitized example under
