@@ -45,6 +45,7 @@ ash validate examples/
 | [`swarm-defense-live-sanitized/`](swarm-defense-live-sanitized/) | Sanitized local-model mini-swarm campaign: 15 contour topologies x 6 pressure modes x 2 worker models x 1 chief model, with replay-ablation attribution and raw prompts/responses/canaries kept private. | `ash swarm-defense-live-campaign --execute --out .internal/swarm-defense-live/full --summary-out reports/swarm-defense-live-full --pressure-mode gentle_reframe --pressure-mode pseudo_code --pressure-mode memory_rewrite --pressure-mode authority_pressure --pressure-mode benign_debug --pressure-mode consensus_pressure` |
 | [`swarm-defense-live-long-session-sanitized/`](swarm-defense-live-long-session-sanitized/) | Sanitized long-session supplement: 15 observations, each with 3 worker turns under `long_session_relabel`, with public per-turn response hashes and raw prompts/responses/canaries kept private. | `ash swarm-defense-live-campaign --execute --out .internal/swarm-defense-live/long-session --summary-out reports/swarm-defense-live-long-session --pressure-mode long_session_relabel --session-turns 3` |
 | [`swarm-defense-live-deep-sanitized/`](swarm-defense-live-deep-sanitized/) | Sanitized deep local-model mini-swarm campaign: 168 observations across 6 contour topologies, 7 pressure modes, 2 worker models, and 2 chief models, with Wilson intervals, model breakdowns, and raw prompts/responses/canaries kept private. | `ash swarm-defense-live-campaign --execute --out .internal/swarm-defense-live/deep --summary-out reports/swarm-defense-live-deep --worker-model qwen2.5:0.5b --worker-model qwen2.5-coder:0.5b-instruct --chief-model llama3.2:1b --chief-model prometheus-qwen15b-lowctx:latest --session-turns 3 --max-topologies 6 --max-requests 900` |
+| [`marketing-web-injection-sanitized/`](marketing-web-injection-sanitized/) | Sanitized controlled offline marketing/ads web-injection campaign: naive leaks 5/5, bounded leaks 0/5, ablation leaks 21/21, benign runs 5/5 allowed; raw hostile pages/prompts/responses/strategy values stay private. | `ash marketing-web-injection-campaign --write --out .internal/marketing-web-injection/latest --summary-out reports/marketing-web-injection` |
 | [`external-demo-report/`](external-demo-report/) | An external OpenAI-compatible run against the bundled fake server. | see below |
 | [`fake_openai_server.py`](fake_openai_server.py) | A deterministic local OpenAI-compatible server for the external path (no key, localhost only). | `python examples/fake_openai_server.py` |
 
@@ -65,7 +66,8 @@ external runs start with `external_report.md`; local-swarm runs start with
 `secret_leak_variation_report.md`; semantic-drift runs start with
 `semantic_drift_report.md`; semantic-propagation runs start with
 `semantic_propagation_report.md`; sanitized local-model mini-swarm runs start with
-`swarm_defense_live_report.md`.
+`swarm_defense_live_report.md`; marketing web-injection runs start with
+`marketing_web_injection_report.md`.
 
 Or render any example as a single static HTML page (no network):
 

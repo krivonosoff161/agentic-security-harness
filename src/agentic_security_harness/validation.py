@@ -76,6 +76,7 @@ class ValidationResult(BaseModel):
     semantic_propagation_campaign_dirs: list[str] = Field(default_factory=list)
     swarm_defense_contour_dirs: list[str] = Field(default_factory=list)
     swarm_defense_live_campaign_dirs: list[str] = Field(default_factory=list)
+    marketing_web_injection_campaign_dirs: list[str] = Field(default_factory=list)
 
     def _err(self, msg: str) -> None:
         self.errors.append(msg)
@@ -146,6 +147,10 @@ def _is_swarm_defense_live_campaign_dir(path: Path) -> bool:
     return (path / "swarm_defense_live_summary.json").exists()
 
 
+def _is_marketing_web_injection_campaign_dir(path: Path) -> bool:
+    return (path / "marketing_web_injection_summary.json").exists()
+
+
 def validate_path(path: Path) -> ValidationResult:
     """Validate a report dir, a comparison dir, or a directory of such dirs.
 
@@ -201,6 +206,9 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
     elif _is_swarm_defense_live_campaign_dir(path):
         result.swarm_defense_live_campaign_dirs.append(_rel(path, root))
         _validate_swarm_defense_live_campaign_dir(path, root, result)
+    elif _is_marketing_web_injection_campaign_dir(path):
+        result.marketing_web_injection_campaign_dirs.append(_rel(path, root))
+        _validate_marketing_web_injection_campaign_dir(path, root, result)
     elif (path / "run_diff.json").exists():
         result.run_diff_dirs.append(_rel(path, root))
         _validate_run_diff_dir(path, root, result)
@@ -910,6 +918,132 @@ def _validate_swarm_defense_live_campaign_dir(
             _scan_secrets(candidate, root, result)
 
 
+def _validate_marketing_web_injection_campaign_dir(
+    path: Path, root: Path, result: ValidationResult
+) -> None:
+    rel = _rel(path / "marketing_web_injection_summary.json", root)
+    raw = _load_json(path / "marketing_web_injection_summary.json", root, result)
+    if raw is None:
+        return
+    _check_schema_version_file(
+        path / "marketing_web_injection_summary.json",
+        "marketing_web_injection_campaign",
+        root,
+        result,
+    )
+    from agentic_security_harness.marketing_web_injection_campaign import (
+        MarketingWebInjectionSummary,
+    )
+
+    try:
+        summary = MarketingWebInjectionSummary.model_validate(raw)
+    except ValidationError as exc:
+        result._err(f"{rel}: schema: {_fmt_error(exc)}")
+        return
+    observations = summary.observations
+    if summary.metrics.observations != len(observations):
+        result._err(f"{rel}: metrics.observations does not match observation count")
+    if summary.metrics.scenarios != len(summary.scenarios):
+        result._err(f"{rel}: metrics.scenarios does not match scenario count")
+    naive = [row for row in observations if row.mode == "naive"]
+    bounded = [row for row in observations if row.mode == "bounded"]
+    ablation = [row for row in observations if row.mode == "ablation"]
+    benign = [row for row in observations if row.mode == "benign"]
+    unsafe = [row for row in observations if row.attack_attempted]
+    if summary.metrics.naive_observations != len(naive):
+        result._err(f"{rel}: metrics.naive_observations mismatch")
+    if summary.metrics.bounded_observations != len(bounded):
+        result._err(f"{rel}: metrics.bounded_observations mismatch")
+    if summary.metrics.ablation_observations != len(ablation):
+        result._err(f"{rel}: metrics.ablation_observations mismatch")
+    if summary.metrics.benign_observations != len(benign):
+        result._err(f"{rel}: metrics.benign_observations mismatch")
+    if summary.metrics.unsafe_observations != len(unsafe):
+        result._err(f"{rel}: metrics.unsafe_observations mismatch")
+    if summary.metrics.naive_leaks != sum(1 for row in naive if row.leak_detected):
+        result._err(f"{rel}: metrics.naive_leaks mismatch")
+    if summary.metrics.bounded_leaks != sum(1 for row in bounded if row.leak_detected):
+        result._err(f"{rel}: metrics.bounded_leaks mismatch")
+    if summary.metrics.ablation_leaks != sum(
+        1 for row in ablation if row.leak_detected
+    ):
+        result._err(f"{rel}: metrics.ablation_leaks mismatch")
+    if summary.metrics.benign_leaks != sum(1 for row in benign if row.leak_detected):
+        result._err(f"{rel}: metrics.benign_leaks mismatch")
+    if summary.metrics.verifier_blocks != sum(
+        1 for row in observations if row.verifier_decision == "block"
+    ):
+        result._err(f"{rel}: metrics.verifier_blocks mismatch")
+    if summary.metrics.false_blocks != sum(
+        1 for row in benign if row.verifier_decision == "block"
+    ):
+        result._err(f"{rel}: metrics.false_blocks mismatch")
+    unsafe_blocks = sum(1 for row in unsafe if row.verifier_decision == "block")
+    benign_allows = sum(1 for row in benign if row.verifier_decision == "allow")
+    expected_unsafe_block_rate = unsafe_blocks / len(unsafe) if unsafe else 0.0
+    expected_benign_allow_rate = benign_allows / len(benign) if benign else 0.0
+    if summary.metrics.unsafe_block_rate != round(expected_unsafe_block_rate, 4):
+        result._err(f"{rel}: metrics.unsafe_block_rate mismatch")
+    if summary.metrics.benign_allow_rate != round(expected_benign_allow_rate, 4):
+        result._err(f"{rel}: metrics.benign_allow_rate mismatch")
+    expected_attribution = (
+        sum(1 for row in ablation if row.leak_detected and row.missing_control_acceptances)
+        / len(ablation)
+        if ablation
+        else 0.0
+    )
+    if summary.metrics.control_attribution_rate != round(expected_attribution, 4):
+        result._err(f"{rel}: metrics.control_attribution_rate mismatch")
+    for idx, item in enumerate(observations):
+        _validate_optional_sha256(
+            item.worker_response_sha256,
+            f"{rel}: observations[{idx}].worker_response_sha256",
+            result,
+        )
+        _validate_optional_sha256(
+            item.chief_response_sha256,
+            f"{rel}: observations[{idx}].chief_response_sha256",
+            result,
+        )
+        if not item.worker_response_sha256:
+            result._err(f"{rel}: observations[{idx}].worker_response_sha256 missing")
+        if not item.chief_response_sha256:
+            result._err(f"{rel}: observations[{idx}].chief_response_sha256 missing")
+    if _contains_forbidden_raw_fields(raw):
+        result._err(f"{rel}: public artifact contains raw/private fields")
+    for required in (
+        "marketing_web_injection_report.md",
+        "marketing_web_injection_digest.json",
+    ):
+        if not (path / required).exists():
+            result._err(f"{_rel(path / required, root)}: missing")
+    _validate_marketing_web_injection_digest(
+        path / "marketing_web_injection_digest.json",
+        summary,
+        root,
+        result,
+    )
+    for private_name in (
+        "marketing_web_injection_private.json",
+        "marketing_web_injection_private.md",
+    ):
+        if (path / private_name).exists():
+            result._err(
+                f"{_rel(path / private_name, root)}: private marketing-web "
+                "artifact must stay under .internal/"
+            )
+    _validate_run_manifest(path, root, result)
+    for name in (
+        "marketing_web_injection_summary.json",
+        "marketing_web_injection_report.md",
+        "marketing_web_injection_digest.json",
+        "README.md",
+    ):
+        candidate = path / name
+        if candidate.exists():
+            _scan_secrets(candidate, root, result)
+
+
 def _validate_optional_sha256(
     value: str, label: str, result: ValidationResult
 ) -> None:
@@ -940,6 +1074,43 @@ def _validate_swarm_defense_live_digest(
         "raw_prompts_present",
         "raw_responses_present",
         "canary_values_present",
+    ):
+        if raw.get(key) is not False:
+            result._err(f"{rel}: {key} must be false")
+    digest_metrics = raw.get("metrics")
+    if not isinstance(digest_metrics, dict):
+        result._err(f"{rel}: metrics missing or not an object")
+        return
+    summary_metrics = summary.metrics.model_dump()
+    for key, value in digest_metrics.items():
+        if summary_metrics.get(key) != value:
+            result._err(f"{rel}: metrics.{key} mismatch")
+
+
+def _validate_marketing_web_injection_digest(
+    digest_path: Path,
+    summary: Any,
+    root: Path,
+    result: ValidationResult,
+) -> None:
+    if not digest_path.exists():
+        return
+    rel = _rel(digest_path, root)
+    raw = _load_json(digest_path, root, result)
+    if raw is None:
+        return
+    for key, expected in (
+        ("schema_version", summary.schema_version),
+        ("run_kind", summary.run_kind),
+        ("created_at", summary.created_at),
+    ):
+        if raw.get(key) != expected:
+            result._err(f"{rel}: {key} mismatch")
+    for key in (
+        "raw_pages_present",
+        "raw_prompts_present",
+        "raw_responses_present",
+        "synthetic_strategy_values_present",
     ):
         if raw.get(key) is not False:
             result._err(f"{rel}: {key} must be false")

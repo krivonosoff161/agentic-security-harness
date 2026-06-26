@@ -7,6 +7,11 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Marketing web-injection campaign: `ash marketing-web-injection-campaign` models a
+  controlled offline marketing/ads analytics swarm reading hostile web-like material,
+  writes private raw artifacts under `.internal/`, publishes a sanitized example under
+  `examples/marketing-web-injection-sanitized/`, and validates naive/bounded/ablation/
+  benign outcomes without exposing synthetic strategy values.
 - Deep sanitized local-model mini-swarm evidence pack:
   `examples/swarm-defense-live-deep-sanitized/` records 168 private local-model
   observations as public-safe hashes and aggregate metrics, including unsafe/benign

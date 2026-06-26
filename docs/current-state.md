@@ -45,6 +45,7 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | Semantic consensus laundering closure | Closed sub-unit | `semantic-consensus-laundering-closure.md` isolates the existing two-worker consensus case: bounded acceptance 0, naive acceptance 1, and `cross_worker_check` ablation acceptance 1 under sanitized propagation artifacts. |
 | Local swarm defense contour | Shipped synthetic defense slice | `ash swarm-defense-contour` combines four local-swarm failure families across 15 non-empty family combinations; bounded acceptances are 0, naive acceptances are 15, and control ablations reopen the declared dependent paths. Raw local-model probes remain private. |
 | Sanitized local-model mini-swarm campaign | Shipped local empirical slice | `ash swarm-defense-live-campaign` runs private local worker/chief probes over the four-family contour and writes sanitized public summaries; the committed base example records 180 observations, 22 chief acceptances, 1 worker drift detection, 0 canary leaks, 22 verifier blocks, 96 replay-ablation reopenings, 0 adapter errors, and 100% response-hash coverage. A supplemental long-session example records 15 observations, each with 3 worker turns, 1 chief acceptance, 1 verifier block, 4 replay-ablation reopenings, 1 adapter error, and 0 canary leaks. A deep multi-model example records 168 observations, 67 chief acceptances, 3 worker drift detections, 0 canary leaks, 70 verifier blocks, 70/70 unsafe chains blocked, 91/91 benign chains allowed, 242 replay-ablation reopenings, and 100% response/turn-hash coverage for non-adapter-error rows. Public fields are bounded by `docs/private-public-evidence-boundary.md`. |
+| Marketing web-injection swarm campaign | Shipped synthetic defense slice | `ash marketing-web-injection-campaign` models an offline marketing/ads web-ingestion swarm with hostile page text, synthetic internal strategy/contract values, naive/bounded/ablation/benign modes, sanitized public summaries, and validation support. The committed example records naive leaks 5/5, bounded leaks 0/5, ablation leaks 21/21, benign runs 5/5 allowed, and response-hash coverage 100%. |
 | Public evidence map | Shipped docs slice | `docs/showcase/evidence-map.md` links each front-page metric to the artifact, reproduce command, claim, and non-claim. |
 | Evidence pack format | Shipped docs slice | `docs/evidence-pack-format.md` defines how future local research becomes sanitized public evidence with private/public boundaries, hashes, claim rows, tests, and validation commands. |
 | Local real-model swarm probes | Local empirical | Prometheus and qwen2.5 have executed the full 15-scenario swarm suite with 100% transcript-hash coverage and 0% adapter-error rate; model text remains evidence-quality context only. |
@@ -83,6 +84,9 @@ These features exist, but their results must be read conservatively:
   prompts, responses, canaries, and calculation notes stay under `.internal/`.
   `--session-turns` enables bounded long-session pressure while still keeping raw turns
   private.
+- `ash marketing-web-injection-campaign`: controlled offline marketing/ads
+  web-ingestion campaign. It is synthetic and no-network; live web tests are not part of
+  the current shipped claim.
 - Scenario matrix and timeline variants: deterministic local replay metadata and pattern
   subsets, not live multi-tool execution.
 

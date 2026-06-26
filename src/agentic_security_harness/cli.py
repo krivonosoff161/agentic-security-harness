@@ -1028,6 +1028,34 @@ def build_parser() -> argparse.ArgumentParser:
         help="actually call local models and write private/sanitized artifacts",
     )
 
+    marketing_web_p = sub.add_parser(
+        "marketing-web-injection-campaign",
+        help="build a controlled synthetic web-injection campaign for a marketing swarm",
+    )
+    marketing_web_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path(".internal/marketing-web-injection/latest"),
+        help=(
+            "private output directory "
+            "(default: .internal/marketing-web-injection/latest)"
+        ),
+    )
+    marketing_web_p.add_argument(
+        "--summary-out",
+        type=Path,
+        default=Path("reports/marketing-web-injection"),
+        help=(
+            "sanitized output directory "
+            "(default: reports/marketing-web-injection)"
+        ),
+    )
+    marketing_web_p.add_argument(
+        "--write",
+        action="store_true",
+        help="write private raw and sanitized public artifacts",
+    )
+
     return parser
 
 
@@ -1130,7 +1158,9 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.semantic_propagation_campaign_dirs)} semantic-propagation dir(s), "
         f"{len(result.swarm_defense_contour_dirs)} swarm-defense-contour dir(s), "
         f"{len(result.swarm_defense_live_campaign_dirs)} "
-        "swarm-defense-live-campaign dir(s)"
+        "swarm-defense-live-campaign dir(s), "
+        f"{len(result.marketing_web_injection_campaign_dirs)} "
+        "marketing-web-injection-campaign dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
     if redacted_errors or redacted_warnings:
@@ -2568,6 +2598,54 @@ def _swarm_defense_live_campaign(
     return 0
 
 
+def _marketing_web_injection_campaign(
+    *,
+    out: Path,
+    summary_out: Path,
+    write: bool,
+) -> int:
+    from agentic_security_harness.marketing_web_injection_campaign import (
+        build_marketing_web_private_run,
+        build_marketing_web_summary,
+        write_marketing_web_artifacts,
+        write_marketing_web_private_artifacts,
+    )
+    from agentic_security_harness.validation import validate_path
+
+    private_run = build_marketing_web_private_run(created_at=_now_utc())
+    summary = build_marketing_web_summary(private_run, created_at=_now_utc())
+    print("marketing-web-injection-campaign prepared.")
+    print("Network/model calls: none. Corpus is controlled synthetic web content.")
+    print("Raw pages/prompts/responses/synthetic strategy values must stay under .internal/.")
+    print(
+        f"scenarios={summary.metrics.scenarios} "
+        f"observations={summary.metrics.observations} "
+        f"naive_leaks={summary.metrics.naive_leaks} "
+        f"bounded_leaks={summary.metrics.bounded_leaks} "
+        f"ablation_leaks={summary.metrics.ablation_leaks} "
+        f"benign_leaks={summary.metrics.benign_leaks}"
+    )
+    if not write:
+        print("Dry-run only. Add --write to write private and sanitized artifacts.")
+        return 0
+    try:
+        private_paths = write_marketing_web_private_artifacts(out, private_run)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
+    public_paths = write_marketing_web_artifacts(summary_out, summary)
+    print(f"wrote {len(private_paths)} private artifact(s) to {out.as_posix()}")
+    for path in public_paths:
+        print(f"wrote {path.as_posix()}")
+    result = validate_path(summary_out)
+    if not result.ok:
+        print(f"Validation FAILED for {redact_artifact_text(summary_out.as_posix())}:")
+        print(f"errors: {len(result.errors)}")
+        return 1
+    print(f"validated {summary_out.as_posix()} (artifact integrity only).")
+    return 0
+
+
 def _list_runs(root: Path, db: Path | None) -> int:
     if db is not None:
         from agentic_security_harness.rundb import list_db_runs
@@ -2940,6 +3018,12 @@ def main(argv: list[str] | None = None) -> int:
             timeout=args.timeout,
             execute=args.execute,
             session_turns=args.session_turns,
+        )
+    if args.command == "marketing-web-injection-campaign":
+        return _marketing_web_injection_campaign(
+            out=args.out,
+            summary_out=args.summary_out,
+            write=args.write,
         )
     if args.command == "doctor":
         return _doctor(
