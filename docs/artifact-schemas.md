@@ -35,6 +35,7 @@ mapping, and forbidden marker scans.
 | `semantic_propagation_summary.json` | `semantic_propagation_campaign` | 0.2 | `ash semantic-propagation-campaign` | `ash validate` |
 | `swarm_defense_live_summary.json` | `swarm_defense_live_campaign` | 0.3 | `ash swarm-defense-live-campaign` | `ash validate` |
 | `marketing_web_live_summary.json` | `marketing_web_live_campaign` | 0.1 | `ash marketing-web-live-campaign` | `ash validate` |
+| `swarm_resilience_summary.json` | `swarm_resilience_campaign` | 0.1 | `ash swarm-resilience-campaign` | `ash validate` |
 
 `run_diff` v0.2 replaces the ambiguous v0.1 coarse labels (`fixed`, `new`,
 `changed`, `unchanged`) with explicit decisive/non-decisive counters such as
@@ -103,12 +104,18 @@ Non-versioned by design:
   page URL/content hashes, worker/chief response hashes, per-turn response hashes, leak
   kind labels, verifier decisions, control attribution, aggregate metrics, and
   non-claims.
+- `swarm_resilience_summary.json` is a sanitized deterministic stability artifact over
+  seven multi-step mini-swarm degradation families: memory, semantics, source trust,
+  consensus, metrics/verdicts, benign-looking fact accumulation, and coupled cascades.
+  Private synthetic payload notes and per-step calculation traces remain under
+  `.internal/`; the public artifact keeps state hashes, numeric state-vector metrics,
+  stability verdicts, block attribution, ablation reopenings, and non-claims.
 - Campaign digest files such as `evidence_campaign_digest.json`,
   `secret_leak_campaign_digest.json`, `semantic_drift_digest.json`,
-  `semantic_propagation_digest.json`, and `swarm_defense_live_digest.json` are derived
-  public summary indexes next to the versioned summaries. They are validated as part of
-  their campaign directory, but the summary JSON remains the canonical schema-versioned
-  artifact.
+  `semantic_propagation_digest.json`, `swarm_defense_live_digest.json`, and
+  `swarm_resilience_digest.json` are derived public summary indexes next to the
+  versioned summaries. They are validated as part of their campaign directory, but the
+  summary JSON remains the canonical schema-versioned artifact.
 - A `comparison` is represented as two report directories (`baseline/`, `protected/`) plus
   `comparison.md`; there is no separate `comparison.json`. Use `ash diff-runs` for an
   arbitrary run-vs-run diff (which does emit a versioned `run_diff.json`).
