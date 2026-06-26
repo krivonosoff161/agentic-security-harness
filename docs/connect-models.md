@@ -83,6 +83,7 @@ Scenario sizes (use these to estimate cost):
 
 | Scenario | Patterns | Default variants |
 |---|---|---|
+| `instruction-integrity` | 2 | 3 |
 | `data-boundary` | 6 | 3 |
 | `memory-governance` | 5 | 3 |
 | `tool-selection` | 3 | 3 |

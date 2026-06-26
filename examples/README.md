@@ -12,6 +12,9 @@ Before promoting any example as a public demo or release showcase, use the
 [public showcase report checklist](../docs/showcase-report-checklist.md).
 For local-model campaign publication rules, read
 [private-public-evidence-boundary.md](../docs/private-public-evidence-boundary.md).
+For the shortest path to run your own model or local mini-swarm, use
+[run-your-model.md](../docs/run-your-model.md). For promoting new research output into
+this directory, follow [evidence-pack-format.md](../docs/evidence-pack-format.md).
 
 ```bash
 # validate every example in one shot

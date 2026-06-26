@@ -30,6 +30,8 @@ def test_readme_links_methodology_docs() -> None:
         "docs/metric-contract.md",
         "docs/local-prometheus-workflow.md",
         "docs/local-model-profiles.md",
+        "docs/run-your-model.md",
+        "docs/evidence-pack-format.md",
         "docs/scenario-timeline.md",
         "docs/showcase/index.md",
         "docs/showcase/evidence-map.md",
@@ -40,6 +42,56 @@ def test_readme_links_methodology_docs() -> None:
     ):
         assert link in readme
     assert "not just standalone model answers" in readme
+
+
+def test_run_your_model_path_is_public_and_cross_platform() -> None:
+    readme = _read("README.md")
+    run_doc = _read("docs/run-your-model.md")
+    connect = _read("docs/connect-models.md")
+    current_state = _read("docs/current-state.md")
+    project_map = _read("docs/project-map.md")
+    examples = _read("examples/README.md")
+
+    for text in (readme, current_state, project_map, examples):
+        assert "run-your-model.md" in text
+
+    for phrase in (
+        "Linux/macOS",
+        "Windows PowerShell",
+        "No-model deterministic demo",
+        "Run one local or remote OpenAI-compatible model",
+        "Run a deterministic local swarm comparison",
+        "Run a local-model mini-swarm campaign",
+        "Keep raw model responses under `.internal/`",
+        "not `pass` or `finding`",
+    ):
+        assert phrase in run_doc
+
+    assert "| `instruction-integrity` | 2 | 3 |" in connect
+
+
+def test_evidence_pack_format_documents_public_private_promotion() -> None:
+    readme = _read("README.md")
+    evidence_pack = _read("docs/evidence-pack-format.md")
+    current_state = _read("docs/current-state.md")
+    project_map = _read("docs/project-map.md")
+    examples = _read("examples/README.md")
+    release = _read("docs/release-checklist.md")
+
+    for text in (readme, current_state, project_map, examples, release):
+        assert "evidence-pack-format.md" in text
+
+    for phrase in (
+        "research question -> run command -> sanitized artifacts -> validation -> claim row",
+        "Public artifacts do not include raw transcripts",
+        "private_transcript_sha256",
+        "raw_private_material_committed",
+        "This model is safe.",
+        "`local_empirical`",
+        "ash validate examples/",
+        "Promotion checklist",
+    ):
+        assert phrase in evidence_pack
 
 
 def test_evaluation_topologies_cover_required_system_shapes() -> None:

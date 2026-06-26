@@ -5,7 +5,9 @@
 >
 > Looking for ready-made, copy-pasteable recipes per stack (fake server, vLLM, DeepSeek,
 > Alibaba/Qwen, Ollama, LM Studio, generic gateway) on Windows/Linux/macOS?
-> See **[docs/connect-models.md](connect-models.md)**. This page is the deeper reference.
+> Start with **[docs/run-your-model.md](run-your-model.md)** for the short operator path,
+> then use **[docs/connect-models.md](connect-models.md)** for per-stack recipes.
+> This page is the deeper reference.
 
 ## What this mode is
 

@@ -84,6 +84,8 @@ If you only have one minute:
 
 - Read the committed before/after example:
   [`examples/comparison-report/README.md`](examples/comparison-report/README.md).
+- Run your own local model or mini-swarm:
+  [`docs/run-your-model.md`](docs/run-your-model.md).
 - Inspect the public evidence entry point:
   [`docs/showcase/index.md`](docs/showcase/index.md) and
   [`docs/showcase/evidence-map.md`](docs/showcase/evidence-map.md).
@@ -111,6 +113,8 @@ See [docs/benchmark-semantics.md](docs/benchmark-semantics.md).
 Read by role:
 
 - First-time user: [Getting started](docs/getting-started.md) and [User journey](docs/user-journey.md).
+- Bring-your-own-model user: [Run your model](docs/run-your-model.md), [Connect models](docs/connect-models.md),
+  and [Test your own model/runtime](docs/test-your-model.md).
 - Project status reviewer: [Current state](docs/current-state.md), [Capability matrix](docs/capability-matrix.md),
   [Roadmap](docs/roadmap.md), [Project tracker](docs/project-tracker.md), and
   [v1.0 readiness](docs/v1-readiness.md).
@@ -130,6 +134,8 @@ Read by role:
   [`examples/local-swarm-report/`](examples/local-swarm-report/).
 - Local model reviewer: [Local Prometheus workflow](docs/local-prometheus-workflow.md),
   [Local model profiles](docs/local-model-profiles.md), and [Metrics contract](docs/metric-contract.md).
+- Evidence publisher: [Evidence pack format](docs/evidence-pack-format.md) and
+  [Private/public evidence boundary](docs/private-public-evidence-boundary.md).
 - Safety reviewer: [Research rules](docs/research-rules.md), [Authorized testing paths](docs/authorized-testing-paths.md),
   [Threat model](docs/threat-model.md), and [SECURITY.md](SECURITY.md).
 
@@ -162,6 +168,8 @@ deterministic tests - honest residual risk. Full rules:
 - Comparing two runs, reading artifact versions, or connecting a provider? See
   [run diff](docs/run-diff.md), [artifact schemas](docs/artifact-schemas.md), and
   [connect models](docs/connect-models.md).
+- Want to test your own local model or mini-swarm? Follow
+  [run your model](docs/run-your-model.md).
 - New to the project? Start with the [project map](docs/project-map.md).
 - Evaluating the thesis? Read [positioning](docs/positioning.md), the
   [boundary model](docs/agentic-boundary-model.md), and
@@ -314,7 +322,7 @@ budget / loop abuse - capability delegation drift - mock MCP / tool-schema decep
 perception-boundary confusion - ambient authority use - approval-context laundering.
 
 Twenty-four local seed patterns are implemented today across data-boundary,
-provenance, tool/permission, provider-boundary, delayed activation, audit, budget,
+instruction integrity, provenance, tool/permission, provider-boundary, delayed activation, audit, budget,
 capability, perception, ambient authority, approval, memory-governance, and
 multi-turn escalation families. The exact current corpus is the machine-readable
 source of truth in [corpus.py](src/agentic_security_harness/corpus.py) and the
@@ -391,6 +399,10 @@ ash run-external --adapter openai-compatible \
   --credential-env ASH_EXTERNAL_API_KEY \
   --out .internal/external-demo/latest
 ```
+
+For the shortest operator path that covers deterministic demo, one local/remote
+OpenAI-compatible model, and a local mini-swarm on both Windows and Linux/macOS, use
+**[docs/run-your-model.md](docs/run-your-model.md)**.
 
 > The commands above are bash. On **Windows PowerShell**, set the key with
 > `$env:ASH_EXTERNAL_API_KEY = "REDACTED_VALUE"` and use a backtick `` ` `` for line
@@ -550,6 +562,10 @@ traces and deterministic baseline-vs-protected replay. Honest comparison:
   agent runtimes later without becoming provider-specific.
 - **[Bring your own target](docs/bring-your-own-target.md)** - step-by-step guide for
   connecting an authorized target adapter.
+- **[Run your model](docs/run-your-model.md)** - operator path for deterministic demo,
+  one OpenAI-compatible model, and local mini-swarm campaigns.
+- **[Evidence pack format](docs/evidence-pack-format.md)** - how new research results
+  become sanitized, validated, public evidence updates.
 - **[Reporting design](docs/reporting.md)** - executive and technical report shape.
 - **[Reporting flow](docs/reporting-flow.md)** - visual diagrams of benchmark and
   remediation flows (Mermaid).

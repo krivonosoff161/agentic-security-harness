@@ -16,6 +16,7 @@ def test_list_scenarios_returns_expected_families() -> None:
     ids = [s.scenario_id for s in scenarios]
     for expected in (
         "data-boundary",
+        "instruction-integrity",
         "memory-governance",
         "tool-selection",
         "authority-control",
@@ -45,6 +46,19 @@ def test_all_scenario_pattern_ids_exist_in_corpus() -> None:
 def test_all_scenario_has_all_24_patterns() -> None:
     all_scenario = get_scenario("all")
     assert len(all_scenario.pattern_ids) == 24
+
+
+def test_named_scenario_families_cover_all_patterns_once() -> None:
+    named_scenarios = [
+        s for s in list_scenarios() if s.scenario_id != "all"
+    ]
+    grouped_pattern_ids = [
+        pattern_id for scenario in named_scenarios for pattern_id in scenario.pattern_ids
+    ]
+    all_pattern_ids = get_scenario("all").pattern_ids
+
+    assert sorted(grouped_pattern_ids) == sorted(all_pattern_ids)
+    assert len(grouped_pattern_ids) == len(set(grouped_pattern_ids)) == 24
 
 
 def test_get_scenario_unknown_raises_key_error() -> None:
@@ -125,6 +139,7 @@ def test_get_variants_unknown_filter_raises() -> None:
 def test_scenario_variant_counts() -> None:
     expected = {
         "data-boundary": 3,
+        "instruction-integrity": 3,
         "memory-governance": 3,
         "tool-selection": 3,
         "authority-control": 2,
