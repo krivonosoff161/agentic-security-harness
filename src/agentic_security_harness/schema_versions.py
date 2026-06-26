@@ -29,6 +29,7 @@ SCHEMA_VERSIONS: dict[str, str] = {
     "semantic_drift_campaign": "0.1",  # semantic_drift_summary.json
     "semantic_propagation_campaign": "0.2",  # semantic_propagation_summary.json
     "swarm_defense_contour": "0.1",  # swarm_defense_contour_summary.json
+    "swarm_defense_live_campaign": "0.3",  # swarm_defense_live_summary.json
 }
 
 # Current implemented defensive corpus revision. Artifact schema versions describe file
@@ -49,6 +50,11 @@ KNOWN_SCHEMA_VERSIONS["evidence_quality"] = frozenset({
 KNOWN_SCHEMA_VERSIONS["semantic_propagation_campaign"] = frozenset({
     "0.1",
     SCHEMA_VERSIONS["semantic_propagation_campaign"],
+})
+KNOWN_SCHEMA_VERSIONS["swarm_defense_live_campaign"] = frozenset({
+    "0.1",
+    "0.2",
+    SCHEMA_VERSIONS["swarm_defense_live_campaign"],
 })
 
 

@@ -32,6 +32,7 @@ _RUN_KINDS = frozenset(
         "semantic_drift_campaign",
         "semantic_propagation_campaign",
         "swarm_defense_contour",
+        "swarm_defense_live_campaign",
     }
 )
 

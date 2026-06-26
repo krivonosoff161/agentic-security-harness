@@ -43,6 +43,7 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | Semantic drift propagation closure | Closed research unit | `semantic-drift-propagation-closure.md` ties the drift and propagation campaigns into one closed evidence slice: declared cases, deterministic bounded-vs-ablation rows, local empirical observations, private/public boundary, and the follow-up consensus-laundering sub-unit. |
 | Semantic consensus laundering closure | Closed sub-unit | `semantic-consensus-laundering-closure.md` isolates the existing two-worker consensus case: bounded acceptance 0, naive acceptance 1, and `cross_worker_check` ablation acceptance 1 under sanitized propagation artifacts. |
 | Local swarm defense contour | Shipped synthetic defense slice | `ash swarm-defense-contour` combines four local-swarm failure families across 15 non-empty family combinations; bounded acceptances are 0, naive acceptances are 15, and control ablations reopen the declared dependent paths. Raw local-model probes remain private. |
+| Live mini-swarm defense campaign | Shipped local empirical slice | `ash swarm-defense-live-campaign` runs private local worker/chief probes over the four-family contour and writes sanitized public summaries; the committed base example records 180 observations, 22 chief acceptances, 1 worker drift detection, 0 canary leaks, 22 verifier blocks, 96 replay-ablation reopenings, 0 adapter errors, and 100% response-hash coverage. A supplemental long-session example records 15 three-turn chains, 1 chief acceptance, 1 verifier block, 4 replay-ablation reopenings, 1 adapter error, and 0 canary leaks. |
 | Public evidence map | Shipped docs slice | `docs/showcase/evidence-map.md` links each front-page metric to the artifact, reproduce command, claim, and non-claim. |
 | Local real-model swarm probes | Local empirical | Prometheus and qwen2.5 have executed the full 15-scenario swarm suite with 100% transcript-hash coverage and 0% adapter-error rate; model text remains evidence-quality context only. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
@@ -73,6 +74,11 @@ These features exist, but their results must be read conservatively:
   propagation probes over synthetic drifted summaries. Public summaries are sanitized;
   raw worker/chief prompts, responses, canonical-state hashes, and canaries stay under
   `.internal/`.
+- `ash swarm-defense-live-campaign --execute`: private local worker/chief probes over
+  the four-family defense contour. Public summaries expose response hashes, aggregate
+  labels, and verifier block attribution only; raw prompts, responses, canaries, and
+  calculation notes stay under `.internal/`. `--session-turns` enables bounded
+  long-session pressure while still publishing only per-turn response hashes.
 - Scenario matrix and timeline variants: deterministic local replay metadata and pattern
   subsets, not live multi-tool execution.
 

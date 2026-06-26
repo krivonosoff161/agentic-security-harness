@@ -74,6 +74,7 @@ class ValidationResult(BaseModel):
     semantic_drift_campaign_dirs: list[str] = Field(default_factory=list)
     semantic_propagation_campaign_dirs: list[str] = Field(default_factory=list)
     swarm_defense_contour_dirs: list[str] = Field(default_factory=list)
+    swarm_defense_live_campaign_dirs: list[str] = Field(default_factory=list)
 
     def _err(self, msg: str) -> None:
         self.errors.append(msg)
@@ -140,6 +141,10 @@ def _is_swarm_defense_contour_dir(path: Path) -> bool:
     return (path / "swarm_defense_contour_summary.json").exists()
 
 
+def _is_swarm_defense_live_campaign_dir(path: Path) -> bool:
+    return (path / "swarm_defense_live_summary.json").exists()
+
+
 def validate_path(path: Path) -> ValidationResult:
     """Validate a report dir, a comparison dir, or a directory of such dirs.
 
@@ -192,6 +197,9 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
     elif _is_swarm_defense_contour_dir(path):
         result.swarm_defense_contour_dirs.append(_rel(path, root))
         _validate_swarm_defense_contour_dir(path, root, result)
+    elif _is_swarm_defense_live_campaign_dir(path):
+        result.swarm_defense_live_campaign_dirs.append(_rel(path, root))
+        _validate_swarm_defense_live_campaign_dir(path, root, result)
     elif (path / "run_diff.json").exists():
         result.run_diff_dirs.append(_rel(path, root))
         _validate_run_diff_dir(path, root, result)
@@ -663,6 +671,121 @@ def _validate_swarm_defense_contour_dir(
         "swarm_defense_contour_summary.json",
         "swarm_defense_contour_report.md",
         "swarm_defense_contour_digest.json",
+        "README.md",
+    ):
+        candidate = path / name
+        if candidate.exists():
+            _scan_secrets(candidate, root, result)
+
+
+def _validate_swarm_defense_live_campaign_dir(
+    path: Path, root: Path, result: ValidationResult
+) -> None:
+    rel = _rel(path / "swarm_defense_live_summary.json", root)
+    raw = _load_json(path / "swarm_defense_live_summary.json", root, result)
+    if raw is None:
+        return
+    _check_schema_version_file(
+        path / "swarm_defense_live_summary.json",
+        "swarm_defense_live_campaign",
+        root,
+        result,
+    )
+    from agentic_security_harness.swarm_defense_live_campaign import LiveDefenseSummary
+
+    try:
+        summary = LiveDefenseSummary.model_validate(raw)
+    except ValidationError as exc:
+        result._err(f"{rel}: schema: {_fmt_error(exc)}")
+        return
+    if summary.metrics.observations != len(summary.observations):
+        result._err(f"{rel}: metrics.observations does not match observation count")
+    if summary.metrics.topologies != len(
+        {item.topology_id for item in summary.observations}
+    ):
+        result._err(f"{rel}: metrics.topologies mismatch")
+    if summary.metrics.worker_drift_detections != sum(
+        1 for item in summary.observations if item.worker_drift_detected
+    ):
+        result._err(f"{rel}: metrics.worker_drift_detections mismatch")
+    if summary.metrics.chief_acceptances != sum(
+        1 for item in summary.observations if item.chief_accepted_drift
+    ):
+        result._err(f"{rel}: metrics.chief_acceptances mismatch")
+    if summary.metrics.canary_leaks != sum(
+        1 for item in summary.observations if item.canary_leaked
+    ):
+        result._err(f"{rel}: metrics.canary_leaks mismatch")
+    if summary.metrics.verifier_blocks != sum(
+        1 for item in summary.observations if item.verifier_decision == "block"
+    ):
+        result._err(f"{rel}: metrics.verifier_blocks mismatch")
+    if summary.metrics.max_session_turns != max(
+        (item.session_turns for item in summary.observations),
+        default=0,
+    ):
+        result._err(f"{rel}: metrics.max_session_turns mismatch")
+    if summary.metrics.long_session_observations != sum(
+        1 for item in summary.observations if item.session_turns > 1
+    ):
+        result._err(f"{rel}: metrics.long_session_observations mismatch")
+    if any(
+        item.worker_turn_response_sha256
+        and len(item.worker_turn_response_sha256) != item.session_turns
+        and not item.adapter_error
+        for item in summary.observations
+    ):
+        result._err(f"{rel}: worker_turn_response_sha256 length mismatch")
+    ablation_by_control: dict[str, int] = {}
+    for item in summary.observations:
+        if item.verifier_decision != "block":
+            continue
+        for control in item.missing_control_acceptances:
+            key = str(control)
+            ablation_by_control[key] = ablation_by_control.get(key, 0) + 1
+    blocked_observations = sum(
+        1 for item in summary.observations if item.verifier_decision == "block"
+    )
+    reopened_observations = sum(
+        1
+        for item in summary.observations
+        if item.verifier_decision == "block" and item.missing_control_acceptances
+    )
+    expected_reopening_rate = (
+        reopened_observations / blocked_observations
+        if blocked_observations
+        else 0.0
+    )
+    if summary.metrics.ablation_reopenings != sum(ablation_by_control.values()):
+        result._err(f"{rel}: metrics.ablation_reopenings mismatch")
+    if summary.metrics.ablation_reopening_rate != expected_reopening_rate:
+        result._err(f"{rel}: metrics.ablation_reopening_rate mismatch")
+    if summary.metrics.ablation_reopenings_by_control != ablation_by_control:
+        result._err(f"{rel}: metrics.ablation_reopenings_by_control mismatch")
+    if summary.metrics.reopened_by_missing_control != ablation_by_control:
+        result._err(f"{rel}: metrics.reopened_by_missing_control mismatch")
+    if _contains_forbidden_raw_fields(raw):
+        result._err(f"{rel}: public artifact contains raw/private fields")
+    for required in (
+        "swarm_defense_live_report.md",
+        "swarm_defense_live_digest.json",
+    ):
+        if not (path / required).exists():
+            result._err(f"{_rel(path / required, root)}: missing")
+    for private_name in (
+        "swarm_defense_live_private.json",
+        "swarm_defense_live_private.md",
+    ):
+        if (path / private_name).exists():
+            result._err(
+                f"{_rel(path / private_name, root)}: private live-swarm "
+                "artifact must stay under .internal/"
+            )
+    _validate_run_manifest(path, root, result)
+    for name in (
+        "swarm_defense_live_summary.json",
+        "swarm_defense_live_report.md",
+        "swarm_defense_live_digest.json",
         "README.md",
     ):
         candidate = path / name
