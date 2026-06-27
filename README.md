@@ -7,6 +7,34 @@
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
 ![Status](https://img.shields.io/badge/status-pre--release-orange)
 
+**Your AI coding agent reads untrusted repo text. Can it tell project data from
+instructions?**
+
+Agentic Security Harness gives you a local, reproducible way to test that boundary.
+The demo runs the same 24 synthetic patterns against a vulnerable demo agent and a
+protected version, then writes traces, scorecards, and a comparison report.
+
+```bash
+pip install -e ".[dev]"
+ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison
+ash validate reports/comparison
+```
+
+Expected deterministic demo result:
+
+| Target | Modeled findings | Patterns passed |
+|---|---:|---:|
+| `demo-agent` | 24 | 0 |
+| `protected-demo-agent` | 0 | 24 |
+
+![Terminal comparison showing 24 findings reduced to 0](docs/images/terminal-compare.png)
+
+![Rendered comparison report table](docs/images/comparison-table.png)
+
+This is a deterministic synthetic benchmark, not a production safety certification or a
+claim that any deployed agent is secure. Start with the committed comparison artifact:
+[`examples/comparison-report/`](examples/comparison-report/).
+
 **Agentic Security Harness is a trace-first benchmark for defensive testing of
 agentic AI boundary failures.** It gives security engineers, AI platform teams, and
 researchers a safe way to reproduce synthetic agent failures, compare vulnerable and
