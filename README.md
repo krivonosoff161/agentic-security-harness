@@ -35,6 +35,19 @@ This is a deterministic synthetic benchmark, not a production safety certificati
 claim that any deployed agent is secure. Start with the committed comparison artifact:
 [`examples/comparison-report/`](examples/comparison-report/).
 
+OWASP LLM 2025 quick map:
+
+| OWASP risk | Harness coverage |
+|---|---|
+| LLM01 Prompt Injection | Indirect instructions in repo/tool/perception text treated as data, not authority. |
+| LLM02 Sensitive Information Disclosure | Data labels, forwarding limits, recipient boundaries, and cross-user memory scope. |
+| LLM04 Data and Model Poisoning | Memory poisoning and untrusted persistent context governance. |
+| LLM06 Excessive Agency | Tool permission, MCP schema, delegation, approval, and ambient-authority checks. |
+| LLM07 System Prompt Leakage | Not claimed as a protected boundary; documented as a non-primary control surface. |
+| LLM08 Vector and Embedding Weaknesses | RAG-like untrusted retrieval boundaries; not a vector-store security claim. |
+
+Full conservative mapping: [`docs/standards-mapping.md`](docs/standards-mapping.md).
+
 **Agentic Security Harness is a trace-first benchmark for defensive testing of
 agentic AI boundary failures.** It gives security engineers, AI platform teams, and
 researchers a safe way to reproduce synthetic agent failures, compare vulnerable and
