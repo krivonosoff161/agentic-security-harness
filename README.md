@@ -87,17 +87,6 @@ canaries stay private under `.internal/`.
 
 ![Evidence flow](docs/assets/evidence-flow.svg)
 
-```mermaid
-flowchart LR
-    A[Declared synthetic situations] --> B[Vulnerable / naive flows]
-    A --> C[Protected / bounded flows]
-    B --> D[Modeled boundary failures]
-    C --> E[Deterministic blocks or passes]
-    D --> F[Validated artifacts]
-    E --> F
-    F --> G[Trace replay + scorecard + evidence metrics]
-```
-
 ## Quick demo
 
 ```bash
