@@ -13,7 +13,7 @@ def test_readme_links_methodology_docs() -> None:
         "In plain English",
         "If you only have one minute",
         "Visual evidence snapshot",
-        "flowchart LR",
+        "docs/assets/evidence-flow.svg",
         "trace-first benchmark",
         "committed before/after example",
         "24 modeled findings",
