@@ -121,7 +121,9 @@ If you only have one minute:
   [`docs/run-your-model.md`](docs/run-your-model.md).
 - Inspect the public evidence entry point:
   [`docs/showcase/index.md`](docs/showcase/index.md) and
-  [`docs/showcase/evidence-map.md`](docs/showcase/evidence-map.md).
+  [`docs/showcase/evidence-map.md`](docs/showcase/evidence-map.md). For a compact
+  summary of the strongest sanitized artifacts, start with
+  [`docs/showcase/evidence-appendix.md`](docs/showcase/evidence-appendix.md).
 - Check the private/public evidence rule for local model campaigns:
   [`docs/private-public-evidence-boundary.md`](docs/private-public-evidence-boundary.md).
 - Check what is shipped versus planned:
