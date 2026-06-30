@@ -1078,6 +1078,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="write private calculation and sanitized public artifacts",
     )
 
+    context_consent_p = sub.add_parser(
+        "context-consent-campaign",
+        help="build the deterministic context-is-not-consent campaign",
+    )
+    context_consent_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path("reports/context-consent"),
+        help="sanitized output directory (default: reports/context-consent)",
+    )
+    context_consent_p.add_argument(
+        "--write",
+        action="store_true",
+        help="write sanitized public artifacts",
+    )
+
     marketing_web_live_p = sub.add_parser(
         "marketing-web-live-campaign",
         help="run private local-model probes over an owned local web-injection stand",
@@ -1249,7 +1265,9 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.marketing_web_live_campaign_dirs)} "
         "marketing-web-live-campaign dir(s), "
         f"{len(result.swarm_resilience_campaign_dirs)} "
-        "swarm-resilience-campaign dir(s)"
+        "swarm-resilience-campaign dir(s), "
+        f"{len(result.context_consent_campaign_dirs)} "
+        "context-consent-campaign dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
     if redacted_errors or redacted_warnings:
@@ -2783,6 +2801,39 @@ def _swarm_resilience_campaign(
     return 0
 
 
+def _context_consent_campaign(*, out: Path, write: bool) -> int:
+    from agentic_security_harness.context_consent_campaign import (
+        build_context_consent_campaign,
+        write_context_consent_artifacts,
+    )
+    from agentic_security_harness.validation import validate_path
+
+    summary = build_context_consent_campaign(created_at=_now_utc())
+    print("context-consent-campaign prepared.")
+    print("Network/model calls: none. This is a deterministic consent-boundary model.")
+    print(
+        f"cases={summary.metrics.cases} "
+        f"rows={summary.metrics.deterministic_rows} "
+        f"naive_acceptances={summary.metrics.naive_acceptances} "
+        f"bounded_acceptances={summary.metrics.bounded_acceptances} "
+        f"ablation_acceptances={summary.metrics.ablation_acceptances} "
+        f"benign_false_blocks={summary.metrics.benign_false_blocks}"
+    )
+    if not write:
+        print("Dry-run only. Add --write to write sanitized artifacts.")
+        return 0
+    paths = write_context_consent_artifacts(out, summary)
+    for path in paths:
+        print(f"wrote {path.as_posix()}")
+    result = validate_path(out)
+    if not result.ok:
+        print(f"Validation FAILED for {redact_artifact_text(out.as_posix())}:")
+        print(f"errors: {len(result.errors)}")
+        return 1
+    print(f"validated {out.as_posix()} (artifact integrity only).")
+    return 0
+
+
 def _marketing_web_live_campaign(
     *,
     out: Path,
@@ -3247,6 +3298,11 @@ def main(argv: list[str] | None = None) -> int:
         return _swarm_resilience_campaign(
             out=args.out,
             summary_out=args.summary_out,
+            write=args.write,
+        )
+    if args.command == "context-consent-campaign":
+        return _context_consent_campaign(
+            out=args.out,
             write=args.write,
         )
     if args.command == "marketing-web-live-campaign":

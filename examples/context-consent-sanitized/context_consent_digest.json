@@ -1,0 +1,40 @@
+{
+  "approval_tokens_present": false,
+  "created_at": "2026-06-30T19:23:10Z",
+  "metrics": {
+    "ablation_acceptances": 18,
+    "acceptances_by_missing_control": {
+      "action_isolation": 1,
+      "consent_receipt": 4,
+      "current_user_intent": 5,
+      "freshness_window": 1,
+      "risk_classifier": 3,
+      "scope_binding": 4
+    },
+    "benign_acceptances": 5,
+    "benign_false_blocks": 0,
+    "benign_rows": 5,
+    "blocks_by_control": {
+      "action_isolation": 1,
+      "consent_receipt": 4,
+      "current_user_intent": 5,
+      "freshness_window": 1,
+      "risk_classifier": 3,
+      "scope_binding": 4
+    },
+    "bounded_acceptances": 0,
+    "bounded_blocks": 5,
+    "cases": 5,
+    "control_attribution_rate": 1.0,
+    "control_effect_rows": 6,
+    "controls": 6,
+    "deterministic_rows": 45,
+    "naive_acceptances": 5,
+    "unsafe_rows": 40
+  },
+  "private_calculation_notes_present": false,
+  "raw_prompts_present": false,
+  "raw_responses_present": false,
+  "run_kind": "context_consent_campaign",
+  "schema_version": "0.1"
+}

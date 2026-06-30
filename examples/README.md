@@ -47,6 +47,7 @@ ash validate examples/
 | [`swarm-defense-live-deep-sanitized/`](swarm-defense-live-deep-sanitized/) | Sanitized deep local-model mini-swarm campaign: 168 observations across 6 contour topologies, 7 pressure modes, 2 worker models, and 2 chief models, with Wilson intervals, model breakdowns, and raw prompts/responses/canaries kept private. | `ash swarm-defense-live-campaign --execute --out .internal/swarm-defense-live/deep --summary-out reports/swarm-defense-live-deep --worker-model qwen2.5:0.5b --worker-model qwen2.5-coder:0.5b-instruct --chief-model llama3.2:1b --chief-model prometheus-qwen15b-lowctx:latest --session-turns 3 --max-topologies 6 --max-requests 900` |
 | [`marketing-web-injection-sanitized/`](marketing-web-injection-sanitized/) | Sanitized controlled offline marketing/ads web-injection campaign: naive leaks 5/5, bounded leaks 0/5, ablation leaks 21/21, benign runs 5/5 allowed; raw hostile pages/prompts/responses/strategy values stay private. | `ash marketing-web-injection-campaign --write --out .internal/marketing-web-injection/latest --summary-out reports/marketing-web-injection` |
 | [`marketing-web-live-sanitized/`](marketing-web-live-sanitized/) | Sanitized owned-localhost local-model web-injection campaign: 60 observations, worker leaks 3, chief leaks 1, ablation final leaks 1, bounded final leaks 0, benign final leaks 0; raw pages/prompts/responses/strategy values stay private. | `ash marketing-web-live-campaign --execute --out .internal/marketing-web-live/latest --summary-out reports/marketing-web-live --worker-model qwen2.5:0.5b --worker-model qwen2.5-coder:0.5b-instruct --chief-model qwen2.5:0.5b --chief-model qwen2.5-coder:0.5b-instruct --max-scenarios 2 --session-turns 3 --max-requests 500` |
+| [`context-consent-sanitized/`](context-consent-sanitized/) | Deterministic context-consent campaign: 5 consent-boundary cases / 45 rows; naive risky-action acceptances 5, bounded acceptances 0, ablation acceptances 18, benign false blocks 0. | `ash context-consent-campaign --write --out examples/context-consent-sanitized` |
 | [`external-demo-report/`](external-demo-report/) | An external OpenAI-compatible run against the bundled fake server. | see below |
 | [`fake_openai_server.py`](fake_openai_server.py) | A deterministic local OpenAI-compatible server for the external path (no key, localhost only). | `python examples/fake_openai_server.py` |
 
@@ -69,7 +70,8 @@ external runs start with `external_report.md`; local-swarm runs start with
 `semantic_propagation_report.md`; sanitized local-model mini-swarm runs start with
 `swarm_defense_live_report.md`; marketing web-injection runs start with
 `marketing_web_injection_report.md`; live marketing web-injection runs start with
-`marketing_web_live_report.md`.
+`marketing_web_live_report.md`; context-consent runs start with
+`context_consent_report.md`.
 
 Or render any example as a single static HTML page (no network):
 

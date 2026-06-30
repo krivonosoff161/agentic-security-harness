@@ -79,6 +79,7 @@ class ValidationResult(BaseModel):
     marketing_web_injection_campaign_dirs: list[str] = Field(default_factory=list)
     marketing_web_live_campaign_dirs: list[str] = Field(default_factory=list)
     swarm_resilience_campaign_dirs: list[str] = Field(default_factory=list)
+    context_consent_campaign_dirs: list[str] = Field(default_factory=list)
 
     def _err(self, msg: str) -> None:
         self.errors.append(msg)
@@ -161,6 +162,10 @@ def _is_swarm_resilience_campaign_dir(path: Path) -> bool:
     return (path / "swarm_resilience_summary.json").exists()
 
 
+def _is_context_consent_campaign_dir(path: Path) -> bool:
+    return (path / "context_consent_summary.json").exists()
+
+
 def validate_path(path: Path) -> ValidationResult:
     """Validate a report dir, a comparison dir, or a directory of such dirs.
 
@@ -225,6 +230,9 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
     elif _is_swarm_resilience_campaign_dir(path):
         result.swarm_resilience_campaign_dirs.append(_rel(path, root))
         _validate_swarm_resilience_campaign_dir(path, root, result)
+    elif _is_context_consent_campaign_dir(path):
+        result.context_consent_campaign_dirs.append(_rel(path, root))
+        _validate_context_consent_campaign_dir(path, root, result)
     elif (path / "run_diff.json").exists():
         result.run_diff_dirs.append(_rel(path, root))
         _validate_run_diff_dir(path, root, result)
@@ -1329,6 +1337,102 @@ def _validate_marketing_web_live_campaign_dir(
             _scan_secrets(candidate, root, result)
 
 
+def _validate_context_consent_campaign_dir(
+    path: Path, root: Path, result: ValidationResult
+) -> None:
+    rel = _rel(path / "context_consent_summary.json", root)
+    raw = _load_json(path / "context_consent_summary.json", root, result)
+    if raw is None:
+        return
+    _check_schema_version_file(
+        path / "context_consent_summary.json",
+        "context_consent_campaign",
+        root,
+        result,
+    )
+    from agentic_security_harness.context_consent_campaign import ContextConsentSummary
+
+    try:
+        summary = ContextConsentSummary.model_validate(raw)
+    except ValidationError as exc:
+        result._err(f"{rel}: schema: {_fmt_error(exc)}")
+        return
+    rows = summary.deterministic_results
+    if summary.metrics.deterministic_rows != len(rows):
+        result._err(f"{rel}: metrics.deterministic_rows mismatch")
+    if summary.metrics.cases != len(summary.cases):
+        result._err(f"{rel}: metrics.cases mismatch")
+    if summary.metrics.controls != len(summary.control_catalog):
+        result._err(f"{rel}: metrics.controls mismatch")
+    if summary.metrics.control_effect_rows != len(summary.control_effects):
+        result._err(f"{rel}: metrics.control_effect_rows mismatch")
+    unsafe = [row for row in rows if row.attack_attempted]
+    benign = [row for row in rows if not row.attack_attempted]
+    naive = [row for row in rows if row.mode == "naive"]
+    bounded = [row for row in rows if row.mode == "bounded"]
+    ablation = [
+        row
+        for row in rows
+        if row.mode not in {"naive", "bounded", "benign"}
+    ]
+    expected_counts = {
+        "unsafe_rows": len(unsafe),
+        "benign_rows": len(benign),
+        "naive_acceptances": sum(1 for row in naive if row.risky_action_allowed),
+        "bounded_acceptances": sum(1 for row in bounded if row.risky_action_allowed),
+        "ablation_acceptances": sum(1 for row in ablation if row.risky_action_allowed),
+        "benign_acceptances": sum(1 for row in benign if row.risky_action_allowed),
+        "bounded_blocks": sum(1 for row in bounded if row.verifier_decision == "block"),
+        "benign_false_blocks": sum(
+            1 for row in benign if row.verifier_decision == "block"
+        ),
+    }
+    metrics = summary.metrics.model_dump()
+    for key, expected in expected_counts.items():
+        if metrics.get(key) != expected:
+            result._err(f"{rel}: metrics.{key} mismatch")
+    for idx, row in enumerate(rows):
+        _validate_optional_sha256(
+            row.context_fingerprint,
+            f"{rel}: deterministic_results[{idx}].context_fingerprint",
+            result,
+        )
+        if row.mode == "bounded" and row.risky_action_allowed:
+            result._err(f"{rel}: deterministic_results[{idx}] bounded accepted risky action")
+        if row.mode == "benign" and not row.benign_passed:
+            result._err(f"{rel}: deterministic_results[{idx}] benign row did not pass")
+    if _contains_forbidden_raw_fields(raw):
+        result._err(f"{rel}: public artifact contains raw/private fields")
+    for required in ("context_consent_report.md", "context_consent_digest.json"):
+        if not (path / required).exists():
+            result._err(f"{_rel(path / required, root)}: missing")
+    _validate_context_consent_digest(
+        path / "context_consent_digest.json",
+        summary,
+        root,
+        result,
+    )
+    for private_name in (
+        "context_consent_private.json",
+        "context_consent_private.md",
+    ):
+        if (path / private_name).exists():
+            result._err(
+                f"{_rel(path / private_name, root)}: private context-consent "
+                "artifact must stay under .internal/"
+            )
+    _validate_run_manifest(path, root, result)
+    for name in (
+        "context_consent_summary.json",
+        "context_consent_report.md",
+        "context_consent_digest.json",
+        "README.md",
+    ):
+        candidate = path / name
+        if candidate.exists():
+            _scan_secrets(candidate, root, result)
+
+
 def _validate_optional_sha256(
     value: str, label: str, result: ValidationResult
 ) -> None:
@@ -1470,6 +1574,43 @@ def _validate_swarm_resilience_digest(
         "private_calculation_traces_present",
         "raw_prompts_present",
         "raw_responses_present",
+    ):
+        if raw.get(key) is not False:
+            result._err(f"{rel}: {key} must be false")
+    digest_metrics = raw.get("metrics")
+    if not isinstance(digest_metrics, dict):
+        result._err(f"{rel}: metrics missing or not an object")
+        return
+    summary_metrics = summary.metrics.model_dump()
+    for key, value in digest_metrics.items():
+        if summary_metrics.get(key) != value:
+            result._err(f"{rel}: metrics.{key} mismatch")
+
+
+def _validate_context_consent_digest(
+    digest_path: Path,
+    summary: Any,
+    root: Path,
+    result: ValidationResult,
+) -> None:
+    if not digest_path.exists():
+        return
+    rel = _rel(digest_path, root)
+    raw = _load_json(digest_path, root, result)
+    if raw is None:
+        return
+    for key, expected in (
+        ("schema_version", summary.schema_version),
+        ("run_kind", summary.run_kind),
+        ("created_at", summary.created_at),
+    ):
+        if raw.get(key) != expected:
+            result._err(f"{rel}: {key} mismatch")
+    for key in (
+        "raw_prompts_present",
+        "raw_responses_present",
+        "approval_tokens_present",
+        "private_calculation_notes_present",
     ):
         if raw.get(key) is not False:
             result._err(f"{rel}: {key} must be false")
