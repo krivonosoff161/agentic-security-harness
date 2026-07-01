@@ -35,6 +35,10 @@ This is a deterministic synthetic benchmark, not a production safety certificati
 claim that any deployed agent is secure. Start with the committed comparison artifact:
 [`examples/comparison-report/`](examples/comparison-report/).
 
+Active development is tracked as violation models, not prompt variants:
+[`docs/research-problem-map.md`](docs/research-problem-map.md) shows what is shipped,
+what is under evidence maintenance, and which boundary models are next.
+
 OWASP LLM 2025 quick map:
 
 | OWASP risk | Harness coverage |
