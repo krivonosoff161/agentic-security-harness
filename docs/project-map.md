@@ -71,6 +71,7 @@ If those six points hold, the benchmark is coherent.
 | CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `local-suite`, `local-swarm`, `local-swarm-matrix`, `diff-runs`, `compare-models`, `evidence-quality`, `evidence-campaign`, `secret-leak-campaign`, `semantic-drift-campaign`, `semantic-propagation-campaign`, `swarm-defense-contour`, `swarm-defense-live-campaign`, `marketing-web-injection-campaign`, `marketing-web-live-campaign`, `validate`, `report`, `showcase`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
 | Adapter contract | Rules and metadata models for future model/provider/runtime adapters. | [adapter-contract.md](adapter-contract.md), `models.py` |
 | Reporting design | How executive and technical reports should be shaped. | [reporting.md](reporting.md) |
+| Research problem map | Active public map of shipped deep contours, maintained evidence tracks, next violation-model candidates, and promotion rules. | [research-problem-map.md](research-problem-map.md) |
 | Research claims registry | Status table tracking each research claim from hypothesis through evidence artifacts. | [research-claims.md](research-claims.md) |
 | Project tracks | Maintainer-facing split between the shipped benchmark/evidence track and the future LLM Safety Gateway / Runtime Verifier direction. | [project-tracks.md](project-tracks.md) |
 | Evidence pack format | Required shape for future sanitized public research updates, private/public boundaries, claim rows, tests, and validation commands. | [evidence-pack-format.md](evidence-pack-format.md), [private-public-evidence-boundary.md](private-public-evidence-boundary.md) |
@@ -120,7 +121,7 @@ Start here by role:
 |---|---|---|
 | First-time user | [Getting started](getting-started.md), [User journey](user-journey.md) | Run the deterministic local path and inspect output. |
 | Bring-your-own-model user | [Run your model](run-your-model.md), [Connect models](connect-models.md), [Test your own model/runtime](test-your-model.md) | Test a local model, external OpenAI-compatible endpoint, or bounded local mini-swarm with explicit safety and privacy boundaries. |
-| Project status reviewer | [Current state](current-state.md), [Capability matrix](capability-matrix.md), [Roadmap](roadmap.md), [Project tracker](project-tracker.md) | Separate shipped, experimental, planned, blocked work, and visible GitHub issue flow. |
+| Project status reviewer | [Current state](current-state.md), [Research problem map](research-problem-map.md), [Capability matrix](capability-matrix.md), [Roadmap](roadmap.md), [Project tracker](project-tracker.md) | Separate shipped, active research, planned, blocked work, and visible GitHub issue flow. |
 | Benchmark reviewer | [Benchmark protocol](benchmark-protocol.md), [Benchmark semantics](benchmark-semantics.md), [Artifact schemas](artifact-schemas.md) | Understand what the benchmark proves and what it does not prove. |
 | Adapter author | [Custom adapter tutorial](custom-adapter-tutorial.md), [Adapter contract](adapter-contract.md), [Bring your own target](bring-your-own-target.md) | Implement a target without forking the benchmark model. |
 | Report reviewer | [Examples index](../examples/README.md), [Comparison example](../examples/comparison-report/README.md), [Reporting](reporting.md) | Inspect committed proof artifacts before running anything. |
@@ -130,7 +131,7 @@ Start here by role:
 | Local model reviewer | [Local Prometheus workflow](local-prometheus-workflow.md), [Local model profiles](local-model-profiles.md), [Metrics contract](metric-contract.md), [Connect models](connect-models.md) | Run a weak local model safely and read inconclusive/error evidence correctly. |
 | Swarm reviewer | [Bounded local swarm](bounded-local-swarm.md), [Inter-agent handoff integrity](inter-agent-handoff-integrity.md), [Memory governance theory](theory/memory-governance.md) | Review monolith vs naive swarm vs bounded swarm behavior over deterministic contracts. |
 | Safety reviewer | [Research rules](research-rules.md), [Authorized testing paths](authorized-testing-paths.md), [Threat model](threat-model.md), [SECURITY](../SECURITY.md) | Confirm the project stays defensive, synthetic, and authorized. |
-| Research reviewer | [Research claims registry](research-claims.md), [Theory docs](theory/), [Semantic drift propagation closure](semantic-drift-propagation-closure.md), [Evidence assurance model](evidence-assurance-model.md), [Research roadmap](research-roadmap.md) | Track research claim status, invariant maturity, closed research units, and evidence artifacts. |
+| Research reviewer | [Research problem map](research-problem-map.md), [Research claims registry](research-claims.md), [Theory docs](theory/), [Semantic drift propagation closure](semantic-drift-propagation-closure.md), [Evidence assurance model](evidence-assurance-model.md), [Research roadmap](research-roadmap.md) | Track shipped contours, active evidence work, next violation models, invariant maturity, closed research units, and evidence artifacts. |
 | Evidence publisher | [Evidence pack format](evidence-pack-format.md), [Private/public evidence boundary](private-public-evidence-boundary.md), [Git evidence workflow](git-evidence-workflow.md) | Promote a local research result into a sanitized public update without leaking raw transcripts or overclaiming. |
 | Swarm defense reviewer | [Local swarm defense contour](local-swarm-defense-contour.md), [Evidence map](showcase/evidence-map.md), [Private/public evidence boundary](private-public-evidence-boundary.md), [Research claims registry](research-claims.md) | Inspect four-family local-swarm defense coverage, control ablations, private/public boundary, and non-claims. |
 | Web-injection reviewer | [Marketing web-injection campaign](marketing-web-injection-campaign.md), [Live marketing web-injection campaign](marketing-web-live-campaign.md), [Evidence map](showcase/evidence-map.md), [Private/public evidence boundary](private-public-evidence-boundary.md), [Research claims registry](research-claims.md) | Inspect the offline marketing/ads web-ingestion scenario, owned-localhost local-model probe, source-label and authority controls, ablation reopenings, and non-claims before any broader live-web probe. |
@@ -142,30 +143,32 @@ If you still want the linear path:
 
 1. [README](../README.md) - current status, commands, and high-level positioning.
 2. [Current state](current-state.md) - shipped, experimental, planned, and active work.
-3. [Benchmark protocol](benchmark-protocol.md) - formal run semantics, scoring limits,
+3. [Research problem map](research-problem-map.md) - active map of shipped, maintained,
+   and next violation models.
+4. [Benchmark protocol](benchmark-protocol.md) - formal run semantics, scoring limits,
    and claim boundaries.
-4. [Positioning](positioning.md) and [boundary model](agentic-boundary-model.md) - the
+5. [Positioning](positioning.md) and [boundary model](agentic-boundary-model.md) - the
    operating-environment boundary thesis.
-5. [Evaluation topologies](evaluation-topologies.md) - what kinds of systems can sit
+6. [Evaluation topologies](evaluation-topologies.md) - what kinds of systems can sit
    behind a target adapter.
-6. [Corpus coverage matrix](corpus.md) - the 24 implemented patterns.
-7. [Comparison example](../examples/comparison-report/README.md) - the visible 24 -> 0
+7. [Corpus coverage matrix](corpus.md) - the 24 implemented patterns.
+8. [Comparison example](../examples/comparison-report/README.md) - the visible 24 -> 0
    demonstration.
-8. [Authorized testing paths](authorized-testing-paths.md) - local, owned, authorized,
+9. [Authorized testing paths](authorized-testing-paths.md) - local, owned, authorized,
    provider-program, and standards-aligned use.
-9. [Custom adapter tutorial](custom-adapter-tutorial.md) - the quickest path for a new
+10. [Custom adapter tutorial](custom-adapter-tutorial.md) - the quickest path for a new
    local target.
-10. [Adapter contract](adapter-contract.md) - how future targets can implement the benchmark.
-11. [Reporting design](reporting.md) - what reviewers should see in reports.
-12. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,
+11. [Adapter contract](adapter-contract.md) - how future targets can implement the benchmark.
+12. [Reporting design](reporting.md) - what reviewers should see in reports.
+13. [Problem-solution catalog](problem-solution-catalog.md) - larger map of problems,
    mitigations, and planned reference controls.
-13. [Corpus expansion plan](corpus-expansion-plan.md) - bounded backlog for future patterns.
-14. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
-15. [Research claims registry](research-claims.md) - status table for research claims from hypothesis through evidence.
-16. [Theory docs](theory/) - cleaned invariant statements and claim boundaries for research tracks.
-17. [Semantic drift propagation closure](semantic-drift-propagation-closure.md) - closed first semantic mini-swarm unit and next deepening target.
-18. [Evidence assurance model](evidence-assurance-model.md) - private-to-public evidence rules and bounded-swarm campaign metrics.
-19. [Roadmap](roadmap.md) - what is current, next, and future.
+14. [Corpus expansion plan](corpus-expansion-plan.md) - bounded backlog for future patterns.
+15. [Research roadmap](research-roadmap.md) - cleaned intake map for future patterns.
+16. [Research claims registry](research-claims.md) - status table for research claims from hypothesis through evidence.
+17. [Theory docs](theory/) - cleaned invariant statements and claim boundaries for research tracks.
+18. [Semantic drift propagation closure](semantic-drift-propagation-closure.md) - closed first semantic mini-swarm unit and next deepening target.
+19. [Evidence assurance model](evidence-assurance-model.md) - private-to-public evidence rules and bounded-swarm campaign metrics.
+20. [Roadmap](roadmap.md) - what is current, next, and future.
 
 Then run:
 

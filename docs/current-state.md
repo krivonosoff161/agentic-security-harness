@@ -119,6 +119,7 @@ These are roadmap items and must not be described as current capability:
 The next public-development focus is:
 
 1. Keep current-vs-planned documentation synchronized with code and committed artifacts.
+   The public-facing model backlog is [research-problem-map.md](research-problem-map.md).
 2. Keep the public evidence layer close to the artifacts: comparison, local swarm,
    attack matrix, evidence campaign, secret-egress, semantic drift, and semantic
    propagation pages must agree on counts and claim boundaries.

@@ -6,6 +6,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- Active research problem map (`docs/research-problem-map.md`) linking shipped deep
+  contours, active evidence maintenance, next violation-model candidates, and promotion
+  rules for future research slices.
+
 ## [0.14.0] - 2026-07-01
 
 ### Changed
