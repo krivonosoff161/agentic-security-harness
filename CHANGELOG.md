@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-07-01
+
 ### Changed
 - Reframed the repository status as a public research release rather than a generic
   pre-release label, while preserving explicit non-claims around production protection,
