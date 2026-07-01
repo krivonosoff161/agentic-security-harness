@@ -72,6 +72,7 @@ If those six points hold, the benchmark is coherent.
 | Adapter contract | Rules and metadata models for future model/provider/runtime adapters. | [adapter-contract.md](adapter-contract.md), `models.py` |
 | Reporting design | How executive and technical reports should be shaped. | [reporting.md](reporting.md) |
 | Research claims registry | Status table tracking each research claim from hypothesis through evidence artifacts. | [research-claims.md](research-claims.md) |
+| Project tracks | Maintainer-facing split between the shipped benchmark/evidence track and the future LLM Safety Gateway / Runtime Verifier direction. | [project-tracks.md](project-tracks.md) |
 | Evidence pack format | Required shape for future sanitized public research updates, private/public boundaries, claim rows, tests, and validation commands. | [evidence-pack-format.md](evidence-pack-format.md), [private-public-evidence-boundary.md](private-public-evidence-boundary.md) |
 | Theory docs | Cleaned invariant statements, formal objects, and claim boundaries for research tracks. | [theory/](theory/) |
 | Boundary-layer evidence matrix | Public readout tying handoff, authority, and memory-governance variation rows to executable tests and explicit non-claims. | [boundary-layer-evidence-matrix.md](boundary-layer-evidence-matrix.md) |

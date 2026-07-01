@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- Reframed the repository status as a public research release rather than a generic
+  pre-release label, while preserving explicit non-claims around production protection,
+  certification, v1.0 stability, and shipped gateway/runtime behavior.
+- Added `docs/project-tracks.md` to separate the shipped benchmark/evidence track from
+  the future LLM Safety Gateway / Runtime Verifier direction.
+
 ### Added
 - Context-consent deterministic campaign: `ash context-consent-campaign` publishes the
   fifth boundary family, "context is not consent", with 5 synthetic consent-boundary

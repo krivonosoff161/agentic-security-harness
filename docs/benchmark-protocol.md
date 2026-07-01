@@ -6,7 +6,8 @@ cannot prove, and what must stay experimental until the method is stronger.
 
 ## Status
 
-Current release status: **pre-release credible alpha**.
+Current release status: **public research release**. The benchmark is usable and
+artifact-backed, but the v1.0 stable benchmark contract is not frozen yet.
 
 The shipped benchmark core is local, deterministic, synthetic, and offline. It is useful
 for reproducing modeled agentic operating-environment boundary failures and measuring
@@ -109,7 +110,7 @@ For external prompt-only runs:
 
 ## Reproducibility requirements
 
-A report is reproducible enough for this pre-release when it records:
+A report is reproducible enough for the current research release when it records:
 
 - target id and target descriptor;
 - pattern id and graph path;

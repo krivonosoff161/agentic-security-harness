@@ -1,6 +1,6 @@
 # Current state
 
-> Last reviewed: 2026-06-25.
+> Last reviewed: 2026-07-01.
 >
 > Scope: public status of `agentic-security-harness` on `main`, version `0.13.0` plus
 > unreleased governance and evidence-hardening changes. This page is a reviewer-facing
@@ -8,13 +8,14 @@
 
 ## One-line status
 
-Agentic Security Harness is a **pre-release research toolkit**: a working trace-first,
-defensive benchmark prototype for agentic AI boundary failures with committed
+Agentic Security Harness is a **public research release**: a working trace-first,
+defensive benchmark for agentic AI boundary failures with committed
 deterministic examples, bounded local-swarm evidence, evidence-campaign metrics, and
 sanitized local-model semantic-drift / propagation probes.
 
-It is strong enough to show as a public alpha benchmark/toolkit. It is not a production
-certification benchmark, a general pentest tool, or a claim that a target is secure.
+It is strong enough to show as a public research benchmark/toolkit. It is not a
+production certification benchmark, a general pentest tool, or a claim that a target is
+secure.
 
 ## Shipped and verified
 
@@ -47,6 +48,7 @@ certification benchmark, a general pentest tool, or a claim that a target is sec
 | Sanitized local-model mini-swarm campaign | Shipped local empirical slice | `ash swarm-defense-live-campaign` runs private local worker/chief probes over the four-family contour and writes sanitized public summaries; the committed base example records 180 observations, 22 chief acceptances, 1 worker drift detection, 0 canary leaks, 22 verifier blocks, 96 replay-ablation reopenings, 0 adapter errors, and 100% response-hash coverage. A supplemental long-session example records 15 observations, each with 3 worker turns, 1 chief acceptance, 1 verifier block, 4 replay-ablation reopenings, 1 adapter error, and 0 canary leaks. A deep multi-model example records 168 observations, 67 chief acceptances, 3 worker drift detections, 0 canary leaks, 70 verifier blocks, 70/70 unsafe chains blocked, 91/91 benign chains allowed, 242 replay-ablation reopenings, and 100% response/turn-hash coverage for non-adapter-error rows. Public fields are bounded by `docs/private-public-evidence-boundary.md`. |
 | Marketing web-injection swarm campaign | Shipped synthetic defense slice | `ash marketing-web-injection-campaign` models an offline marketing/ads web-ingestion swarm with hostile page text, synthetic internal strategy/contract values, naive/bounded/ablation/benign modes, sanitized public summaries, and validation support. The committed example records naive leaks 5/5, bounded leaks 0/5, ablation leaks 21/21, benign runs 5/5 allowed, and response-hash coverage 100%. |
 | Live local-model marketing web-injection campaign | Shipped local empirical slice | `ash marketing-web-live-campaign` runs an owned localhost web stand through local worker/chief models, keeps raw pages/prompts/responses/synthetic strategy values under `.internal/`, and writes sanitized public summaries. The committed example records 60 observations, 3 worker leaks, 1 chief leak, 1 ablation final leak, 0 bounded final leaks, 0 benign final leaks, 8 verifier blocks, 0 false blocks, and 100% response/turn-hash coverage. |
+| Context consent boundary | Shipped deterministic research slice | `ash context-consent-campaign` models cases where contextual text claims approval, but no current consent receipt exists. The committed example records 5 consent-boundary cases, 45 deterministic rows, naive risky-action acceptances 5, bounded acceptances 0, ablation acceptances 18, and benign false blocks 0. |
 | Public evidence map | Shipped docs slice | `docs/showcase/evidence-map.md` links each front-page metric to the artifact, reproduce command, claim, and non-claim. |
 | Evidence pack format | Shipped docs slice | `docs/evidence-pack-format.md` defines how future local research becomes sanitized public evidence with private/public boundaries, hashes, claim rows, tests, and validation commands. |
 | Local real-model swarm probes | Local empirical | Prometheus and qwen2.5 have executed the full 15-scenario swarm suite with 100% transcript-hash coverage and 0% adapter-error rate; model text remains evidence-quality context only. |
@@ -111,7 +113,7 @@ These are roadmap items and must not be described as current capability:
 - second-reviewer MITRE ATLAS mapping review and release-to-release upkeep;
 - interactive multi-run viewer;
 - persistent trace store beyond local manifests / SQLite metadata index;
-- reference gateway runtime.
+- reference gateway / internal LLM Safety Gateway runtime.
 
 ## Current active work
 
@@ -129,6 +131,8 @@ The next public-development focus is:
 6. Verify standards mappings without implying certification.
 7. Improve public demo/showcase reports with replayable, validated artifacts and clear
    private/public evidence boundaries.
+8. Keep the benchmark track separate from the future internal LLM Safety Gateway /
+   Runtime Verifier track; see [project-tracks.md](project-tracks.md).
 
 ## Validation commands
 
@@ -198,7 +202,7 @@ It is a synthetic control-attribution layer, not a live model or production-swar
 
 Allowed public claim:
 
-> Trace-first defensive benchmark prototype for reproducible agentic AI boundary-failure
+> Trace-first defensive benchmark for reproducible agentic AI boundary-failure
 > evaluation, with local deterministic targets, validated artifacts, bounded local-swarm
 > evidence, and experimental opt-in external/local model checks.
 

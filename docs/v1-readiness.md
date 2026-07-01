@@ -1,9 +1,9 @@
 # v1.0 readiness matrix
 
 This page tracks the path toward a stable v1.0 benchmark. It is a readiness map, not a
-release announcement, and not a claim that v1.0 is ready. The current project status
-remains pre-release credible alpha until the blockers in
-[release-checklist.md](release-checklist.md) are cleared.
+release announcement, and not a claim that v1.0 is ready. The current project status is a
+public research release until the blockers in [release-checklist.md](release-checklist.md)
+are cleared.
 
 ## Release principle
 

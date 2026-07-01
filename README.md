@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/status-pre--release-orange)
+![Status](https://img.shields.io/badge/status-research--release-blue)
 
 **Your AI coding agent reads untrusted repo text. Can it tell project data from
 instructions?**
@@ -65,7 +65,7 @@ In plain English: this repo answers three practical questions.
 
 ## Evidence snapshot
 
-**Status:** pre-release research toolkit. This is a working defensive benchmark, not a
+**Status:** public research release. This is a working defensive benchmark, not a
 production certification system, model leaderboard, CVE claim, or proof that any deployed
 agent is secure.
 
@@ -228,7 +228,7 @@ deterministic tests - honest residual risk. Full rules:
 
 ## Status
 
-**Pre-release, working.** The harness runs a **24-pattern local corpus centered on
+**Public research release.** The harness runs a **24-pattern local corpus centered on
 agentic operating-environment boundary failures** - data-boundary, authority, perception,
 memory governance, approval, and audit integrity - against deterministic local targets,
 with baseline-vs-protected replay (see *What exists today*). Cross-app contamination,
@@ -236,7 +236,7 @@ real target adapters, live MCP adapters, richer live multi-agent tests, full mul
 adapters, and the reference gateway come later.
 See [docs/roadmap.md](docs/roadmap.md).
 
-![status](https://img.shields.io/badge/status-pre--release-orange)
+![status](https://img.shields.io/badge/status-research--release-blue)
 ![ci](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/ci.yml/badge.svg)
 ![python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![license](https://img.shields.io/badge/license-Apache--2.0-green)
@@ -302,6 +302,18 @@ See [docs/roadmap.md](docs/roadmap.md).
 
 No gateway, real payloads, or implicit provider calls. External model/runtime calls exist
 only in the experimental `run-external` path and require an explicit command.
+
+## Project tracks
+
+This repository ships the benchmark/evidence side of the work today: synthetic targets,
+traces, scorecards, validators, and sanitized public evidence for agentic boundary
+failures.
+
+A related but separate future track is an internal **LLM Safety Gateway / Runtime
+Verifier**: an organizational control layer for observing LLM traffic, tool calls,
+provenance, consent boundaries, and privacy-preserving evidence. It is not shipped
+behavior in this release, and should not be described as a production gateway. See
+[docs/project-tracks.md](docs/project-tracks.md).
 
 ## Current vs planned
 
