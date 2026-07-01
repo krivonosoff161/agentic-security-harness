@@ -1,8 +1,8 @@
 # Release checklist
 
-Practical preflight for cutting a release. The project is **pre-1.0**; this list is the
-path toward a stable v1.0, not a claim that v1.0 is ready. The broader readiness map is
-[v1-readiness.md](v1-readiness.md).
+Practical preflight for cutting a public research release. The project is **pre-1.0**;
+this list is the path toward a stable v1.0 benchmark contract, not a claim that v1.0 is
+ready. The broader readiness map is [v1-readiness.md](v1-readiness.md).
 
 ## Every release
 
@@ -26,6 +26,11 @@ Then verify by hand:
 - [ ] `ash --help` lists every command; no command errors on `--help`.
 - [ ] README "What exists today" / "Current vs planned" match the code (no future feature
       described as current).
+- [ ] README status says `public research release` or the exact tagged release status,
+      not `pre-release`, unless the release is intentionally being withdrawn from public
+      showcase.
+- [ ] `docs/project-tracks.md` still keeps the shipped benchmark separate from the future
+      LLM Safety Gateway / Runtime Verifier direction.
 - [ ] `docs/run-your-model.md` still works as the shortest external operator path for
       deterministic demo, one OpenAI-compatible model, and local mini-swarm runs.
 - [ ] Any new research result follows [evidence-pack-format.md](evidence-pack-format.md)

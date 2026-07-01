@@ -98,12 +98,28 @@ The next work is ordered by credibility, not by feature volume:
 
 ---
 
+## Project tracks
+
+The current release-facing track is **Agentic Security Harness**: a public research
+benchmark with synthetic targets, traces, scorecards, validators, and sanitized evidence.
+
+The related **LLM Safety Gateway / Runtime Verifier** direction is a future track, not a
+shipped runtime. It would apply harness evidence at organization boundaries such as LLM
+traffic, tool calls, file writes, git operations, source provenance, consent receipts, and
+privacy-preserving evidence. Keep it documented separately until it has its own design
+review, trust-domain model, and implementation boundary. See
+[project-tracks.md](project-tracks.md).
+
+---
+
 ## Future tracks / not part of the current benchmark release
 
-These come after v1.0 and are not implemented today. They stay out of the benchmark
-release scope until the core above is stable:
+These are not implemented in the current benchmark release. Some may proceed as a
+separate repository or separate track before benchmark v1.0, but they stay out of the
+shipped benchmark scope until they have their own design review and release boundary:
 
-- **Reference gateway** - a planned optional defense target for risk-reduction replay.
+- **Reference gateway / LLM Safety Gateway** - a planned optional defense/runtime track
+  for risk-reduction replay and organizational LLM-use controls.
 - **Native provider adapters** - first-class SDK adapters (Anthropic, OpenAI Responses,
   Google, etc.) beyond the current OpenAI-compatible path.
 - **Agent-host / tool-use adapters** - drive an authorized live agent that actually calls

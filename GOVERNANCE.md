@@ -1,6 +1,7 @@
 # Governance
 
-Agentic Security Harness is a pre-1.0 open-source defensive benchmark. Governance is
+Agentic Security Harness is a public research release of a pre-1.0 open-source
+defensive benchmark. Governance is
 intentionally lightweight, but changes must preserve the benchmark's public credibility:
 synthetic inputs, trace-first evidence, honest limitations, and no provider-specific lock-in.
 
@@ -44,5 +45,6 @@ based and bounded; see [docs/corpus-expansion-plan.md](docs/corpus-expansion-pla
 ## Release authority
 
 Release tags are cut only after the release checklist passes. Until v1.0, releases remain
-pre-release alpha/beta artifacts and must not be described as certification or complete
-security coverage.
+public research releases rather than stable benchmark contracts, and must not be
+described as certification, complete security coverage, production protection, or a
+shipped gateway/runtime verifier.
