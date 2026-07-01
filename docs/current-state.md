@@ -2,9 +2,8 @@
 
 > Last reviewed: 2026-07-01.
 >
-> Scope: public status of `agentic-security-harness` on `main`, version `0.13.0` plus
-> unreleased governance and evidence-hardening changes. This page is a reviewer-facing
-> status snapshot, not a roadmap promise.
+> Scope: public status of `agentic-security-harness` on `main`, version `0.14.0`. This
+> page is a reviewer-facing status snapshot, not a roadmap promise.
 
 ## One-line status
 
