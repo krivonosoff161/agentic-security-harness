@@ -89,6 +89,7 @@ defined in [docs/private-public-evidence-boundary.md](docs/private-public-eviden
 | Marketing web-injection swarm | controlled offline web-like corpus; naive leaks `5/5`, bounded leaks `0/5`, ablation leaks `21/21`, benign runs `5/5` allowed | [`examples/marketing-web-injection-sanitized/`](examples/marketing-web-injection-sanitized/) / [`model`](docs/marketing-web-injection-campaign.md) |
 | Live local-model marketing web-injection | owned local web + local worker/chief models; `60` observations, worker leaks `3`, chief leaks `1`, ablation final leaks `1`, bounded final leaks `0`, benign final leaks `0` | [`examples/marketing-web-live-sanitized/`](examples/marketing-web-live-sanitized/) / [`model`](docs/marketing-web-live-campaign.md) |
 | Swarm resilience/stability model | `7` degradation families / `46` observations; naive unsafe `7`, bounded unsafe `0`, ablation unsafe `18`, benign false blocks `0` | [`examples/swarm-resilience-sanitized/`](examples/swarm-resilience-sanitized/) / [`model`](docs/swarm-resilience-campaign.md) |
+| Context consent boundary | `5` consent-boundary cases / `45` deterministic rows; naive risky-action acceptances `5`, bounded acceptances `0`, ablation acceptances `18`, benign false blocks `0` | [`examples/context-consent-sanitized/`](examples/context-consent-sanitized/) / [`model`](docs/context-consent-campaign.md) |
 
 The deterministic rows measure declared synthetic situations. The local-model rows are
 sanitized evidence-quality snapshots. Public artifacts may expose model names, roles,

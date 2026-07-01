@@ -7,6 +7,11 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Context-consent deterministic campaign: `ash context-consent-campaign` publishes the
+  fifth boundary family, "context is not consent", with 5 synthetic consent-boundary
+  cases, 45 deterministic rows, control-ablation attribution, benign-path checks,
+  validator support, and the committed sanitized example
+  `examples/context-consent-sanitized/`. No local or external models are called.
 - Live local-model marketing web-injection campaign: `ash marketing-web-live-campaign`
   runs an owned localhost web stand against local worker/chief models, writes raw
   pages/prompts/responses under `.internal/`, publishes a sanitized example under

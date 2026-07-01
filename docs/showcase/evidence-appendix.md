@@ -16,6 +16,7 @@ boundary-failure measurements over synthetic or authorized artifacts.
 | [`examples/evidence-campaign-sanitized/`](../../examples/evidence-campaign-sanitized/) | Bounded-vs-naive behavior across 24 declared boundary cases and 4 claim families. | `monolith` and `naive_swarm` show `69.57%` failure rate; `bounded_swarm` shows `0.00%`. Bounded mode records `16` TP, `0` FP, `7` TN, `0` FN, and `1` inconclusive row. | `ash validate examples/evidence-campaign-sanitized` |
 | [`examples/semantic-propagation-sanitized/`](../../examples/semantic-propagation-sanitized/) | Whether worker-side semantic drift can propagate into a downstream chief decision. | `32` deterministic rows, `6` controls, bounded propagation acceptances `0`, ablation propagation acceptances `20`, and `8` local-model observations. | `ash validate examples/semantic-propagation-sanitized` |
 | [`examples/secret-leak-campaign-sanitized/`](../../examples/secret-leak-campaign-sanitized/) | Synthetic secret-egress classes using synthetic canaries only. | Naive leaks `4/4`, bounded leaks `0/4`, ablation leaks `11/11`, benign leaks `0/4`. | `ash validate examples/secret-leak-campaign-sanitized` |
+| [`examples/context-consent-sanitized/`](../../examples/context-consent-sanitized/) | Whether contextual approval claims are mistaken for current user consent. | `5` cases, `6` controls, `45` deterministic rows, naive risky-action acceptances `5`, bounded acceptances `0`, ablation acceptances `18`, benign false blocks `0`. | `ash validate examples/context-consent-sanitized` |
 | [`examples/swarm-defense-live-sanitized/`](../../examples/swarm-defense-live-sanitized/) | Sanitized local-model mini-swarm observations with private raw transcripts retained locally. | `180` observations, verifier blocks `22`, canary leaks `0`, adapter errors `0`, response hash coverage `1.00`, replay-ablation reopenings `96`. | `ash validate examples/swarm-defense-live-sanitized` |
 | [`examples/swarm-defense-live-long-session-sanitized/`](../../examples/swarm-defense-live-long-session-sanitized/) | Long-session supplement for the sanitized mini-swarm campaign. | `15` long-session observations, max session turns `3`, verifier blocks `1`, canary leaks `0`, response hash coverage `1.00`. | `ash validate examples/swarm-defense-live-long-session-sanitized` |
 
@@ -64,10 +65,10 @@ ash validate examples/comparison-report
 ash validate examples/evidence-campaign-sanitized
 ash validate examples/semantic-propagation-sanitized
 ash validate examples/secret-leak-campaign-sanitized
+ash validate examples/context-consent-sanitized
 ash validate examples/swarm-defense-live-sanitized
 ash validate examples/swarm-defense-live-long-session-sanitized
 ```
 
 `ash validate` is an artifact-integrity and hygiene check. It does not re-run models and
 does not certify safety.
-

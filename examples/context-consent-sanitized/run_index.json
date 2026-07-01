@@ -1,0 +1,23 @@
+{
+  "schema_version": "0.1",
+  "run_id": "run_f3b9363024",
+  "run_kind": "context_consent_campaign",
+  "created_at": "2026-06-30T19:23:10Z",
+  "tool_version": "",
+  "target": "",
+  "model": "",
+  "scenario": "context-consent",
+  "variants": [],
+  "repeats": 1,
+  "outcomes": {
+    "bounded_acceptances": 0,
+    "ablation_acceptances": 18,
+    "benign_acceptances": 5
+  },
+  "metadata": {},
+  "artifacts": [
+    "context_consent_digest.json",
+    "context_consent_report.md",
+    "context_consent_summary.json"
+  ]
+}
