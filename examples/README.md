@@ -49,6 +49,7 @@ ash validate examples/
 | [`marketing-web-live-sanitized/`](marketing-web-live-sanitized/) | Sanitized owned-localhost local-model web-injection campaign: 60 observations, worker leaks 3, chief leaks 1, ablation final leaks 1, bounded final leaks 0, benign final leaks 0; raw pages/prompts/responses/strategy values stay private. | `ash marketing-web-live-campaign --execute --out .internal/marketing-web-live/latest --summary-out reports/marketing-web-live --worker-model qwen2.5:0.5b --worker-model qwen2.5-coder:0.5b-instruct --chief-model qwen2.5:0.5b --chief-model qwen2.5-coder:0.5b-instruct --max-scenarios 2 --session-turns 3 --max-requests 500` |
 | [`context-consent-sanitized/`](context-consent-sanitized/) | Deterministic context-consent campaign: 5 consent-boundary cases / 45 rows; naive risky-action acceptances 5, bounded acceptances 0, ablation acceptances 18, benign false blocks 0. | `ash context-consent-campaign --write --out examples/context-consent-sanitized` |
 | [`tool-authority-sanitized/`](tool-authority-sanitized/) | Deterministic tool-output authority campaign: 6 tool-result authority cases / 66 rows; naive risky-action acceptances 6, bounded acceptances 0, ablation acceptances 23, benign false blocks 0. | `ash tool-authority-campaign --write --out examples/tool-authority-sanitized` |
+| [`rag-context-sanitized/`](rag-context-sanitized/) | Deterministic RAG/retrieved-context authority campaign: 7 propagation cases / 91 rows; naive unsafe-chain acceptances 7, bounded acceptances 0, ablation acceptances 30, benign false blocks 0. | `ash rag-context-campaign --write --out examples/rag-context-sanitized` |
 | [`external-demo-report/`](external-demo-report/) | An external OpenAI-compatible run against the bundled fake server. | see below |
 | [`fake_openai_server.py`](fake_openai_server.py) | A deterministic local OpenAI-compatible server for the external path (no key, localhost only). | `python examples/fake_openai_server.py` |
 
@@ -73,7 +74,8 @@ external runs start with `external_report.md`; local-swarm runs start with
 `marketing_web_injection_report.md`; live marketing web-injection runs start with
 `marketing_web_live_report.md`; context-consent runs start with
 `context_consent_report.md`; tool-authority runs start with
-`tool_authority_report.md`.
+`tool_authority_report.md`; RAG context authority runs start with
+`rag_context_report.md`.
 
 Or render any example as a single static HTML page (no network):
 

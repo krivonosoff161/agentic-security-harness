@@ -95,6 +95,7 @@ defined in [docs/private-public-evidence-boundary.md](docs/private-public-eviden
 | Swarm resilience/stability model | `7` degradation families / `46` observations; naive unsafe `7`, bounded unsafe `0`, ablation unsafe `18`, benign false blocks `0` | [`examples/swarm-resilience-sanitized/`](examples/swarm-resilience-sanitized/) / [`model`](docs/swarm-resilience-campaign.md) |
 | Context consent boundary | `5` consent-boundary cases / `45` deterministic rows; naive risky-action acceptances `5`, bounded acceptances `0`, ablation acceptances `18`, benign false blocks `0` | [`examples/context-consent-sanitized/`](examples/context-consent-sanitized/) / [`model`](docs/context-consent-campaign.md) |
 | Tool-output authority boundary | `6` tool-output authority cases / `66` deterministic rows; naive risky-action acceptances `6`, bounded acceptances `0`, ablation acceptances `23`, benign false blocks `0` | [`examples/tool-authority-sanitized/`](examples/tool-authority-sanitized/) / [`model`](docs/tool-authority-campaign.md) |
+| RAG context authority boundary | `7` retrieved-context propagation cases / `91` deterministic rows; naive unsafe-chain acceptances `7`, bounded acceptances `0`, ablation acceptances `30`, benign false blocks `0` | [`examples/rag-context-sanitized/`](examples/rag-context-sanitized/) / [`model`](docs/rag-context-campaign.md) |
 
 The deterministic rows measure declared synthetic situations. The local-model rows are
 sanitized evidence-quality snapshots. Public artifacts may expose model names, roles,

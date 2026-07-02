@@ -1110,6 +1110,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="write sanitized public artifacts",
     )
 
+    rag_context_p = sub.add_parser(
+        "rag-context-campaign",
+        help="build the deterministic retrieved-context authority campaign",
+    )
+    rag_context_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path("reports/rag-context"),
+        help="sanitized output directory (default: reports/rag-context)",
+    )
+    rag_context_p.add_argument(
+        "--write",
+        action="store_true",
+        help="write sanitized public artifacts",
+    )
+
     marketing_web_live_p = sub.add_parser(
         "marketing-web-live-campaign",
         help="run private local-model probes over an owned local web-injection stand",
@@ -1285,7 +1301,9 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.context_consent_campaign_dirs)} "
         "context-consent-campaign dir(s), "
         f"{len(result.tool_authority_campaign_dirs)} "
-        "tool-authority-campaign dir(s)"
+        "tool-authority-campaign dir(s), "
+        f"{len(result.rag_context_campaign_dirs)} "
+        "rag-context-campaign dir(s)"
     )
     print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
     if redacted_errors or redacted_warnings:
@@ -2885,6 +2903,39 @@ def _tool_authority_campaign(*, out: Path, write: bool) -> int:
     return 0
 
 
+def _rag_context_campaign(*, out: Path, write: bool) -> int:
+    from agentic_security_harness.rag_context_campaign import (
+        build_rag_context_campaign,
+        write_rag_context_artifacts,
+    )
+    from agentic_security_harness.validation import validate_path
+
+    summary = build_rag_context_campaign(created_at=_now_utc())
+    print("rag-context-campaign prepared.")
+    print("Network/model calls: none. This is a deterministic RAG authority model.")
+    print(
+        f"cases={summary.metrics.cases} "
+        f"rows={summary.metrics.deterministic_rows} "
+        f"naive_acceptances={summary.metrics.naive_acceptances} "
+        f"bounded_acceptances={summary.metrics.bounded_acceptances} "
+        f"ablation_acceptances={summary.metrics.ablation_acceptances} "
+        f"benign_false_blocks={summary.metrics.benign_false_blocks}"
+    )
+    if not write:
+        print("Dry-run only. Add --write to write sanitized artifacts.")
+        return 0
+    paths = write_rag_context_artifacts(out, summary)
+    for path in paths:
+        print(f"wrote {path.as_posix()}")
+    result = validate_path(out)
+    if not result.ok:
+        print(f"Validation FAILED for {redact_artifact_text(out.as_posix())}:")
+        print(f"errors: {len(result.errors)}")
+        return 1
+    print(f"validated {out.as_posix()} (artifact integrity only).")
+    return 0
+
+
 def _marketing_web_live_campaign(
     *,
     out: Path,
@@ -3358,6 +3409,11 @@ def main(argv: list[str] | None = None) -> int:
         )
     if args.command == "tool-authority-campaign":
         return _tool_authority_campaign(
+            out=args.out,
+            write=args.write,
+        )
+    if args.command == "rag-context-campaign":
+        return _rag_context_campaign(
             out=args.out,
             write=args.write,
         )

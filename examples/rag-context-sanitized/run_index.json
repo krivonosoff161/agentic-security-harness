@@ -1,0 +1,23 @@
+{
+  "schema_version": "0.1",
+  "run_id": "run_f5472c72cd",
+  "run_kind": "rag_context_campaign",
+  "created_at": "2026-07-02T17:19:22Z",
+  "tool_version": "",
+  "target": "",
+  "model": "",
+  "scenario": "rag-context",
+  "variants": [],
+  "repeats": 1,
+  "outcomes": {
+    "bounded_acceptances": 0,
+    "ablation_acceptances": 30,
+    "benign_acceptances": 7
+  },
+  "metadata": {},
+  "artifacts": [
+    "rag_context_digest.json",
+    "rag_context_report.md",
+    "rag_context_summary.json"
+  ]
+}
