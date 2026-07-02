@@ -7,6 +7,12 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Tool-output authority deterministic campaign: `ash tool-authority-campaign` publishes
+  the sixth boundary family, "tool output is not authority", with 6 synthetic
+  tool-result authority cases, 66 deterministic rows, control-ablation attribution,
+  benign-path checks, validator support, and the committed sanitized example
+  `examples/tool-authority-sanitized/`. No local models, external models, real tools, or
+  endpoints are called.
 - Active research problem map (`docs/research-problem-map.md`) linking shipped deep
   contours, active evidence maintenance, next violation-model candidates, and promotion
   rules for future research slices.
