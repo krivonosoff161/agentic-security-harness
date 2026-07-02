@@ -1,6 +1,6 @@
 # Current state
 
-> Last reviewed: 2026-07-01.
+> Last reviewed: 2026-07-02.
 >
 > Scope: public status of `agentic-security-harness` on `main`, version `0.14.0`. This
 > page is a reviewer-facing status snapshot, not a roadmap promise.
@@ -48,6 +48,7 @@ secure.
 | Marketing web-injection swarm campaign | Shipped synthetic defense slice | `ash marketing-web-injection-campaign` models an offline marketing/ads web-ingestion swarm with hostile page text, synthetic internal strategy/contract values, naive/bounded/ablation/benign modes, sanitized public summaries, and validation support. The committed example records naive leaks 5/5, bounded leaks 0/5, ablation leaks 21/21, benign runs 5/5 allowed, and response-hash coverage 100%. |
 | Live local-model marketing web-injection campaign | Shipped local empirical slice | `ash marketing-web-live-campaign` runs an owned localhost web stand through local worker/chief models, keeps raw pages/prompts/responses/synthetic strategy values under `.internal/`, and writes sanitized public summaries. The committed example records 60 observations, 3 worker leaks, 1 chief leak, 1 ablation final leak, 0 bounded final leaks, 0 benign final leaks, 8 verifier blocks, 0 false blocks, and 100% response/turn-hash coverage. |
 | Context consent boundary | Shipped deterministic research slice | `ash context-consent-campaign` models cases where contextual text claims approval, but no current consent receipt exists. The committed example records 5 consent-boundary cases, 45 deterministic rows, naive risky-action acceptances 5, bounded acceptances 0, ablation acceptances 18, and benign false blocks 0. |
+| Tool-output authority boundary | Shipped deterministic research slice | `ash tool-authority-campaign` models cases where tool output, scanner reports, schema annotations, error text, worker summaries, or metric rows claim authority they do not have. The committed example records 6 tool-output authority cases, 66 deterministic rows, naive risky-action acceptances 6, bounded acceptances 0, ablation acceptances 23, and benign false blocks 0. |
 | Public evidence map | Shipped docs slice | `docs/showcase/evidence-map.md` links each front-page metric to the artifact, reproduce command, claim, and non-claim. |
 | Evidence pack format | Shipped docs slice | `docs/evidence-pack-format.md` defines how future local research becomes sanitized public evidence with private/public boundaries, hashes, claim rows, tests, and validation commands. |
 | Local real-model swarm probes | Local empirical | Prometheus and qwen2.5 have executed the full 15-scenario swarm suite with 100% transcript-hash coverage and 0% adapter-error rate; model text remains evidence-quality context only. |
@@ -93,6 +94,9 @@ These features exist, but their results must be read conservatively:
   against local worker/chief models. Raw pages, prompts, responses, and synthetic
   strategy values remain private under `.internal/`; public examples expose only hashes,
   aggregate classifications, verifier attribution, and non-claims.
+- `ash tool-authority-campaign`: deterministic, no-model tool-output authority campaign
+  over synthetic tool outputs. It has no private local-model run and does not call real
+  tools or endpoints.
 - Scenario matrix and timeline variants: deterministic local replay metadata and pattern
   subsets, not live multi-tool execution.
 

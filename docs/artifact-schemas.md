@@ -36,6 +36,8 @@ mapping, and forbidden marker scans.
 | `swarm_defense_live_summary.json` | `swarm_defense_live_campaign` | 0.3 | `ash swarm-defense-live-campaign` | `ash validate` |
 | `marketing_web_live_summary.json` | `marketing_web_live_campaign` | 0.1 | `ash marketing-web-live-campaign` | `ash validate` |
 | `swarm_resilience_summary.json` | `swarm_resilience_campaign` | 0.1 | `ash swarm-resilience-campaign` | `ash validate` |
+| `context_consent_summary.json` | `context_consent_campaign` | 0.1 | `ash context-consent-campaign` | `ash validate` |
+| `tool_authority_summary.json` | `tool_authority_campaign` | 0.1 | `ash tool-authority-campaign` | `ash validate` |
 
 `run_diff` v0.2 replaces the ambiguous v0.1 coarse labels (`fixed`, `new`,
 `changed`, `unchanged`) with explicit decisive/non-decisive counters such as
@@ -110,12 +112,21 @@ Non-versioned by design:
   Private synthetic payload notes and per-step calculation traces remain under
   `.internal/`; the public artifact keeps state hashes, numeric state-vector metrics,
   stability verdicts, block attribution, ablation reopenings, and non-claims.
+- `context_consent_summary.json` is a sanitized deterministic artifact over contextual
+  approval claims that are not current user consent. It keeps consent-boundary cases,
+  control-ablation rows, benign-path checks, context fingerprints, metrics, and
+  non-claims.
+- `tool_authority_summary.json` is a sanitized deterministic artifact over tool-output
+  authority claims. It keeps tool-surface labels, authority-claim descriptions,
+  control-ablation rows, benign-path checks, tool-output fingerprints, metrics, and
+  non-claims. It does not call real tools or models.
 - Campaign digest files such as `evidence_campaign_digest.json`,
   `secret_leak_campaign_digest.json`, `semantic_drift_digest.json`,
-  `semantic_propagation_digest.json`, `swarm_defense_live_digest.json`, and
-  `swarm_resilience_digest.json` are derived public summary indexes next to the
-  versioned summaries. They are validated as part of their campaign directory, but the
-  summary JSON remains the canonical schema-versioned artifact.
+  `semantic_propagation_digest.json`, `swarm_defense_live_digest.json`,
+  `swarm_resilience_digest.json`, `context_consent_digest.json`, and
+  `tool_authority_digest.json` are derived public summary indexes next to the versioned
+  summaries. They are validated as part of their campaign directory, but the summary JSON
+  remains the canonical schema-versioned artifact.
 - A `comparison` is represented as two report directories (`baseline/`, `protected/`) plus
   `comparison.md`; there is no separate `comparison.json`. Use `ash diff-runs` for an
   arbitrary run-vs-run diff (which does emit a versioned `run_diff.json`).

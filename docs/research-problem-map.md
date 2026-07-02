@@ -1,6 +1,6 @@
 # Active research problem map
 
-> Last reviewed: 2026-07-01.
+> Last reviewed: 2026-07-02.
 >
 > Scope: public-facing map of defensive violation models for Agentic Security Harness.
 > This is a planning and evidence index, not a production-safety claim, model
@@ -50,6 +50,7 @@ These are the main research contours that already have public artifacts.
 | Shipped | Semantic propagation | A drifted worker summary must not become an authoritative chief decision. | [`examples/semantic-propagation-sanitized/`](../examples/semantic-propagation-sanitized/), [`semantic-propagation-defense-model.md`](semantic-propagation-defense-model.md) | Worker-to-chief propagation can be attributed to declared controls and ablations. | Real multi-agent production safety. |
 | Shipped | Swarm boundary defense | Multi-agent chains must preserve source, trust, consent, memory, and verifier boundaries across combined failure families. | [`examples/swarm-defense-contour-sanitized/`](../examples/swarm-defense-contour-sanitized/), [`examples/swarm-defense-live-deep-sanitized/`](../examples/swarm-defense-live-deep-sanitized/) | Combined failure families can be blocked by bounded contracts, with replay-ablation attribution. | General swarm safety or benchmark-grade model ranking. |
 | Shipped | Context is not consent | Contextual text that claims approval is not current user consent. | [`examples/context-consent-sanitized/`](../examples/context-consent-sanitized/), [`context-consent-campaign.md`](context-consent-campaign.md) | Five consent-boundary cases produce naive risky-action acceptances, bounded acceptances 0, and benign false blocks 0. | Legal proof of consent handling in deployed systems. |
+| Shipped | Tool output is not authority | Tool results, scanner text, schema annotations, error messages, worker summaries, and metric rows remain data unless a trusted authority source grants action. | [`examples/tool-authority-sanitized/`](../examples/tool-authority-sanitized/), [`tool-authority-campaign.md`](tool-authority-campaign.md) | Six tool-output authority cases produce naive risky-action acceptances, bounded acceptances 0, ablation attribution, and benign false blocks 0. | Production tool-agent safety, real MCP/schema verification, or exhaustive tool-output coverage. |
 
 ## Active evidence and maintenance tracks
 
@@ -72,7 +73,6 @@ implementation, tests, examples, validation, and a merged PR.
 
 | Candidate | Plain-language problem | Boundary invariant | Why it is different | Existing anchor | Graduation artifact |
 |---|---|---|---|---|---|
-| `tool_result.cross_model_instruction_trust` | A tool result tells the next model what to do, and the next model treats that output as authority. | Tool output remains untrusted data across model and agent boundaries. | Tool-output authority, not repo text or user consent. | [`corpus-expansion-plan.md`](corpus-expansion-plan.md) | Deterministic tool-result campaign with naive/bounded/ablation rows. |
 | `memory_governance.cross_agent_rehydration` | Agent B recalls Agent A's old memory as if it were trusted current authority. | Recalled memory preserves provenance, scope, TTL, and trust level. | Memory resurrection across agents, not a first-turn prompt. | [`corpus-expansion-plan.md`](corpus-expansion-plan.md), [`theory/memory-governance.md`](theory/memory-governance.md) | Public sanitized memory rehydration report. |
 | `recovery.trust_gate_no_path` | A gate blocks a request but gives no recovery path, artifact, or next step. | Refusal must still produce a structured recovery envelope. | Safety usability and operations, not only block/allow. | [`corpus-expansion-plan.md`](corpus-expansion-plan.md) | Deterministic recovery-path example plus validation. |
 | `model_trust.weak_to_strong_escalation` | A chief model treats weak-model output as authoritative. | Weak outputs carry trust labels and require validation before action. | Model-chain trust asymmetry, not single-agent behavior. | [`corpus-expansion-plan.md`](corpus-expansion-plan.md) | Weak-to-chief trust escalation matrix. |
@@ -114,11 +114,11 @@ coverage with the least new machinery.
 
 Current likely order:
 
-1. `tool_result.cross_model_instruction_trust`
-2. `memory_governance.cross_agent_rehydration`
-3. `recovery.trust_gate_no_path`
-4. `model_trust.weak_to_strong_escalation`
-5. `data_boundary.summary_boundary_loss`
+1. `memory_governance.cross_agent_rehydration`
+2. `recovery.trust_gate_no_path`
+3. `model_trust.weak_to_strong_escalation`
+4. `data_boundary.summary_boundary_loss`
+5. `handoff.signature_scope_ignored`
 
 This order can change if a new issue shows a clearer invariant, stronger artifact, or a
 more important gap.

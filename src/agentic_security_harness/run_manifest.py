@@ -37,6 +37,7 @@ _RUN_KINDS = frozenset(
         "marketing_web_live_campaign",
         "swarm_resilience_campaign",
         "context_consent_campaign",
+        "tool_authority_campaign",
     }
 )
 
