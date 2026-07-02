@@ -1,0 +1,23 @@
+{
+  "schema_version": "0.1",
+  "run_id": "run_b840c239df",
+  "run_kind": "memory_rehydration_campaign",
+  "created_at": "2026-07-02T18:28:52Z",
+  "tool_version": "",
+  "target": "",
+  "model": "",
+  "scenario": "memory-rehydration",
+  "variants": [],
+  "repeats": 1,
+  "outcomes": {
+    "bounded_acceptances": 0,
+    "ablation_acceptances": 32,
+    "benign_acceptances": 7
+  },
+  "metadata": {},
+  "artifacts": [
+    "memory_rehydration_digest.json",
+    "memory_rehydration_report.md",
+    "memory_rehydration_summary.json"
+  ]
+}
