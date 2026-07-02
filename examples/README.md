@@ -50,6 +50,7 @@ ash validate examples/
 | [`context-consent-sanitized/`](context-consent-sanitized/) | Deterministic context-consent campaign: 5 consent-boundary cases / 45 rows; naive risky-action acceptances 5, bounded acceptances 0, ablation acceptances 18, benign false blocks 0. | `ash context-consent-campaign --write --out examples/context-consent-sanitized` |
 | [`tool-authority-sanitized/`](tool-authority-sanitized/) | Deterministic tool-output authority campaign: 6 tool-result authority cases / 66 rows; naive risky-action acceptances 6, bounded acceptances 0, ablation acceptances 23, benign false blocks 0. | `ash tool-authority-campaign --write --out examples/tool-authority-sanitized` |
 | [`rag-context-sanitized/`](rag-context-sanitized/) | Deterministic RAG/retrieved-context authority campaign: 7 propagation cases / 91 rows; naive unsafe-chain acceptances 7, bounded acceptances 0, ablation acceptances 30, benign false blocks 0. | `ash rag-context-campaign --write --out examples/rag-context-sanitized` |
+| [`planner-task-sanitized/`](planner-task-sanitized/) | Deterministic planner/task-decomposition authority campaign: 7 planner cases / 91 rows; naive unsafe-chain acceptances 7, bounded acceptances 0, ablation acceptances 32, benign false blocks 0. | `ash planner-task-campaign --write --out examples/planner-task-sanitized` |
 | [`external-demo-report/`](external-demo-report/) | An external OpenAI-compatible run against the bundled fake server. | see below |
 | [`fake_openai_server.py`](fake_openai_server.py) | A deterministic local OpenAI-compatible server for the external path (no key, localhost only). | `python examples/fake_openai_server.py` |
 
@@ -75,7 +76,8 @@ external runs start with `external_report.md`; local-swarm runs start with
 `marketing_web_live_report.md`; context-consent runs start with
 `context_consent_report.md`; tool-authority runs start with
 `tool_authority_report.md`; RAG context authority runs start with
-`rag_context_report.md`.
+`rag_context_report.md`; planner task authority runs start with
+`planner_task_report.md`.
 
 Or render any example as a single static HTML page (no network):
 
