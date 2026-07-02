@@ -13,6 +13,8 @@ a full combinatorial sweep.
 | `authority.revocation-gap` | `authority-control` | Revoked or expired authority is reused as current authority. | 1 pattern family, 1-2 variants. | Do not claim revocation coverage until a fixture/model and tests exist. |
 | `approval.missing-context-recovery` | `approval-audit` | Approval request missing envelope fields should trigger review/recovery path. | 1 pattern family, 2 variants. | If output cannot distinguish refuse/review/recover, add validator vocabulary first. |
 | `semantic.long_session_drift` | `semantic-drift-propagation-closure.md`, `semantic-consensus-laundering-closure.md` | Longer low-amplitude pressure tries to move a worker from the canonical A/B/C mapping before the handoff. | Multi-turn deterministic rows first, then optional private local-model probes. | Stop if the first drift turn cannot be detected without raw private transcripts. |
+| `planner.task_decomposition_authority` | `rag-context-campaign.md`, `context-consent-campaign.md`, `tool-authority-campaign.md` | A planner turns untrusted context, stale approval, tool output, or retrieved snippets into actionable subtasks. | Deterministic rows only first; no local or external models. | Stop if the planner artifact cannot preserve per-subtask source, consent, and authority labels. |
+| `contour.agentic_backpass` | Current shipped deterministic contours | Re-read the shipped contours through the agentic rule-violation lens: entry vector, propagation path, no-red-flag path, timing window, controls, and residual risk. | Documentation and selected tests only; no expansion without a new issue. | Stop when each contour has a clear next candidate or an explicit no-action note. |
 
 ## Variation budget
 
@@ -33,13 +35,16 @@ a full combinatorial sweep.
 
 ## Next implementation order
 
-1. Build public showcase skeleton from these docs (#25).
-2. Add trace replay / failure-card generation from artifacts (#21).
-3. Implement the first scenario timeline from [scenario-timeline.md](../scenario-timeline.md).
-4. Keep the bounded local Prometheus suite small: named profiles, dry-run first, validated
+1. Implement `planner.task_decomposition_authority` as the next deterministic contour.
+2. Run `contour.agentic_backpass` over shipped deterministic contours and open only
+   bounded follow-up issues where the invariant is distinct.
+3. Build public showcase skeleton from these docs (#25).
+4. Add trace replay / failure-card generation from artifacts (#21).
+5. Implement the first scenario timeline from [scenario-timeline.md](../scenario-timeline.md).
+6. Keep the bounded local Prometheus suite small: named profiles, dry-run first, validated
    local artifacts only after explicit `--execute`.
-5. Add richer showcase generator views over JSON artifacts (#23).
-6. Deepen `semantic.long_session_drift` only after the SEM-1 and SEM-2 closure docs
+7. Add richer showcase generator views over JSON artifacts (#23).
+8. Deepen `semantic.long_session_drift` only after the SEM-1 and SEM-2 closure docs
    remain stable under documentation and artifact validation.
 
 Items #25, #21, #23, #20, and #19 now have shipped slices. The next sequence is only

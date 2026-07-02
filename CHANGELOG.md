@@ -7,6 +7,12 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- RAG/retrieved-context authority deterministic campaign: `ash rag-context-campaign`
+  publishes an agentic propagation contour for "retrieved context is not authority",
+  with 7 synthetic RAG-context cases, 91 deterministic rows, control-ablation
+  attribution, benign-path checks, validator support, and the committed sanitized
+  example `examples/rag-context-sanitized/`. No local models, external models, live RAG
+  systems, provider APIs, or endpoints are called.
 - Tool-output authority deterministic campaign: `ash tool-authority-campaign` publishes
   the sixth boundary family, "tool output is not authority", with 6 synthetic
   tool-result authority cases, 66 deterministic rows, control-ablation attribution,

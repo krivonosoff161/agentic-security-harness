@@ -1,0 +1,63 @@
+{
+  "created_at": "2026-07-02T17:19:22Z",
+  "external_api_calls_present": false,
+  "live_rag_systems_present": false,
+  "metrics": {
+    "ablation_acceptances": 30,
+    "acceptances_by_missing_control": {
+      "citation_permission_split": 3,
+      "context_instruction_split": 4,
+      "cross_document_independence": 1,
+      "handoff_revalidation": 2,
+      "memory_quarantine": 1,
+      "planner_authority_gate": 6,
+      "rank_is_not_authority": 2,
+      "retrieval_trust_label": 2,
+      "source_provenance": 7,
+      "summary_provenance_preservation": 2
+    },
+    "average_bounded_pressure": 1.654219,
+    "benign_acceptances": 7,
+    "benign_false_blocks": 0,
+    "benign_rows": 7,
+    "blocks_by_control": {
+      "citation_permission_split": 3,
+      "context_instruction_split": 4,
+      "cross_document_independence": 1,
+      "handoff_revalidation": 2,
+      "memory_quarantine": 1,
+      "planner_authority_gate": 6,
+      "rank_is_not_authority": 2,
+      "retrieval_trust_label": 2,
+      "source_provenance": 7,
+      "summary_provenance_preservation": 2
+    },
+    "bounded_acceptances": 0,
+    "bounded_blocks": 7,
+    "cases": 7,
+    "control_attribution_rate": 1.0,
+    "control_effect_rows": 10,
+    "controls": 10,
+    "deterministic_rows": 91,
+    "max_agentic_pressure": 2.368713,
+    "naive_acceptances": 7,
+    "pressure_axes": 8,
+    "propagation_paths": 7,
+    "unsafe_rows": 84
+  },
+  "pressure_axes": [
+    "retrieval_rank",
+    "citation_count",
+    "summary_compression",
+    "planner_conversion",
+    "source_ambiguity",
+    "timing_delay",
+    "handoff_pressure",
+    "benign_utility"
+  ],
+  "private_calculation_notes_present": false,
+  "raw_prompts_present": false,
+  "raw_responses_present": false,
+  "run_kind": "rag_context_campaign",
+  "schema_version": "0.1"
+}
