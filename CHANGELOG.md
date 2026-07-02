@@ -7,6 +7,13 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Cross-agent memory rehydration authority deterministic campaign:
+  `ash memory-rehydration-campaign` publishes the boundary "recalled memory is
+  evidence, not current authority", with 7 synthetic memory rehydration cases,
+  91 deterministic rows, control-ablation attribution, benign-path checks,
+  validator support, and the committed sanitized example
+  `examples/memory-rehydration-sanitized/`. No local models, external models, live
+  memory stores, provider APIs, or endpoints are called.
 - Planner/task-decomposition authority deterministic campaign:
   `ash planner-task-campaign` publishes the boundary "planning is transformation,
   not authorization", with 7 synthetic planner cases, 91 deterministic rows,

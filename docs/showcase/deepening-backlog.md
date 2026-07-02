@@ -51,6 +51,7 @@ and new issues for any broader model sweep.
 | Candidate | Result |
 |---|---|
 | `contour.agentic_backpass` | Promoted to public maintenance doc at `docs/agentic-rule-violation-backpass.md`; no private payloads or model runs included. |
+| `memory.cross_agent_rehydration_authority` | Promoted to committed public example at `examples/memory-rehydration-sanitized/`; validated by `ash validate examples/memory-rehydration-sanitized`. |
 | `planner.task_decomposition_authority` | Promoted to committed public example at `examples/planner-task-sanitized/`; validated by `ash validate examples/planner-task-sanitized`. |
 | `handoff.verifier-canary` | Promoted to committed public example at `examples/handoff-toy-comparison/`; validated by `ash validate examples/handoff-toy-comparison`. |
 | `authority.claimed-supervisor` | Covered as a verifier-axis test for issuer mismatch in `tests/test_handoff_integrity.py`; not yet a separate corpus pattern. |
