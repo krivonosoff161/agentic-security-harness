@@ -19,6 +19,7 @@ boundary-failure measurements over synthetic or authorized artifacts.
 | [`examples/context-consent-sanitized/`](../../examples/context-consent-sanitized/) | Whether contextual approval claims are mistaken for current user consent. | `5` cases, `6` controls, `45` deterministic rows, naive risky-action acceptances `5`, bounded acceptances `0`, ablation acceptances `18`, benign false blocks `0`. | `ash validate examples/context-consent-sanitized` |
 | [`examples/tool-authority-sanitized/`](../../examples/tool-authority-sanitized/) | Whether tool output is mistaken for command, policy, schema, handoff, or metric authority. | `6` cases, `8` controls, `66` deterministic rows, naive risky-action acceptances `6`, bounded acceptances `0`, ablation acceptances `23`, benign false blocks `0`. | `ash validate examples/tool-authority-sanitized` |
 | [`examples/rag-context-sanitized/`](../../examples/rag-context-sanitized/) | Whether retrieved context is mistaken for command, policy, planner, memory, handoff, or permission authority. | `7` cases, `10` controls, `91` deterministic rows, naive unsafe-chain acceptances `7`, bounded acceptances `0`, ablation acceptances `30`, benign false blocks `0`. | `ash validate examples/rag-context-sanitized` |
+| [`examples/planner-task-sanitized/`](../../examples/planner-task-sanitized/) | Whether task decomposition turns context, stale approval, tool output, retrieval, handoff, batch, or dependency state into subtask authority. | `7` cases, `10` controls, `91` deterministic rows, naive unsafe-chain acceptances `7`, bounded acceptances `0`, ablation acceptances `32`, benign false blocks `0`. | `ash validate examples/planner-task-sanitized` |
 | [`examples/swarm-defense-live-sanitized/`](../../examples/swarm-defense-live-sanitized/) | Sanitized local-model mini-swarm observations with private raw transcripts retained locally. | `180` observations, verifier blocks `22`, canary leaks `0`, adapter errors `0`, response hash coverage `1.00`, replay-ablation reopenings `96`. | `ash validate examples/swarm-defense-live-sanitized` |
 | [`examples/swarm-defense-live-long-session-sanitized/`](../../examples/swarm-defense-live-long-session-sanitized/) | Long-session supplement for the sanitized mini-swarm campaign. | `15` long-session observations, max session turns `3`, verifier blocks `1`, canary leaks `0`, response hash coverage `1.00`. | `ash validate examples/swarm-defense-live-long-session-sanitized` |
 
@@ -70,6 +71,7 @@ ash validate examples/secret-leak-campaign-sanitized
 ash validate examples/context-consent-sanitized
 ash validate examples/tool-authority-sanitized
 ash validate examples/rag-context-sanitized
+ash validate examples/planner-task-sanitized
 ash validate examples/swarm-defense-live-sanitized
 ash validate examples/swarm-defense-live-long-session-sanitized
 ```

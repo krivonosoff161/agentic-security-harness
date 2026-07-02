@@ -52,6 +52,7 @@ These are the main research contours that already have public artifacts.
 | Shipped | Context is not consent | Contextual text that claims approval is not current user consent. | [`examples/context-consent-sanitized/`](../examples/context-consent-sanitized/), [`context-consent-campaign.md`](context-consent-campaign.md) | Five consent-boundary cases produce naive risky-action acceptances, bounded acceptances 0, and benign false blocks 0. | Legal proof of consent handling in deployed systems. |
 | Shipped | Tool output is not authority | Tool results, scanner text, schema annotations, error messages, worker summaries, and metric rows remain data unless a trusted authority source grants action. | [`examples/tool-authority-sanitized/`](../examples/tool-authority-sanitized/), [`tool-authority-campaign.md`](tool-authority-campaign.md) | Six tool-output authority cases produce naive risky-action acceptances, bounded acceptances 0, ablation attribution, and benign false blocks 0. | Production tool-agent safety, real MCP/schema verification, or exhaustive tool-output coverage. |
 | Shipped | Retrieved context is not authority | RAG/search results, citations, summaries, rankings, memory notes, and handoff summaries remain evidence unless a trusted authority source grants action. | [`examples/rag-context-sanitized/`](../examples/rag-context-sanitized/), [`rag-context-campaign.md`](rag-context-campaign.md) | Seven retrieved-context propagation cases produce naive unsafe-chain acceptances, bounded acceptances 0, ablation attribution, and benign false blocks 0. | Production RAG-agent safety, provider/model vulnerability claims, or exhaustive retrieval coverage. |
+| Shipped | Planning is not authorization | Planner/task decomposition must preserve source, consent, authority, and trust labels; generated subtasks do not inherit authority from context, stale approval, tool output, retrieval, handoff, batching, or dependency ordering. | [`examples/planner-task-sanitized/`](../examples/planner-task-sanitized/), [`planner-task-campaign.md`](planner-task-campaign.md) | Seven planner/task-decomposition cases produce naive unsafe-chain acceptances, bounded acceptances 0, ablation attribution, and benign false blocks 0. | Production planning-agent safety, provider/model vulnerability claims, or exhaustive planner coverage. |
 
 ## Active evidence and maintenance tracks
 
@@ -62,6 +63,7 @@ These tracks are active because they keep the shipped evidence trustworthy.
 | Public evidence map | Keep front-page metrics tied to committed artifacts and non-claims. | [`showcase/evidence-map.md`](showcase/evidence-map.md) | Update whenever a metric or example path changes. |
 | Private/public evidence boundary | Keep raw local-model prompts, responses, canaries, and calculation notes out of public artifacts. | [`private-public-evidence-boundary.md`](private-public-evidence-boundary.md), [`evidence-pack-format.md`](evidence-pack-format.md) | Re-check before every new sanitized evidence pack. |
 | Research claims registry | Keep each claim in hypothesis / evidence / closed status. | [`research-claims.md`](research-claims.md) | Add a row when a new contour moves beyond discussion. |
+| Agentic rule-violation back-pass | Keep shipped contours aligned to entry vector, propagation path, timing window, controls, ablations, benign preservation, and residual risk. | [`agentic-rule-violation-backpass.md`](agentic-rule-violation-backpass.md) | Re-run when a new deterministic contour is promoted. |
 | Corpus expansion control | Keep new patterns invariant-based, not combinatorial. | [`corpus-expansion-plan.md`](corpus-expansion-plan.md) | Promote only candidates with topology, failure condition, artifact, and residual risk. |
 | Project-track separation | Keep the shipped benchmark distinct from the future LLM Safety Gateway / Runtime Verifier track. | [`project-tracks.md`](project-tracks.md) | Gateway ideas stay design/research until there is a separate implementation boundary. |
 
@@ -74,7 +76,6 @@ implementation, tests, examples, validation, and a merged PR.
 
 | Candidate | Plain-language problem | Boundary invariant | Why it is different | Existing anchor | Graduation artifact |
 |---|---|---|---|---|---|
-| `planner.task_decomposition_authority` | A planner turns untrusted context into subtasks that look like user-approved work. | Task decomposition preserves source, authority, consent, and trust labels from every input. | Planner-level laundering, not direct prompt or tool-output execution. | [`rag-context-campaign.md`](rag-context-campaign.md), [`context-consent-campaign.md`](context-consent-campaign.md) | Planner authority propagation report with ablations and benign rows. |
 | `memory_governance.cross_agent_rehydration` | Agent B recalls Agent A's old memory as if it were trusted current authority. | Recalled memory preserves provenance, scope, TTL, and trust level. | Memory resurrection across agents, not a first-turn prompt. | [`corpus-expansion-plan.md`](corpus-expansion-plan.md), [`theory/memory-governance.md`](theory/memory-governance.md) | Public sanitized memory rehydration report. |
 | `recovery.trust_gate_no_path` | A gate blocks a request but gives no recovery path, artifact, or next step. | Refusal must still produce a structured recovery envelope. | Safety usability and operations, not only block/allow. | [`corpus-expansion-plan.md`](corpus-expansion-plan.md) | Deterministic recovery-path example plus validation. |
 | `model_trust.weak_to_strong_escalation` | A chief model treats weak-model output as authoritative. | Weak outputs carry trust labels and require validation before action. | Model-chain trust asymmetry, not single-agent behavior. | [`corpus-expansion-plan.md`](corpus-expansion-plan.md) | Weak-to-chief trust escalation matrix. |
@@ -116,12 +117,11 @@ coverage with the least new machinery.
 
 Current likely order:
 
-1. `planner.task_decomposition_authority`
-2. `memory_governance.cross_agent_rehydration`
-3. `recovery.trust_gate_no_path`
-4. `model_trust.weak_to_strong_escalation`
-5. `data_boundary.summary_boundary_loss`
-6. `handoff.signature_scope_ignored`
+1. `memory_governance.cross_agent_rehydration`
+2. `recovery.trust_gate_no_path`
+3. `model_trust.weak_to_strong_escalation`
+4. `data_boundary.summary_boundary_loss`
+5. `handoff.signature_scope_ignored`
 
 This order can change if a new issue shows a clearer invariant, stronger artifact, or a
 more important gap.

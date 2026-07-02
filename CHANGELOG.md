@@ -7,6 +7,12 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Planner/task-decomposition authority deterministic campaign:
+  `ash planner-task-campaign` publishes the boundary "planning is transformation,
+  not authorization", with 7 synthetic planner cases, 91 deterministic rows,
+  control-ablation attribution, benign-path checks, validator support, and the
+  committed sanitized example `examples/planner-task-sanitized/`. No local models,
+  external models, live planners, provider APIs, or endpoints are called.
 - RAG/retrieved-context authority deterministic campaign: `ash rag-context-campaign`
   publishes an agentic propagation contour for "retrieved context is not authority",
   with 7 synthetic RAG-context cases, 91 deterministic rows, control-ablation

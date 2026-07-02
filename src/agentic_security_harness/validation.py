@@ -82,6 +82,7 @@ class ValidationResult(BaseModel):
     context_consent_campaign_dirs: list[str] = Field(default_factory=list)
     tool_authority_campaign_dirs: list[str] = Field(default_factory=list)
     rag_context_campaign_dirs: list[str] = Field(default_factory=list)
+    planner_task_campaign_dirs: list[str] = Field(default_factory=list)
 
     def _err(self, msg: str) -> None:
         self.errors.append(msg)
@@ -176,6 +177,10 @@ def _is_rag_context_campaign_dir(path: Path) -> bool:
     return (path / "rag_context_summary.json").exists()
 
 
+def _is_planner_task_campaign_dir(path: Path) -> bool:
+    return (path / "planner_task_summary.json").exists()
+
+
 def validate_path(path: Path) -> ValidationResult:
     """Validate a report dir, a comparison dir, or a directory of such dirs.
 
@@ -249,6 +254,9 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
     elif _is_rag_context_campaign_dir(path):
         result.rag_context_campaign_dirs.append(_rel(path, root))
         _validate_rag_context_campaign_dir(path, root, result)
+    elif _is_planner_task_campaign_dir(path):
+        result.planner_task_campaign_dirs.append(_rel(path, root))
+        _validate_planner_task_campaign_dir(path, root, result)
     elif (path / "run_diff.json").exists():
         result.run_diff_dirs.append(_rel(path, root))
         _validate_run_diff_dir(path, root, result)
@@ -1682,6 +1690,128 @@ def _validate_rag_context_campaign_dir(
             _scan_secrets(candidate, root, result)
 
 
+def _validate_planner_task_campaign_dir(
+    path: Path, root: Path, result: ValidationResult
+) -> None:
+    rel = _rel(path / "planner_task_summary.json", root)
+    raw = _load_json(path / "planner_task_summary.json", root, result)
+    if raw is None:
+        return
+    _check_schema_version_file(
+        path / "planner_task_summary.json",
+        "planner_task_campaign",
+        root,
+        result,
+    )
+    from agentic_security_harness.planner_task_campaign import (
+        PlannerTaskSummary,
+        _context_fingerprint,
+    )
+
+    try:
+        summary = PlannerTaskSummary.model_validate(raw)
+    except ValidationError as exc:
+        result._err(f"{rel}: schema: {_fmt_error(exc)}")
+        return
+    rows = summary.deterministic_results
+    if summary.metrics.deterministic_rows != len(rows):
+        result._err(f"{rel}: metrics.deterministic_rows mismatch")
+    if summary.metrics.cases != len(summary.cases):
+        result._err(f"{rel}: metrics.cases mismatch")
+    if summary.metrics.controls != len(summary.control_catalog):
+        result._err(f"{rel}: metrics.controls mismatch")
+    if summary.metrics.control_effect_rows != len(summary.control_effects):
+        result._err(f"{rel}: metrics.control_effect_rows mismatch")
+    if summary.metrics.propagation_paths != len(
+        {tuple(case.propagation_path) for case in summary.cases}
+    ):
+        result._err(f"{rel}: metrics.propagation_paths mismatch")
+
+    unsafe = [row for row in rows if row.attack_attempted]
+    benign = [row for row in rows if not row.attack_attempted]
+    naive = [row for row in rows if row.mode == "naive"]
+    bounded = [row for row in rows if row.mode == "bounded"]
+    ablation = [
+        row
+        for row in rows
+        if row.mode not in {"naive", "bounded", "benign"}
+    ]
+    expected_counts = {
+        "unsafe_rows": len(unsafe),
+        "benign_rows": len(benign),
+        "naive_acceptances": sum(1 for row in naive if row.unsafe_chain_allowed),
+        "bounded_acceptances": sum(1 for row in bounded if row.unsafe_chain_allowed),
+        "ablation_acceptances": sum(
+            1 for row in ablation if row.unsafe_chain_allowed
+        ),
+        "benign_acceptances": sum(1 for row in benign if row.unsafe_chain_allowed),
+        "bounded_blocks": sum(1 for row in bounded if row.verifier_decision == "block"),
+        "benign_false_blocks": sum(
+            1 for row in benign if row.verifier_decision == "block"
+        ),
+    }
+    metrics = summary.metrics.model_dump()
+    for key, expected in expected_counts.items():
+        if metrics.get(key) != expected:
+            result._err(f"{rel}: metrics.{key} mismatch")
+
+    cases_by_id = {case.case_id: case for case in summary.cases}
+    for idx, row in enumerate(rows):
+        case = cases_by_id.get(row.case_id)
+        if case is None:
+            result._err(f"{rel}: deterministic_results[{idx}] references unknown case")
+            continue
+        _validate_optional_sha256(
+            row.context_fingerprint,
+            f"{rel}: deterministic_results[{idx}].context_fingerprint",
+            result,
+        )
+        expected_fingerprint = _context_fingerprint(case, row.mode)
+        if row.context_fingerprint != expected_fingerprint:
+            result._err(
+                f"{rel}: deterministic_results[{idx}].context_fingerprint mismatch"
+            )
+        if row.propagation_steps_observed != len(case.propagation_path):
+            result._err(
+                f"{rel}: deterministic_results[{idx}].propagation_steps_observed "
+                "mismatch"
+            )
+        if row.mode == "bounded" and row.unsafe_chain_allowed:
+            result._err(f"{rel}: deterministic_results[{idx}] bounded accepted unsafe chain")
+        if row.mode == "benign" and not row.benign_passed:
+            result._err(f"{rel}: deterministic_results[{idx}] benign row did not pass")
+    if _contains_forbidden_raw_fields(raw):
+        result._err(f"{rel}: public artifact contains raw/private fields")
+    for required in ("planner_task_report.md", "planner_task_digest.json"):
+        if not (path / required).exists():
+            result._err(f"{_rel(path / required, root)}: missing")
+    _validate_planner_task_digest(
+        path / "planner_task_digest.json",
+        summary,
+        root,
+        result,
+    )
+    for private_name in (
+        "planner_task_private.json",
+        "planner_task_private.md",
+    ):
+        if (path / private_name).exists():
+            result._err(
+                f"{_rel(path / private_name, root)}: private planner task "
+                "artifact must stay under .internal/"
+            )
+    _validate_run_manifest(path, root, result)
+    for name in (
+        "planner_task_summary.json",
+        "planner_task_report.md",
+        "planner_task_digest.json",
+        "README.md",
+    ):
+        candidate = path / name
+        if candidate.exists():
+            _scan_secrets(candidate, root, result)
+
+
 def _validate_optional_sha256(
     value: str, label: str, result: ValidationResult
 ) -> None:
@@ -1934,6 +2064,44 @@ def _validate_rag_context_digest(
         "raw_prompts_present",
         "raw_responses_present",
         "live_rag_systems_present",
+        "external_api_calls_present",
+        "private_calculation_notes_present",
+    ):
+        if raw.get(key) is not False:
+            result._err(f"{rel}: {key} must be false")
+    digest_metrics = raw.get("metrics")
+    if not isinstance(digest_metrics, dict):
+        result._err(f"{rel}: metrics missing or not an object")
+        return
+    summary_metrics = summary.metrics.model_dump()
+    for key, value in digest_metrics.items():
+        if summary_metrics.get(key) != value:
+            result._err(f"{rel}: metrics.{key} mismatch")
+
+
+def _validate_planner_task_digest(
+    digest_path: Path,
+    summary: Any,
+    root: Path,
+    result: ValidationResult,
+) -> None:
+    if not digest_path.exists():
+        return
+    rel = _rel(digest_path, root)
+    raw = _load_json(digest_path, root, result)
+    if raw is None:
+        return
+    for key, expected in (
+        ("schema_version", summary.schema_version),
+        ("run_kind", summary.run_kind),
+        ("created_at", summary.created_at),
+    ):
+        if raw.get(key) != expected:
+            result._err(f"{rel}: {key} mismatch")
+    for key in (
+        "raw_prompts_present",
+        "raw_responses_present",
+        "live_planners_present",
         "external_api_calls_present",
         "private_calculation_notes_present",
     ):

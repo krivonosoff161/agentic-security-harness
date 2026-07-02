@@ -39,6 +39,7 @@ mapping, and forbidden marker scans.
 | `context_consent_summary.json` | `context_consent_campaign` | 0.1 | `ash context-consent-campaign` | `ash validate` |
 | `tool_authority_summary.json` | `tool_authority_campaign` | 0.1 | `ash tool-authority-campaign` | `ash validate` |
 | `rag_context_summary.json` | `rag_context_campaign` | 0.1 | `ash rag-context-campaign` | `ash validate` |
+| `planner_task_summary.json` | `planner_task_campaign` | 0.1 | `ash planner-task-campaign` | `ash validate` |
 
 `run_diff` v0.2 replaces the ambiguous v0.1 coarse labels (`fixed`, `new`,
 `changed`, `unchanged`) with explicit decisive/non-decisive counters such as
