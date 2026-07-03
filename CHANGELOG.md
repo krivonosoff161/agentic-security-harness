@@ -7,6 +7,9 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Public security-stack positioning in the README and project map, linking the
+  related playbooks, handoff protocol, and transfer-verifier repositories while
+  keeping Agentic Security Harness scoped as the benchmark/evidence layer.
 - Trading-bot paper stand `authorized-paper` gate evaluation: the mode remains
   non-executing, but it can now accept a private readiness bundle
   (`--artifact-root`, `--fixture-path`, `--manifest-path`) and report

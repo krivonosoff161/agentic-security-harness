@@ -17,6 +17,27 @@ experimental, opt-in `run-external` path that evaluates an OpenAI-compatible end
 synthetic prompts (prompt-only, no tool execution). The release does not ship native
 provider adapters, agent-host/tool-use adapters, or the planned reference gateway.
 
+## Public security-stack relationship
+
+This repository is the benchmark/evidence layer in the public Agentic AI
+Security stack:
+
+```text
+llm-safety-playbooks -> ai-agent-handoff -> agentic-transfer-verifier -> agentic-security-harness
+```
+
+- `llm-safety-playbooks` turns recurring safety lessons into compact task and
+  workflow guidance.
+- `ai-agent-handoff` makes agent-to-agent work durable through files and git.
+- `agentic-transfer-verifier` checks whether handoff claims about source,
+  authority, approval, and integrity are trustworthy.
+- `agentic-security-harness` turns modeled boundary failures into validated
+  traces, scorecards, reports, and sanitized evidence packs.
+
+The layers are complementary. None of them is a complete safety guarantee, and
+only this repository owns the benchmark corpus, `ash` CLI, validators, and
+public evidence artifacts.
+
 ## What you need to understand first
 
 You do not need to read all code to reason about the project. The core contract is:

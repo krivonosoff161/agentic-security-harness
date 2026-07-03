@@ -39,6 +39,29 @@ Active development is tracked as violation models, not prompt variants:
 [`docs/research-problem-map.md`](docs/research-problem-map.md) shows what is shipped,
 what is under evidence maintenance, and which boundary models are next.
 
+## Public security stack
+
+Agentic Security Harness is the benchmark/evidence layer in a small public
+Agentic AI Security stack:
+
+```text
+llm-safety-playbooks -> ai-agent-handoff -> agentic-transfer-verifier -> agentic-security-harness
+```
+
+- [`llm-safety-playbooks`](https://github.com/krivonosoff161/llm-safety-playbooks)
+  captures practical boundary rules for everyday LLM and coding-agent work.
+- [`ai-agent-handoff`](https://github.com/krivonosoff161/ai-agent-handoff)
+  stores agent task briefs, live state, and return blocks as reviewable files.
+- [`agentic-transfer-verifier`](https://github.com/krivonosoff161/agentic-transfer-verifier)
+  checks provenance, trust, authority, approvals, and audit trails around
+  handoffs.
+- `agentic-security-harness` measures modeled boundary failures with traces,
+  scorecards, reports, and sanitized evidence.
+
+These repositories are related, but not interchangeable. Prompts and playbooks
+do not replace runtime controls, handoff files are not a sandbox, and a clean
+benchmark run is not a production safety certification.
+
 OWASP LLM 2025 quick map:
 
 | OWASP risk | Harness coverage |
