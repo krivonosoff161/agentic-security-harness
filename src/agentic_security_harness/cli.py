@@ -1511,7 +1511,7 @@ def _trading_stand(
     artifact_root: Path | None = None,
 ) -> int:
     from agentic_security_harness.trading_bot_stand import (
-        authorized_paper_gate_plan,
+        authorized_paper_gate_report,
         boundary_lock_review_target,
         boundary_lock_target,
         dry_run_plan,
@@ -1770,7 +1770,16 @@ def _trading_stand(
             print(f"Error: {exc}")
             return 1
     else:
-        data = authorized_paper_gate_plan(target_path)
+        try:
+            data = authorized_paper_gate_report(
+                target_path,
+                artifact_root=artifact_root,
+                fixture_path=fixture_path,
+                batch_manifest_path=manifest_path,
+            )
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"Error: {exc}")
+            return 1
 
     if output_format == "json":
         print(json.dumps(data, indent=2))

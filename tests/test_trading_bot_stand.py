@@ -11,6 +11,7 @@ from agentic_security_harness.trading_bot_stand import (
     CONTOURS,
     PROFILE_ID,
     authorized_paper_gate_plan,
+    authorized_paper_gate_report,
     boundary_lock_review_target,
     boundary_lock_target,
     classify_fixture_state,
@@ -127,6 +128,15 @@ def test_private_experiment_batch_manifest_is_safe_batch_guard() -> None:
     assert manifest["payloads_included"] is False
     assert manifest["raw_vectors_included"] is False
     assert manifest["private_calculations_included"] is False
+    assert manifest["authorization"] == {
+        "owner_approved": True,
+        "run_scope": "controlled-paper-gate",
+        "execution_allowed": False,
+        "target_mutation_allowed": False,
+        "provider_calls_allowed": False,
+        "telegram_sends_allowed": False,
+        "live_execution_allowed": False,
+    }
     assert manifest["gates"]["public_derivative_only"] is True
     assert [batch["batch_id"] for batch in batches] == ["A", "B", "C"]
     assert all(batch["max_parallel_scenarios"] == 4 for batch in batches)
@@ -1947,6 +1957,101 @@ def test_authorized_paper_gate_plan_fails_closed_even_with_preflight(
     assert "private_evidence" in plan
 
 
+def test_authorized_paper_gate_report_accepts_private_readiness_bundle(
+    tmp_path: Path,
+) -> None:
+    target_root = tmp_path / "target"
+    artifact_root = tmp_path / "artifact-root"
+    for marker in ("CURRENT_STATE.md", "ARCHITECTURE.md", "ROADMAP.md"):
+        (target_root / marker).parent.mkdir(parents=True, exist_ok=True)
+        (target_root / marker).write_text("marker\n", encoding="utf-8")
+    (target_root / "src").mkdir()
+    _write_full_e2e_artifact_fixture(artifact_root)
+
+    private_root = (
+        tmp_path
+        / ".internal"
+        / "trading-bot-paper-stand"
+        / "issue-136"
+        / "authorized-paper"
+    )
+    fixture_path = private_root / "control.json"
+    manifest_path = private_root / "batch-manifest.json"
+    write_private_experiment_control_fixture(fixture_path)
+    write_private_experiment_batch_manifest(manifest_path)
+
+    report = authorized_paper_gate_report(
+        target_root,
+        artifact_root=artifact_root,
+        fixture_path=fixture_path,
+        batch_manifest_path=manifest_path,
+    )
+    gates = {gate["gate_id"]: gate for gate in report["gates"]}
+
+    assert report["mode"] == "authorized-paper"
+    assert report["status"] == "accepted"
+    assert report["ok"] is True
+    assert report["execution_status"] == "authorized-gate-only"
+    assert report["target_mutation"] is False
+    assert report["env_read"] is False
+    assert report["provider_calls"] is False
+    assert report["telegram_sends"] is False
+    assert report["live_execution"] is False
+    assert report["blockers"] == []
+    assert gates["authorization-gate-implemented"]["ok"] is True
+    assert gates["target-preflight"]["ok"] is True
+    assert gates["artifact-root"]["ok"] is True
+    assert gates["readiness"]["ok"] is True
+    assert gates["private-fixture"]["ok"] is True
+    assert gates["batch-manifest"]["ok"] is True
+    assert gates["owner-run-approval"]["ok"] is True
+    assert gates["no-secret-or-live-surfaces"]["ok"] is True
+    assert report["readiness"]["ready"] is True
+    assert report["fixture_validation"]["ok"] is True
+    assert report["batch_manifest_validation"]["ok"] is True
+    assert report["authorization"]["owner_approved"] is True
+
+
+def test_authorized_paper_gate_report_blocks_without_owner_approval(
+    tmp_path: Path,
+) -> None:
+    target_root = tmp_path / "target"
+    artifact_root = tmp_path / "artifact-root"
+    for marker in ("CURRENT_STATE.md", "ARCHITECTURE.md", "ROADMAP.md"):
+        (target_root / marker).parent.mkdir(parents=True, exist_ok=True)
+        (target_root / marker).write_text("marker\n", encoding="utf-8")
+    (target_root / "src").mkdir()
+    _write_full_e2e_artifact_fixture(artifact_root)
+
+    private_root = (
+        tmp_path
+        / ".internal"
+        / "trading-bot-paper-stand"
+        / "issue-136"
+        / "authorized-paper-no-approval"
+    )
+    fixture_path = private_root / "control.json"
+    manifest_path = private_root / "batch-manifest.json"
+    write_private_experiment_control_fixture(fixture_path)
+    manifest = private_experiment_batch_manifest()
+    manifest.pop("authorization")
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    report = authorized_paper_gate_report(
+        target_root,
+        artifact_root=artifact_root,
+        fixture_path=fixture_path,
+        batch_manifest_path=manifest_path,
+    )
+    gates = {gate["gate_id"]: gate for gate in report["gates"]}
+
+    assert report["status"] == "blocked"
+    assert report["ok"] is False
+    assert "owner-run-approval" in report["blockers"]
+    assert gates["owner-run-approval"]["ok"] is False
+
+
 def test_cli_trading_stand_profile_json(capsys) -> None:
     assert cli.main(["trading-stand", "--format", "json"]) == 0
 
@@ -2998,6 +3103,56 @@ def test_cli_trading_stand_authorized_paper_is_gate_report(capsys) -> None:
     assert "status: not-enabled  ok=False" in out
     assert "FAIL implementation-enabled" in out
     assert "FAIL human-approval-token" in out
+
+
+def test_cli_trading_stand_authorized_paper_accepts_private_gate(
+    capsys,
+    tmp_path: Path,
+) -> None:
+    target_root = tmp_path / "target"
+    artifact_root = tmp_path / "artifact-root"
+    for marker in ("CURRENT_STATE.md", "ARCHITECTURE.md", "ROADMAP.md"):
+        (target_root / marker).parent.mkdir(parents=True, exist_ok=True)
+        (target_root / marker).write_text("marker\n", encoding="utf-8")
+    (target_root / "src").mkdir()
+    _write_full_e2e_artifact_fixture(artifact_root)
+
+    private_root = (
+        tmp_path
+        / ".internal"
+        / "trading-bot-paper-stand"
+        / "issue-136"
+        / "authorized-paper-cli"
+    )
+    fixture_path = private_root / "control.json"
+    manifest_path = private_root / "batch-manifest.json"
+    write_private_experiment_control_fixture(fixture_path)
+    write_private_experiment_batch_manifest(manifest_path)
+
+    assert (
+        cli.main(
+            [
+                "trading-stand",
+                "--mode",
+                "authorized-paper",
+                "--target-path",
+                str(target_root),
+                "--artifact-root",
+                str(artifact_root),
+                "--fixture-path",
+                str(fixture_path),
+                "--manifest-path",
+                str(manifest_path),
+            ]
+        )
+        == 0
+    )
+
+    out = capsys.readouterr().out
+    assert "mode: authorized-paper" in out
+    assert "status: accepted  ok=True" in out
+    assert "PASS authorization-gate-implemented" in out
+    assert "PASS batch-manifest" in out
 
 
 def test_trading_bot_stand_module_has_no_runtime_or_secret_imports() -> None:

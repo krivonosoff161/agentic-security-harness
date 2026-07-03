@@ -144,7 +144,22 @@ scan. It reviews only files that `boundary-lock` already marked, classifies
 documentation-only markers separately from bounded configuration reads, and
 blocks on secret env names, unknown env names, provider calls, Telegram sends,
 or live-order sites. It never emits raw source lines or private values.
-`authorized-paper` is currently a fail-closed gate report, not an executor.
+`authorized-paper` is now a non-executing authorization gate report, not an
+executor. With only `--target-path`, or with missing private evidence inputs,
+it remains blocked/fail-closed. With `--artifact-root`, `--fixture-path`, and
+`--manifest-path`, it validates the same private readiness bundle used by the
+controlled experiment layer and reports `accepted` only when:
+
+- target preflight passes;
+- the private artifact root exists;
+- the artifact/readiness gates pass;
+- the private experiment fixture validates;
+- the private batch manifest validates;
+- the manifest carries explicit owner approval for a gate-only run;
+- `.env`, live orders, provider calls, and Telegram sends remain disabled.
+
+It still does not run target commands, import target modules, read `.env`, call
+providers, send Telegram messages, or mutate either repository.
 
 ## Preflight Gates
 
@@ -256,7 +271,8 @@ The first code slice should not touch the live target. It adds:
 2. dry-run scenario planner;
 3. preflight result model;
 4. offline fixture mapper for `pass`, `finding`, `inconclusive`, and `error`;
-5. fail-closed `authorized-paper` gate report;
+5. non-executing `authorized-paper` gate report, blocked by default and
+   accepted only with a valid private readiness bundle;
 6. private fixture template generator;
 7. public-safe private fixture sanitizer;
 8. read-only static probe over allowlisted target source files;
@@ -281,4 +297,5 @@ The first code slice should not touch the live target. It adds:
     promoted into public adversarial experiment evidence;
 19. tests proving no `.env`, provider, Telegram, or live execution path exists.
 
-Only after that should an `authorized-paper` executor be considered.
+Only after that should an `authorized-paper` executor be considered. The
+current gate is a pre-executor authorization check, not an executor.
