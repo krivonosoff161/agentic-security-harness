@@ -40,6 +40,7 @@ _RUN_KINDS = frozenset(
         "tool_authority_campaign",
         "rag_context_campaign",
         "planner_task_campaign",
+        "memory_rehydration_campaign",
     }
 )
 
