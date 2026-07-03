@@ -6,6 +6,21 @@ Commands:
   ash validate    <path>
   ash targets
   ash scenarios [--verbose]
+  ash trading-stand [--mode profile|dry-run|offline-fixture|scenario-catalog|
+                    sanitize-fixture|fixture-template|invariant-fixture-template|
+                    invariant-baseline-fixture|invariant-negative-control-fixture|
+                    invariant-weak-control-fixture|validate-invariant-fixture|
+                    static-probe|artifact-probe|artifact-invariant-probe|
+                    artifact-e2e-observation|boundary-lock|boundary-lock-review|
+                    experiment-plan|experiment-template|
+                    experiment-baseline-fixture|experiment-control-fixture|
+                    experiment-negative-control-fixture|experiment-batch-manifest|
+                    validate-experiment-batch-manifest|experiment-intake|
+                    experiment-readiness|
+                    validate-experiment|sanitize-experiment|
+                    authorized-paper]
+                    [--target-path PATH] [--fixture-path PATH]
+                    [--manifest-path PATH] [--artifact-root PATH]
   ash run-matrix  --target <target> --scenario <scenario> --out <dir>
                   [--max-variants N] [--variant VARIANT_ID]
   ash run-external --adapter openai-compatible --base-url URL --model MODEL
@@ -132,6 +147,108 @@ def build_parser() -> argparse.ArgumentParser:
         "--verbose",
         action="store_true",
         help="show variant details for each scenario",
+    )
+
+    stand_p = sub.add_parser(
+        "trading-stand",
+        help="show the trading-bot-v2 paper-stand profile or dry-run plan",
+    )
+    stand_p.add_argument(
+        "--mode",
+        choices=(
+            "profile",
+            "dry-run",
+            "offline-fixture",
+            "scenario-catalog",
+            "sanitize-fixture",
+            "fixture-template",
+            "invariant-fixture-template",
+            "invariant-baseline-fixture",
+            "invariant-negative-control-fixture",
+            "invariant-weak-control-fixture",
+            "validate-invariant-fixture",
+            "static-probe",
+            "artifact-probe",
+            "artifact-invariant-probe",
+            "artifact-e2e-observation",
+            "boundary-lock",
+            "boundary-lock-review",
+            "experiment-plan",
+            "experiment-template",
+            "experiment-baseline-fixture",
+            "experiment-negative-control-fixture",
+            "experiment-control-fixture",
+            "experiment-batch-manifest",
+            "validate-experiment-batch-manifest",
+            "experiment-intake",
+            "experiment-readiness",
+            "validate-experiment",
+            "sanitize-experiment",
+            "authorized-paper",
+        ),
+        default="profile",
+        help=(
+            "profile prints metadata; dry-run adds preflight; offline-fixture "
+            "maps sanitized controls; scenario-catalog lists public-safe scenario "
+            "metadata; sanitize-fixture reads private rows and prints public-safe "
+            "summary; fixture-template writes an ignored private template; "
+            "invariant-fixture-template writes a payload-free private invariant "
+            "template; invariant-baseline-fixture writes a private baseline from "
+            "artifact invariants; invariant-negative-control-fixture checks the "
+            "finding path; invariant-weak-control-fixture checks the inconclusive "
+            "path; validate-invariant-fixture checks private invariant rows; "
+            "static-probe reads allowlisted target files without raw content; "
+            "artifact-probe reads allowlisted paper artifacts without raw rows; "
+            "artifact-invariant-probe maps artifacts to the 7 scenario invariants; "
+            "artifact-e2e-observation summarizes real paper artifacts without raw rows; "
+            "boundary-lock scans allowlisted observation files for boundary markers; "
+            "boundary-lock-review classifies boundary markers without source lines; "
+            "experiment-plan prepares controlled parallel paper experiments; "
+            "experiment-template writes a private payload-free experiment template; "
+            "experiment-baseline-fixture writes observed private baseline rows; "
+            "experiment-negative-control-fixture writes private finding controls; "
+            "experiment-control-fixture writes a private inconclusive control fixture; "
+            "experiment-batch-manifest writes a private batch guard; "
+            "validate-experiment-batch-manifest validates the private batch guard; "
+            "experiment-intake gates private filled rows before public summaries; "
+            "experiment-readiness evaluates gates before private filled rows; "
+            "validate-experiment checks private experiment rows; "
+            "sanitize-experiment emits public-safe experiment summaries; "
+            "authorized-paper shows fail-closed gates"
+        ),
+    )
+    stand_p.add_argument(
+        "--target-path",
+        type=Path,
+        default=None,
+        help="optional local trading-bot-v2 path for read-only shape preflight",
+    )
+    stand_p.add_argument(
+        "--fixture-path",
+        type=Path,
+        default=None,
+        help="private fixture JSON path for sanitize-fixture mode",
+    )
+    stand_p.add_argument(
+        "--manifest-path",
+        type=Path,
+        default=None,
+        help="private batch manifest JSON path for experiment-intake mode",
+    )
+    stand_p.add_argument(
+        "--artifact-root",
+        type=Path,
+        default=None,
+        help=(
+            "optional private paper artifact root for artifact-probe mode; "
+            "may point to a strategy-lab root, state/, or state/derived/"
+        ),
+    )
+    stand_p.add_argument(
+        "--format",
+        choices=("text", "json"),
+        default="text",
+        help="output format (default: text)",
     )
 
     matrix_p = sub.add_parser(
@@ -1363,6 +1480,586 @@ def _scenarios(verbose: bool = False) -> int:
             for v in scenario.variants:
                 knobs = ", ".join(f"{k}={val}" for k, val in v.knobs.items())
                 print(f"  - {v.variant_id:30s} {knobs}")
+    return 0
+
+
+def _trading_stand(
+    mode: str,
+    target_path: Path | None,
+    output_format: str,
+    fixture_path: Path | None,
+    manifest_path: Path | None = None,
+    artifact_root: Path | None = None,
+) -> int:
+    from agentic_security_harness.trading_bot_stand import (
+        authorized_paper_gate_plan,
+        boundary_lock_review_target,
+        boundary_lock_target,
+        dry_run_plan,
+        offline_fixture_summary,
+        paper_artifact_e2e_observation,
+        paper_artifact_invariant_probe,
+        paper_artifact_probe,
+        paper_experiment_plan,
+        paper_experiment_readiness,
+        private_experiment_intake_report,
+        sanitize_private_experiment_file,
+        sanitize_private_fixture_file,
+        stand_scenario_catalog_summary,
+        static_probe_target,
+        target_profile,
+        validate_private_experiment_batch_manifest_file,
+        validate_private_experiment_file,
+        validate_private_invariant_fixture_file,
+        write_private_experiment_baseline_fixture,
+        write_private_experiment_batch_manifest,
+        write_private_experiment_control_fixture,
+        write_private_experiment_negative_control_fixture,
+        write_private_experiment_template,
+        write_private_fixture_template,
+        write_private_invariant_baseline_fixture,
+        write_private_invariant_fixture_template,
+        write_private_invariant_negative_control_fixture,
+        write_private_invariant_weak_control_fixture,
+    )
+
+    if mode == "profile":
+        data = target_profile()
+    elif mode == "dry-run":
+        data = dry_run_plan(target_path)
+    elif mode == "offline-fixture":
+        data = offline_fixture_summary()
+    elif mode == "scenario-catalog":
+        data = stand_scenario_catalog_summary()
+    elif mode == "sanitize-fixture":
+        if fixture_path is None:
+            print("Error: --fixture-path is required for sanitize-fixture mode")
+            return 1
+        try:
+            data = sanitize_private_fixture_file(fixture_path)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    elif mode == "fixture-template":
+        if fixture_path is None:
+            print("Error: --fixture-path is required for fixture-template mode")
+            return 1
+        try:
+            data = write_private_fixture_template(fixture_path)
+        except (OSError, ValueError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    elif mode == "invariant-fixture-template":
+        if fixture_path is None:
+            print("Error: --fixture-path is required for invariant-fixture-template mode")
+            return 1
+        try:
+            data = write_private_invariant_fixture_template(fixture_path)
+        except (OSError, ValueError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    elif mode == "invariant-baseline-fixture":
+        if fixture_path is None:
+            print("Error: --fixture-path is required for invariant-baseline-fixture mode")
+            return 1
+        if target_path is None:
+            print("Error: --target-path is required for invariant-baseline-fixture mode")
+            return 1
+        try:
+            data = write_private_invariant_baseline_fixture(
+                fixture_path,
+                target_path,
+                artifact_root=artifact_root,
+            )
+        except (OSError, ValueError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    elif mode == "invariant-negative-control-fixture":
+        if fixture_path is None:
+            print(
+                "Error: --fixture-path is required for "
+                "invariant-negative-control-fixture mode"
+            )
+            return 1
+        try:
+            data = write_private_invariant_negative_control_fixture(fixture_path)
+        except (OSError, ValueError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    elif mode == "invariant-weak-control-fixture":
+        if fixture_path is None:
+            print(
+                "Error: --fixture-path is required for "
+                "invariant-weak-control-fixture mode"
+            )
+            return 1
+        try:
+            data = write_private_invariant_weak_control_fixture(fixture_path)
+        except (OSError, ValueError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    elif mode == "validate-invariant-fixture":
+        if fixture_path is None:
+            print("Error: --fixture-path is required for validate-invariant-fixture mode")
+            return 1
+        try:
+            data = validate_private_invariant_fixture_file(fixture_path)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    elif mode == "static-probe":
+        if target_path is None:
+            print("Error: --target-path is required for static-probe mode")
+            return 1
+        data = static_probe_target(target_path)
+    elif mode == "artifact-probe":
+        if target_path is None:
+            print("Error: --target-path is required for artifact-probe mode")
+            return 1
+        data = paper_artifact_probe(target_path, artifact_root=artifact_root)
+    elif mode == "artifact-invariant-probe":
+        if target_path is None:
+            print("Error: --target-path is required for artifact-invariant-probe mode")
+            return 1
+        data = paper_artifact_invariant_probe(target_path, artifact_root=artifact_root)
+    elif mode == "artifact-e2e-observation":
+        if target_path is None:
+            print("Error: --target-path is required for artifact-e2e-observation mode")
+            return 1
+        data = paper_artifact_e2e_observation(target_path, artifact_root=artifact_root)
+    elif mode == "boundary-lock":
+        if target_path is None:
+            print("Error: --target-path is required for boundary-lock mode")
+            return 1
+        data = boundary_lock_target(target_path)
+    elif mode == "boundary-lock-review":
+        if target_path is None:
+            print("Error: --target-path is required for boundary-lock-review mode")
+            return 1
+        data = boundary_lock_review_target(target_path)
+    elif mode == "experiment-plan":
+        data = paper_experiment_plan(target_path, artifact_root=artifact_root)
+    elif mode == "experiment-template":
+        if fixture_path is None:
+            print("Error: --fixture-path is required for experiment-template mode")
+            return 1
+        try:
+            data = write_private_experiment_template(fixture_path)
+        except (OSError, ValueError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    elif mode == "experiment-baseline-fixture":
+        if fixture_path is None:
+            print("Error: --fixture-path is required for experiment-baseline-fixture mode")
+            return 1
+        if target_path is None:
+            print("Error: --target-path is required for experiment-baseline-fixture mode")
+            return 1
+        try:
+            data = write_private_experiment_baseline_fixture(
+                fixture_path,
+                target_path,
+                artifact_root=artifact_root,
+            )
+        except (OSError, ValueError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    elif mode == "experiment-negative-control-fixture":
+        if fixture_path is None:
+            print(
+                "Error: --fixture-path is required for "
+                "experiment-negative-control-fixture mode"
+            )
+            return 1
+        try:
+            data = write_private_experiment_negative_control_fixture(fixture_path)
+        except (OSError, ValueError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    elif mode == "experiment-control-fixture":
+        if fixture_path is None:
+            print("Error: --fixture-path is required for experiment-control-fixture mode")
+            return 1
+        try:
+            data = write_private_experiment_control_fixture(fixture_path)
+        except (OSError, ValueError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    elif mode == "experiment-batch-manifest":
+        if fixture_path is None:
+            print("Error: --fixture-path is required for experiment-batch-manifest mode")
+            return 1
+        try:
+            data = write_private_experiment_batch_manifest(fixture_path)
+        except (OSError, ValueError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    elif mode == "validate-experiment-batch-manifest":
+        if fixture_path is None:
+            print(
+                "Error: --fixture-path is required for "
+                "validate-experiment-batch-manifest mode"
+            )
+            return 1
+        try:
+            data = validate_private_experiment_batch_manifest_file(fixture_path)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    elif mode == "experiment-intake":
+        if fixture_path is None:
+            print("Error: --fixture-path is required for experiment-intake mode")
+            return 1
+        try:
+            data = private_experiment_intake_report(
+                fixture_path,
+                batch_manifest_path=manifest_path,
+            )
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    elif mode == "experiment-readiness":
+        if target_path is None:
+            print("Error: --target-path is required for experiment-readiness mode")
+            return 1
+        try:
+            data = paper_experiment_readiness(
+                target_path,
+                artifact_root=artifact_root,
+                fixture_path=fixture_path,
+            )
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    elif mode == "validate-experiment":
+        if fixture_path is None:
+            print("Error: --fixture-path is required for validate-experiment mode")
+            return 1
+        try:
+            data = validate_private_experiment_file(fixture_path)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    elif mode == "sanitize-experiment":
+        if fixture_path is None:
+            print("Error: --fixture-path is required for sanitize-experiment mode")
+            return 1
+        try:
+            data = sanitize_private_experiment_file(fixture_path)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"Error: {exc}")
+            return 1
+    else:
+        data = authorized_paper_gate_plan(target_path)
+
+    if output_format == "json":
+        print(json.dumps(data, indent=2))
+        return 0
+
+    print(f"profile: {data['profile_id']}")
+    print(f"mode: {mode}")
+    print("network/provider/telegram/live execution: disabled by default")
+    if mode == "profile":
+        print(f"contours: {len(data['contours'])}")
+        print(f"allowed surfaces: {len(data['allowed_surfaces'])}")
+        print("runner modes: profile -> dry-run -> offline-fixture -> authorized-paper")
+    else:
+        if mode == "dry-run":
+            print(f"contours: {data['contour_count']}  batches: {data['batch_count']}")
+            for batch in data["batches"]:
+                print(
+                    f"- batch {batch['batch_id']}: {batch['purpose']} "
+                    f"({len(batch['contours'])} scenarios max {batch['max_parallel_scenarios']})"
+                )
+        elif mode == "offline-fixture":
+            counts = data["result_counts"]
+            print(
+                f"fixture rows: {data['fixture_rows']}  "
+                f"contours covered: {len(data['contour_coverage'])}"
+            )
+            print(
+                f"pass={counts['pass']}  finding={counts['finding']}  "
+                f"inconclusive={counts['inconclusive']}  error={counts['error']}"
+            )
+        elif mode == "scenario-catalog":
+            print(
+                f"scenarios: {data['scenario_count']}  "
+                f"contours covered: {len(data['contour_coverage'])}"
+            )
+            print("payloads included: false")
+            for scenario in data["scenarios"]:
+                print(
+                    f"- {scenario['scenario_id']}: {scenario['contour_id']} "
+                    f"on {scenario['surface_id']}"
+                )
+        elif mode == "sanitize-fixture":
+            counts = data["result_counts"]
+            print(f"records: {data['record_count']}")
+            print(
+                f"pass={counts['pass']}  finding={counts['finding']}  "
+                f"inconclusive={counts['inconclusive']}  error={counts['error']}"
+            )
+            print("payloads included: false")
+            print("private values included: false")
+        elif mode == "fixture-template":
+            print(f"template path: {data['path']}")
+            print(f"records: {data['record_count']}")
+            print("payloads included: false")
+            print("private values filled: false")
+        elif mode == "invariant-fixture-template":
+            print(f"template path: {data['path']}")
+            print(f"records: {data['record_count']}")
+            print("payloads included: false")
+            print("private values filled: false")
+            print("execution required: false")
+        elif mode == "invariant-baseline-fixture":
+            counts = data["result_counts"]
+            print(f"fixture path: {data['path']}")
+            print(f"records: {data['record_count']}")
+            print(
+                f"pass={counts['pass']}  finding={counts['finding']}  "
+                f"inconclusive={counts['inconclusive']}  error={counts['error']}"
+            )
+            print("payloads included: false")
+            print("private values filled: false")
+            print("execution required: false")
+        elif mode == "invariant-negative-control-fixture":
+            counts = data["result_counts"]
+            print(f"fixture path: {data['path']}")
+            print(f"records: {data['record_count']}")
+            print(
+                f"pass={counts['pass']}  finding={counts['finding']}  "
+                f"inconclusive={counts['inconclusive']}  error={counts['error']}"
+            )
+            print("payloads included: false")
+            print("private values filled: false")
+            print("target observation: false")
+        elif mode == "invariant-weak-control-fixture":
+            counts = data["result_counts"]
+            print(f"fixture path: {data['path']}")
+            print(f"records: {data['record_count']}")
+            print(
+                f"pass={counts['pass']}  finding={counts['finding']}  "
+                f"inconclusive={counts['inconclusive']}  error={counts['error']}"
+            )
+            print("payloads included: false")
+            print("private values filled: false")
+            print("target observation: false")
+        elif mode == "validate-invariant-fixture":
+            counts = data["result_counts"]
+            status = "ok" if data["ok"] else "failed"
+            print(f"validation: {status}")
+            print(f"records: {data['record_count']}  issues: {data['issue_count']}")
+            print(
+                f"pass={counts['pass']}  finding={counts['finding']}  "
+                f"inconclusive={counts['inconclusive']}  error={counts['error']}"
+            )
+            print("payloads included: false")
+            print("private values included: false")
+            for issue in data["issues"]:
+                print(
+                    f"- {issue['scenario_id']} {issue['field']}: "
+                    f"{issue['code']}"
+                )
+        elif mode == "static-probe":
+            print(f"scenarios: {data['scenario_count']}")
+            print(f"status counts: {data['status_counts']}")
+            print("raw contents included: false")
+        elif mode == "artifact-probe":
+            print(f"artifacts: {data['artifact_count']}")
+            print(f"status counts: {data['status_counts']}")
+            print(f"artifact root mode: {data['artifact_root_mode']}")
+            print("raw contents included: false")
+        elif mode == "artifact-invariant-probe":
+            counts = data["result_counts"]
+            print(f"scenarios: {data['scenario_count']}")
+            print(
+                f"pass={counts['pass']}  finding={counts['finding']}  "
+                f"inconclusive={counts['inconclusive']}  error={counts['error']}"
+            )
+            print(f"artifact root mode: {data['artifact_root_mode']}")
+            print("raw contents included: false")
+            print("private values included: false")
+        elif mode == "artifact-e2e-observation":
+            print(f"artifact checks: {data['artifact_check_count']}")
+            print(f"artifact checks ok: {data['artifact_checks_ok']}")
+            print(f"result class: {data['result_class']}")
+            print(f"execution boundary ok: {data['execution_boundary_ok']}")
+            print(f"evidence quality findings: {data['evidence_quality_findings']}")
+            print(f"artifact root mode: {data['artifact_root_mode']}")
+            print("raw contents included: false")
+            print("private values included: false")
+            print("raw card text included: false")
+        elif mode == "boundary-lock":
+            print(f"lock: {data['status']}  ok={data['lock_ok']}")
+            print(f"scenarios: {data['scenario_count']}")
+            print(f"status counts: {data['status_counts']}")
+            print(f"marker counts: {data['aggregate_marker_counts']}")
+            print("raw contents included: false")
+            print("private values included: false")
+        elif mode == "boundary-lock-review":
+            print(f"review: {data['review_status']}  blocking={data['blocking']}")
+            print(f"files reviewed: {data['file_count']}")
+            print(f"status counts: {data['status_counts']}")
+            print(f"review counts: {data['aggregate_review_counts']}")
+            print("raw contents included: false")
+            print("source lines included: false")
+            print("private values included: false")
+        elif mode == "experiment-plan":
+            print(f"scenarios: {data['scenario_count']}  batches: {data['batch_count']}")
+            print(f"execution status: {data['execution_status']}")
+            print(f"max parallel scenarios: {data['max_parallel_scenarios']}")
+            print("payloads included: false")
+            print("raw vectors included: false")
+            print("private calculations included: false")
+            evidence_gate = data.get("evidence_gate")
+            if isinstance(evidence_gate, dict):
+                print(f"artifact checks ok: {evidence_gate['artifact_checks_ok']}")
+                print(f"execution boundary ok: {evidence_gate['execution_boundary_ok']}")
+                print(f"evidence result class: {evidence_gate['result_class']}")
+                print(
+                    "evidence quality findings: "
+                    f"{evidence_gate['evidence_quality_findings']}"
+                )
+        elif mode == "experiment-template":
+            print(f"template path: {data['path']}")
+            print(f"records: {data['record_count']}  batches: {data['batch_count']}")
+            print("payloads included: false")
+            print("private values filled: false")
+            print("execution required: false")
+        elif mode == "experiment-control-fixture":
+            counts = data["result_counts"]
+            print(f"fixture path: {data['path']}")
+            print(f"records: {data['record_count']}  batches: {data['batch_count']}")
+            print(
+                f"pass={counts['pass']}  finding={counts['finding']}  "
+                f"inconclusive={counts['inconclusive']}  error={counts['error']}"
+            )
+            print("payloads included: false")
+            print("private values filled: false")
+            print("execution required: false")
+            print("target observation: false")
+        elif mode == "experiment-baseline-fixture":
+            counts = data["result_counts"]
+            print(f"fixture path: {data['path']}")
+            print(f"records: {data['record_count']}  batches: {data['batch_count']}")
+            print(
+                f"pass={counts['pass']}  finding={counts['finding']}  "
+                f"inconclusive={counts['inconclusive']}  error={counts['error']}"
+            )
+            print("payloads included: false")
+            print("private values filled: false")
+            print("execution required: false")
+            print("target observation: true")
+        elif mode == "experiment-negative-control-fixture":
+            counts = data["result_counts"]
+            print(f"fixture path: {data['path']}")
+            print(f"records: {data['record_count']}  batches: {data['batch_count']}")
+            print(
+                f"pass={counts['pass']}  finding={counts['finding']}  "
+                f"inconclusive={counts['inconclusive']}  error={counts['error']}"
+            )
+            print("payloads included: false")
+            print("private values filled: false")
+            print("execution required: false")
+            print("target observation: false")
+        elif mode == "experiment-batch-manifest":
+            print(f"manifest path: {data['path']}")
+            print(f"scenarios: {data['scenario_count']}  batches: {data['batch_count']}")
+            print(f"max parallel scenarios: {data['max_parallel_scenarios']}")
+            print("payloads included: false")
+            print("private values filled: false")
+            print("execution required: false")
+        elif mode == "validate-experiment-batch-manifest":
+            status = "ok" if data["ok"] else "failed"
+            print(f"validation: {status}")
+            print(
+                f"scenarios: {data['scenario_count']}  batches: {data['batch_count']}  "
+                f"issues: {data['issue_count']}"
+            )
+            print(f"max parallel scenarios: {data['max_parallel_scenarios']}")
+            print("payloads included: false")
+            print("private values included: false")
+            print("raw vectors included: false")
+            print("private calculations included: false")
+            for issue in data["issues"]:
+                print(f"- {issue['scope']} {issue['field']}: {issue['code']}")
+        elif mode == "experiment-intake":
+            print(f"intake: {data['status']}")
+            print(
+                f"records: {data['record_count']}  scenarios: {data['scenario_count']}  "
+                f"batches: {data['batch_count']}"
+            )
+            print(f"blockers: {data['blockers']}")
+            print(f"real target observations: {data['real_target_observation_count']}")
+            print(f"synthetic controls: {data['synthetic_control_count']}")
+            print(f"batch manifest ok: {data['batch_manifest_ok']}")
+            counts = data["result_counts"]
+            print(
+                f"pass={counts['pass']}  finding={counts['finding']}  "
+                f"inconclusive={counts['inconclusive']}  error={counts['error']}"
+            )
+            print("payloads included: false")
+            print("private values included: false")
+            print("raw vectors included: false")
+            print("private calculations included: false")
+        elif mode == "experiment-readiness":
+            status = "ready" if data["ready"] else "blocked"
+            print(f"readiness: {status}")
+            print(f"scenarios: {data['scenario_count']}  batches: {data['batch_count']}")
+            print(f"blockers: {data['blockers']}")
+            print(f"evidence quality findings: {data['evidence_quality_findings']}")
+            print("payloads included: false")
+            print("raw vectors included: false")
+            print("private calculations included: false")
+            for gate in data["gates"]:
+                mark = "PASS" if gate["ok"] else "FAIL"
+                print(f"  {mark} {gate['gate_id']}: {gate['required_state']}")
+        elif mode == "validate-experiment":
+            counts = data["result_counts"]
+            status = "ok" if data["ok"] else "failed"
+            print(f"validation: {status}")
+            print(
+                f"records: {data['record_count']}  scenarios: {data['scenario_count']}  "
+                f"issues: {data['issue_count']}"
+            )
+            print(
+                f"pass={counts['pass']}  finding={counts['finding']}  "
+                f"inconclusive={counts['inconclusive']}  error={counts['error']}"
+            )
+            print(f"batch counts: {data['batch_counts']}")
+            print("payloads included: false")
+            print("private values included: false")
+            for issue in data["issues"]:
+                print(
+                    f"- {issue['scenario_id']} {issue['field']}: "
+                    f"{issue['code']}"
+                )
+        elif mode == "sanitize-experiment":
+            counts = data["result_counts"]
+            print(f"records: {data['record_count']}  batches: {data['batch_count']}")
+            print(
+                f"pass={counts['pass']}  finding={counts['finding']}  "
+                f"inconclusive={counts['inconclusive']}  error={counts['error']}"
+            )
+            print(f"batch counts: {data['batch_counts']}")
+            print("payloads included: false")
+            print("private values included: false")
+            print("raw vectors included: false")
+            print("private calculations included: false")
+        else:
+            print(f"status: {data['status']}  ok={data['ok']}")
+            print(f"reason: {data['reason']}")
+            for gate in data["gates"]:
+                mark = "PASS" if gate["ok"] else "FAIL"
+                print(f"  {mark} {gate['gate_id']}: {gate['current_state']}")
+        preflight = data.get("preflight")
+        if isinstance(preflight, dict):
+            status = "ok" if preflight.get("ok") else "failed"
+            print(f"preflight: {status}  target_path={preflight.get('target_path')}")
+            for check in preflight.get("checks", []):
+                mark = "PASS" if check.get("ok") else "FAIL"
+                print(f"  {mark} {check.get('check_id')}: {check.get('message')}")
     return 0
 
 
@@ -3271,6 +3968,15 @@ def main(argv: list[str] | None = None) -> int:
         return _targets()
     if args.command == "scenarios":
         return _scenarios(verbose=getattr(args, "verbose", False))
+    if args.command == "trading-stand":
+        return _trading_stand(
+            args.mode,
+            args.target_path,
+            args.format,
+            args.fixture_path,
+            args.manifest_path,
+            args.artifact_root,
+        )
     if args.command == "run-matrix":
         return _run_matrix(
             args.target,
