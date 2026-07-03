@@ -42,6 +42,10 @@ All notable changes to this project are documented here. The format follows
 - Active research problem map (`docs/research-problem-map.md`) linking shipped deep
   contours, active evidence maintenance, next violation-model candidates, and promotion
   rules for future research slices.
+- Phantom Resource Trust as the next planned research contour: model-generated URLs,
+  package names, API endpoints, webhooks, and service domains remain untrusted until
+  separately verified through synthetic/mock provenance, allowlist, registry, DNS, or
+  signed-source checks.
 
 ## [0.14.0] - 2026-07-01
 
