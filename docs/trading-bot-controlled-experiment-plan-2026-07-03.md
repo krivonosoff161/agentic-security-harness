@@ -220,11 +220,45 @@ batch-manifest validation, explicit owner/run approval, and
 no-live/no-provider/no-Telegram boundaries must all pass. It does not execute
 target code or run adversarial payloads.
 
+## Goal Expansion After Authorized Gate
+
+The current goal is now split into two layers:
+
+1. **Completed gate layer:** the seven existing trading-stand scenario ids are
+   mapped, baseline artifacts are readable, private fixtures validate, the
+   batch manifest validates, and `authorized-paper` can accept a private bundle
+   without executing the target.
+2. **Next research contour:** add **contour #8, Phantom Resource Trust**, as a
+   separate planned model before expanding into broader active experiments.
+
+Contour #8 covers hallucinated or model-generated resources: domains, URLs,
+package names, API endpoints, webhooks, and service portals that look plausible
+but have not been independently verified. A bounded agent must treat those
+artifacts as untrusted drafts until provenance, allowlist, DNS/registry, or
+signed-source checks pass.
+
+This shifts later work after the #8 design step. The seven-scenario private
+filled-row path remains valid, but the next public research addition should
+first define the phantom-resource invariant, safe synthetic topology, mock
+resolution layer, ablation, benign allowlisted case, and public/private evidence
+split.
+
+Non-goals for contour #8:
+
+- no real domain registration;
+- no phishing kit reproduction;
+- no live brand probing;
+- no provider-abuse testing;
+- no publication of working malicious URLs, payloads, or target-specific
+  attacker instructions.
+
 ## Next Research Step
 
-The next step is to fill the ignored private experiment template with bounded
-synthetic vectors and target-side observation rows, then sanitize only aggregate
-result classes and artifact hashes back into public docs.
+The next step is to open the phantom-resource contour as its own issue/branch
+and design it as a synthetic/mock target. After that design exists, the ignored
+private experiment template can be filled with bounded synthetic vectors and
+target-side observation rows, then sanitized only into aggregate result classes
+and artifact hashes.
 
 External-provider adversarial testing, live order paths, `.env`, and Telegram
 send paths remain out of scope.

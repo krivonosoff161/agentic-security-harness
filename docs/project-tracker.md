@@ -20,6 +20,7 @@ design-led inter-agent handoff integrity track.
 
 | Issue | Track | Current focus |
 |---|---|---|
+| [#140 docs: add phantom resource trust as next research contour](https://github.com/krivonosoff161/agentic-security-harness/issues/140) | Research map / phantom resources | Add hallucinated/model-generated resource trust as planned contour #8 while keeping the current seven-scenario trading-stand gate unchanged. |
 | [#136 research: add trading-bot-v2 paper stand target profile](https://github.com/krivonosoff161/agentic-security-harness/issues/136) | Owned target / adapter research | Treat `trading-bot-v2` as an authorized paper-only target stand while keeping ASH as the security runner and evidence owner. |
 | [#96 docs: harden public evidence boundary and showcase claims](https://github.com/krivonosoff161/agentic-security-harness/issues/96) | Showcase / evidence boundary | Make public local-model campaign evidence explicit about public fields, private raw calculations, response-hash anchors, validation checks, and non-claims. |
 | [#87 docs: rebuild GitHub showcase and documentation map](https://github.com/krivonosoff161/agentic-security-harness/issues/87) | Showcase / documentation | Make the public README, evidence map, tracker, and status docs agree with the committed examples and current claim boundaries. |
