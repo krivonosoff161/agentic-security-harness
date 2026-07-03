@@ -10,6 +10,7 @@ what the current public artifacts support and what they do not support.
 |---|---|
 | [Evidence map](evidence-map.md) | One-page claim-to-artifact map for public metrics, reproduce commands, and non-claims. |
 | [Private/public evidence boundary](../private-public-evidence-boundary.md) | What local-model campaign fields may be public, what stays private, and how response hashes anchor owner-side replay. |
+| [Agentic rule-violation back-pass](../agentic-rule-violation-backpass.md) | Shipped contours reviewed through entry vector, propagation path, timing window, controls, and residual risk. |
 | [Scenario matrix](scenario-matrix.md) | What scenario families exist and what topology each one tests. |
 | [Semantic propagation defense model](../semantic-propagation-defense-model.md) | Worker-to-chief semantic drift controls, ablation matrix, and public/private boundary. |
 | [Local swarm defense contour](../local-swarm-defense-contour.md) | Four-family defensive contour for semantic drift, propagation, consensus laundering, and benign-framed leaks. |
