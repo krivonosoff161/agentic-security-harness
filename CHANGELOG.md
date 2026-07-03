@@ -7,6 +7,13 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- Trading-bot paper stand `authorized-paper` gate evaluation: the mode remains
+  non-executing, but it can now accept a private readiness bundle
+  (`--artifact-root`, `--fixture-path`, `--manifest-path`) and report
+  `accepted` only when target preflight, artifact readiness, private fixture
+  validation, batch-manifest validation, explicit owner/run approval, and
+  no-live/no-provider/no-Telegram boundaries all pass. The CLI still performs
+  no target execution, provider calls, Telegram sends, or `.env` reads.
 - Cross-agent memory rehydration authority deterministic campaign:
   `ash memory-rehydration-campaign` publishes the boundary "recalled memory is
   evidence, not current authority", with 7 synthetic memory rehydration cases,

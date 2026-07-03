@@ -289,8 +289,14 @@ Supporting docs:
 - `ash trading-stand --mode sanitize-experiment --fixture-path <private-json>`
   emits public-safe experiment summaries without raw vectors, agent scripts,
   target rows, traces, or private calculations.
-- `ash trading-stand --mode authorized-paper` is currently a fail-closed gate
-  report, not a target executor.
+- `ash trading-stand --mode authorized-paper --target-path <trading-bot-v2>
+  --artifact-root <private-paper-root> --fixture-path <private-json>
+  --manifest-path <private-json>` evaluates the non-executing authorization
+  gate for controlled paper experiments. It reports `accepted` only when
+  target preflight, artifact readiness, private fixture validation,
+  batch-manifest validation, explicit owner/run approval, and
+  no-live/no-provider/no-Telegram boundaries all pass. Without the private
+  bundle it remains fail-closed.
 - `ash showcase --root reports --out docs/showcase/generated` generates a Markdown
   reviewer view from run artifacts.
 

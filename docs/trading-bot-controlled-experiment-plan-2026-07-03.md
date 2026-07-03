@@ -64,6 +64,17 @@ ash trading-stand --mode experiment-intake \
   --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/filled-experiment.json \
   --manifest-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-batch-manifest-2026-07-03.json
 
+ash trading-stand --mode experiment-readiness \
+  --target-path <trading-bot-v2> \
+  --artifact-root <private-strategy-lab-root> \
+  --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-control-2026-07-03.json
+
+ash trading-stand --mode authorized-paper \
+  --target-path <trading-bot-v2> \
+  --artifact-root <private-strategy-lab-root> \
+  --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-control-2026-07-03.json \
+  --manifest-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-batch-manifest-2026-07-03.json
+
 ash trading-stand --mode validate-experiment \
   --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/filled-experiment.json
 
@@ -201,6 +212,13 @@ This is not a production-safety claim. It means the read-only paper artifact
 gate is strong enough to start filling private experiment rows for the seven
 scenario batches while preserving the same no-live/no-provider/no-secret
 boundary.
+
+The `authorized-paper` mode is the non-executing authorization gate for this
+step. It reports `accepted` only when the private readiness bundle is valid:
+target preflight, artifact readiness, private fixture validation,
+batch-manifest validation, explicit owner/run approval, and
+no-live/no-provider/no-Telegram boundaries must all pass. It does not execute
+target code or run adversarial payloads.
 
 ## Next Research Step
 

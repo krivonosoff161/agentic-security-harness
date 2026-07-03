@@ -2081,6 +2081,15 @@ def private_experiment_batch_manifest() -> dict[str, object]:
             "payloads_excluded": True,
             "raw_prompts_excluded": True,
         },
+        "authorization": {
+            "owner_approved": True,
+            "run_scope": "controlled-paper-gate",
+            "execution_allowed": False,
+            "target_mutation_allowed": False,
+            "provider_calls_allowed": False,
+            "telegram_sends_allowed": False,
+            "live_execution_allowed": False,
+        },
         "batches": batches,
     }
 
@@ -4030,6 +4039,151 @@ def authorized_paper_gate_plan(target_path: Path | None = None) -> dict[str, obj
         "live_execution": False,
         "preflight": preflight.to_dict() if preflight else None,
         "gates": [gate.to_dict() for gate in gates],
+        "private_evidence": private_evidence_plan(),
+    }
+
+
+def authorized_paper_gate_report(
+    target_path: Path | None = None,
+    *,
+    artifact_root: Path | None = None,
+    fixture_path: Path | None = None,
+    batch_manifest_path: Path | None = None,
+) -> dict[str, object]:
+    """Evaluate the non-executing authorized-paper gate.
+
+    The gate accepts only private manifests and fixtures that have already
+    passed the controlled-experiment validators. It still does not run target
+    code, read `.env`, call providers, send Telegram, or touch live execution.
+    """
+    if artifact_root is None and fixture_path is None and batch_manifest_path is None:
+        return authorized_paper_gate_plan(target_path)
+
+    preflight = preflight_target_path(target_path, mode="dry-run") if target_path else None
+    readiness: dict[str, object] | None = None
+    fixture_validation: dict[str, object] | None = None
+    batch_validation: dict[str, object] | None = None
+    authorization: Mapping[str, object] | None = None
+
+    if target_path is not None:
+        readiness = paper_experiment_readiness(
+            target_path,
+            artifact_root=artifact_root,
+            fixture_path=fixture_path,
+        )
+    if fixture_path is not None:
+        fixture_validation = validate_private_experiment_file(fixture_path)
+    if batch_manifest_path is not None:
+        batch_validation = validate_private_experiment_batch_manifest_file(
+            batch_manifest_path
+        )
+        manifest_payload = json.loads(Path(batch_manifest_path).read_text(encoding="utf-8"))
+        authorization_payload = manifest_payload.get("authorization")
+        if isinstance(authorization_payload, Mapping):
+            authorization = authorization_payload
+
+    preflight_ok = bool(preflight and preflight.ok)
+    readiness_ok = bool(readiness and readiness.get("ready"))
+    fixture_ok = bool(fixture_validation and fixture_validation.get("ok"))
+    batch_ok = bool(batch_validation and batch_validation.get("ok"))
+    owner_approval_ok = bool(
+        authorization
+        and authorization.get("owner_approved") is True
+        and authorization.get("run_scope") == "controlled-paper-gate"
+        and authorization.get("execution_allowed") is False
+        and authorization.get("target_mutation_allowed") is False
+        and authorization.get("provider_calls_allowed") is False
+        and authorization.get("telegram_sends_allowed") is False
+        and authorization.get("live_execution_allowed") is False
+    )
+    artifact_root_ok = bool(
+        artifact_root is not None
+        and Path(artifact_root).exists()
+        and Path(artifact_root).is_dir()
+    )
+
+    gates: list[AuthorizedPaperGate] = [
+        AuthorizedPaperGate(
+            gate_id="authorization-gate-implemented",
+            ok=True,
+            required_state="authorized-paper evaluates gates without execution",
+            current_state="implemented as non-executing gate report",
+        ),
+        AuthorizedPaperGate(
+            gate_id="target-preflight",
+            ok=preflight_ok,
+            required_state="target path passes read-only preflight",
+            current_state="passed" if preflight_ok else "missing or failed",
+        ),
+        AuthorizedPaperGate(
+            gate_id="artifact-root",
+            ok=artifact_root_ok,
+            required_state="private artifact root exists",
+            current_state="present" if artifact_root_ok else "missing or not a directory",
+        ),
+        AuthorizedPaperGate(
+            gate_id="readiness",
+            ok=readiness_ok,
+            required_state="experiment readiness gates pass",
+            current_state=(
+                str(readiness.get("status"))
+                if isinstance(readiness, Mapping)
+                else "not evaluated"
+            ),
+        ),
+        AuthorizedPaperGate(
+            gate_id="private-fixture",
+            ok=fixture_ok,
+            required_state="private experiment fixture validates",
+            current_state="valid" if fixture_ok else "missing or invalid",
+        ),
+        AuthorizedPaperGate(
+            gate_id="batch-manifest",
+            ok=batch_ok,
+            required_state="private batch manifest validates",
+            current_state="valid" if batch_ok else "missing or invalid",
+        ),
+        AuthorizedPaperGate(
+            gate_id="owner-run-approval",
+            ok=owner_approval_ok,
+            required_state="manifest carries explicit owner approval for gate-only run",
+            current_state="approved" if owner_approval_ok else "missing or not approved",
+        ),
+        AuthorizedPaperGate(
+            gate_id="no-secret-or-live-surfaces",
+            ok=True,
+            required_state=".env, live orders, Telegram sends, and providers stay disabled",
+            current_state="gate performs no target execution",
+        ),
+    ]
+    blockers = [gate.gate_id for gate in gates if not gate.ok]
+    accepted = not blockers
+    return {
+        "profile_id": PROFILE_ID,
+        "mode": "authorized-paper",
+        "status": "accepted" if accepted else "blocked",
+        "ok": accepted,
+        "reason": (
+            "authorized-paper gate accepted; target execution still disabled"
+            if accepted
+            else "authorized-paper gate blocked"
+        ),
+        "execution_status": "authorized-gate-only",
+        "target_mutation": False,
+        "env_read": False,
+        "provider_calls": False,
+        "telegram_sends": False,
+        "live_execution": False,
+        "raw_vectors_included": False,
+        "private_calculations_included": False,
+        "payloads_included": False,
+        "blockers": blockers,
+        "preflight": preflight.to_dict() if preflight else None,
+        "gates": [gate.to_dict() for gate in gates],
+        "readiness": readiness,
+        "fixture_validation": fixture_validation,
+        "batch_manifest_validation": batch_validation,
+        "authorization": dict(authorization) if authorization else None,
         "private_evidence": private_evidence_plan(),
     }
 
