@@ -39,6 +39,7 @@ _RUN_KINDS = frozenset(
         "context_consent_campaign",
         "tool_authority_campaign",
         "rag_context_campaign",
+        "planner_task_campaign",
     }
 )
 

@@ -36,6 +36,7 @@ SCHEMA_VERSIONS: dict[str, str] = {
     "context_consent_campaign": "0.1",  # context_consent_summary.json
     "tool_authority_campaign": "0.1",  # tool_authority_summary.json
     "rag_context_campaign": "0.1",  # rag_context_summary.json
+    "planner_task_campaign": "0.1",  # planner_task_summary.json
 }
 
 # Current implemented defensive corpus revision. Artifact schema versions describe file
