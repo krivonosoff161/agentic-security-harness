@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 import ast
 import json
 from pathlib import Path

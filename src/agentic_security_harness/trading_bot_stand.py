@@ -12,10 +12,10 @@ import hashlib
 import io
 import json
 import tokenize
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 PROFILE_ID = "trading-bot-v2-paper-stand"
 ISSUE_URL = "https://github.com/krivonosoff161/agentic-security-harness/issues/136"
@@ -1099,7 +1099,11 @@ def _any_row_has_key(rows: list[dict[str, object]], key: str) -> bool:
     return any(key in row for row in rows)
 
 
-def _classify_checks(checks: Mapping[str, bool], *, schema_only: bool = False) -> str:
+def _classify_checks(
+    checks: Mapping[str, bool],
+    *,
+    schema_only: bool = False,
+) -> ObservationClass:
     if not checks:
         return "error"
     if not all(checks.values()):
@@ -1399,7 +1403,8 @@ def boundary_lock_review_target(target_path: Path) -> dict[str, object]:
     """Review boundary-lock markers without exposing source lines."""
     lock = boundary_lock_target(target_path)
     root = Path(target_path)
-    files = sorted({str(path) for path in lock["files_with_markers"]})
+    files_with_markers = cast(Sequence[object], lock["files_with_markers"])
+    files = sorted({str(path) for path in files_with_markers})
     reviews: list[dict[str, object]] = []
     aggregate = {
         "documentation_marker_count": 0,
@@ -1430,7 +1435,7 @@ def boundary_lock_review_target(target_path: Path) -> dict[str, object]:
             review = _review_boundary_file(candidate)
             file_hash = _file_sha256(candidate)
         for key in aggregate:
-            aggregate[key] += int(review[key])
+            aggregate[key] += int(cast(int, review[key]))
         reviews.append(
             {
                 "relative_path": relative_path,
@@ -1852,13 +1857,12 @@ def paper_artifact_e2e_observation(
 
     chain_ok = all(check.ok for check in checks)
     execution_boundary_ok = (
-        int(training_safety["execution_allowed_true"]) == 0
-        and int(training_safety["paper_only_false"]) == 0
-        and int(preview_quality["execution_allowed_true"]) == 0
-        and int(preview_quality["paper_only_false"]) == 0
-        and int(preview_quality["has_execution_allowed_marker"]) == int(
-            preview_quality["rows"]
-        )
+        int(cast(int, training_safety["execution_allowed_true"])) == 0
+        and int(cast(int, training_safety["paper_only_false"])) == 0
+        and int(cast(int, preview_quality["execution_allowed_true"])) == 0
+        and int(cast(int, preview_quality["paper_only_false"])) == 0
+        and int(cast(int, preview_quality["has_execution_allowed_marker"]))
+        == int(cast(int, preview_quality["rows"]))
     )
     legacy_card_contract_ok = bool(preview_quality["ok"])
     evidence_quality_findings: list[str] = []
@@ -1981,7 +1985,7 @@ def paper_experiment_plan(
                 "private_values_included": observation["private_values_included"],
                 "raw_card_text_included": observation["raw_card_text_included"],
             }
-            for finding in observation["evidence_quality_findings"]:
+            for finding in cast(Sequence[object], observation["evidence_quality_findings"]):
                 blocking_conditions.append(str(finding))
 
     return {
@@ -2278,7 +2282,7 @@ def private_experiment_baseline_fixture(
     probe = paper_artifact_invariant_probe(target_path, artifact_root=artifact_root)
     plan_by_id = {scenario.scenario_id: scenario for scenario in experiment_scenario_plan()}
     records: list[dict[str, object]] = []
-    for observation in probe["observations"]:
+    for observation in cast(Sequence[object], probe["observations"]):
         if not isinstance(observation, Mapping):
             continue
         scenario_id = str(observation["scenario_id"])
@@ -2473,7 +2477,9 @@ def sanitize_private_fixture_record(record: Mapping[str, object]) -> dict[str, o
     }
 
 
-def sanitize_private_fixture_records(records: list[Mapping[str, object]]) -> dict[str, object]:
+def sanitize_private_fixture_records(
+    records: Sequence[Mapping[str, object]],
+) -> dict[str, object]:
     """Sanitize a private fixture batch into a public-safe aggregate."""
     summaries = [sanitize_private_fixture_record(record) for record in records]
     counts: dict[str, int] = {key: 0 for key in _OBSERVATION_CLASSES}
@@ -2729,7 +2735,7 @@ def sanitize_private_experiment_record(record: Mapping[str, object]) -> dict[str
 
 
 def sanitize_private_experiment_records(
-    records: list[Mapping[str, object]],
+    records: Sequence[Mapping[str, object]],
 ) -> dict[str, object]:
     """Sanitize private experiment rows into public-safe aggregate evidence."""
     summaries = [sanitize_private_experiment_record(record) for record in records]
@@ -3234,12 +3240,12 @@ def private_experiment_intake_report(
         blockers.append("experiment-validation")
 
     expected_scenarios = len(experiment_scenario_plan())
-    real_target_count = int(validation["real_target_observation_count"])
+    real_target_count = int(cast(int, validation["real_target_observation_count"]))
     if real_target_count != expected_scenarios:
         blockers.append("real-target-observation-count")
-    if int(validation["synthetic_control_count"]) > 0:
+    if int(cast(int, validation["synthetic_control_count"])) > 0:
         blockers.append("synthetic-control-rows-present")
-    if int(validation["target_observation_count"]) != expected_scenarios:
+    if int(cast(int, validation["target_observation_count"])) != expected_scenarios:
         blockers.append("target-observation-count")
 
     if batch_manifest_path is None:
@@ -3268,7 +3274,7 @@ def private_experiment_intake_report(
         "validation_issue_count": validation["issue_count"],
         "batch_manifest_ok": bool(batch_validation and batch_validation["ok"]),
         "batch_manifest_issue_count": (
-            int(batch_validation["issue_count"]) if batch_validation else None
+            int(cast(int, batch_validation["issue_count"])) if batch_validation else None
         ),
         "sanitized_summary": sanitized,
         "target_mutation": False,
@@ -3521,7 +3527,7 @@ def private_invariant_baseline_fixture(
     probe = paper_artifact_invariant_probe(target_path, artifact_root=artifact_root)
     scenario_by_id = _scenario_by_id()
     records: list[dict[str, object]] = []
-    for observation in probe["observations"]:
+    for observation in cast(Sequence[object], probe["observations"]):
         if not isinstance(observation, dict):
             continue
         scenario_id = str(observation["scenario_id"])

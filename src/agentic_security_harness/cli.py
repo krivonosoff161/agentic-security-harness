@@ -34,6 +34,7 @@ import argparse
 import json
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 from agentic_security_harness import __version__
 from agentic_security_harness.adapters import list_targets, make_target, target_ids
@@ -1541,6 +1542,7 @@ def _trading_stand(
         write_private_invariant_weak_control_fixture,
     )
 
+    data: Any
     if mode == "profile":
         data = target_profile()
     elif mode == "dry-run":
