@@ -41,6 +41,7 @@ def test_valid_examples_pass() -> None:
         "tool-authority-sanitized",
         "rag-context-sanitized",
         "planner-task-sanitized",
+        "memory-rehydration-sanitized",
     ):
         result = validate_path(EXAMPLES / name)
         assert result.ok, result.errors
@@ -56,6 +57,7 @@ def test_validate_examples_root_ok() -> None:
     assert len(result.tool_authority_campaign_dirs) == 1
     assert len(result.rag_context_campaign_dirs) == 1
     assert len(result.planner_task_campaign_dirs) == 1
+    assert len(result.memory_rehydration_campaign_dirs) == 1
 
 
 def test_cli_validate_examples_returns_zero() -> None:
