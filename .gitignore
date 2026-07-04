@@ -16,6 +16,13 @@ venv/
 # Generated demo reports (a curated example is committed under examples/demo-report/)
 reports/
 
+# Local app attachments and private research artifacts
+.codex-remote-attachments/
+private-traces/
+raw-model-responses/
+attack-vectors/
+canary-runs/
+
 # Tooling caches
 .pytest_cache/
 .mypy_cache/
