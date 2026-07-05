@@ -1,8 +1,13 @@
 # Storage boundaries
 
+Portfolio-level documentation and storage authority is defined in the
+[Documentation Contract](https://github.com/krivonosoff161/krivonosoff161/blob/main/docs/documentation-contract.md).
+This page narrows that contract for Agentic Security Harness.
+
 Agentic Security Harness is a public, release-facing repository. Keep the
 repository limited to source code, public documentation, deterministic examples,
-sanitized screenshots, and small reproducible fixtures.
+sanitized screenshots, deterministic synthetic traces, redacted artifacts, and
+small reproducible fixtures.
 
 Do not commit private or raw security research artifacts:
 
