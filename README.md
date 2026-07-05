@@ -62,6 +62,12 @@ These repositories are related, but not interchangeable. Prompts and playbooks
 do not replace runtime controls, handoff files are not a sandbox, and a clean
 benchmark run is not a production safety certification.
 
+Portfolio-level documentation hierarchy and public/private storage rules are
+defined in the
+[Documentation Contract](https://github.com/krivonosoff161/krivonosoff161/blob/main/docs/documentation-contract.md).
+This repository remains the benchmark/evidence layer; repo-local docs define
+the `ash` CLI, artifacts, examples, and evidence boundaries.
+
 OWASP LLM 2025 quick map:
 
 | OWASP risk | Harness coverage |
@@ -100,6 +106,8 @@ Tracks below are either deterministic artifact checks or sanitized local-model
 evidence-quality snapshots. None are certification, vendor benchmark, CVE, or
 production-safety claims. The private/public split for local empirical evidence is
 defined in [docs/private-public-evidence-boundary.md](docs/private-public-evidence-boundary.md).
+That local evidence rule narrows, but does not weaken, the portfolio
+[Documentation Contract](https://github.com/krivonosoff161/krivonosoff161/blob/main/docs/documentation-contract.md).
 
 | Evidence track | Current public result | Inspect |
 |---|---:|---|

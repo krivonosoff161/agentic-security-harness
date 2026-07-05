@@ -1,5 +1,11 @@
 # Private/Public Evidence Boundary
 
+Portfolio-level documentation and storage authority is defined in the
+[Documentation Contract](https://github.com/krivonosoff161/krivonosoff161/blob/main/docs/documentation-contract.md).
+This page is the Agentic Security Harness evidence-specific rule: it explains
+which benchmark artifacts can be public and which raw/local evidence must stay
+private.
+
 This project has two evidence surfaces:
 
 - deterministic public examples that can be fully regenerated and committed; and
