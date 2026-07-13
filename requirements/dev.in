@@ -1,5 +1,5 @@
 -r runtime.in
 pytest==9.1.1
-ruff==0.15.20
+ruff==0.15.21
 mypy==2.1.0
 colorama==0.4.6 ; sys_platform == "win32"
