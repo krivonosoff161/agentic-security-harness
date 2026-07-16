@@ -8,6 +8,8 @@
 !NOTICE
 !requirements/
 !requirements/runtime.txt
+!.clusterfuzzlite/
+!.clusterfuzzlite/**
 !src/
 !src/**
 !examples/

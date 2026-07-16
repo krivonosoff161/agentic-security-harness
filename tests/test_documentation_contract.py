@@ -1185,21 +1185,22 @@ def test_artifact_authenticity_design_separates_trust_domains_and_non_claims() -
 
 
 def test_security_audit_causal_map_covers_every_task_finding_and_open_boundary() -> None:
-    task = _read("TASK.md")
     causal_map = _read("docs/security-audit-causal-map-2026-07-15.md")
     project_map = _read("docs/project-map.md")
     readme = _read("README.md")
-    finding_pattern = r"^(?:\d+)\. `((?:TB-AUD|ASH-TB|ASH-AUD)-\d+)`"
-    task_ids = re.findall(finding_pattern, task, flags=re.MULTILINE)
     mapped_ids = re.findall(
         r"^\| `((?:TB-AUD|ASH-TB|ASH-AUD)-\d+)` \|",
         causal_map,
         flags=re.MULTILINE,
     )
+    expected_ids = {
+        *(f"TB-AUD-{number:02d}" for number in range(1, 12)),
+        "ASH-TB-01",
+        *(f"ASH-AUD-{number:02d}" for number in range(2, 40)),
+    }
 
-    assert len(task_ids) == 50
-    assert len(task_ids) == len(set(task_ids))
-    assert set(mapped_ids) == set(task_ids)
+    assert len(expected_ids) == 50
+    assert set(mapped_ids) == expected_ids
     assert len(mapped_ids) == len(set(mapped_ids))
 
     for phrase in (

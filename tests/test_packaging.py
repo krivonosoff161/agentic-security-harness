@@ -42,6 +42,8 @@ def test_dockerignore_excludes_heavy_and_secret_paths() -> None:
         "!NOTICE",
         "!requirements/",
         "!requirements/runtime.txt",
+        "!.clusterfuzzlite/",
+        "!.clusterfuzzlite/**",
         "!src/",
         "!src/**",
         "!examples/",

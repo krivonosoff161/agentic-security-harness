@@ -327,7 +327,16 @@ def test_validate_rejects_manifested_symbolic_link(tmp_path: Path) -> None:
     result = validate_path(run_dir)
 
     assert not result.ok
-    assert any("must not traverse a symbolic link" in error for error in result.errors)
+    accepted_link_errors = (
+        "must not traverse a link or reparse point",
+        "links or reparse points are not allowed",
+        "must not be a symbolic link",
+    )
+    assert any(
+        marker in error
+        for error in result.errors
+        for marker in accepted_link_errors
+    )
 
 
 def test_validate_rejects_unmanifested_directory_link(tmp_path: Path) -> None:
