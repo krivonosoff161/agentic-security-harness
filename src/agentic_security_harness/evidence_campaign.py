@@ -22,7 +22,11 @@ from agentic_security_harness.local_swarm import (
     evaluate_swarm_scenario,
 )
 from agentic_security_harness.run_manifest import build_manifest, write_run_manifest
-from agentic_security_harness.safe_io import write_text_artifact
+from agentic_security_harness.safe_io import (
+    atomic_evidence_bundle,
+    require_fresh_output_dir,
+    write_text_artifact,
+)
 from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 
 ClaimFamily = Literal[
@@ -477,12 +481,14 @@ def build_evidence_campaign(*, created_at: str = "") -> EvidenceCampaignSummary:
     )
 
 
+@atomic_evidence_bundle("out_dir")
 def write_evidence_campaign_artifacts(
     out_dir: Path,
     summary: EvidenceCampaignSummary,
 ) -> list[Path]:
     """Write JSON, Markdown, digest, and run manifest artifacts."""
 
+    require_fresh_output_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     json_text = json.dumps(summary.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
     json_path = write_text_artifact(out_dir / "evidence_campaign_summary.json", json_text)
@@ -541,7 +547,12 @@ def render_campaign_report(summary: EvidenceCampaignSummary) -> str:
         "",
         "## Aggregate Metrics",
         "",
-        "| Mode | TP | FP | TN | FN | Inconclusive | Attack block | Benign pass | "
+        "Evidence class: executable specification. Labels are scenario-author expectations; "
+        "the confusion-style counters below measure fixture consistency, not detector accuracy. "
+        "Ablation deltas are rule-derived dependencies, not empirical causal effects.",
+        "",
+        "| Mode | Fixture TP | Fixture FP | Fixture TN | Fixture FN | Inconclusive | "
+        "Declared-unsafe block consistency | Declared-safe allow consistency | "
         "Failure rate | False block | Trace completeness |",
         "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
@@ -560,8 +571,9 @@ def render_campaign_report(summary: EvidenceCampaignSummary) -> str:
             "## Control Ablation",
             "",
             "Each row disables the control responsible for a case family in bounded mode. "
-            "Unsafe regressions are expected: they show which control was carrying the "
-            "safety decision. Benign regressions would be usability bugs.",
+            "Unsafe branch changes are encoded by the fixture: they identify declared "
+            "control dependencies, not observed causal effects. Benign regressions would "
+            "be executable-specification inconsistencies.",
             "",
             "| Control disabled | Unsafe regressions | Benign regressions |",
             "| --- | ---: | ---: |",
@@ -582,8 +594,9 @@ def render_campaign_report(summary: EvidenceCampaignSummary) -> str:
             "",
             "## Family Metrics",
             "",
-            "| Claim family | Cases | Bounded TP | Bounded FP | Bounded TN | Bounded FN | "
-            "Control effect | Usability cost |",
+            "| Claim family | Cases | Bounded fixture TP | Bounded fixture FP | "
+            "Bounded fixture TN | Bounded fixture FN | "
+            "Rule-derived delta | Declared usability delta |",
             "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
         ]
     )
@@ -601,7 +614,8 @@ def render_campaign_report(summary: EvidenceCampaignSummary) -> str:
             "",
             "## Case Matrix",
             "",
-            "| Case | Family | Kind | Truth | Bounded decision | Bounded class | Reasons |",
+            "| Case | Family | Kind | Scenario-author expectation | Bounded decision | "
+            "Fixture class | Reasons |",
             "| --- | --- | --- | --- | --- | --- | --- |",
         ]
     )

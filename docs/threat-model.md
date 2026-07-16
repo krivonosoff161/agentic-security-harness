@@ -85,7 +85,7 @@ Two deliberate limitations to call out:
   runtime. This is a deliberate trade - a self-mutating security tool is hard to audit.
   Feedback labels are collected for future, human-reviewed adaptive rules only.
 
-## Known limitations (v0.10)
+## Known limitations (v0.14)
 
 The following are **documented known limitations**, not current patterns. They represent
 areas where the benchmark does not yet test, and where real-world agent systems may face

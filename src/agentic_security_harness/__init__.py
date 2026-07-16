@@ -2,7 +2,7 @@
 
 Pipeline: ``pattern -> target -> trace -> scorecard``. Built-in/local targets are
 deterministic and offline (no network, no provider calls). The experimental
-``run-external`` path makes OpenAI-compatible calls only on explicit opt-in; native
+``run-external --execute`` makes OpenAI-compatible calls only on explicit opt-in; native
 provider and agent-host adapters are future. A ``DataEnvelope`` is a policy label, not
 encryption.
 """
@@ -98,8 +98,10 @@ from agentic_security_harness.stats import (
     write_run_stats,
 )
 from agentic_security_harness.validation import ValidationResult, validate_path
+from agentic_security_harness.version import __version__
 
 __all__ = [
+    "__version__",
     "DataEnvelope",
     "CapabilityToken",
     "CapabilityCheckResult",
@@ -183,5 +185,3 @@ __all__ = [
     "remediation_to_json",
     "write_remediation",
 ]
-
-__version__ = "0.14.0"

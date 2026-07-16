@@ -10,6 +10,6 @@
   ],
   "run_kind": "swarm_defense_contour",
   "scenarios": 4,
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "topologies": 15
 }

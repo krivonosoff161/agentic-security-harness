@@ -1,6 +1,6 @@
 # Authorized testing paths
 
-> Last reviewed: 2026-06-16.
+> Last reviewed: 2026-07-14.
 >
 > Scope: how Agentic Security Harness can be used for legitimate defensive evaluation.
 > This page is not legal advice. It defines project policy and evidence expectations.
@@ -21,7 +21,7 @@ terms, acceptable-use policies, or authorization boundaries.
 |---|---|---|---|
 | Demo synthetic lab | Built-in mock/demo/toy targets with synthetic data only. | Shipped. | Run config, traces, scorecard, validation result. |
 | Local runtime lab | A local OpenAI-compatible runtime such as Ollama, LM Studio, or vLLM. | Supported through experimental `run-external`; prompt-only, no tool execution. | `run_config.runtime`: runtime label, model id, `network_mode=local-only`, model license note, recovery guidance. |
-| Owned system assessment | A target adapter around a system controlled by the user or organization. | Future adapter track; current docs only. | Written scope, adapter metadata, target owner, isolation, logs. |
+| Owned system assessment | A bounded harness-side profile or future adapter around a system controlled by the user or organization. | Read-only paper-stand profile, static/artifact probes, and fail-closed gates are shipped for `trading-bot-v2`; a target executor/runtime adapter remains future. | Written scope, adapter metadata, target owner, isolation, logs, and explicit execution authority. |
 | Customer-authorized assessment | Testing a third-party system with explicit permission. | Future adapter track; current docs only. | Rules of engagement, scope, dates, contacts, allowed tests. |
 | Provider bug bounty / safe harbor | Testing a provider product only inside its published scope. | Manual process outside the harness; artifacts may be generated if allowed. | Program URL, scope, allowed test class, no out-of-scope data. |
 | Standards-aligned benchmark | Mapping harness findings to public frameworks. | Partial. | Mapping source, category, status, and a clear "not certification" note. |

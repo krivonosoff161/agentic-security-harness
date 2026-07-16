@@ -2,6 +2,9 @@
 
 This deterministic campaign measures whether synthetic cross-agent memory rehydration turns old, expired, cross-scope, summarized, merged, or handoff memory into current authority. Public artifacts contain case contracts, deterministic rows, aggregate metrics, agentic-pressure scores, propagation labels, and context fingerprints only.
 
+Evidence class: `executable_specification`.
+Control effects are derived from declared case dependencies and evaluation rules; they are not independent causal estimates.
+
 ## Attacker Model
 
 The modeled attacker can use AI to split influence across normal-looking memory notes, avoid direct jailbreak wording, and rely on recall, summary, merge, session transfer, dependency ordering, or handoff steps to convert old evidence into current authority.
@@ -65,16 +68,16 @@ A clean validation result means artifact integrity and forbidden-marker checks p
 
 | Control | Required cases | Ablation mode | Bounded acceptances | Ablation acceptances | Full-contract blocks | Interpretation |
 | --- | ---: | --- | ---: | ---: | ---: | --- |
-| memory_source_provenance | 6 | no_memory_source_provenance | 0 | 6 | 6 | Removing memory_source_provenance reopens every case that depends on it; the bounded contract blocks those rows. |
-| memory_scope_binding | 3 | no_memory_scope_binding | 0 | 3 | 3 | Removing memory_scope_binding reopens every case that depends on it; the bounded contract blocks those rows. |
-| memory_ttl_enforcement | 2 | no_memory_ttl_enforcement | 0 | 2 | 2 | Removing memory_ttl_enforcement reopens every case that depends on it; the bounded contract blocks those rows. |
-| trust_level_preservation | 3 | no_trust_level_preservation | 0 | 3 | 3 | Removing trust_level_preservation reopens every case that depends on it; the bounded contract blocks those rows. |
-| current_user_intent_anchor | 4 | no_current_user_intent_anchor | 0 | 4 | 4 | Removing current_user_intent_anchor reopens every case that depends on it; the bounded contract blocks those rows. |
-| rehydration_authority_gate | 7 | no_rehydration_authority_gate | 0 | 7 | 7 | Removing rehydration_authority_gate reopens every case that depends on it; the bounded contract blocks those rows. |
-| recipient_scope_check | 3 | no_recipient_scope_check | 0 | 3 | 3 | Removing recipient_scope_check reopens every case that depends on it; the bounded contract blocks those rows. |
-| merge_source_isolation | 2 | no_merge_source_isolation | 0 | 2 | 2 | Removing merge_source_isolation reopens every case that depends on it; the bounded contract blocks those rows. |
-| handoff_revalidation | 1 | no_handoff_revalidation | 0 | 1 | 1 | Removing handoff_revalidation reopens every case that depends on it; the bounded contract blocks those rows. |
-| dependency_revalidation_gate | 1 | no_dependency_revalidation_gate | 0 | 1 | 1 | Removing dependency_revalidation_gate reopens every case that depends on it; the bounded contract blocks those rows. |
+| memory_source_provenance | 6 | no_memory_source_provenance | 0 | 6 | 6 | The specification marks every case that depends on memory_source_provenance accepted when that control is disabled; this is rule-derived attribution. |
+| memory_scope_binding | 3 | no_memory_scope_binding | 0 | 3 | 3 | The specification marks every case that depends on memory_scope_binding accepted when that control is disabled; this is rule-derived attribution. |
+| memory_ttl_enforcement | 2 | no_memory_ttl_enforcement | 0 | 2 | 2 | The specification marks every case that depends on memory_ttl_enforcement accepted when that control is disabled; this is rule-derived attribution. |
+| trust_level_preservation | 3 | no_trust_level_preservation | 0 | 3 | 3 | The specification marks every case that depends on trust_level_preservation accepted when that control is disabled; this is rule-derived attribution. |
+| current_user_intent_anchor | 4 | no_current_user_intent_anchor | 0 | 4 | 4 | The specification marks every case that depends on current_user_intent_anchor accepted when that control is disabled; this is rule-derived attribution. |
+| rehydration_authority_gate | 7 | no_rehydration_authority_gate | 0 | 7 | 7 | The specification marks every case that depends on rehydration_authority_gate accepted when that control is disabled; this is rule-derived attribution. |
+| recipient_scope_check | 3 | no_recipient_scope_check | 0 | 3 | 3 | The specification marks every case that depends on recipient_scope_check accepted when that control is disabled; this is rule-derived attribution. |
+| merge_source_isolation | 2 | no_merge_source_isolation | 0 | 2 | 2 | The specification marks every case that depends on merge_source_isolation accepted when that control is disabled; this is rule-derived attribution. |
+| handoff_revalidation | 1 | no_handoff_revalidation | 0 | 1 | 1 | The specification marks every case that depends on handoff_revalidation accepted when that control is disabled; this is rule-derived attribution. |
+| dependency_revalidation_gate | 1 | no_dependency_revalidation_gate | 0 | 1 | 1 | The specification marks every case that depends on dependency_revalidation_gate accepted when that control is disabled; this is rule-derived attribution. |
 
 ## Deterministic Contract Results
 

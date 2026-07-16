@@ -1,9 +1,8 @@
 """Onboarding diagnostics for `ash doctor`.
 
-Read-only environment checks so a new user can tell whether the toolkit is ready to
-run. No network by default; `--live-local` makes exactly one request to a local
-endpoint. API key values are never read or printed - only the env-var name and whether
-it is set.
+Non-persistent environment checks tell a new user whether the toolkit is ready to run.
+Writability probes clean themselves up. No network by default; `--live-local` makes
+exactly one request to a local endpoint. API key values are never printed.
 """
 
 from __future__ import annotations
@@ -14,6 +13,8 @@ import tempfile
 from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from agentic_security_harness.presets import is_loopback_base_url
 
 _SUPPORTED_EXTERNAL_ADAPTERS = ["openai-compatible"]
 _DEFAULT_KEY_ENV = "ASH_EXTERNAL_API_KEY"
@@ -57,6 +58,28 @@ def _check_import() -> DoctorCheck:
         return DoctorCheck(name="package_import", ok=True, detail=f"version {__version__}")
     except Exception as exc:  # pragma: no cover - defensive
         return DoctorCheck(name="package_import", ok=False, detail=str(exc))
+
+
+def _check_package_source() -> DoctorCheck:
+    """Expose the actual imported source root and a compact core fingerprint."""
+
+    try:
+        from agentic_security_harness.source_identity import (
+            component_fingerprint,
+            package_source_root,
+        )
+
+        fingerprint = component_fingerprint(("__init__.py", "cli.py", "validation.py"))
+        return DoctorCheck(
+            name="package_source",
+            ok=None,
+            detail=(
+                f"{package_source_root().as_posix()} "
+                f"(core sha256 {fingerprint})"
+            ),
+        )
+    except Exception as exc:  # pragma: no cover - defensive
+        return DoctorCheck(name="package_source", ok=False, detail=str(exc))
 
 
 def _check_cli_commands() -> DoctorCheck:
@@ -167,15 +190,34 @@ def _check_presets() -> DoctorCheck:
 
 
 def _check_reports_writable(reports_root: Path) -> DoctorCheck:
-    """Check we can create/write the chosen reports directory (no network)."""
+    """Probe report-path writability without leaving a directory behind."""
     try:
-        reports_root.mkdir(parents=True, exist_ok=True)
-        with tempfile.NamedTemporaryFile(
-            dir=reports_root, prefix=".ash_doctor_", delete=True
-        ):
-            pass
+        if reports_root.exists():
+            if not reports_root.is_dir():
+                raise OSError("report path exists but is not a directory")
+            with tempfile.NamedTemporaryFile(
+                dir=reports_root,
+                prefix=".ash_doctor_",
+                delete=True,
+            ):
+                pass
+            detail = f"{reports_root.as_posix()} writable"
+        else:
+            probe_parent = reports_root.parent
+            while not probe_parent.exists() and probe_parent != probe_parent.parent:
+                probe_parent = probe_parent.parent
+            if not probe_parent.is_dir():
+                raise OSError("nearest existing report-path parent is not a directory")
+            with tempfile.TemporaryDirectory(
+                dir=probe_parent,
+                prefix=".ash_doctor_reports_",
+            ):
+                pass
+            detail = f"{reports_root.as_posix()} can be created"
         return DoctorCheck(
-            name="reports_writable", ok=True, detail=f"{reports_root.as_posix()} writable"
+            name="reports_writable",
+            ok=True,
+            detail=detail,
         )
     except OSError as exc:
         return DoctorCheck(
@@ -187,6 +229,12 @@ def _check_reports_writable(reports_root: Path) -> DoctorCheck:
 def _check_live_local(base_url: str, credential_env_var: str) -> DoctorCheck:
     from agentic_security_harness.external_openai_compatible import chat_completion
 
+    if not is_loopback_base_url(base_url):
+        return DoctorCheck(
+            name="live_local",
+            ok=False,
+            detail="live-local requires a literal loopback HTTP(S) base URL",
+        )
     try:
         resp = chat_completion(
             base_url=base_url,
@@ -196,6 +244,8 @@ def _check_live_local(base_url: str, credential_env_var: str) -> DoctorCheck:
             credential_env_var=(
                 credential_env_var if os.environ.get(credential_env_var) else ""
             ),
+            allow_redirects=False,
+            allow_env_proxy=False,
         )
         return DoctorCheck(
             name="live_local",
@@ -223,6 +273,7 @@ def run_doctor(
     checks = [
         _check_python(),
         _check_import(),
+        _check_package_source(),
         _check_cli_commands(),
         _check_examples(root),
         _check_fake_server(root),

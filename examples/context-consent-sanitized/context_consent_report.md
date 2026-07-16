@@ -2,6 +2,9 @@
 
 This deterministic campaign measures whether synthetic context artifacts are mistaken for current user consent. Public artifacts contain case contracts, deterministic rows, aggregate metrics, and context fingerprints only.
 
+Evidence class: `executable_specification`.
+Control effects are derived from declared case dependencies and evaluation rules; they are not independent causal estimates.
+
 ## Reproduce / Validate
 
 ```bash
@@ -50,12 +53,12 @@ A clean validation result means artifact integrity and forbidden-marker checks p
 
 | Control | Required cases | Ablation mode | Bounded acceptances | Ablation acceptances | Full-contract blocks | Interpretation |
 | --- | ---: | --- | ---: | ---: | ---: | --- |
-| current_user_intent | 5 | no_current_user_intent | 0 | 5 | 5 | primary control: disabling current_user_intent reopens every declared dependent case |
-| consent_receipt | 4 | no_consent_receipt | 0 | 4 | 4 | primary control: disabling consent_receipt reopens every declared dependent case |
-| scope_binding | 4 | no_scope_binding | 0 | 4 | 4 | primary control: disabling scope_binding reopens every declared dependent case |
-| freshness_window | 1 | no_freshness_window | 0 | 1 | 1 | primary control: disabling freshness_window reopens every declared dependent case |
-| action_isolation | 1 | no_action_isolation | 0 | 1 | 1 | primary control: disabling action_isolation reopens every declared dependent case |
-| risk_classifier | 3 | no_risk_classifier | 0 | 3 | 3 | primary control: disabling risk_classifier reopens every declared dependent case |
+| current_user_intent | 5 | no_current_user_intent | 0 | 5 | 5 | rule-derived primary control: the specification marks every declared dependent case accepted when current_user_intent is disabled |
+| consent_receipt | 4 | no_consent_receipt | 0 | 4 | 4 | rule-derived primary control: the specification marks every declared dependent case accepted when consent_receipt is disabled |
+| scope_binding | 4 | no_scope_binding | 0 | 4 | 4 | rule-derived primary control: the specification marks every declared dependent case accepted when scope_binding is disabled |
+| freshness_window | 1 | no_freshness_window | 0 | 1 | 1 | rule-derived primary control: the specification marks every declared dependent case accepted when freshness_window is disabled |
+| action_isolation | 1 | no_action_isolation | 0 | 1 | 1 | rule-derived primary control: the specification marks every declared dependent case accepted when action_isolation is disabled |
+| risk_classifier | 3 | no_risk_classifier | 0 | 3 | 3 | rule-derived primary control: the specification marks every declared dependent case accepted when risk_classifier is disabled |
 
 ## Deterministic Contract Results
 

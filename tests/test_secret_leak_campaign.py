@@ -6,12 +6,17 @@ from typing import Any, cast
 from agentic_security_harness import cli
 from agentic_security_harness.secret_leak_campaign import (
     SecretLeakVariationPrivateRun,
+    SecretModelProbeRun,
+    SecretModelProbeTranscript,
     SecretVariationPrivateTranscript,
     SyntheticCanary,
     build_secret_leak_campaign,
     build_secret_leak_variation_summary,
     declared_secret_variation_cases,
     detect_canary_leak,
+    render_secret_leak_variation_private,
+    render_secret_leak_variation_summary,
+    render_secret_model_probe,
     run_secret_leak_variation_probe,
     write_secret_leak_campaign_artifacts,
     write_secret_leak_variation_artifacts,
@@ -76,6 +81,39 @@ def test_secret_leak_artifacts_validate_and_stay_sanitized(tmp_path: Path) -> No
         assert "ASH-CANARY-" not in text
         assert "raw_prompt" not in text
         assert "raw_response" not in text
+
+
+def test_secret_leak_validator_rejects_self_consistent_row_contract_tampering(
+    tmp_path: Path,
+) -> None:
+    out = tmp_path / "secret-leak-campaign"
+    summary = build_secret_leak_campaign(created_at="")
+    summary.observations[0].deterministic_verdict = "blocked"
+    write_secret_leak_campaign_artifacts.__wrapped__(  # type: ignore[attr-defined]
+        out, summary
+    )
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert any("observation contract mismatch" in error for error in result.errors)
+
+
+def test_secret_leak_validator_rejects_manifest_outcome_tampering(
+    tmp_path: Path,
+) -> None:
+    out = tmp_path / "secret-leak-campaign"
+    summary = build_secret_leak_campaign(created_at="")
+    write_secret_leak_campaign_artifacts(out, summary)
+    manifest_path = out / "run_index.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["outcomes"]["naive_leaks"] = 0
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert any("outcomes does not match summary projection" in error for error in result.errors)
 
 
 def test_secret_leak_cli_write(tmp_path: Path) -> None:
@@ -150,6 +188,60 @@ def test_secret_variation_summary_sanitizes_private_transcripts() -> None:
     assert "ASH-CANARY-" not in text
 
 
+def test_secret_variation_markdown_neutralizes_model_control_text() -> None:
+    malicious = "m|x`\n## forged\n![p](https://evil.invalid)\n<img src=x>\u202e"
+    private_run = SecretLeakVariationPrivateRun(
+        created_at="",
+        models=[malicious],
+        pressure_modes=["neutral"],
+        transcripts=[
+            SecretVariationPrivateTranscript(
+                case_id="secret.var.multi_turn_pressure",
+                model=malicious,
+                scenario_id="label_laundering",
+                variation_id="multi_turn_pressure",
+                pressure_mode="neutral",
+                turns=4,
+            )
+        ],
+    )
+    summary = build_secret_leak_variation_summary(private_run, created_at="")
+
+    for rendered in (
+        render_secret_leak_variation_summary(summary),
+        render_secret_leak_variation_private(private_run),
+    ):
+        assert "\n## forged" not in rendered
+        assert "\u202e" not in rendered
+        assert r"\|" in rendered or "``" in rendered
+        assert r"\<img" in rendered or "``" in rendered
+
+
+def test_secret_model_probe_uses_unbreakable_model_code_span() -> None:
+    malicious = "m|x``\n## forged\n![p](https://evil.invalid)<img src=x>\u202e"
+    run = SecretModelProbeRun(
+        created_at="",
+        model=malicious,
+        pressure_modes=["neutral"],
+        transcripts=[
+            SecretModelProbeTranscript(
+                scenario_id="label_laundering",
+                pressure_mode="neutral",
+                prompt_sha256="a" * 64,
+            )
+        ],
+    )
+
+    rendered = render_secret_model_probe(run)
+
+    assert "\n## forged" not in rendered
+    assert "\u202e" not in rendered
+    assert (
+        r"``` m|x`` ## forged ![p](https://evil.invalid)<img src=x>\u202e ```"
+        in rendered
+    )
+
+
 def test_secret_variation_artifacts_validate_and_stay_sanitized(tmp_path: Path) -> None:
     private_run = SecretLeakVariationPrivateRun(
         created_at="",
@@ -186,6 +278,38 @@ def test_secret_variation_artifacts_validate_and_stay_sanitized(tmp_path: Path) 
         assert '"raw_prompt"' not in text
         assert '"raw_response"' not in text
         assert "ASH-CANARY-" not in text
+
+
+def test_secret_variation_validator_rejects_declared_case_mismatch(
+    tmp_path: Path,
+) -> None:
+    private_run = SecretLeakVariationPrivateRun(
+        created_at="",
+        models=["toy-model"],
+        pressure_modes=["neutral"],
+        transcripts=[
+            SecretVariationPrivateTranscript(
+                case_id="secret.var.verifier_outage_recovery",
+                model="toy-model",
+                scenario_id="memory_stale_recall",
+                variation_id="verifier_outage_recovery",
+                pressure_mode="neutral",
+                turns=3,
+                response_sha256="c" * 64,
+            )
+        ],
+    )
+    summary = build_secret_leak_variation_summary(private_run, created_at="")
+    summary.observations[0].scenario_id = "label_laundering"
+    out = tmp_path / "secret-leak-variations"
+    write_secret_leak_variation_artifacts.__wrapped__(  # type: ignore[attr-defined]
+        out, summary
+    )
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert any("does not match declared case" in error for error in result.errors)
 
 
 def test_secret_variation_private_artifacts_keep_raw_under_private_dir(

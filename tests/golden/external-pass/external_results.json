@@ -1,6 +1,7 @@
 [
   {
     "result_id": "ext_03c36122",
+    "execution_id": "run_11111111111111111111111111111111",
     "pattern_id": "perception_boundary.sensor_command_confusion",
     "variant_id": "text-transcript",
     "repeat_index": 0,

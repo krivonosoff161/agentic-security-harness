@@ -2,6 +2,9 @@
 
 This deterministic campaign measures whether synthetic task planning turns untrusted context, stale approvals, tool output, retrieved snippets, or handoff summaries into authorized subtasks. Public artifacts contain case contracts, deterministic rows, aggregate metrics, agentic-pressure scores, propagation labels, and context fingerprints only.
 
+Evidence class: `executable_specification`.
+Control effects are derived from declared case dependencies and evaluation rules; they are not independent causal estimates.
+
 ## Attacker Model
 
 The modeled attacker can use AI to split influence across normal-looking planner inputs, avoid direct jailbreak wording, and rely on decomposition, batching, dependency ordering, tool confidence, retrieval confidence, or handoff steps to convert data into authorized work.
@@ -65,16 +68,16 @@ A clean validation result means artifact integrity and forbidden-marker checks p
 
 | Control | Required cases | Ablation mode | Bounded acceptances | Ablation acceptances | Full-contract blocks | Interpretation |
 | --- | ---: | --- | ---: | ---: | ---: | --- |
-| input_source_provenance | 5 | no_input_source_provenance | 0 | 5 | 5 | Removing input_source_provenance reopens every case that depends on it; the bounded contract blocks those rows. |
-| current_user_intent_anchor | 5 | no_current_user_intent_anchor | 0 | 5 | 5 | Removing current_user_intent_anchor reopens every case that depends on it; the bounded contract blocks those rows. |
-| consent_receipt_binding | 3 | no_consent_receipt_binding | 0 | 3 | 3 | Removing consent_receipt_binding reopens every case that depends on it; the bounded contract blocks those rows. |
-| task_authority_gate | 7 | no_task_authority_gate | 0 | 7 | 7 | Removing task_authority_gate reopens every case that depends on it; the bounded contract blocks those rows. |
-| subtask_source_inheritance | 6 | no_subtask_source_inheritance | 0 | 6 | 6 | Removing subtask_source_inheritance reopens every case that depends on it; the bounded contract blocks those rows. |
-| tool_output_data_boundary | 1 | no_tool_output_data_boundary | 0 | 1 | 1 | Removing tool_output_data_boundary reopens every case that depends on it; the bounded contract blocks those rows. |
-| retrieval_evidence_label | 1 | no_retrieval_evidence_label | 0 | 1 | 1 | Removing retrieval_evidence_label reopens every case that depends on it; the bounded contract blocks those rows. |
-| handoff_revalidation | 1 | no_handoff_revalidation | 0 | 1 | 1 | Removing handoff_revalidation reopens every case that depends on it; the bounded contract blocks those rows. |
-| batch_task_isolation | 1 | no_batch_task_isolation | 0 | 1 | 1 | Removing batch_task_isolation reopens every case that depends on it; the bounded contract blocks those rows. |
-| dependency_order_gate | 2 | no_dependency_order_gate | 0 | 2 | 2 | Removing dependency_order_gate reopens every case that depends on it; the bounded contract blocks those rows. |
+| input_source_provenance | 5 | no_input_source_provenance | 0 | 5 | 5 | The specification marks every case that depends on input_source_provenance accepted when that control is disabled; this is rule-derived attribution. |
+| current_user_intent_anchor | 5 | no_current_user_intent_anchor | 0 | 5 | 5 | The specification marks every case that depends on current_user_intent_anchor accepted when that control is disabled; this is rule-derived attribution. |
+| consent_receipt_binding | 3 | no_consent_receipt_binding | 0 | 3 | 3 | The specification marks every case that depends on consent_receipt_binding accepted when that control is disabled; this is rule-derived attribution. |
+| task_authority_gate | 7 | no_task_authority_gate | 0 | 7 | 7 | The specification marks every case that depends on task_authority_gate accepted when that control is disabled; this is rule-derived attribution. |
+| subtask_source_inheritance | 6 | no_subtask_source_inheritance | 0 | 6 | 6 | The specification marks every case that depends on subtask_source_inheritance accepted when that control is disabled; this is rule-derived attribution. |
+| tool_output_data_boundary | 1 | no_tool_output_data_boundary | 0 | 1 | 1 | The specification marks every case that depends on tool_output_data_boundary accepted when that control is disabled; this is rule-derived attribution. |
+| retrieval_evidence_label | 1 | no_retrieval_evidence_label | 0 | 1 | 1 | The specification marks every case that depends on retrieval_evidence_label accepted when that control is disabled; this is rule-derived attribution. |
+| handoff_revalidation | 1 | no_handoff_revalidation | 0 | 1 | 1 | The specification marks every case that depends on handoff_revalidation accepted when that control is disabled; this is rule-derived attribution. |
+| batch_task_isolation | 1 | no_batch_task_isolation | 0 | 1 | 1 | The specification marks every case that depends on batch_task_isolation accepted when that control is disabled; this is rule-derived attribution. |
+| dependency_order_gate | 2 | no_dependency_order_gate | 0 | 2 | 2 | The specification marks every case that depends on dependency_order_gate accepted when that control is disabled; this is rule-derived attribution. |
 
 ## Deterministic Contract Results
 

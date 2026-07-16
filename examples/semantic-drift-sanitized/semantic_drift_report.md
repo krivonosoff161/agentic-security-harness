@@ -1,5 +1,9 @@
 # Semantic Parameter Drift Campaign
 
+Historical/unreconciled detector-observation summary. This schema-`0.1` artifact predates
+the current schema `0.2`; public validation does not replay private bytes or attest
+model/runtime identity. Deterministic rows are a separate executable specification.
+
 This report summarizes synthetic local mini-swarm probes. Raw prompts, raw responses, canonical-state prompts, and canaries are intentionally absent.
 
 ## Claim Boundary
@@ -8,7 +12,7 @@ This campaign measures synthetic semantic-parameter drift in bounded multi-agent
 
 ## How to Reproduce / Validate
 
-`semantic_drift_summary.json` is the authoritative machine-readable artifact. Validate this example with:
+`semantic_drift_summary.json` is the primary legacy machine-readable record. Validate its structural contract with:
 
 ```bash
 ash validate examples/semantic-drift-sanitized
@@ -38,6 +42,9 @@ A clean validation result means artifact integrity and forbidden-marker checks p
 | Verifier blocks | 15 |
 | Adapter errors | 0 |
 | Response hash coverage | 100.00% |
+| Independent-label coverage | 0.00% |
+
+Detector rates are descriptive unless independent-label coverage is non-zero. Historical rows without private reviewer adjudication remain `not_adjudicated`.
 
 ## Deterministic Contract Results
 

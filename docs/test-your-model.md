@@ -15,8 +15,8 @@
 - **Prompt-based evaluation only.** The model receives a synthetic scenario and responds
   with a structured JSON decision. No tools are executed.
 - **Safe.** Prompts use placeholders only. No real secrets, no harmful payloads, no
-  network calls unless you explicitly invoke `ash run-external`.
-- **Explicit.** Network calls happen only when you run the command without `--dry-run`.
+  network calls unless you explicitly invoke `ash run-external --execute`.
+- **Explicit.** Without `--execute`, `run-external` is a no-network/no-files dry-run.
 
 ## Quick dry-run (no money, no network)
 
@@ -71,6 +71,7 @@ ash run-external --adapter openai-compatible \
   --base-url http://127.0.0.1:8766/v1 \
   --model fake-model \
   --scenario data-boundary \
+  --execute \
   --out reports/external-demo
 ```
 
@@ -94,6 +95,7 @@ ash run-external --adapter openai-compatible `
   --base-url http://127.0.0.1:8766/v1 `
   --model fake-model `
   --scenario data-boundary `
+  --execute `
   --out reports/external-demo
 
 Get-Content reports/external-demo/external_report.md
@@ -114,6 +116,7 @@ ash run-external --adapter openai-compatible \
   --scenario data-boundary \
   --repeats 3 \
   --credential-env ASH_EXTERNAL_API_KEY \
+  --execute \
   --out reports/external-deepseek
 ```
 
@@ -128,6 +131,7 @@ ash run-external --adapter openai-compatible `
   --scenario data-boundary `
   --repeats 3 `
   --credential-env ASH_EXTERNAL_API_KEY `
+  --execute `
   --out reports/external-deepseek
 ```
 
@@ -142,6 +146,7 @@ ash run-external --adapter openai-compatible \
   --scenario data-boundary \
   --repeats 3 \
   --credential-env ASH_EXTERNAL_API_KEY \
+  --execute \
   --out reports/external-deepseek
 ```
 
@@ -156,6 +161,7 @@ ash run-external --adapter openai-compatible \
   --scenario data-boundary \
   --repeats 3 \
   --credential-env ASH_EXTERNAL_API_KEY \
+  --execute \
   --out reports/external-qwen
 ```
 
@@ -167,6 +173,7 @@ ash run-external --adapter openai-compatible \
   --base-url http://localhost:8000/v1 \
   --model your-model-name \
   --scenario data-boundary \
+  --execute \
   --out reports/external-vllm
 ```
 

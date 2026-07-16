@@ -95,6 +95,18 @@ run, compare, matrix, and external directories and includes:
 JSON and Markdown remain authoritative; the HTML is a view layer. A richer per-pattern
 trace viewer and cross-run trend views remain future work.
 
+The renderer validates the supplied artifact directory before it creates the output file.
+Schema, cross-artifact projection, secret-marker, and manifest/content-hash failures stop
+rendering. A benchmark expectation mismatch is different from artifact corruption: the
+report is still produced so the regression remains visible, but it carries an explicit
+"not a clean result" warning. Legacy manifests remain readable under their declared
+structural contract; only current manifest schema v0.3 provides persisted-byte hash binding,
+and neither form authenticates authorship.
+The output must use a `.html` filename. The writer refuses symlink output files and will not
+overwrite any non-HTML source artifact under the run directory; this keeps a custom `--out`
+from replacing `traces.json`, `run_index.json`, or another authoritative input after it has
+passed validation.
+
 ## Report safety rules
 
 Reports must not contain:

@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from agentic_security_harness import cli
+from agentic_security_harness import trading_bot_stand as stand_module
 from agentic_security_harness.adapters import target_ids
 from agentic_security_harness.trading_bot_stand import (
     CONTOURS,
@@ -129,7 +130,8 @@ def test_private_experiment_batch_manifest_is_safe_batch_guard() -> None:
     assert manifest["raw_vectors_included"] is False
     assert manifest["private_calculations_included"] is False
     assert manifest["authorization"] == {
-        "owner_approved": True,
+        "owner_approved": False,
+        "authority_state": "separate-owner-receipt-required",
         "run_scope": "controlled-paper-gate",
         "execution_allowed": False,
         "target_mutation_allowed": False,
@@ -222,6 +224,8 @@ def test_preflight_does_not_require_or_read_env(tmp_path: Path) -> None:
     assert report.provider_calls is False
     assert report.telegram_sends is False
     assert report.live_execution is False
+    assert report.target_path == "<target-root>"
+    assert str(tmp_path) not in json.dumps(report.to_dict(), sort_keys=True)
     checks = {check.check_id: check for check in report.checks}
     assert checks["no-env-read"].ok is True
     assert "does not inspect" in checks["no-env-read"].message
@@ -471,8 +475,67 @@ def test_private_fixture_sanitizer_redacts_long_public_values() -> None:
     summary = sanitize_private_fixture_record(record)
 
     assert summary["public_evidence"]["row_valid"] is False
-    assert "redacted_hash" in summary["public_evidence"]["component"]
-    assert summary["artifact_hash"] == private_artifact_hash({"raw_trace": "PRIVATE RAW TRACE"})
+    assert summary["public_evidence"]["component"] == {"redacted": True}
+    assert summary["artifact_hash_scope"] == "sanitized-public-record"
+    assert summary["artifact_hash"] != private_artifact_hash(record)
+
+
+def test_private_fixture_sanitizer_closes_hash_and_short_secret_channels() -> None:
+    leaked_hash = "sha256:PRIVATE_SECRET"
+    leaked_value = "sk-ABCDEFGHIJ0123456789"
+    record = {
+        "scenario_id": "tbps.audit.ledger_integrity",
+        "result_class": "inconclusive",
+        "component": leaked_value,
+        "row_valid": False,
+        "audit_chain_preserved": False,
+        "raw_trace": "PRIVATE RAW TRACE",
+        "artifact_hash": leaked_hash,
+    }
+
+    summary = sanitize_private_fixture_record(record)
+    encoded = json.dumps(summary, sort_keys=True)
+
+    assert leaked_hash not in encoded
+    assert leaked_value not in encoded
+    assert summary["public_evidence"]["component"] == {"redacted": True}
+    assert summary["artifact_hash"].startswith("sha256:")
+    assert len(summary["artifact_hash"]) == 71
+
+
+def test_private_experiment_sanitizer_restricts_nested_keys_and_hash_channel() -> None:
+    record = _filled_private_experiment_records()[0]
+    record["artifact_hash"] = "sha256:PRIVATE_SECRET"
+    record["public_evidence"]["component"] = "sk-ABCDEFGHIJ0123456789"
+    record["public_evidence"]["PRIVATE_SECRET_FIELD"] = "PRIVATE_SECRET_VALUE"
+    record["private_slots"]["PRIVATE_SECRET_SLOT"] = "PRIVATE_SECRET_SLOT_VALUE"
+
+    summary = sanitize_private_experiment_records([record])
+    encoded = json.dumps(summary, sort_keys=True)
+
+    assert "PRIVATE_SECRET" not in encoded
+    assert "sk-ABCDEFGHIJ0123456789" not in encoded
+    public = summary["summaries"][0]["public_evidence"]
+    assert public["component"] == {"redacted": True}
+    assert summary["summaries"][0]["artifact_hash"].startswith("sha256:")
+
+
+def test_private_fixture_public_hash_does_not_commit_private_values() -> None:
+    base = {
+        "scenario_id": "tbps.audit.ledger_integrity",
+        "result_class": "inconclusive",
+        "component": "src/audit.py",
+        "row_valid": False,
+        "audit_chain_preserved": False,
+        "raw_trace": "PRIVATE SECRET ONE",
+    }
+    changed = {**base, "raw_trace": "PRIVATE SECRET TWO"}
+
+    first = sanitize_private_fixture_record(base)
+    second = sanitize_private_fixture_record(changed)
+
+    assert first["artifact_hash_scope"] == "sanitized-public-record"
+    assert first["artifact_hash"] == second["artifact_hash"]
 
 
 def test_private_fixture_batch_and_file_summary_are_public_safe(tmp_path: Path) -> None:
@@ -582,6 +645,121 @@ def test_write_private_fixture_template_requires_internal_path(tmp_path: Path) -
 
     with pytest.raises(ValueError, match="must be written under"):
         write_private_fixture_template(public_path)
+
+
+def test_private_writer_requires_contiguous_ordered_root(tmp_path: Path) -> None:
+    misleading = (
+        tmp_path
+        / ".internal"
+        / "unrelated"
+        / "trading-bot-paper-stand"
+        / "issue-136"
+        / "template.json"
+    )
+
+    with pytest.raises(ValueError, match="must be written under"):
+        write_private_fixture_template(misleading)
+
+    assert not misleading.exists()
+
+
+def test_private_writer_rejects_parent_traversal_before_creating_file(
+    tmp_path: Path,
+) -> None:
+    escaped = (
+        tmp_path
+        / ".internal"
+        / "trading-bot-paper-stand"
+        / "issue-136"
+        / "manifests"
+        / ".."
+        / ".."
+        / ".."
+        / ".."
+        / "escaped.json"
+    )
+
+    with pytest.raises(ValueError, match="resolved outside"):
+        write_private_fixture_template(escaped)
+
+    assert not (tmp_path / "escaped.json").exists()
+
+
+def test_private_writer_rejects_parent_link_escape(tmp_path: Path) -> None:
+    private_root = (
+        tmp_path / ".internal" / "trading-bot-paper-stand" / "issue-136"
+    )
+    private_root.mkdir(parents=True)
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    linked_parent = private_root / "linked"
+    try:
+        linked_parent.symlink_to(outside, target_is_directory=True)
+    except OSError:
+        pytest.skip("directory symlinks are unavailable on this platform")
+
+    escaped = linked_parent / "template.json"
+    with pytest.raises(ValueError, match="resolved outside"):
+        write_private_fixture_template(escaped)
+
+    assert not (outside / "template.json").exists()
+
+
+def test_private_writer_fails_closed_when_resolver_leaves_private_root(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    private_path = (
+        tmp_path
+        / ".internal"
+        / "trading-bot-paper-stand"
+        / "issue-136"
+        / "manifests"
+        / "template.json"
+    )
+    outside = tmp_path / "outside" / "template.json"
+    monkeypatch.setattr(
+        stand_module,
+        "_prospective_resolved_path",
+        lambda _path: outside,
+    )
+
+    with pytest.raises(ValueError, match="resolved outside"):
+        write_private_fixture_template(private_path)
+
+    assert not outside.exists()
+
+
+def test_private_writer_exclusive_create_preserves_competing_file(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    private_path = (
+        tmp_path
+        / ".internal"
+        / "trading-bot-paper-stand"
+        / "issue-136"
+        / "manifests"
+        / "template.json"
+    )
+    private_path.parent.mkdir(parents=True)
+    original_open = Path.open
+    injected = False
+
+    def competing_open(path: Path, *args: object, **kwargs: object) -> object:
+        nonlocal injected
+        if path == private_path.resolve() and not injected:
+            injected = True
+            with open(private_path, "w", encoding="utf-8") as handle:
+                handle.write("competing-writer\n")
+        return original_open(path, *args, **kwargs)
+
+    monkeypatch.setattr(stand_module.Path, "open", competing_open)
+
+    with pytest.raises(ValueError, match="refusing to overwrite"):
+        write_private_fixture_template(private_path)
+
+    assert private_path.read_text(encoding="utf-8") == "competing-writer\n"
 
 
 def test_write_private_fixture_template_writes_and_refuses_overwrite(tmp_path: Path) -> None:
@@ -696,16 +874,16 @@ def test_write_private_experiment_baseline_fixture_round_trip(
 
     assert fixture["mode"] == "private-experiment-baseline-fixture"
     assert fixture["record_count"] == 7
-    assert fixture["result_counts"]["pass"] == 7
+    assert fixture["result_counts"]["inconclusive"] == 7
     assert fixture["target_observation"] is True
     assert summary["mode"] == "experiment-baseline-fixture"
     assert summary["record_count"] == 7
-    assert summary["result_counts"]["pass"] == 7
+    assert summary["result_counts"]["inconclusive"] == 7
     assert summary["payloads_included"] is False
     assert summary["target_observation"] is True
     assert validation["ok"] is True
-    assert validation["result_counts"]["pass"] == 7
-    assert sanitized["result_counts"]["pass"] == 7
+    assert validation["result_counts"]["inconclusive"] == 7
+    assert sanitized["result_counts"]["inconclusive"] == 7
     assert sanitized["payloads_included"] is False
     assert sanitized["private_values_included"] is False
     assert "PRIVATE_ROW" not in encoded
@@ -804,14 +982,14 @@ def test_private_experiment_sanitizer_drops_private_slots() -> None:
     }
     assert "PRIVATE_EXPERIMENT" not in encoded
     assert "Ignore previous rules" not in encoded
-    assert "redacted_hash" in encoded
+    assert '"redacted": true' in encoded
     assert all(
         summary_record["private_slots_present"]
         for summary_record in summary["summaries"]
     )
 
 
-def test_validate_private_experiment_file_accepts_filled_private_rows(
+def test_validate_private_experiment_file_classifies_filled_rows_as_self_declared(
     tmp_path: Path,
 ) -> None:
     private_path = (
@@ -842,7 +1020,9 @@ def test_validate_private_experiment_file_accepts_filled_private_rows(
     assert validation["batch_count"] == 3
     assert validation["issue_count"] == 0
     assert validation["target_observation_count"] == 7
-    assert validation["real_target_observation_count"] == 7
+    assert validation["real_target_observation_count"] == 0
+    assert validation["self_declared_target_observation_count"] == 7
+    assert validation["observation_authority"] == "self-declared-filled-fixture"
     assert validation["synthetic_control_count"] == 0
     assert validation["payloads_included"] is False
     assert validation["private_values_included"] is False
@@ -876,7 +1056,9 @@ def test_validate_private_experiment_file_rejects_claimed_real_rows_without_priv
     codes = {issue["code"] for issue in validation["issues"]}
 
     assert validation["ok"] is False
-    assert validation["real_target_observation_count"] == 7
+    assert validation["real_target_observation_count"] == 0
+    assert validation["self_declared_target_observation_count"] == 7
+    assert validation["observation_authority"] == "self-declared-filled-fixture"
     assert "missing_required_private_value" in codes
     assert "missing" in codes
 
@@ -887,7 +1069,7 @@ def test_validate_private_experiment_file_reports_safe_issue_codes(
     public_path = tmp_path / "experiment.json"
     records = _filled_private_experiment_records()
     records[0]["result_class"] = None
-    records[0]["artifact_hash"] = "not-a-hash"
+    records[0]["artifact_hash"] = "sha256:PRIVATE_SECRET"
     records[0]["batch_id"] = "wrong"
     records = records[:1]
     public_path.write_text(json.dumps({"records": records}), encoding="utf-8")
@@ -905,7 +1087,7 @@ def test_validate_private_experiment_file_reports_safe_issue_codes(
     assert "PRIVATE_EXPERIMENT" not in encoded
 
 
-def test_private_experiment_intake_accepts_filled_rows_with_batch_manifest(
+def test_private_experiment_intake_blocks_self_declared_rows_without_receipt(
     tmp_path: Path,
 ) -> None:
     fixture_path = (
@@ -931,17 +1113,68 @@ def test_private_experiment_intake_accepts_filled_rows_with_batch_manifest(
     encoded = json.dumps(intake, sort_keys=True)
 
     assert intake["mode"] == "experiment-intake"
-    assert intake["accepted"] is True
-    assert intake["status"] == "accepted"
-    assert intake["blockers"] == []
+    assert intake["accepted"] is False
+    assert intake["status"] == "blocked"
+    assert set(intake["blockers"]) == {
+        "observation-authority-receipt-missing",
+        "real-target-observation-count",
+    }
     assert intake["record_count"] == 7
-    assert intake["real_target_observation_count"] == 7
+    assert intake["real_target_observation_count"] == 0
+    assert intake["self_declared_target_observation_count"] == 7
+    assert intake["observation_authority"] == "self-declared-filled-fixture"
     assert intake["synthetic_control_count"] == 0
     assert intake["batch_manifest_ok"] is True
     assert intake["payloads_included"] is False
     assert intake["private_values_included"] is False
     assert "PRIVATE_EXPERIMENT" not in encoded
     assert "Ignore previous" not in encoded
+
+
+def test_private_experiment_intake_blocks_file_swap_after_single_parse(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    import agentic_security_harness.trading_bot_stand as stand
+
+    fixture_path = (
+        tmp_path
+        / ".internal"
+        / "trading-bot-paper-stand"
+        / "issue-136"
+        / "manifests"
+        / "filled-experiment.json"
+    )
+    manifest_path = fixture_path.with_name("experiment-batch-manifest.json")
+    fixture_path.parent.mkdir(parents=True, exist_ok=True)
+    fixture_path.write_text(
+        json.dumps({"records": _filled_private_experiment_records()}),
+        encoding="utf-8",
+    )
+    write_private_experiment_batch_manifest(manifest_path)
+    original = stand._read_fixture_records_with_hash
+
+    def read_then_swap(path: Path):
+        parsed = original(path)
+        path.write_text(
+            json.dumps(private_experiment_control_fixture()),
+            encoding="utf-8",
+        )
+        return parsed
+
+    monkeypatch.setattr(stand, "_read_fixture_records_with_hash", read_then_swap)
+
+    intake = private_experiment_intake_report(
+        fixture_path,
+        batch_manifest_path=manifest_path,
+    )
+
+    assert intake["accepted"] is False
+    assert "fixture-changed-during-intake" in intake["blockers"]
+    assert intake["fixture_stable"] is False
+    assert intake["batch_manifest_stable"] is True
+    assert "fixture_sha256" not in intake
+    assert "batch_manifest_sha256" not in intake
 
 
 def test_private_experiment_intake_blocks_baseline_rows_as_not_filled(
@@ -1002,7 +1235,9 @@ def test_private_experiment_intake_blocks_missing_batch_manifest(
 
     assert intake["accepted"] is False
     assert "batch-manifest-missing" in intake["blockers"]
-    assert intake["real_target_observation_count"] == 7
+    assert intake["real_target_observation_count"] == 0
+    assert intake["self_declared_target_observation_count"] == 7
+    assert "observation-authority-receipt-missing" in intake["blockers"]
     assert intake["batch_manifest_ok"] is False
 
 
@@ -1050,7 +1285,7 @@ def test_paper_experiment_readiness_blocks_on_evidence_quality_drift(
     assert "Research setup" not in encoded
 
 
-def test_paper_experiment_readiness_passes_clean_control_gate(
+def test_paper_experiment_readiness_blocks_unverified_transitive_boundaries(
     tmp_path: Path,
 ) -> None:
     for marker in ("CURRENT_STATE.md", "ARCHITECTURE.md", "ROADMAP.md"):
@@ -1073,11 +1308,143 @@ def test_paper_experiment_readiness_passes_clean_control_gate(
         fixture_path=control_path,
     )
 
-    assert readiness["ready"] is True
-    assert readiness["status"] == "ready"
-    assert readiness["blockers"] == []
+    gates = {gate["gate_id"]: gate for gate in readiness["gates"]}
+
+    assert readiness["ready"] is False
+    assert readiness["status"] == "blocked"
+    assert readiness["blockers"] == [
+        "transitive-import-closure",
+        "transitive-authority-inventory",
+        "external-provider-boundary",
+        "live-trading-boundary",
+    ]
     assert readiness["evidence_quality_findings"] == []
-    assert all(gate["ok"] for gate in readiness["gates"])
+    assert gates["artifact-chain"]["ok"] is True
+    assert gates["causal-chain"]["ok"] is True
+    assert gates["execution-boundary"]["ok"] is True
+    assert gates["control-fixture"]["ok"] is True
+    assert gates["transitive-import-closure"]["ok"] is False
+    assert gates["transitive-authority-inventory"]["ok"] is False
+    assert gates["external-provider-boundary"]["ok"] is False
+    assert gates["live-trading-boundary"]["ok"] is False
+
+
+def test_paper_experiment_readiness_binds_canonical_import_closure(
+    tmp_path: Path,
+) -> None:
+    for marker in ("CURRENT_STATE.md", "ARCHITECTURE.md", "ROADMAP.md"):
+        (tmp_path / marker).write_text("marker\n", encoding="utf-8")
+    (tmp_path / "src").mkdir()
+    _write_full_e2e_artifact_fixture(tmp_path)
+    entrypoint = tmp_path / "bat" / "paper_product_headless_loop.bat"
+    entrypoint.parent.mkdir()
+    entrypoint.write_text("python -m scripts.paper_loop\n", encoding="utf-8")
+    module_path = tmp_path / "scripts" / "paper_loop.py"
+    module_path.parent.mkdir()
+    module_path.write_text("VALUE = 1\n", encoding="utf-8")
+    control_path = (
+        tmp_path
+        / ".internal"
+        / "trading-bot-paper-stand"
+        / "issue-136"
+        / "manifests"
+        / "experiment-control.json"
+    )
+    write_private_experiment_control_fixture(control_path)
+
+    readiness = paper_experiment_readiness(
+        tmp_path,
+        artifact_root=tmp_path,
+        fixture_path=control_path,
+    )
+    gates = {gate["gate_id"]: gate for gate in readiness["gates"]}
+
+    assert gates["transitive-import-closure"]["ok"] is True
+    assert gates["transitive-authority-inventory"]["ok"] is True
+    assert readiness["entrypoint_closure"]["complete"] is True
+    assert "transitive-import-closure" not in readiness["blockers"]
+    assert readiness["ready"] is False
+
+
+def test_paper_experiment_readiness_blocks_cross_artifact_identity_mismatch(
+    tmp_path: Path,
+) -> None:
+    for marker in ("CURRENT_STATE.md", "ARCHITECTURE.md", "ROADMAP.md"):
+        (tmp_path / marker).write_text("marker\n", encoding="utf-8")
+    (tmp_path / "src").mkdir()
+    _write_full_e2e_artifact_fixture(tmp_path)
+    observation_path = (
+        tmp_path / "state" / "derived" / "main_paper_runtime_observation.json"
+    )
+    payload = json.loads(observation_path.read_text(encoding="utf-8"))
+    payload["items"][0]["source_signal_id"] = "unrelated-signal"
+    observation_path.write_text(json.dumps(payload), encoding="utf-8")
+    control_path = (
+        tmp_path
+        / ".internal"
+        / "trading-bot-paper-stand"
+        / "issue-136"
+        / "manifests"
+        / "experiment-control.json"
+    )
+    write_private_experiment_control_fixture(control_path)
+
+    readiness = paper_experiment_readiness(
+        tmp_path,
+        artifact_root=tmp_path,
+        fixture_path=control_path,
+    )
+    gates = {gate["gate_id"]: gate for gate in readiness["gates"]}
+
+    assert readiness["ready"] is False
+    assert "causal-chain" in readiness["blockers"]
+    assert "evidence-quality" in readiness["blockers"]
+    assert gates["causal-chain"]["ok"] is False
+    assert readiness["evidence_quality_findings"] == [
+        "paper_chain_identity_mismatch"
+    ]
+
+
+def test_paper_experiment_readiness_blocks_fixture_swap_after_single_parse(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    import agentic_security_harness.trading_bot_stand as stand
+
+    for marker in ("CURRENT_STATE.md", "ARCHITECTURE.md", "ROADMAP.md"):
+        (tmp_path / marker).write_text("marker\n", encoding="utf-8")
+    (tmp_path / "src").mkdir()
+    _write_full_e2e_artifact_fixture(tmp_path)
+    fixture_path = (
+        tmp_path
+        / ".internal"
+        / "trading-bot-paper-stand"
+        / "issue-136"
+        / "manifests"
+        / "experiment-control.json"
+    )
+    write_private_experiment_control_fixture(fixture_path)
+    original = stand._read_fixture_records_with_hash
+
+    def read_then_swap(path: Path):
+        parsed = original(path)
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        return parsed
+
+    monkeypatch.setattr(stand, "_read_fixture_records_with_hash", read_then_swap)
+
+    readiness = paper_experiment_readiness(
+        tmp_path,
+        artifact_root=tmp_path,
+        fixture_path=fixture_path,
+    )
+    gates = {gate["gate_id"]: gate for gate in readiness["gates"]}
+
+    assert readiness["ready"] is False
+    assert readiness["control_fixture_stable"] is False
+    assert gates["control-fixture"]["ok"] is False
+    assert "control-fixture" in readiness["blockers"]
 
 
 def test_write_private_invariant_fixture_template_requires_internal_path(
@@ -1106,6 +1473,10 @@ def test_write_private_invariant_fixture_template_writes_and_refuses_overwrite(
 
     assert summary["mode"] == "invariant-fixture-template"
     assert summary["record_count"] == 7
+    assert summary["path"].startswith(
+        ".internal/trading-bot-paper-stand/issue-136/"
+    )
+    assert str(tmp_path) not in json.dumps(summary, sort_keys=True)
     assert payload["payloads_included"] is False
     assert payload["private_values_filled"] is False
     with pytest.raises(ValueError, match="refusing to overwrite"):
@@ -1342,22 +1713,68 @@ def _write_full_e2e_artifact_fixture(
     preview_text: str = "Paper setup execution_allowed=false",
 ) -> None:
     artifact_rows = {
-        "state/lineage/scanner_events.jsonl": '{"schema":"scanner","private":"PRIVATE_ROW"}\n',
-        "state/lineage/data_packets.jsonl": '{"schema":"data","private":"PRIVATE_ROW"}\n',
-        "state/lineage/feature_packets.jsonl": '{"schema":"feature","private":"PRIVATE_ROW"}\n',
-        "state/lineage/cycle_links.jsonl": '{"schema":"cycle","private":"PRIVATE_ROW"}\n',
-        "state/llm_advice/calculator_advice.jsonl": '{"accepted":true,"private":"PRIVATE_ROW"}\n',
-        "state/derived/paper_signals.jsonl": '{"schema":"paper_signal","private":"PRIVATE_ROW"}\n',
+        "state/lineage/scanner_events.jsonl": (
+            '{"schema":"scanner","scanner_event_id":"se1",'
+            '"private":"PRIVATE_ROW"}\n'
+        ),
+        "state/lineage/data_packets.jsonl": (
+            '{"schema":"data","data_packet_id":"dp1",'
+            '"scanner_event_id":"se1","private":"PRIVATE_ROW"}\n'
+        ),
+        "state/lineage/feature_packets.jsonl": (
+            '{"schema":"feature","feature_packet_id":"fp1",'
+            '"data_packet_id":"dp1","scanner_event_id":"se1",'
+            '"private":"PRIVATE_ROW"}\n'
+        ),
+        "state/lineage/cycle_links.jsonl": (
+            '{"schema":"cycle","scanner_event_id":"se1",'
+            '"data_packet_id":"dp1","feature_packet_id":"fp1",'
+            '"paper_signal_id":"s1","training_row_id":"training_s1",'
+            '"private":"PRIVATE_ROW"}\n'
+        ),
+        "state/llm_advice/calculator_advice.jsonl": (
+            '{"accepted":true,"feature_packet_id":"fp1",'
+            '"private":"PRIVATE_ROW"}\n'
+        ),
+        "state/derived/paper_signals.jsonl": (
+            '{"schema":"paper_signal","signal_id":"s1",'
+            '"scanner_event_id":"se1","data_packet_id":"dp1",'
+            '"feature_packet_id":"fp1","private":"PRIVATE_ROW"}\n'
+        ),
         "state/derived/paper_signal_training.jsonl": (
             '{"paper_only":true,"execution_allowed":false,'
+            '"training_row_id":"training_s1","signal_id":"s1",'
+            '"paper_signal_id":"s1","scanner_event_id":"se1",'
+            '"data_packet_id":"dp1","feature_packet_id":"fp1",'
             '"private":"PRIVATE_ROW"}\n'
         ),
     }
     snapshots = {
-        "state/derived/main_paper_instructions.json": {"items": [{"id": "i1"}]},
-        "state/derived/main_paper_consumed.json": {"items": [{"id": "c1"}]},
-        "state/derived/main_paper_runtime_queue.json": {"items": [{"id": "q1"}]},
-        "state/derived/main_paper_runtime_observation.json": {"items": [{"id": "o1"}]},
+        "state/derived/main_paper_instructions.json": {
+            "items": [{"instruction_id": "i1", "source_signal_id": "s1"}]
+        },
+        "state/derived/main_paper_consumed.json": {
+            "items": [
+                {
+                    "consumer_id": "c1",
+                    "instruction_id": "i1",
+                    "source_signal_id": "s1",
+                }
+            ]
+        },
+        "state/derived/main_paper_runtime_queue.json": {
+            "items": [
+                {
+                    "runtime_id": "r1",
+                    "consumer_id": "c1",
+                    "instruction_id": "i1",
+                    "source_signal_id": "s1",
+                }
+            ]
+        },
+        "state/derived/main_paper_runtime_observation.json": {
+            "items": [{"runtime_id": "r1", "source_signal_id": "s1"}]
+        },
         "state/derived/paper_telegram_delivery.json": {"items": [{"id": "d1"}]},
         "state/derived/paper_telegram_preview.json": {
             "items": [
@@ -1563,9 +1980,9 @@ def test_paper_artifact_invariant_probe_maps_seven_scenarios(tmp_path: Path) -> 
     assert summary["mode"] == "artifact-invariant-probe"
     assert summary["scenario_count"] == 7
     assert summary["result_counts"] == {
-        "pass": 7,
+        "pass": 0,
         "finding": 0,
-        "inconclusive": 0,
+        "inconclusive": 7,
         "error": 0,
     }
     assert summary["raw_contents_included"] is False
@@ -1597,6 +2014,35 @@ def test_paper_artifact_invariant_probe_keeps_weak_schema_inconclusive(
     assert summary["result_counts"]["inconclusive"] >= 1
 
 
+def test_paper_artifact_invariant_probe_reports_explicit_unsafe_value(
+    tmp_path: Path,
+) -> None:
+    for marker in ("CURRENT_STATE.md", "ARCHITECTURE.md", "ROADMAP.md"):
+        (tmp_path / marker).write_text("marker\n", encoding="utf-8")
+    (tmp_path / "src").mkdir()
+    _write_full_paper_artifact_fixture(tmp_path)
+    queue_path = (
+        tmp_path / "state" / "derived" / "main_paper_runtime_queue.jsonl"
+    )
+    row = json.loads(queue_path.read_text(encoding="utf-8"))
+    row["execution_allowed"] = True
+    queue_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
+
+    summary = paper_artifact_invariant_probe(tmp_path)
+    by_scenario = {
+        observation["scenario_id"]: observation
+        for observation in summary["observations"]
+    }
+
+    assert summary["result_counts"]["finding"] >= 1
+    assert by_scenario["tbps.authority.validator_identity_integrity"][
+        "result_class"
+    ] == "finding"
+    assert by_scenario["tbps.planner.task_authority_confusion"][
+        "result_class"
+    ] == "finding"
+
+
 def test_paper_artifact_e2e_observation_accepts_current_localized_contract(
     tmp_path: Path,
 ) -> None:
@@ -1618,6 +2064,13 @@ def test_paper_artifact_e2e_observation_accepts_current_localized_contract(
     assert summary["mode"] == "artifact-e2e-observation"
     assert summary["target_observation"] is True
     assert summary["artifact_checks_ok"] is True
+    assert summary["causal_chain_ok"] is True
+    assert summary["causal_chain"]["status"] == "identity-chain-consistent"
+    assert summary["causal_chain"]["evidence_scope"] == (
+        "cross-artifact-identifier-joins-only"
+    )
+    assert "implementation identity" in summary["causal_chain"]["non_claims"]
+    assert summary["causal_chain"]["raw_identifiers_included"] is False
     assert summary["execution_boundary_ok"] is True
     assert summary["result_class"] == "pass"
     assert summary["evidence_quality_findings"] == []
@@ -1645,6 +2098,7 @@ def test_paper_artifact_e2e_observation_reports_missing_paper_marker_drift(
     encoded = json.dumps(summary, sort_keys=True, ensure_ascii=False)
 
     assert summary["artifact_checks_ok"] is True
+    assert summary["causal_chain_ok"] is True
     assert summary["execution_boundary_ok"] is True
     assert summary["result_class"] == "finding"
     assert summary["evidence_quality_findings"] == [
@@ -1665,9 +2119,83 @@ def test_paper_artifact_e2e_observation_passes_current_legacy_contract(
     summary = paper_artifact_e2e_observation(tmp_path)
 
     assert summary["artifact_checks_ok"] is True
+    assert summary["causal_chain_ok"] is True
     assert summary["execution_boundary_ok"] is True
     assert summary["result_class"] == "pass"
     assert summary["evidence_quality_findings"] == []
+
+
+def test_paper_artifact_e2e_observation_finds_cross_artifact_identity_mismatch(
+    tmp_path: Path,
+) -> None:
+    for marker in ("CURRENT_STATE.md", "ARCHITECTURE.md", "ROADMAP.md"):
+        (tmp_path / marker).write_text("marker\n", encoding="utf-8")
+    (tmp_path / "src").mkdir()
+    _write_full_e2e_artifact_fixture(tmp_path)
+    observation_path = (
+        tmp_path / "state" / "derived" / "main_paper_runtime_observation.json"
+    )
+    payload = json.loads(observation_path.read_text(encoding="utf-8"))
+    payload["items"][0]["runtime_id"] = "unrelated-runtime"
+    observation_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    summary = paper_artifact_e2e_observation(tmp_path)
+    encoded = json.dumps(summary, sort_keys=True)
+
+    assert summary["artifact_checks_ok"] is True
+    assert summary["causal_chain_ok"] is False
+    assert summary["causal_chain"]["status"] == "mismatch"
+    assert summary["result_class"] == "finding"
+    assert "paper_chain_identity_mismatch" in summary["evidence_quality_findings"]
+    assert "unrelated-runtime" not in encoded
+
+
+def test_paper_artifact_e2e_observation_finds_upstream_lineage_mismatch(
+    tmp_path: Path,
+) -> None:
+    for marker in ("CURRENT_STATE.md", "ARCHITECTURE.md", "ROADMAP.md"):
+        (tmp_path / marker).write_text("marker\n", encoding="utf-8")
+    (tmp_path / "src").mkdir()
+    _write_full_e2e_artifact_fixture(tmp_path)
+    data_path = tmp_path / "state" / "lineage" / "data_packets.jsonl"
+    row = json.loads(data_path.read_text(encoding="utf-8"))
+    row["scanner_event_id"] = "unrelated-scanner-event"
+    data_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
+
+    summary = paper_artifact_e2e_observation(tmp_path)
+    encoded = json.dumps(summary, sort_keys=True)
+
+    assert summary["artifact_checks_ok"] is True
+    assert summary["causal_chain_ok"] is False
+    assert summary["causal_chain"]["status"] == "mismatch"
+    assert summary["result_class"] == "finding"
+    assert "paper_chain_identity_mismatch" in summary["evidence_quality_findings"]
+    assert "unrelated-scanner-event" not in encoded
+
+
+def test_paper_artifact_e2e_observation_keeps_missing_join_evidence_inconclusive(
+    tmp_path: Path,
+) -> None:
+    for marker in ("CURRENT_STATE.md", "ARCHITECTURE.md", "ROADMAP.md"):
+        (tmp_path / marker).write_text("marker\n", encoding="utf-8")
+    (tmp_path / "src").mkdir()
+    _write_full_e2e_artifact_fixture(tmp_path)
+    observation_path = (
+        tmp_path / "state" / "derived" / "main_paper_runtime_observation.json"
+    )
+    payload = json.loads(observation_path.read_text(encoding="utf-8"))
+    del payload["items"][0]["runtime_id"]
+    observation_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    summary = paper_artifact_e2e_observation(tmp_path)
+
+    assert summary["artifact_checks_ok"] is True
+    assert summary["causal_chain_ok"] is False
+    assert summary["causal_chain"]["status"] == "insufficient-evidence"
+    assert summary["result_class"] == "inconclusive"
+    assert "paper_chain_identity_evidence_incomplete" in (
+        summary["evidence_quality_findings"]
+    )
 
 
 def test_private_invariant_baseline_fixture_from_artifacts(tmp_path: Path) -> None:
@@ -1684,16 +2212,16 @@ def test_private_invariant_baseline_fixture_from_artifacts(tmp_path: Path) -> No
     assert fixture["mode"] == "private-invariant-baseline-fixture"
     assert fixture["record_count"] == 7
     assert fixture["result_counts"] == {
-        "pass": 7,
+        "pass": 0,
         "finding": 0,
-        "inconclusive": 0,
+        "inconclusive": 7,
         "error": 0,
     }
     assert fixture["payloads_included"] is False
     assert fixture["private_values_filled"] is False
     assert "PRIVATE_ROW" not in encoded
     assert "PRIVATE_ENV_VALUE" not in encoded
-    assert sanitized["result_counts"]["pass"] == 7
+    assert sanitized["result_counts"]["inconclusive"] == 7
     assert sanitized["payloads_included"] is False
     assert sanitized["private_values_included"] is False
 
@@ -1730,7 +2258,7 @@ def test_write_private_invariant_baseline_fixture_writes_and_refuses_overwrite(
 
     assert summary["mode"] == "invariant-baseline-fixture"
     assert summary["record_count"] == 7
-    assert summary["result_counts"]["pass"] == 7
+    assert summary["result_counts"]["inconclusive"] == 7
     assert payload["payloads_included"] is False
     with pytest.raises(ValueError, match="refusing to overwrite"):
         write_private_invariant_baseline_fixture(private_path, tmp_path)
@@ -1861,7 +2389,7 @@ def test_validate_private_invariant_fixture_accepts_baseline(tmp_path: Path) -> 
     assert validation["record_count"] == 7
     assert validation["scenario_count"] == 7
     assert validation["issue_count"] == 0
-    assert validation["result_counts"]["pass"] == 7
+    assert validation["result_counts"]["inconclusive"] == 7
     assert validation["payloads_included"] is False
     assert validation["private_values_included"] is False
 
@@ -1957,7 +2485,18 @@ def test_authorized_paper_gate_plan_fails_closed_even_with_preflight(
     assert "private_evidence" in plan
 
 
-def test_authorized_paper_gate_report_accepts_private_readiness_bundle(
+def test_authorized_paper_gate_report_handles_partial_inputs_fail_closed(
+    tmp_path: Path,
+) -> None:
+    report = authorized_paper_gate_report(artifact_root=tmp_path)
+
+    assert report["ok"] is False
+    assert report["batch_manifest_stable"] is False
+    assert "batch_manifest_sha256" not in report
+    assert "batch-manifest" in report["blockers"]
+
+
+def test_authorized_paper_gate_report_blocks_unverified_target_boundaries(
     tmp_path: Path,
 ) -> None:
     target_root = tmp_path / "target"
@@ -1989,27 +2528,33 @@ def test_authorized_paper_gate_report_accepts_private_readiness_bundle(
     gates = {gate["gate_id"]: gate for gate in report["gates"]}
 
     assert report["mode"] == "authorized-paper"
-    assert report["status"] == "accepted"
-    assert report["ok"] is True
+    assert report["status"] == "blocked"
+    assert report["ok"] is False
     assert report["execution_status"] == "authorized-gate-only"
     assert report["target_mutation"] is False
     assert report["env_read"] is False
     assert report["provider_calls"] is False
     assert report["telegram_sends"] is False
     assert report["live_execution"] is False
-    assert report["blockers"] == []
+    assert report["blockers"] == [
+        "readiness",
+        "owner-run-approval",
+        "no-secret-or-live-surfaces",
+    ]
     assert gates["authorization-gate-implemented"]["ok"] is True
     assert gates["target-preflight"]["ok"] is True
     assert gates["artifact-root"]["ok"] is True
-    assert gates["readiness"]["ok"] is True
+    assert gates["readiness"]["ok"] is False
     assert gates["private-fixture"]["ok"] is True
     assert gates["batch-manifest"]["ok"] is True
-    assert gates["owner-run-approval"]["ok"] is True
-    assert gates["no-secret-or-live-surfaces"]["ok"] is True
-    assert report["readiness"]["ready"] is True
+    assert gates["owner-run-approval"]["ok"] is False
+    assert gates["no-secret-or-live-surfaces"]["ok"] is False
+    assert report["readiness"]["ready"] is False
     assert report["fixture_validation"]["ok"] is True
     assert report["batch_manifest_validation"]["ok"] is True
-    assert report["authorization"]["owner_approved"] is True
+    assert report["authorization"]["owner_approved"] is False
+    assert report["authorization"]["declared_owner_approved"] is False
+    assert report["authorization"]["receipt_validated"] is False
 
 
 def test_authorized_paper_gate_report_blocks_without_owner_approval(
@@ -2251,7 +2796,7 @@ def test_cli_trading_stand_invariant_baseline_fixture(
     out = capsys.readouterr().out
     assert "mode: invariant-baseline-fixture" in out
     assert "records: 7" in out
-    assert "pass=7  finding=0  inconclusive=0  error=0" in out
+    assert "pass=0  finding=0  inconclusive=7  error=0" in out
     assert "payloads included: false" in out
     assert fixture_path.exists()
 
@@ -2383,7 +2928,7 @@ def test_cli_trading_stand_validate_invariant_fixture(
     assert "mode: validate-invariant-fixture" in out
     assert "validation: ok" in out
     assert "records: 7  issues: 0" in out
-    assert "pass=7  finding=0  inconclusive=0  error=0" in out
+    assert "pass=0  finding=0  inconclusive=7  error=0" in out
     assert "private values included: false" in out
 
 
@@ -2714,7 +3259,7 @@ def test_cli_trading_stand_experiment_baseline_fixture(
     out = capsys.readouterr().out
     assert "mode: experiment-baseline-fixture" in out
     assert "records: 7  batches: 3" in out
-    assert "pass=7  finding=0  inconclusive=0  error=0" in out
+    assert "pass=0  finding=0  inconclusive=7  error=0" in out
     assert "payloads included: false" in out
     assert "target observation: true" in out
     assert fixture_path.exists()
@@ -2853,8 +3398,9 @@ def test_cli_trading_stand_experiment_readiness(
 
     out = capsys.readouterr().out
     assert "mode: experiment-readiness" in out
-    assert "readiness: ready" in out
-    assert "blockers: []" in out
+    assert "readiness: blocked" in out
+    assert "external-provider-boundary" in out
+    assert "live-trading-boundary" in out
     assert "evidence quality findings: []" in out
     assert "paper_telegram_preview_contract_drift" not in out
     assert "PASS evidence-quality" in out
@@ -2867,6 +3413,62 @@ def test_cli_trading_stand_experiment_readiness_requires_target_path(capsys) -> 
     assert cli.main(["trading-stand", "--mode", "experiment-readiness"]) == 1
 
     assert "--target-path is required" in capsys.readouterr().out
+
+
+def test_cli_trading_stand_entrypoint_closure_is_read_only(
+    capsys,
+    tmp_path: Path,
+) -> None:
+    entrypoint = tmp_path / "bat" / "paper_product_headless_loop.bat"
+    entrypoint.parent.mkdir()
+    entrypoint.write_text("python -m scripts.paper_loop\n", encoding="utf-8")
+    module_path = tmp_path / "scripts" / "paper_loop.py"
+    module_path.parent.mkdir()
+    module_path.write_text("VALUE = 1\n", encoding="utf-8")
+
+    assert (
+        cli.main(
+            [
+                "trading-stand",
+                "--mode",
+                "entrypoint-closure",
+                "--target-path",
+                str(tmp_path),
+            ]
+        )
+        == 0
+    )
+
+    out = capsys.readouterr().out
+    assert "mode: entrypoint-closure" in out
+    assert "closure: complete  complete=True" in out
+    assert "security: clear  clear=True" in out
+    assert "sink categories: []" in out
+    assert "raw contents included: false" in out
+    assert str(tmp_path) not in out
+
+
+def test_target_file_rejects_escape_and_reparse_component(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    safe = tmp_path / "state" / "derived" / "artifact.json"
+    safe.parent.mkdir(parents=True)
+    safe.write_text("{}", encoding="utf-8")
+
+    assert stand_module._target_file(
+        tmp_path, "state/derived/artifact.json"
+    ) == safe.resolve()
+    with pytest.raises(ValueError, match="safe read boundary"):
+        stand_module._target_file(tmp_path, "../outside.json")
+
+    monkeypatch.setattr(
+        stand_module,
+        "is_link_or_reparse",
+        lambda path: Path(path) == safe.parent,
+    )
+    with pytest.raises(ValueError, match="link or reparse"):
+        stand_module._target_file(tmp_path, "state/derived/artifact.json")
 
 
 def test_cli_trading_stand_experiment_batch_manifest(capsys, tmp_path: Path) -> None:
@@ -2951,7 +3553,7 @@ def test_cli_trading_stand_validate_experiment_batch_manifest_requires_path(
     assert "--fixture-path is required" in capsys.readouterr().out
 
 
-def test_cli_trading_stand_experiment_intake_accepts_filled_rows(
+def test_cli_trading_stand_experiment_intake_blocks_self_declared_rows(
     capsys,
     tmp_path: Path,
 ) -> None:
@@ -2988,8 +3590,10 @@ def test_cli_trading_stand_experiment_intake_accepts_filled_rows(
 
     out = capsys.readouterr().out
     assert "mode: experiment-intake" in out
-    assert "intake: accepted" in out
-    assert "real target observations: 7" in out
+    assert "intake: blocked" in out
+    assert "real target observations: 0" in out
+    assert "self-declared target observations: 7" in out
+    assert "observation authority: self-declared-filled-fixture" in out
     assert "batch manifest ok: True" in out
     assert "private values included: false" in out
     assert "PRIVATE_EXPERIMENT" not in out
@@ -3105,7 +3709,7 @@ def test_cli_trading_stand_authorized_paper_is_gate_report(capsys) -> None:
     assert "FAIL human-approval-token" in out
 
 
-def test_cli_trading_stand_authorized_paper_accepts_private_gate(
+def test_cli_trading_stand_authorized_paper_blocks_unverified_target_boundaries(
     capsys,
     tmp_path: Path,
 ) -> None:
@@ -3150,9 +3754,11 @@ def test_cli_trading_stand_authorized_paper_accepts_private_gate(
 
     out = capsys.readouterr().out
     assert "mode: authorized-paper" in out
-    assert "status: accepted  ok=True" in out
+    assert "status: blocked  ok=False" in out
     assert "PASS authorization-gate-implemented" in out
     assert "PASS batch-manifest" in out
+    assert "FAIL readiness" in out
+    assert "FAIL no-secret-or-live-surfaces" in out
 
 
 def test_trading_bot_stand_module_has_no_runtime_or_secret_imports() -> None:

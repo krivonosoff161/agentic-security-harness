@@ -106,6 +106,9 @@ Tracks below are either deterministic artifact checks or sanitized local-model
 evidence-quality snapshots. None are certification, vendor benchmark, CVE, or
 production-safety claims. The private/public split for local empirical evidence is
 defined in [docs/private-public-evidence-boundary.md](docs/private-public-evidence-boundary.md).
+The distinction between executable specifications, local empirical observations, and
+independently labeled evaluations is defined in
+[docs/evidence-classes.md](docs/evidence-classes.md).
 That local evidence rule narrows, but does not weaken, the portfolio
 [Documentation Contract](https://github.com/krivonosoff161/krivonosoff161/blob/main/docs/documentation-contract.md).
 
@@ -115,14 +118,14 @@ That local evidence rule narrows, but does not weaken, the portfolio
 | Baseline vs protected replay | `24 modeled findings -> 0 modeled findings` | [`examples/comparison-report/`](examples/comparison-report/) |
 | Bounded local swarm | `15` modeled swarm failures accepted by naive mode, `0` by bounded mode | [`examples/local-swarm-report/`](examples/local-swarm-report/) |
 | Attack variation matrix | `43` rows, `9` families, `10` executable deep probes, bounded failures `0` | [`examples/local-swarm-attack-matrix/`](examples/local-swarm-attack-matrix/) |
-| Evidence campaign | `24` cases / `72` observations / `4` claim families; bounded false-block rate `0%` | [`examples/evidence-campaign-sanitized/`](examples/evidence-campaign-sanitized/) |
+| Evidence executable specification | `24` scenario-author-labelled cases / `72` rule-derived observations; bounded declared-safe block consistency `0%` | [`examples/evidence-campaign-sanitized/`](examples/evidence-campaign-sanitized/) |
 | Synthetic secret-egress campaign | `4` topologies / `23` observations; naive leaks `4/4`, bounded leaks `0/4` | [`examples/secret-leak-campaign-sanitized/`](examples/secret-leak-campaign-sanitized/) |
-| Semantic drift probes | `80` local-model observations; drift detections `13`, canary leaks `4`, verifier blocks `15` | [`examples/semantic-drift-sanitized/`](examples/semantic-drift-sanitized/) |
-| Semantic propagation defense | `6` controls; bounded acceptances `0`, ablation acceptances `20`; `8` worker-to-chief observations | [`examples/semantic-propagation-sanitized/`](examples/semantic-propagation-sanitized/) / [`model`](docs/semantic-propagation-defense-model.md) |
+| Semantic drift probes | Legacy schema-0.1 structural summary: `80` declared detector rows, drift detections `13`, canary leaks `4`, verifier blocks `15`; current schema 0.2 has no committed execution | [`examples/semantic-drift-sanitized/`](examples/semantic-drift-sanitized/) |
+| Semantic propagation defense | Legacy schema-0.2 rows: `8` declared worker-to-chief observations; separately, deterministic rows record `6` controls, bounded acceptances `0`, and `20` rule-derived ablation acceptances | [`examples/semantic-propagation-sanitized/`](examples/semantic-propagation-sanitized/) / [`model`](docs/semantic-propagation-defense-model.md) |
 | Local swarm defense contour | `4` failure families, `15` combination topologies; bounded acceptances `0`, naive acceptances `15` | [`examples/swarm-defense-contour-sanitized/`](examples/swarm-defense-contour-sanitized/) / [`model`](docs/local-swarm-defense-contour.md) |
-| Sanitized local-model mini-swarm campaign | `180` base observations; chief acceptances `22`, verifier blocks `22`, replay-ablation reopenings `96`, canary leaks `0`; plus `15` long-session observations and a deep `168`-observation multi-model run with `70/70` unsafe chains blocked and `91/91` benign chains allowed | [`examples/swarm-defense-live-sanitized/`](examples/swarm-defense-live-sanitized/) / [`long-session`](examples/swarm-defense-live-long-session-sanitized/) / [`deep`](examples/swarm-defense-live-deep-sanitized/) / [`model`](docs/live-mini-swarm-defense-campaign.md) |
+| Historical loopback-endpoint mini-swarm campaign | Pre-0.5 examples retained as structural historical evidence; canary-zero and causal-reopening claims are withdrawn, and the current contract has no committed execution | [`examples/swarm-defense-live-sanitized/`](examples/swarm-defense-live-sanitized/) / [`model`](docs/live-mini-swarm-defense-campaign.md) |
 | Marketing web-injection swarm | controlled offline web-like corpus; naive leaks `5/5`, bounded leaks `0/5`, ablation leaks `21/21`, benign runs `5/5` allowed | [`examples/marketing-web-injection-sanitized/`](examples/marketing-web-injection-sanitized/) / [`model`](docs/marketing-web-injection-campaign.md) |
-| Live local-model marketing web-injection | owned local web + local worker/chief models; `60` observations, worker leaks `3`, chief leaks `1`, ablation final leaks `1`, bounded final leaks `0`, benign final leaks `0` | [`examples/marketing-web-live-sanitized/`](examples/marketing-web-live-sanitized/) / [`model`](docs/marketing-web-live-campaign.md) |
+| Historical loopback-endpoint marketing web-injection | Schema-0.2 owned-local-page observations; rule-derived verifier/ablation behavior, while current schema 0.3 remains unexecuted | [`examples/marketing-web-live-sanitized/`](examples/marketing-web-live-sanitized/) / [`model`](docs/marketing-web-live-campaign.md) |
 | Swarm resilience/stability model | `7` degradation families / `46` observations; naive unsafe `7`, bounded unsafe `0`, ablation unsafe `18`, benign false blocks `0` | [`examples/swarm-resilience-sanitized/`](examples/swarm-resilience-sanitized/) / [`model`](docs/swarm-resilience-campaign.md) |
 | Context consent boundary | `5` consent-boundary cases / `45` deterministic rows; naive risky-action acceptances `5`, bounded acceptances `0`, ablation acceptances `18`, benign false blocks `0` | [`examples/context-consent-sanitized/`](examples/context-consent-sanitized/) / [`model`](docs/context-consent-campaign.md) |
 | Tool-output authority boundary | `6` tool-output authority cases / `66` deterministic rows; naive risky-action acceptances `6`, bounded acceptances `0`, ablation acceptances `23`, benign false blocks `0` | [`examples/tool-authority-sanitized/`](examples/tool-authority-sanitized/) / [`model`](docs/tool-authority-campaign.md) |
@@ -164,6 +167,9 @@ If you only have one minute:
   [`docs/showcase/evidence-map.md`](docs/showcase/evidence-map.md). For a compact
   summary of the strongest sanitized artifacts, start with
   [`docs/showcase/evidence-appendix.md`](docs/showcase/evidence-appendix.md).
+- Inspect the machine-readable evidence classification and validate its artifact links:
+  [`docs/evidence-status-registry.json`](docs/evidence-status-registry.json) with
+  `ash validate docs/evidence-status-registry.json`.
 - Check the private/public evidence rule for local model campaigns:
   [`docs/private-public-evidence-boundary.md`](docs/private-public-evidence-boundary.md).
 - Check what is shipped versus planned:
@@ -180,7 +186,7 @@ If you only have one minute:
 | A research spine for local swarm, memory, authority, audit, and semantic-drift probes. | A model leaderboard or CVE-grade vulnerability database. |
 
 Built-in/local targets are synthetic, deterministic, and offline. The experimental
-`run-external` path calls an OpenAI-compatible endpoint only on explicit opt-in
+`run-external --execute` calls an OpenAI-compatible endpoint only on explicit opt-in
 (prompt-only, no tool execution); native provider and agent-host adapters are future.
 The benchmark focuses on agent operating-environment boundaries, not just standalone model answers.
 See [docs/benchmark-semantics.md](docs/benchmark-semantics.md).
@@ -209,8 +215,12 @@ Read by role:
   [`examples/local-swarm-report/`](examples/local-swarm-report/).
 - Local model reviewer: [Local Prometheus workflow](docs/local-prometheus-workflow.md),
   [Local model profiles](docs/local-model-profiles.md), and [Metrics contract](docs/metric-contract.md).
-- Evidence publisher: [Evidence pack format](docs/evidence-pack-format.md) and
+- Evidence publisher: [Evidence pack format](docs/evidence-pack-format.md),
+  [Evidence classes](docs/evidence-classes.md),
+  [machine-readable evidence status](docs/evidence-status-registry.json), and
   [Private/public evidence boundary](docs/private-public-evidence-boundary.md).
+- Authenticity reviewer: [Artifact authenticity trust-root design](docs/artifact-authenticity-design.md).
+- Security audit reviewer: [End-to-end causal map](docs/security-audit-causal-map-2026-07-15.md).
 - Safety reviewer: [Research rules](docs/research-rules.md), [Authorized testing paths](docs/authorized-testing-paths.md),
   [Threat model](docs/threat-model.md), and [SECURITY.md](SECURITY.md).
 
@@ -312,7 +322,7 @@ See [docs/roadmap.md](docs/roadmap.md).
 - **External adapter (experimental)** - `ash run-external --adapter openai-compatible
   --base-url URL --model MODEL --scenario SCENARIO` evaluates an authorized
   OpenAI-compatible endpoint with safe synthetic prompts. Supports repeats, dry-run,
-  and variant selection. Network calls only when explicitly invoked. Variant knobs are
+  and variant selection. Network calls require `--execute`. Variant knobs are
   passed to the external prompt as scenario context, but do not yet mutate the
   underlying pattern content; for the local `run-matrix` path they remain replay
   metadata only.
@@ -323,19 +333,24 @@ See [docs/roadmap.md](docs/roadmap.md).
   can evaluate arbitrary systems, not only the demo agents. No network, no dependencies.
 - **Static HTML reports** - `ash report --root <dir>` renders a self-contained
   `report.html` (no JS, no CDN, no network) with an executive summary, severity
-  distribution, pattern table, and a coverage heatmap for matrix runs. JSON/Markdown
-  remain authoritative.
+  distribution, pattern table, and a coverage heatmap for matrix runs. The source
+  artifact tree must pass integrity validation before the HTML is written; behavioral
+  expectation mismatches remain visible as non-clean results. JSON/Markdown remain
+  authoritative.
 - **Onboarding doctor** - `ash doctor [--json] [--live-local]` checks the environment and
   prints next steps. **Run history** - `ash list-runs` reads the `run_index.json`
   manifest written by every run; `ash stats` summarizes run history; `ash retention`
   plans local report cleanup with dry-run by default.
-- **Run and model comparisons** - `ash diff-runs` compares two recorded run directories
-  of the same kind; `ash compare-models` is the external-run-only wrapper for comparing
+- **Run and model comparisons** - `ash diff-runs` compares two validated, manifested run
+  directories of the same kind and emits source-manifest commitments plus a content-bound
+  diff bundle; `ash compare-models` is the external-run-only wrapper for comparing
   two recorded model/runtime checks without making provider calls.
 - **Validation (`ash validate examples/`)** - checks committed benchmark artifacts (traces,
   scorecards, summaries, comparison, external-run reports, and run manifests), corpus and
-  standards-mapping consistency, and scans for forbidden markers; the examples are
-  **validated benchmark artifacts**, not loose output.
+  standards-mapping consistency, and scans for forbidden markers. Current-schema
+  outputs receive their declared semantic and content-integrity checks; accepted legacy
+  examples are explicitly structural snapshots and are not equivalent to current,
+  private-evidence-reconciled executions.
 - **Unit tests** - models, runner, scorecard, reporting, validation, CLI, HTML report,
   doctor, toy adapters, and standards mapping.
 
@@ -361,7 +376,7 @@ behavior in this release, and should not be described as a production gateway. S
 | Benchmark | 24-pattern deterministic local corpus, traces, scorecards, validation. | Larger corpus via invariant-based expansion, mappings, report quality. |
 | Targets | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, plus experimental OpenAI-compatible external model checks. | Native provider adapters and agent-host / tool-use adapters. |
 | Runtime | CLI-only (`run`, `compare`, `validate`, `targets`, `scenarios`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `diff-runs`, `compare-models`, `list-runs`, `index-runs`, `stats`, `retention`, `report`, `doctor`). | Optional HTTP reference gateway and a web report viewer after the benchmark stabilizes. |
-| Network / providers | Off by default; `run-external` makes explicit OpenAI-compatible calls only when invoked without `--dry-run`. | More provider presets, config files, and verified local-runtime guides. |
+| Network / providers | Off by default; `run-external` makes OpenAI-compatible calls only with `--execute`. | More provider presets, config files, and verified local-runtime guides. |
 | Storage | Local report files and committed examples. | Optional persistent trace store after v1.0. |
 
 ### Verify locally
@@ -483,6 +498,7 @@ ash run-external --adapter openai-compatible \
   --model deepseek-chat \
   --scenario data-boundary \
   --repeats 3 \
+  --execute \
   --credential-env ASH_EXTERNAL_API_KEY \
   --out .internal/external-demo/latest
 ```
@@ -507,7 +523,7 @@ reports/demo/
 +-- executive.md      # concise scope, severity, top-failure, and residual-risk view
 +-- remediation.json  # structured control recommendations (only when findings exist)
 +-- remediation.md    # human-readable remediation report (only when findings exist)
-+-- run_index.json    # run manifest: run id, kind, target, outcome counts, artifacts
++-- run_index.json    # execution id, config fingerprint, kind, outcomes, artifacts
 ```
 
 Render any run directory as a static HTML page with `ash report --root reports/demo`.
@@ -521,13 +537,17 @@ ash retention --root reports --keep-last 20
 ash validate reports/demo --format json
 ```
 
-`ash retention` is a dry-run unless `--apply` is passed.
+`ash retention` is a dry-run unless `--apply` is passed. Applying deletion also
+requires `--accept-unsigned-chronology`, because manifest `created_at` is
+operator-declared metadata rather than authenticated time. Normal text/JSON output uses
+`<run-root>` and relative candidate paths; canonical absolute paths stay inside the apply model.
 
 `run-matrix` additionally writes `matrix.json` (variant metadata) and `matrix.md`
 (scenario-specific summary).
 
 `run-external` writes:
-- `run_config.json` - run configuration incl. `request_count` (credential env name only, never the value)
+- `run_config.json` - run configuration incl. `request_count` and a fixed
+  credential-configured marker (neither the variable name nor its value)
 - `external_results.json` - per-pattern evaluation results with structured errors,
   pattern-level assertion status, raw-response path, and sha256
 - `external_summary.json` - aggregated repeat summaries + `findings_by_control_family`
@@ -564,9 +584,11 @@ before/after example is explained in
 ## Test your own model/runtime (experimental)
 
 The external adapter evaluates any **authorized OpenAI-compatible endpoint** (cloud API,
-local server, or gateway) with safe synthetic prompts. **Network calls only happen when
-you explicitly run `run-external` without `--dry-run`, or `external-check --live`.** The
-API key is read from an env var by name and never logged or stored.
+local server, or gateway) with safe synthetic prompts. **Network calls only happen with
+`run-external --execute` or `external-check --live`.** The
+API key is read from an env var by name and never logged or stored. HTTP redirects are
+refused, and ambient OS/environment proxy discovery is disabled, so the endpoint cannot
+silently expand one authorized request to another URL or route.
 
 ```bash
 # 0) free local demo - start the bundled fake server (second terminal on Windows)
@@ -579,7 +601,7 @@ ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model --scen
 ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --dry-run
 
 # 3) minimal live run against the endpoint
-ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario perception-boundary --out reports/external-demo
+ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario perception-boundary --execute --out reports/external-demo
 
 # 4) validate + read the report (with control recommendations)
 ash validate reports/external-demo

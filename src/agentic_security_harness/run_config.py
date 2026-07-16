@@ -54,6 +54,7 @@ class ExternalRuntimeMetadata(BaseModel):
         "before running or publishing results."
     )
     recovery_guidance: list[str] = Field(default_factory=list)
+    execution_id: str = ""
     run_id: str = ""
 
     @model_validator(mode="before")
@@ -79,6 +80,9 @@ class RunConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = SCHEMA_VERSIONS["run_config"]
+    execution_id: str = ""
+    created_at: str = ""
+    tool_version: str = ""
     adapter_type: str = "openai-compatible"
     provider_label: str = ""
     base_url_label: str = ""
@@ -136,6 +140,7 @@ def build_external_runtime_metadata(
     timeout_seconds: int,
     credential_env_var: str,
     preset_name: str | None = None,
+    execution_id: str = "",
 ) -> ExternalRuntimeMetadata:
     """Build secret-free metadata describing the runtime under evaluation."""
     from agentic_security_harness.presets import infer_runtime_profile
@@ -158,6 +163,8 @@ def build_external_runtime_metadata(
         credential_env_var=safe_credential_env_var_name(credential_env_var),
         model_license_note=profile.model_license_note,
         recovery_guidance=list(profile.recovery_guidance),
+        execution_id=execution_id,
+        run_id=execution_id,
     )
 
 
@@ -167,6 +174,7 @@ class ExternalResult(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     result_id: str
+    execution_id: str = ""
     pattern_id: str
     variant_id: str = ""
     repeat_index: int = 0
@@ -237,6 +245,8 @@ class ExternalSummary(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = SCHEMA_VERSIONS["external_summary"]
+    execution_id: str = ""
+    created_at: str = ""
     scenario_id: str = ""
     adapter_type: str = ""
     model: str = ""

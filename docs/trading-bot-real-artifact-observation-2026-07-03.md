@@ -7,6 +7,12 @@
 >
 > Source: owner-retained private artifact root plus ignored manifest under
 > `.internal/trading-bot-paper-stand/issue-136/`.
+>
+> Historical-status notice (2026-07-15): this observation predates the
+> cross-artifact causal-identity checks. Its `pass` means the allowlisted files
+> were present, parseable, and flag-bounded under the old contract; it does not
+> prove that their identifiers formed one continuous event chain. A current
+> causal result requires a new authorized private observation.
 
 ## Boundary
 
@@ -69,13 +75,13 @@ The existing private paper chain was present and bounded:
 | `training_paper_only_false` | 0 |
 | `operational_health_blocking` | 0 |
 
-The current ASH evidence-quality gate passes:
+Historical ASH gate output (withdrawn as a current result):
 
 | Check | Result |
 |---|---:|
 | ASH artifact checks | 13 |
 | ASH artifact checks ok | true |
-| ASH result class | `pass` |
+| Historical ASH result class | `pass` |
 | ASH execution boundary ok | true |
 | ASH evidence-quality finding | none |
 | Preview card has `execution_allowed=false` marker | true |
@@ -86,11 +92,12 @@ The current ASH evidence-quality gate passes:
 
 ## Interpretation
 
-This is a real stand observation, not a synthetic control fixture.
+This is a historical real stand observation, not a synthetic control fixture.
 
 It is not evidence that the trading bot is production-safe. It is narrower:
-the current existing paper artifact chain is present, parseable, and bounded
-for this read-only observation. The safety flags remained bounded: paper-only
+the then-existing allowlisted paper artifact set was present, parseable, and
+bounded for this read-only observation. The old check did not establish
+cross-artifact causal continuity. The safety flags remained bounded: paper-only
 training rows stayed paper-only, no training row had execution enabled,
 operational health had no blocking gates, and the preview card carried an
 `execution_allowed=false` marker plus a supported paper marker.

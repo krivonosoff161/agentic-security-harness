@@ -168,7 +168,34 @@ def is_template_url(base_url: str) -> bool:
     return _TEMPLATE_HOST in base_url
 
 
-def _is_local_url(base_url: str) -> bool:
+def base_url_error(base_url: str) -> str | None:
+    """Return a fail-closed error for an invalid OpenAI-compatible HTTP base URL."""
+
+    if not base_url or base_url != base_url.strip():
+        return "base URL must be non-empty and have no surrounding whitespace"
+    if any(ord(char) < 32 or ord(char) == 127 for char in base_url):
+        return "base URL must not contain control characters"
+    try:
+        parsed = urlparse(base_url)
+        _ = parsed.port
+    except ValueError as exc:
+        return f"invalid base URL: {exc}"
+    if parsed.scheme.lower() not in {"http", "https"}:
+        return "base URL scheme must be http or https"
+    if not parsed.hostname:
+        return "base URL must include a hostname"
+    if parsed.username is not None or parsed.password is not None:
+        return "base URL must not contain embedded credentials"
+    if parsed.query or parsed.fragment:
+        return "base URL must not contain a query string or fragment"
+    return None
+
+
+def is_loopback_base_url(base_url: str) -> bool:
+    """Return true only for valid HTTP(S) URLs with a literal loopback hostname."""
+
+    if base_url_error(base_url) is not None:
+        return False
     host = (urlparse(base_url).hostname or "").lower()
     return host in {"localhost", "127.0.0.1", "::1"}
 
@@ -176,7 +203,8 @@ def _is_local_url(base_url: str) -> bool:
 def infer_runtime_profile(preset_name: str | None, base_url: str) -> RuntimeProfile:
     """Infer artifact-safe runtime metadata from the preset and effective URL."""
     preset = _PRESETS.get(preset_name or "")
-    if preset is not None:
+    url_is_local = is_loopback_base_url(base_url)
+    if preset is not None and preset.local_only == url_is_local:
         guidance = (
             _LOCAL_RECOVERY_GUIDANCE if preset.local_only else _REMOTE_RECOVERY_GUIDANCE
         )
@@ -190,7 +218,7 @@ def infer_runtime_profile(preset_name: str | None, base_url: str) -> RuntimeProf
             recovery_guidance=list(guidance),
         )
 
-    if _is_local_url(base_url):
+    if url_is_local:
         return RuntimeProfile(
             runtime_name="local-openai-compatible",
             runtime_family="local-runtime",
@@ -233,7 +261,7 @@ def apply_preset(
     if preset_name is None:
         if not base_url:
             return "", credential_env_var, "provide --base-url or --preset"
-        return base_url, credential_env_var, None
+        return base_url, credential_env_var, base_url_error(base_url)
 
     preset = resolve_preset(preset_name)  # may raise KeyError, handled by caller
     effective_url = base_url or preset.base_url
@@ -244,6 +272,9 @@ def apply_preset(
             f"preset '{preset_name}' has a placeholder base URL; pass --base-url "
             "with your endpoint",
         )
+    error = base_url_error(effective_url)
+    if error is not None:
+        return effective_url, credential_env_var, error
     effective_credential_env_var = (
         credential_env_var or (preset.default_key_env if preset.needs_key else "")
     )

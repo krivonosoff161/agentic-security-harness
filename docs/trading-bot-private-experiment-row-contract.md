@@ -29,18 +29,19 @@ contain sanitized aggregate derivatives.
 | Baseline | true | `baseline_only=true` | Existing artifact-schema observation, not adversarial. |
 | Finding control | false | `control_only=true` | Synthetic sanitizer/validator finding path. |
 | Inconclusive control | false | `control_only=true` | Synthetic sanitizer/validator weak-evidence path. |
-| Real private row | true | no control/baseline/template marker | Future authorized paper-only observation. |
+| Filled private row | true | no control/baseline/template marker | Structurally filled self-declaration pending a separate observation receipt. |
 
-## Required Real Row Fields
+## Required Filled Row Fields
 
-A real private row is any row with:
+A filled private row is any row with:
 
 - `target_observation=true`;
 - `control_only` not true;
 - `baseline_only` not true;
 - `template_only` not true.
 
-Such a row must include:
+Such a row must include the following structure, but none of these fields proves
+that the observation occurred:
 
 | Field | Requirement |
 |---|---|
@@ -69,26 +70,27 @@ Such a row must include:
 - weak rows use boolean/null boundary status;
 - every row has a `sha256:` artifact anchor;
 - private slots exist for every scenario;
-- claimed real target-observation rows have filled private slots;
-- claimed real target-observation rows have a public evidence object;
-- claimed real target-observation rows have an opaque
+- filled target-observation rows have filled private slots;
+- filled target-observation rows have a public evidence object;
+- filled target-observation rows have an opaque
   `adversarial_condition_id`;
 - fixtures live under `.internal/trading-bot-paper-stand/issue-136/`.
 
 The validator reports counts for:
 
 - all target observations;
-- real target observations;
+- self-declared filled target observations;
+- real target observations, which remain zero without a validated receipt;
 - synthetic control rows.
 
 ## Intake Gate
 
 `ash trading-stand --mode experiment-intake` is stricter than structural
-validation. It accepts private rows for public-safe sanitization only when:
+validation. It accepts private rows for public-safe promotion only when:
 
 - `validate-experiment` passes;
 - a valid private batch manifest is supplied;
-- all seven rows are real target observations;
+- all seven rows have separately validated observation-authority receipts;
 - no synthetic control rows are present;
 - baseline/template/control markers are absent from the accepted row set.
 
@@ -103,7 +105,7 @@ becoming real filled-row research evidence.
 - aggregate result counts;
 - batch counts;
 - scenario ids;
-- `sha256:` artifact anchors;
+- `sha256:` hashes scoped to the sanitized public projection;
 - private slot names;
 - sanitized public fields.
 
@@ -122,9 +124,9 @@ It must not publish:
 
 ## Current Status
 
-The contract has been verified with synthetic private filled rows in tests. The
-intake gate has also been checked against the current observed baseline fixture:
-it blocks the baseline from being promoted into filled-row evidence because the
-real target-observation count is 0. The public repository does not contain real
-raw filled rows. Future real rows must be written under `.internal/`, validated,
-pass intake, and then be sanitized before any public claim is made.
+The structural contract has been verified with synthetic private filled rows in
+tests. Both those rows and the current observed baseline are blocked from
+promotion because the real target-observation count is 0 and no observation
+receipt exists. The public repository contains no real raw filled rows. Future
+observations must be written under `.internal/`, validated, receipt-bound, pass
+intake, and then be sanitized before any public claim is made.

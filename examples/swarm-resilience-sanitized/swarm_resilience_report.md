@@ -58,7 +58,7 @@ unsafe threshold or block and return it to the safe region.
 - This is not a real-secret extraction.
 - This is not a production-swarm certification.
 - The state-vector model is an explicit defensive abstraction, not a proof that all future model behavior is covered.
-- A deterministic ablation reopening is control attribution, not a CVE.
+- A deterministic ablation branch is a rule-encoded dependency, not a causal effect or a CVE.
 
 Private synthetic payload notes and calculation traces are not part of this
-public summary. Public state hashes anchor private owner-side replay.
+public summary. Public state hashes are commitments; they require owner-side byte reconciliation before any replayability claim.

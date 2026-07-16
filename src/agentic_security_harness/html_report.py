@@ -17,6 +17,7 @@ from agentic_security_harness.safe_io import (
     safe_credential_env_var_name,
     write_text_artifact,
 )
+from agentic_security_harness.validation import ValidationResult, validate_artifact_path
 
 _CSS = """
 :root { color-scheme: light dark; }
@@ -155,6 +156,21 @@ def _severity_bar(by_sev: dict[str, int]) -> str:
 
 def _disclaimer_section() -> str:
     return f"<h2>What this does not prove</h2><div class=\"note\">{_DISCLAIMER}</div>"
+
+
+def _expectation_notice(result: ValidationResult) -> str:
+    """Render behavioral expectation failures without treating them as corruption."""
+
+    if result.expectations_ok:
+        return ""
+    items = "".join(
+        f"<li>{_esc(message)}</li>" for message in result.expectation_mismatches
+    )
+    return (
+        "<div class=\"note\"><strong>Benchmark expectation mismatch.</strong> "
+        "Artifact integrity passed, but one or more expected benchmark outcomes did not. "
+        f"This is not a clean result.<ul>{items}</ul></div>"
+    )
 
 
 def _manifest_pairs(manifest: dict | None) -> list[tuple[str, str]]:
@@ -552,22 +568,53 @@ def _render_diff(run_dir: Path, manifest: dict | None) -> str:
 
 
 def render_report(run_dir: Path) -> str:
-    """Render a run directory into a single self-contained HTML string."""
+    """Validate and render a run directory into self-contained HTML."""
+
+    validation = validate_artifact_path(run_dir)
+    if not validation.integrity_ok:
+        details = "; ".join(validation.errors) or "artifact integrity validation failed"
+        raise ValueError(
+            f"refusing to render unvalidated artifacts under {run_dir.as_posix()}: "
+            f"{details}"
+        )
     kind = detect_kind(run_dir)
     manifest = _load(run_dir / "run_index.json")
     if kind == "diff":
-        return _render_diff(run_dir, manifest)
-    if kind == "matrix":
-        return _render_matrix(run_dir, manifest)
-    if kind == "compare":
-        return _render_compare(run_dir, manifest)
-    if kind == "external":
-        return _render_external(run_dir, manifest)
-    return _render_run(run_dir, manifest)
+        rendered = _render_diff(run_dir, manifest)
+    elif kind == "matrix":
+        rendered = _render_matrix(run_dir, manifest)
+    elif kind == "compare":
+        rendered = _render_compare(run_dir, manifest)
+    elif kind == "external":
+        rendered = _render_external(run_dir, manifest)
+    else:
+        rendered = _render_run(run_dir, manifest)
+    notice = _expectation_notice(validation)
+    if notice:
+        rendered = rendered.replace("<body>\n", f"<body>\n{notice}", 1)
+    return rendered
 
 
 def write_html_report(run_dir: Path, out: Path) -> Path:
     """Render ``run_dir`` and write the HTML to ``out`` (LF newlines)."""
+
+    rendered = render_report(run_dir)
+    _validate_html_output_path(run_dir, out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    write_text_artifact(out, render_report(run_dir))
+    write_text_artifact(out, rendered)
     return out
+
+
+def _validate_html_output_path(run_dir: Path, out: Path) -> None:
+    if out.suffix.lower() != ".html":
+        raise ValueError("HTML report output must use a .html filename")
+    if out.is_symlink():
+        raise ValueError("refusing to write an HTML report through a symlink")
+    resolved_out = out.resolve(strict=False)
+    protected_inputs = {
+        path.resolve(strict=False)
+        for path in run_dir.rglob("*")
+        if path.is_file() and path.suffix.lower() != ".html"
+    }
+    if resolved_out in protected_inputs:
+        raise ValueError("refusing to overwrite a source artifact with an HTML report")

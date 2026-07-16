@@ -13,7 +13,7 @@ python -m pytest -q
 python -m ruff check .
 python -m mypy src tests
 ash validate examples/
-python -m build --wheel        # optional locally; CI builds + twine-checks
+python -m build --wheel        # optional locally; CI builds and smoke-installs wheel + sdist
 ```
 
 Then verify by hand:
@@ -45,12 +45,18 @@ Then verify by hand:
 - [ ] No local-only files staged (e.g. `reports/`, untracked notes).
 - [ ] Fake-server E2E passes locally (see below).
 
+The tag-triggered release workflow independently rejects non-canonical tags, mismatched
+`pyproject.toml`/`__version__`/CHANGELOG versions, and any failure in pytest, Ruff, mypy, or
+committed-artifact validation before building. It smoke-installs both distributions and publishes
+unsigned SHA-256 checksums with the Actions artifact. Those checksums provide content identity,
+not author authenticity; the separate artifact-attestation trust-root decision remains open.
+
 ## Fake-server E2E (no external network)
 
 ```bash
 python examples/fake_openai_server.py            # terminal 1 (Ctrl+C to stop)
 ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary
-ash run-external  --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --out reports/e2e
+ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --execute --out reports/e2e
 ash report --root reports/e2e
 ash validate reports/e2e
 # stop the server; confirm the port is free

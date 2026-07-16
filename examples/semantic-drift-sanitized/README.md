@@ -1,11 +1,12 @@
 # Semantic drift sanitized example
 
-This directory is a sanitized public snapshot for the semantic parameter-drift campaign.
-It contains deterministic contract rows plus aggregate local-model observations for
-synthetic mini-swarm handoff cases.
+Historical/unreconciled detector-observation summary. The committed observation schema
+is `0.1`; the current producer schema is `0.2`. Public validation does not replay private
+response bytes or attest model/runtime identity. The deterministic contract rows remain
+an executable specification.
 
-Start with [`semantic_drift_report.md`](semantic_drift_report.md). The authoritative
-machine-readable artifact is [`semantic_drift_summary.json`](semantic_drift_summary.json).
+Start with [`semantic_drift_report.md`](semantic_drift_report.md). The primary legacy
+machine-readable record is [`semantic_drift_summary.json`](semantic_drift_summary.json).
 
 Validate it with:
 
@@ -17,12 +18,13 @@ What this example shows:
 
 - 4 semantic relabeling cases.
 - 28 deterministic bounded-vs-ablation contract rows.
-- 80 sanitized local-model observations from the latest maintainer smoke.
+- 80 historical detector-labelled observations declared by a maintainer run.
 - 0 bounded deterministic drift acceptances.
 - 19 ablation deterministic drift acceptances.
 - 13 drift detections, 4 synthetic canary leaks, and 15 verifier blocks in the local
   smoke.
-- 0 adapter errors and 100% response-hash coverage.
+- 0 declared adapter errors and complete response-hash-field presence. Hash presence
+  does not prove retained private bytes or execution origin.
 
 What it does not show:
 

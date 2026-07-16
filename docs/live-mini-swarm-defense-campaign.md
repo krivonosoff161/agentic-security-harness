@@ -1,11 +1,12 @@
 # Sanitized Local-Model Mini-Swarm Campaign
 
-Status: sanitized public summary over private local-model probes.
+Status: historical, unreconciled detector-observation summaries. Current schema `0.5`
+is unexecuted in committed artifacts.
 
-This page records the live local-model layer for the local swarm defense contour. The
+This page records the live loopback-endpoint layer for the local swarm defense contour. The
 deterministic contour says which controls should block semantic drift, worker-to-chief
 propagation, consensus laundering, and benign-framed boundary leaks. The live campaign
-then asks small local models to play worker roles and a local chief model to consume
+then asks configured endpoint models to play worker roles and a chief model to consume
 their summaries.
 
 Raw prompts, raw responses, synthetic canary values, and detailed calculation notes stay
@@ -15,6 +16,19 @@ labels, adapter flags, verifier attribution, replay-ablation metrics, Wilson rat
 intervals, model breakdowns, and non-claims.
 The field-level rule is in
 [private-public-evidence-boundary.md](private-public-evidence-boundary.md).
+
+Current schema `0.5` records the planned Cartesian axes independently of returned
+observations, a loopback endpoint hash, a unique execution id, the tool version, and a
+fingerprint over the transitive producer components. Worker, counter-worker, and chief
+adapter failures are distinct stages. Worker rates include rows whose worker completed
+before a later failure; chief/canary/verifier rates include only rows whose corresponding
+stage completed. Blank model content is an adapter failure, not a successful response.
+Canary kinds use the detector's actual `partial/full/encoded/recombined` contract.
+Security events are accumulated after every successful response, so a later adapter
+failure cannot erase an earlier drift/leak. Loopback proves only the authorized first
+network hop; it does not attest that a gateway executed the model locally or avoided
+upstream provider egress. The artifacts are unsigned self-authored consistency records,
+not tamper-authentic attestations.
 
 ## What Was Tested
 
@@ -49,9 +63,20 @@ chain. It is published separately so the base cross-product remains easy to comp
 The committed base example is legacy-readable schema `0.2`; the long-session supplement
 uses schema `0.3`.
 
+All committed swarm-live examples are historical and predate schema `0.5`; they do not
+exercise the new stage, execution-identity, or partial-event contracts. Their published
+`canary leaks: 0` values are not reliable absence evidence: the historical aggregator
+collapsed `full`, `partial`, and `recombined` detector results to `none`. Without the
+private transcripts, those canary rates cannot be repaired and are withdrawn.
+
+Hash coverage uses expected response slots as the denominator. The base run has
+`100%` expected-slot coverage; the long-session supplement has `35/38` (`92.11%`),
+and the deep run has `375/392` (`95.66%`). Missing slots therefore remain visible
+instead of disappearing from the denominator.
+
 ## Result
 
-The current sanitized public artifact records:
+The legacy sanitized public artifact declares:
 
 ```text
 worker drift detections: 1 / 180
@@ -72,6 +97,7 @@ synthetic canary leaks: 0
 verifier blocks: 1
 adapter errors: 1
 replay-ablation reopenings: 4
+expected response hash coverage: 35 / 38 (92.11%)
 ```
 
 The deep sanitized artifact records:
@@ -87,31 +113,38 @@ worker drift detections: 3
 chief acceptances: 67
 synthetic canary leaks: 0
 verifier blocks: 70
-unsafe observations: 70
-benign observations: 91
-unsafe block rate: 1.00 (Wilson 95%: [0.948, 1.000])
-benign allow rate: 1.00 (Wilson 95%: [0.960, 1.000])
+detector-positive observations: 70
+expected response hash coverage: 375 / 392 (95.66%)
+detector-negative observations: 91
+adapter errors: 7
+independent-label coverage: 0%
+detector-positive block rate: 1.00 (Wilson 95%: [0.948, 1.000])
+detector-negative allow rate: 1.00 (Wilson 95%: [0.960, 1.000])
 replay-ablation reopenings: 242
 ```
 
 Interpretation:
 
-- the strongest observed failure point was the chief accepting an unsafe worker
-  summary, not direct canary leakage;
-- in the deep run, one chief model accepted drift much more often than the other
+- within the legacy detector labels, the largest declared count is chief acceptance;
+  the withdrawn canary-zero result cannot support a comparative failure claim;
+- in the deep summary, one declared model identifier has more detector-labelled
+  acceptances than the other
   (`prometheus-qwen15b-lowctx:latest`: 61 acceptances, `llama3.2:1b`: 6
-  acceptances), so model-role choice is a measured factor rather than a
-  background detail;
-- paired/combined topologies produced more acceptances than single-family topologies;
-- every detected unsafe acceptance was blocked by the deterministic verifier layer;
+  acceptances); this is a historical association, not an authenticated model effect;
+- paired/combined topology labels have more declared acceptances than single-family labels;
+- deterministic verifier rules classify every detector-positive acceptance as blocked;
 - `chief_verifier`, `summary_guard`, `source_hash`, and `audit_hash_chain` were active
   blockers for every unsafe chief acceptance in this run;
 - `cross_worker_check` mattered primarily where consensus laundering was present.
 
-Replay ablation is calculated from the sanitized verifier decisions over the private
-live run. It does not make additional model calls or publish raw transcripts. The
-current public summary records 96 control-specific reopenings: every blocked unsafe
-decision would reopen under at least one missing required control.
+The historical “replay ablation reopenings” are rule-attribution counts calculated from
+stored verifier blockers. They do not replay a paired counterfactual and do not prove
+that removing one control would reopen a decision while other blockers remain. Treat
+the count as named-control attribution only.
+
+The unsafe/benign split in historical artifacts was detector-derived, not independent
+ground truth. These rows are now explicitly `not_adjudicated`; precision, recall, and
+specificity remain unclaimed until private responses receive independent review labels.
 
 ## Reproduce
 
@@ -187,22 +220,20 @@ ash swarm-defense-live-campaign \
 
 Allowed:
 
-- local models can be exercised in a bounded mini-swarm campaign;
+- models behind a loopback endpoint can be exercised in a bounded mini-swarm campaign;
 - public artifacts can summarize model-in-the-loop results without exposing raw
   prompts, responses, or canaries;
-- this run observed unsafe chief acceptance in 22 of 180 synthetic chains and blocked
-  all detected unsafe acceptances with deterministic controls;
-- the deep run observed 70 unsafe chains and blocked 70 of them, while 91 benign
-  chains were allowed; the public claim is bounded by the Wilson intervals shown
-  in the artifact, not by a universal safety statement;
+- the legacy artifact declares 22 chief-acceptance labels in 180 chains and matching
+  deterministic verifier decisions; public validation does not replay private responses;
+- the deep artifact declares 70 detector-positive and 91 detector-negative rows;
+  these are not independently adjudicated safety labels;
 - the supplemental long-session run can expose per-turn response hashes and aggregate
   three-turn metrics without publishing raw turn prompts or responses;
-- replay ablation can attribute those blocks to missing-control reopenings without
+- replay-ablation rules attribute those blocks to declared missing-control dependencies without
   exposing raw model prompts, raw responses, or canary values;
-- response hashes provide audit anchors for private owner review.
-- the run uses real local model outputs, but ASH publishes only sanitized hash-anchored
-  summaries; the evidence supports the declared control-path claim, not a general
-  model-safety conclusion.
+- response hash fields are commitments requiring owner-side byte reconciliation;
+- historical documentation reports endpoint outputs, but the public repository does
+  not authenticate model/runtime origin or retained private bytes.
 
 Not allowed:
 

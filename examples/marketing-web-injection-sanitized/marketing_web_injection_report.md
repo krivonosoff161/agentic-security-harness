@@ -59,9 +59,9 @@ an internal campaign strategy/contract into the chief model's final analysis.
 ## Non-Claims
 
 - No real contracts, business secrets, accounts, websites, or channels were used.
-- This offline campaign proves the controlled failure/defense contract, not internet-wide safety.
+- This executable specification reproduces its declared failure/defense branches; it is not internet-wide or empirical causal evidence.
 - A blocked synthetic campaign is not proof that an arbitrary production swarm is secure.
-- Response hashes prove artifact hygiene and replayability, not semantic truth by themselves.
+- Response hash fields are commitments. Without owner-side reconciliation they do not prove private-byte retention, replayability, origin, or semantic truth.
 
 Raw hostile pages, prompts, responses, and synthetic strategy values are
 private artifacts and are not part of this public summary.

@@ -67,7 +67,8 @@ The important evidence is the mode comparison:
 
 - naive mode shows the declared failure is reachable;
 - bounded mode blocks the declared unsafe paths without blocking benign work;
-- ablation mode reopens failures when responsible controls are removed.
+- ablation mode selects the generator's declared alternate branch when a required
+  control is removed; this is rule-derived attribution, not an empirical causal effect.
 
 ## Reproduce
 

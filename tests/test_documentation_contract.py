@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -87,7 +88,8 @@ def test_evidence_pack_format_documents_public_private_promotion() -> None:
         "private_transcript_sha256",
         "raw_private_material_committed",
         "This model is safe.",
-        "`local_empirical`",
+            "`local_empirical_unreconciled`",
+            "`local_empirical_reconciled`",
         "ash validate examples/",
         "Promotion checklist",
     ):
@@ -178,7 +180,7 @@ def test_status_and_authorization_docs_are_canonical() -> None:
     release_checklist = _read("docs/release-checklist.md")
 
     for phrase in (
-        "Shipped and verified",
+        "Shipped, historical, and documented status",
         "Experimental",
         "Planned, not shipped",
         "Current active work",
@@ -324,7 +326,9 @@ def test_toy_multi_agent_status_is_documented_as_shipped() -> None:
         "## Current active work", 1
     )[0]
     assert "toy multi-agent handoff adapter" not in planned_section
-    assert "toy-multi-agent" in current_state.split("## Shipped and verified", 1)[1]
+    assert "toy-multi-agent" in current_state.split(
+        "## Shipped, historical, and documented status", 1
+    )[1]
 
 
 def test_recovery_trust_gate_candidate_has_required_proposal_shape() -> None:
@@ -411,9 +415,10 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
     ):
         assert issue not in open_work
         assert issue in completed
-    assert "#87" in open_work
-    assert "#96" in open_work
-    assert "None currently tracked." not in open_work
+    for issue in ("#87", "#96", "#136", "#140"):
+        assert issue not in open_work
+        assert issue in completed
+    assert "No open product or research issues as of 2026-07-14." in open_work
     assert (
         "`ash evidence-quality` summarizes recorded external/local artifacts"
         in completed
@@ -424,7 +429,9 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
         "## Recently completed in this track", 1
     )[0]
     assert "#29" not in open_maintenance
-    assert "None currently tracked." in open_maintenance
+    for pull_request in ("#152", "#153", "#154", "#155"):
+        assert pull_request in open_maintenance
+    assert "maintenance PRs, not an active benchmark research roadmap" in open_maintenance
     assert "pending repository review/merge" not in tracker
 
 
@@ -489,6 +496,8 @@ def test_research_claims_registry_exists_and_has_required_structure() -> None:
         "executable_invariant",
         "synthetic_validation",
         "local_empirical",
+        "local_empirical_unreconciled",
+        "historical_local_empirical",
         "public_example",
         "planned",
         "superseded",
@@ -534,7 +543,7 @@ def test_research_claims_registry_exists_and_has_required_structure() -> None:
     )
 
 
-def test_small_model_swarm_handoff_claim_is_local_empirical_boundary() -> None:
+def test_small_model_swarm_handoff_claim_is_unverified_declaration() -> None:
     claims = _read("docs/research-claims.md")
     row = next(
         line
@@ -542,14 +551,15 @@ def test_small_model_swarm_handoff_claim_is_local_empirical_boundary() -> None:
         if line.startswith("| Small-model swarm handoff evidence quality |")
     )
 
-    assert "| `local_empirical` |" in row
+    assert "| `maintainer_declaration_unverified` |" in row
     assert "`public_example`" not in row
-    assert "Local scratch" in row
-    assert "not committed public evidence" in row
+    assert "Tracked maintainer pages only" in row
+    assert "versioned public result projection" in row
     assert "docs/local-swarm-real-model-evaluation.md" in row
-    assert "real local Ollama models" in row
-    assert "leaderboard" in row
-    assert "Live multi-agent runtime guarantee" in row
+    assert "Proof that a run occurred" in row
+    assert "reconciliation receipt" in row
+    assert "Public model benchmark finding" in row
+    assert "Live multi-agent guarantee" in row
     assert "examples/" not in row
 
 
@@ -581,9 +591,9 @@ def test_evidence_assurance_model_documents_campaign_metrics() -> None:
 
     for phrase in (
         "Private/Public Boundary",
-        "attack_block_rate = TP / unsafe_cases",
-        "benign_pass_rate = TN / safe_cases",
-        "control_effect = naive_swarm.failure_rate - bounded_swarm.failure_rate",
+        "attack_block_rate = fixture_TP / scenario_author_unsafe_cases",
+        "benign_pass_rate = fixture_TN / scenario_author_safe_cases",
+        "rule_derived_delta = naive_swarm.failure_rate - bounded_swarm.failure_rate",
         "usability_cost = bounded_swarm.false_block_rate - naive_swarm.false_block_rate",
         "ash evidence-campaign --write --out .internal/evidence-campaign/latest",
         "not a production safety proof",
@@ -639,7 +649,9 @@ def test_private_public_evidence_boundary_is_linked_and_specific() -> None:
 
     for phrase in (
         "Public artifacts do not include raw transcripts",
-        "public SHA-256 hash",
+        "SHA-256-shaped",
+        "does not prove that matching private bytes exist",
+        "owner-side reconciliation",
         "model names and runtime family labels",
         "worker/chief/runtime roles",
         "topology ids, scenario ids, pressure labels",
@@ -649,7 +661,8 @@ def test_private_public_evidence_boundary_is_linked_and_specific() -> None:
         "raw model responses and raw transcripts",
         "synthetic canary values",
         "local absolute paths",
-        "not a general model-safety conclusion",
+        "not empirical or",
+        "transcript-level proof",
     ):
         assert phrase in boundary
 
@@ -681,28 +694,52 @@ def test_live_mini_swarm_reproduce_command_pins_base_pressure_modes() -> None:
     assert "schema `0.3`" in live_doc
 
 
-def test_live_mini_swarm_claim_remains_local_empirical() -> None:
+def test_live_mini_swarm_claim_is_quarantined_as_historical() -> None:
     claims = _read("docs/research-claims.md")
     row = next(
         line
         for line in claims.splitlines()
-        if line.startswith("| Sanitized local-model mini-swarm campaign |")
+        if line.startswith("| Historical loopback-endpoint mini-swarm campaign |")
     )
     closure = next(
         line for line in claims.splitlines() if line.startswith("| SEM-4 |")
     )
 
-    assert "| `local_empirical` |" in row
-    assert "`public_example`" not in row
-    assert "committed sanitized public examples" in row
-    assert "docs/private-public-evidence-boundary.md" in row
-    assert "`local_empirical` with committed sanitized public examples" in closure
-    assert "public_example" not in closure
+    assert "| `historical_local_empirical` |" in row
+    assert "Canary-zero claims are withdrawn" in row
+    assert "current `0.5` has no committed execution" in row
+    assert "`historical_local_empirical`" in closure
+    assert "predate the current contract" in closure
+
+
+def test_legacy_live_examples_disclose_structural_status_before_metrics() -> None:
+    for path in (
+        "examples/swarm-defense-live-sanitized/swarm_defense_live_report.md",
+        "examples/swarm-defense-live-long-session-sanitized/swarm_defense_live_report.md",
+        "examples/swarm-defense-live-deep-sanitized/swarm_defense_live_report.md",
+        "examples/marketing-web-live-sanitized/marketing_web_live_report.md",
+    ):
+        opening = "\n".join(_read(path).splitlines()[:8]).lower()
+        assert "historical" in opening
+        assert "structural-only" in opening
+        assert "public validation does not replay private" in opening
+
+    examples_index = _read("examples/README.md")
+    assert "legacy structural snapshots" in examples_index.splitlines()[0].lower()
+
+
+def test_contour_headline_count_matches_committed_rule_derived_metric() -> None:
+    claims = _read("docs/research-claims.md")
+    showcase = _read("docs/showcase/index.md")
+    assert "112 rule-derived ablation acceptances" in claims
+    assert "112 rule-derived ablation acceptances" in showcase
 
 
 def test_research_claims_registry_status_definitions_are_unique() -> None:
     claims = _read("docs/research-claims.md")
-    definitions = claims.split("## Status definitions", 1)[1].split("## Claim registry", 1)[0]
+    definitions = claims.split("## Claim maturity/status definitions", 1)[1].split(
+        "## Claim registry", 1
+    )[0]
 
     statuses = (
         "hypothesis",
@@ -710,6 +747,8 @@ def test_research_claims_registry_status_definitions_are_unique() -> None:
         "executable_invariant",
         "synthetic_validation",
         "local_empirical",
+        "local_empirical_unreconciled",
+        "historical_local_empirical",
         "public_example",
         "planned",
         "superseded",
@@ -915,7 +954,7 @@ def test_small_model_swarm_handoff_track_is_bounded_not_shipped_profile() -> Non
     evidence_quality = _read("docs/evidence-quality.md")
 
     assert "Small-model swarm handoff" in workflow
-    assert "local-empirical only" in workflow
+    assert "unverified maintainer declaration" in workflow
     assert "not model safety" in workflow
     assert "does not orchestrate a swarm" in workflow
     assert "not yet a named runnable profile" in profiles
@@ -1025,3 +1064,154 @@ def test_no_mathematically_proven_overclaim_in_docs() -> None:
     forbidden_section = theory_readme.split("no theory doc may claim", 1)[0]
     assert "what does not belong" in forbidden_section
     assert "mathematically proven" in theory_readme
+
+
+def test_research_problem_map_declares_evidence_strength_per_contour() -> None:
+    problem_map = _read("docs/research-problem-map.md")
+
+    assert "What the current evidence supports" in problem_map
+    assert "| What it proves |" not in problem_map
+    for phrase in (
+        "executable specification",
+        "mark declared naive branches as leaking",
+        "rule-encoded dependencies",
+        "legacy detector observations remain historical",
+        "| Evidence classification |",
+        "Evidence classification:",
+        "evidence class, schema state, causal scope",
+        "validation status alone",
+    ):
+        assert phrase in problem_map
+
+    for overclaim in (
+        "Drift can be modeled, detected, and bounded",
+        "Worker-to-chief propagation can be attributed",
+        "with replay-ablation attribution",
+    ):
+        assert overclaim not in problem_map
+
+
+def test_showcase_evidence_map_separates_rules_history_and_validation() -> None:
+    evidence_map = _read("docs/showcase/evidence-map.md")
+    compact_map = " ".join(evidence_map.split())
+    showcase_index = _read("docs/showcase/index.md")
+
+    for phrase in (
+        "private-byte and execution-origin reconciliation is absent",
+        "The legacy artifact retains declared detector labels",
+        "legacy artifact retains internally consistent",
+        "rule-derived control-dependency counts",
+        "legacy local-model summaries receive limited structural validation",
+    ):
+        assert phrase in compact_map
+
+    assert "research-problem-map.md" in evidence_map
+    assert "research-problem-map.md" in showcase_index
+    assert "hash commitments require separate owner-side reconciliation" in showcase_index
+    assert "response hashes anchor owner-side replay" not in showcase_index
+
+    for text in (evidence_map, showcase_index):
+        assert "evidence-status-registry.json" in text
+
+    assert "ash validate docs/evidence-status-registry.json" in evidence_map
+
+    for overclaim in (
+        "Private local-model pressure runs can be summarized",
+        "produced detector-observed signals",
+        "cannot turn disagreement into acceptance",
+        "reports rule-derived ablation reopenings",
+        "`ash validate` is an artifact-integrity check",
+    ):
+        assert overclaim not in evidence_map
+
+
+def test_machine_readable_evidence_registry_is_linked_from_public_entrypoints() -> None:
+    evidence_classes = _read("docs/evidence-classes.md")
+    evidence_pack = _read("docs/evidence-pack-format.md")
+    project_map = _read("docs/project-map.md")
+    readme = _read("README.md")
+
+    for text in (evidence_classes, evidence_pack, project_map, readme):
+        assert "evidence-status-registry.json" in text
+
+    for text in (evidence_classes, evidence_pack, readme):
+        assert "ash validate docs/evidence-status-registry.json" in text
+
+    assert "Publication as a public example does not" in evidence_pack
+    assert "unverified-private-projection" in evidence_classes
+
+    evidence_map = _read("docs/showcase/evidence-map.md")
+    assert "unverified-private-projection" in evidence_map
+    assert "--format json" in evidence_map
+
+
+def test_trading_history_and_identity_scope_are_not_promoted() -> None:
+    observation = _read("docs/trading-bot-real-artifact-observation-2026-07-03.md")
+    experiment = _read("docs/trading-bot-controlled-experiment-plan-2026-07-03.md")
+    profile = _read("docs/trading-bot-paper-stand-target-profile.md")
+
+    assert "Historical ASH gate output" in observation
+    assert "The current ASH evidence-quality gate passes" not in observation
+    assert "## Historical Gate Result" in experiment
+    assert "## Current Gate Result" not in experiment
+    assert "requires cross-artifact identity-chain consistency" in profile
+    assert "requires a verified causal chain" not in profile
+
+
+def test_artifact_authenticity_design_separates_trust_domains_and_non_claims() -> None:
+    design = _read("docs/artifact-authenticity-design.md")
+    current_state = _read("docs/current-state.md")
+    project_map = _read("docs/project-map.md")
+
+    for phrase in (
+        "Public release and deterministic evidence bundles",
+        "Private/local empirical reconciliation",
+        "The harness must never generate an \"owner\" signature for itself.",
+        "A transparency-log inclusion time",
+        "does not authenticate the run's self-declared `created_at`",
+        "no signing authority or external workflow change is implemented",
+    ):
+        assert phrase in design
+
+    assert "GitHub Actions workload identity plus GitHub artifact attestations/Sigstore" in design
+    assert "No artifact may be promoted to `signed_attested`" in design
+    assert "https://slsa.dev/provenance/v1" in design
+    assert "signing/workload identity and provenance `builder.id` pair" in design
+    assert "they are not required to be distinct identities" in design
+    assert "SLSA v1.2" in design
+    assert "slsa.dev/spec/v1.0" not in design
+    assert "artifact-authenticity-design.md" in project_map
+    assert "Current release/evidence artifacts are content-bound but unsigned" in current_state
+
+
+def test_security_audit_causal_map_covers_every_task_finding_and_open_boundary() -> None:
+    causal_map = _read("docs/security-audit-causal-map-2026-07-15.md")
+    project_map = _read("docs/project-map.md")
+    readme = _read("README.md")
+    mapped_ids = re.findall(
+        r"^\| `((?:TB-AUD|ASH-TB|ASH-AUD)-\d+)` \|",
+        causal_map,
+        flags=re.MULTILINE,
+    )
+    expected_ids = {
+        *(f"TB-AUD-{number:02d}" for number in range(1, 12)),
+        "ASH-TB-01",
+        *(f"ASH-AUD-{number:02d}" for number in range(2, 40)),
+    }
+
+    assert len(expected_ids) == 50
+    assert set(mapped_ids) == expected_ids
+    assert len(mapped_ids) == len(set(mapped_ids))
+
+    for phrase in (
+        "not a completion or security-certification claim",
+        "No trading target module",
+        "Current signed evidence",
+        "Current empirical campaign",
+        "Static ASH repairs cannot close defects in a read-only target",
+        "The audit is not complete until every open/partial row",
+    ):
+        assert phrase in causal_map
+
+    for text in (project_map, readme):
+        assert "security-audit-causal-map-2026-07-15.md" in text

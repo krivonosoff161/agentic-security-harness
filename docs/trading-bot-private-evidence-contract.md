@@ -133,9 +133,16 @@ ash trading-stand --mode authorized-paper --target-path C:/Users/krivo/trading-b
 evidence root. The command refuses paths outside
 `.internal/trading-bot-paper-stand/issue-136/` and refuses to overwrite an
 existing template.
+All harness-side private fixture writers require those root parts in contiguous order, resolve
+existing ancestors before creating directories, recheck the resolved parent, and create the final
+JSON file exclusively. A competing file is preserved rather than truncated. The caller remains
+responsible for ensuring that a correctly shaped root outside this repository is actually private
+and ignored by its own version-control policy.
 
 `sanitize-fixture` reads owner-retained private fixture rows and emits only
-catalog-approved public fields plus hash anchors. It must not copy raw vectors,
+catalog-approved public fields plus a hash of the sanitized public projection.
+That hash does not depend on private values and is not a private-source
+reconciliation receipt. The sanitizer must not copy raw vectors,
 raw prompts, raw target rows, provider transcripts, or private calculations into
 the public summary.
 
@@ -144,6 +151,7 @@ target code.
 
 The stricter controlled-experiment row contract is documented in
 [trading-bot-private-experiment-row-contract.md](trading-bot-private-experiment-row-contract.md).
-Claimed real target-observation rows must keep raw vectors, agent scripts,
-target rows, traces, and private calculations in filled private slots under
-`.internal/`; public docs may only carry sanitized counts and hash anchors.
+Filled target-observation rows must keep raw vectors, agent scripts, target rows,
+traces, and private calculations in private slots under `.internal/`. They remain
+self-declared until a separate observation-authority receipt validates; public
+docs may carry only sanitized counts and explicitly scoped public hashes.

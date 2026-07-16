@@ -120,4 +120,4 @@ Markdown is for humans. JSON is the source of truth.
 
 The project does not yet ship an auto-generated multi-run public dashboard. Until issue
 [#23](https://github.com/krivonosoff161/agentic-security-harness/issues/23) is closed,
-showcase pages must be treated as curated views over validated artifacts.
+showcase pages must be treated as curated views over current content-bound validated artifacts.

@@ -18,6 +18,11 @@ from agentic_security_harness.models import Target
 from agentic_security_harness.patterns import DefensivePattern, seed_patterns
 from agentic_security_harness.runner import HarnessRunner
 from agentic_security_harness.safe_io import write_text_artifact
+from agentic_security_harness.safe_markdown import (
+    markdown_code_span,
+    markdown_prose,
+    markdown_table_cell,
+)
 from agentic_security_harness.scenarios import (
     _DEFAULT_MAX_VARIANTS,
     ScenarioVariant,
@@ -287,9 +292,10 @@ def _build_matrix_md(report: MatrixReport, scorecard: ScorecardSummary) -> str:
     lines: list[str] = [
         "# Agentic Security Harness - matrix report",
         "",
-        f"Target: `{report.target_name}`",
+        f"Target: {markdown_code_span(report.target_name)}",
         "",
-        f"Scenario: `{report.scenario_id}` - {report.scenario_title}",
+        f"Scenario: {markdown_code_span(report.scenario_id)} - "
+        f"{markdown_prose(report.scenario_title)}",
         "",
         "## Overview",
         "",
@@ -317,8 +323,8 @@ def _build_matrix_md(report: MatrixReport, scorecard: ScorecardSummary) -> str:
         if len(knobs_str) > 50:
             knobs_str = knobs_str[:47] + "..."
         lines.append(
-            f"| `{v.variant_id}` | {knobs_str} | {v.total_traces} "
-            f"| {n} | {top_sev} |"
+            f"| {markdown_code_span(v.variant_id)} | {markdown_table_cell(knobs_str)} | "
+            f"{v.total_traces} | {n} | {markdown_table_cell(top_sev)} |"
         )
 
     # Pattern stability table
@@ -346,7 +352,10 @@ def _build_matrix_md(report: MatrixReport, scorecard: ScorecardSummary) -> str:
             label = "variant_sensitive"
         else:
             label = "pass"
-        lines.append(f"| `{pid}` | {seen} | {failed} | {label} |")
+        lines.append(
+            f"| {markdown_code_span(pid)} | {seen} | {failed} | "
+            f"{markdown_table_cell(label)} |"
+        )
 
     # Control family table
     if s.findings_by_control_family:
@@ -369,7 +378,7 @@ def _build_matrix_md(report: MatrixReport, scorecard: ScorecardSummary) -> str:
             s.findings_by_control_family.items(), key=lambda x: -x[1]
         ):
             n_var = len(family_variants.get(family, set()))
-            lines.append(f"| {family} | {count} | {n_var} |")
+            lines.append(f"| {markdown_table_cell(family)} | {count} | {n_var} |")
 
     # Next reading
     lines += [

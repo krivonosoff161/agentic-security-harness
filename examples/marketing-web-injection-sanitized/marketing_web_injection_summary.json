@@ -944,8 +944,8 @@
   },
   "non_claims": [
     "No real contracts, business secrets, accounts, websites, or channels were used.",
-    "This offline campaign proves the controlled failure/defense contract, not internet-wide safety.",
+    "This executable specification reproduces its declared failure/defense branches; it is not internet-wide or empirical causal evidence.",
     "A blocked synthetic campaign is not proof that an arbitrary production swarm is secure.",
-    "Response hashes prove artifact hygiene and replayability, not semantic truth by themselves."
+    "Response hash fields are commitments. Without owner-side reconciliation they do not prove private-byte retention, replayability, origin, or semantic truth."
   ]
 }

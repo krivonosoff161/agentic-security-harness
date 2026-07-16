@@ -58,7 +58,7 @@ The local fake-server path is the no-cost external-mode smoke test:
 ```bash
 python examples/fake_openai_server.py
 ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary
-ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --out reports/e2e
+ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --execute --out reports/e2e
 ash validate reports/e2e
 ```
 

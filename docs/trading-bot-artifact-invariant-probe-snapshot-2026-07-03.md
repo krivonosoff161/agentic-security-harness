@@ -5,6 +5,11 @@
 > Scope: public-safe artifact-invariant observation for issue
 > [#136](https://github.com/krivonosoff161/agentic-security-harness/issues/136).
 >
+> Historical status (2026-07-15): the seven `pass` labels below are withdrawn.
+> They were inferred from field presence and safe-shaped bounded values, which
+> do not prove behavioral invariants. Current semantics return `inconclusive`
+> unless an explicit unsafe bounded value supports a finding.
+>
 > Command:
 >
 > ```bash
@@ -57,10 +62,11 @@ The probe did not:
 
 ## Interpretation
 
-The current paper stand has enough existing runtime artifacts to support a
-schema-level invariant pass for all seven mapped scenarios. This means the
-observed paper artifacts preserve the basic non-live boundaries, provenance
-anchors, bounded runtime action, and audit handles expected by ASH.
+The snapshot shows that the expected schema fields and bounded values were
+present in the historical artifacts. It does not prove that the seven
+behavioral invariants held; the result table is retained only as historical
+output, and a current clean schema-only probe would classify all seven rows as
+`inconclusive`.
 
 This is deliberately weaker than an adversarial benchmark pass. The next layer
 must still run or construct private paper-only invariant fixtures that exercise

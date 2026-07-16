@@ -7,15 +7,28 @@ certification. Per-pattern outcomes are read from the authoritative JSON artifac
 
 from __future__ import annotations
 
+import hashlib
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from agentic_security_harness.html_report import detect_kind
-from agentic_security_harness.safe_io import write_text_artifact
+from agentic_security_harness.run_manifest import build_manifest, write_run_manifest
+from agentic_security_harness.safe_io import (
+    atomic_evidence_bundle,
+    require_fresh_output_dir,
+    write_text_artifact,
+)
+from agentic_security_harness.safe_markdown import (
+    markdown_code_span,
+    markdown_prose,
+    markdown_table_cell,
+)
 from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
+from agentic_security_harness.validation import validate_artifact_path
 
 _PASS = "pass"
 
@@ -74,6 +87,8 @@ def _classify(
     if in_right and not in_left:
         return "only_right"
     if ls in _NON_DECISIVE or rs in _NON_DECISIVE:
+        if ls in {"error", "adapter_error"} and rs in {"error", "adapter_error"}:
+            return "stable_error"
         if ls == rs:
             return "stable_error" if ls in {"error", "adapter_error"} else "stable_inconclusive"
         return "inconclusive_error_drift"
@@ -103,6 +118,19 @@ class RunDiffEntry(BaseModel):
     change: str  # one of CHANGE_CLASSES
 
 
+class RunDiffSource(BaseModel):
+    """Portable commitment and validation scope for one diff input bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = ""
+    manifest_schema_version: str = ""
+    manifest_sha256: str = ""
+    artifact_validation: str = ""
+    expectations_ok: bool = True
+    origin_authentication: str = "unsigned"
+
+
 class RunDiff(BaseModel):
     """Aggregated diff between two run directories of the same kind."""
 
@@ -112,6 +140,8 @@ class RunDiff(BaseModel):
     kind: str
     left_label: str
     right_label: str
+    left_source: RunDiffSource = Field(default_factory=RunDiffSource)
+    right_source: RunDiffSource = Field(default_factory=RunDiffSource)
     left_summary: dict[str, str | int] = Field(default_factory=dict)
     right_summary: dict[str, str | int] = Field(default_factory=dict)
     finding_fixed: int = 0
@@ -261,15 +291,41 @@ def _outcomes(
     return _run_outcomes(run_dir)
 
 
-def _label(run_dir: Path) -> str:
-    manifest = _load(run_dir / "run_index.json")
-    if isinstance(manifest, dict) and manifest.get("run_id"):
-        return str(manifest["run_id"])
-    return run_dir.name
+def _validated_source(run_dir: Path) -> RunDiffSource:
+    """Validate a diff input and retain a portable commitment to its manifest."""
+
+    manifest_path = run_dir / "run_index.json"
+    if not manifest_path.is_file():
+        raise ValueError(
+            f"cannot diff {run_dir.as_posix()}: missing run_index.json validation boundary"
+        )
+    validation = validate_artifact_path(run_dir)
+    if not validation.integrity_ok:
+        details = "; ".join(validation.errors) or "artifact integrity validation failed"
+        raise ValueError(
+            f"cannot diff unvalidated artifacts under {run_dir.as_posix()}: {details}"
+        )
+    manifest = _load(manifest_path)
+    if not isinstance(manifest, dict) or not manifest.get("run_id"):
+        raise ValueError(f"cannot diff {run_dir.as_posix()}: invalid run_index.json")
+    schema_version = str(manifest.get("schema_version") or "")
+    return RunDiffSource(
+        run_id=str(manifest["run_id"]),
+        manifest_schema_version=schema_version,
+        manifest_sha256=hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+        artifact_validation=(
+            "current_content_bound"
+            if schema_version == SCHEMA_VERSIONS["run_manifest"]
+            else "legacy_structural"
+        ),
+        expectations_ok=validation.expectations_ok,
+    )
 
 
 def diff_runs(left_dir: Path, right_dir: Path) -> RunDiff:
     """Diff two run directories of the same kind. Raises ValueError if incompatible."""
+    left_source = _validated_source(left_dir)
+    right_source = _validated_source(right_dir)
     left_kind = detect_kind(left_dir)
     right_kind = detect_kind(right_dir)
     if left_kind != right_kind:
@@ -301,8 +357,10 @@ def diff_runs(left_dir: Path, right_dir: Path) -> RunDiff:
 
     return RunDiff(
         kind=left_kind,
-        left_label=_label(left_dir),
-        right_label=_label(right_dir),
+        left_label=left_source.run_id,
+        right_label=right_source.run_id,
+        left_source=left_source,
+        right_source=right_source,
         left_summary=left_summary,
         right_summary=right_summary,
         finding_fixed=counts["finding_fixed"],
@@ -336,10 +394,10 @@ def _diff_md(diff: RunDiff) -> str:
     lines = [
         "# Agentic Security Harness - run diff",
         "",
-        f"Kind: `{diff.kind}`",
+        f"Kind: {markdown_code_span(diff.kind)}",
         "",
-        f"- Left: `{diff.left_label}`",
-        f"- Right: `{diff.right_label}`",
+        f"- Left: {markdown_code_span(diff.left_label)}",
+        f"- Right: {markdown_code_span(diff.right_label)}",
         "",
         "## Summary",
         "",
@@ -351,7 +409,10 @@ def _diff_md(diff: RunDiff) -> str:
         "| Change | Meaning | Count |",
         "|---|---|---|",
     ]
-    lines += [f"| `{c}` | {CHANGE_MEANINGS[c]} | {counts[c]} |" for c in CHANGE_CLASSES]
+    lines += [
+        f"| {markdown_code_span(c)} | {CHANGE_MEANINGS[c]} | {counts[c]} |"
+        for c in CHANGE_CLASSES
+    ]
     lines += [
         "",
         "## Configuration",
@@ -362,7 +423,9 @@ def _diff_md(diff: RunDiff) -> str:
     keys = sorted(set(diff.left_summary) | set(diff.right_summary))
     for k in keys:
         lines.append(
-            f"| {k} | {diff.left_summary.get(k, '')} | {diff.right_summary.get(k, '')} |"
+            f"| {markdown_table_cell(k)} | "
+            f"{markdown_table_cell(diff.left_summary.get(k, ''))} | "
+            f"{markdown_table_cell(diff.right_summary.get(k, ''))} |"
         )
     changed = [e for e in diff.entries if e.change in _NOTEWORTHY]
     if changed:
@@ -376,14 +439,19 @@ def _diff_md(diff: RunDiff) -> str:
                 if e.right_severity else e.right_status
             )
             lines.append(
-                f"| `{e.pattern_id}` | {e.control_family} | {ls} | {rs} | {e.change} |"
+                f"| {markdown_code_span(e.pattern_id)} | "
+                f"{markdown_table_cell(e.control_family)} | {markdown_table_cell(ls)} | "
+                f"{markdown_table_cell(rs)} | {markdown_table_cell(e.change)} |"
             )
-    lines += ["", f"> {diff.note}", ""]
+    lines += ["", f"> {markdown_prose(diff.note)}", ""]
     return "\n".join(lines)
 
 
+@atomic_evidence_bundle("out_dir")
 def write_run_diff(diff: RunDiff, out_dir: Path) -> dict[str, Path]:
-    """Write run_diff.json and run_diff.md into ``out_dir`` (LF newlines)."""
+    """Write a content-bound run-diff bundle into ``out_dir`` (LF newlines)."""
+
+    require_fresh_output_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     json_path = out_dir / "run_diff.json"
     md_path = out_dir / "run_diff.md"
@@ -392,4 +460,28 @@ def write_run_diff(diff: RunDiff, out_dir: Path) -> dict[str, Path]:
         json.dumps(diff.model_dump(mode="json"), indent=2) + "\n",
     )
     write_text_artifact(md_path, _diff_md(diff))
-    return {"run_diff_json": json_path, "run_diff_md": md_path}
+    manifest = build_manifest(
+        "run_diff",
+        out_dir,
+        target=f"{diff.left_label} vs {diff.right_label}",
+        scenario=diff.kind,
+        variants=[diff.left_label, diff.right_label],
+        outcomes={change: getattr(diff, change) for change in CHANGE_CLASSES},
+        metadata={
+            "left_manifest_sha256": diff.left_source.manifest_sha256,
+            "right_manifest_sha256": diff.right_source.manifest_sha256,
+            "left_artifact_validation": diff.left_source.artifact_validation,
+            "right_artifact_validation": diff.right_source.artifact_validation,
+            "left_expectations_ok": diff.left_source.expectations_ok,
+            "right_expectations_ok": diff.right_source.expectations_ok,
+            "origin_authentication": "unsigned",
+        },
+        artifacts=["run_diff.json", "run_diff.md"],
+        created_at=datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    )
+    manifest_path = write_run_manifest(out_dir, manifest)
+    return {
+        "run_diff_json": json_path,
+        "run_diff_md": md_path,
+        "run_index": manifest_path,
+    }

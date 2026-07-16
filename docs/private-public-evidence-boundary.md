@@ -52,13 +52,25 @@ sanitized, validated, and explicitly promoted into `examples/`.
 
 ## Hash Anchoring
 
-Public artifacts do not include raw transcripts, but every private response is anchored
-by a public SHA-256 hash for owner-side audit replay.
+Public artifacts do not include raw transcripts. Some rows carry a SHA-256-shaped
+owner-side commitment intended for later reconciliation with retained private bytes.
 
-That hash anchor proves public/private artifact hygiene: the public row can be matched
-to a private response retained by the owner. It does not prove that the response is
-semantically correct, that the model is safe, or that another runtime will reproduce the
-same text.
+The public hash alone does not prove that matching private bytes exist, that they were
+produced by the declared model/runtime, or that the unverified detector label is correct.
+Only a separate owner-side reconciliation over the exact persisted representation can
+show byte equality; authorship still requires an external trust root or signature. The
+implemented v0.1 owner-side contract rebuilds each supported public campaign projection,
+binds the exact public JSON bytes with SHA-256, and commits to the exact private JSON bytes
+with HMAC-SHA-256 under a non-published owner key. A public-only receipt check intentionally
+reports private replay and origin authentication as unverified.
+The current owner-side replay additionally requires the producer-declared matrix to be complete,
+checks supported private schema versions and adapter-error ordering, and recomputes every retained
+raw-text hash used by the supported public projection. It cannot replay the raw endpoint behind
+`endpoint_sha256`, prove which implementation or model executed, or independently recalculate
+detector/canary classifications whose full inputs are not retained. Those remain explicit
+limitations even when byte reconciliation succeeds.
+The release-signing and private-reconciliation trust domains must remain separate; see
+[Artifact Authenticity Trust-Root Design](artifact-authenticity-design.md).
 
 ## Claim Levels
 
@@ -67,12 +79,13 @@ Use this language consistently:
 | Evidence class | Publication state | What it supports | What it does not support |
 |---|---|---|---|
 | Deterministic public example | Committed under `examples/` | Reproducible synthetic control behavior and artifact validation. | Production safety or model safety. |
-| Local empirical summary | Sanitized public example plus private raw run | Real local model outputs were exercised under the declared caps and summarized safely. | Leaderboard, CVE, universal model vulnerability, or exhaustive attack coverage. |
+| Reconciled local empirical summary | Sanitized public example plus validated private bundle and reconciliation receipt | The supplied persisted bytes reproduce the public projection and its retained raw-text hash bindings for the complete declared matrix. | Detector correctness, endpoint/model/implementation identity without independent evidence, model-execution locality without attestation, authorship without a trust root, leaderboard, CVE, or exhaustive coverage. |
+| Historical detector-observation summary | Legacy sanitized public example without current private-bundle reconciliation | Declared rows, hashes, and aggregates remain readable under limited structural checks. | Current empirical evidence, private-byte retention, detector correctness, model locality, or authenticity. |
 | Local scratch | Ignored `.internal/` or `reports/` only | Owner-side calculation and debugging. | Public evidence claim. |
 
-The live mini-swarm campaign uses real local model outputs, but ASH publishes only
-sanitized hash-anchored summaries. The evidence supports the declared control-path
-claim, not a general model-safety conclusion.
+The committed mini-swarm examples are historical detector-observation summaries under
+legacy schemas. Current public validation does not replay their private bytes, and the
+current live schema has no committed execution.
 
 ## Reviewer Workflow
 
@@ -86,9 +99,14 @@ ash validate examples/swarm-defense-live-deep-sanitized
 ash validate examples/marketing-web-live-sanitized
 ```
 
-For owner-side replay, compare the public response hashes with the private raw run kept
-outside git. If the private run is unavailable, the public artifact remains an aggregate
-validated summary, not a transcript-level proof.
+For owner-side reconciliation, use `create_reconciliation_receipt` on the exact persisted
+private JSON under `.internal/` and the corresponding public summary, then independently
+replay it with `verify_owner_reconciliation`. Keep the HMAC key outside the receipt and do
+not reuse it as a signing or trading-authorization key. The v0.1 receipt records
+`trusted_time=not_recorded`; it must not be described as dated or authenticated until the
+separate signer/trusted-time policy is implemented. If the private bundle, HMAC key, or
+receipt is unavailable, the public artifact remains a structural aggregate, not empirical or
+transcript-level proof.
 
 ## Non-Claims
 

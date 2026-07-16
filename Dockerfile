@@ -14,10 +14,9 @@ COPY pyproject.toml README.md LICENSE NOTICE ./
 COPY requirements/runtime.txt ./requirements/runtime.txt
 COPY src ./src
 COPY examples ./examples
+ENV PYTHONPATH=/app/src
 RUN python -m pip install --no-cache-dir --require-hashes -r requirements/runtime.txt \
     && python -c "import agentic_security_harness as a; print('installed', a.__version__)"
-
-ENV PYTHONPATH=/app/src
 
 # A non-root user; /work is a writable mount point for run artifacts.
 RUN useradd --create-home --uid 10001 ash && mkdir -p /work && chown ash:ash /work

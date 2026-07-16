@@ -25,17 +25,17 @@ def _pattern_id_from_request(req: object) -> str:
 def _mock_external_open(req: object, *args: object, **kwargs: object) -> MagicMock:
     pattern_id = _pattern_id_from_request(req)
     resp = MagicMock()
-    content = json.dumps({
-        "pattern_id": pattern_id,
-        "decision": "block",
-        "boundary_assertion": "preserve_boundary",
-        "reason": "boundary preserved",
-        "control_family": _FAMILY_MAP.get(pattern_id, "data_boundary"),
-        "would_preserve_boundary": True,
-    })
-    resp.read.return_value = json.dumps(
-        {"choices": [{"message": {"content": content}}]}
-    ).encode()
+    content = json.dumps(
+        {
+            "pattern_id": pattern_id,
+            "decision": "block",
+            "boundary_assertion": "preserve_boundary",
+            "reason": "boundary preserved",
+            "control_family": _FAMILY_MAP.get(pattern_id, "data_boundary"),
+            "would_preserve_boundary": True,
+        }
+    )
+    resp.read.return_value = json.dumps({"choices": [{"message": {"content": content}}]}).encode()
     resp.__enter__ = lambda s: s
     resp.__exit__ = MagicMock(return_value=False)
     return resp
@@ -56,15 +56,20 @@ def test_e2e_run_validate_report_pipeline(tmp_path: Path) -> None:
 def test_e2e_compare_validate_report_pipeline(tmp_path: Path) -> None:
     out = tmp_path / "comparison"
 
-    assert cli.main([
-        "compare",
-        "--baseline",
-        "demo-agent",
-        "--protected",
-        "protected-demo-agent",
-        "--out",
-        str(out),
-    ]) == 0
+    assert (
+        cli.main(
+            [
+                "compare",
+                "--baseline",
+                "demo-agent",
+                "--protected",
+                "protected-demo-agent",
+                "--out",
+                str(out),
+            ]
+        )
+        == 0
+    )
     assert cli.main(["validate", str(out)]) == 0
     assert cli.main(["report", "--root", str(out)]) == 0
 
@@ -75,15 +80,20 @@ def test_e2e_compare_validate_report_pipeline(tmp_path: Path) -> None:
 def test_e2e_matrix_validate_report_pipeline(tmp_path: Path) -> None:
     out = tmp_path / "matrix"
 
-    assert cli.main([
-        "run-matrix",
-        "--target",
-        "mock",
-        "--scenario",
-        "data-boundary",
-        "--out",
-        str(out),
-    ]) == 0
+    assert (
+        cli.main(
+            [
+                "run-matrix",
+                "--target",
+                "mock",
+                "--scenario",
+                "data-boundary",
+                "--out",
+                str(out),
+            ]
+        )
+        == 0
+    )
     assert cli.main(["validate", str(out)]) == 0
     assert cli.main(["report", "--root", str(out)]) == 0
 
@@ -95,18 +105,27 @@ def test_e2e_matrix_validate_report_pipeline(tmp_path: Path) -> None:
 def test_e2e_external_validate_report_pipeline(tmp_path: Path) -> None:
     out = tmp_path / "external"
 
-    with patch("urllib.request.urlopen", side_effect=_mock_external_open):
-        assert cli.main([
-            "run-external",
-            "--base-url",
-            "http://localhost:8000/v1",
-            "--model",
-            "fake-model",
-            "--scenario",
-            "data-boundary",
-            "--out",
-            str(out),
-        ]) == 0
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_external_open,
+    ):
+        assert (
+            cli.main(
+                [
+                    "run-external",
+                    "--base-url",
+                    "http://localhost:8000/v1",
+                    "--model",
+                    "fake-model",
+                    "--scenario",
+                    "data-boundary",
+                    "--execute",
+                    "--out",
+                    str(out),
+                ]
+            )
+            == 0
+        )
 
     assert cli.main(["validate", str(out)]) == 0
     assert cli.main(["report", "--root", str(out)]) == 0

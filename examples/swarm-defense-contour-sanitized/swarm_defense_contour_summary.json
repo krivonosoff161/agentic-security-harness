@@ -1,78 +1,80 @@
 {
+  "causal_scope": "rule_derived_control_attribution",
   "claim_boundary": "This contour models four synthetic local-swarm failure families and their combinations. Public artifacts contain declared topology, deterministic contract rows, and aggregate metrics only; raw local-model transcripts, synthetic canaries, and private calculations stay under .internal/.",
   "control_effects": [
     {
       "ablation_acceptances": 14,
       "bounded_acceptances": 0,
       "control_id": "canonical_state",
-      "interpretation": "primary control: disabling this control reopens every declared dependent topology",
+      "interpretation": "rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled",
       "required_by_topologies": 14
     },
     {
       "ablation_acceptances": 8,
       "bounded_acceptances": 0,
       "control_id": "transition_table",
-      "interpretation": "primary control: disabling this control reopens every declared dependent topology",
+      "interpretation": "rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled",
       "required_by_topologies": 8
     },
     {
       "ablation_acceptances": 12,
       "bounded_acceptances": 0,
       "control_id": "source_hash",
-      "interpretation": "primary control: disabling this control reopens every declared dependent topology",
+      "interpretation": "rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled",
       "required_by_topologies": 12
     },
     {
       "ablation_acceptances": 12,
       "bounded_acceptances": 0,
       "control_id": "worker_attestation",
-      "interpretation": "primary control: disabling this control reopens every declared dependent topology",
+      "interpretation": "rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled",
       "required_by_topologies": 12
     },
     {
       "ablation_acceptances": 12,
       "bounded_acceptances": 0,
       "control_id": "summary_guard",
-      "interpretation": "primary control: disabling this control reopens every declared dependent topology",
+      "interpretation": "rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled",
       "required_by_topologies": 12
     },
     {
       "ablation_acceptances": 15,
       "bounded_acceptances": 0,
       "control_id": "chief_verifier",
-      "interpretation": "primary control: disabling this control reopens every declared dependent topology",
+      "interpretation": "rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled",
       "required_by_topologies": 15
     },
     {
       "ablation_acceptances": 8,
       "bounded_acceptances": 0,
       "control_id": "cross_worker_check",
-      "interpretation": "primary control: disabling this control reopens every declared dependent topology",
+      "interpretation": "rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled",
       "required_by_topologies": 8
     },
     {
       "ablation_acceptances": 8,
       "bounded_acceptances": 0,
       "control_id": "boundary_envelope",
-      "interpretation": "primary control: disabling this control reopens every declared dependent topology",
+      "interpretation": "rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled",
       "required_by_topologies": 8
     },
     {
       "ablation_acceptances": 8,
       "bounded_acceptances": 0,
       "control_id": "memory_quarantine",
-      "interpretation": "primary control: disabling this control reopens every declared dependent topology",
+      "interpretation": "rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled",
       "required_by_topologies": 8
     },
     {
       "ablation_acceptances": 15,
       "bounded_acceptances": 0,
       "control_id": "audit_hash_chain",
-      "interpretation": "primary control: disabling this control reopens every declared dependent topology",
+      "interpretation": "rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled",
       "required_by_topologies": 15
     }
   ],
-  "created_at": "2026-06-25T20:12:52Z",
+  "created_at": "2026-07-14T20:35:42Z",
+  "evidence_kind": "executable_specification",
   "metrics": {
     "ablation_acceptances": 112,
     "ablation_reopen_rate": 0.746667,
@@ -3555,7 +3557,7 @@
       "short_name": "Benign-framed boundary leak"
     }
   ],
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "topologies": [
     {
       "expected_first_bad_role": "worker",

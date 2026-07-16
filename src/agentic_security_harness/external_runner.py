@@ -8,9 +8,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shlex
 from collections import defaultdict
+from datetime import UTC, datetime
 from pathlib import Path
 
+from agentic_security_harness import __version__
 from agentic_security_harness.external_openai_compatible import (
     ExternalAPIError,
     chat_completion,
@@ -19,6 +22,7 @@ from agentic_security_harness.external_openai_compatible import (
 from agentic_security_harness.external_prompt import render_pattern_prompt
 from agentic_security_harness.external_validation import validate_external_verdict
 from agentic_security_harness.patterns import DefensivePattern, seed_patterns
+from agentic_security_harness.presets import base_url_error
 from agentic_security_harness.run_config import (
     _MAX_TOTAL_REQUESTS,
     ExternalResult,
@@ -28,16 +32,28 @@ from agentic_security_harness.run_config import (
     _redact_url,
     build_external_runtime_metadata,
 )
+from agentic_security_harness.run_manifest import (
+    build_manifest,
+    make_execution_id,
+    write_run_manifest,
+)
 from agentic_security_harness.safe_io import (
+    atomic_evidence_bundle,
     credential_env_var_lookup_name,
+    require_fresh_output_dir,
     safe_credential_env_var_name,
     write_text_artifact,
 )
+from agentic_security_harness.safe_markdown import (
+    markdown_code_span,
+    markdown_fenced_block,
+    markdown_prose,
+    markdown_table_cell,
+)
+from agentic_security_harness.safe_terminal import terminal_field
 
 
-def _result_id(
-    pattern_id: str, variant_id: str, repeat_index: int
-) -> str:
+def _result_id(pattern_id: str, variant_id: str, repeat_index: int) -> str:
     raw = f"ext:{pattern_id}:{variant_id}:{repeat_index}"
     digest = hashlib.sha256(raw.encode()).hexdigest()
     return f"ext_{digest[:8]}"
@@ -95,6 +111,7 @@ def _classify_outcome(parsed: dict) -> tuple[str, str]:
     )
 
 
+@atomic_evidence_bundle("out_dir", skip_when=("dry_run", True))
 def run_external(
     base_url: str,
     model: str,
@@ -115,17 +132,20 @@ def run_external(
     """Run external evaluation and write report artifacts."""
     from agentic_security_harness.scenarios import get_scenario, get_variants
 
+    route_error = base_url_error(base_url)
+    if route_error is not None:
+        raise ValueError(route_error)
     scenario = get_scenario(scenario_id)
     variants = get_variants(scenario_id, max_variants, only_variant_id)
     all_patterns = {p.pattern_id: p for p in seed_patterns()}
     patterns = [all_patterns[pid] for pid in scenario.pattern_ids if pid in all_patterns]
 
     if not patterns:
-        raise ValueError(
-            f"scenario '{scenario_id}' has no matching patterns in the corpus"
-        )
+        raise ValueError(f"scenario '{scenario_id}' has no matching patterns in the corpus")
 
     total_requests = len(patterns) * len(variants) * repeats
+    execution_id = "" if dry_run else make_execution_id()
+    created_at = "" if dry_run else datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     base_url_label = _redact_url(base_url)
     credential_env_var_label = safe_credential_env_var_name(credential_env_var)
     credential_env_var_lookup = credential_env_var_lookup_name(credential_env_var)
@@ -136,9 +156,13 @@ def run_external(
         timeout_seconds=timeout_seconds,
         credential_env_var=credential_env_var_label,
         preset_name=preset_name,
+        execution_id=execution_id,
     )
 
     run_config = RunConfig(
+        execution_id=execution_id,
+        created_at=created_at,
+        tool_version=__version__,
         adapter_type="openai-compatible",
         provider_label=base_url_label,
         base_url_label=base_url_label,
@@ -161,11 +185,11 @@ def run_external(
     if dry_run:
         print(f"Estimated requests: {total_requests}")
         print("  adapter: openai-compatible")
-        print(f"  base_url: {base_url_label}")
-        print(f"  model: {model}")
-        print(f"  runtime: {runtime.runtime_name}")
-        print(f"  network_mode: {runtime.network_mode}")
-        print(f"  scenario: {scenario_id}")
+        print(f"  base_url: {terminal_field(base_url_label)}")
+        print(f"  model: {terminal_field(model)}")
+        print(f"  runtime: {terminal_field(runtime.runtime_name)}")
+        print(f"  network_mode: {terminal_field(runtime.network_mode)}")
+        print(f"  scenario: {terminal_field(scenario_id)}")
         print(f"  patterns: {len(patterns)}")
         print(f"  variants: {len(variants)}")
         print(f"  repeats: {repeats}")
@@ -180,6 +204,7 @@ def run_external(
             total_repeats=repeats,
         )
 
+    require_fresh_output_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # Write run_config.json
@@ -194,10 +219,20 @@ def run_external(
         for pattern in patterns:
             for repeat_idx in range(repeats):
                 result = _evaluate_one(
-                    pattern, variant.variant_id, variant.knobs,
-                    repeat_idx, base_url, model, temperature,
-                    timeout_seconds, max_retries, retry_backoff_seconds,
-                    raw_response_limit, credential_env_var_lookup, out_dir,
+                    pattern,
+                    variant.variant_id,
+                    variant.knobs,
+                    repeat_idx,
+                    base_url,
+                    model,
+                    temperature,
+                    timeout_seconds,
+                    max_retries,
+                    retry_backoff_seconds,
+                    raw_response_limit,
+                    credential_env_var_lookup,
+                    out_dir,
+                    execution_id,
                 )
                 all_results.append(result)
 
@@ -207,12 +242,19 @@ def run_external(
         json.dumps(
             [r.model_dump(mode="json") for r in all_results],
             indent=2,
-        ) + "\n",
+        )
+        + "\n",
     )
 
     # Build summary
     summary = _build_external_summary(
-        all_results, scenario_id, "openai-compatible", model, repeats
+        all_results,
+        scenario_id,
+        "openai-compatible",
+        model,
+        repeats,
+        execution_id,
+        created_at,
     )
 
     # Write external_summary.json
@@ -227,7 +269,60 @@ def run_external(
         _build_external_report_md(summary, run_config),
     )
 
+    manifest = build_manifest(
+        "external",
+        out_dir,
+        model=summary.model,
+        scenario=summary.scenario_id,
+        variants=run_config.selected_variants,
+        repeats=run_config.repeats,
+        outcomes={
+            "checks": summary.total_checks,
+            "requests": summary.total_repeats,
+            "findings": len(summary.patterns_with_findings),
+            "flaky": len(summary.flaky_patterns),
+            "inconclusive": len(summary.inconclusive_patterns),
+            "errors": len(summary.error_patterns),
+        },
+        metadata={
+            "adapter_type": run_config.adapter_type,
+            "model": run_config.model,
+            "base_url_label": run_config.base_url_label,
+            "scenario": run_config.scenario_id,
+            "max_variants": run_config.max_variants,
+            "repeats": run_config.repeats,
+            "temperature": run_config.temperature,
+            "timeout_seconds": run_config.timeout_seconds,
+            "max_retries": run_config.max_retries,
+            "raw_response_limit": run_config.raw_response_limit,
+            "request_count": summary.total_repeats,
+            "runtime_name": runtime.runtime_name,
+            "runtime_family": runtime.runtime_family,
+            "network_mode": runtime.network_mode,
+            "authorization_mode": runtime.authorization_mode,
+            "local_only": runtime.local_only,
+            "prompt_only": runtime.prompt_only,
+            "tool_execution": runtime.tool_execution,
+            "credential_env_var": run_config.credential_env_var,
+        },
+        artifacts=_external_artifact_names(out_dir),
+        tool_version=run_config.tool_version,
+        created_at=run_config.created_at,
+        execution_id=execution_id,
+    )
+    write_run_manifest(out_dir, manifest)
+
     return summary
+
+
+def _external_artifact_names(out_dir: Path) -> list[str]:
+    """Return the complete external bundle inventory before manifest persistence."""
+
+    return [
+        path.relative_to(out_dir).as_posix()
+        for path in sorted(out_dir.rglob("*"))
+        if path.is_file() and path.name != "run_index.json"
+    ]
 
 
 def _evaluate_one(
@@ -244,6 +339,7 @@ def _evaluate_one(
     raw_response_limit: int,
     credential_env_var: str,
     out_dir: Path,
+    execution_id: str,
 ) -> ExternalResult:
     """Evaluate one pattern variant repeat against the external endpoint."""
     rid = _result_id(pattern.pattern_id, variant_id, repeat_index)
@@ -259,6 +355,8 @@ def _evaluate_one(
             max_retries=max_retries,
             retry_backoff_seconds=retry_backoff_seconds,
             credential_env_var=credential_env_var,
+            allow_redirects=False,
+            allow_env_proxy=False,
         )
         content = extract_content(response)
         parsed = _parse_decision(content)
@@ -276,6 +374,7 @@ def _evaluate_one(
 
         return ExternalResult(
             result_id=rid,
+            execution_id=execution_id,
             pattern_id=pattern.pattern_id,
             variant_id=variant_id,
             repeat_index=repeat_index,
@@ -301,6 +400,7 @@ def _evaluate_one(
         error_text = _external_error_text(exc)
         return ExternalResult(
             result_id=rid,
+            execution_id=execution_id,
             pattern_id=pattern.pattern_id,
             variant_id=variant_id,
             repeat_index=repeat_index,
@@ -315,6 +415,7 @@ def _evaluate_one(
         error_text = f"unexpected error: {exc}"
         return ExternalResult(
             result_id=rid,
+            execution_id=execution_id,
             pattern_id=pattern.pattern_id,
             variant_id=variant_id,
             repeat_index=repeat_index,
@@ -422,6 +523,8 @@ def _build_external_summary(
     adapter_type: str,
     model: str,
     repeats: int,
+    execution_id: str,
+    created_at: str,
 ) -> ExternalSummary:
     """Build aggregated summary across all external results."""
     # Group by pattern+variant
@@ -482,18 +585,20 @@ def _build_external_summary(
         else:
             stability = "inconclusive"
 
-        repeat_summaries.append(RepeatSummary(
-            pattern_id=pid,
-            variant_id=vid,
-            total_repeats=len(group),
-            pass_count=pass_count,
-            finding_count=finding_count,
-            inconclusive_count=inconclusive_count,
-            error_count=error_count,
-            flaky=flaky,
-            dominant_outcome=dominant,
-            stability_status=stability,
-        ))
+        repeat_summaries.append(
+            RepeatSummary(
+                pattern_id=pid,
+                variant_id=vid,
+                total_repeats=len(group),
+                pass_count=pass_count,
+                finding_count=finding_count,
+                inconclusive_count=inconclusive_count,
+                error_count=error_count,
+                flaky=flaky,
+                dominant_outcome=dominant,
+                stability_status=stability,
+            )
+        )
 
     # Aggregate by pattern across all variants
     pattern_findings: dict[str, int] = defaultdict(int)
@@ -533,6 +638,8 @@ def _build_external_summary(
             findings_by_control_family[family] += count
 
     return ExternalSummary(
+        execution_id=execution_id,
+        created_at=created_at,
         scenario_id=scenario_id,
         adapter_type=adapter_type,
         model=model,
@@ -556,10 +663,15 @@ def _reproduce_command_lines(config: RunConfig) -> list[str]:
     selection) and the cost cap only when it would otherwise block the rerun. The base
     URL is redacted and credential handling is shown without persisting the env-var name.
     """
+
+    def arg(value: object) -> str:
+        return shlex.quote(" ".join(str(value).split()))
+
     flags: list[str] = [
-        f"--base-url {config.base_url_label}",
-        f"--model {config.model}",
-        f"--scenario {config.scenario_id}",
+        "--execute",
+        f"--base-url {arg(config.base_url_label)}",
+        f"--model {arg(config.model)}",
+        f"--scenario {arg(config.scenario_id)}",
         f"--repeats {config.repeats}",
         f"--temperature {config.temperature}",
         f"--timeout {config.timeout_seconds}",
@@ -568,7 +680,7 @@ def _reproduce_command_lines(config: RunConfig) -> list[str]:
     ]
     # Reproduce the exact variant when a single one was selected; otherwise the count.
     if len(config.selected_variants) == 1:
-        flags.append(f"--variant {config.selected_variants[0]}")
+        flags.append(f"--variant {arg(config.selected_variants[0])}")
     else:
         flags.append(f"--max-variants {config.max_variants}")
     if config.credential_env_var:
@@ -586,9 +698,7 @@ def _reproduce_command_lines(config: RunConfig) -> list[str]:
     return lines
 
 
-def _build_external_report_md(
-    summary: ExternalSummary, config: RunConfig
-) -> str:
+def _build_external_report_md(summary: ExternalSummary, config: RunConfig) -> str:
     """Build deterministic external report markdown."""
     lines: list[str] = [
         "# Agentic Security Harness - external run report",
@@ -597,22 +707,24 @@ def _build_external_report_md(
         "",
         "## Configuration",
         "",
-        f"- Adapter: `{config.adapter_type}`",
-        f"- Model: `{config.model}`",
-        f"- Endpoint: `{config.base_url_label}`",
-        f"- Runtime: `{config.runtime.runtime_name}` ({config.runtime.runtime_family})",
-        f"- Network mode: `{config.runtime.network_mode}`",
-        f"- Authorization mode: `{config.runtime.authorization_mode}`",
+        f"- Execution ID: {markdown_code_span(config.execution_id)}",
+        f"- Adapter: {markdown_code_span(config.adapter_type)}",
+        f"- Model: {markdown_code_span(config.model)}",
+        f"- Endpoint: {markdown_code_span(config.base_url_label)}",
+        f"- Runtime: {markdown_code_span(config.runtime.runtime_name)} "
+        f"({markdown_prose(config.runtime.runtime_family)})",
+        f"- Network mode: {markdown_code_span(config.runtime.network_mode)}",
+        f"- Authorization mode: {markdown_code_span(config.runtime.authorization_mode)}",
         f"- Prompt-only: {config.runtime.prompt_only}",
         f"- Tool execution: {config.runtime.tool_execution}",
         f"- Local-only runtime: {config.runtime.local_only}",
-        f"- Model license / policy note: {config.runtime.model_license_note}",
+        f"- Model license / policy note: {markdown_prose(config.runtime.model_license_note)}",
         f"- Temperature: {config.temperature}",
         f"- Timeout seconds: {config.timeout_seconds}",
         f"- Max retries: {config.max_retries}",
         f"- Raw response limit: {config.raw_response_limit} (0 = full JSON field)",
         f"- Repeats: {config.repeats}",
-        f"- Scenario: `{config.scenario_id}`",
+        f"- Scenario: {markdown_code_span(config.scenario_id)}",
         f"- Variants: {config.max_variants}",
         f"- Request count: {config.request_count}",
         "",
@@ -636,7 +748,7 @@ def _build_external_report_md(
         ]
         for pid in summary.patterns_with_findings:
             n = summary.findings_by_pattern.get(pid, 0)
-            lines.append(f"| `{pid}` | {n} |")
+            lines.append(f"| {markdown_code_span(pid)} | {n} |")
         lines.append("")
 
     if summary.findings_by_control_family:
@@ -649,7 +761,7 @@ def _build_external_report_md(
         for family, n in sorted(
             summary.findings_by_control_family.items(), key=lambda x: (-x[1], x[0])
         ):
-            lines.append(f"| {family} | {n} |")
+            lines.append(f"| {markdown_table_cell(family)} | {n} |")
         lines.append("")
 
     if summary.repeat_summaries:
@@ -664,10 +776,11 @@ def _build_external_report_md(
         ]
         for rs in summary.repeat_summaries:
             lines.append(
-                f"| `{rs.pattern_id}` | `{rs.variant_id}` "
+                f"| {markdown_code_span(rs.pattern_id)} | "
+                f"{markdown_code_span(rs.variant_id)} "
                 f"| {rs.total_repeats} | {rs.pass_count} "
                 f"| {rs.finding_count} | {rs.inconclusive_count} "
-                f"| {rs.error_count} | {rs.stability_status} |"
+                f"| {rs.error_count} | {markdown_table_cell(rs.stability_status)} |"
             )
         lines.append("")
 
@@ -687,7 +800,7 @@ def _build_external_report_md(
             "",
         ]
         for item in dict.fromkeys(recovery_lines):
-            lines.append(f"- {item}")
+            lines.append(f"- {markdown_prose(item)}")
         lines.append("")
 
     from agentic_security_harness.remediation import build_external_recommendations_md
@@ -719,11 +832,10 @@ def _build_external_report_md(
         "## How to reproduce / validate",
         "",
         "Reproduce this run (set the credential env var first if the endpoint needs one). "
-        "The endpoint is shown redacted and the credential env var is named, never its value:",
+        "The endpoint is shown redacted; persisted artifacts record only that a credential "
+        "variable was configured, not its name or value:",
         "",
-        "```bash",
-        *_reproduce_command_lines(config),
-        "```",
+        *markdown_fenced_block("\n".join(_reproduce_command_lines(config)), language="bash"),
         "",
         "On Windows PowerShell, replace each trailing `\\` with a backtick `` ` `` (or put "
         "the command on one line).",

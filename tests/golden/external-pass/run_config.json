@@ -1,5 +1,8 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
+  "execution_id": "run_11111111111111111111111111111111",
+  "created_at": "2026-07-15T00:00:00Z",
+  "tool_version": "0.14.0",
   "adapter_type": "openai-compatible",
   "provider_label": "http://localhost:8000/v1",
   "base_url_label": "http://localhost:8000/v1",
@@ -43,7 +46,8 @@
       "If the model is not found, pull or load the model and verify the --model id.",
       "If the output is inconclusive, inspect raw_responses/ and rerun with --temperature 0.0 and more repeats."
     ],
-    "run_id": ""
+    "execution_id": "run_11111111111111111111111111111111",
+    "run_id": "run_11111111111111111111111111111111"
   },
   "created_by": "ash run-external",
   "safety_note": "Experimental external run. Not a benchmark-grade measurement. Synthetic prompts only. No real data or tool execution."

@@ -18,7 +18,11 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from agentic_security_harness.run_manifest import build_manifest, write_run_manifest
-from agentic_security_harness.safe_io import write_text_artifact
+from agentic_security_harness.safe_io import (
+    atomic_evidence_bundle,
+    require_fresh_output_dir,
+    write_text_artifact,
+)
 from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 
 ConsentScenarioId = Literal[
@@ -152,6 +156,8 @@ class ContextConsentSummary(BaseModel):
     schema_version: str = SCHEMA_VERSIONS["context_consent_campaign"]
     run_kind: Literal["context_consent_campaign"] = "context_consent_campaign"
     created_at: str = ""
+    evidence_kind: Literal["executable_specification"]
+    causal_scope: Literal["rule_derived_control_attribution"]
     claim_boundary: str = (
         "This deterministic campaign measures whether synthetic context artifacts are "
         "mistaken for current user consent. Public artifacts contain case contracts, "
@@ -347,6 +353,8 @@ def build_context_consent_campaign(*, created_at: str = "") -> ContextConsentSum
     effects = _build_control_effects(cases, rows)
     return ContextConsentSummary(
         created_at=created_at,
+        evidence_kind="executable_specification",
+        causal_scope="rule_derived_control_attribution",
         cases=cases,
         control_catalog=controls,
         deterministic_results=rows,
@@ -355,12 +363,14 @@ def build_context_consent_campaign(*, created_at: str = "") -> ContextConsentSum
     )
 
 
+@atomic_evidence_bundle("out_dir")
 def write_context_consent_artifacts(
     out_dir: Path,
     summary: ContextConsentSummary,
 ) -> list[Path]:
     """Write sanitized context-consent artifacts."""
 
+    require_fresh_output_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     summary_path = out_dir / "context_consent_summary.json"
     report_path = out_dir / "context_consent_report.md"
@@ -402,6 +412,10 @@ def render_context_consent_summary(summary: ContextConsentSummary) -> str:
         "# Context Consent Campaign",
         "",
         summary.claim_boundary,
+        "",
+        "Evidence class: `executable_specification`.",
+        "Control effects are derived from declared case dependencies and evaluation rules; "
+        "they are not independent causal estimates.",
         "",
         "## Reproduce / Validate",
         "",
@@ -699,12 +713,16 @@ def _control_effect_interpretation(
     if required_cases == 0:
         return "not required by the current context-consent matrix"
     if ablation_acceptances == required_cases:
-        return f"primary control: disabling {control} reopens every declared dependent case"
+        return (
+            f"rule-derived primary control: the specification marks every declared "
+            f"dependent case accepted when {control} is disabled"
+        )
     if ablation_acceptances == 0:
         return "covered by other controls in this matrix; keep as defense-in-depth"
     return (
-        f"partial control: disabling {control} reopens "
-        f"{ablation_acceptances}/{required_cases} dependent cases"
+        f"rule-derived partial control: the specification marks "
+        f"{ablation_acceptances}/{required_cases} dependent cases accepted when "
+        f"{control} is disabled"
     )
 
 

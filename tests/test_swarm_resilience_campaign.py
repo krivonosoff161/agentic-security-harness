@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 
@@ -5,6 +6,7 @@ import pytest
 
 from agentic_security_harness import cli
 from agentic_security_harness.swarm_resilience_campaign import (
+    _metrics,
     build_resilience_private_run,
     build_resilience_summary,
     write_resilience_artifacts,
@@ -98,6 +100,48 @@ def test_resilience_artifacts_validate_and_keep_private_raw_out(tmp_path: Path) 
         assert "calculation_notes" not in text
 
 
+def test_valid_bounded_resilience_regression_is_expectation_failure_only(
+    tmp_path: Path,
+) -> None:
+    public_out = tmp_path / "swarm-resilience-regression"
+    summary = build_resilience_summary(build_resilience_private_run())
+    row = next(item for item in summary.observations if item.mode == "bounded")
+    row.accepted_unsafe = True
+    row.verifier_verdict = "unsafe_accept"
+    row.stability_verdict = "diverged"
+    row.recovered_to_safe = False
+    row.diverged = True
+    row.blocked_by = []
+    summary.metrics = _metrics(summary.observations)
+
+    write_resilience_artifacts(public_out, summary)
+    result = validate_path(public_out)
+
+    assert not result.ok
+    assert result.integrity_ok
+    assert not result.expectations_ok
+    assert result.errors == []
+    assert any(
+        "bounded accepted unsafe" in mismatch
+        for mismatch in result.expectation_mismatches
+    )
+
+
+def test_resilience_validator_recomputes_all_summary_metrics(tmp_path: Path) -> None:
+    public_out = tmp_path / "swarm-resilience-metric-tamper"
+    summary = build_resilience_summary(build_resilience_private_run())
+    summary.metrics.average_bounded_final_energy += 0.1
+
+    write_resilience_artifacts.__wrapped__(  # type: ignore[attr-defined]
+        public_out, summary
+    )
+    result = validate_path(public_out)
+
+    assert not result.ok
+    assert not result.integrity_ok
+    assert any("metrics do not match recomputed" in error for error in result.errors)
+
+
 def test_resilience_validation_rejects_private_fields(tmp_path: Path) -> None:
     public_out = tmp_path / "swarm-resilience"
     write_resilience_artifacts(
@@ -158,6 +202,104 @@ def test_resilience_validation_rejects_hash_length_drift(tmp_path: Path) -> None
 
     assert not result.ok
     assert any("expected lowercase SHA-256 hex digest" in item for item in result.errors)
+
+
+def test_resilience_validation_rejects_empty_hash_slot(tmp_path: Path) -> None:
+    public_out = tmp_path / "swarm-resilience"
+    summary = build_resilience_summary(build_resilience_private_run())
+    summary.observations[0].state_hashes[0] = ""
+    summary.metrics = _metrics(summary.observations)
+    write_resilience_artifacts.__wrapped__(  # type: ignore[attr-defined]
+        public_out, summary
+    )
+
+    result = validate_path(public_out)
+
+    assert not result.ok
+    assert not result.integrity_ok
+    assert any("state_hashes[0] is empty" in error for error in result.errors)
+
+
+def test_resilience_validation_binds_final_hash_to_final_state(tmp_path: Path) -> None:
+    public_out = tmp_path / "swarm-resilience-final-hash"
+    summary = build_resilience_summary(build_resilience_private_run())
+    summary.observations[0].state_hashes[-1] = "0" * 64
+    write_resilience_artifacts.__wrapped__(  # type: ignore[attr-defined]
+        public_out, summary
+    )
+
+    result = validate_path(public_out)
+
+    assert not result.ok
+    assert not result.integrity_ok
+    assert any("final state hash mismatch" in error for error in result.errors)
+
+
+def test_resilience_validation_binds_every_intermediate_state_hash(
+    tmp_path: Path,
+) -> None:
+    public_out = tmp_path / "swarm-resilience-intermediate-hash"
+    summary = build_resilience_summary(build_resilience_private_run())
+    summary.observations[0].state_hashes[0] = "0" * 64
+    write_resilience_artifacts.__wrapped__(  # type: ignore[attr-defined]
+        public_out, summary
+    )
+
+    result = validate_path(public_out)
+
+    assert not result.ok
+    assert any(
+        "state_hashes does not match the canonical trajectory" in error
+        for error in result.errors
+    )
+
+
+def test_resilience_validation_rejects_report_tamper_after_hash_rewrite(
+    tmp_path: Path,
+) -> None:
+    public_out = tmp_path / "swarm-resilience-report-rewrite"
+    write_resilience_artifacts(
+        public_out,
+        build_resilience_summary(build_resilience_private_run()),
+    )
+    report_path = public_out / "swarm_resilience_report.md"
+    report_path.write_text(
+        report_path.read_text(encoding="utf-8") + "\nOverstated claim.\n",
+        encoding="utf-8",
+    )
+    manifest_path = public_out / "run_index.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["artifact_sha256"][report_path.name] = hashlib.sha256(
+        report_path.read_bytes()
+    ).hexdigest()
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+    result = validate_path(public_out)
+
+    assert not result.ok
+    assert any("report projection mismatch" in error for error in result.errors)
+
+
+def test_resilience_validation_rejects_manifest_semantic_rewrite(
+    tmp_path: Path,
+) -> None:
+    public_out = tmp_path / "swarm-resilience-manifest-rewrite"
+    write_resilience_artifacts(
+        public_out,
+        build_resilience_summary(build_resilience_private_run()),
+    )
+    manifest_path = public_out / "run_index.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["outcomes"]["bounded_unsafe_acceptances"] = 1
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+    result = validate_path(public_out)
+
+    assert not result.ok
+    assert any(
+        "outcomes does not match summary projection" in error
+        for error in result.errors
+    )
 
 
 def test_cli_swarm_resilience_dry_run(

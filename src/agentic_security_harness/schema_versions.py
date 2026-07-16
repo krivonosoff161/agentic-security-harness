@@ -16,28 +16,32 @@ SCHEMA_VERSIONS: dict[str, str] = {
     "scorecard": "0.1",       # scorecard.json
     "remediation": "0.1",     # remediation.json
     "matrix": "0.2",          # matrix.json
-    "run_config": "0.1",      # run_config.json (external)
-    "external_summary": "0.1",  # external_summary.json
-    "run_manifest": "0.1",    # run_index.json
-    "run_diff": "0.2",        # run_diff.json (0.2: explicit decisive/non-decisive labels)
-    "evidence_quality": "0.2",  # evidence_quality.json (derived external/local/swarm analysis)
+    "run_config": "0.2",      # 0.2: pre-request execution identity
+    "external_summary": "0.2",  # 0.2: execution-bound external bundle
+    "run_manifest": "0.3",    # 0.3: listed artifact content hashes
+    "run_diff": "0.3",        # 0.3: validated source commitments + output manifest
+    "evidence_quality": "0.3",  # 0.3: input validation/authenticity scope per run
+    "run_stats": "0.2",       # 0.2: independently recomputed expectation status
+    "showcase": "0.2",        # 0.2: independently recomputed expectation status
     "local_swarm": "0.1",     # local_swarm_summary.json (bounded local swarm research)
     "local_swarm_matrix": "0.2",  # local_swarm_attack_matrix.json
     "evidence_campaign": "0.2",  # evidence_campaign_summary.json (0.2: control ablation)
     "secret_leak_campaign": "0.1",  # secret_leak_campaign_summary.json
     "secret_leak_variations": "0.1",  # secret_leak_variation_summary.json
-    "semantic_drift_campaign": "0.1",  # semantic_drift_summary.json
-    "semantic_propagation_campaign": "0.2",  # semantic_propagation_summary.json
-    "swarm_defense_contour": "0.1",  # swarm_defense_contour_summary.json
-    "swarm_defense_live_campaign": "0.3",  # swarm_defense_live_summary.json
+    "semantic_drift_campaign": "0.2",  # 0.2: independent-label contract
+    "semantic_propagation_campaign": "0.3",  # 0.3: independent-label contract
+    "swarm_defense_contour": "0.2",  # 0.2: executable-specification evidence class
+    "swarm_defense_live_campaign": "0.5",  # 0.5: staged adapter-error contract
     "marketing_web_injection_campaign": "0.1",  # marketing_web_injection_summary.json
-    "marketing_web_live_campaign": "0.1",  # marketing_web_live_summary.json
+    "marketing_web_live_campaign": "0.3",  # 0.3: staged adapter-error contract
     "swarm_resilience_campaign": "0.1",  # swarm_resilience_summary.json
-    "context_consent_campaign": "0.1",  # context_consent_summary.json
-    "tool_authority_campaign": "0.1",  # tool_authority_summary.json
-    "rag_context_campaign": "0.1",  # rag_context_summary.json
-    "planner_task_campaign": "0.1",  # planner_task_summary.json
-    "memory_rehydration_campaign": "0.1",  # memory_rehydration_summary.json
+    "context_consent_campaign": "0.2",  # 0.2: executable-specification evidence class
+    "tool_authority_campaign": "0.2",  # 0.2: executable-specification evidence class
+    "rag_context_campaign": "0.2",  # 0.2: executable-specification evidence class
+    "planner_task_campaign": "0.2",  # 0.2: executable-specification evidence class
+    "memory_rehydration_campaign": "0.2",  # 0.2: executable-specification evidence class
+    "evidence_status_registry": "0.1",  # public evidence classification inventory
+    "private_public_reconciliation": "0.1",  # unsigned owner-side byte receipt
 }
 
 # Current implemented defensive corpus revision. Artifact schema versions describe file
@@ -50,19 +54,57 @@ CORPUS_VERSION = "0.13.0"
 KNOWN_SCHEMA_VERSIONS: dict[str, frozenset[str]] = {
     kind: frozenset({version}) for kind, version in SCHEMA_VERSIONS.items()
 }
-KNOWN_SCHEMA_VERSIONS["run_diff"] = frozenset({"0.1", SCHEMA_VERSIONS["run_diff"]})
+KNOWN_SCHEMA_VERSIONS["run_diff"] = frozenset({
+    "0.1",
+    "0.2",
+    SCHEMA_VERSIONS["run_diff"],
+})
 KNOWN_SCHEMA_VERSIONS["evidence_quality"] = frozenset({
     "0.1",
+    "0.2",
     SCHEMA_VERSIONS["evidence_quality"],
+})
+KNOWN_SCHEMA_VERSIONS["run_manifest"] = frozenset({
+    "0.1",
+    "0.2",
+    SCHEMA_VERSIONS["run_manifest"],
+})
+KNOWN_SCHEMA_VERSIONS["run_config"] = frozenset({
+    "0.1",
+    SCHEMA_VERSIONS["run_config"],
+})
+KNOWN_SCHEMA_VERSIONS["external_summary"] = frozenset({
+    "0.1",
+    SCHEMA_VERSIONS["external_summary"],
+})
+KNOWN_SCHEMA_VERSIONS["run_stats"] = frozenset({
+    "0.1",
+    SCHEMA_VERSIONS["run_stats"],
+})
+KNOWN_SCHEMA_VERSIONS["showcase"] = frozenset({
+    "0.1",
+    SCHEMA_VERSIONS["showcase"],
 })
 KNOWN_SCHEMA_VERSIONS["semantic_propagation_campaign"] = frozenset({
     "0.1",
+    "0.2",
     SCHEMA_VERSIONS["semantic_propagation_campaign"],
+})
+KNOWN_SCHEMA_VERSIONS["semantic_drift_campaign"] = frozenset({
+    "0.1",
+    SCHEMA_VERSIONS["semantic_drift_campaign"],
 })
 KNOWN_SCHEMA_VERSIONS["swarm_defense_live_campaign"] = frozenset({
     "0.1",
     "0.2",
+    "0.3",
+    "0.4",
     SCHEMA_VERSIONS["swarm_defense_live_campaign"],
+})
+KNOWN_SCHEMA_VERSIONS["marketing_web_live_campaign"] = frozenset({
+    "0.1",
+    "0.2",
+    SCHEMA_VERSIONS["marketing_web_live_campaign"],
 })
 
 

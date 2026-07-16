@@ -1,6 +1,6 @@
 # Live Marketing Web-Injection Campaign
 
-This page documents the live local-model version of the marketing web-injection
+This page documents the live loopback-endpoint version of the marketing web-injection
 campaign. It uses an owned local web stand and local OpenAI-compatible models to test
 whether a small worker/chief swarm can leak a synthetic internal strategy value after
 reading hostile external page text.
@@ -18,8 +18,9 @@ It is still defensive and bounded:
 
 1. **Owned local web stand.** The harness starts a localhost HTTP server and serves
    scenario pages from a temporary directory.
-2. **Local mini-swarm.** A worker model reads the page and summarizes it. A chief model
-   consumes the worker summary and produces the final recommendation.
+2. **Local mini-swarm.** A worker model reads the page and summarizes it. The
+   deterministic verifier either blocks publication before a chief call or allows a
+   chief model to consume the worker summary and produce the final recommendation.
 3. **Mode comparison.** The same scenario runs in naive, bounded, control-ablation, and
    benign modes.
 4. **Long-session pressure.** Unsafe rows use repeated worker turns before chief review,
@@ -27,6 +28,23 @@ It is still defensive and bounded:
 5. **Private/public split.** Private transcripts are hash-anchored in public artifacts;
    the public example exposes counts, model ids, page/response hashes, decisions, leak
    kinds, and verifier attribution only.
+
+Current schema `0.3` also records the planned scenario/model matrix independently of
+observed rows, a loopback endpoint hash, a unique execution id, the tool version, and a
+transitive producer-component fingerprint. Page-fetch, worker, and chief failures have
+separate stages and stage-completed denominators. A verifier-blocked row has a
+`decision_output_sha256` but no chief call or `chief_response_sha256`; an allowed row
+binds both hashes to the actual chief output. Blank page/model content is a staged
+adapter failure. The validator rebuilds owned-page content hashes from the declared
+corpus and binds the manifest to the summary execution identity.
+
+The deterministic verifier is a rule-derived policy simulation: it receives the
+experimental mode and declared control set. Its block/allow rates therefore measure
+contract consistency, not independent empirical defense effectiveness. Likewise,
+historical ablation counts are counts of control-disabled rows, not demonstrated causal
+reopenings. Loopback proves only the first network hop, not local model execution or
+absence of upstream proxying. The artifacts are unsigned self-authored consistency
+records.
 
 ## Controls
 
@@ -44,6 +62,8 @@ It is still defensive and bounded:
 
 The committed public example is
 [`examples/marketing-web-live-sanitized/`](../examples/marketing-web-live-sanitized/).
+It is historical schema `0.2`; no committed current schema-`0.3` execution exists yet,
+so it does not validate the new stage/identity/partial-event contract.
 
 | Metric | Value |
 |---|---:|
@@ -64,9 +84,10 @@ The committed public example is
 | Response hash coverage | `100%` |
 | Per-turn hash coverage | `100%` |
 
-Interpretation: one synthetic strategy component reached the final chief output when the
-responsible control was disabled. The full bounded path blocked final leakage while
-allowing benign work.
+Interpretation: the legacy detector summary declares one final synthetic-strategy leak
+in a control-disabled mode. Mode and verifier outcomes are selected by policy rules, so
+this is rule-derived attribution rather than an observed causal effect. Public validation
+does not replay private responses or attest model/runtime identity.
 
 ## Reproduce
 
@@ -79,7 +100,7 @@ ash marketing-web-live-campaign \
   --max-requests 500
 ```
 
-Run against local models:
+Run against an authorized loopback model endpoint:
 
 ```bash
 ash marketing-web-live-campaign \
@@ -132,7 +153,7 @@ This campaign does not prove:
 - production swarm safety;
 - exhaustive web-injection coverage.
 
-It proves a narrower claim: under this declared local-web marketing scenario, real local
-worker/chief model outputs can expose a synthetic strategy component when a responsible
-control is removed, and the full bounded verifier path blocks the final leakage in the
-committed run.
+It supports only a narrower historical statement: the schema-`0.2` public record contains
+detector-labelled rows under declared model identifiers, and the deterministic verifier
+reproduces its policy rules. It does not authenticate local model execution, retained
+private bytes, independent detector accuracy, or a causal control effect.

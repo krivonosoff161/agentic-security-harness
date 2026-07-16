@@ -18,7 +18,11 @@ from typing import Literal, cast
 from pydantic import BaseModel, ConfigDict, Field
 
 from agentic_security_harness.run_manifest import build_manifest, write_run_manifest
-from agentic_security_harness.safe_io import write_text_artifact
+from agentic_security_harness.safe_io import (
+    atomic_evidence_bundle,
+    require_fresh_output_dir,
+    write_text_artifact,
+)
 from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 
 ContourScenarioId = Literal[
@@ -175,6 +179,8 @@ class DefenseContourSummary(BaseModel):
     schema_version: str = SCHEMA_VERSIONS["swarm_defense_contour"]
     run_kind: Literal["swarm_defense_contour"] = "swarm_defense_contour"
     created_at: str = ""
+    evidence_kind: Literal["executable_specification"]
+    causal_scope: Literal["rule_derived_control_attribution"]
     claim_boundary: str = (
         "This contour models four synthetic local-swarm failure families and their "
         "combinations. Public artifacts contain declared topology, deterministic "
@@ -312,6 +318,8 @@ def build_swarm_defense_contour(created_at: str = "") -> DefenseContourSummary:
     metrics = _build_metrics(scenarios, topologies, results, control_effects)
     return DefenseContourSummary(
         created_at=created_at,
+        evidence_kind="executable_specification",
+        causal_scope="rule_derived_control_attribution",
         scenarios=scenarios,
         topologies=topologies,
         results=results,
@@ -331,6 +339,10 @@ def render_swarm_defense_contour(summary: DefenseContourSummary) -> str:
         "## Claim Boundary",
         "",
         summary.claim_boundary,
+        "",
+        "Evidence class: `executable_specification`.",
+        "Control effects are derived from declared topology dependencies and evaluation "
+        "rules; they are not independent causal estimates.",
         "",
         "## Metrics",
         "",
@@ -393,19 +405,21 @@ def render_swarm_defense_contour(summary: DefenseContourSummary) -> str:
     return "\n".join(lines)
 
 
+@atomic_evidence_bundle("out")
 def write_swarm_defense_contour_artifacts(
     out: Path,
     summary: DefenseContourSummary,
 ) -> list[Path]:
     """Write sanitized public defense-contour artifacts."""
 
+    require_fresh_output_dir(out)
     out.mkdir(parents=True, exist_ok=True)
     summary_path = out / "swarm_defense_contour_summary.json"
     report_path = out / "swarm_defense_contour_report.md"
     digest_path = out / "swarm_defense_contour_digest.json"
-    summary_path.write_text(
+    write_text_artifact(
+        summary_path,
         json.dumps(summary.model_dump(mode="json"), indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
     )
     write_text_artifact(report_path, render_swarm_defense_contour(summary))
     digest = {
@@ -418,9 +432,9 @@ def write_swarm_defense_contour_artifacts(
         "ablation_acceptances": summary.metrics.ablation_acceptances,
         "non_claims": summary.non_claims,
     }
-    digest_path.write_text(
+    write_text_artifact(
+        digest_path,
         json.dumps(digest, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
     )
     manifest = build_manifest(
         "swarm_defense_contour",
@@ -495,10 +509,10 @@ def _build_control_effects(
                 ),
                 ablation_acceptances=ablation_acceptances,
                 interpretation=(
-                    "primary control: disabling this control reopens every declared "
-                    "dependent topology"
+                    "rule-derived primary control: the specification marks every "
+                    "declared dependent topology accepted when this control is disabled"
                     if ablation_acceptances == len(required) and required
-                    else "supporting control for declared topologies"
+                    else "rule-derived supporting control for declared topologies"
                 ),
             )
         )

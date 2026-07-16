@@ -79,6 +79,7 @@
       "title": "Ambient chat history treated as present intent"
     }
   ],
+  "causal_scope": "rule_derived_control_attribution",
   "claim_boundary": "This deterministic campaign measures whether synthetic context artifacts are mistaken for current user consent. Public artifacts contain case contracts, deterministic rows, aggregate metrics, and context fingerprints only.",
   "control_catalog": [
     {
@@ -131,7 +132,7 @@
       "blocked_by_full_contract": 5,
       "bounded_acceptances": 0,
       "control_id": "current_user_intent",
-      "interpretation": "primary control: disabling current_user_intent reopens every declared dependent case",
+      "interpretation": "rule-derived primary control: the specification marks every declared dependent case accepted when current_user_intent is disabled",
       "required_by_cases": 5
     },
     {
@@ -140,7 +141,7 @@
       "blocked_by_full_contract": 4,
       "bounded_acceptances": 0,
       "control_id": "consent_receipt",
-      "interpretation": "primary control: disabling consent_receipt reopens every declared dependent case",
+      "interpretation": "rule-derived primary control: the specification marks every declared dependent case accepted when consent_receipt is disabled",
       "required_by_cases": 4
     },
     {
@@ -149,7 +150,7 @@
       "blocked_by_full_contract": 4,
       "bounded_acceptances": 0,
       "control_id": "scope_binding",
-      "interpretation": "primary control: disabling scope_binding reopens every declared dependent case",
+      "interpretation": "rule-derived primary control: the specification marks every declared dependent case accepted when scope_binding is disabled",
       "required_by_cases": 4
     },
     {
@@ -158,7 +159,7 @@
       "blocked_by_full_contract": 1,
       "bounded_acceptances": 0,
       "control_id": "freshness_window",
-      "interpretation": "primary control: disabling freshness_window reopens every declared dependent case",
+      "interpretation": "rule-derived primary control: the specification marks every declared dependent case accepted when freshness_window is disabled",
       "required_by_cases": 1
     },
     {
@@ -167,7 +168,7 @@
       "blocked_by_full_contract": 1,
       "bounded_acceptances": 0,
       "control_id": "action_isolation",
-      "interpretation": "primary control: disabling action_isolation reopens every declared dependent case",
+      "interpretation": "rule-derived primary control: the specification marks every declared dependent case accepted when action_isolation is disabled",
       "required_by_cases": 1
     },
     {
@@ -176,11 +177,11 @@
       "blocked_by_full_contract": 3,
       "bounded_acceptances": 0,
       "control_id": "risk_classifier",
-      "interpretation": "primary control: disabling risk_classifier reopens every declared dependent case",
+      "interpretation": "rule-derived primary control: the specification marks every declared dependent case accepted when risk_classifier is disabled",
       "required_by_cases": 3
     }
   ],
-  "created_at": "2026-06-30T19:23:10Z",
+  "created_at": "2026-07-14T20:35:41Z",
   "deterministic_results": [
     {
       "attack_attempted": true,
@@ -904,6 +905,7 @@
       "verifier_decision": "allow"
     }
   ],
+  "evidence_kind": "executable_specification",
   "metrics": {
     "ablation_acceptances": 18,
     "acceptances_by_missing_control": {
@@ -942,5 +944,5 @@
     "Context fingerprints support artifact hygiene, not semantic truth."
   ],
   "run_kind": "context_consent_campaign",
-  "schema_version": "0.1"
+  "schema_version": "0.2"
 }

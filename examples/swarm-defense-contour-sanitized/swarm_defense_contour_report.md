@@ -1,10 +1,13 @@
 # Local Swarm Defense Contour
 
-Created: `2026-06-25T20:12:52Z`
+Created: `2026-07-14T20:35:42Z`
 
 ## Claim Boundary
 
 This contour models four synthetic local-swarm failure families and their combinations. Public artifacts contain declared topology, deterministic contract rows, and aggregate metrics only; raw local-model transcripts, synthetic canaries, and private calculations stay under .internal/.
+
+Evidence class: `executable_specification`.
+Control effects are derived from declared topology dependencies and evaluation rules; they are not independent causal estimates.
 
 ## Metrics
 
@@ -28,16 +31,16 @@ This contour models four synthetic local-swarm failure families and their combin
 
 | Control | Required by topologies | Ablation acceptances | Interpretation |
 | --- | ---: | ---: | --- |
-| `canonical_state` | 14 | 14 | primary control: disabling this control reopens every declared dependent topology |
-| `transition_table` | 8 | 8 | primary control: disabling this control reopens every declared dependent topology |
-| `source_hash` | 12 | 12 | primary control: disabling this control reopens every declared dependent topology |
-| `worker_attestation` | 12 | 12 | primary control: disabling this control reopens every declared dependent topology |
-| `summary_guard` | 12 | 12 | primary control: disabling this control reopens every declared dependent topology |
-| `chief_verifier` | 15 | 15 | primary control: disabling this control reopens every declared dependent topology |
-| `cross_worker_check` | 8 | 8 | primary control: disabling this control reopens every declared dependent topology |
-| `boundary_envelope` | 8 | 8 | primary control: disabling this control reopens every declared dependent topology |
-| `memory_quarantine` | 8 | 8 | primary control: disabling this control reopens every declared dependent topology |
-| `audit_hash_chain` | 15 | 15 | primary control: disabling this control reopens every declared dependent topology |
+| `canonical_state` | 14 | 14 | rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled |
+| `transition_table` | 8 | 8 | rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled |
+| `source_hash` | 12 | 12 | rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled |
+| `worker_attestation` | 12 | 12 | rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled |
+| `summary_guard` | 12 | 12 | rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled |
+| `chief_verifier` | 15 | 15 | rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled |
+| `cross_worker_check` | 8 | 8 | rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled |
+| `boundary_envelope` | 8 | 8 | rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled |
+| `memory_quarantine` | 8 | 8 | rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled |
+| `audit_hash_chain` | 15 | 15 | rule-derived primary control: the specification marks every declared dependent topology accepted when this control is disabled |
 
 ## Combination Coverage
 

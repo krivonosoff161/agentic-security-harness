@@ -1,8 +1,9 @@
-# Marketing Web Live Sanitized Example
+# Historical Marketing Web Observation (Schema 0.2)
 
-This directory is a curated public summary of a private local-model run against an
-owned local web stand. Raw HTML pages, prompts, model responses, and synthetic strategy
-values remain under `.internal/` and are not committed.
+This directory retains a structural-only detector-observation summary produced
+under schema 0.2. Current schema 0.3 has no committed execution. Public validation
+does not replay the private response bytes and does not prove model-execution
+locality, origin, or absence of leakage.
 
 ## What ran
 
@@ -31,9 +32,8 @@ values remain under `.internal/` and are not committed.
 | Response hash coverage | `100%` |
 | Per-turn hash coverage | `100%` |
 
-The useful evidence is the contrast: a synthetic strategy component reached the final
-chief output when the responsible control was ablated, while bounded mode recorded zero
-final leaks and benign rows still passed.
+The table preserves historical detector and rule-derived counts. The ablation and
+verifier values are policy-simulation consistency, not independent causal effects.
 
 ## Validate
 
@@ -44,5 +44,5 @@ ash validate examples/marketing-web-live-sanitized
 ## Non-claims
 
 This example is not a CVE, not a model leaderboard, not a real-secret extraction, and
-not a production-swarm safety proof. It is a sanitized local empirical artifact for the
-declared marketing web-ingestion scenario.
+not a production-swarm safety proof. It is a legacy structural summary, not a
+current verified empirical artifact.

@@ -42,9 +42,7 @@ def _external_snapshot_open(req: object, *args: object, **kwargs: object) -> Mag
     }
     content = json.dumps(payload)
     resp = MagicMock()
-    resp.read.return_value = json.dumps(
-        {"choices": [{"message": {"content": content}}]}
-    ).encode()
+    resp.read.return_value = json.dumps({"choices": [{"message": {"content": content}}]}).encode()
     resp.__enter__ = lambda s: s
     resp.__exit__ = MagicMock(return_value=False)
     return resp
@@ -67,19 +65,22 @@ def test_golden_demo_run_snapshot(tmp_path: Path) -> None:
 
 def test_golden_comparison_snapshot(tmp_path: Path) -> None:
     out = tmp_path / "comparison"
-    assert cli.main([
-        "compare",
-        "--baseline",
-        "demo-agent",
-        "--protected",
-        "protected-demo-agent",
-        "--out",
-        str(out),
-    ]) == 0
-
-    _assert_same_file(
-        out / "comparison.md", GOLDEN / "comparison" / "comparison.md"
+    assert (
+        cli.main(
+            [
+                "compare",
+                "--baseline",
+                "demo-agent",
+                "--protected",
+                "protected-demo-agent",
+                "--out",
+                str(out),
+            ]
+        )
+        == 0
     )
+
+    _assert_same_file(out / "comparison.md", GOLDEN / "comparison" / "comparison.md")
     _assert_same_file(
         out / "baseline" / "scorecard.json",
         GOLDEN / "comparison" / "baseline" / "scorecard.json",
@@ -92,7 +93,19 @@ def test_golden_comparison_snapshot(tmp_path: Path) -> None:
 
 def test_golden_external_snapshot(tmp_path: Path) -> None:
     out = tmp_path / "external-pass"
-    with patch("urllib.request.urlopen", side_effect=_external_snapshot_open):
+    fixed_execution_id = "run_" + ("1" * 32)
+    with (
+        patch(
+            "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+            side_effect=_external_snapshot_open,
+        ),
+        patch(
+            "agentic_security_harness.external_runner.make_execution_id",
+            return_value=fixed_execution_id,
+        ),
+        patch("agentic_security_harness.external_runner.datetime") as clock,
+    ):
+        clock.now.return_value.strftime.return_value = "2026-07-15T00:00:00Z"
         run_external(
             base_url="http://localhost:8000/v1",
             model="snapshot-model",
@@ -107,6 +120,7 @@ def test_golden_external_snapshot(tmp_path: Path) -> None:
         "external_results.json",
         "external_summary.json",
         "external_report.md",
+        "run_index.json",
     ):
         _assert_same_file(out / name, GOLDEN / "external-pass" / name)
 

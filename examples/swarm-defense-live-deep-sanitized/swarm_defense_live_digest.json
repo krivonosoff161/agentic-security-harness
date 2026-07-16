@@ -15,7 +15,7 @@
     "chief_acceptances": 67,
     "canary_leaks": 0,
     "verifier_blocks": 70,
-    "response_hash_coverage": 1.0,
+    "response_hash_coverage": 0.9566326530612245,
     "chief_acceptance_rate": 0.39880952380952384,
     "worker_drift_rate": 0.017857142857142856,
     "canary_leak_rate": 0.0,
@@ -41,10 +41,6 @@
       "verifier_block_rate": [
         0.3448,
         0.4923
-      ],
-      "unsafe_block_rate": [
-        0.948,
-        1.0
       ],
       "benign_allow_rate": [
         0.9595,
@@ -135,6 +131,18 @@
     "chief_acceptance_by_topology_size": {
       "1": 44,
       "2": 23
+    },
+    "ground_truth": {
+      "eligible_observations": 161,
+      "labeled_observations": 0,
+      "coverage": 0.0,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "true_negatives": 0,
+      "precision": null,
+      "recall": null,
+      "specificity": null
     }
   },
   "raw_prompts_present": false,

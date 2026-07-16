@@ -92,11 +92,12 @@ Read these fields conservatively:
 | Field | Meaning |
 |---|---|
 | `bounded_*_acceptances = 0` | The deterministic bounded contract did not accept the declared unsafe transition. |
-| `ablation_*_acceptances` | The declared unsafe transition reappeared when named controls were disabled. |
-| `worker_drift_detections` / `chief_acceptances` | A sanitized local-model observation matched the declared synthetic drift/propagation detector. |
+| `ablation_*_acceptances` | In an executable specification, the evaluation rule marked the declared transition accepted when named controls were disabled; this is not an independent causal estimate. |
+| `worker_drift_detections` / `chief_acceptances` | A sanitized local-model observation matched the declared synthetic drift/propagation detector; it is not ground truth unless independently reviewed. |
 | `verifier_blocks` | The deterministic verifier classified the observation as blocked/reviewed. |
 | `adapter_errors` | A model/runtime call failed. Not a pass, not a finding, and not evidence of safety. |
-| `response_hash_coverage` | The fraction of observations that have the expected raw-response hashes in the private run. It proves artifact hygiene, not semantic truth. |
+| `ground_truth.coverage` | Fraction of non-error observations independently reviewed against private raw evidence. Precision/recall claims require non-zero coverage. |
+| `response_hash_coverage` | The fraction of expected public hash fields that are populated. A hash string does not prove private-byte retention, equality, execution origin, authorship, or semantic truth; those require reconciliation and, for authenticity, a trust root. |
 
 Campaign summaries may support a public claim only when the claim also states the
 non-claim: no production safety proof, no model leaderboard, no CVE, and no real-secret
@@ -111,9 +112,11 @@ artifacts are internally consistent and safe to publish:
   corpus manifest (schema, pattern ids, finding consistency, scorecard totals);
 - findings on non-protected targets are corpus-consistent; baseline targets must FAIL and
   protected targets must PASS; neutral adapters may do either (see the tiers below);
-- external `run_config` / `external_summary` aggregates are recomputed and must agree;
-  `request_count` matches results; the API key value never appears;
-- `run_index.json` manifests reference existing artifacts; external metadata is present;
+- current external `run_config` / result rows / `external_summary` share one pre-request
+  execution id; aggregates are recomputed, `request_count` matches results, the exact
+  report and manifest projection are bound, and the credential value never appears;
+- current `run_index.json` manifests bind the exact persisted bytes of every declared
+  artifact; legacy readable schemas provide weaker structural checks;
 - the category-level standards mapping is self-consistent;
 - no forbidden secret-shaped markers are present.
 
@@ -133,7 +136,7 @@ is safe".
 | Local deterministic target | `mock`, `demo-agent`, `protected-demo-agent` | offline | deterministic |
 | Toy target | `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent` - demo stand-ins exercising a subset of surfaces (legitimately PASS some patterns) | offline | deterministic |
 | Scenario matrix | `run-matrix` replays scenario variants and aggregates stability | offline | deterministic |
-| External prompt-only check | `run-external` against an OpenAI-compatible endpoint | opt-in only | stochastic possible |
+| External prompt-only check | `run-external --execute` against an OpenAI-compatible endpoint | opt-in only | stochastic possible |
 | Native / agent-host adapter | provider SDK or tool-executing agent | - | **future, not shipped** |
 
 See [capability-matrix.md](capability-matrix.md) for the full per-target table.

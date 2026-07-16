@@ -24,14 +24,16 @@ Commands:
   ash run-matrix  --target <target> --scenario <scenario> --out <dir>
                   [--max-variants N] [--variant VARIANT_ID]
   ash run-external --adapter openai-compatible --base-url URL --model MODEL
-                   --scenario <scenario> --out <dir> [--repeats N] [--dry-run]
+                   --scenario <scenario> --out <dir> [--repeats N] [--execute|--dry-run]
 
 All built-in targets are local, deterministic, and make no network or LLM calls.
-External runs require explicit user action and make network calls only when invoked.
+External runs make network calls only with the explicit ``--execute`` opt-in.
 """
 
 import argparse
 import json
+import sys
+from contextlib import redirect_stderr, redirect_stdout
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -42,6 +44,7 @@ from agentic_security_harness.patterns import seed_patterns
 from agentic_security_harness.presets import (
     apply_preset,
     infer_runtime_profile,
+    is_loopback_base_url,
     list_presets,
     preset_names,
 )
@@ -53,11 +56,17 @@ from agentic_security_harness.run_config import (
 )
 from agentic_security_harness.run_manifest import (
     build_manifest,
-    load_run_manifests,
     write_run_manifest,
 )
 from agentic_security_harness.runner import HarnessRunner
-from agentic_security_harness.safe_io import redact_artifact_text
+from agentic_security_harness.safe_io import (
+    is_internal_output_dir,
+    redact_artifact_text,
+    require_atomic_output_destination,
+    require_disjoint_output_dirs,
+    staged_evidence_bundle,
+)
+from agentic_security_harness.safe_terminal import SafeTerminalStream, terminal_field
 from agentic_security_harness.scenarios import list_scenarios, scenario_ids
 from agentic_security_harness.scorecard import build_scorecard
 from agentic_security_harness.validation import validate_path
@@ -69,12 +78,17 @@ def _now_utc() -> str:
     return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def _artifact_names(out: Path) -> list[str]:
-    """Relative file paths under ``out`` (excluding the manifest itself)."""
-    names: list[str] = []
-    for p in sorted(out.rglob("*")):
-        if p.is_file() and p.name != "run_index.json":
-            names.append(p.relative_to(out).as_posix())
+def _core_report_artifacts(prefix: str, *, has_findings: bool) -> list[str]:
+    """Return the authoritative inventory for one deterministic core report."""
+
+    names = [
+        f"{prefix}traces.json",
+        f"{prefix}scorecard.json",
+        f"{prefix}summary.md",
+        f"{prefix}executive.md",
+    ]
+    if has_findings:
+        names.extend([f"{prefix}remediation.json", f"{prefix}remediation.md"])
     return names
 
 
@@ -85,18 +99,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    run_p = sub.add_parser(
-        "run", help="run the seed patterns against a target and write reports"
-    )
+    run_p = sub.add_parser("run", help="run the seed patterns against a target and write reports")
     run_p.add_argument(
         "--target",
         choices=_TARGETS,
         default="mock",
         help="target to test (all local, synthetic, no network)",
     )
-    run_p.add_argument(
-        "--out", type=Path, default=Path("reports/demo"), help="output directory"
-    )
+    run_p.add_argument("--out", type=Path, default=Path("reports/demo"), help="output directory")
 
     cmp_p = sub.add_parser(
         "compare",
@@ -141,9 +151,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("targets", help="list registered built-in targets")
 
-    scen_p = sub.add_parser(
-        "scenarios", help="list scenario templates and included pattern counts"
-    )
+    scen_p = sub.add_parser("scenarios", help="list scenario templates and included pattern counts")
     scen_p.add_argument(
         "--verbose",
         action="store_true",
@@ -174,6 +182,7 @@ def build_parser() -> argparse.ArgumentParser:
             "artifact-e2e-observation",
             "boundary-lock",
             "boundary-lock-review",
+            "entrypoint-closure",
             "experiment-plan",
             "experiment-template",
             "experiment-baseline-fixture",
@@ -204,6 +213,7 @@ def build_parser() -> argparse.ArgumentParser:
             "artifact-e2e-observation summarizes real paper artifacts without raw rows; "
             "boundary-lock scans allowlisted observation files for boundary markers; "
             "boundary-lock-review classifies boundary markers without source lines; "
+            "entrypoint-closure follows the canonical local import graph without execution; "
             "experiment-plan prepares controlled parallel paper experiments; "
             "experiment-template writes a private payload-free experiment template; "
             "experiment-baseline-fixture writes observed private baseline rows; "
@@ -385,10 +395,16 @@ def build_parser() -> argparse.ArgumentParser:
             f"(patterns x variants x repeats; default: {_MAX_TOTAL_REQUESTS})"
         ),
     )
-    ext_p.add_argument(
+    external_mode = ext_p.add_mutually_exclusive_group()
+    external_mode.add_argument(
+        "--execute",
+        action="store_true",
+        help="make model requests and write artifacts (default: dry-run, no network, no files)",
+    )
+    external_mode.add_argument(
         "--dry-run",
         action="store_true",
-        help="preview request count and config; makes no network call, writes no files",
+        help="explicitly preview request count and config (also the default)",
     )
 
     check_p = sub.add_parser(
@@ -455,7 +471,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     runs_p = sub.add_parser(
         "list-runs",
-        help="list run directories (run_index.json) found under a root path",
+        help="list current content-bound run directories that pass validation",
     )
     runs_p.add_argument(
         "--root",
@@ -472,14 +488,18 @@ def build_parser() -> argparse.ArgumentParser:
 
     index_p = sub.add_parser(
         "index-runs",
-        help="index run manifests under a root into a local SQLite file (metadata only)",
+        help="index current validated run manifests into SQLite (metadata only)",
     )
     index_p.add_argument(
-        "--root", type=Path, default=Path("reports"),
+        "--root",
+        type=Path,
+        default=Path("reports"),
         help="directory to scan for run manifests (default: reports)",
     )
     index_p.add_argument(
-        "--db", type=Path, default=Path("reports/runs.db"),
+        "--db",
+        type=Path,
+        default=Path("reports/runs.db"),
         help="SQLite index path (default: reports/runs.db)",
     )
 
@@ -487,9 +507,7 @@ def build_parser() -> argparse.ArgumentParser:
         "doctor",
         help="run onboarding diagnostics (no network unless --live-local)",
     )
-    doctor_p.add_argument(
-        "--json", action="store_true", help="emit a machine-readable JSON report"
-    )
+    doctor_p.add_argument("--json", action="store_true", help="emit a machine-readable JSON report")
     doctor_p.add_argument(
         "--live-local",
         action="store_true",
@@ -576,7 +594,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     stats_p = sub.add_parser(
         "stats",
-        help="summarize run history from run_index.json manifests",
+        help="summarize current validated run history",
     )
     stats_p.add_argument(
         "--root",
@@ -599,7 +617,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     retention_p = sub.add_parser(
         "retention",
-        help="plan or apply retention for old run directories",
+        help="plan or apply retention for old current validated run directories",
     )
     retention_p.add_argument(
         "--root",
@@ -623,6 +641,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--apply",
         action="store_true",
         help="remove selected run directories (default is dry-run plan only)",
+    )
+    retention_p.add_argument(
+        "--accept-unsigned-chronology",
+        action="store_true",
+        help=(
+            "explicitly accept manifest created_at as unsigned ordering metadata "
+            "when applying deletion"
+        ),
     )
     retention_p.add_argument(
         "--format",
@@ -799,12 +825,18 @@ def build_parser() -> argparse.ArgumentParser:
     swarm_matrix_p.add_argument(
         "--write",
         action="store_true",
-        help="write deterministic matrix artifacts (default: dry-run only)",
+        help=(
+            "write deterministic matrix artifacts (default: dry-run only; cannot be "
+            "combined with --execute-model in one output root)"
+        ),
     )
     swarm_matrix_p.add_argument(
         "--execute-model",
         action="store_true",
-        help="run local model evidence-quality probes for executable deep matrix rows",
+        help=(
+            "run private local-model evidence-quality probes under .internal; use a "
+            "separate command/output root for the deterministic bundle"
+        ),
     )
     swarm_matrix_p.add_argument(
         "--preset",
@@ -869,7 +901,10 @@ def build_parser() -> argparse.ArgumentParser:
     secret_p.add_argument(
         "--write",
         action="store_true",
-        help="write sanitized deterministic campaign artifacts",
+        help=(
+            "write sanitized deterministic campaign artifacts in a separate command "
+            "from private model probes"
+        ),
     )
     secret_p.add_argument(
         "--execute-model",
@@ -940,7 +975,10 @@ def build_parser() -> argparse.ArgumentParser:
     semantic_p.add_argument(
         "--write",
         action="store_true",
-        help="write sanitized deterministic campaign artifacts",
+        help=(
+            "write sanitized deterministic campaign artifacts in a separate command "
+            "from private model probes"
+        ),
     )
     semantic_p.add_argument(
         "--execute",
@@ -998,7 +1036,10 @@ def build_parser() -> argparse.ArgumentParser:
     propagation_p.add_argument(
         "--write",
         action="store_true",
-        help="write sanitized deterministic propagation artifacts",
+        help=(
+            "write sanitized deterministic propagation artifacts in a separate command "
+            "from private model probes"
+        ),
     )
     propagation_p.add_argument(
         "--execute",
@@ -1118,8 +1159,7 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=1,
         help=(
-            "worker turns before chief review (default: 1; use 3 for bounded "
-            "long-session pressure)"
+            "worker turns before chief review (default: 1; use 3 for bounded long-session pressure)"
         ),
     )
     live_contour_p.add_argument(
@@ -1154,19 +1194,13 @@ def build_parser() -> argparse.ArgumentParser:
         "--out",
         type=Path,
         default=Path(".internal/marketing-web-injection/latest"),
-        help=(
-            "private output directory "
-            "(default: .internal/marketing-web-injection/latest)"
-        ),
+        help=("private output directory (default: .internal/marketing-web-injection/latest)"),
     )
     marketing_web_p.add_argument(
         "--summary-out",
         type=Path,
         default=Path("reports/marketing-web-injection"),
-        help=(
-            "sanitized output directory "
-            "(default: reports/marketing-web-injection)"
-        ),
+        help=("sanitized output directory (default: reports/marketing-web-injection)"),
     )
     marketing_web_p.add_argument(
         "--write",
@@ -1343,32 +1377,35 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _run(target: str, out: Path) -> int:
-    traces = HarnessRunner(make_target(target)).run_many(seed_patterns())
-    scorecard = build_scorecard(traces)
-    write_reports(traces, scorecard, out)
-    from agentic_security_harness.remediation import build_recommendations
+    try:
+        with staged_evidence_bundle(out) as staging_out:
+            traces = HarnessRunner(make_target(target)).run_many(seed_patterns())
+            scorecard = build_scorecard(traces)
+            write_reports(traces, scorecard, staging_out)
+            from agentic_security_harness.remediation import build_recommendations
 
-    remediation = build_recommendations(traces, scorecard)
-    rem_files = []
-    if remediation.recommendations:
-        rem_files = ["remediation.json", "remediation.md"]
-    all_files = (
-        ["traces.json", "scorecard.json", "summary.md", "executive.md"] + rem_files
-    )
-    manifest = build_manifest(
-        "run",
-        out,
-        target=scorecard.target_name,
-        scenario="seed-corpus",
-        outcomes={
-            "failed": len(scorecard.failed_patterns),
-            "passed": len(scorecard.passed_patterns),
-        },
-        artifacts=_artifact_names(out),
-        tool_version=__version__,
-        created_at=_now_utc(),
-    )
-    write_run_manifest(out, manifest)
+            remediation = build_recommendations(traces, scorecard)
+            rem_files = []
+            if remediation.recommendations:
+                rem_files = ["remediation.json", "remediation.md"]
+            all_files = ["traces.json", "scorecard.json", "summary.md", "executive.md"] + rem_files
+            manifest = build_manifest(
+                "run",
+                staging_out,
+                target=scorecard.target_name,
+                scenario="seed-corpus",
+                outcomes={
+                    "failed": len(scorecard.failed_patterns),
+                    "passed": len(scorecard.passed_patterns),
+                },
+                artifacts=all_files,
+                tool_version=__version__,
+                created_at=_now_utc(),
+            )
+            write_run_manifest(staging_out, manifest)
+    except (OSError, ValueError) as exc:
+        print(f"Error: {exc}")
+        return 1
     print(f"wrote {', '.join(all_files)}, run_index.json to {out.as_posix()}")
     print(
         f"target: {scorecard.target_name}  "
@@ -1384,26 +1421,44 @@ def _run(target: str, out: Path) -> int:
 
 
 def _compare(baseline: str, protected: str, out: Path) -> int:
-    patterns = seed_patterns()
-    base_traces = HarnessRunner(make_target(baseline)).run_many(patterns)
-    base_card = build_scorecard(base_traces)
-    prot_traces = HarnessRunner(make_target(protected)).run_many(patterns)
-    prot_card = build_scorecard(prot_traces)
-    write_comparison(out, base_traces, base_card, prot_traces, prot_card)
-    manifest = build_manifest(
-        "compare",
-        out,
-        target=f"{base_card.target_name} vs {prot_card.target_name}",
-        scenario="seed-corpus",
-        outcomes={
-            "baseline_failed": len(base_card.failed_patterns),
-            "protected_failed": len(prot_card.failed_patterns),
-        },
-        artifacts=_artifact_names(out),
-        tool_version=__version__,
-        created_at=_now_utc(),
-    )
-    write_run_manifest(out, manifest)
+    try:
+        with staged_evidence_bundle(out) as staging_out:
+            patterns = seed_patterns()
+            base_traces = HarnessRunner(make_target(baseline)).run_many(patterns)
+            base_card = build_scorecard(base_traces)
+            prot_traces = HarnessRunner(make_target(protected)).run_many(patterns)
+            prot_card = build_scorecard(prot_traces)
+            write_comparison(staging_out, base_traces, base_card, prot_traces, prot_card)
+            artifacts = ["comparison.md"]
+            artifacts.extend(
+                _core_report_artifacts(
+                    "baseline/",
+                    has_findings=bool(base_card.failed_patterns),
+                )
+            )
+            artifacts.extend(
+                _core_report_artifacts(
+                    "protected/",
+                    has_findings=bool(prot_card.failed_patterns),
+                )
+            )
+            manifest = build_manifest(
+                "compare",
+                staging_out,
+                target=f"{base_card.target_name} vs {prot_card.target_name}",
+                scenario="seed-corpus",
+                outcomes={
+                    "baseline_failed": len(base_card.failed_patterns),
+                    "protected_failed": len(prot_card.failed_patterns),
+                },
+                artifacts=artifacts,
+                tool_version=__version__,
+                created_at=_now_utc(),
+            )
+            write_run_manifest(staging_out, manifest)
+    except (OSError, ValueError) as exc:
+        print(f"Error: {exc}")
+        return 1
     print(f"wrote baseline/, protected/, comparison.md, run_index.json to {out.as_posix()}")
     print(
         f"baseline: {base_card.target_name} "
@@ -1417,11 +1472,28 @@ def _compare(baseline: str, protected: str, out: Path) -> int:
 
 def _validate(path: Path, output_format: str = "text") -> int:
     result = validate_path(path)
+    unverified_private_projections = sum(
+        status.projection_verification == "unverified-private-projection"
+        for status in result.evidence_statuses
+    )
+    unverified_declarations = sum(
+        status.projection_verification == "unverified-maintainer-declaration"
+        for status in result.evidence_statuses
+    )
+    legacy_rule_snapshots = sum(
+        status.projection_verification == "legacy-structural-only"
+        for status in result.evidence_statuses
+    )
     redacted_errors = [redact_artifact_text(msg) for msg in result.errors]
+    redacted_expectations = [redact_artifact_text(msg) for msg in result.expectation_mismatches]
     redacted_warnings = [redact_artifact_text(msg) for msg in result.warnings]
     if output_format == "json":
         safe_result = result.model_copy(
-            update={"errors": redacted_errors, "warnings": redacted_warnings}
+            update={
+                "errors": redacted_errors,
+                "expectation_mismatches": redacted_expectations,
+                "warnings": redacted_warnings,
+            }
         )
         # Validation messages are redacted before printing.
         # codeql[py/clear-text-logging-sensitive-data]
@@ -1457,33 +1529,62 @@ def _validate(path: Path, output_format: str = "text") -> int:
         f"{len(result.planner_task_campaign_dirs)} "
         "planner-task-campaign dir(s), "
         f"{len(result.memory_rehydration_campaign_dirs)} "
-        "memory-rehydration-campaign dir(s)"
+        "memory-rehydration-campaign dir(s), "
+        f"{len(result.evidence_status_registry_files)} "
+        "evidence-status-registry file(s)"
     )
-    print(f"errors: {len(result.errors)}  warnings: {len(result.warnings)}")
-    if redacted_errors or redacted_warnings:
+    print(
+        f"integrity errors: {len(result.errors)}  "
+        f"expectation mismatches: {len(result.expectation_mismatches)}  "
+        f"warnings: {len(result.warnings)}"
+    )
+    if legacy_rule_snapshots:
+        print(
+            "EVIDENCE LIMITATION: "
+            f"legacy rule snapshots: {legacy_rule_snapshots}; structural consistency does "
+            "not bind those rows to the current executable corpus"
+        )
+    if result.evidence_statuses:
+        print(
+            f"evidence statuses: {len(result.evidence_statuses)}  "
+            f"unverified private projections: {unverified_private_projections}  "
+            f"unverified maintainer declarations: {unverified_declarations}"
+        )
+    if redacted_errors or redacted_expectations or redacted_warnings:
         print(
             "Validation message details are hidden in text output to avoid "
             "printing artifact contents."
         )
         print("Use `ash validate --format json` for redacted machine-readable details.")
-    if result.ok:
+    if result.integrity_ok and result.expectations_ok:
         print(
-            "OK: artifacts conform to the corpus manifest "
+            "OK: artifacts satisfy their applicable validation contracts "
             "and contain no forbidden markers"
         )
         print("(artifact integrity only - not a safety or security guarantee)")
+        if unverified_private_projections:
+            print(
+                "EVIDENCE LIMITATION: one or more public summaries have "
+                "unverified-private-projection status; integrity OK does not "
+                "reconcile private bytes or authenticate execution origin"
+            )
+        if unverified_declarations:
+            print(
+                "EVIDENCE LIMITATION: one or more status rows are unverified "
+                "maintainer declarations; documentation alone does not prove that "
+                "the declared run occurred"
+            )
+    elif result.integrity_ok:
+        print("INTEGRITY OK; EXPECTATION FAILED: evidence is valid but outcome regressed")
     else:
-        print("FAILED: see errors above")
+        print("INTEGRITY FAILED: see errors above")
     return 0 if result.ok else 1
 
 
 def _targets() -> int:
     for info in list_targets():
         det = "deterministic" if info.deterministic else "stochastic"
-        print(
-            f"{info.target_id:30s} {info.name:30s} "
-            f"{info.type:20s} {det:12s} {info.description}"
-        )
+        print(f"{info.target_id:30s} {info.name:30s} {info.type:20s} {det:12s} {info.description}")
     return 0
 
 
@@ -1491,10 +1592,7 @@ def _scenarios(verbose: bool = False) -> int:
     for scenario in list_scenarios():
         n = len(scenario.pattern_ids)
         nv = len(scenario.variants)
-        print(
-            f"{scenario.scenario_id:25s} {n:3d} patterns  "
-            f"{nv:2d} variants  {scenario.title}"
-        )
+        print(f"{scenario.scenario_id:25s} {n:3d} patterns  {nv:2d} variants  {scenario.title}")
         if verbose:
             for v in scenario.variants:
                 knobs = ", ".join(f"{k}={val}" for k, val in v.knobs.items())
@@ -1519,6 +1617,7 @@ def _trading_stand(
         paper_artifact_e2e_observation,
         paper_artifact_invariant_probe,
         paper_artifact_probe,
+        paper_entrypoint_import_closure,
         paper_experiment_plan,
         paper_experiment_readiness,
         private_experiment_intake_report,
@@ -1596,10 +1695,7 @@ def _trading_stand(
             return 1
     elif mode == "invariant-negative-control-fixture":
         if fixture_path is None:
-            print(
-                "Error: --fixture-path is required for "
-                "invariant-negative-control-fixture mode"
-            )
+            print("Error: --fixture-path is required for invariant-negative-control-fixture mode")
             return 1
         try:
             data = write_private_invariant_negative_control_fixture(fixture_path)
@@ -1608,10 +1704,7 @@ def _trading_stand(
             return 1
     elif mode == "invariant-weak-control-fixture":
         if fixture_path is None:
-            print(
-                "Error: --fixture-path is required for "
-                "invariant-weak-control-fixture mode"
-            )
+            print("Error: --fixture-path is required for invariant-weak-control-fixture mode")
             return 1
         try:
             data = write_private_invariant_weak_control_fixture(fixture_path)
@@ -1632,6 +1725,11 @@ def _trading_stand(
             print("Error: --target-path is required for static-probe mode")
             return 1
         data = static_probe_target(target_path)
+    elif mode == "entrypoint-closure":
+        if target_path is None:
+            print("Error: --target-path is required for entrypoint-closure mode")
+            return 1
+        data = paper_entrypoint_import_closure(target_path)
     elif mode == "artifact-probe":
         if target_path is None:
             print("Error: --target-path is required for artifact-probe mode")
@@ -1686,10 +1784,7 @@ def _trading_stand(
             return 1
     elif mode == "experiment-negative-control-fixture":
         if fixture_path is None:
-            print(
-                "Error: --fixture-path is required for "
-                "experiment-negative-control-fixture mode"
-            )
+            print("Error: --fixture-path is required for experiment-negative-control-fixture mode")
             return 1
         try:
             data = write_private_experiment_negative_control_fixture(fixture_path)
@@ -1716,10 +1811,7 @@ def _trading_stand(
             return 1
     elif mode == "validate-experiment-batch-manifest":
         if fixture_path is None:
-            print(
-                "Error: --fixture-path is required for "
-                "validate-experiment-batch-manifest mode"
-            )
+            print("Error: --fixture-path is required for validate-experiment-batch-manifest mode")
             return 1
         try:
             data = validate_private_experiment_batch_manifest_file(fixture_path)
@@ -1782,7 +1874,7 @@ def _trading_stand(
             return 1
 
     if output_format == "json":
-        print(json.dumps(data, indent=2))
+        print(redact_artifact_text(json.dumps(data, indent=2)))
         return 0
 
     print(f"profile: {data['profile_id']}")
@@ -1886,14 +1978,27 @@ def _trading_stand(
             print("payloads included: false")
             print("private values included: false")
             for issue in data["issues"]:
-                print(
-                    f"- {issue['scenario_id']} {issue['field']}: "
-                    f"{issue['code']}"
-                )
+                print(f"- {issue['scenario_id']} {issue['field']}: {issue['code']}")
         elif mode == "static-probe":
             print(f"scenarios: {data['scenario_count']}")
             print(f"status counts: {data['status_counts']}")
             print("raw contents included: false")
+        elif mode == "entrypoint-closure":
+            print(f"closure: {data['status']}  complete={data['complete']}")
+            print(
+                f"batch files: {data['batch_file_count']}  "
+                f"python files: {data['python_file_count']}"
+            )
+            print(f"blockers: {data['blockers']}")
+            print(
+                f"security: {data['security_status']}  "
+                f"clear={data['security_clear']}"
+            )
+            print(f"sink categories: {data['sink_categories']}")
+            print(f"security blockers: {data['security_blockers']}")
+            print(f"environment/provider order: {data['environment_provider_order']}")
+            print("raw contents included: false")
+            print("source lines included: false")
         elif mode == "artifact-probe":
             print(f"artifacts: {data['artifact_count']}")
             print(f"status counts: {data['status_counts']}")
@@ -1946,10 +2051,7 @@ def _trading_stand(
                 print(f"artifact checks ok: {evidence_gate['artifact_checks_ok']}")
                 print(f"execution boundary ok: {evidence_gate['execution_boundary_ok']}")
                 print(f"evidence result class: {evidence_gate['result_class']}")
-                print(
-                    "evidence quality findings: "
-                    f"{evidence_gate['evidence_quality_findings']}"
-                )
+                print(f"evidence quality findings: {evidence_gate['evidence_quality_findings']}")
         elif mode == "experiment-template":
             print(f"template path: {data['path']}")
             print(f"records: {data['record_count']}  batches: {data['batch_count']}")
@@ -2021,6 +2123,11 @@ def _trading_stand(
             )
             print(f"blockers: {data['blockers']}")
             print(f"real target observations: {data['real_target_observation_count']}")
+            print(
+                "self-declared target observations: "
+                f"{data['self_declared_target_observation_count']}"
+            )
+            print(f"observation authority: {data['observation_authority']}")
             print(f"synthetic controls: {data['synthetic_control_count']}")
             print(f"batch manifest ok: {data['batch_manifest_ok']}")
             counts = data["result_counts"]
@@ -2060,10 +2167,7 @@ def _trading_stand(
             print("payloads included: false")
             print("private values included: false")
             for issue in data["issues"]:
-                print(
-                    f"- {issue['scenario_id']} {issue['field']}: "
-                    f"{issue['code']}"
-                )
+                print(f"- {issue['scenario_id']} {issue['field']}: {issue['code']}")
         elif mode == "sanitize-experiment":
             counts = data["result_counts"]
             print(f"records: {data['record_count']}  batches: {data['batch_count']}")
@@ -2078,17 +2182,26 @@ def _trading_stand(
             print("private calculations included: false")
         else:
             print(f"status: {data['status']}  ok={data['ok']}")
-            print(f"reason: {data['reason']}")
+            print(f"reason: {terminal_field(data['reason'])}")
             for gate in data["gates"]:
                 mark = "PASS" if gate["ok"] else "FAIL"
-                print(f"  {mark} {gate['gate_id']}: {gate['current_state']}")
+                print(
+                    f"  {mark} {terminal_field(gate['gate_id'])}: "
+                    f"{terminal_field(gate['current_state'])}"
+                )
         preflight = data.get("preflight")
         if isinstance(preflight, dict):
             status = "ok" if preflight.get("ok") else "failed"
-            print(f"preflight: {status}  target_path={preflight.get('target_path')}")
+            print(
+                f"preflight: {status}  "
+                f"target_path={terminal_field(preflight.get('target_path'))}"
+            )
             for check in preflight.get("checks", []):
                 mark = "PASS" if check.get("ok") else "FAIL"
-                print(f"  {mark} {check.get('check_id')}: {check.get('message')}")
+                print(
+                    f"  {mark} {terminal_field(check.get('check_id'))}: "
+                    f"{terminal_field(check.get('message'))}"
+                )
     return 0
 
 
@@ -2108,9 +2221,7 @@ def _run_matrix(
         print(f"Scenario: {scenario.scenario_id} - {scenario.title}")
         print(f"Available variants ({len(scenario.variants)}):")
         for v in scenario.variants:
-            knobs = ", ".join(
-                f"{k}={val}" for k, val in v.knobs.items()
-            )
+            knobs = ", ".join(f"{k}={val}" for k, val in v.knobs.items())
             print(f"  {v.variant_id:30s} {v.title}")
             if knobs:
                 print(f"  {'':30s} knobs: {knobs}")
@@ -2123,35 +2234,40 @@ def _run_matrix(
         return 1
 
     try:
-        report = run_matrix(
-            target,
-            scenario_id,
-            out,
-            target_id=target_id,
-            max_variants=max_variants,
-            only_variant_id=variant_id,
-        )
-    except KeyError as exc:
+        with staged_evidence_bundle(out) as staging_out:
+            report = run_matrix(
+                target,
+                scenario_id,
+                staging_out,
+                target_id=target_id,
+                max_variants=max_variants,
+                only_variant_id=variant_id,
+            )
+            s = report.summary
+            artifacts = _core_report_artifacts(
+                "",
+                has_findings=bool(report.summary.failed_variants),
+            )
+            artifacts.extend(["matrix.json", "matrix.md"])
+            manifest = build_manifest(
+                "matrix",
+                staging_out,
+                target=report.target_name,
+                scenario=report.scenario_id,
+                variants=[v.variant_id for v in report.variants],
+                outcomes={
+                    "failed_variants": s.failed_variants,
+                    "passed_variants": s.passed_variants,
+                    "total_traces": s.total_traces,
+                },
+                artifacts=artifacts,
+                tool_version=__version__,
+                created_at=_now_utc(),
+            )
+            write_run_manifest(staging_out, manifest)
+    except (KeyError, OSError, ValueError) as exc:
         print(f"Error: {exc}")
         return 1
-
-    s = report.summary
-    manifest = build_manifest(
-        "matrix",
-        out,
-        target=report.target_name,
-        scenario=report.scenario_id,
-        variants=[v.variant_id for v in report.variants],
-        outcomes={
-            "failed_variants": s.failed_variants,
-            "passed_variants": s.passed_variants,
-            "total_traces": s.total_traces,
-        },
-        artifacts=_artifact_names(out),
-        tool_version=__version__,
-        created_at=_now_utc(),
-    )
-    write_run_manifest(out, manifest)
     print(f"wrote matrix artifacts, run_index.json to {out.as_posix()}")
     print(
         f"target: {report.target_name}  "
@@ -2191,10 +2307,7 @@ def _run_external(
         return 1
 
     if adapter != "openai-compatible":
-        print(
-            f"Error: unsupported adapter '{adapter}'. "
-            "Only 'openai-compatible' is supported."
-        )
+        print(f"Error: unsupported adapter '{adapter}'. Only 'openai-compatible' is supported.")
         return 1
     if retries < 0 or retries > 3:
         print("Error: retries must be between 0 and 3")
@@ -2245,7 +2358,7 @@ def _run_external(
                 f"  Credential env var required: {credential_env_var} "
                 "(set its value in your shell before the live run)."
             )
-        print("Next: re-run without --dry-run to execute.")
+        print("Next: re-run with --execute to make requests and write artifacts.")
         return 0
 
     print(f"Estimated requests: {estimate}  (cap: {max_requests})")
@@ -2255,7 +2368,10 @@ def _run_external(
         f"network_mode: {runtime_profile.network_mode}  "
         f"prompt_only: true"
     )
-    print("Credential values are never stored; only the env var name is recorded.")
+    print(
+        "Credential values and env-var names are never stored; artifacts record only "
+        "whether a credential variable was configured."
+    )
 
     try:
         summary = run_external(
@@ -2274,54 +2390,14 @@ def _run_external(
             dry_run=False,
             preset_name=preset_name,
         )
-    except KeyError as exc:
+    except (KeyError, ValueError) as exc:
         print(f"Error: {exc}")
         return 1
 
-    manifest = build_manifest(
-        "external",
-        out,
-        model=summary.model,
-        scenario=summary.scenario_id,
-        repeats=repeats,
-        outcomes={
-            "checks": summary.total_checks,
-            "requests": summary.total_repeats,
-            "findings": len(summary.patterns_with_findings),
-            "flaky": len(summary.flaky_patterns),
-            "inconclusive": len(summary.inconclusive_patterns),
-            "errors": len(summary.error_patterns),
-        },
-        metadata={
-            "adapter_type": "openai-compatible",
-            "model": summary.model,
-            "base_url_label": _redact_url(base_url),
-            "scenario": summary.scenario_id,
-            "max_variants": max_variants,
-            "repeats": repeats,
-            "temperature": temperature,
-            "timeout_seconds": timeout,
-            "max_retries": retries,
-            "raw_response_limit": raw_response_limit,
-            "request_count": summary.total_repeats,
-            "runtime_name": runtime_profile.runtime_name,
-            "runtime_family": runtime_profile.runtime_family,
-            "network_mode": runtime_profile.network_mode,
-            "authorization_mode": runtime_profile.authorization_mode,
-            "local_only": runtime_profile.local_only,
-            "prompt_only": True,
-            "tool_execution": False,
-            "credential_env_var": credential_env_var,
-        },
-        artifacts=_artifact_names(out),
-        tool_version=__version__,
-        created_at=_now_utc(),
-    )
-    write_run_manifest(out, manifest)
     print(f"wrote external report artifacts, run_index.json to {out.as_posix()}")
     print(
-        f"model: {summary.model}  "
-        f"scenario: {summary.scenario_id}  "
+        f"model: {terminal_field(summary.model)}  "
+        f"scenario: {terminal_field(summary.scenario_id)}  "
         f"checks: {summary.total_checks}  "
         f"requests: {summary.total_repeats}  "
         f"findings: {len(summary.patterns_with_findings)}  "
@@ -2332,7 +2408,7 @@ def _run_external(
             f"  {len(summary.error_patterns)} pattern(s) errored "
             "(see external_results.json for structured errors)."
         )
-    print(f"Start here: {(out / 'external_report.md').as_posix()}  (run id {manifest.run_id})")
+    print(f"Start here: {(out / 'external_report.md').as_posix()}  (run id {summary.execution_id})")
     print("Next: ash validate " + out.as_posix())
     return 0
 
@@ -2374,8 +2450,7 @@ def _doctor(
 def _external_presets() -> int:
     print("Connection presets for the external OpenAI-compatible path:")
     print(
-        "(presets only fill a default base URL + credential env-var NAME; "
-        "network is still opt-in)"
+        "(presets only fill a default base URL + credential env-var NAME; network is still opt-in)"
     )
     print(f"{'preset':26s} {'key':4s} base_url")
     for p in list_presets():
@@ -2394,6 +2469,9 @@ def _diff_runs(left: Path, right: Path, out: Path) -> int:
         if not p.exists() or not p.is_dir():
             print(f"Error: {label} run directory not found: {p.as_posix()}")
             return 1
+    if _diff_output_overlaps_source(out, left, right):
+        print("Error: --out must not equal, contain, or be inside either source run.")
+        return 1
     try:
         diff = diff_runs(left, right)
     except ValueError as exc:
@@ -2422,7 +2500,14 @@ def _compare_models(left: Path, right: Path, out: Path, output_format: str = "te
         if detect_kind(p) != "external":
             print(f"Error: {label} is not an external run directory: {p.as_posix()}")
             return 1
-    diff = diff_runs(left, right)
+    if _diff_output_overlaps_source(out, left, right):
+        print("Error: --out must not equal, contain, or be inside either source run.")
+        return 1
+    try:
+        diff = diff_runs(left, right)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
     write_run_diff(diff, out)
     if output_format == "json":
         print(json.dumps(diff.model_dump(mode="json"), indent=2))
@@ -2433,18 +2518,42 @@ def _compare_models(left: Path, right: Path, out: Path, output_format: str = "te
         f"changed_status: {diff.changed_status}  "
         f"inconclusive_error_drift: {diff.inconclusive_error_drift}"
     )
-    print("inconclusive/error are not pass or finding; they never count as a fix or "
-          "new finding.")
+    print("inconclusive/error are not pass or finding; they never count as a fix or new finding.")
     print("Comparison is based on recorded external artifacts; it does not call models.")
     return 0
+
+
+def _diff_output_overlaps_source(out: Path, left: Path, right: Path) -> bool:
+    return _output_overlaps_any(out, [left, right])
+
+
+def _output_overlaps_any(out: Path, sources: list[Path]) -> bool:
+    resolved_out = out.resolve(strict=False)
+    for source_path in sources:
+        source = source_path.resolve(strict=False)
+        if resolved_out == source:
+            return True
+        if resolved_out in source.parents or source in resolved_out.parents:
+            return True
+    return False
 
 
 def _evidence_quality(root: Path, out: Path | None, output_format: str = "text") -> int:
     from agentic_security_harness.evidence_quality import (
         build_evidence_quality_report,
+        discover_external_run_dirs,
+        discover_local_swarm_run_dirs,
         write_evidence_quality,
     )
 
+    if out is not None:
+        source_dirs = [
+            *discover_external_run_dirs(root),
+            *discover_local_swarm_run_dirs(root),
+        ]
+        if _output_overlaps_any(out, source_dirs):
+            print("Error: --out must not equal, contain, or be inside a source run.")
+            return 1
     report = build_evidence_quality_report(root)
     if out is not None:
         paths = write_evidence_quality(report, out)
@@ -2469,18 +2578,12 @@ def _evidence_quality(root: Path, out: Path | None, output_format: str = "text")
     )
     print(f"  local_swarm_runs: {report.local_swarm_runs_count}")
     print(f"  local_swarm_results: {report.local_swarm_results}")
-    print(
-        "  local_swarm_contract_coverage_rate: "
-        f"{report.local_swarm_contract_coverage_rate:.3f}"
-    )
+    print(f"  local_swarm_contract_coverage_rate: {report.local_swarm_contract_coverage_rate:.3f}")
     print(
         "  local_swarm_transcript_hash_coverage_rate: "
         f"{report.local_swarm_transcript_hash_coverage_rate:.3f}"
     )
-    print(
-        "  local_swarm_adapter_error_rate: "
-        f"{report.local_swarm_adapter_error_rate:.3f}"
-    )
+    print(f"  local_swarm_adapter_error_rate: {report.local_swarm_adapter_error_rate:.3f}")
     print(
         "  local_swarm_runtime_mode_coverage_rate: "
         f"{report.local_swarm_runtime_mode_coverage_rate:.3f}"
@@ -2490,13 +2593,25 @@ def _evidence_quality(root: Path, out: Path | None, output_format: str = "text")
         print(f"wrote evidence_quality.md to {paths['markdown'].as_posix()}")
     if report.warnings:
         print(f"warnings: {len(report.warnings)}")
+        for warning in report.warnings:
+            print(f"  warning: {warning}")
     print("Derived analysis only: no model calls, no leaderboard, no safety proof.")
     return 0
 
 
 def _stats(root: Path, out: Path | None, output_format: str = "text") -> int:
+    from agentic_security_harness.run_manifest import load_validated_run_manifests
     from agentic_security_harness.stats import build_run_stats, write_run_stats
 
+    if out is not None:
+        source_dirs = [
+            manifest_path.parent
+            for manifest_path, manifest in load_validated_run_manifests(root)
+            if manifest.run_kind != "run_stats"
+        ]
+        if _output_overlaps_any(out, source_dirs):
+            print("Error: --out must not equal, contain, or be inside a source run.")
+            return 1
     stats = build_run_stats(root)
     if out is not None:
         write_run_stats(stats, out)
@@ -2517,10 +2632,15 @@ def _retention(
     keep_last: int,
     kinds: list[str],
     apply: bool,
+    accept_unsigned_chronology: bool,
     output_format: str = "text",
 ) -> int:
     from agentic_security_harness.run_manifest import _RUN_KINDS
-    from agentic_security_harness.stats import apply_retention_plan, build_retention_plan
+    from agentic_security_harness.stats import (
+        apply_retention_plan,
+        build_retention_plan,
+        retention_plan_public_projection,
+    )
 
     bad = sorted(set(kinds) - set(_RUN_KINDS))
     if bad:
@@ -2532,24 +2652,39 @@ def _retention(
         print(f"Error: {exc}")
         return 1
     if output_format == "json" and not apply:
-        print(json.dumps(plan.model_dump(mode="json"), indent=2))
+        print(json.dumps(retention_plan_public_projection(plan), indent=2))
         return 0
+    public_plan = retention_plan_public_projection(plan)
     print(
-        f"Retention plan for {root.as_posix()}: "
+        f"Retention plan for {public_plan['root']}: "
         f"{len(plan.candidates)} candidate(s), keep_last={keep_last}"
     )
-    for c in plan.candidates:
-        print(f"  {c.run_kind:9s} {c.run_id:14s} {c.run_dir}  ({c.reason})")
+    print(f"Chronology authority: {plan.chronology_authority}")
+    public_candidates = public_plan["candidates"]
+    if not isinstance(public_candidates, list):
+        print("Error: invalid public retention projection")
+        return 1
+    for candidate, projected in zip(plan.candidates, public_candidates, strict=True):
+        if not isinstance(projected, dict):
+            print("Error: invalid public retention candidate projection")
+            return 1
+        print(
+            f"  {candidate.run_kind:9s} {candidate.run_id:14s} "
+            f"{projected['run_dir']}  ({candidate.reason})"
+        )
     if not apply:
         print("Dry run only. Re-run with --apply to remove these run directories.")
         return 0
     try:
-        applied = apply_retention_plan(plan)
+        applied = apply_retention_plan(
+            plan,
+            accept_unsigned_chronology=accept_unsigned_chronology,
+        )
     except ValueError as exc:
         print(f"Error: {exc}")
         return 1
     if output_format == "json":
-        print(json.dumps(applied.model_dump(mode="json"), indent=2))
+        print(json.dumps(retention_plan_public_projection(applied), indent=2))
         return 0
     print(f"Removed {applied.removed} run dir(s).")
     return 0
@@ -2577,8 +2712,13 @@ def _report(root: Path, out: Path | None) -> int:
 def _showcase(root: Path, out: Path) -> int:
     from agentic_security_harness.showcase import build_showcase, write_showcase
 
-    manifests, cards = build_showcase(root)
-    paths = write_showcase(root, out)
+    try:
+        manifests, cards = build_showcase(root)
+        paths = write_showcase(root, out)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
+    print(f"wrote showcase projection to {paths['json'].as_posix()}")
     print(f"wrote showcase index to {paths['index'].as_posix()}")
     print(f"wrote failure/weak-spot cards to {paths['failure_cards'].as_posix()}")
     print(f"runs discovered: {len(manifests)}  cards generated: {len(cards)}")
@@ -2619,21 +2759,26 @@ def _local_suite(
         return _print_local_profiles()
     try:
         profile = resolve_local_profile(profile_name)
-        base_url, credential_env_var, err = apply_preset(
-            profile.preset, base_url_override, ""
-        )
+        base_url, credential_env_var, err = apply_preset(profile.preset, base_url_override, "")
     except KeyError as exc:
         print(f"Error: {exc}")
         return 1
     if err:
         print(f"Error: {err}")
         return 1
+    if not is_loopback_base_url(base_url):
+        print("Error: local-suite requires a literal loopback HTTP(S) base URL")
+        return 1
 
     out_dir = out or Path(default_output_dir(profile))
     print(
-        f"profile: {profile.name}  model: {profile.model}  scenario: {profile.scenario_id}"
+        f"profile: {terminal_field(profile.name)}  model: "
+        f"{terminal_field(profile.model)}  scenario: {terminal_field(profile.scenario_id)}"
     )
-    print(f"  preset {profile.preset} -> base_url {_redact_url(base_url)}")
+    print(
+        f"  preset {terminal_field(profile.preset)} -> "
+        f"base_url {terminal_field(_redact_url(base_url))}"
+    )
     print(
         "Local runtime execution does not remove model-license / acceptable-use duties. "
         "Stop if the machine becomes unusable or adapter errors repeat after a timeout "
@@ -2749,13 +2894,26 @@ def _local_swarm(
         if err:
             print(f"Error: {err}")
             return 1
+        if not is_loopback_base_url(base_url):
+            print("Error: local-swarm requires a literal loopback HTTP(S) base URL")
+            return 1
         if credential_env_var:
             print("Error: local-swarm accepts only keyless local presets in this pass.")
             return 1
-        print(f"Using preset '{preset}': base_url {_redact_url(base_url)}")
+        print(
+            f"Using preset '{terminal_field(preset)}': "
+            f"base_url {terminal_field(_redact_url(base_url))}"
+        )
         if role_models:
             rendered = ", ".join(f"{role}={m}" for role, m in sorted(role_models.items()))
-            print(f"Using role model roster: {rendered}")
+            print(f"Using role model roster: {terminal_field(rendered)}")
+
+    if execute or write_dry_run:
+        try:
+            require_atomic_output_destination(out)
+        except ValueError as exc:
+            print(f"Error: {exc}")
+            return 1
 
     try:
         summary = run_local_swarm(
@@ -2802,16 +2960,12 @@ def _parse_role_model_args(items: list[str]) -> dict[str, str]:
     parsed: dict[str, str] = {}
     for item in items:
         if "=" not in item:
-            raise ValueError(
-                f"invalid --role-model value '{item}', expected ROLE=MODEL"
-            )
+            raise ValueError(f"invalid --role-model value '{item}', expected ROLE=MODEL")
         role, model = item.split("=", 1)
         role = role.strip()
         model = model.strip()
         if not role or not model:
-            raise ValueError(
-                f"invalid --role-model value '{item}', expected ROLE=MODEL"
-            )
+            raise ValueError(f"invalid --role-model value '{item}', expected ROLE=MODEL")
         parsed[role] = model
     return parsed
 
@@ -2848,6 +3002,24 @@ def _local_swarm_matrix(
             print(f"  {case.case_id} -> {case.base_scenario} ({case.family})")
         return 0
 
+    if execute_model and write:
+        print(
+            "Error: private matrix model probes and the sanitized deterministic "
+            "bundle require separate commands and output roots."
+        )
+        return 1
+    if execute_model and not is_internal_output_dir(out):
+        print("Error: --execute-model requires --out under a normalized .internal tree.")
+        return 1
+    try:
+        if execute_model:
+            require_atomic_output_destination(out)
+        elif write:
+            require_atomic_output_destination(out)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
+
     matrix = build_local_swarm_attack_matrix()
     metrics = matrix.metrics
     print(
@@ -2868,10 +3040,7 @@ def _local_swarm_matrix(
             "model text never decides pass/block."
         )
     else:
-        print(
-            "Deterministic matrix only: no model calls, no network, "
-            "no production-safety claim."
-        )
+        print("Deterministic matrix only: no model calls, no network, no production-safety claim.")
     if execute_model:
         if model_is_forbidden(model):
             print("Error: calculator model is reserved for the trading project; refused.")
@@ -2884,13 +3053,19 @@ def _local_swarm_matrix(
         if err:
             print(f"Error: {err}")
             return 1
+        if not is_loopback_base_url(base_url):
+            print("Error: local-swarm-matrix requires a literal loopback HTTP(S) base URL")
+            return 1
         if credential_env_var:
             print("Error: matrix model probes accept only keyless local presets.")
             return 1
         if not model:
             print("Error: --model is required with --execute-model")
             return 1
-        print(f"Using preset '{preset}': base_url {_redact_url(base_url)}")
+        print(
+            f"Using preset '{terminal_field(preset)}': "
+            f"base_url {terminal_field(_redact_url(base_url))}"
+        )
         try:
             probe_run = run_matrix_model_probe(
                 base_url=base_url,
@@ -3020,6 +3195,31 @@ def _secret_leak_campaign(
     )
     from agentic_security_harness.validation import validate_path
 
+    if write and (execute_model or execute_variations):
+        print(
+            "Error: sanitized deterministic output and private model probes require "
+            "separate commands and output roots."
+        )
+        return 1
+    if execute_variations and variation_summary_out is not None:
+        try:
+            require_disjoint_output_dirs(out, variation_summary_out)
+        except ValueError as exc:
+            print(f"Error: {exc}")
+            return 1
+    try:
+        if write:
+            require_atomic_output_destination(out)
+        if execute_model:
+            require_atomic_output_destination(out / "private_model_probe")
+        if execute_variations:
+            require_atomic_output_destination(out / "private_variation_probe")
+            if variation_summary_out is not None:
+                require_atomic_output_destination(variation_summary_out)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
+
     summary = build_secret_leak_campaign(created_at=_now_utc())
     print("secret-leak campaign prepared.")
     print(
@@ -3039,7 +3239,7 @@ def _secret_leak_campaign(
         print(f"validated {out.as_posix()} (artifact integrity only).")
 
     if execute_model:
-        if ".internal" not in out.parts:
+        if not is_internal_output_dir(out):
             print("Error: --execute-model requires --out under .internal/.")
             return 1
         if model_is_forbidden(model):
@@ -3053,11 +3253,17 @@ def _secret_leak_campaign(
         if err:
             print(f"Error: {err}")
             return 1
+        if not is_loopback_base_url(base_url):
+            print("Error: secret model probes require a literal loopback HTTP(S) base URL")
+            return 1
         if credential_env_var:
             print("Error: secret probes accept only keyless local presets.")
             return 1
         selected_pressures = pressure_modes or list(PRESSURE_MODES)
-        print(f"Using preset '{preset}': base_url {_redact_url(base_url)}")
+        print(
+            f"Using preset '{terminal_field(preset)}': "
+            f"base_url {terminal_field(_redact_url(base_url))}"
+        )
         try:
             run = run_secret_model_probe(
                 base_url=base_url,
@@ -3075,7 +3281,7 @@ def _secret_leak_campaign(
         print("wrote private model-probe artifacts.")
 
     if execute_variations:
-        if ".internal" not in out.parts:
+        if not is_internal_output_dir(out):
             print("Error: --execute-variations requires --out under .internal/.")
             return 1
         selected_models = variation_models or [model]
@@ -3094,13 +3300,17 @@ def _secret_leak_campaign(
         if err:
             print(f"Error: {err}")
             return 1
+        if not is_loopback_base_url(base_url):
+            print("Error: secret variation probes require a literal loopback HTTP(S) base URL")
+            return 1
         if credential_env_var:
             print("Error: secret probes accept only keyless local presets.")
             return 1
         selected_pressures = pressure_modes or list(PRESSURE_MODES)
         print(
-            f"Using preset '{preset}': base_url {_redact_url(base_url)}; "
-            f"variation_models={', '.join(selected_models)}"
+            f"Using preset '{terminal_field(preset)}': "
+            f"base_url {terminal_field(_redact_url(base_url))}; "
+            f"variation_models={terminal_field(', '.join(selected_models))}"
         )
         try:
             private_run = run_secret_leak_variation_probe(
@@ -3138,10 +3348,7 @@ def _secret_leak_campaign(
                 )
                 print(f"errors: {len(result.errors)}")
                 return 1
-            print(
-                f"validated {variation_summary_out.as_posix()} "
-                "(artifact integrity only)."
-            )
+            print(f"validated {variation_summary_out.as_posix()} (artifact integrity only).")
 
     if not write and not execute_model and not execute_variations:
         print("Dry-run only. Add --write and/or --execute-model.")
@@ -3170,6 +3377,29 @@ def _semantic_drift_campaign(
     )
     from agentic_security_harness.validation import validate_path
 
+    if write and execute:
+        print(
+            "Error: sanitized deterministic output and private model probes require "
+            "separate commands and output roots."
+        )
+        return 1
+    if execute and summary_out is not None:
+        try:
+            require_disjoint_output_dirs(out, summary_out)
+        except ValueError as exc:
+            print(f"Error: {exc}")
+            return 1
+    try:
+        if write:
+            require_atomic_output_destination(out)
+        if execute:
+            require_atomic_output_destination(out / "private_semantic_drift_probe")
+            if summary_out is not None:
+                require_atomic_output_destination(summary_out)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
+
     summary = build_semantic_drift_campaign(created_at=_now_utc())
     print("semantic-drift campaign prepared.")
     print(
@@ -3189,7 +3419,7 @@ def _semantic_drift_campaign(
         print(f"validated {out.as_posix()} (artifact integrity only).")
 
     if execute:
-        if ".internal" not in out.parts:
+        if not is_internal_output_dir(out):
             print("Error: --execute requires --out under .internal/.")
             return 1
         selected_models = models or ["prometheus-qwen15b-lowctx:latest"]
@@ -3208,13 +3438,17 @@ def _semantic_drift_campaign(
         if err:
             print(f"Error: {err}")
             return 1
+        if not is_loopback_base_url(base_url):
+            print("Error: semantic drift probes require a literal loopback HTTP(S) base URL")
+            return 1
         if credential_env_var:
             print("Error: semantic drift probes accept only keyless local presets.")
             return 1
         selected_pressures = pressure_modes or list(PRESSURE_MODES)
         print(
-            f"Using preset '{preset}': base_url {_redact_url(base_url)}; "
-            f"models={', '.join(selected_models)}"
+            f"Using preset '{terminal_field(preset)}': "
+            f"base_url {terminal_field(_redact_url(base_url))}; "
+            f"models={terminal_field(', '.join(selected_models))}"
         )
         try:
             private_run = run_semantic_drift_probe(
@@ -3240,10 +3474,7 @@ def _semantic_drift_campaign(
             print("wrote sanitized semantic-drift artifacts.")
             result = validate_path(summary_out)
             if not result.ok:
-                print(
-                    "Validation FAILED for "
-                    f"{redact_artifact_text(summary_out.as_posix())}:"
-                )
+                print(f"Validation FAILED for {redact_artifact_text(summary_out.as_posix())}:")
                 print(f"errors: {len(result.errors)}")
                 return 1
             print(f"validated {summary_out.as_posix()} (artifact integrity only).")
@@ -3276,6 +3507,29 @@ def _semantic_propagation_campaign(
     )
     from agentic_security_harness.validation import validate_path
 
+    if write and execute:
+        print(
+            "Error: sanitized deterministic output and private model probes require "
+            "separate commands and output roots."
+        )
+        return 1
+    if execute and summary_out is not None:
+        try:
+            require_disjoint_output_dirs(out, summary_out)
+        except ValueError as exc:
+            print(f"Error: {exc}")
+            return 1
+    try:
+        if write:
+            require_atomic_output_destination(out)
+        if execute:
+            require_atomic_output_destination(out / "private_semantic_propagation_probe")
+            if summary_out is not None:
+                require_atomic_output_destination(summary_out)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
+
     summary = build_semantic_propagation_campaign(created_at=_now_utc())
     print("semantic-propagation campaign prepared.")
     print(
@@ -3295,7 +3549,7 @@ def _semantic_propagation_campaign(
         print(f"validated {out.as_posix()} (artifact integrity only).")
 
     if execute:
-        if ".internal" not in out.parts:
+        if not is_internal_output_dir(out):
             print("Error: --execute requires --out under .internal/.")
             return 1
         selected_workers = worker_models or ["qwen2.5:0.5b"]
@@ -3317,13 +3571,18 @@ def _semantic_propagation_campaign(
         if err:
             print(f"Error: {err}")
             return 1
+        if not is_loopback_base_url(base_url):
+            print("Error: semantic propagation probes require a literal loopback HTTP(S) base URL")
+            return 1
         if credential_env_var:
             print("Error: semantic propagation probes accept only keyless local presets.")
             return 1
         selected_pressures = pressure_modes or list(PRESSURE_MODES)
         print(
-            f"Using preset '{preset}': base_url {_redact_url(base_url)}; "
-            f"workers={', '.join(selected_workers)}; chiefs={', '.join(selected_chiefs)}"
+            f"Using preset '{terminal_field(preset)}': "
+            f"base_url {terminal_field(_redact_url(base_url))}; "
+            f"workers={terminal_field(', '.join(selected_workers))}; "
+            f"chiefs={terminal_field(', '.join(selected_chiefs))}"
         )
         try:
             private_run = run_semantic_propagation_probe(
@@ -3350,10 +3609,7 @@ def _semantic_propagation_campaign(
             print("wrote sanitized semantic-propagation artifacts.")
             result = validate_path(summary_out)
             if not result.ok:
-                print(
-                    "Validation FAILED for "
-                    f"{redact_artifact_text(summary_out.as_posix())}:"
-                )
+                print(f"Validation FAILED for {redact_artifact_text(summary_out.as_posix())}:")
                 print(f"errors: {len(result.errors)}")
                 return 1
             print(f"validated {summary_out.as_posix()} (artifact integrity only).")
@@ -3448,8 +3704,15 @@ def _swarm_defense_live_campaign(
     if not execute:
         print("Dry-run only. Add --execute to call local models.")
         return 0
-    if ".internal" not in out.parts:
+    if not is_internal_output_dir(out):
         print("Error: --out for live campaign must be under .internal/")
+        return 1
+    try:
+        require_disjoint_output_dirs(out, summary_out)
+        require_atomic_output_destination(out)
+        require_atomic_output_destination(summary_out)
+    except ValueError as exc:
+        print(f"Error: {exc}")
         return 1
 
     run = run_live_defense_campaign(
@@ -3464,7 +3727,7 @@ def _swarm_defense_live_campaign(
         created_at=_now_utc(),
     )
     private_paths = write_live_defense_private_artifacts(out, run)
-    summary = build_live_defense_summary(run, created_at=_now_utc())
+    summary = build_live_defense_summary(run)
     public_paths = write_live_defense_artifacts(summary_out, summary)
     print(f"wrote {len(private_paths)} private artifact(s) to {out.as_posix()}")
     for path in public_paths:
@@ -3516,6 +3779,13 @@ def _marketing_web_injection_campaign(
         print("Dry-run only. Add --write to write private and sanitized artifacts.")
         return 0
     try:
+        require_disjoint_output_dirs(out, summary_out)
+        require_atomic_output_destination(out)
+        require_atomic_output_destination(summary_out)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
+    try:
         private_paths = write_marketing_web_private_artifacts(out, private_run)
     except ValueError as exc:
         print(f"Error: {exc}")
@@ -3563,6 +3833,13 @@ def _swarm_resilience_campaign(
     if not write:
         print("Dry-run only. Add --write to write private and sanitized artifacts.")
         return 0
+    try:
+        require_disjoint_output_dirs(out, summary_out)
+        require_atomic_output_destination(out)
+        require_atomic_output_destination(summary_out)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return 1
     try:
         private_paths = write_resilience_private_artifacts(out, private_run)
     except ValueError as exc:
@@ -3780,15 +4057,23 @@ def _marketing_web_live_campaign(
     print("Scope: owned local HTTP pages + local OpenAI-compatible models only.")
     print("Raw pages/prompts/responses/synthetic strategy values must stay under .internal/.")
     print(
-        f"worker_models={workers} chief_models={chiefs} "
+        f"worker_models={terminal_field(workers)} "
+        f"chief_models={terminal_field(chiefs)} "
         f"max_scenarios={max_scenarios} session_turns={session_turns} "
         f"estimated_requests={estimated} max_requests={max_requests}"
     )
     if not execute:
         print("Dry-run only. Add --execute to call local models and write artifacts.")
         return 0
-    if ".internal" not in out.parts:
+    if not is_internal_output_dir(out):
         print("Error: --out for live campaign must be under .internal/")
+        return 1
+    try:
+        require_disjoint_output_dirs(out, summary_out)
+        require_atomic_output_destination(out)
+        require_atomic_output_destination(summary_out)
+    except ValueError as exc:
+        print(f"Error: {exc}")
         return 1
     try:
         private_run = run_live_marketing_web_campaign(
@@ -3804,7 +4089,7 @@ def _marketing_web_live_campaign(
     except ValueError as exc:
         print(f"Error: {exc}")
         return 1
-    summary = build_live_marketing_web_summary(private_run, created_at=_now_utc())
+    summary = build_live_marketing_web_summary(private_run)
     private_paths = write_live_marketing_web_private_artifacts(out, private_run)
     public_paths = write_live_marketing_web_artifacts(summary_out, summary)
     print(f"wrote {len(private_paths)} private artifact(s) to {out.as_posix()}")
@@ -3840,27 +4125,56 @@ def _list_runs(root: Path, db: Path | None) -> int:
             oc = r.get("outcomes") or {}
             oc_dict = oc if isinstance(oc, dict) else {}
             outcomes = "  ".join(f"{k}={v}" for k, v in oc_dict.items())
-            print(f"{str(r['run_id']):14s} {str(r['run_kind']):9s} "
-                  f"{str(r.get('scenario', '') or '')[:16]:16s} "
-                  f"{str(r.get('target') or r.get('model') or '-')[:28]:28s} {outcomes}")
+            expectation_status = str(r.get("expectation_status") or "not_recorded")
+            raw_mismatch_count = r.get("expectation_mismatch_count")
+            mismatch_count = raw_mismatch_count if isinstance(raw_mismatch_count, int) else 0
+            print(
+                f"{str(r['run_id']):14s} {str(r['run_kind']):9s} "
+                f"{str(r.get('scenario', '') or '')[:16]:16s} "
+                f"{str(r.get('target') or r.get('model') or '-')[:28]:28s} {outcomes} "
+                f" indexed_expectations={expectation_status}({mismatch_count})"
+            )
+            print(
+                "  validation observation: "
+                f"{r.get('validation_scope', 'not_recorded')} "
+                f"tool={r.get('validator_tool_version', '') or '-'} "
+                f"corpus={r.get('corpus_version', '') or '-'}"
+            )
             print(f"  -> {r.get('manifest_path', '')}")
         return 0
-    manifests = load_run_manifests(root)
-    if not manifests:
+    from agentic_security_harness.run_manifest import load_validated_run_records
+
+    records = load_validated_run_records(root)
+    if not records:
         print(f"No runs found under {root.as_posix()}.")
         print("Run a benchmark first, e.g. ash run --out reports/demo")
         return 0
-    print(f"Found {len(manifests)} run(s) under {root.as_posix()}:")
+    print(f"Found {len(records)} current validated run(s) under {root.as_posix()}:")
     print(f"{'run_id':14s} {'kind':9s} {'scenario':16s} {'target/model':28s} outcomes")
-    for path, m in manifests:
-        target = (m.target or m.model or "-")[:28]
-        outcomes = "  ".join(f"{k}={v}" for k, v in m.outcomes.items())
-        when = f"  [{m.created_at}]" if m.created_at else ""
-        print(
-            f"{m.run_id:14s} {m.run_kind:9s} {m.scenario[:16]:16s} "
-            f"{target:28s} {outcomes}{when}"
+    for record in records:
+        path, m = record.path, record.manifest
+        run_id = terminal_field(m.run_id)[:14]
+        run_kind = terminal_field(m.run_kind)[:9]
+        scenario = terminal_field(m.scenario)[:16]
+        target = terminal_field(m.target or m.model or "-")[:28]
+        outcomes = "  ".join(
+            f"{terminal_field(k)}={v}" for k, v in m.outcomes.items()
         )
-        print(f"  -> {path.parent.as_posix()}")
+        when = (
+            f"  [created_at unsigned: {terminal_field(m.created_at)}]"
+            if m.created_at
+            else ""
+        )
+        expectation_status = (
+            "expectations=ok"
+            if record.expectations_ok
+            else f"expectations=mismatch({record.expectation_mismatch_count})"
+        )
+        print(
+            f"{run_id:14s} {run_kind:9s} {scenario:16s} "
+            f"{target:28s} {outcomes}  {expectation_status}{when}"
+        )
+        print(f"  -> {terminal_field(path.parent.as_posix())}")
     return 0
 
 
@@ -3871,8 +4185,11 @@ def _index_runs(root: Path, db: Path) -> int:
         print(f"Error: root not found: {root.as_posix()}")
         return 1
     count = index_runs(root, db)
-    print(f"indexed {count} run(s) from {root.as_posix()} into {db.as_posix()}")
-    print("Metadata only (run id/kind/target/model/scenario/outcomes); no trace bodies.")
+    print(f"indexed {count} current validated run(s) from {root.as_posix()} into {db.as_posix()}")
+    print(
+        "Metadata only (run id/kind/target/model/scenario/outcomes/expectation status); "
+        "no trace bodies."
+    )
     print("Read it with: ash list-runs --db " + db.as_posix())
     return 0
 
@@ -3903,19 +4220,22 @@ def _external_check(
 
     # Check base URL
     redacted = _redact_url(base_url)
-    print(f"  Base URL: {redacted}")
+    print(f"  Base URL: {terminal_field(redacted)}")
     runtime_profile = infer_runtime_profile(preset_name, base_url)
-    print(f"  Runtime: {runtime_profile.runtime_name} ({runtime_profile.runtime_family})")
-    print(f"  Network mode: {runtime_profile.network_mode}")
-    print(f"  Authorization mode: {runtime_profile.authorization_mode}")
+    print(
+        f"  Runtime: {terminal_field(runtime_profile.runtime_name)} "
+        f"({terminal_field(runtime_profile.runtime_family)})"
+    )
+    print(f"  Network mode: {terminal_field(runtime_profile.network_mode)}")
+    print(f"  Authorization mode: {terminal_field(runtime_profile.authorization_mode)}")
     print("  Prompt-only: yes; tool execution: no")
-    print(f"  Model/license note: {runtime_profile.model_license_note}")
+    print(f"  Model/license note: {terminal_field(runtime_profile.model_license_note)}")
 
     # Check model
     if not model:
         print("  Model: MISSING -- provide --model")
         return 1
-    print(f"  Model: {model} -- OK")
+    print(f"  Model: {terminal_field(model)} -- OK")
 
     # Check scenario
     try:
@@ -3935,8 +4255,10 @@ def _external_check(
 
     # Estimate requests
     total = len(scenario.pattern_ids) * len(variants) * repeats
-    print(f"  Estimated requests: {total} ({len(scenario.pattern_ids)} patterns x "
-          f"{len(variants)} variants x {repeats} repeats)")
+    print(
+        f"  Estimated requests: {total} ({len(scenario.pattern_ids)} patterns x "
+        f"{len(variants)} variants x {repeats} repeats)"
+    )
     if total > max_requests:
         print(
             f"  Cost cap: {total} exceeds the safety cap of {max_requests} -- "
@@ -3982,14 +4304,16 @@ def _external_check(
                 messages=[{"role": "user", "content": "ping"}],
                 timeout_seconds=10,
                 credential_env_var=credential_env_var,
+                allow_redirects=False,
+                allow_env_proxy=False,
             )
             print("  Live request: SUCCESS")
-            print(f"  Response model: {resp.get('model', 'unknown')}")
+            print(f"  Response model: {terminal_field(resp.get('model', 'unknown'))}")
         except Exception as exc:
-            print(f"  Live request: FAILED -- {exc}")
+            print(f"  Live request: FAILED -- {terminal_field(exc)}")
             print("  Recovery:")
             for hint in runtime_profile.recovery_guidance:
-                print(f"    - {hint}")
+                print(f"    - {terminal_field(hint)}")
             return 1
     else:
         print(
@@ -3999,13 +4323,11 @@ def _external_check(
 
     print("\nConfiguration looks valid.")
     print(
-        "Note: external-check and --dry-run make no benchmark network calls; "
-        "only --live and a real run-external do."
+        "Note: external-check and run-external without --execute make no benchmark "
+        "network calls; only --live and run-external --execute do."
     )
     # Concrete copy-pasteable next step (dry-run first, then the live run).
-    credential_flag = (
-        f" --credential-env {credential_env_var}" if credential_env_var else ""
-    )
+    credential_flag = f" --credential-env {credential_env_var}" if credential_env_var else ""
     next_cmd = (
         f"ash run-external --base-url {redacted} --model {model} "
         f"--scenario {scenario_id} --repeats {repeats} "
@@ -4013,12 +4335,12 @@ def _external_check(
     )
     print("Next steps:")
     print(f"  1) dry-run (no network, no files): {next_cmd} --dry-run")
-    print(f"  2) live run:                       {next_cmd} --out reports/external-run")
+    print(f"  2) live run:                       {next_cmd} --execute --out reports/external-run")
     print("  3) validate:                       ash validate reports/external-run")
     return 0
 
 
-def main(argv: list[str] | None = None) -> int:
+def _main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command == "run":
         return _run(args.target, args.out)
@@ -4062,7 +4384,10 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Error: {err}")
             return 1
         if args.preset:
-            print(f"Using preset '{args.preset}': base_url {_redact_url(base_url)}")
+            print(
+                f"Using preset '{terminal_field(args.preset)}': "
+                f"base_url {terminal_field(_redact_url(base_url))}"
+            )
         if args.command == "run-external":
             return _run_external(
                 base_url,
@@ -4077,7 +4402,7 @@ def main(argv: list[str] | None = None) -> int:
                 credential_env_var,
                 args.max_variants,
                 args.variant,
-                args.dry_run,
+                not args.execute,
                 args.adapter,
                 args.max_requests,
                 args.preset,
@@ -4107,7 +4432,14 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "stats":
         return _stats(args.root, args.out, args.format)
     if args.command == "retention":
-        return _retention(args.root, args.keep_last, args.kind, args.apply, args.format)
+        return _retention(
+            args.root,
+            args.keep_last,
+            args.kind,
+            args.apply,
+            args.accept_unsigned_chronology,
+            args.format,
+        )
     if args.command == "report":
         return _report(args.root, args.out)
     if args.command == "showcase":
@@ -4261,10 +4593,21 @@ def main(argv: list[str] | None = None) -> int:
         )
     if args.command == "doctor":
         return _doctor(
-            args.json, args.live_local, args.base_url, args.credential_env_var,
+            args.json,
+            args.live_local,
+            args.base_url,
+            args.credential_env_var,
             args.reports_root,
         )
     return 1
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Run the CLI with terminal controls neutralized on both output streams."""
+
+    with redirect_stdout(SafeTerminalStream(sys.stdout)):
+        with redirect_stderr(SafeTerminalStream(sys.stderr)):
+            return _main(argv)
 
 
 if __name__ == "__main__":

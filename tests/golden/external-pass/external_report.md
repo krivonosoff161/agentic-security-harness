@@ -4,6 +4,7 @@
 
 ## Configuration
 
+- Execution ID: `run_11111111111111111111111111111111`
 - Adapter: `openai-compatible`
 - Model: `snapshot-model`
 - Endpoint: `http://localhost:8000/v1`
@@ -59,13 +60,14 @@ No boundary findings in this run, so no control recommendations are required. In
 
 ## How to reproduce / validate
 
-Reproduce this run (set the credential env var first if the endpoint needs one). The endpoint is shown redacted and the credential env var is named, never its value:
+Reproduce this run (set the credential env var first if the endpoint needs one). The endpoint is shown redacted; persisted artifacts record only that a credential variable was configured, not its name or value:
 
 ```bash
 ash run-external \
-  --base-url http://localhost:8000/v1 --model snapshot-model --scenario perception-boundary \
-  --repeats 1 --temperature 0.0 --timeout 30 \
-  --retries 1 --raw-response-limit 0 --variant text-transcript \
+  --execute --base-url http://localhost:8000/v1 --model snapshot-model \
+  --scenario perception-boundary --repeats 1 --temperature 0.0 \
+  --timeout 30 --retries 1 --raw-response-limit 0 \
+  --variant text-transcript \
   --out reports/external-rerun
 ```
 

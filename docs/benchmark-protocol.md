@@ -49,7 +49,7 @@ over JSON artifacts. Topologies are documented in
 | `ash compare` | Shipped | No | Deterministic | Replays the same corpus against baseline and protected targets. |
 | `ash run-matrix` | Shipped | No | Deterministic | Runs scenario variants and aggregates stability. |
 | `ash validate` | Shipped | No | Deterministic | Checks artifacts; it does not re-test a live system. |
-| `ash run-external` | Experimental | Explicit opt-in | Stochastic possible | Prompt-only OpenAI-compatible check; no tool execution. |
+| `ash run-external --execute` | Experimental | Explicit opt-in | Stochastic possible | Prompt-only OpenAI-compatible check; no tool execution. |
 | Native provider / agent-host adapters | Future | Explicit opt-in required | Depends on runtime | Not shipped in this release. |
 
 ## Scenario and pattern rules

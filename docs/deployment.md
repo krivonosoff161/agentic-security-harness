@@ -1,14 +1,15 @@
 # Deployment
 
 > **Agentic Security Harness.** **Current reality:** the local harness and the `ash` CLI run
-> a deterministic 24-pattern corpus against mock/demo targets and write reports - there is no
-> server to deploy yet. The reference-gateway server / Docker workflow below is design intent
-> for later versions. Sections are marked accordingly.
+> a deterministic 24-pattern corpus against mock/demo targets and write reports. A source-based,
+> non-root Dockerfile packages that CLI for local use; there is no gateway server or published
+> image. The reference-gateway deployment below is design intent for later versions. Sections are
+> marked accordingly.
 
 ## Design principle
 
 The simple path must work with **zero extra services**: a local `pip install` and the
-`ash` CLI - no server, no Docker, no database, no LLM classifier. Everything runs
+`ash` CLI - no server, no database, no LLM classifier. Everything runs
 offline against synthetic targets. Later features (the reference gateway server,
 PostgreSQL, Redis, RBAC, streaming, tamper-evident audit) are **additive**, not required.
 
@@ -30,9 +31,10 @@ Usage is in the [README](../README.md) and [harness.md](harness.md).
 
 ## Reference gateway server (later, planned)
 
-The reference gateway is design intent only. This repository does not currently ship a
-server entry point, Dockerfile, or Compose stack. `.env.example` is a gateway sketch, not
-configuration required by the current `ash` CLI.
+The root `Dockerfile` is a local CLI wrapper, not a gateway image. The reference gateway is design
+intent only. This repository does not currently ship a server entry point, gateway Dockerfile, or
+Compose stack. `.env.example` is a gateway sketch, not configuration required by the current
+`ash` CLI.
 
 ### Docker (planned)
 

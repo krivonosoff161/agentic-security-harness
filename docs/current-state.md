@@ -1,6 +1,6 @@
 # Current state
 
-> Last reviewed: 2026-07-02.
+> Last reviewed: 2026-07-14.
 >
 > Scope: public status of `agentic-security-harness` on `main`, version `0.14.0`. This
 > page is a reviewer-facing status snapshot, not a roadmap promise.
@@ -16,7 +16,13 @@ It is strong enough to show as a public research benchmark/toolkit. It is not a
 production certification benchmark, a general pentest tool, or a claim that a target is
 secure.
 
-## Shipped and verified
+Evidence classes are explicit in [evidence-classes.md](evidence-classes.md): deterministic
+control-ablation contours are executable specifications with rule-derived attribution;
+local-model classifications are empirical detector observations only when a versioned
+public projection exists; docs-only maintainer counts are unverified declarations.
+Detector-accuracy claims require independently reviewed labels and non-zero label coverage.
+
+## Shipped, historical, and documented status
 
 | Area | Status | Evidence |
 |---|---|---|
@@ -27,37 +33,42 @@ secure.
 | Boundary-layer variation matrices | Shipped local slice | `boundary-layer-evidence-matrix.md` and `tests/test_boundary_variation_matrices.py` tie declared handoff, authority, and memory-governance variation rows to executable deterministic checks. |
 | Scenario timeline contract | Shipped local slice | `ScenarioTimeline`, `validate_timeline()`, three committed fixtures, and `replay_timeline()` model multi-turn/delayed/context-overload/handoff scenarios with explicit invariant and decision step. |
 | Portable artifacts | Shipped | `traces.json`, `scorecard.json`, `summary.md`, `executive.md`, remediation, run manifests. |
-| Static reports | Shipped | `ash report --root <run-dir>` writes a self-contained HTML report. |
-| Run history and maintenance | Shipped | `list-runs`, `index-runs`, `stats`, `retention`, `diff-runs`. |
-| External OpenAI-compatible prompt check | Experimental | `run-external`, prompt-only, explicit opt-in, no tool execution. |
+| Artifact authenticity | Design ready; not implemented | Current release/evidence artifacts are content-bound but unsigned. The trust-root design recommends GitHub Actions/Sigstore provenance for public release subjects and a separate owner/reviewer signature for private reconciliation receipts; no current row is `signed_attested`. |
+| Static reports | Shipped | `ash report --root <run-dir>` first validates the supplied artifact tree, then writes a self-contained HTML report; integrity failures stop publication and behavioral expectation mismatches are shown as non-clean results. |
+| Run history and maintenance | Shipped | `list-runs`, `index-runs`, `stats`, and `retention` consume only current content-bound validated runs. Stats v0.1 retains portable source-manifest commitments and rebuildable aggregates in a content-bound output; retention rebuilds the exact current plan, rechecks candidate identity and validation immediately before removal, and requires explicit acceptance of unsigned `created_at` chronology. Absolute paths remain internal to apply while normal text/JSON uses a portable root marker and relative candidates. Recursive deletion remains non-transactional under a concurrent local writer. |
+| Run/model diff | Shipped | Schema 0.3 compares only validator-accepted manifested sources, records source-manifest commitments and unsigned validation scope, and writes an exact content-bound diff bundle; source/output overlap is refused. |
+| External OpenAI-compatible prompt check | Experimental | `run-external` is dry-run by default; `--execute` is required for prompt-only network calls and no tool execution is available. Current schema 0.2 creates one pre-request execution identity and a content-bound manifest; the committed schema-0.1 fake-endpoint example remains legacy structural evidence. |
 | Public run-your-model path | Shipped docs slice | `docs/run-your-model.md` gives one operator path for deterministic demo, one local/remote OpenAI-compatible model, and local mini-swarm campaigns on Windows and Linux/macOS. |
 | External evidence cross-check | Shipped for experimental path | Pattern id, boundary assertion, control family, decision coherence, raw response files. |
+| Derived evidence quality | Shipped | Schema 0.3 aggregates only validator-accepted bundles with `run_index.json`; rows distinguish current/legacy validation and unsigned origin, paths are portable, aggregates are independently rebuildable, and exact JSON/Markdown output is content-bound. |
 | Local-runtime metadata | Shipped for experimental path | `run_config.runtime`, report/runtime metadata, `local-only` mode for localhost/Ollama/LM Studio/vLLM, recovery guidance. |
 | Bounded local-model suite | Shipped local slice | `ash local-suite`, named Prometheus/Ollama profiles, dry-run by default, request caps, validated artifacts after explicit `--execute`, and weak-evidence classification. |
+| Trading paper-stand safety map | Shipped non-executing profile; empirical work blocked | Artifact identity joins and the canonical 2-batch/187-module static import topology are machine-readable. Filled rows remain self-declared without receipts; public hashes cover sanitized projections only; provider/messaging/configuration/execution isolation remains fail-closed. No target module is imported or executed. |
 | Bounded local swarm | Shipped research slice | `ash local-swarm` compares monolith, naive swarm, and bounded swarm across 15 deterministic handoff, memory, approval/tool, multi-hop laundering, and verifier-outage scenarios. |
 | Attack variation matrix | Shipped research slice | `ash local-swarm-matrix` expands the 15 swarm scenarios into 43 rows across 9 families, including 10 executable deep probes over handoff and memory verifier mutations. |
-| Evidence campaign | Shipped research slice | `ash evidence-campaign` calculates TP/FP/FN/TN, attack block rate, benign pass rate, false-block rate, control effect, usability cost, and control-ablation regressions across 24 cases / 72 observations / 4 claim families. |
+| Evidence campaign | Shipped executable specification | `ash evidence-campaign` calculates consistency counters, modeled attack/benign behavior, rule-derived control attribution, and usability deltas across 24 scenario-author-labelled cases / 72 observations / 4 claim families. These are not independent detector-accuracy or causal-effect measurements. |
 | Synthetic secret-leak campaign | Shipped research slice | `ash secret-leak-campaign` models four synthetic secret-egress topologies: naive leaks 4/4, bounded leaks 0/4, ablation leaks 11/11, benign leaks 0/4. |
-| Secret-leak variation probes | Shipped local empirical slice | `ash secret-leak-campaign --execute-variations` runs private local-model probes across 8 variation cases, 4 pressure modes, and selected Ollama models, then writes a sanitized public summary with raw prompts/responses kept under `.internal/`. |
-| Semantic parameter drift probes | Shipped local empirical slice | `ash semantic-drift-campaign` models slow relabeling pressure in a local mini-swarm: deterministic bounded mode accepts 0 drift attempts, ablation modes accept 19, and the latest private local-model smoke records 80 observations with 13 drift detections, 4 synthetic canary leaks, and 15 verifier blocks. |
-| Semantic propagation probes | Shipped local empirical slice | `ash semantic-propagation-campaign` models worker-to-chief propagation after semantic relabeling pressure: deterministic bounded mode accepts 0 propagation attempts, ablation modes accept 20, and the latest private local-model smoke records 8 observations with 2 worker drift detections, 3 chief acceptances, 2 synthetic canary leaks, 3 verifier blocks, 1 adapter error, and 87.5% response-hash coverage. |
-| Semantic drift propagation closure | Closed research unit | `semantic-drift-propagation-closure.md` ties the drift and propagation campaigns into one closed evidence slice: declared cases, deterministic bounded-vs-ablation rows, local empirical observations, private/public boundary, and the follow-up consensus-laundering sub-unit. |
-| Semantic consensus laundering closure | Closed sub-unit | `semantic-consensus-laundering-closure.md` isolates the existing two-worker consensus case: bounded acceptance 0, naive acceptance 1, and `cross_worker_check` ablation acceptance 1 under sanitized propagation artifacts. |
-| Local swarm defense contour | Shipped synthetic defense slice | `ash swarm-defense-contour` combines four local-swarm failure families across 15 non-empty family combinations; bounded acceptances are 0, naive acceptances are 15, and control ablations reopen the declared dependent paths. Raw local-model probes remain private. |
-| Sanitized local-model mini-swarm campaign | Shipped local empirical slice | `ash swarm-defense-live-campaign` runs private local worker/chief probes over the four-family contour and writes sanitized public summaries; the committed base example records 180 observations, 22 chief acceptances, 1 worker drift detection, 0 canary leaks, 22 verifier blocks, 96 replay-ablation reopenings, 0 adapter errors, and 100% response-hash coverage. A supplemental long-session example records 15 observations, each with 3 worker turns, 1 chief acceptance, 1 verifier block, 4 replay-ablation reopenings, 1 adapter error, and 0 canary leaks. A deep multi-model example records 168 observations, 67 chief acceptances, 3 worker drift detections, 0 canary leaks, 70 verifier blocks, 70/70 unsafe chains blocked, 91/91 benign chains allowed, 242 replay-ablation reopenings, and 100% response/turn-hash coverage for non-adapter-error rows. Public fields are bounded by `docs/private-public-evidence-boundary.md`. |
+| Secret-leak variation probes | Unreconciled detector summary | The public artifact records 8 cases, declared model identifiers, detector labels, aggregates, and hash fields. Public validation does not replay retained private bytes or attest execution origin/model locality. |
+| Semantic parameter drift probes | Historical detector summary plus rule snapshot | The committed artifact predates current schema 0.2. Its 80 observation rows and aggregates are historical declarations; deterministic rows are internally checked legacy data, not a current-corpus executable specification. |
+| Semantic propagation probes | Historical detector summary plus rule snapshot | The committed artifact predates current schema 0.3. Its 8 observation rows and aggregates are historical declarations; deterministic ablations are internally checked legacy rule rows, not current-corpus execution. |
+| Semantic drift propagation closure | Deterministic invariant retained; empirical closure withdrawn | The closure documents declared cases and deterministic bounded-vs-ablation rows. Legacy local observations are unreconciled and do not establish current model/runtime behavior. |
+| Semantic consensus laundering snapshot | Historical sub-unit | `semantic-consensus-laundering-closure.md` isolates legacy two-worker consensus rows: bounded acceptance 0, naive acceptance 1, and `cross_worker_check` ablation acceptance 1. Structural validation does not bind them to the current corpus. |
+| Local swarm defense contour | Shipped executable specification | `ash swarm-defense-contour` combines four failure families across 15 combinations. Its 0 bounded, 15 naive, and 112 ablation acceptances are deterministic, rule-derived specification results—not independent causal estimates. |
+| Sanitized loopback-endpoint mini-swarm campaign | Historical local empirical slice; current contract unexecuted | The committed examples predate schema 0.5. Their adapter/drift counts remain historical observations, but old canary-zero claims are withdrawn because the legacy aggregator mismatched detector categories. “Replay reopenings” are rule-attribution counts, not paired causal effects; independent-label coverage is 0%. |
 | Marketing web-injection swarm campaign | Shipped synthetic defense slice | `ash marketing-web-injection-campaign` models an offline marketing/ads web-ingestion swarm with hostile page text, synthetic internal strategy/contract values, naive/bounded/ablation/benign modes, sanitized public summaries, and validation support. The committed example records naive leaks 5/5, bounded leaks 0/5, ablation leaks 21/21, benign runs 5/5 allowed, and response-hash coverage 100%. |
-| Live local-model marketing web-injection campaign | Shipped local empirical slice | `ash marketing-web-live-campaign` runs an owned localhost web stand through local worker/chief models, keeps raw pages/prompts/responses/synthetic strategy values under `.internal/`, and writes sanitized public summaries. The committed example records 60 observations, 3 worker leaks, 1 chief leak, 1 ablation final leak, 0 bounded final leaks, 0 benign final leaks, 8 verifier blocks, 0 false blocks, and 100% response/turn-hash coverage. |
-| Context consent boundary | Shipped deterministic research slice | `ash context-consent-campaign` models cases where contextual text claims approval, but no current consent receipt exists. The committed example records 5 consent-boundary cases, 45 deterministic rows, naive risky-action acceptances 5, bounded acceptances 0, ablation acceptances 18, and benign false blocks 0. |
-| Tool-output authority boundary | Shipped deterministic research slice | `ash tool-authority-campaign` models cases where tool output, scanner reports, schema annotations, error text, worker summaries, or metric rows claim authority they do not have. The committed example records 6 tool-output authority cases, 66 deterministic rows, naive risky-action acceptances 6, bounded acceptances 0, ablation acceptances 23, and benign false blocks 0. |
-| RAG context authority boundary | Shipped deterministic research slice | `ash rag-context-campaign` models cases where retrieved context, citations, summaries, rankings, memory notes, or handoff summaries become authority inside an agentic workflow. The committed example records 7 retrieved-context propagation cases, 91 deterministic rows, naive unsafe-chain acceptances 7, bounded acceptances 0, ablation acceptances 30, and benign false blocks 0. |
-| Planner task authority boundary | Shipped deterministic research slice | `ash planner-task-campaign` models cases where task decomposition turns untrusted context, stale approvals, tool output, retrieved snippets, batches, dependency ordering, or handoff summaries into authorized subtasks. The committed example records 7 planner cases, 91 deterministic rows, naive unsafe-chain acceptances 7, bounded acceptances 0, ablation acceptances 32, and benign false blocks 0. |
-| Memory rehydration authority boundary | Shipped deterministic research slice | `ash memory-rehydration-campaign` models cases where recalled, expired, cross-scope, summarized, merged, handoff, or dependency memory becomes current authority. The committed example records 7 memory rehydration cases, 91 deterministic rows, naive unsafe-chain acceptances 7, bounded acceptances 0, ablation acceptances 32, and benign false blocks 0. |
-| Public evidence map | Shipped docs slice | `docs/showcase/evidence-map.md` links each front-page metric to the artifact, reproduce command, claim, and non-claim. |
+| Live loopback-endpoint marketing web-injection campaign | Historical local empirical slice; current contract unexecuted | The committed schema-0.2 owned-localhost example has 60 observations and detector-derived leak counts. Verifier/ablation outcomes are rule-derived policy simulation, not independent effectiveness or causal estimates; schema 0.3 has no committed live rerun. |
+| Context consent boundary | Shipped executable specification | 5 cases / 45 rows; 5 naive, 0 bounded, and 18 rule-derived ablation acceptances; benign false blocks 0. |
+| Tool-output authority boundary | Shipped executable specification | 6 cases / 66 rows; 6 naive, 0 bounded, and 23 rule-derived ablation acceptances; benign false blocks 0. |
+| RAG context authority boundary | Shipped executable specification | 7 cases / 91 rows; 7 naive, 0 bounded, and 30 rule-derived ablation acceptances; benign false blocks 0. |
+| Planner task authority boundary | Shipped executable specification | 7 cases / 91 rows; 7 naive, 0 bounded, and 32 rule-derived ablation acceptances; benign false blocks 0. |
+| Memory rehydration authority boundary | Shipped executable specification | 7 cases / 91 rows; 7 naive, 0 bounded, and 32 rule-derived ablation acceptances; benign false blocks 0. |
+| Public evidence map | Shipped docs slice | `docs/showcase/evidence-map.md` links each front-page metric to the artifact, reproduce command, claim, and non-claim. Generated showcase output now has a source-bound JSON authority, inert exact Markdown, and its own content-bound manifest. |
 | Agentic rule-violation back-pass | Shipped docs slice | `docs/agentic-rule-violation-backpass.md` reviews shipped contours through entry vector, propagation path, no-red-flag path, timing window, violated boundary, stopping controls, residual risk, and next action. |
 | Evidence pack format | Shipped docs slice | `docs/evidence-pack-format.md` defines how future local research becomes sanitized public evidence with private/public boundaries, hashes, claim rows, tests, and validation commands. |
-| Local real-model swarm probes | Local empirical | Prometheus and qwen2.5 have executed the full 15-scenario swarm suite with 100% transcript-hash coverage and 0% adapter-error rate; model text remains evidence-quality context only. |
+| Local real-model swarm probes | Unverified maintainer declaration | Historical documentation declares two full 15-scenario runs and complete hash-field coverage. No versioned public result projection or reconciliation receipt is present, so the repository cannot verify that the runs occurred or bind the aggregates to retained bytes. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
-| Public project process | Shipped locally | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, release artifact workflow. |
+| Public project process | Shipped locally | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, and a tag-only release artifact workflow that binds tag/package/CHANGELOG version and reruns the repository gates. Release artifacts remain unsigned. |
+| Local CLI container | Shipped source definition; image unpublished | The root Dockerfile packages the source-layout CLI and runs the offline doctor as a non-root user. This is not the planned gateway image and does not attest network isolation. Docker build-context private-path exclusion is an open audit finding. |
 
 ## Experimental
 
@@ -67,8 +78,9 @@ These features exist, but their results must be read conservatively:
   local runtimes are labeled `local-only` and still require model-license /
   authorization review.
 - `ash local-suite`: a bounded wrapper around the external path for local Prometheus/Ollama
-  smoke profiles. It is useful for real local model-in-the-loop evidence, but it remains
-  weak evidence unless validated artifacts show a stable finding.
+  smoke profiles. A newly retained current-schema projection can be local empirical
+  evidence; the older counts present only in maintainer documentation remain unverified
+  declarations.
 - `ash local-swarm --execute`: real local model role text can be collected through
   bounded swarm scenarios. Deterministic contracts, not the model text, make pass/block
   decisions.
@@ -186,30 +198,28 @@ pass/block decision.
 
 Expected secret-egress demonstration: the deterministic secret-leak campaign records
 naive leaks 4/4, bounded leaks 0/4, ablation leaks 11/11, and benign leaks 0/4. The
-Phase 2 variation smoke currently records 64 private local-model observations across two
-Ollama models with 0 leaks and 0 adapter errors; that is evidence-quality context, not a
-model safety proof.
+Phase 2 public summary declares 64 detector-labelled observations across two model ids,
+0 leaks, and 0 adapter errors. It is unreconciled evidence-quality context: public
+validation does not establish private-byte retention or model/runtime identity.
 
 Expected semantic-drift demonstration: the deterministic semantic drift campaign records
 bounded drift acceptances 0 and ablation drift acceptances 19 across four synthetic
-semantic relabeling cases. The latest private local-model smoke records 80 observations
-across five Ollama models with 13 drift detections, 4 synthetic canary leaks, 15 verifier
-blocks, 0 adapter errors, and 100% response-hash coverage; that is local empirical
-evidence for the declared campaign, not a model leaderboard or production safety claim.
+semantic relabeling cases. The committed schema-`0.1` summary retains 80 historical
+detector-labelled observations and declared aggregates; current schema is `0.2` and no
+public reconciliation receipt exists. This is not current empirical evidence.
 
 Expected semantic-propagation demonstration: the deterministic semantic propagation
 campaign records 6 declared controls, 6 control-effect rows, bounded propagation
 acceptances 0, and ablation propagation acceptances 20 across four worker-to-chief chain
-cases. The latest private local-model smoke records 8 observations with 2 worker drift
-detections, 3 chief acceptances, 2 synthetic canary leaks, 3 verifier blocks, 1 adapter
-error, and 87.5% response-hash coverage; that is local empirical evidence for the
-declared defense model, not a CVE or production swarm claim.
+cases. The committed schema-`0.2` summary retains 8 historical detector-labelled rows
+and declared aggregates; current schema is `0.3` and no public reconciliation receipt
+exists. This is not current empirical or causal-effect evidence.
 
 Expected semantic-closure reading: `docs/semantic-drift-propagation-closure.md` is the
-reviewer-facing closure note for the first semantic unit. It does not add a stronger
-claim than the artifacts; it explains why this unit is closed for the declared synthetic
-model. `docs/semantic-consensus-laundering-closure.md` closes the first consensus
-laundering sub-unit over the existing propagation artifact.
+reviewer-facing record for the first semantic unit. Deterministic invariants remain
+implemented, while the previous empirical closure is withdrawn until a current-schema,
+reconciled run exists. `docs/semantic-consensus-laundering-closure.md` describes a
+rule-derived two-worker executable-specification sub-unit.
 
 Expected defense-contour demonstration: the deterministic local swarm defense contour
 records 4 scenario families, 15 non-empty combination topologies, bounded acceptances 0,

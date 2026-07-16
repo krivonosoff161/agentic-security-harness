@@ -9,7 +9,9 @@ what the current public artifacts support and what they do not support.
 | Page | Purpose |
 |---|---|
 | [Evidence map](evidence-map.md) | One-page claim-to-artifact map for public metrics, reproduce commands, and non-claims. |
-| [Private/public evidence boundary](../private-public-evidence-boundary.md) | What local-model campaign fields may be public, what stays private, and how response hashes anchor owner-side replay. |
+| [Machine-readable evidence status](../evidence-status-registry.json) | Component-level lifecycle, evidence class, schema, causal scope, labels, reconciliation, origin, and claim boundaries; validated with `ash validate`. |
+| [Research problem map](../research-problem-map.md) | Active invariant-to-artifact map with lifecycle, evidence strength, causal scope, and promotion rules. |
+| [Private/public evidence boundary](../private-public-evidence-boundary.md) | What local-model campaign fields may be public, what stays private, and why hash commitments require separate owner-side reconciliation. |
 | [Agentic rule-violation back-pass](../agentic-rule-violation-backpass.md) | Shipped contours reviewed through entry vector, propagation path, timing window, controls, and residual risk. |
 | [Scenario matrix](scenario-matrix.md) | What scenario families exist and what topology each one tests. |
 | [Semantic propagation defense model](../semantic-propagation-defense-model.md) | Worker-to-chief semantic drift controls, ablation matrix, and public/private boundary. |
@@ -23,9 +25,46 @@ what the current public artifacts support and what they do not support.
 | [Local swarm deep probes](../local-swarm-deep-probes.md) | Executable handoff/memory mutation probes plus private local-model evidence-quality runs. |
 | [Metrics contract](../metric-contract.md) | How to read traffic, benchmark, runtime, and process metrics. |
 | [Scenario investigation workflow](../scenario-investigation-workflow.md) | How scenarios become evidence and then deeper checks. |
-| [Generated failure cards](generated/failure-cards.md) | Artifact-driven failure/replay cards generated from a committed run (`ash showcase --root examples/demo-agent-report --out docs/showcase/generated`); every card links a trace reference. |
+| [Generated failure cards](generated/failure-cards.md) | Fail-closed generated view. The former committed source uses legacy manifest 0.1 without persisted-byte hashes, so it now yields an honest empty state; cards require a current content-bound validated run and every emitted card links a trace reference. |
 
 ## Current public evidence
+
+Machine-readable row mapping:
+
+- Deterministic baseline/protected comparison: `evidence-id:corpus.comparison`.
+- Deterministic multi-agent handoff toy comparison:
+  `evidence-id:handoff.integrity-comparison`,
+  `evidence-id:handoff.authority-comparison`.
+- Bounded local swarm evidence suite: `evidence-id:swarm.local-specification`.
+- Local swarm attack variation matrix: `evidence-id:swarm.variation-matrix`.
+- Evidence campaign: `evidence-id:campaign.evidence-specification`.
+- Synthetic secret-leak campaign: `evidence-id:egress.synthetic-specification`.
+- Secret-leak variation probes: `evidence-id:egress.local-variations`.
+- Semantic parameter drift probes: `evidence-id:semantic.drift-specification`,
+  `evidence-id:semantic.drift-history`.
+- Semantic propagation defense: `evidence-id:semantic.propagation-specification`,
+  `evidence-id:semantic.propagation-history`,
+  `evidence-id:semantic.consensus-specification`.
+- Local swarm defense contour: `evidence-id:swarm.defense-contour`.
+- Historical loopback-endpoint mini-swarm campaign:
+  `evidence-id:swarm.live-history`.
+- Marketing web-injection swarm: `evidence-id:marketing.injection-specification`.
+- Historical loopback-endpoint marketing web-injection:
+  `evidence-id:marketing.live-history`.
+- Swarm resilience/stability model: `evidence-id:swarm.resilience-specification`.
+- Context consent boundary: `evidence-id:authority.context-consent`.
+- Tool-output authority boundary: `evidence-id:authority.tool-output`.
+- RAG context authority boundary: `evidence-id:authority.rag-context`.
+- Planner task authority boundary: `evidence-id:authority.planner-task`.
+- Memory rehydration authority boundary: `evidence-id:authority.memory-rehydration`.
+- Local swarm real-model evaluation: `evidence-id:runtime.local-swarm-history`.
+- External fake-server run: `evidence-id:external.fake-server`.
+- Local Prometheus/Ollama smoke: `evidence-id:runtime.local-suite-specification`,
+  `evidence-id:runtime.prometheus-smoke-history`.
+
+Every id above must resolve to exactly one registry component. Multiple ids on one row
+mean that the human row combines distinct evidence classes; they do not promote one
+component into the class of another.
 
 | Evidence | Status | Start here | What it proves | What it does not prove |
 |---|---|---|---|---|
@@ -33,22 +72,22 @@ what the current public artifacts support and what they do not support.
 | Deterministic multi-agent handoff toy comparison | Local validated artifact | [`handoff-toy-topology.md`](../handoff-toy-topology.md) | The shipped local `toy-multi-agent` slice produces 2 modeled handoff findings, while `protected-toy-multi-agent` blocks the malformed handoffs under the same corpus. | Evidence about a live multi-agent framework, provider, or production handoff protocol. |
 | Bounded local swarm evidence suite | Validated example | [`examples/local-swarm-report/local_swarm_report.md`](../../examples/local-swarm-report/local_swarm_report.md) | The research-only `bounded_swarm` topology blocks 15 synthetic handoff, memory, memory-poisoning, approval/tool, multi-hop laundering, and verifier-outage boundary failures that `naive_swarm` accepts. | A real model, provider, framework, or production swarm is safe. |
 | Local swarm attack variation matrix | Validated example | [`examples/local-swarm-attack-matrix/local_swarm_attack_matrix.md`](../../examples/local-swarm-attack-matrix/local_swarm_attack_matrix.md) | The 15 local-swarm scenarios are expanded into 43 rows across 9 families, including 10 executable deep probes for hash mismatch, recipient switch, stale replay, policy mismatch, tool-output authority confusion, and memory drift; `bounded_swarm` blocks all declared rows under deterministic contracts. | Exhaustive attack coverage, cryptographic audit-log proof, model understanding, or live-framework safety. |
-| Evidence campaign | Validated example | [`examples/evidence-campaign-sanitized/evidence_campaign_report.md`](../../examples/evidence-campaign-sanitized/evidence_campaign_report.md) | Across 24 cases / 72 observations / 4 claim families, bounded mode reaches attack block rate 100%, benign pass rate 100%, false-block rate 0%, and records control-ablation regressions when responsible controls are disabled. | A production guarantee, complete benign usability proof, model safety result, or proof that every possible bypass is covered. |
+| Evidence campaign | Validated executable specification | [`examples/evidence-campaign-sanitized/evidence_campaign_report.md`](../../examples/evidence-campaign-sanitized/evidence_campaign_report.md) | Across 24 scenario-author-labelled cases / 72 rule-derived observations / 4 claim families, bounded mode reproduces the declared block/allow fixture and named-control attribution. | Independent detector accuracy, independent causal effect, a production guarantee, complete benign usability proof, model safety, or exhaustive bypass coverage. |
 | Synthetic secret-leak campaign | Validated example | [`examples/secret-leak-campaign-sanitized/secret_leak_campaign_report.md`](../../examples/secret-leak-campaign-sanitized/secret_leak_campaign_report.md) | Across 4 synthetic secret-egress topologies / 23 observations, naive mode leaks 4/4, bounded mode leaks 0/4, and ablation mode records 11/11 control regressions. | Real-secret extraction, a public model vulnerability claim, production agent safety, or exhaustive secret-handling coverage. |
-| Secret-leak variation probes | Validated example | [`examples/secret-leak-variations-sanitized/secret_leak_variation_report.md`](../../examples/secret-leak-variations-sanitized/secret_leak_variation_report.md) | Across 8 live local-model variation cases x 4 pressure modes x 2 Ollama models, the current private smoke recorded 64 observations, 0 leaks, and 0 adapter errors. | A model-safety proof, a vulnerability absence claim, or exhaustive prompt-pressure coverage. |
-| Semantic parameter drift probes | Validated example | [`examples/semantic-drift-sanitized/semantic_drift_report.md`](../../examples/semantic-drift-sanitized/semantic_drift_report.md) | Across 4 semantic relabeling cases x 4 pressure modes x 5 Ollama models, the current private smoke recorded 80 observations, 13 drift detections, 4 synthetic canary leaks, and 15 verifier blocks; bounded deterministic mode accepted 0 drift while ablations accepted 19. | A real-secret leak, a CVE, a model leaderboard, production swarm safety, or exhaustive long-session coverage. |
-| Semantic propagation defense | Validated example | [`examples/semantic-propagation-sanitized/semantic_propagation_report.md`](../../examples/semantic-propagation-sanitized/semantic_propagation_report.md) | Across 4 worker-to-chief propagation cases, the public model declares 6 controls and 6 control-effect rows: bounded deterministic mode accepts 0 propagation while ablations accept 20; the local smoke adds 8 observations, 3 chief acceptances, 3 verifier blocks, 1 adapter error, and 87.5% response-hash coverage. | A real-secret leak, a CVE, a model leaderboard, production swarm safety, exhaustive long-session coverage, or a claim that adapter errors are passes. |
-| Local swarm defense contour | Validated example | [`examples/swarm-defense-contour-sanitized/swarm_defense_contour_report.md`](../../examples/swarm-defense-contour-sanitized/swarm_defense_contour_report.md) | Across 4 declared local-swarm failure families and all 15 non-empty family combinations, bounded deterministic mode accepts 0 paths, naive mode accepts 15, and control ablations reopen 68 dependent paths. | A live local model result, production swarm safety, exhaustive attack coverage, or proof that deterministic validators solve semantic truth. |
-| Sanitized local-model mini-swarm campaign | Validated sanitized local-model example | [`examples/swarm-defense-live-sanitized/swarm_defense_live_report.md`](../../examples/swarm-defense-live-sanitized/swarm_defense_live_report.md), [`examples/swarm-defense-live-long-session-sanitized/swarm_defense_live_report.md`](../../examples/swarm-defense-live-long-session-sanitized/swarm_defense_live_report.md), and [`examples/swarm-defense-live-deep-sanitized/swarm_defense_live_report.md`](../../examples/swarm-defense-live-deep-sanitized/swarm_defense_live_report.md) | Across 15 contour topologies x 6 pressure modes x 2 worker models x 1 chief model, the base private local run records 180 observations, 22 chief acceptances, 1 worker drift detection, 0 canary leaks, 22 verifier blocks, 96 replay-ablation reopenings, 0 adapter errors, and 100% response-hash coverage. The long-session supplement records 15 observations, each with 3 worker turns, 1 chief acceptance, 1 verifier block, 4 replay-ablation reopenings, 1 adapter error, and 0 canary leaks. The deep multi-model run records 168 observations, 67 chief acceptances, 3 worker drift detections, 0 canary leaks, 70 verifier blocks, 70/70 unsafe chains blocked, 91/91 benign chains allowed, 242 replay-ablation reopenings, and 100% response/turn-hash coverage for non-adapter-error rows. Public artifacts expose safe model ids, roles, topology ids, pressure labels, response/per-turn hashes, aggregate labels, verifier attribution, adapter flags, replay-ablation metrics, Wilson intervals, and model breakdowns; raw transcripts remain private. | A CVE, real-secret extraction, model leaderboard, production swarm safety, exhaustive attack coverage, or proof that deterministic validators solve semantic truth. |
-| Marketing web-injection swarm | Validated example | [`examples/marketing-web-injection-sanitized/marketing_web_injection_report.md`](../../examples/marketing-web-injection-sanitized/marketing_web_injection_report.md) | Across 5 controlled offline marketing/ads web-ingestion scenarios and 36 observations, naive mode leaks 5/5 unsafe cases, bounded mode leaks 0/5, control ablations reopen 21/21 unsafe rows, benign rows are allowed 5/5, and response-hash coverage is 100%. | Real internet safety, real-secret extraction, CVE status, production swarm safety, or exhaustive web-injection coverage. |
-| Live local-model marketing web-injection | Validated sanitized local-model example | [`examples/marketing-web-live-sanitized/marketing_web_live_report.md`](../../examples/marketing-web-live-sanitized/marketing_web_live_report.md) | Across 2 owned local-web marketing scenarios, 2 worker models, and 2 chief models, the sanitized run records 60 observations, 3 worker leaks, 1 chief leak, 1 ablation final leak, 0 bounded final leaks, 0 benign final leaks, 8 verifier blocks, 0 false blocks, and 100% response/turn-hash coverage. | A CVE, real-secret extraction, real internet safety, production swarm safety, model leaderboard result, or exhaustive web-injection coverage. |
-| Swarm resilience/stability model | Validated example | [`examples/swarm-resilience-sanitized/swarm_resilience_report.md`](../../examples/swarm-resilience-sanitized/swarm_resilience_report.md) | Across 7 declared degradation families and 46 deterministic observations, naive mode accepts 7 unsafe trajectories, bounded mode accepts 0, control ablations reopen 18, benign rows have 0 false blocks, and state-hash coverage is 100%. | Production swarm safety, exhaustive attack coverage, real-secret extraction, or proof that deterministic state vectors solve semantic truth. |
+| Secret-leak variation probes | Unreconciled detector summary | [`examples/secret-leak-variations-sanitized/secret_leak_variation_report.md`](../../examples/secret-leak-variations-sanitized/secret_leak_variation_report.md) | The public artifact declares 64 observations, 0 detector-labelled leaks, 0 adapter errors, and complete hash-field presence. It does not replay private bytes or attest execution origin. | A current empirical result, authenticated model execution, model-safety proof, vulnerability absence claim, or exhaustive prompt-pressure coverage. |
+| Semantic parameter drift probes | Legacy structural summary plus executable specification | [`examples/semantic-drift-sanitized/semantic_drift_report.md`](../../examples/semantic-drift-sanitized/semantic_drift_report.md) | The legacy schema-0.1 observation rows retain declared detector labels and aggregates; current schema is 0.2. The deterministic projection records bounded acceptance 0 and 19 rule-derived ablation acceptances. | Current empirical evidence, authenticated execution, a CVE, a model leaderboard, production swarm safety, or exhaustive long-session coverage. |
+| Semantic propagation defense | Legacy structural summary plus executable specification | [`examples/semantic-propagation-sanitized/semantic_propagation_report.md`](../../examples/semantic-propagation-sanitized/semantic_propagation_report.md) | The legacy schema-0.2 observation rows retain declared detector labels and aggregates; current schema is 0.3. The deterministic projection records bounded acceptance 0 and 20 rule-derived ablation acceptances. | Current empirical evidence, authenticated execution, causal effect, a CVE, a model leaderboard, production swarm safety, or a claim that adapter errors are passes. |
+| Local swarm defense contour | Validated executable specification | [`examples/swarm-defense-contour-sanitized/swarm_defense_contour_report.md`](../../examples/swarm-defense-contour-sanitized/swarm_defense_contour_report.md) | Across 4 declared local-swarm failure families and all 15 non-empty family combinations, bounded deterministic mode accepts 0 paths, naive mode accepts 15, and the generator records 112 rule-derived ablation acceptances. | A live local model result, independent causal effect, production swarm safety, exhaustive attack coverage, or proof that deterministic validators solve semantic truth. |
+| Historical loopback-endpoint mini-swarm campaign | Legacy sanitized examples | [`examples/swarm-defense-live-sanitized/swarm_defense_live_report.md`](../../examples/swarm-defense-live-sanitized/swarm_defense_live_report.md), [`examples/swarm-defense-live-long-session-sanitized/swarm_defense_live_report.md`](../../examples/swarm-defense-live-long-session-sanitized/swarm_defense_live_report.md), and [`examples/swarm-defense-live-deep-sanitized/swarm_defense_live_report.md`](../../examples/swarm-defense-live-deep-sanitized/swarm_defense_live_report.md) | These pre-0.5 artifacts retain historical drift/chief/adapter observations. Canary-zero claims are withdrawn because the old aggregator mismatched detector categories; ablation “reopenings” are rule-attribution counts. | A current-contract execution, absence of leakage, causal control effect, local model attestation, signed evidence, or production safety. |
+| Marketing web-injection swarm | Validated executable specification | [`examples/marketing-web-injection-sanitized/marketing_web_injection_report.md`](../../examples/marketing-web-injection-sanitized/marketing_web_injection_report.md) | Across 5 controlled offline cases and 36 rows, the generator selects 5 naive leak branches, 0 bounded leak branches, 21 rule-derived ablation leak branches, and 5 benign allow branches. | Empirical causal effect, real internet safety, real-secret extraction, CVE status, production swarm safety, or exhaustive web-injection coverage. |
+| Historical loopback-endpoint marketing web-injection | Legacy structural example | [`examples/marketing-web-live-sanitized/marketing_web_live_report.md`](../../examples/marketing-web-live-sanitized/marketing_web_live_report.md) | Schema `0.2` historical detector observations; current schema `0.3` is unexecuted, and verifier/ablation outcomes are rule-derived. | Current evidence, causal control effects, local model attestation, signed integrity, or production safety. |
+| Swarm resilience/stability model | Validated executable specification | [`examples/swarm-resilience-sanitized/swarm_resilience_report.md`](../../examples/swarm-resilience-sanitized/swarm_resilience_report.md) | Across 7 declared degradation families and 46 deterministic rows, the generator selects 7 naive unsafe branches, 0 bounded unsafe branches, 18 rule-derived ablation branches, and 0 benign false-block branches. | Empirical causal effect, production swarm safety, exhaustive attack coverage, real-secret extraction, or proof that deterministic state vectors solve semantic truth. |
 | Context consent boundary | Validated example | [`examples/context-consent-sanitized/context_consent_report.md`](../../examples/context-consent-sanitized/context_consent_report.md) | Across 5 consent-boundary cases and 45 deterministic rows, naive mode accepts 5 risky actions, bounded mode accepts 0, control ablations reopen 18 rows, and benign rows have 0 false blocks. | Production consent enforcement, model safety, proof of user understanding, or exhaustive workflow coverage. |
 | Tool-output authority boundary | Validated example | [`examples/tool-authority-sanitized/tool_authority_report.md`](../../examples/tool-authority-sanitized/tool_authority_report.md) | Across 6 tool-output authority cases and 66 deterministic rows, naive mode accepts 6 risky actions, bounded mode accepts 0, control ablations reopen 23 rows, and benign rows have 0 false blocks. | Production tool-agent safety, real MCP/schema verification, model safety, or exhaustive tool-output coverage. |
 | RAG context authority boundary | Validated example | [`examples/rag-context-sanitized/rag_context_report.md`](../../examples/rag-context-sanitized/rag_context_report.md) | Across 7 retrieved-context propagation cases and 91 deterministic rows, naive mode accepts 7 unsafe chains, bounded mode accepts 0, control ablations reopen 30 rows, and benign rows have 0 false blocks. | Production RAG-agent safety, provider/model vulnerability claims, model safety, or exhaustive retrieval coverage. |
 | Planner task authority boundary | Validated example | [`examples/planner-task-sanitized/planner_task_report.md`](../../examples/planner-task-sanitized/planner_task_report.md) | Across 7 planner/task-decomposition cases and 91 deterministic rows, naive mode accepts 7 unsafe chains, bounded mode accepts 0, control ablations reopen 32 rows, and benign rows have 0 false blocks. | Production planning-agent safety, provider/model vulnerability claims, model safety, or exhaustive planner coverage. |
 | Memory rehydration authority boundary | Validated example | [`examples/memory-rehydration-sanitized/memory_rehydration_report.md`](../../examples/memory-rehydration-sanitized/memory_rehydration_report.md) | Across 7 cross-agent memory rehydration cases and 91 deterministic rows, naive mode accepts 7 unsafe chains, bounded mode accepts 0, control ablations reopen 32 rows, and benign rows have 0 false blocks. | Production memory-agent safety, provider/model vulnerability claims, model safety, or exhaustive memory-system coverage. |
-| Local swarm real-model evaluation | Local empirical summary | [`local-swarm-real-model-evaluation.md`](../local-swarm-real-model-evaluation.md) | Two local Ollama models executed the full 15-scenario local-swarm suite with 100% transcript-hash coverage and 0% adapter-error rate. | The local models passed a safety benchmark or production swarm behavior is proven. |
+| Local swarm real-model evaluation | Unreconciled maintainer report | [`local-swarm-real-model-evaluation.md`](../local-swarm-real-model-evaluation.md) | Historical documentation declares two local runs and complete transcript-hash-field coverage. No private execution bundle or reconciliation receipt is present in the public repository. | Authenticated model/runtime execution, a current empirical result, a safety benchmark pass, or production swarm behavior. |
 | External fake-server run | Validated example | [`examples/external-demo-report/README.md`](../../examples/external-demo-report/README.md) | The experimental external artifact path can validate against a deterministic local fake OpenAI-compatible endpoint. | A real model/provider is safe. |
 | Local Prometheus/Ollama smoke | Shipped bounded local-suite; local scratch artifacts | [`local-prometheus-workflow.md`](../local-prometheus-workflow.md) | A weak local model can be exercised through a named prompt-only local-suite profile; first local Prometheus smokes exposed evidence-quality/runtime limits. | Public benchmark finding; model leaderboard result. |
 
@@ -92,6 +131,8 @@ ash showcase --root reports --out docs/showcase/generated
 ```
 
 The generated files are a reviewer aid. JSON artifacts remain the source of truth.
+Legacy manifests without persisted-byte content hashes are excluded rather than
+retroactively assigned a new execution identity.
 
 ## Reproduce the local handoff toy comparison
 
@@ -175,10 +216,10 @@ ash semantic-drift-campaign --execute --out .internal/semantic-drift/latest --su
 ash validate reports/semantic-drift
 ```
 
-Expected current result for the committed sanitized example: 4 cases, 28 deterministic
-contract rows, bounded deterministic drift acceptances 0, ablation acceptances 19, and
-80 local-model observations in the latest maintainer smoke. Raw prompts, responses,
-canonical-state hashes, and canaries remain private.
+Committed artifact boundary: 4 cases, 28 deterministic contract rows, bounded
+deterministic drift acceptances 0, and 19 rule-derived ablation acceptances. The 80
+observation rows are a legacy schema-`0.1` detector summary; current schema is `0.2`,
+private bytes are not publicly reconciled, and current empirical status is not claimed.
 
 ## Reproduce the semantic propagation campaign
 
@@ -196,11 +237,10 @@ ash semantic-propagation-campaign --execute --out .internal/semantic-propagation
 ash validate reports/semantic-propagation
 ```
 
-Expected current result for the committed sanitized example: 4 cases, 32 deterministic
-contract rows, bounded deterministic propagation acceptances 0, ablation acceptances 20,
-and 8 local-model observations in the latest maintainer smoke, including 1 adapter
-error and 87.5% response-hash coverage. Raw worker/chief prompts, responses,
-canonical-state hashes, and canaries remain private.
+Committed artifact boundary: 4 cases, 32 deterministic contract rows, bounded
+deterministic propagation acceptances 0, and 20 rule-derived ablation acceptances. The
+8 observation rows are a legacy schema-`0.2` detector summary; current schema is `0.3`,
+private bytes are not publicly reconciled, and current empirical status is not claimed.
 
 ## Reproduce the bounded local smoke
 

@@ -2,7 +2,7 @@
 
 Harness-first and trace-first. Versioning is feature-gated, not date-gated; each version
 is shippable. Built-in/local targets are local, deterministic, and synthetic: no network,
-no provider calls, no real secrets. The experimental `run-external` path makes
+no provider calls, no real secrets. The experimental `run-external --execute` path makes
 OpenAI-compatible calls only on explicit opt-in (prompt-only); native provider and
 agent-host adapters are future.
 

@@ -1,7 +1,6 @@
 name: Release artifacts
 
 on:
-  workflow_dispatch:
   push:
     tags:
       - "v*"
@@ -12,10 +11,14 @@ permissions:
 jobs:
   build:
     name: Build release artifacts
+    if: github.event_name == 'push' && github.ref_type == 'tag'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Check out repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
@@ -23,21 +26,70 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      - name: Install locked build dependencies
-        run: python -m pip install --require-hashes -r requirements/build.txt
+      - name: Verify release ref and version identity
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          import os
+          import re
+          import tomllib
+          from pathlib import Path
+
+          tag = os.environ["RELEASE_TAG"]
+          if re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+", tag) is None:
+              raise SystemExit(f"release tag is not canonical vMAJOR.MINOR.PATCH: {tag!r}")
+          project_version = tomllib.loads(Path("pyproject.toml").read_text("utf-8"))["project"]["version"]
+          version_text = Path("src/agentic_security_harness/version.py").read_text("utf-8")
+          match = re.search(r'^__version__ = "([^"]+)"$', version_text, re.MULTILINE)
+          if match is None:
+              raise SystemExit("package __version__ is missing")
+          if tag != f"v{project_version}" or match.group(1) != project_version:
+              raise SystemExit(
+                  f"release identity mismatch: tag={tag!r}, project={project_version!r}, "
+                  f"package={match.group(1)!r}"
+              )
+          changelog = Path("CHANGELOG.md").read_text("utf-8")
+          if f"## [{project_version}] - " not in changelog:
+              raise SystemExit(f"CHANGELOG has no dated release section for {project_version}")
+          PY
+
+      - name: Install locked verification and build dependencies
+        run: |
+          python -m pip install --require-hashes -r requirements/dev.txt
+          python -m pip install --require-hashes -r requirements/build.txt
+
+      - name: Run release verification gates
+        env:
+          PYTHONPATH: src
+        run: |
+          python -m pytest
+          python -m ruff check .
+          python -m mypy src tests
+          python -m agentic_security_harness.cli validate examples/
 
       - name: Build package
         run: python -m build --no-isolation
 
-      - name: Smoke installed wheel
+      - name: Smoke installed sdist and wheel
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
           python -m pip install --require-hashes -r requirements/runtime.txt
+          python -m pip install --no-build-isolation --no-deps --force-reinstall dist/*.tar.gz
+          ash --help
           python -m pip install --no-deps --force-reinstall dist/*.whl
+          python -c "import os; import agentic_security_harness as ash; assert f'v{ash.__version__}' == os.environ['RELEASE_TAG']"
           ash --help
           ash validate examples/
+
+      - name: Write unsigned artifact checksums
+        run: cd dist && sha256sum *.tar.gz *.whl > SHA256SUMS
 
       - name: Upload artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: release-dist
-          path: dist/*
+          name: release-dist-${{ github.ref_name }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
