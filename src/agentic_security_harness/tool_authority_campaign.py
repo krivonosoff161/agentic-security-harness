@@ -19,7 +19,11 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from agentic_security_harness.run_manifest import build_manifest, write_run_manifest
-from agentic_security_harness.safe_io import write_text_artifact
+from agentic_security_harness.safe_io import (
+    atomic_evidence_bundle,
+    require_fresh_output_dir,
+    write_text_artifact,
+)
 from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 
 ToolAuthorityScenarioId = Literal[
@@ -176,6 +180,8 @@ class ToolAuthoritySummary(BaseModel):
     schema_version: str = SCHEMA_VERSIONS["tool_authority_campaign"]
     run_kind: Literal["tool_authority_campaign"] = "tool_authority_campaign"
     created_at: str = ""
+    evidence_kind: Literal["executable_specification"]
+    causal_scope: Literal["rule_derived_control_attribution"]
     claim_boundary: str = (
         "This deterministic campaign measures whether synthetic tool outputs are "
         "mistaken for commands, policy grants, schema authority, consent, or downstream "
@@ -469,6 +475,8 @@ def build_tool_authority_campaign(*, created_at: str = "") -> ToolAuthoritySumma
     effects = _build_control_effects(cases, rows)
     return ToolAuthoritySummary(
         created_at=created_at,
+        evidence_kind="executable_specification",
+        causal_scope="rule_derived_control_attribution",
         cases=cases,
         control_catalog=controls,
         deterministic_results=rows,
@@ -477,12 +485,14 @@ def build_tool_authority_campaign(*, created_at: str = "") -> ToolAuthoritySumma
     )
 
 
+@atomic_evidence_bundle("out_dir")
 def write_tool_authority_artifacts(
     out_dir: Path,
     summary: ToolAuthoritySummary,
 ) -> list[Path]:
     """Write sanitized tool-output authority artifacts."""
 
+    require_fresh_output_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     summary_path = out_dir / "tool_authority_summary.json"
     report_path = out_dir / "tool_authority_report.md"
@@ -524,6 +534,10 @@ def render_tool_authority_summary(summary: ToolAuthoritySummary) -> str:
         "# Tool Authority Campaign",
         "",
         summary.claim_boundary,
+        "",
+        "Evidence class: `executable_specification`.",
+        "Control effects are derived from declared case dependencies and evaluation rules; "
+        "they are not independent causal estimates.",
         "",
         "## Reproduce / Validate",
         "",
@@ -817,14 +831,15 @@ def _control_effect_interpretation(
         return f"{control} is not required by the declared case set."
     if acceptances == required_cases:
         return (
-            f"Removing {control} reopens every case that depends on it; "
-            "the bounded contract blocks those rows."
+            f"The specification marks every case that depends on {control} accepted "
+            "when that control is disabled; this is rule-derived attribution."
         )
     if acceptances:
         return (
-            f"Removing {control} reopens {acceptances}/{required_cases} dependent rows."
+            f"The specification marks {acceptances}/{required_cases} dependent rows "
+            f"accepted when {control} is disabled; this is rule-derived attribution."
         )
-    return f"Removing {control} did not reopen a dependent row in this campaign."
+    return f"The specification did not mark a dependent row accepted without {control}."
 
 
 def _case_controls(

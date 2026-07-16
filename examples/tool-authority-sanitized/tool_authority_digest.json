@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-07-02T04:19:00Z",
+  "created_at": "2026-07-14T20:35:41Z",
   "external_api_calls_present": false,
   "metrics": {
     "ablation_acceptances": 23,
@@ -53,5 +53,5 @@
   "raw_responses_present": false,
   "real_tool_calls_present": false,
   "run_kind": "tool_authority_campaign",
-  "schema_version": "0.1"
+  "schema_version": "0.2"
 }

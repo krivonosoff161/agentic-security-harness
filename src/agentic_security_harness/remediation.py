@@ -16,6 +16,11 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from agentic_security_harness.models import ExploitTrace, Severity
 from agentic_security_harness.safe_io import write_text_artifact
+from agentic_security_harness.safe_markdown import (
+    markdown_code_span,
+    markdown_prose,
+    markdown_table_cell,
+)
 from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 from agentic_security_harness.scorecard import ScorecardSummary
 
@@ -655,18 +660,19 @@ def build_external_recommendations_md(pattern_ids: list[str]) -> list[str]:
         "",
     ]
     for rec in recs:
-        pids = ", ".join(f"`{p}`" for p in rec.pattern_ids)
+        pids = ", ".join(markdown_code_span(p) for p in rec.pattern_ids)
         lines += [
-            f"### {rec.control_family} ({rec.priority.upper()})",
+            f"### {markdown_prose(rec.control_family)} "
+            f"({markdown_prose(rec.priority.upper())})",
             "",
             f"- Affected patterns: {pids}",
-            f"- What failed: {rec.what_failed}",
-            f"- Why it matters: {rec.why_it_matters}",
-            f"- Quick fix: {rec.quick_fix}",
-            f"- Engineering fix: {rec.engineering_fix}",
-            f"- Architecture fix: {rec.architecture_fix}",
-            f"- Verification: {rec.verification}",
-            f"- Residual risk: {rec.residual_risk}",
+            f"- What failed: {markdown_prose(rec.what_failed)}",
+            f"- Why it matters: {markdown_prose(rec.why_it_matters)}",
+            f"- Quick fix: {markdown_prose(rec.quick_fix)}",
+            f"- Engineering fix: {markdown_prose(rec.engineering_fix)}",
+            f"- Architecture fix: {markdown_prose(rec.architecture_fix)}",
+            f"- Verification: {markdown_prose(rec.verification)}",
+            f"- Residual risk: {markdown_prose(rec.residual_risk)}",
             "",
         ]
     return lines
@@ -678,15 +684,19 @@ def remediation_to_json(report: RemediationReport) -> str:
 
 def build_remediation_md(report: RemediationReport) -> str:
     """Deterministic markdown remediation report."""
+    families_text = (
+        markdown_prose(", ".join(report.control_families))
+        if report.control_families
+        else "(none)"
+    )
     lines: list[str] = [
         "# Agentic Security Harness - remediation recommendations",
         "",
-        f"Target: `{report.target_name}`",
+        f"Target: {markdown_code_span(report.target_name)}",
         "",
         f"- Total patterns: {report.total_patterns}",
         f"- Total findings with recommendations: {report.total_findings}",
-        f"- Control families: "
-        f"{', '.join(report.control_families) if report.control_families else '(none)'}",
+        f"- Control families: {families_text}",
         "",
     ]
 
@@ -709,14 +719,20 @@ def build_remediation_md(report: RemediationReport) -> str:
         recs = by_priority.get(p, [])
         if recs:
             families = sorted({r.control_family for r in recs})
-            lines.append(f"- **{p.upper()}** ({len(recs)} findings): {', '.join(families)}")
+            lines.append(
+                f"- **{markdown_prose(p.upper())}** ({len(recs)} findings): "
+                f"{markdown_prose(', '.join(families))}"
+            )
 
     lines += ["", "## Findings mapped to controls", ""]
     lines.append("| Pattern | Finding | Family | Priority |")
     lines.append("|---|---|---|---|")
     for rec in report.recommendations:
         lines.append(
-            f"| `{rec.pattern_id}` | {rec.finding_code} | {rec.control_family} | {rec.priority} |"
+            f"| {markdown_code_span(rec.pattern_id)} | "
+            f"{markdown_table_cell(rec.finding_code)} | "
+            f"{markdown_table_cell(rec.control_family)} | "
+            f"{markdown_table_cell(rec.priority)} |"
         )
 
     lines += ["", "## Quick fixes", ""]
@@ -724,35 +740,50 @@ def build_remediation_md(report: RemediationReport) -> str:
     for rec in report.recommendations:
         if rec.control_family not in seen_families:
             seen_families.add(rec.control_family)
-            lines.append(f"- **{rec.control_family}**: {rec.quick_fix}")
+            lines.append(
+                f"- **{markdown_prose(rec.control_family)}**: "
+                f"{markdown_prose(rec.quick_fix)}"
+            )
 
     lines += ["", "## Engineering fixes", ""]
     seen_families = set()
     for rec in report.recommendations:
         if rec.control_family not in seen_families:
             seen_families.add(rec.control_family)
-            lines.append(f"- **{rec.control_family}**: {rec.engineering_fix}")
+            lines.append(
+                f"- **{markdown_prose(rec.control_family)}**: "
+                f"{markdown_prose(rec.engineering_fix)}"
+            )
 
     lines += ["", "## Architecture fixes", ""]
     seen_families = set()
     for rec in report.recommendations:
         if rec.control_family not in seen_families:
             seen_families.add(rec.control_family)
-            lines.append(f"- **{rec.control_family}**: {rec.architecture_fix}")
+            lines.append(
+                f"- **{markdown_prose(rec.control_family)}**: "
+                f"{markdown_prose(rec.architecture_fix)}"
+            )
 
     lines += ["", "## Verification steps", ""]
     seen_families = set()
     for rec in report.recommendations:
         if rec.control_family not in seen_families:
             seen_families.add(rec.control_family)
-            lines.append(f"- **{rec.control_family}**: {rec.verification}")
+            lines.append(
+                f"- **{markdown_prose(rec.control_family)}**: "
+                f"{markdown_prose(rec.verification)}"
+            )
 
     lines += ["", "## Residual risk", ""]
     seen_families = set()
     for rec in report.recommendations:
         if rec.control_family not in seen_families:
             seen_families.add(rec.control_family)
-            lines.append(f"- **{rec.control_family}**: {rec.residual_risk}")
+            lines.append(
+                f"- **{markdown_prose(rec.control_family)}**: "
+                f"{markdown_prose(rec.residual_risk)}"
+            )
 
     lines += [
         "",

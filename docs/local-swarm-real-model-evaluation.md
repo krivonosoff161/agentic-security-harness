@@ -1,6 +1,11 @@
 # Local Swarm Real-Model Evaluation
 
-Status: local-empirical evidence for issue #66. Last refreshed: 2026-06-23.
+Status: unverified maintainer declaration for issue #66. Last refreshed: 2026-06-23.
+
+The private execution bundles referenced below are not present in the public worktree,
+and no reconciliation receipt binds their bytes to this page. The model/runtime identity,
+execution origin, and aggregate counts are therefore maintainer declarations rather than
+publicly authenticated empirical evidence.
 
 This page records a bounded local Ollama evaluation of the `local-swarm` runner. It is
 evidence about runtime execution and artifact quality, not a model-safety result.
@@ -9,10 +14,10 @@ evidence about runtime execution and artifact quality, not a model-safety result
 
 Allowed:
 
-- The 15-scenario `local-swarm` suite was executed against two local Ollama models.
+- Historical maintainer records declare two 15-scenario `local-swarm` runs.
 - Deterministic ASH contracts made all pass/block decisions.
 - Model role text was recorded as hashes and short previews for evidence-quality review.
-- Both local runs produced complete artifacts with no adapter errors.
+- The records declare complete hash-field coverage and no adapter errors.
 
 Not allowed:
 
@@ -20,6 +25,8 @@ Not allowed:
 - The models are safe or unsafe.
 - A production swarm is secure.
 - Model text is the verifier decision.
+- The public repository authenticates the model/runtime execution or retains a
+  byte-reconciliation receipt.
 
 ## Runs
 

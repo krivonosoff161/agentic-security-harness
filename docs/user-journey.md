@@ -44,8 +44,9 @@ ash run --target toy-rag --out reports/demo
 ash report --root reports/demo
 ```
 
-Writes a self-contained `reports/demo/report.html` (no JS, no network). Open it in a
-browser.
+Validates the run artifacts, then writes a self-contained `reports/demo/report.html`
+(no JS, no network). Integrity failures stop publication; benchmark expectation failures
+are rendered with a visible non-clean-result warning. Open the validated view in a browser.
 
 ## 5. Validate the artifacts
 
@@ -106,7 +107,7 @@ Tip: `ash external-presets` lists shortcuts that fill the `base_url` for you, e.
 ## 10. Live run against the fake server
 
 ```bash
-ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --repeats 2 --out reports/external-demo
+ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --repeats 2 --execute --out reports/external-demo
 ```
 
 This is the first step that makes requests - all to localhost. For a real endpoint you
@@ -115,7 +116,8 @@ would add `--credential-env ASH_EXTERNAL_API_KEY` after exporting the key:
 - bash: `export ASH_EXTERNAL_API_KEY=REDACTED_VALUE`
 - PowerShell: `$env:ASH_EXTERNAL_API_KEY = "REDACTED_VALUE"`
 
-The key value is never logged or stored - only the env var name is recorded.
+The key value and env-var name are never logged or stored; artifacts record only whether a
+credential variable was configured.
 
 ## 11. Render the external HTML report
 

@@ -1,6 +1,6 @@
 {
   "approval_tokens_present": false,
-  "created_at": "2026-06-30T19:23:10Z",
+  "created_at": "2026-07-14T20:35:41Z",
   "metrics": {
     "ablation_acceptances": 18,
     "acceptances_by_missing_control": {
@@ -36,5 +36,5 @@
   "raw_prompts_present": false,
   "raw_responses_present": false,
   "run_kind": "context_consent_campaign",
-  "schema_version": "0.1"
+  "schema_version": "0.2"
 }

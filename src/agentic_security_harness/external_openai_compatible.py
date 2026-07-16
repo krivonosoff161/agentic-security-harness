@@ -12,6 +12,8 @@ import urllib.error
 import urllib.request
 from typing import Any
 
+from agentic_security_harness.presets import base_url_error
+
 
 class ExternalAPIError(Exception):
     """Structured error from an external API call."""
@@ -20,6 +22,37 @@ class ExternalAPIError(Exception):
         super().__init__(message)
         self.status_code = status_code
         self.response = response
+
+
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Refuse redirects before a request body can leave its authorized first hop."""
+
+    def redirect_request(
+        self,
+        req: Any,
+        fp: Any,
+        code: int,
+        msg: str,
+        headers: Any,
+        newurl: str,
+    ) -> None:
+        del req, fp, code, msg, headers, newurl
+        return None
+
+
+def urlopen_no_redirect(
+    request: Any,
+    *,
+    timeout_seconds: int,
+    allow_env_proxy: bool = False,
+) -> Any:
+    """Open one URL without redirects or ambient proxy routing by default."""
+
+    handlers: list[Any] = [_NoRedirectHandler()]
+    if not allow_env_proxy:
+        handlers.insert(0, urllib.request.ProxyHandler({}))
+    opener = urllib.request.build_opener(*handlers)
+    return opener.open(request, timeout=timeout_seconds)
 
 
 def _get_credential(env_name: str) -> str | None:
@@ -51,11 +84,18 @@ def chat_completion(
     api_key_env: str | None = None,
     max_retries: int = 0,
     retry_backoff_seconds: float = 0.0,
+    allow_redirects: bool = False,
+    allow_env_proxy: bool = False,
 ) -> dict[str, Any]:
     """Send a chat completion request to an OpenAI-compatible endpoint.
 
-    Returns the parsed JSON response. Raises ExternalAPIError on failure.
+    Redirects and ambient proxy discovery are refused by default so endpoint authority
+    cannot silently expand to another route. Returns parsed JSON or raises
+    ``ExternalAPIError``.
     """
+    route_error = base_url_error(base_url)
+    if route_error is not None:
+        raise ValueError(route_error)
     env_name = credential_env_var if api_key_env is None else api_key_env
     credential = _get_credential(env_name)
 
@@ -82,7 +122,23 @@ def chat_completion(
     last_error: ExternalAPIError | None = None
     for attempt in range(attempts):
         try:
-            with urllib.request.urlopen(req, timeout=timeout_seconds) as resp:
+            if allow_redirects and allow_env_proxy:
+                # base_url_error restricts the request to a validated HTTP(S) URL.
+                response = urllib.request.urlopen(  # nosec B310
+                    req,
+                    timeout=timeout_seconds,
+                )
+            elif allow_redirects:
+                response = urllib.request.build_opener(
+                    urllib.request.ProxyHandler({})
+                ).open(req, timeout=timeout_seconds)
+            else:
+                response = urlopen_no_redirect(
+                    req,
+                    timeout_seconds=timeout_seconds,
+                    allow_env_proxy=allow_env_proxy,
+                )
+            with response as resp:
                 raw = resp.read().decode("utf-8")
                 return json.loads(raw)
         except urllib.error.HTTPError as exc:
@@ -110,7 +166,8 @@ def chat_completion(
         if attempt < attempts - 1 and retry_backoff_seconds > 0:
             time.sleep(retry_backoff_seconds)
 
-    assert last_error is not None
+    if last_error is None:
+        raise ExternalAPIError("request failed without a transport error")
     raise last_error
 
 

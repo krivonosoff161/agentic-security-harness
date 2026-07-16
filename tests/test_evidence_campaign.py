@@ -1,5 +1,7 @@
 """Tests for the bounded evidence campaign calculations."""
 
+import hashlib
+import json
 from pathlib import Path
 from unittest.mock import patch
 
@@ -152,9 +154,105 @@ def test_campaign_artifacts_validate_and_digest_is_private_ready(tmp_path: Path)
     assert "Raw model responses" not in digest
 
 
+def test_validator_recomputes_campaign_metrics(tmp_path: Path) -> None:
+    out = tmp_path / "campaign-metric-tamper"
+    summary = build_evidence_campaign(created_at="")
+    summary.metrics.control_effect_naive_to_bounded += 0.1
+    write_evidence_campaign_artifacts.__wrapped__(out, summary)  # type: ignore[attr-defined]
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert not result.integrity_ok
+    assert any("metrics do not match recomputed" in error for error in result.errors)
+
+
+def test_validator_binds_observation_hashes_to_row_content(tmp_path: Path) -> None:
+    out = tmp_path / "campaign-hash-tamper"
+    summary = build_evidence_campaign(created_at="")
+    summary.observations[0].decision = "review"
+    summary.observations[0].confusion = "INCONCLUSIVE"
+    write_evidence_campaign_artifacts.__wrapped__(out, summary)  # type: ignore[attr-defined]
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert not result.integrity_ok
+    assert any("result_hash mismatch" in error for error in result.errors)
+
+
+def test_evidence_digest_cannot_omit_artifact_hash(tmp_path: Path) -> None:
+    out = tmp_path / "campaign-digest-omission"
+    write_evidence_campaign_artifacts(out, build_evidence_campaign(created_at=""))
+    digest_path = out / "evidence_campaign_digest.json"
+    digest = json.loads(digest_path.read_text(encoding="utf-8"))
+    digest["artifact_hashes"].pop("observations")
+    digest_path.write_text(json.dumps(digest), encoding="utf-8")
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert not result.integrity_ok
+    assert any("digest projection mismatch" in error for error in result.errors)
+
+
+def test_evidence_campaign_rejects_shipped_corpus_redefinition(tmp_path: Path) -> None:
+    out = tmp_path / "campaign-corpus-redefinition"
+    summary = build_evidence_campaign(created_at="")
+    summary.cases[0].expected_safe_behavior += " rewritten"
+    write_evidence_campaign_artifacts.__wrapped__(out, summary)  # type: ignore[attr-defined]
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert any(
+        "summary does not match the shipped campaign specification" in error
+        for error in result.errors
+    )
+
+
+def test_evidence_campaign_rejects_report_tamper_after_hash_rewrite(
+    tmp_path: Path,
+) -> None:
+    out = tmp_path / "campaign-report-rewrite"
+    write_evidence_campaign_artifacts(out, build_evidence_campaign(created_at=""))
+    report_path = out / "evidence_campaign_report.md"
+    report_path.write_text(
+        report_path.read_text(encoding="utf-8") + "\nOverstated claim.\n",
+        encoding="utf-8",
+    )
+    manifest_path = out / "run_index.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["artifact_sha256"][report_path.name] = hashlib.sha256(
+        report_path.read_bytes()
+    ).hexdigest()
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert any("report projection mismatch" in error for error in result.errors)
+
+
+def test_evidence_campaign_rejects_manifest_semantic_rewrite(tmp_path: Path) -> None:
+    out = tmp_path / "campaign-manifest-rewrite"
+    write_evidence_campaign_artifacts(out, build_evidence_campaign(created_at=""))
+    manifest_path = out / "run_index.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["outcomes"]["bounded_false_negative"] = 1
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert any("outcomes does not match summary projection" in error for error in result.errors)
+
+
 def test_cli_evidence_campaign_dry_run_uses_no_network(tmp_path: Path) -> None:
     out = tmp_path / "dry"
-    with patch("urllib.request.urlopen", side_effect=_boom):
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect", side_effect=_boom
+    ):
         rc = cli.main(["evidence-campaign", "--out", str(out)])
 
     assert rc == 0

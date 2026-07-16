@@ -67,7 +67,7 @@ The committed sanitized example records:
 - benign false blocks: `0`
 - state-hash coverage: `100%`
 
-This proves control attribution for the declared stability model. It does not prove
+This reproduces rule-encoded control dependencies for the declared stability model. It does not prove
 production swarm safety, exhaustive attack coverage, or real-secret extraction.
 
 ## Controls

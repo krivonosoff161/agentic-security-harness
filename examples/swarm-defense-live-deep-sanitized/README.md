@@ -1,7 +1,8 @@
-# Deep Sanitized Local-Model Mini-Swarm Example
+# Historical Deep Mini-Swarm Observation (Legacy Schema)
 
-This directory contains a sanitized public summary from a private local Ollama
-mini-swarm campaign over the four declared swarm-defense families.
+This directory retains a structural-only pre-0.5 detector-observation summary.
+The current schema has no committed execution, public validation does not replay
+private responses, and the artifact does not attest that the model ran locally.
 
 Raw prompts, raw responses, synthetic canary values, and calculation notes are
 not present here. They remain private under `.internal/`.

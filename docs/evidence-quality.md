@@ -5,7 +5,9 @@
 tools, and does not create a model leaderboard.
 
 Derived analysis only: the command summarizes already recorded artifacts and does not
-replace `ash validate` or the deterministic verdict contract.
+replace the deterministic verdict contract. Before aggregation it applies the same artifact
+validator to every discovered bundle and requires `run_index.json`; invalid, ambiguous,
+or post-manifest-modified inputs are excluded with warnings.
 
 This is not a model leaderboard.
 
@@ -29,6 +31,21 @@ It writes:
 
 - `evidence_quality.json` - schema-versioned machine-readable summary;
 - `evidence_quality.md` - reviewer-facing summary.
+- `run_index.json` - current manifest binding the exact persisted JSON/Markdown bytes.
+
+Run labels and warnings are portable relative labels; generated artifacts do not retain
+absolute workstation paths. Before persistence, the producer rebuilds aggregate rates,
+counts, cross-run comparison groups, and local-swarm weighted metrics from the retained rows.
+`ash validate` repeats that projection check, requires exact Markdown, and verifies the
+output manifest hashes. A malformed projection is refused before its output directory is
+created.
+
+Each included run declares:
+
+- `current_content_bound` when run-manifest v0.3 hashes bind the listed persisted bytes;
+- `legacy_structural` for an older validator-accepted manifest without that hash contract;
+- `unsigned` origin authentication in both cases. Content binding detects uncoordinated
+  changes; it does not prove who produced the run or which runtime/model actually answered.
 
 ## Metrics
 
@@ -66,7 +83,7 @@ The local-swarm section also labels evidence maturity:
 |---|---|
 | `deterministic_example` | No model calls; useful for reproducible contract evidence. |
 | `bounded_runtime_smoke` | Local model calls were recorded for bounded mode only; useful for adapter/model-channel smoke, not for comparing swarm shapes. |
-| `full_runtime_comparison` | Local model calls were recorded for monolith, naive-swarm, and bounded-swarm modes. |
+| `full_runtime_comparison` | The artifact records local model calls for monolith, naive-swarm, and bounded-swarm modes. This is mode coverage, not authenticated execution. |
 | `incomplete_runtime_evidence` | Model calls were attempted, but the recorded mode coverage is insufficient or inconsistent. |
 
 ## Claim boundary
@@ -87,3 +104,5 @@ Not allowed:
 - using this command as a live multi-agent runtime proof;
 - treating this as a benchmark-grade model leaderboard;
 - treating local-swarm model role text as the verifier decision.
+- treating manifest hashes or a `full_runtime_comparison` label as authenticated authorship
+  or proof of runtime/model identity.

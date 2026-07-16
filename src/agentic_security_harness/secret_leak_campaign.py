@@ -36,8 +36,20 @@ from agentic_security_harness.memory_governance import (
     validate_memory_read,
 )
 from agentic_security_harness.models import DataEnvelope
+from agentic_security_harness.presets import is_loopback_base_url
 from agentic_security_harness.run_manifest import build_manifest, write_run_manifest
-from agentic_security_harness.safe_io import write_text_artifact
+from agentic_security_harness.safe_io import (
+    atomic_evidence_bundle,
+    atomic_private_bundle,
+    is_internal_output_dir,
+    require_fresh_output_dir,
+    write_text_artifact,
+)
+from agentic_security_harness.safe_markdown import (
+    markdown_code_span,
+    markdown_prose,
+    markdown_table_cell,
+)
 from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 
 SecretScenarioId = Literal[
@@ -277,9 +289,10 @@ class SecretLeakVariationSummary(BaseModel):
     run_kind: Literal["secret_leak_variations"] = "secret_leak_variations"
     created_at: str = ""
     claim_boundary: str = (
-        "Private local-model probes searched for synthetic canary egress under "
-        "multi-step agentic pressure. Public artifacts contain hashes and aggregate "
-        "leak classifications only; raw prompts, responses, and canaries are private."
+        "This public summary records declared model identifiers, detector classifications, "
+        "hash fields, and aggregates for a maintainer-reported private probe. Without "
+        "owner-side byte reconciliation it does not establish private evidence retention, "
+        "execution origin, model locality, or detector accuracy."
     )
     cases: list[SecretVariationCase]
     metrics: SecretVariationMetrics
@@ -506,6 +519,10 @@ def run_secret_model_probe(
 ) -> SecretModelProbeRun:
     """Run private local-model canary probes for evidence-quality review."""
 
+    if not is_loopback_base_url(base_url):
+        raise ValueError(
+            "secret model probes require a literal loopback HTTP(S) base URL"
+        )
     selected_pressures = pressure_modes or list(PRESSURE_MODES)
     scenarios = declared_secret_scenarios()
     request_count = len(scenarios) * len(selected_pressures)
@@ -541,6 +558,8 @@ def run_secret_model_probe(
                     timeout_seconds=timeout_seconds,
                     credential_env_var="",
                     max_retries=0,
+                    allow_redirects=False,
+                    allow_env_proxy=False,
                 )
                 content = extract_content(response).strip()
                 leak = detect_canary_leak(content, canary)
@@ -570,6 +589,10 @@ def run_secret_leak_variation_probe(
 ) -> SecretLeakVariationPrivateRun:
     """Run private local-model probes over the Phase 2 variation matrix."""
 
+    if not is_loopback_base_url(base_url):
+        raise ValueError(
+            "secret variation probes require a literal loopback HTTP(S) base URL"
+        )
     selected_pressures = pressure_modes or list(PRESSURE_MODES)
     cases = declared_secret_variation_cases()
     request_count = len(models) * len(cases) * len(selected_pressures)
@@ -610,6 +633,8 @@ def run_secret_leak_variation_probe(
                         timeout_seconds=timeout_seconds,
                         credential_env_var="",
                         max_retries=0,
+                        allow_redirects=False,
+                        allow_env_proxy=False,
                     )
                     content = extract_content(response).strip()
                     leak = detect_canary_leak(content, canary)
@@ -697,12 +722,14 @@ def detect_canary_leak(text: str, canary: SyntheticCanary) -> LeakKind:
     return "none"
 
 
+@atomic_evidence_bundle("out_dir")
 def write_secret_leak_campaign_artifacts(
     out_dir: Path,
     summary: SecretLeakCampaignSummary,
 ) -> list[Path]:
     """Write sanitized public-ready campaign artifacts."""
 
+    require_fresh_output_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     json_path = write_text_artifact(
         out_dir / "secret_leak_campaign_summary.json",
@@ -745,9 +772,13 @@ def write_secret_leak_campaign_artifacts(
     return [json_path, md_path, digest_path, manifest_path]
 
 
+@atomic_private_bundle("out_dir")
 def write_secret_model_probe_artifacts(out_dir: Path, run: SecretModelProbeRun) -> list[Path]:
     """Write private local-model transcripts. Caller should use a .internal path."""
 
+    if not is_internal_output_dir(out_dir):
+        raise ValueError("private secret model probes must be written under .internal/")
+    require_fresh_output_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     json_path = write_text_artifact(
         out_dir / "secret_model_probe_private.json",
@@ -760,12 +791,14 @@ def write_secret_model_probe_artifacts(out_dir: Path, run: SecretModelProbeRun) 
     return [json_path, md_path]
 
 
+@atomic_evidence_bundle("out_dir")
 def write_secret_leak_variation_artifacts(
     out_dir: Path,
     summary: SecretLeakVariationSummary,
 ) -> list[Path]:
     """Write sanitized public-ready Phase 2 variation artifacts."""
 
+    require_fresh_output_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     json_path = write_text_artifact(
         out_dir / "secret_leak_variation_summary.json",
@@ -807,12 +840,16 @@ def write_secret_leak_variation_artifacts(
     return [json_path, md_path, digest_path, manifest_path]
 
 
+@atomic_private_bundle("out_dir")
 def write_secret_leak_variation_private_artifacts(
     out_dir: Path,
     run: SecretLeakVariationPrivateRun,
 ) -> list[Path]:
     """Write private Phase 2 transcripts. Caller should use a .internal path."""
 
+    if not is_internal_output_dir(out_dir):
+        raise ValueError("private secret variation probes must be written under .internal/")
+    require_fresh_output_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     json_path = write_text_artifact(
         out_dir / "secret_leak_variation_private.json",
@@ -887,10 +924,10 @@ def render_secret_model_probe(run: SecretModelProbeRun) -> str:
     lines = [
         "# Private Synthetic Secret Model Probe",
         "",
-        run.raw_boundary,
+        markdown_prose(run.raw_boundary),
         "",
-        f"- Model: `{run.model}`",
-        f"- Pressure modes: `{', '.join(run.pressure_modes)}`",
+        f"- Model: {markdown_code_span(run.model)}",
+        f"- Pressure modes: {markdown_code_span(', '.join(run.pressure_modes))}",
         f"- Transcripts: `{len(run.transcripts)}`",
         f"- Leaks detected: `{leak_count}`",
         f"- Adapter errors: `{errors}`",
@@ -900,7 +937,9 @@ def render_secret_model_probe(run: SecretModelProbeRun) -> str:
     ]
     for item in run.transcripts:
         lines.append(
-            f"| {item.scenario_id} | {item.pressure_mode} | {item.leak_kind} | "
+            f"| {markdown_table_cell(item.scenario_id)} | "
+            f"{markdown_table_cell(item.pressure_mode)} | "
+            f"{markdown_table_cell(item.leak_kind)} | "
             f"{bool(item.adapter_error)} |"
         )
     lines.append("")
@@ -917,9 +956,13 @@ def render_secret_leak_variation_summary(summary: SecretLeakVariationSummary) ->
         "This report summarizes private local-model probes against synthetic canaries. "
         "Raw prompts, model responses, and canary values are intentionally absent.",
         "",
+        "Evidence status: unreconciled detector-observation summary. Public validation "
+        "does not replay private bytes or attest execution origin, model locality, or "
+        "authorship.",
+        "",
         "## Claim Boundary",
         "",
-        summary.claim_boundary,
+        markdown_prose(summary.claim_boundary),
         "",
         "## Metrics",
         "",
@@ -941,8 +984,10 @@ def render_secret_leak_variation_summary(summary: SecretLeakVariationSummary) ->
     ]
     for case in summary.cases:
         lines.append(
-            f"| {case.case_id} | {case.variation_id} | {case.scenario_id} | "
-            f"{case.turns} | {', '.join(case.control_under_test)} |"
+            f"| {markdown_table_cell(case.case_id)} | "
+            f"{markdown_table_cell(case.variation_id)} | "
+            f"{markdown_table_cell(case.scenario_id)} | {case.turns} | "
+            f"{markdown_table_cell(', '.join(case.control_under_test))} |"
         )
     lines.extend(
         [
@@ -955,12 +1000,15 @@ def render_secret_leak_variation_summary(summary: SecretLeakVariationSummary) ->
     )
     for item in summary.observations:
         lines.append(
-            f"| {item.model} | {item.case_id} | {item.pressure_mode} | "
-            f"{item.leaked} | {item.leak_kind} | {item.first_failure_step or '-'} | "
-            f"{item.adapter_error} |"
+            f"| {markdown_table_cell(item.model)} | "
+            f"{markdown_table_cell(item.case_id)} | "
+            f"{markdown_table_cell(item.pressure_mode)} | {item.leaked} | "
+            f"{markdown_table_cell(item.leak_kind)} | "
+            f"{markdown_table_cell(item.first_failure_step or '-')} | "
+            f"{markdown_table_cell(item.adapter_error)} |"
         )
     lines.extend(["", "## Non-Claims", ""])
-    lines.extend(f"- {item}" for item in summary.non_claims)
+    lines.extend(f"- {markdown_prose(item)}" for item in summary.non_claims)
     lines.append("")
     return "\n".join(lines)
 
@@ -973,10 +1021,10 @@ def render_secret_leak_variation_private(run: SecretLeakVariationPrivateRun) -> 
     lines = [
         "# Private Secret-Leak Variation Run",
         "",
-        run.raw_boundary,
+        markdown_prose(run.raw_boundary),
         "",
-        f"- Models: `{', '.join(run.models)}`",
-        f"- Pressure modes: `{', '.join(run.pressure_modes)}`",
+        f"- Models: {markdown_code_span(', '.join(run.models))}",
+        f"- Pressure modes: {markdown_code_span(', '.join(run.pressure_modes))}",
         f"- Transcripts: `{len(run.transcripts)}`",
         f"- Leaks detected: `{leaks}`",
         f"- Adapter errors: `{errors}`",
@@ -986,9 +1034,12 @@ def render_secret_leak_variation_private(run: SecretLeakVariationPrivateRun) -> 
     ]
     for item in run.transcripts:
         lines.append(
-            f"| {item.model} | {item.case_id} | {item.pressure_mode} | "
-            f"{item.leak_kind} | {item.adapter_error} | "
-            f"{item.first_failure_step or '-'} |"
+            f"| {markdown_table_cell(item.model)} | "
+            f"{markdown_table_cell(item.case_id)} | "
+            f"{markdown_table_cell(item.pressure_mode)} | "
+            f"{markdown_table_cell(item.leak_kind)} | "
+            f"{markdown_table_cell(item.adapter_error)} | "
+            f"{markdown_table_cell(item.first_failure_step or '-')} |"
         )
     lines.append("")
     return "\n".join(lines)

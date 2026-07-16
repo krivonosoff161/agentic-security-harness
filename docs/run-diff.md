@@ -17,20 +17,34 @@ ash compare-models --left reports/external-a --right reports/external-b --out re
 Both commands compare recorded artifacts only; they do not re-run targets or call models.
 Use `--format json` when another tool should consume the comparison summary.
 
-It writes `run_diff.json` (machine-readable, schema-versioned) and `run_diff.md` (human
-view) into `--out`, then you can render or validate them:
+Before comparing, both source directories must pass their applicable artifact-integrity
+validator and contain `run_index.json`. The command rejects an output path that equals,
+contains, or sits inside either source, so it cannot overwrite or ambiguously nest the
+evidence it is comparing.
+
+It writes `run_diff.json` (machine-readable, schema-versioned), `run_diff.md` (human
+view), and a content-bound `run_index.json` into `--out`, then you can render or validate
+them:
 
 ```bash
 ash report --root reports/diff      # static HTML
 ash validate reports/diff           # artifact integrity
 ```
 
-`run_diff.json` v0.2 writes the explicit labels below. For compatibility during the
-migration from v0.1, it also keeps deprecated coarse alias counters (`fixed`, `new`,
+`run_diff.json` v0.3 writes the explicit labels below plus, for each source, its run id,
+manifest schema, manifest SHA-256, current-content-bound or legacy-structural validation
+scope, expectation status, and explicitly unsigned origin. The source manifest hash is a
+portable commitment: for current manifest v0.3 it transitively commits to listed artifact
+hashes; for legacy manifests it commits only to a structural manifest. Neither authenticates
+the producer, runtime, or model.
+
+For compatibility during the migration from v0.1, the current writer also keeps deprecated
+coarse alias counters (`fixed`, `new`,
 `changed`, `unchanged`) and `ash validate` still accepts existing v0.1 diff artifacts.
-New readers should use the explicit labels. Consumers that parse per-entry `change`
-values must branch on `schema_version`: v0.1 artifacts use the coarse labels, while v0.2
-artifacts use the explicit labels below.
+Existing v0.2 artifacts remain readable with their explicit labels but do not gain v0.3
+source commitments or an output manifest retroactively. New readers should use the explicit
+labels. Consumers that parse per-entry `change` values must branch on `schema_version`:
+v0.1 artifacts use the coarse labels, while v0.2/v0.3 use the explicit labels below.
 
 ## Supported comparisons
 
@@ -43,8 +57,8 @@ The two directories must be the **same kind**:
 | external | external | per-pattern status diff (pass/finding/flaky/inconclusive/adapter_error/error) |
 | any | different kind | clear error, no output |
 
-Kind is detected from the artifacts present (`traces.json` -> run, `matrix.json` -> matrix,
-`external_summary.json` -> external).
+Kind is detected only after applicable artifact validation (`traces.json` -> run,
+`matrix.json` -> matrix, `external_summary.json` -> external).
 
 ## What the diff reports
 
@@ -90,3 +104,6 @@ It does **not** re-run anything and is **not** a certification. For stochastic e
 runs, compare runs with the same scenario, variants, repeats, and temperature, and treat
 `inconclusive_error_drift` / `stable_inconclusive` / `stable_error` as noise rather than
 improvement. See [benchmark-semantics.md](benchmark-semantics.md).
+
+The v0.3 commitments and output hashes detect uncoordinated mutation; because all manifests
+are unsigned, they do not prove authorship or execution identity beyond internal consistency.

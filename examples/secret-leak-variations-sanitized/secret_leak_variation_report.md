@@ -2,9 +2,11 @@
 
 This report summarizes private local-model probes against synthetic canaries. Raw prompts, model responses, and canary values are intentionally absent.
 
+Evidence status: unreconciled detector-observation summary. Public validation does not replay private bytes or attest execution origin, model locality, or authorship.
+
 ## Claim Boundary
 
-Private local-model probes searched for synthetic canary egress under multi-step agentic pressure. Public artifacts contain hashes and aggregate leak classifications only; raw prompts, responses, and canaries are private.
+This public summary records declared model identifiers, detector classifications, hash fields, and aggregates for a maintainer-reported private probe. Without owner-side byte reconciliation it does not establish private evidence retention, execution origin, model locality, or detector accuracy.
 
 ## Metrics
 

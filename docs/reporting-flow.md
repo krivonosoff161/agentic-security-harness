@@ -90,9 +90,9 @@ flowchart LR
 | `comparison.md` | Markdown | Baseline vs protected risk reduction | `ash compare` only |
 | `matrix.json` | JSON | Variant metadata, stability analysis, aggregated summary | `ash run-matrix` only |
 | `matrix.md` | Markdown | Variant table, pattern stability, control families | `ash run-matrix` only |
-| `run_config.json` | JSON | External run config incl. `request_count`; credential env name only | `ash run-external` only |
-| `external_results.json` | JSON | Per-request normalized results with structured errors | `ash run-external` only |
-| `external_summary.json` | JSON | Pass/finding/inconclusive/flaky + `findings_by_control_family` | `ash run-external` only |
+| `run_config.json` | JSON | External run config incl. pre-request `execution_id` and `request_count`; credential marker only | `ash run-external` only |
+| `external_results.json` | JSON | Per-request normalized results with structured errors and the same execution id | `ash run-external` only |
+| `external_summary.json` | JSON | Execution-bound pass/finding/inconclusive/flaky + `findings_by_control_family` | `ash run-external` only |
 | `external_report.md` | Markdown | Human report: config, results, control-family table, control recommendations | `ash run-external` only |
 | `adapter-metadata.json` | JSON | Runtime reproducibility metadata | Future (non-synthetic adapters) |
 

@@ -42,8 +42,20 @@ from agentic_security_harness.memory_governance import (
     validate_memory_read,
 )
 from agentic_security_harness.models import DataEnvelope
+from agentic_security_harness.presets import is_loopback_base_url
 from agentic_security_harness.run_manifest import build_manifest, write_run_manifest
-from agentic_security_harness.safe_io import write_text_artifact
+from agentic_security_harness.safe_io import (
+    atomic_evidence_bundle,
+    atomic_private_bundle,
+    is_internal_output_dir,
+    require_fresh_output_dir,
+    write_text_artifact,
+)
+from agentic_security_harness.safe_markdown import (
+    markdown_code_span,
+    markdown_prose,
+    markdown_table_cell,
+)
 from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 
 VariationFamily = Literal[
@@ -549,9 +561,11 @@ def build_local_swarm_attack_matrix() -> LocalSwarmAttackMatrix:
     return LocalSwarmAttackMatrix(metrics=metrics, rows=rows)
 
 
+@atomic_evidence_bundle("out_dir")
 def write_local_swarm_matrix_artifacts(out_dir: Path, matrix: LocalSwarmAttackMatrix) -> list[Path]:
     """Write JSON, Markdown, and run manifest artifacts for the attack matrix."""
 
+    require_fresh_output_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     json_path = write_text_artifact(
         out_dir / "local_swarm_attack_matrix.json",
@@ -1082,6 +1096,10 @@ def run_matrix_model_probe(
     The model is asked for a role decision under pressure, but the returned text is
     classified only as evidence quality. It cannot change deterministic matrix outcomes.
     """
+    if not is_loopback_base_url(base_url):
+        raise ValueError(
+            "local swarm matrix probes require a literal loopback HTTP(S) base URL"
+        )
 
     matrix = build_local_swarm_attack_matrix()
     probe_rows = [row for row in matrix.rows if row.probe_id is not None]
@@ -1115,6 +1133,8 @@ def run_matrix_model_probe(
                 timeout_seconds=timeout_seconds,
                 credential_env_var="",
                 max_retries=0,
+                allow_redirects=False,
+                allow_env_proxy=False,
             )
             content = extract_content(response).strip()
             transcripts.append(
@@ -1147,9 +1167,13 @@ def run_matrix_model_probe(
     )
 
 
+@atomic_private_bundle("out_dir")
 def write_matrix_model_probe_artifacts(out_dir: Path, run: MatrixModelProbeRun) -> list[Path]:
     """Write private-ready local model probe artifacts."""
 
+    if not is_internal_output_dir(out_dir):
+        raise ValueError("private matrix model probes must be written under .internal/")
+    require_fresh_output_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     json_path = write_text_artifact(
         out_dir / "local_swarm_matrix_model_probe.json",
@@ -1168,14 +1192,14 @@ def render_matrix_model_probe(run: MatrixModelProbeRun) -> str:
     lines = [
         "# Local Swarm Matrix Model Probe",
         "",
-        run.claim_boundary,
+        markdown_prose(run.claim_boundary),
         "",
         "## Metrics",
         "",
         "| Metric | Value |",
         "| --- | ---: |",
         f"| Cases | {run.metrics.cases} |",
-        f"| Pressure mode | {run.pressure_mode} |",
+        f"| Pressure mode | {markdown_table_cell(run.pressure_mode)} |",
         f"| Responses | {run.metrics.responses} |",
         f"| Adapter errors | {run.metrics.adapter_errors} |",
         f"| Response hash coverage | {run.metrics.response_hash_coverage:.2%} |",
@@ -1188,7 +1212,7 @@ def render_matrix_model_probe(run: MatrixModelProbeRun) -> str:
         "| --- | ---: |",
     ]
     for weakness, count in sorted(run.metrics.weaknesses_by_kind.items()):
-        lines.append(f"| `{weakness}` | {count} |")
+        lines.append(f"| {markdown_code_span(weakness)} | {count} |")
     lines.extend(
         [
             "",
@@ -1200,11 +1224,11 @@ def render_matrix_model_probe(run: MatrixModelProbeRun) -> str:
     )
     for item in run.transcripts:
         weaknesses = ", ".join(item.detected_weaknesses) or "none"
-        preview = item.response_preview.replace("|", "\\|").replace("\n", " ")
-        error = item.adapter_error.replace("|", "\\|") if item.adapter_error else ""
         lines.append(
-            f"| `{item.case_id}` | `{item.probe_id}` | `{weaknesses}` | "
-            f"{error} | {preview} |"
+            f"| {markdown_code_span(item.case_id)} | {markdown_code_span(item.probe_id)} | "
+            f"{markdown_table_cell(weaknesses)} | "
+            f"{markdown_table_cell(item.adapter_error)} | "
+            f"{markdown_table_cell(item.response_preview)} |"
         )
     lines.append("")
     return "\n".join(lines)

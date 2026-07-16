@@ -1,5 +1,6 @@
 """Tests for the bounded local-swarm research runner (#61)."""
 
+import hashlib
 import json
 from collections.abc import Callable
 from pathlib import Path
@@ -16,6 +17,7 @@ from agentic_security_harness.local_swarm import (
     evaluate_swarm_scenario,
     model_is_forbidden,
     normalize_role_models,
+    render_swarm_report,
     run_local_swarm,
     write_local_swarm_artifacts,
 )
@@ -69,6 +71,17 @@ def test_metrics_show_bounded_reduction() -> None:
     assert summary.metrics.evidence_completeness == 1.0
     assert summary.metrics.unique_blocked_reasons >= 7
     assert summary.metrics.invalid_acceptances == len(SWARM_SCENARIOS) * 2
+
+
+def test_local_swarm_report_neutralizes_untrusted_model_markdown() -> None:
+    payload = "model`name\n## forged\n![probe](https://example.invalid/p.gif)"
+    summary = run_local_swarm(model=payload, created_at="")
+
+    rendered = render_swarm_report(summary)
+
+    model_line = next(line for line in rendered.splitlines() if line.startswith("- Model:"))
+    assert model_line.startswith("- Model: `` ")
+    assert "\n## forged" not in rendered
 
 
 def test_scenario_suite_covers_expected_boundary_classes() -> None:
@@ -195,9 +208,123 @@ def test_artifacts_validate(tmp_path: Path) -> None:
     assert validate_path(out).ok
 
 
+def test_custom_subset_artifact_declares_profile_and_validates(tmp_path: Path) -> None:
+    out = tmp_path / "custom-swarm"
+    summary = run_local_swarm(
+        scenarios=["handoff_label_stripping"],
+        modes=["bounded_swarm"],
+        created_at="",
+    )
+
+    write_local_swarm_artifacts(out, summary)
+
+    manifest = json.loads((out / "run_index.json").read_text(encoding="utf-8"))
+    assert manifest["metadata"]["campaign_profile"] == "custom_subset"
+    assert validate_path(out).ok
+
+
+def test_shipped_profile_rejects_coherent_reduced_subset(tmp_path: Path) -> None:
+    out = tmp_path / "reduced-shipped-swarm"
+    summary = run_local_swarm(
+        scenarios=["handoff_label_stripping"],
+        modes=["bounded_swarm"],
+        created_at="",
+    )
+    write_local_swarm_artifacts(out, summary)
+    manifest_path = out / "run_index.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["metadata"]["campaign_profile"] = "shipped_full"
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert any("shipped_full profile" in item for item in result.errors)
+
+
+def test_local_swarm_validation_rejects_missing_manifest(tmp_path: Path) -> None:
+    out = tmp_path / "missing-manifest"
+    write_local_swarm_artifacts(out, run_local_swarm(created_at=""))
+    (out / "run_index.json").unlink()
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert any("missing for local swarm bundle" in item for item in result.errors)
+
+
+def test_validator_recomputes_local_swarm_metrics(tmp_path: Path) -> None:
+    out = tmp_path / "swarm-metric-tamper"
+    summary = run_local_swarm(created_at="")
+    summary.metrics.unique_blocked_reasons += 1
+    write_local_swarm_artifacts.__wrapped__(out, summary)  # type: ignore[attr-defined]
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert not result.integrity_ok
+    assert any("metrics do not match recomputed" in error for error in result.errors)
+
+
+def test_validator_rejects_local_swarm_claim_contract_rewrite(tmp_path: Path) -> None:
+    out = tmp_path / "swarm-claim-rewrite"
+    summary = run_local_swarm(created_at="")
+    summary.claim_boundary = "Rewritten empirical effectiveness claim."
+    write_local_swarm_artifacts.__wrapped__(out, summary)  # type: ignore[attr-defined]
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert any(
+        "claim_boundary does not match the producer contract" in error for error in result.errors
+    )
+
+
+def test_validator_rejects_local_swarm_report_tamper_after_hash_rewrite(
+    tmp_path: Path,
+) -> None:
+    out = tmp_path / "swarm-report-rewrite"
+    write_local_swarm_artifacts(out, run_local_swarm(created_at=""))
+    report_path = out / "local_swarm_report.md"
+    report_path.write_text(
+        report_path.read_text(encoding="utf-8") + "\nOverstated claim.\n",
+        encoding="utf-8",
+    )
+    manifest_path = out / "run_index.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["artifact_sha256"][report_path.name] = hashlib.sha256(
+        report_path.read_bytes()
+    ).hexdigest()
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert any("report projection mismatch" in error for error in result.errors)
+
+
+def test_validator_rejects_local_swarm_manifest_semantic_rewrite(
+    tmp_path: Path,
+) -> None:
+    out = tmp_path / "swarm-manifest-rewrite"
+    write_local_swarm_artifacts(out, run_local_swarm(created_at=""))
+    manifest_path = out / "run_index.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["outcomes"]["bounded_boundary_failures"] = 1
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert any("outcomes does not match summary projection" in error for error in result.errors)
+
+
 def test_execute_collects_hashed_role_transcripts(tmp_path: Path) -> None:
     out = tmp_path / "swarm"
-    with patch("urllib.request.urlopen", side_effect=_mock_swarm_open()):
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_swarm_open(),
+    ):
         summary = run_local_swarm(
             scenarios=["handoff_label_stripping"],
             modes=["bounded_swarm"],
@@ -216,6 +343,31 @@ def test_execute_collects_hashed_role_transcripts(tmp_path: Path) -> None:
     assert summary.metrics.role_transcript_hash_coverage == 1.0
     assert summary.metrics.adapter_error_rate == 0.0
     assert validate_path(out).ok
+
+
+def test_validator_rejects_non_sha_transcript_hash(tmp_path: Path) -> None:
+    out = tmp_path / "swarm-invalid-transcript-hash"
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_swarm_open(),
+    ):
+        summary = run_local_swarm(
+            scenarios=["handoff_label_stripping"],
+            modes=["bounded_swarm"],
+            execute_model_calls=True,
+            base_url="http://127.0.0.1:11434/v1",
+            model="prometheus-qwen15b-lowctx:latest",
+            max_requests=4,
+            created_at="",
+        )
+    summary.results[0].role_transcripts[0].prompt_sha256 = "x"
+    write_local_swarm_artifacts.__wrapped__(out, summary)  # type: ignore[attr-defined]
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert not result.integrity_ok
+    assert any("prompt_sha256" in error for error in result.errors)
 
 
 def test_adapter_errors_are_counted_without_turning_into_contract_failures() -> None:
@@ -240,7 +392,9 @@ def test_adapter_errors_are_counted_without_turning_into_contract_failures() -> 
 
 def test_cli_dry_run_makes_no_network_call_and_no_files(tmp_path: Path) -> None:
     out = tmp_path / "dry"
-    with patch("urllib.request.urlopen", side_effect=_boom):
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect", side_effect=_boom
+    ):
         rc = cli.main(["local-swarm", "--out", str(out)])
 
     assert rc == 0
@@ -257,9 +411,12 @@ def test_cli_write_dry_run_validates(tmp_path: Path) -> None:
 
 def test_cli_refuses_calculator_before_network(tmp_path: Path) -> None:
     out = tmp_path / "blocked"
-    with patch("urllib.request.urlopen", side_effect=_boom):
-        rc = cli.main(["local-swarm", "--execute", "--model", "calculator:latest",
-                       "--out", str(out)])
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect", side_effect=_boom
+    ):
+        rc = cli.main(
+            ["local-swarm", "--execute", "--model", "calculator:latest", "--out", str(out)]
+        )
 
     assert rc == 1
     assert not out.exists()
@@ -267,15 +424,19 @@ def test_cli_refuses_calculator_before_network(tmp_path: Path) -> None:
 
 def test_cli_refuses_calculator_role_model_before_network(tmp_path: Path) -> None:
     out = tmp_path / "blocked"
-    with patch("urllib.request.urlopen", side_effect=_boom):
-        rc = cli.main([
-            "local-swarm",
-            "--execute",
-            "--role-model",
-            "worker=calculator:latest",
-            "--out",
-            str(out),
-        ])
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect", side_effect=_boom
+    ):
+        rc = cli.main(
+            [
+                "local-swarm",
+                "--execute",
+                "--role-model",
+                "worker=calculator:latest",
+                "--out",
+                str(out),
+            ]
+        )
 
     assert rc == 1
     assert not out.exists()

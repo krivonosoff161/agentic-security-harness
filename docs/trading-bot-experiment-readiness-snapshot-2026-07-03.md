@@ -4,6 +4,13 @@
 >
 > Scope: public-safe readiness gate for issue
 > [#136](https://github.com/krivonosoff161/agentic-security-harness/issues/136).
+>
+> Historical-status notice (2026-07-15): this snapshot predates the
+> cross-artifact causal-identity gate and treated provider/execution boundaries
+> as constant passes. Its `ready` result is retained as historical output only
+> and is withdrawn as current readiness evidence. The current gate is fail-closed
+> until a new private causal-chain observation and separate transitive boundary
+> evidence are available.
 
 ## Command
 
@@ -41,11 +48,12 @@ ash trading-stand --mode experiment-readiness \
 
 ## Interpretation
 
-The stand is ready for the next private filled-row experiment layer. This does
-not execute the target and does not prove production safety. It only means the
-pre-experiment gates now pass: target preflight, artifact-chain,
-execution-boundary, evidence-quality, control-fixture, provider-boundary, and
-live-boundary.
+At the time, the implementation reported the stand ready for the next private
+filled-row experiment layer. That historical result did not execute the target
+and never proved production safety. It also did not establish causal joins
+between the listed files or transitive isolation of the canonical entrypoint;
+under the current contract it is insufficient and must not be used as a current
+authorization result.
 
 The earlier blocker was a verifier-contract issue in ASH: the preview check
 required the legacy English `Paper` marker and rejected the current localized

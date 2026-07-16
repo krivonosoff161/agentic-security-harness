@@ -138,6 +138,7 @@ ash run-external --adapter openai-compatible \
   --model deepseek-chat \
   --scenario data-boundary \
   --repeats 3 \
+  --execute \
   --credential-env ASH_EXTERNAL_API_KEY \
   --out reports/external-demo
 ```

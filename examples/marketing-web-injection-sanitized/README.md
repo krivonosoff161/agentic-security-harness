@@ -59,5 +59,5 @@ ash validate examples/marketing-web-injection-sanitized
 - This is not real-secret extraction.
 - This is not a CVE or a model leaderboard.
 - This does not prove internet-wide or production-swarm safety.
-- Response hashes prove artifact hygiene and owner-side replay anchors, not semantic
-  truth by themselves.
+- Response hash fields are commitments. Without owner-side reconciliation they do not
+  prove private-byte retention, replayability, origin, or semantic truth.

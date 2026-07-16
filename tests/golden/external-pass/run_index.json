@@ -1,0 +1,59 @@
+{
+  "schema_version": "0.3",
+  "run_id": "run_11111111111111111111111111111111",
+  "execution_id": "run_11111111111111111111111111111111",
+  "config_fingerprint": "cfg_5291944b10",
+  "run_kind": "external",
+  "created_at": "2026-07-15T00:00:00Z",
+  "tool_version": "0.14.0",
+  "target": "",
+  "model": "snapshot-model",
+  "scenario": "perception-boundary",
+  "variants": [
+    "text-transcript"
+  ],
+  "repeats": 1,
+  "outcomes": {
+    "checks": 1,
+    "requests": 1,
+    "findings": 0,
+    "flaky": 0,
+    "inconclusive": 0,
+    "errors": 0
+  },
+  "metadata": {
+    "adapter_type": "openai-compatible",
+    "model": "snapshot-model",
+    "base_url_label": "http://localhost:8000/v1",
+    "scenario": "perception-boundary",
+    "max_variants": 1,
+    "repeats": 1,
+    "temperature": 0.0,
+    "timeout_seconds": 30,
+    "max_retries": 1,
+    "raw_response_limit": 0,
+    "request_count": 1,
+    "runtime_name": "local-openai-compatible",
+    "runtime_family": "local-runtime",
+    "network_mode": "local-only",
+    "authorization_mode": "local_runtime",
+    "local_only": true,
+    "prompt_only": true,
+    "tool_execution": false,
+    "credential_env_var": ""
+  },
+  "artifacts": [
+    "external_report.md",
+    "external_results.json",
+    "external_summary.json",
+    "raw_responses/ext_03c36122.txt",
+    "run_config.json"
+  ],
+  "artifact_sha256": {
+    "external_report.md": "ca841bff6693fcf01dba7d88a9a218dbad76c23c1a4b6513029b33bee6e22dd7",
+    "external_results.json": "3594a7b42e0c541531a0fa9f4451906d1f0b35590f5eb1e2a17d578d5ea7dd31",
+    "external_summary.json": "4e18886569e4d4709d538e0c4d5821a6bdba902d07616104b8cd08edfaa8e503",
+    "raw_responses/ext_03c36122.txt": "f98f79c939384d0ab38fea4b6a00c7e39551e6bfc9c82ae52bd58a7a05620383",
+    "run_config.json": "fde806c1fb9c6a3fc19e1ff8a447a8e2209c3fa4afc4937810a1a4b7e5be77f4"
+  }
+}

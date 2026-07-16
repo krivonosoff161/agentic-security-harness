@@ -1,5 +1,9 @@
 # Semantic Propagation Campaign
 
+Historical/unreconciled detector-observation summary. This schema-`0.2` artifact predates
+the current schema `0.3`; public validation does not replay private bytes or attest
+model/runtime identity. Deterministic rows are a separate executable specification.
+
 This report summarizes synthetic worker-to-chief chain probes. Raw worker prompts, raw chief prompts, responses, canonical-state hashes, and canaries are intentionally absent.
 
 ## Claim Boundary
@@ -31,6 +35,9 @@ A clean validation result means artifact integrity and forbidden-marker checks p
 | Verifier blocks | 3 |
 | Adapter errors | 1 |
 | Response hash coverage | 87.50% |
+| Independent-label coverage | 0.00% |
+
+Detector rates are descriptive unless independent-label coverage is non-zero. Historical rows without private reviewer adjudication remain `not_adjudicated`.
 
 ## Defense Control Model
 
@@ -109,4 +116,4 @@ A clean validation result means artifact integrity and forbidden-marker checks p
 - No real secrets were used.
 - A chief acceptance is a synthetic local-model behavior, not a CVE.
 - A block in this campaign is not proof that a deployed swarm is secure.
-- Response hashes prove artifact hygiene, not semantic truth.
+- Response hash fields are commitments; without owner-side reconciliation they do not prove private-byte retention, origin, or semantic truth.

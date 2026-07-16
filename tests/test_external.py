@@ -6,6 +6,7 @@ import socket
 import subprocess
 import sys
 import time
+import urllib.request
 from collections.abc import Callable
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -15,6 +16,7 @@ import pytest
 from agentic_security_harness.external_openai_compatible import (
     ExternalAPIError,
     _get_api_key,
+    _NoRedirectHandler,
     chat_completion,
     extract_content,
 )
@@ -35,6 +37,7 @@ from agentic_security_harness.run_config import (
     RunConfig,
     _redact_url,
 )
+from agentic_security_harness.validation import validate_path
 
 
 def _pattern_id_from_request(req: object) -> str:
@@ -75,6 +78,7 @@ def _mock_chat_open(
 
     return _open
 
+
 # --- run_config tests ---
 
 
@@ -110,10 +114,12 @@ def test_run_config_never_stores_credential_value() -> None:
 
 
 def test_run_config_accepts_legacy_api_key_env_field() -> None:
-    config = RunConfig.model_validate({
-        "api_key_env": "ASH_EXTERNAL_API_KEY",
-        "model": "test-model",
-    })
+    config = RunConfig.model_validate(
+        {
+            "api_key_env": "ASH_EXTERNAL_API_KEY",
+            "model": "test-model",
+        }
+    )
     assert config.credential_env_var == "[CREDENTIAL_ENV_VAR_CONFIGURED]"
 
 
@@ -153,13 +159,16 @@ def test_extract_content_empty() -> None:
 
 def test_chat_completion_sends_correct_body() -> None:
     mock_response = MagicMock()
-    mock_response.read.return_value = json.dumps({
-        "choices": [{"message": {"content": "test"}}]
-    }).encode()
+    mock_response.read.return_value = json.dumps(
+        {"choices": [{"message": {"content": "test"}}]}
+    ).encode()
     mock_response.__enter__ = lambda s: s
     mock_response.__exit__ = MagicMock(return_value=False)
 
-    with patch("urllib.request.urlopen", return_value=mock_response) as mock_open:
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        return_value=mock_response,
+    ) as mock_open:
         result = chat_completion(
             base_url="http://localhost:8000/v1",
             model="test-model",
@@ -176,16 +185,60 @@ def test_chat_completion_sends_correct_body() -> None:
         assert body["temperature"] == 0.5
 
 
+def test_chat_completion_refuses_redirects_by_default_before_second_hop() -> None:
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps(
+        {"choices": [{"message": {"content": "test"}}]}
+    ).encode()
+    mock_response.__enter__ = lambda s: s
+    mock_response.__exit__ = MagicMock(return_value=False)
+    opener = MagicMock()
+    opener.open.return_value = mock_response
+
+    with patch("urllib.request.build_opener", return_value=opener) as build_opener:
+        result = chat_completion(
+            base_url="http://127.0.0.1:8000/v1",
+            model="test-model",
+            messages=[{"role": "user", "content": "hi"}],
+        )
+
+    assert result["choices"][0]["message"]["content"] == "test"
+    build_opener.assert_called_once()
+    handlers = build_opener.call_args.args
+    assert any(isinstance(handler, _NoRedirectHandler) for handler in handlers)
+    proxy = next(
+        handler for handler in handlers if isinstance(handler, urllib.request.ProxyHandler)
+    )
+    assert vars(proxy)["proxies"] == {}
+    opener.open.assert_called_once()
+
+
+def test_chat_completion_rejects_non_http_route_before_open() -> None:
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect"
+    ) as mock_open:
+        with pytest.raises(ValueError, match="scheme must be http or https"):
+            chat_completion(
+                base_url="file://localhost/private",
+                model="test-model",
+                messages=[],
+            )
+    mock_open.assert_not_called()
+
+
 def test_chat_completion_sends_api_key() -> None:
     mock_response = MagicMock()
-    mock_response.read.return_value = json.dumps({
-        "choices": [{"message": {"content": "ok"}}]
-    }).encode()
+    mock_response.read.return_value = json.dumps(
+        {"choices": [{"message": {"content": "ok"}}]}
+    ).encode()
     mock_response.__enter__ = lambda s: s
     mock_response.__exit__ = MagicMock(return_value=False)
 
     with patch.dict(os.environ, {"ASH_TEST_KEY": "sk-test123"}):
-        with patch("urllib.request.urlopen", return_value=mock_response) as mock_open:
+        with patch(
+            "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+            return_value=mock_response,
+        ) as mock_open:
             chat_completion(
                 base_url="http://localhost:8000/v1",
                 model="m",
@@ -199,7 +252,10 @@ def test_chat_completion_sends_api_key() -> None:
 def test_chat_completion_handles_http_error() -> None:
     import urllib.error
 
-    with patch("urllib.request.urlopen", side_effect=urllib.error.URLError("network error")):
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=urllib.error.URLError("network error"),
+    ):
         with pytest.raises(ExternalAPIError):
             chat_completion(
                 base_url="http://localhost:8000/v1",
@@ -212,14 +268,14 @@ def test_chat_completion_retries_transient_network_error() -> None:
     import urllib.error
 
     mock_response = MagicMock()
-    mock_response.read.return_value = json.dumps({
-        "choices": [{"message": {"content": "ok"}}]
-    }).encode()
+    mock_response.read.return_value = json.dumps(
+        {"choices": [{"message": {"content": "ok"}}]}
+    ).encode()
     mock_response.__enter__ = lambda s: s
     mock_response.__exit__ = MagicMock(return_value=False)
 
     with patch(
-        "urllib.request.urlopen",
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
         side_effect=[urllib.error.URLError("temporary"), mock_response],
     ) as mock_open:
         result = chat_completion(
@@ -355,16 +411,24 @@ def test_classify_outcome_inconclusive_unclear() -> None:
     assert outcome == "inconclusive"
 
 
-def test_run_external_dry_run(tmp_path: Path) -> None:
+def test_run_external_dry_run(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
     summary = run_external(
         base_url="http://localhost:8000/v1",
-        model="test",
+        model="test\n[OK] forged\x1b[31m\u202e",
         scenario_id="data-boundary",
         out_dir=tmp_path / "ext",
         dry_run=True,
     )
     assert summary.total_checks == 6
     assert summary.total_repeats == 1
+    output = capsys.readouterr().out
+    assert "\n[OK] forged" not in output
+    assert "\x1b" not in output
+    assert "\u202e" not in output
+    assert r"\n[OK] forged\x1b[31m\u202e" in output
     # Dry run should not create output dir
     assert not (tmp_path / "ext").exists()
 
@@ -384,7 +448,10 @@ def test_run_external_dry_run_with_repeats(tmp_path: Path) -> None:
 
 
 def test_run_external_mock_endpoint(tmp_path: Path) -> None:
-    with patch("urllib.request.urlopen", side_effect=_mock_chat_open()):
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_chat_open(),
+    ):
         summary = run_external(
             base_url="http://localhost:8000/v1",
             model="test",
@@ -400,8 +467,20 @@ def test_run_external_mock_endpoint(tmp_path: Path) -> None:
     assert (tmp_path / "ext" / "external_results.json").exists()
     assert (tmp_path / "ext" / "external_summary.json").exists()
     assert (tmp_path / "ext" / "external_report.md").exists()
+    assert (tmp_path / "ext" / "run_index.json").exists()
     results = json.loads((tmp_path / "ext" / "external_results.json").read_text())
     config = json.loads((tmp_path / "ext" / "run_config.json").read_text())
+    summary_data = json.loads((tmp_path / "ext" / "external_summary.json").read_text())
+    manifest = json.loads((tmp_path / "ext" / "run_index.json").read_text())
+    execution_id = config["execution_id"]
+    assert execution_id.startswith("run_")
+    assert len(execution_id) == 36
+    assert config["runtime"]["execution_id"] == execution_id
+    assert config["runtime"]["run_id"] == execution_id
+    assert summary_data["execution_id"] == execution_id
+    assert manifest["execution_id"] == execution_id
+    assert manifest["run_id"] == execution_id
+    assert all(item["execution_id"] == execution_id for item in results)
     assert config["runtime"]["runtime_name"] == "local-openai-compatible"
     assert config["runtime"]["network_mode"] == "local-only"
     assert config["runtime"]["prompt_only"] is True
@@ -413,11 +492,57 @@ def test_run_external_mock_endpoint(tmp_path: Path) -> None:
     assert results[0]["raw_response_sha256"]
     assert results[0]["assertion_result"] == "pass"
     assert "recovery_hint" in results[0]
+    assert validate_path(tmp_path / "ext").ok
+
+
+def test_current_external_validation_rejects_missing_manifest(tmp_path: Path) -> None:
+    out = tmp_path / "ext"
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_chat_open(),
+    ):
+        run_external(
+            base_url="http://localhost:8000/v1",
+            model="test",
+            scenario_id="perception-boundary",
+            out_dir=out,
+        )
+    (out / "run_index.json").unlink()
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert any("missing for current external bundle" in item for item in result.errors)
+
+
+def test_current_external_validation_rejects_execution_identity_mismatch(
+    tmp_path: Path,
+) -> None:
+    out = tmp_path / "ext"
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_chat_open(),
+    ):
+        run_external(
+            base_url="http://localhost:8000/v1",
+            model="test",
+            scenario_id="perception-boundary",
+            out_dir=out,
+        )
+    summary_path = out / "external_summary.json"
+    summary_data = json.loads(summary_path.read_text(encoding="utf-8"))
+    summary_data["execution_id"] = "run_" + ("0" * 32)
+    summary_path.write_text(json.dumps(summary_data, indent=2) + "\n", encoding="utf-8")
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert any("execution_id does not match run_config" in item for item in result.errors)
 
 
 def test_run_external_finding_result(tmp_path: Path) -> None:
     with patch(
-        "urllib.request.urlopen",
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
         side_effect=_mock_chat_open(
             decision="allow",
             boundary_assertion="vulnerable_behavior",
@@ -474,7 +599,10 @@ def test_pattern_level_validator_pass() -> None:
 
 
 def test_run_external_writes_request_count(tmp_path: Path) -> None:
-    with patch("urllib.request.urlopen", side_effect=_mock_chat_open()):
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_chat_open(),
+    ):
         run_external(
             base_url="http://localhost:8000/v1",
             model="test",
@@ -490,7 +618,7 @@ def test_run_external_writes_request_count(tmp_path: Path) -> None:
 
 def test_run_external_raw_response_limit_keeps_full_raw_artifact(tmp_path: Path) -> None:
     with patch(
-        "urllib.request.urlopen",
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
         side_effect=_mock_chat_open(reason="x" * 200),
     ):
         run_external(
@@ -503,9 +631,7 @@ def test_run_external_raw_response_limit_keeps_full_raw_artifact(tmp_path: Path)
 
     results = json.loads((tmp_path / "ext" / "external_results.json").read_text())
     result = results[0]
-    raw_text = (tmp_path / "ext" / result["raw_response_path"]).read_text(
-        encoding="utf-8"
-    )
+    raw_text = (tmp_path / "ext" / result["raw_response_path"]).read_text(encoding="utf-8")
     assert result["raw_response_truncated"] is True
     assert len(result["raw_response"]) == 40
     assert len(raw_text) == result["raw_response_chars"]
@@ -513,7 +639,10 @@ def test_run_external_raw_response_limit_keeps_full_raw_artifact(tmp_path: Path)
 
 
 def test_run_external_preset_writes_local_runtime_metadata(tmp_path: Path) -> None:
-    with patch("urllib.request.urlopen", side_effect=_mock_chat_open()):
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_chat_open(),
+    ):
         run_external(
             base_url="http://localhost:11434/v1",
             model="llama3.1",
@@ -537,7 +666,10 @@ def test_run_external_preset_writes_local_runtime_metadata(tmp_path: Path) -> No
 
 def test_run_external_redacts_mistaken_credential_env_value(tmp_path: Path) -> None:
     secret = "sk-ABCDEFGHIJ0123456789"
-    with patch("urllib.request.urlopen", side_effect=_mock_chat_open()):
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_chat_open(),
+    ):
         run_external(
             base_url="http://localhost:8000/v1",
             model="test",
@@ -576,7 +708,7 @@ def test_run_external_dry_run_redacts_mistaken_credential_env_value(
 
 def test_run_external_adapter_error_has_recovery_hint(tmp_path: Path) -> None:
     with patch(
-        "urllib.request.urlopen",
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
         side_effect=ExternalAPIError("HTTP 404 from local: model not found"),
     ):
         run_external(
@@ -620,14 +752,20 @@ def test_reproduce_command_includes_knobs_no_secret() -> None:
         request_count=30,
     )
     cmd = "\n".join(_reproduce_command_lines(cfg))
-    for flag in ("--repeats 3", "--temperature 0.0", "--timeout 20", "--retries 1",
-                 "--raw-response-limit 0",
-                 "--max-variants 2", "--credential-env <ENV_VAR_NAME>",
-                 "--out reports/external-rerun"):
+    for flag in (
+        "--repeats 3",
+        "--temperature 0.0",
+        "--timeout 20",
+        "--retries 1",
+        "--raw-response-limit 0",
+        "--max-variants 2",
+        "--credential-env <ENV_VAR_NAME>",
+        "--execute",
+        "--out reports/external-rerun",
+    ):
         assert flag in cmd, flag
     # Single variant -> --variant; large request_count -> --max-requests.
-    cfg2 = cfg.model_copy(update={"selected_variants": ["base-envelope"],
-                                  "request_count": 99})
+    cfg2 = cfg.model_copy(update={"selected_variants": ["base-envelope"], "request_count": 99})
     cmd2 = "\n".join(_reproduce_command_lines(cfg2))
     assert "--variant base-envelope" in cmd2
     assert "--max-variants" not in cmd2
@@ -635,11 +773,17 @@ def test_reproduce_command_includes_knobs_no_secret() -> None:
 
 
 def test_external_report_reproduce_section_has_knobs(tmp_path: Path) -> None:
-    with patch("urllib.request.urlopen", side_effect=_mock_chat_open()):
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_chat_open(),
+    ):
         run_external(
-            base_url="http://localhost:8000/v1", model="demo-model",
-            scenario_id="data-boundary", out_dir=tmp_path / "ext",
-            repeats=2, credential_env_var="ASH_EXTERNAL_API_KEY",
+            base_url="http://localhost:8000/v1",
+            model="demo-model",
+            scenario_id="data-boundary",
+            out_dir=tmp_path / "ext",
+            repeats=2,
+            credential_env_var="ASH_EXTERNAL_API_KEY",
         )
     report = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
     assert "## How to reproduce / validate" in report
@@ -650,11 +794,47 @@ def test_external_report_reproduce_section_has_knobs(tmp_path: Path) -> None:
     assert "## Recovery guidance" in report
 
 
+def test_external_report_encodes_untrusted_configuration_markdown() -> None:
+    from agentic_security_harness.external_runner import _build_external_report_md
+    from agentic_security_harness.run_config import (
+        ExternalRuntimeMetadata,
+        ExternalSummary,
+        RunConfig,
+    )
+
+    payload = "bad`model\n## forged\n![probe](https://example.invalid/p.gif)"
+    config = RunConfig(
+        base_url_label="https://example.invalid/<img src=x>",
+        model=payload,
+        scenario_id="data-boundary",
+        runtime=ExternalRuntimeMetadata(
+            runtime_name=payload,
+            runtime_family="family<img src=x>",
+            model_license_note=payload,
+        ),
+    )
+    summary = ExternalSummary(model=payload, scenario_id="data-boundary")
+
+    report = _build_external_report_md(summary, config)
+
+    model_line = next(line for line in report.splitlines() if line.startswith("- Model:"))
+    assert model_line.startswith("- Model: `` ")
+    assert "## forged" in model_line  # text remains visible inside the safe code span
+    assert "\n## forged" not in report
+    policy_line = next(line for line in report.splitlines() if line.startswith("- Model license"))
+    assert "![probe](" not in policy_line
+    assert r"\!\[probe\]" in policy_line
+    runtime_line = next(line for line in report.splitlines() if line.startswith("- Runtime:"))
+    assert r"family\<img src=x>" in runtime_line
+    endpoint_line = next(line for line in report.splitlines() if line.startswith("- Endpoint:"))
+    assert endpoint_line.endswith("<img src=x>`")  # inert inside the code span
+
+
 def test_run_external_findings_control_family_and_recommendations(
     tmp_path: Path,
 ) -> None:
     with patch(
-        "urllib.request.urlopen",
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
         side_effect=_mock_chat_open(
             decision="allow",
             boundary_assertion="vulnerable_behavior",
@@ -682,7 +862,10 @@ def test_run_external_findings_control_family_and_recommendations(
 
 
 def test_run_external_api_error(tmp_path: Path) -> None:
-    with patch("urllib.request.urlopen", side_effect=ExternalAPIError("timeout")):
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=ExternalAPIError("timeout"),
+    ):
         summary = run_external(
             base_url="http://localhost:8000/v1",
             model="test",
@@ -695,19 +878,31 @@ def test_run_external_api_error(tmp_path: Path) -> None:
 
 
 def test_stability_status_stable_pass(tmp_path: Path) -> None:
-    with patch("urllib.request.urlopen", side_effect=_mock_chat_open()):
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_chat_open(),
+    ):
         summary = run_external(
-            base_url="http://localhost:8000/v1", model="m",
-            scenario_id="data-boundary", out_dir=tmp_path / "ext", repeats=2,
+            base_url="http://localhost:8000/v1",
+            model="m",
+            scenario_id="data-boundary",
+            out_dir=tmp_path / "ext",
+            repeats=2,
         )
     assert all(rs.stability_status == "stable_pass" for rs in summary.repeat_summaries)
 
 
 def test_stability_status_adapter_error(tmp_path: Path) -> None:
-    with patch("urllib.request.urlopen", side_effect=ExternalAPIError("timeout")):
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=ExternalAPIError("timeout"),
+    ):
         summary = run_external(
-            base_url="http://localhost:8000/v1", model="m",
-            scenario_id="data-boundary", out_dir=tmp_path / "ext", repeats=2,
+            base_url="http://localhost:8000/v1",
+            model="m",
+            scenario_id="data-boundary",
+            out_dir=tmp_path / "ext",
+            repeats=2,
         )
     assert all(rs.stability_status == "adapter_error" for rs in summary.repeat_summaries)
 
@@ -726,17 +921,21 @@ def test_stability_status_flaky(tmp_path: Path) -> None:
             "reason": "flaky synthetic response",
         }
         if call_count % 2 == 1:
-            payload.update({
-                "decision": "block",
-                "boundary_assertion": "preserve_boundary",
-                "would_preserve_boundary": True,
-            })
+            payload.update(
+                {
+                    "decision": "block",
+                    "boundary_assertion": "preserve_boundary",
+                    "would_preserve_boundary": True,
+                }
+            )
         else:
-            payload.update({
-                "decision": "allow",
-                "boundary_assertion": "vulnerable_behavior",
-                "would_preserve_boundary": False,
-            })
+            payload.update(
+                {
+                    "decision": "allow",
+                    "boundary_assertion": "vulnerable_behavior",
+                    "would_preserve_boundary": False,
+                }
+            )
         content = json.dumps(payload)
         resp.read.return_value = json.dumps(
             {"choices": [{"message": {"content": content}}]}
@@ -745,10 +944,16 @@ def test_stability_status_flaky(tmp_path: Path) -> None:
         resp.__exit__ = MagicMock(return_value=False)
         return resp
 
-    with patch("urllib.request.urlopen", side_effect=_mock_open):
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_open,
+    ):
         summary = run_external(
-            base_url="http://localhost:8000/v1", model="m",
-            scenario_id="perception-boundary", out_dir=tmp_path / "ext", repeats=2,
+            base_url="http://localhost:8000/v1",
+            model="m",
+            scenario_id="perception-boundary",
+            out_dir=tmp_path / "ext",
+            repeats=2,
         )
     assert any(rs.stability_status == "flaky" for rs in summary.repeat_summaries)
 
@@ -768,26 +973,33 @@ def test_run_external_flaky_detection(tmp_path: Path) -> None:
             "reason": "flaky synthetic response",
         }
         if call_count % 2 == 1:
-            payload.update({
-                "decision": "block",
-                "boundary_assertion": "preserve_boundary",
-                "would_preserve_boundary": True,
-            })
+            payload.update(
+                {
+                    "decision": "block",
+                    "boundary_assertion": "preserve_boundary",
+                    "would_preserve_boundary": True,
+                }
+            )
         else:
-            payload.update({
-                "decision": "allow",
-                "boundary_assertion": "vulnerable_behavior",
-                "would_preserve_boundary": False,
-            })
+            payload.update(
+                {
+                    "decision": "allow",
+                    "boundary_assertion": "vulnerable_behavior",
+                    "would_preserve_boundary": False,
+                }
+            )
         content = json.dumps(payload)
-        resp.read.return_value = json.dumps({
-            "choices": [{"message": {"content": content}}]
-        }).encode()
+        resp.read.return_value = json.dumps(
+            {"choices": [{"message": {"content": content}}]}
+        ).encode()
         resp.__enter__ = lambda s: s
         resp.__exit__ = MagicMock(return_value=False)
         return resp
 
-    with patch("urllib.request.urlopen", side_effect=_mock_open):
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_open,
+    ):
         summary = run_external(
             base_url="http://localhost:8000/v1",
             model="test",
@@ -805,33 +1017,112 @@ def test_run_external_flaky_detection(tmp_path: Path) -> None:
 def test_cli_dry_run_no_network() -> None:
     from agentic_security_harness import cli
 
-    with patch("urllib.request.urlopen") as mock_open:
-        rc = cli.main([
-            "run-external",
-            "--adapter", "openai-compatible",
-            "--base-url", "http://localhost:8000/v1",
-            "--model", "test",
-            "--scenario", "data-boundary",
-            "--dry-run",
-        ])
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect"
+    ) as mock_open:
+        rc = cli.main(
+            [
+                "run-external",
+                "--adapter",
+                "openai-compatible",
+                "--base-url",
+                "http://localhost:8000/v1",
+                "--model",
+                "test",
+                "--scenario",
+                "data-boundary",
+                "--dry-run",
+            ]
+        )
         assert rc == 0
         mock_open.assert_not_called()
+
+
+def test_cli_run_external_defaults_to_dry_run_no_network() -> None:
+    from agentic_security_harness import cli
+
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect"
+    ) as mock_open:
+        rc = cli.main(
+            [
+                "run-external",
+                "--adapter",
+                "openai-compatible",
+                "--base-url",
+                "http://localhost:8000/v1",
+                "--model",
+                "test",
+                "--scenario",
+                "data-boundary",
+            ]
+        )
+
+    assert rc == 0
+    mock_open.assert_not_called()
+
+
+def test_cli_run_external_requires_execute_for_live_handler() -> None:
+    from agentic_security_harness import cli
+
+    with patch.object(cli, "_run_external", return_value=0) as run_external:
+        rc = cli.main(
+            [
+                "run-external",
+                "--base-url",
+                "http://localhost:8000/v1",
+                "--model",
+                "test",
+                "--execute",
+            ]
+        )
+
+    assert rc == 0
+    assert run_external.call_args.args[12] is False
+
+
+def test_cli_run_external_rejects_execute_and_dry_run_together() -> None:
+    from agentic_security_harness import cli
+
+    with pytest.raises(SystemExit):
+        cli.build_parser().parse_args(
+            [
+                "run-external",
+                "--base-url",
+                "http://localhost:8000/v1",
+                "--model",
+                "test",
+                "--execute",
+                "--dry-run",
+            ]
+        )
 
 
 def test_cli_external_check_no_live_no_network(capsys: pytest.CaptureFixture[str]) -> None:
     from agentic_security_harness import cli
 
-    with patch("urllib.request.urlopen") as mock_open:
-        rc = cli.main([
-            "external-check",
-            "--adapter", "openai-compatible",
-            "--base-url", "http://localhost:8000/v1",
-            "--model", "test",
-            "--scenario", "data-boundary",
-            "--api-key-env", "ASH_TEST_KEY_NOT_SET",
-            "--repeats", "2",
-            "--max-variants", "2",
-        ])
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect"
+    ) as mock_open:
+        rc = cli.main(
+            [
+                "external-check",
+                "--adapter",
+                "openai-compatible",
+                "--base-url",
+                "http://localhost:8000/v1",
+                "--model",
+                "test",
+                "--scenario",
+                "data-boundary",
+                "--api-key-env",
+                "ASH_TEST_KEY_NOT_SET",
+                "--repeats",
+                "2",
+                "--max-variants",
+                "2",
+            ]
+        )
         assert rc == 0
         mock_open.assert_not_called()
 
@@ -849,21 +1140,31 @@ def test_cli_external_check_live_success(capsys: pytest.CaptureFixture[str]) -> 
     from agentic_security_harness import cli
 
     mock_response = MagicMock()
-    mock_response.read.return_value = json.dumps({
-        "model": "fake-model",
-        "choices": [{"message": {"content": "pong"}}],
-    }).encode()
+    mock_response.read.return_value = json.dumps(
+        {
+            "model": "fake-model",
+            "choices": [{"message": {"content": "pong"}}],
+        }
+    ).encode()
     mock_response.__enter__ = lambda s: s
     mock_response.__exit__ = MagicMock(return_value=False)
 
-    with patch("urllib.request.urlopen", return_value=mock_response):
-        rc = cli.main([
-            "external-check",
-            "--adapter", "openai-compatible",
-            "--base-url", "http://localhost:8000/v1",
-            "--model", "fake-model",
-            "--live",
-        ])
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        return_value=mock_response,
+    ):
+        rc = cli.main(
+            [
+                "external-check",
+                "--adapter",
+                "openai-compatible",
+                "--base-url",
+                "http://localhost:8000/v1",
+                "--model",
+                "fake-model",
+                "--live",
+            ]
+        )
 
     assert rc == 0
     assert "Live request: SUCCESS" in capsys.readouterr().out
@@ -881,29 +1182,42 @@ def test_cli_run_external_missing_base_url() -> None:
 def test_cli_run_external_repeats_too_high() -> None:
     from agentic_security_harness import cli
 
-    rc = cli.main([
-        "run-external",
-        "--adapter", "openai-compatible",
-        "--base-url", "http://localhost:8000/v1",
-        "--model", "test",
-        "--scenario", "data-boundary",
-        "--repeats", "99",
-        "--dry-run",
-    ])
+    rc = cli.main(
+        [
+            "run-external",
+            "--adapter",
+            "openai-compatible",
+            "--base-url",
+            "http://localhost:8000/v1",
+            "--model",
+            "test",
+            "--scenario",
+            "data-boundary",
+            "--repeats",
+            "99",
+            "--dry-run",
+        ]
+    )
     assert rc == 1
 
 
 def test_cli_run_external_unsupported_adapter() -> None:
     from agentic_security_harness import cli
 
-    rc = cli.main([
-        "run-external",
-        "--adapter", "unsupported",
-        "--base-url", "http://localhost:8000/v1",
-        "--model", "test",
-        "--scenario", "data-boundary",
-        "--dry-run",
-    ])
+    rc = cli.main(
+        [
+            "run-external",
+            "--adapter",
+            "unsupported",
+            "--base-url",
+            "http://localhost:8000/v1",
+            "--model",
+            "test",
+            "--scenario",
+            "data-boundary",
+            "--dry-run",
+        ]
+    )
     assert rc == 1
 
 
@@ -914,15 +1228,23 @@ def test_cli_run_external_exceeds_request_cap(
 
     # 24 patterns x 4 variants x 1 repeat = 96 > default cap 50. The cap is
     # checked before any network call, even with --dry-run.
-    with patch("urllib.request.urlopen") as mock_open:
-        rc = cli.main([
-            "run-external",
-            "--base-url", "http://localhost:8000/v1",
-            "--model", "test",
-            "--scenario", "all",
-            "--max-variants", "4",
-            "--dry-run",
-        ])
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect"
+    ) as mock_open:
+        rc = cli.main(
+            [
+                "run-external",
+                "--base-url",
+                "http://localhost:8000/v1",
+                "--model",
+                "test",
+                "--scenario",
+                "all",
+                "--max-variants",
+                "4",
+                "--dry-run",
+            ]
+        )
         assert rc == 1
         mock_open.assert_not_called()
     assert "exceeds the safety cap" in capsys.readouterr().out
@@ -933,14 +1255,21 @@ def test_cli_run_external_dry_run_reports_no_files(
 ) -> None:
     from agentic_security_harness import cli
 
-    with patch("urllib.request.urlopen") as mock_open:
-        rc = cli.main([
-            "run-external",
-            "--base-url", "http://localhost:8000/v1",
-            "--model", "test",
-            "--scenario", "data-boundary",
-            "--dry-run",
-        ])
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect"
+    ) as mock_open:
+        rc = cli.main(
+            [
+                "run-external",
+                "--base-url",
+                "http://localhost:8000/v1",
+                "--model",
+                "test",
+                "--scenario",
+                "data-boundary",
+                "--dry-run",
+            ]
+        )
         assert rc == 0
         mock_open.assert_not_called()
     out = capsys.readouterr().out
@@ -955,13 +1284,19 @@ def test_cli_external_check_shows_cost_cap(
 ) -> None:
     from agentic_security_harness import cli
 
-    rc = cli.main([
-        "external-check",
-        "--base-url", "http://localhost:8000/v1",
-        "--model", "test",
-        "--scenario", "all",
-        "--max-variants", "4",
-    ])
+    rc = cli.main(
+        [
+            "external-check",
+            "--base-url",
+            "http://localhost:8000/v1",
+            "--model",
+            "test",
+            "--scenario",
+            "all",
+            "--max-variants",
+            "4",
+        ]
+    )
     assert rc == 0
     assert "exceeds the safety cap" in capsys.readouterr().out
 
@@ -971,12 +1306,17 @@ def test_cli_external_check_emits_copy_pasteable_next_command(
 ) -> None:
     from agentic_security_harness import cli
 
-    rc = cli.main([
-        "external-check",
-        "--base-url", "http://localhost:8000/v1",
-        "--model", "deepseek-chat",
-        "--scenario", "data-boundary",
-    ])
+    rc = cli.main(
+        [
+            "external-check",
+            "--base-url",
+            "http://localhost:8000/v1",
+            "--model",
+            "deepseek-chat",
+            "--scenario",
+            "data-boundary",
+        ]
+    )
     assert rc == 0
     out = capsys.readouterr().out
     assert "Next steps:" in out
@@ -984,6 +1324,7 @@ def test_cli_external_check_emits_copy_pasteable_next_command(
     assert "ash run-external --base-url http://localhost:8000/v1" in out
     assert "--model deepseek-chat" in out
     assert "--dry-run" in out
+    assert "--execute --out reports/external-run" in out
     assert "ash validate reports/external-run" in out
 
 
@@ -1043,11 +1384,16 @@ def test_builtin_ash_run_still_works(tmp_path: Path) -> None:
 def test_builtin_ash_compare_still_works(tmp_path: Path) -> None:
     from agentic_security_harness import cli
 
-    rc = cli.main([
-        "compare",
-        "--baseline", "demo-agent",
-        "--protected", "protected-demo-agent",
-        "--out", str(tmp_path / "cmp"),
-    ])
+    rc = cli.main(
+        [
+            "compare",
+            "--baseline",
+            "demo-agent",
+            "--protected",
+            "protected-demo-agent",
+            "--out",
+            str(tmp_path / "cmp"),
+        ]
+    )
     assert rc == 0
     assert (tmp_path / "cmp" / "comparison.md").exists()

@@ -39,6 +39,7 @@ can prove its safety gates before it records any finding.
 | `experiment-intake` | none | none | Gate private filled rows before public sanitized summaries. |
 | `experiment-readiness` | none | none | Evaluate whether artifact, control, and safety gates allow filled private experiment rows. |
 | `boundary-lock-review` | none | none | Classify boundary-lock markers without source lines or private values. |
+| `entrypoint-closure` | none | none | Hash-bind the canonical batch/static-import topology without importing target modules. |
 | `validate-experiment` | none | none | Validate filled private experiment rows without exposing raw values. |
 | `sanitize-experiment` | none | none | Emit public-safe experiment summaries from private rows. |
 | `authorized-paper` | bounded / explicit | paper-only artifacts only | Future mode: drive approved target commands or local fixtures under explicit gates. |
@@ -92,6 +93,21 @@ and emits only marker counts for secret-environment, provider-call,
 Telegram-send, and live-order indicators. It is a pre-experiment lock, not an
 exploit scanner. `artifact-probe` reads only allowlisted paper/research artifact
 files and emits existence, counts, hashes, and marker booleans, not raw rows.
+`entrypoint-closure` follows literal batch calls, Python entry modules, and local
+static imports. It emits relative module/file labels, phases, bounded line numbers without
+source text, authority paths, sink categories, file hashes, a target closure hash, and an
+analyzer-source fingerprint. It rejects link/junction/reparse traversal and follows literal
+dynamic targets while retaining an incomplete verdict for dynamic dispatch. The
+current 2-batch/187-module closure is structurally complete but reaches LLM and
+delivery components, exchange-adjacent code, and multiple configuration loaders, so
+`security_clear` is false even though `complete` is true. Structural closure completeness and
+security isolation are separate decisions.
+
+Manual source-order review of the registered development duplicate additionally establishes a
+journal-stage import-time configuration load before the later role-review provider path. The
+generic analyzer reports that pair as co-reachable but does not yet claim cross-branch call
+ordering. Therefore readiness remains blocked, and documentation must not describe the canonical
+headless path as credential-free or delivery-impossible.
 `invariant-fixture-template` writes a payload-free 7-row private template for
 the next paper-only adversarial/invariant layer. `invariant-baseline-fixture`
 fills that private shape from the current artifact-invariant probe result so
@@ -104,16 +120,25 @@ synthetic inconclusive rows to prove that weak evidence is not promoted into
 either `pass` or `finding`. It is not a target observation.
 `validate-invariant-fixture` checks private invariant fixtures before they are
 sanitized into public summaries.
+Every private writer uses one exclusive-create boundary: ordered contiguous private-root parts,
+prospective path resolution, a final resolved-parent check, and refusal to truncate an existing or
+concurrently created file. This narrows portable path races but does not claim protection against
+an adversarial OS-level ancestor swap.
 When paper artifacts live outside the public target checkout, `--artifact-root`
 points to the private paper/research root, `state/`, or `state/derived/`.
 `artifact-invariant-probe` maps those allowlisted artifacts to the seven
 scenario invariants using JSON keys, booleans, and hashes only; it does not
-claim an adversarial benchmark pass.
+claim an adversarial benchmark pass. Safe-shaped schema evidence remains
+`inconclusive`; an explicit unsafe bounded value is a `finding`. Field presence
+alone never produces a behavioral `pass`.
 `artifact-e2e-observation` reads the allowlisted end-to-end paper chain,
 summarizes artifact presence/count/hash status, checks paper-only execution
-boundaries, and reports evidence-quality findings such as preview-card contract
-drift without raw card text, target rows, private values, provider transcripts,
-or trading calculations.
+boundaries, verifies the identity joins between scanner, data, feature,
+paper-signal, instruction, consumer, queue, observation, lineage, and training
+artifacts, and reports
+evidence-quality findings such as identity mismatch or preview-card contract
+drift without raw identifiers, card text, target rows, private values, provider
+transcripts, or trading calculations.
 `experiment-plan` turns the seven scenario catalog rows and the three
 parallel-pressure batches into a controlled paper experiment plan. It may attach
 the current `artifact-e2e-observation` gate, but it still does not execute the
@@ -121,8 +146,9 @@ target. `experiment-template` writes only empty private slots for raw vectors,
 agent scripts, target rows, traces, and calculations under the ignored evidence
 root. `experiment-control-fixture` writes a not-executed, all-inconclusive
 control fixture so validation and sanitization can be proven before adversarial
-rows exist. `experiment-baseline-fixture` writes observed baseline rows from
-existing artifact invariants. `experiment-negative-control-fixture` writes
+rows exist. `experiment-baseline-fixture` writes schema-level baseline rows
+from existing artifact invariants; clean schema-only rows remain inconclusive.
+`experiment-negative-control-fixture` writes
 synthetic finding-path rows to prove the sanitizer/validator path without
 target execution. `experiment-batch-manifest` writes the ignored private guard
 that binds the seven scenario ids to three planned batches, max parallel 4, and
@@ -130,15 +156,19 @@ the no-env/no-live/no-provider/no-Telegram gates before filled private rows are
 accepted. `validate-experiment-batch-manifest` checks that guard without
 exposing private vectors or calculations. `experiment-intake` is the gate
 between private rows and public sanitized summaries: baseline/control/template
-rows may validate structurally, but they are blocked unless all seven rows are
-real target observations under the filled-row contract. `experiment-readiness` combines
-target preflight, artifact-chain state, execution-boundary state,
-evidence-quality findings, and control-fixture validation into a single
-ready/blocked gate. `validate-experiment` checks filled private rows for full seven-scenario
+rows may validate structurally, but they and unreceipted filled rows remain
+blocked. Filled rows are self-declared until a separate observation-authority
+receipt validates. `experiment-readiness` combines
+target preflight, artifact shape, causal-chain state, execution-boundary state,
+evidence-quality findings, control-fixture validation, and separately evidenced
+transitive provider/execution isolation into a single ready/blocked gate. The
+last two boundaries fail closed until that transitive evidence exists.
+`validate-experiment` checks filled private rows for full seven-scenario
 coverage, expected batch ids, result classes, `sha256:` anchors, private slots,
 and ignored-root placement. `sanitize-experiment` emits aggregate counts, batch
 counts, scenario ids, artifact hashes, and redacted public fields without
-copying private slot values.
+copying private slot values. These hashes are scoped to the sanitized public
+projection; they are not unkeyed digests of private values.
 `boundary-lock-review` is the follow-up to the coarse pre-experiment marker
 scan. It reviews only files that `boundary-lock` already marked, classifies
 documentation-only markers separately from bounded configuration reads, and
@@ -155,7 +185,7 @@ controlled experiment layer and reports `accepted` only when:
 - the artifact/readiness gates pass;
 - the private experiment fixture validates;
 - the private batch manifest validates;
-- the manifest carries explicit owner approval for a gate-only run;
+- a separate action-bound owner approval receipt validates;
 - `.env`, live orders, provider calls, and Telegram sends remain disabled.
 
 It still does not run target commands, import target modules, read `.env`, call
@@ -178,6 +208,7 @@ A future runner must fail closed unless all required gates pass:
 | Stop condition | Any live-path, credential, provider, or Telegram risk aborts the batch. |
 | Boundary lock | Allowlisted observation files must be reviewed when environment/provider/Telegram/live markers are present. |
 | Boundary review | Current marked files must have no secret env reads, no unknown env reads, no provider calls, no Telegram sends, and no live-order sites. |
+| Transitive authority inventory | Structural closure must be complete and every reachable configuration, provider/network, delivery, exchange, and storage interface must be explicitly classified; allowlisted direct-file zeroes are insufficient. |
 
 ## Observation Contract
 
@@ -272,13 +303,15 @@ The first code slice should not touch the live target. It adds:
 3. preflight result model;
 4. offline fixture mapper for `pass`, `finding`, `inconclusive`, and `error`;
 5. non-executing `authorized-paper` gate report, blocked by default and
-   accepted only with a valid private readiness bundle;
+   unable to accept until a valid private readiness bundle plus separate
+   action-bound owner and observation receipts exist;
 6. private fixture template generator;
 7. public-safe private fixture sanitizer;
 8. read-only static probe over allowlisted target source files;
 9. read-only boundary-lock marker scan over allowlisted target source files;
 9a. boundary-lock marker review that separates documentation markers from
     bounded configuration reads without source lines or private values;
+9b. hash-bound canonical batch/static-import closure with fail-closed dynamic edges;
 10. read-only artifact probe over allowlisted paper/research artifact files;
 11. private invariant control fixtures for baseline, finding, and inconclusive
     paths;
@@ -288,13 +321,14 @@ The first code slice should not touch the live target. It adds:
     templates for the next adversarial paper-only layer;
 14. private all-inconclusive experiment control fixtures for validation/sanitizer
     round-trips;
-15. experiment readiness gates over target preflight, artifact state, evidence
-    quality, and control validation;
+15. experiment readiness gates over target preflight, artifact shape, causal
+    identity joins, evidence quality, control validation, and independently
+    evidenced transitive provider/execution isolation;
 16. private experiment validation and public-safe sanitization for future filled
     rows;
 17. private batch-manifest validation for the three controlled agentic batches;
-18. private filled-row intake gating so baseline/control/template rows are not
-    promoted into public adversarial experiment evidence;
+18. private filled-row intake gating so baseline/control/template and unreceipted
+    self-declared rows are not promoted into public adversarial experiment evidence;
 19. tests proving no `.env`, provider, Telegram, or live execution path exists.
 
 Only after that should an `authorized-paper` executor be considered. The

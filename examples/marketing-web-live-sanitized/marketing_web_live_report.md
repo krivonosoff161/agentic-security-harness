@@ -1,6 +1,8 @@
-# Live Marketing Web-Injection Campaign
+# Historical Marketing Web Observation (Schema 0.2)
 
-Status: sanitized public summary over private local-model probes.
+Status: structural-only detector-observation summary. Current schema 0.3 has no
+committed execution; public validation does not replay private responses or prove
+model locality, and rule-derived verifier/ablation counts are not causal effects.
 
 ## What This Tests
 
@@ -31,6 +33,10 @@ and aggregate labels; raw pages/prompts/responses stay private.
 | Benign allow rate | 100.00% |
 | Response hash coverage | 100.00% |
 | Turn hash coverage | 100.00% |
+| Independent-label coverage | 0.00% |
+
+Leak counts are detector-derived. Precision, recall, and specificity are claimed only
+for independently reviewed rows; historical rows remain `not_adjudicated`.
 
 ## Attack Vectors
 
@@ -62,7 +68,11 @@ and aggregate labels; raw pages/prompts/responses stay private.
 - A live local-model leak of a synthetic canary is not a CVE.
 - A blocked local campaign is not proof that a production swarm is secure.
 - This is an owned local-web ingestion probe, not internet-wide safety evidence.
-- Response hashes anchor private replayability; they do not prove semantic truth.
+- Response hash fields are commitments. Without owner-side reconciliation they do not prove private-byte retention, replayability, origin, or semantic truth.
 
 Raw local web pages, prompts, responses, and synthetic strategy values
 are private artifacts and are not part of this public summary.
+
+## Historical Reliability Notice
+
+This schema-0.2 artifact is retained for structural historical review only. The verifier and control-disabled outcomes are rule-derived policy behavior, not independent effectiveness or causal estimates. It does not exercise current schema 0.3, and loopback attests only the first network hop.

@@ -6,14 +6,47 @@
   "required": [
     "schema_version",
     "run_id",
+    "execution_id",
+    "config_fingerprint",
     "run_kind",
     "created_at",
-    "artifacts"
+    "artifacts",
+    "artifact_sha256"
   ],
   "properties": {
-    "schema_version": { "type": "string" },
-    "run_id": { "type": "string", "minLength": 1 },
-    "run_kind": { "type": "string", "enum": ["run", "compare", "matrix", "external"] },
+    "schema_version": { "const": "0.3" },
+    "run_id": { "type": "string", "pattern": "^run_[0-9a-f]{32}$" },
+    "execution_id": { "type": "string", "pattern": "^run_[0-9a-f]{32}$" },
+    "config_fingerprint": { "type": "string", "pattern": "^cfg_[0-9a-f]{10}$" },
+    "run_kind": {
+      "type": "string",
+      "enum": [
+        "run",
+        "compare",
+        "matrix",
+        "external",
+        "run_diff",
+        "evidence_quality",
+        "run_stats",
+        "showcase",
+        "local_swarm",
+        "evidence_campaign",
+        "secret_leak_campaign",
+        "secret_leak_variations",
+        "semantic_drift_campaign",
+        "semantic_propagation_campaign",
+        "swarm_defense_contour",
+        "swarm_defense_live_campaign",
+        "marketing_web_injection_campaign",
+        "marketing_web_live_campaign",
+        "swarm_resilience_campaign",
+        "context_consent_campaign",
+        "tool_authority_campaign",
+        "rag_context_campaign",
+        "planner_task_campaign",
+        "memory_rehydration_campaign"
+      ]
+    },
     "created_at": { "type": "string" },
     "tool_version": { "type": "string" },
     "target": { "type": "string" },
@@ -26,7 +59,18 @@
       "type": "object",
       "additionalProperties": { "type": ["string", "integer", "number", "boolean", "null"] }
     },
-    "artifacts": { "type": "array", "items": { "type": "string" } }
+    "artifacts": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "artifact_sha256": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      }
+    }
   },
-  "additionalProperties": true
+  "additionalProperties": false
 }

@@ -67,7 +67,8 @@ the full bounded contract and reopened when responsible controls are ablated.
 - This is not a model leaderboard.
 - This is not proof that a deployed production swarm is secure.
 - Adapter errors are not passes.
-- Response hashes prove artifact hygiene, not semantic correctness.
+- Response hash fields are commitments. They do not prove private-byte retention,
+  replayability, origin, or semantic correctness without owner-side reconciliation.
 
 ## Reproduce
 

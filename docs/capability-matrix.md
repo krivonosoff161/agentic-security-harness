@@ -2,7 +2,7 @@
 
 What each target and mode does, so you can pick the right one and read its result
 correctly. Built-in/local modes are deterministic and offline; the external path is the
-only one that touches the network, and only on explicit opt-in.
+only one that touches the network, and only with explicit `--execute`/`--live` opt-in.
 
 For broader system shapes a target adapter may represent, see
 [evaluation-topologies.md](evaluation-topologies.md). This page is the shipped mode matrix;
@@ -20,7 +20,7 @@ the topology page is the methodology map.
 | `toy-tools` | `run --target toy-tools` | offline | no | deterministic | full (24) | no | no | yes | yes |
 | `toy-multi-agent` | `run --target toy-multi-agent` | offline | no | deterministic | full (24) | no | no | yes | yes |
 | Scenario matrix | `run-matrix --target <t> --scenario <s>` | offline | no | deterministic | subset (scenario) x variants | no | yes | yes | yes |
-| External (OpenAI-compatible) | `run-external --base-url ... --model ...` | **opt-in only** | yes (prompt-only) | stochastic possible | subset (scenario) x variants | yes | yes | yes | yes |
+| External (OpenAI-compatible) | `run-external --base-url ... --model ... --execute` | **opt-in only** | yes (prompt-only) | stochastic possible | subset (scenario) x variants | yes | yes | yes | yes |
 | Native provider adapter | - | - | - | - | - | - | - | - | **future** |
 | Agent-host / tool-use adapter | - | - | - | - | - | - | - | - | **future** |
 

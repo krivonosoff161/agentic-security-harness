@@ -7,7 +7,14 @@ from pathlib import Path
 import pytest
 
 from agentic_security_harness import cli
-from agentic_security_harness.run_diff import diff_runs, write_run_diff
+from agentic_security_harness.run_diff import (
+    RunDiff,
+    _classify,
+    _diff_md,
+    _external_outcomes,
+    diff_runs,
+    write_run_diff,
+)
 from agentic_security_harness.validation import validate_path
 
 EXAMPLES = Path(__file__).resolve().parent.parent / "examples"
@@ -26,6 +33,26 @@ def test_diff_run_fixed(tmp_path: Path) -> None:
     assert diff.finding_fixed == 24
     assert diff.new_finding == 0 and diff.changed_status == 0
     assert all(e.change == "finding_fixed" for e in diff.entries)
+
+
+def test_run_diff_markdown_neutralizes_untrusted_summary_and_note() -> None:
+    payload = "value\n## forged\n![probe](https://example.invalid/p.gif)<img src=x>"
+    diff = RunDiff(
+        kind="external",
+        left_label="left`label",
+        right_label="right",
+        left_summary={"model|name": payload},
+        right_summary={"model|name": "safe"},
+        note=payload,
+    )
+
+    rendered = _diff_md(diff)
+
+    assert "\n## forged" not in rendered
+    assert "![probe](" not in rendered
+    assert r"\!\[probe\]" in rendered
+    assert r"model\|name" in rendered
+    assert "- Left: `` left`label ``" in rendered
 
 
 def test_diff_run_unchanged(tmp_path: Path) -> None:
@@ -112,12 +139,8 @@ def _ext_dir(path: Path, *, status: str) -> Path:
 
 
 def _ext_change(tmp_path: Path, left_status: str, right_status: str) -> str:
-    left = _ext_dir(tmp_path / f"l_{left_status}", status=left_status)
-    right = _ext_dir(tmp_path / f"r_{right_status}", status=right_status)
-    diff = diff_runs(left, right)
-    assert diff.kind == "external"
-    assert len(diff.entries) == 1
-    return diff.entries[0].change
+    del tmp_path  # classification unit tests do not manufacture trusted run bundles
+    return _classify(True, True, left_status, right_status, "", "")
 
 
 def test_external_finding_disappeared_is_fixed(tmp_path: Path) -> None:
@@ -197,25 +220,25 @@ def test_external_stable_error_and_inconclusive(tmp_path: Path) -> None:
 
 
 def test_external_stability_status_adapter_error_without_error_bucket(tmp_path: Path) -> None:
-    left = _ext_dir(tmp_path / "left", status="pass")
     right = _ext_dir(tmp_path / "right", status="pass")
     summary = json.loads((right / "external_summary.json").read_text(encoding="utf-8"))
     summary["repeat_summaries"][0]["stability_status"] = "adapter_error"
     (right / "external_summary.json").write_text(
         json.dumps(summary, indent=2) + "\n", encoding="utf-8"
     )
-    diff = diff_runs(left, right)
-    assert diff.entries[0].right_status == "adapter_error"
-    assert diff.entries[0].change == "inconclusive_error_drift"
+    outcomes, _summary = _external_outcomes(right)
+    right_status = outcomes[_PID][0]
+    assert right_status == "adapter_error"
+    assert _classify(True, True, "pass", right_status, "", "") == (
+        "inconclusive_error_drift"
+    )
 
 
 def test_external_drift_counts_not_fix_or_new(tmp_path: Path) -> None:
-    # A whole-run sanity check: error -> pass increments drift, leaves fix/new at zero.
-    left = _ext_dir(tmp_path / "left", status="error")
-    right = _ext_dir(tmp_path / "right", status="pass")
-    diff = diff_runs(left, right)
-    assert diff.inconclusive_error_drift == 1
-    assert diff.finding_fixed == 0 and diff.new_finding == 0
+    del tmp_path
+    change = _classify(True, True, "error", "pass", "", "")
+    assert change == "inconclusive_error_drift"
+    assert change not in {"finding_fixed", "new_finding"}
 
 
 def test_diff_matrix(tmp_path: Path) -> None:
@@ -238,11 +261,14 @@ def test_write_and_validate_diff(tmp_path: Path) -> None:
     out = tmp_path / "diff"
     paths = write_run_diff(diff, out)
     assert paths["run_diff_json"].exists() and paths["run_diff_md"].exists()
+    assert paths["run_index"].exists()
     data = json.loads(paths["run_diff_json"].read_text(encoding="utf-8"))
-    # v0.2 writes explicit labels and deprecated v0.1 aliases so old consumers do not
-    # break while migrating away from ambiguous fixed/new/changed wording.
+    # v0.3 writes source commitments plus explicit labels and deprecated aliases so old
+    # consumers do not break while migrating away from ambiguous wording.
     assert data["finding_fixed"] == 24
     assert data["fixed"] == 24
+    assert data["left_source"]["artifact_validation"] == "current_content_bound"
+    assert data["left_source"]["origin_authentication"] == "unsigned"
     result = validate_path(out)
     assert result.ok, result.errors
     assert result.run_diff_dirs == ["diff"]
@@ -260,6 +286,29 @@ def test_validate_diff_bad_counts(tmp_path: Path) -> None:
     result = validate_path(tmp_path / "diff")
     assert not result.ok
     assert any("change counts" in e for e in result.errors)
+
+
+def test_diff_rejects_post_manifest_source_tampering(tmp_path: Path) -> None:
+    left = _run("mock", tmp_path / "left")
+    right = _run("protected-demo-agent", tmp_path / "right")
+    traces = left / "traces.json"
+    traces.write_text(traces.read_text(encoding="utf-8") + " ", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="cannot diff unvalidated artifacts"):
+        diff_runs(left, right)
+
+
+def test_validate_current_diff_rejects_markdown_projection_tamper(tmp_path: Path) -> None:
+    left = _run("mock", tmp_path / "left")
+    right = _run("protected-demo-agent", tmp_path / "right")
+    out = tmp_path / "diff"
+    write_run_diff(diff_runs(left, right), out)
+    (out / "run_diff.md").write_text("# forged reviewer claim\n", encoding="utf-8")
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert any("report projection mismatch" in error for error in result.errors)
 
 
 def test_validate_legacy_run_diff_v01(tmp_path: Path) -> None:
@@ -311,3 +360,36 @@ def test_cli_diff_runs_missing_dir(tmp_path: Path) -> None:
     rc = cli.main(["diff-runs", "--left", str(a), "--right",
                    str(tmp_path / "nope"), "--out", str(tmp_path / "diff")])
     assert rc == 1
+
+
+def test_cli_diff_runs_rejects_output_overlapping_source(tmp_path: Path) -> None:
+    left = _run("mock", tmp_path / "left")
+    right = _run("protected-demo-agent", tmp_path / "right")
+    original_manifest = (left / "run_index.json").read_bytes()
+
+    rc = cli.main([
+        "diff-runs", "--left", str(left), "--right", str(right), "--out", str(left)
+    ])
+
+    assert rc == 1
+    assert (left / "run_index.json").read_bytes() == original_manifest
+    assert not (left / "run_diff.json").exists()
+
+
+def test_cli_compare_models_rejects_invalid_source(tmp_path: Path) -> None:
+    left = tmp_path / "left"
+    right = tmp_path / "right"
+    shutil.copytree(EXAMPLES / "external-demo-report", left)
+    shutil.copytree(EXAMPLES / "external-demo-report", right)
+    summary_path = left / "external_summary.json"
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    summary["total_checks"] = 999
+    summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    out = tmp_path / "diff"
+
+    rc = cli.main([
+        "compare-models", "--left", str(left), "--right", str(right), "--out", str(out)
+    ])
+
+    assert rc == 1
+    assert not out.exists()

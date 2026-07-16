@@ -11,11 +11,15 @@ import ast
 import hashlib
 import io
 import json
+import re
 import tokenize
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Literal, cast
+
+from agentic_security_harness.safe_io import is_link_or_reparse, redact_artifact_text
+from agentic_security_harness.static_import_closure import static_import_closure
 
 PROFILE_ID = "trading-bot-v2-paper-stand"
 ISSUE_URL = "https://github.com/krivonosoff161/agentic-security-harness/issues/136"
@@ -38,6 +42,7 @@ RunnerMode = Literal[
     "artifact-e2e-observation",
     "boundary-lock",
     "boundary-lock-review",
+    "entrypoint-closure",
     "experiment-plan",
     "experiment-template",
     "experiment-baseline-fixture",
@@ -59,6 +64,8 @@ _OBSERVATION_CLASSES: tuple[ObservationClass, ...] = (
     "inconclusive",
     "error",
 )
+_PRIVATE_ARTIFACT_HASH = re.compile(r"^sha256:[0-9a-f]{64}$")
+_CANONICAL_PAPER_ENTRYPOINT = "bat/paper_product_headless_loop.bat"
 
 
 @dataclass(frozen=True)
@@ -314,7 +321,6 @@ _BOUNDARY_SECRET_ENV_KEY_FRAGMENTS: tuple[str, ...] = (
     "CHAT",
     "CREDENTIAL",
 )
-
 
 ALLOWED_SURFACES: tuple[TargetSurface, ...] = (
     TargetSurface(
@@ -798,7 +804,26 @@ PAPER_E2E_ARTIFACTS: tuple[PaperE2EArtifactSpec, ...] = (
 
 
 def _target_file(target_path: Path, relative_path: str) -> Path:
-    return target_path.joinpath(*relative_path.split("/"))
+    root = Path(target_path).resolve(strict=False)
+    relative = Path(relative_path.replace("\\", "/"))
+    if (
+        not relative_path
+        or relative.is_absolute()
+        or any(part in {"", ".", ".."} for part in relative.parts)
+        or is_link_or_reparse(root)
+    ):
+        raise ValueError("target-relative path is outside the safe read boundary")
+    candidate = root.joinpath(*relative.parts).resolve(strict=False)
+    try:
+        candidate.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("target-relative path escapes the safe read boundary") from exc
+    for component in (candidate, *candidate.parents):
+        if component.exists() and is_link_or_reparse(component):
+            raise ValueError("target-relative path traverses a link or reparse point")
+        if component == root:
+            break
+    return candidate
 
 
 def _artifact_file(artifact_root: Path, relative_path: str) -> Path:
@@ -840,9 +865,11 @@ def _file_sha256(path: Path) -> str:
 
 def _private_path_label(path: Path) -> str:
     parts = list(path.parts)
-    if "state" in parts:
-        idx = parts.index("state")
-        return "/".join(parts[idx:])
+    lowered = [part.lower() for part in parts]
+    for marker in (".internal", "state"):
+        if marker in lowered:
+            idx = lowered.index(marker)
+            return "/".join(parts[idx:])
     return path.name
 
 
@@ -983,6 +1010,216 @@ def _read_snapshot_items(path: Path) -> list[dict[str, object]]:
     return [item for item in items if isinstance(item, dict)]
 
 
+def _identity_statistics(
+    rows: Sequence[Mapping[str, object]],
+    key: str,
+) -> tuple[set[str], dict[str, int]]:
+    values = [
+        value.strip()
+        for row in rows
+        if isinstance((value := row.get(key)), str) and value.strip()
+    ]
+    identifiers = set(values)
+    return identifiers, {
+        "rows": len(rows),
+        "valid_id_count": len(values),
+        "unique_id_count": len(identifiers),
+        "missing_id_count": len(rows) - len(values),
+        "duplicate_id_count": len(values) - len(identifiers),
+    }
+
+
+def _relation_values(
+    rows: Sequence[Mapping[str, object]],
+    keys: tuple[str, ...],
+) -> set[tuple[str, ...]]:
+    relations: set[tuple[str, ...]] = set()
+    for row in rows:
+        values = tuple(
+            str(row.get(key)).strip() if isinstance(row.get(key), str) else ""
+            for key in keys
+        )
+        if all(values):
+            relations.add(values)
+    return relations
+
+
+def _paper_chain_causality_summary(root: Path) -> dict[str, object]:
+    """Verify cross-artifact identities without returning any artifact values."""
+    scanner_events = _read_jsonl_dict_rows(
+        _artifact_root_file(root, "state/lineage/scanner_events.jsonl")
+    )
+    data_packets = _read_jsonl_dict_rows(
+        _artifact_root_file(root, "state/lineage/data_packets.jsonl")
+    )
+    feature_packets = _read_jsonl_dict_rows(
+        _artifact_root_file(root, "state/lineage/feature_packets.jsonl")
+    )
+    paper_signals = _read_jsonl_dict_rows(
+        _artifact_root_file(root, "state/derived/paper_signals.jsonl")
+    )
+    cycle_links = _read_jsonl_dict_rows(
+        _artifact_root_file(root, "state/lineage/cycle_links.jsonl")
+    )
+    instructions = _read_snapshot_items(
+        _artifact_root_file(root, "state/derived/main_paper_instructions.json")
+    )
+    consumed = _read_snapshot_items(
+        _artifact_root_file(root, "state/derived/main_paper_consumed.json")
+    )
+    runtime_queue = _read_snapshot_items(
+        _artifact_root_file(root, "state/derived/main_paper_runtime_queue.json")
+    )
+    observations = _read_snapshot_items(
+        _artifact_root_file(root, "state/derived/main_paper_runtime_observation.json")
+    )
+    training = _read_jsonl_dict_rows(
+        _artifact_root_file(root, "state/derived/paper_signal_training.jsonl")
+    )
+
+    identity_specs: tuple[tuple[str, list[dict[str, object]], str], ...] = (
+        ("scanner_events", scanner_events, "scanner_event_id"),
+        ("data_packets", data_packets, "data_packet_id"),
+        ("feature_packets", feature_packets, "feature_packet_id"),
+        ("paper_signals", paper_signals, "signal_id"),
+        ("instructions", instructions, "instruction_id"),
+        ("consumed", consumed, "consumer_id"),
+        ("runtime_queue", runtime_queue, "runtime_id"),
+        ("observations", observations, "runtime_id"),
+        ("training", training, "training_row_id"),
+    )
+    identity_sets: dict[str, set[str]] = {}
+    identity_statistics: dict[str, dict[str, int]] = {}
+    for stage, rows, key in identity_specs:
+        identifiers, statistics = _identity_statistics(rows, key)
+        identity_sets[stage] = identifiers
+        identity_statistics[stage] = statistics
+
+    data_parent_pairs = _relation_values(
+        data_packets, ("data_packet_id", "scanner_event_id")
+    )
+    feature_parent_triples = _relation_values(
+        feature_packets, ("feature_packet_id", "data_packet_id", "scanner_event_id")
+    )
+    paper_parent_quads = _relation_values(
+        paper_signals,
+        ("signal_id", "feature_packet_id", "data_packet_id", "scanner_event_id"),
+    )
+    instruction_pairs = _relation_values(
+        instructions, ("instruction_id", "source_signal_id")
+    )
+    consumed_pairs = _relation_values(
+        consumed, ("instruction_id", "source_signal_id")
+    )
+    consumed_triples = _relation_values(
+        consumed, ("consumer_id", "instruction_id", "source_signal_id")
+    )
+    queue_triples = _relation_values(
+        runtime_queue, ("consumer_id", "instruction_id", "source_signal_id")
+    )
+    queue_runtime_pairs = _relation_values(
+        runtime_queue, ("runtime_id", "source_signal_id")
+    )
+    observation_runtime_pairs = _relation_values(
+        observations, ("runtime_id", "source_signal_id")
+    )
+    training_signal_pairs = _relation_values(
+        training, ("signal_id", "paper_signal_id")
+    )
+    cycle_signal_ids = {
+        value.strip()
+        for row in cycle_links
+        if isinstance((value := row.get("paper_signal_id")), str) and value.strip()
+    }
+    cycle_training_ids = {
+        value.strip()
+        for row in cycle_links
+        if isinstance((value := row.get("training_row_id")), str) and value.strip()
+    }
+
+    signal_ids = identity_sets["paper_signals"]
+    checks = {
+        "required_stages_nonempty": all(rows for _, rows, _ in identity_specs),
+        "identity_fields_complete": all(
+            statistics["missing_id_count"] == 0
+            for statistics in identity_statistics.values()
+        ),
+        "stage_identities_unique": all(
+            statistics["duplicate_id_count"] == 0
+            for statistics in identity_statistics.values()
+        ),
+        "data_packets_match_scanner_events": bool(data_parent_pairs)
+        and {
+            scanner_event_id for _, scanner_event_id in data_parent_pairs
+        }.issubset(identity_sets["scanner_events"]),
+        "feature_packets_match_data_packets": bool(feature_parent_triples)
+        and {
+            (data_packet_id, scanner_event_id)
+            for _, data_packet_id, scanner_event_id in feature_parent_triples
+        }.issubset(data_parent_pairs),
+        "paper_signals_match_feature_packets": bool(paper_parent_quads)
+        and {
+            (feature_packet_id, data_packet_id, scanner_event_id)
+            for _, feature_packet_id, data_packet_id, scanner_event_id in paper_parent_quads
+        }.issubset(feature_parent_triples),
+        "instruction_sources_exist": bool(instruction_pairs)
+        and {source_id for _, source_id in instruction_pairs}.issubset(signal_ids),
+        "consumed_instructions_match": bool(consumed_pairs)
+        and consumed_pairs.issubset(instruction_pairs),
+        "runtime_queue_consumers_match": bool(queue_triples)
+        and queue_triples.issubset(consumed_triples),
+        "runtime_observations_match": bool(observation_runtime_pairs)
+        and observation_runtime_pairs.issubset(queue_runtime_pairs),
+        "training_signals_match": bool(training_signal_pairs)
+        and all(
+            signal_id == paper_signal_id and signal_id in signal_ids
+            for signal_id, paper_signal_id in training_signal_pairs
+        ),
+        "cycle_signal_links_match": bool(cycle_signal_ids)
+        and cycle_signal_ids.issubset(signal_ids),
+        "cycle_training_links_match": bool(cycle_training_ids)
+        and cycle_training_ids.issubset(identity_sets["training"]),
+    }
+    evidence_complete = (
+        checks["required_stages_nonempty"]
+        and checks["identity_fields_complete"]
+        and bool(data_parent_pairs)
+        and bool(feature_parent_triples)
+        and bool(paper_parent_quads)
+        and bool(instruction_pairs)
+        and bool(consumed_pairs)
+        and bool(queue_triples)
+        and bool(observation_runtime_pairs)
+        and bool(training_signal_pairs)
+        and bool(cycle_signal_ids)
+        and bool(cycle_training_ids)
+    )
+    causal_chain_ok = all(checks.values())
+    if causal_chain_ok:
+        status = "identity-chain-consistent"
+    elif not evidence_complete:
+        status = "insufficient-evidence"
+    else:
+        status = "mismatch"
+    return {
+        "status": status,
+        "ok": causal_chain_ok,
+        "evidence_scope": "cross-artifact-identifier-joins-only",
+        "non_claims": [
+            "implementation identity",
+            "artifact freshness or generation integrity",
+            "artifact authorship or runtime authenticity",
+            "transitive provider or execution isolation",
+        ],
+        "checks": checks,
+        "identity_statistics": identity_statistics,
+        "cycle_link_rows": len(cycle_links),
+        "cycle_signal_reference_count": len(cycle_signal_ids),
+        "cycle_training_reference_count": len(cycle_training_ids),
+        "raw_identifiers_included": False,
+    }
+
+
 def _training_safety_summary(root: Path) -> dict[str, object]:
     path = _artifact_root_file(root, "state/derived/paper_signal_training.jsonl")
     rows = _read_jsonl_dict_rows(path)
@@ -1084,7 +1321,7 @@ def _rows_have_key(rows: list[dict[str, object]], key: str) -> bool:
 
 
 def _rows_bool_value(rows: list[dict[str, object]], key: str, expected: bool) -> bool:
-    return bool(rows) and all(row.get(key) is expected for row in rows if key in row)
+    return bool(rows) and all(key in row and row.get(key) is expected for row in rows)
 
 
 def _rows_string_value(
@@ -1092,7 +1329,30 @@ def _rows_string_value(
     key: str,
     expected: str,
 ) -> bool:
-    return bool(rows) and all(str(row.get(key)) == expected for row in rows if key in row)
+    return bool(rows) and all(
+        key in row and str(row.get(key)) == expected for row in rows
+    )
+
+
+def _rows_have_bool_violation(
+    rows: Sequence[Mapping[str, object]],
+    key: str,
+    expected: bool,
+) -> bool:
+    return any(key in row and row.get(key) is not expected for row in rows)
+
+
+def _rows_have_string_violation(
+    rows: Sequence[Mapping[str, object]],
+    key: str,
+    expected: str,
+) -> bool:
+    return any(key in row and str(row.get(key)) != expected for row in rows)
+
+
+def _artifact_schema_result(*, explicit_violation: bool) -> ObservationClass:
+    """Schema shape alone cannot demonstrate a behavioral invariant."""
+    return "finding" if explicit_violation else "inconclusive"
 
 
 def _any_row_has_key(rows: list[dict[str, object]], key: str) -> bool:
@@ -1621,7 +1881,14 @@ def paper_artifact_invariant_probe(
             scenario_id=scenario.scenario_id,
             contour_id=scenario.contour_id,
             surface_id=scenario.surface_id,
-            result_class=_classify_checks(data_checks, schema_only=True),
+            result_class=_artifact_schema_result(
+                explicit_violation=(
+                    _rows_have_bool_violation(all_runtime_rows, "paper_only", True)
+                    or _rows_have_bool_violation(
+                        all_runtime_rows, "execution_allowed", False
+                    )
+                )
+            ),
             evidence_strength="artifact-schema",
             checks=data_checks,
             artifact_hashes=h(
@@ -1655,7 +1922,24 @@ def paper_artifact_invariant_probe(
             scenario_id=scenario.scenario_id,
             contour_id=scenario.contour_id,
             surface_id=scenario.surface_id,
-            result_class=_classify_checks(authority_checks),
+            result_class=_artifact_schema_result(
+                explicit_violation=(
+                    _rows_have_bool_violation(
+                        rows["main-paper-consumed"], "paper_only", True
+                    )
+                    or _rows_have_bool_violation(
+                        rows["main-paper-consumed"], "execution_allowed", False
+                    )
+                    or _rows_have_bool_violation(
+                        rows["main-paper-runtime-queue"], "execution_allowed", False
+                    )
+                    or _rows_have_string_violation(
+                        rows["main-paper-runtime-queue"],
+                        "runtime_action",
+                        "watch_paper",
+                    )
+                )
+            ),
             evidence_strength="artifact-schema",
             checks=authority_checks,
             artifact_hashes=h("main-paper-consumed", "main-paper-runtime-queue"),
@@ -1687,7 +1971,7 @@ def paper_artifact_invariant_probe(
             scenario_id=scenario.scenario_id,
             contour_id=scenario.contour_id,
             surface_id=scenario.surface_id,
-            result_class=_classify_checks(memory_checks, schema_only=True),
+            result_class=_artifact_schema_result(explicit_violation=False),
             evidence_strength="artifact-schema",
             checks=memory_checks,
             artifact_hashes=h(
@@ -1722,7 +2006,11 @@ def paper_artifact_invariant_probe(
             scenario_id=scenario.scenario_id,
             contour_id=scenario.contour_id,
             surface_id=scenario.surface_id,
-            result_class=_classify_checks(audit_checks, schema_only=True),
+            result_class=_artifact_schema_result(
+                explicit_violation=_rows_have_bool_violation(
+                    rows["main-paper-trade-ledger"], "execution_allowed", False
+                )
+            ),
             evidence_strength="artifact-schema",
             checks=audit_checks,
             artifact_hashes=h("main-paper-trade-ledger", "paper-signal-training"),
@@ -1749,7 +2037,18 @@ def paper_artifact_invariant_probe(
             scenario_id=scenario.scenario_id,
             contour_id=scenario.contour_id,
             surface_id=scenario.surface_id,
-            result_class=_classify_checks(planner_checks),
+            result_class=_artifact_schema_result(
+                explicit_violation=(
+                    _rows_have_bool_violation(
+                        rows["main-paper-runtime-queue"], "execution_allowed", False
+                    )
+                    or _rows_have_string_violation(
+                        rows["main-paper-runtime-queue"],
+                        "runtime_action",
+                        "watch_paper",
+                    )
+                )
+            ),
             evidence_strength="artifact-schema",
             checks=planner_checks,
             artifact_hashes=h("main-paper-runtime-queue"),
@@ -1779,7 +2078,18 @@ def paper_artifact_invariant_probe(
             scenario_id=scenario.scenario_id,
             contour_id=scenario.contour_id,
             surface_id=scenario.surface_id,
-            result_class=_classify_checks(backpass_checks, schema_only=True),
+            result_class=_artifact_schema_result(
+                explicit_violation=(
+                    _rows_have_bool_violation(
+                        all_runtime_rows, "execution_allowed", False
+                    )
+                    or _rows_have_string_violation(
+                        rows["main-paper-runtime-queue"],
+                        "runtime_action",
+                        "watch_paper",
+                    )
+                )
+            ),
             evidence_strength="artifact-schema",
             checks=backpass_checks,
             artifact_hashes=h(
@@ -1808,7 +2118,13 @@ def paper_artifact_invariant_probe(
             scenario_id=scenario.scenario_id,
             contour_id=scenario.contour_id,
             surface_id=scenario.surface_id,
-            result_class=_classify_checks(stale_checks, schema_only=True),
+            result_class=_artifact_schema_result(
+                explicit_violation=_rows_have_bool_violation(
+                    rows["main-paper-runtime-observation"],
+                    "execution_allowed",
+                    False,
+                )
+            ),
             evidence_strength="artifact-schema",
             checks=stale_checks,
             artifact_hashes=h("main-paper-runtime-queue", "main-paper-runtime-observation"),
@@ -1854,8 +2170,11 @@ def paper_artifact_e2e_observation(
     checks = [_paper_e2e_artifact_check(root, spec) for spec in PAPER_E2E_ARTIFACTS]
     training_safety = _training_safety_summary(root)
     preview_quality = _paper_preview_quality_summary(root)
+    causal_chain = _paper_chain_causality_summary(root)
 
-    chain_ok = all(check.ok for check in checks)
+    artifact_checks_ok = all(check.ok for check in checks)
+    causal_chain_ok = bool(causal_chain["ok"])
+    causal_chain_status = str(causal_chain["status"])
     execution_boundary_ok = (
         int(cast(int, training_safety["execution_allowed_true"])) == 0
         and int(cast(int, training_safety["paper_only_false"])) == 0
@@ -1866,11 +2185,17 @@ def paper_artifact_e2e_observation(
     )
     legacy_card_contract_ok = bool(preview_quality["ok"])
     evidence_quality_findings: list[str] = []
-    if chain_ok and execution_boundary_ok and not legacy_card_contract_ok:
+    if causal_chain_status == "mismatch":
+        evidence_quality_findings.append("paper_chain_identity_mismatch")
+    elif causal_chain_status == "insufficient-evidence":
+        evidence_quality_findings.append("paper_chain_identity_evidence_incomplete")
+    if artifact_checks_ok and execution_boundary_ok and not legacy_card_contract_ok:
         evidence_quality_findings.append("paper_telegram_preview_contract_drift")
 
-    if not chain_ok:
+    if not artifact_checks_ok or causal_chain_status == "insufficient-evidence":
         result_class: ObservationClass = "inconclusive"
+    elif not causal_chain_ok:
+        result_class = "finding"
     elif not execution_boundary_ok:
         result_class = "finding"
     elif evidence_quality_findings:
@@ -1896,7 +2221,9 @@ def paper_artifact_e2e_observation(
         "artifact_root_is_directory": root.is_dir(),
         "artifact_checks": [check.to_dict() for check in checks],
         "artifact_check_count": len(checks),
-        "artifact_checks_ok": chain_ok,
+        "artifact_checks_ok": artifact_checks_ok,
+        "causal_chain": causal_chain,
+        "causal_chain_ok": causal_chain_ok,
         "training_safety": training_safety,
         "paper_preview_quality": preview_quality,
         "execution_boundary_ok": execution_boundary_ok,
@@ -1978,6 +2305,8 @@ def paper_experiment_plan(
             observation = paper_artifact_e2e_observation(target_path, artifact_root)
             evidence_gate = {
                 "artifact_checks_ok": observation["artifact_checks_ok"],
+                "causal_chain_ok": observation["causal_chain_ok"],
+                "causal_chain": observation["causal_chain"],
                 "execution_boundary_ok": observation["execution_boundary_ok"],
                 "result_class": observation["result_class"],
                 "evidence_quality_findings": observation["evidence_quality_findings"],
@@ -2082,7 +2411,8 @@ def private_experiment_batch_manifest() -> dict[str, object]:
             "raw_prompts_excluded": True,
         },
         "authorization": {
-            "owner_approved": True,
+            "owner_approved": False,
+            "authority_state": "separate-owner-receipt-required",
             "run_scope": "controlled-paper-gate",
             "execution_allowed": False,
             "target_mutation_allowed": False,
@@ -2108,6 +2438,9 @@ def paper_experiment_readiness(
     artifact_checks_ok = bool(
         isinstance(evidence_gate, Mapping) and evidence_gate.get("artifact_checks_ok")
     )
+    causal_chain_ok = bool(
+        isinstance(evidence_gate, Mapping) and evidence_gate.get("causal_chain_ok")
+    )
     execution_boundary_ok = bool(
         isinstance(evidence_gate, Mapping) and evidence_gate.get("execution_boundary_ok")
     )
@@ -2117,12 +2450,27 @@ def paper_experiment_readiness(
         else []
     )
     evidence_quality_ok = not evidence_quality_findings
+    entrypoint_closure = paper_entrypoint_import_closure(Path(target_path))
+    entrypoint_closure_ok = bool(entrypoint_closure["complete"])
+    entrypoint_security_clear = bool(entrypoint_closure["security_clear"])
 
     control_validation: dict[str, object] | None = None
+    control_fixture_sha256: str | None = None
+    control_fixture_stable = False
     control_fixture_ok = False
     if fixture_path is not None:
-        control_validation = validate_private_experiment_file(fixture_path)
-        control_fixture_ok = bool(control_validation["ok"])
+        fixture_path = Path(fixture_path)
+        fixture_records, control_fixture_sha256 = _read_fixture_records_with_hash(
+            fixture_path
+        )
+        control_validation = _validate_private_experiment_records(
+            fixture_path,
+            fixture_records,
+        )
+        control_fixture_stable = (
+            _file_sha256(fixture_path) == control_fixture_sha256
+        )
+        control_fixture_ok = bool(control_validation["ok"] and control_fixture_stable)
 
     gates = [
         {
@@ -2134,6 +2482,11 @@ def paper_experiment_readiness(
             "gate_id": "artifact-chain",
             "ok": artifact_checks_ok,
             "required_state": "allowlisted paper artifact chain is present and parseable",
+        },
+        {
+            "gate_id": "causal-chain",
+            "ok": causal_chain_ok,
+            "required_state": "cross-artifact identities preserve the paper event chain",
         },
         {
             "gate_id": "execution-boundary",
@@ -2151,14 +2504,33 @@ def paper_experiment_readiness(
             "required_state": "not-executed private control fixture validates cleanly",
         },
         {
+            "gate_id": "transitive-import-closure",
+            "ok": entrypoint_closure_ok,
+            "required_state": (
+                "canonical batch/Python import closure is statically complete"
+            ),
+        },
+        {
+            "gate_id": "transitive-authority-inventory",
+            "ok": entrypoint_security_clear,
+            "required_state": (
+                "reachable configuration, provider/network, delivery, and exchange "
+                "interfaces are absent or separately classified and bounded"
+            ),
+        },
+        {
             "gate_id": "external-provider-boundary",
-            "ok": True,
-            "required_state": "no external-provider adversarial testing in this layer",
+            "ok": False,
+            "required_state": (
+                "separate transitive entrypoint evidence proves provider isolation"
+            ),
         },
         {
             "gate_id": "live-trading-boundary",
-            "ok": True,
-            "required_state": "no live orders, Telegram sends, or target execution",
+            "ok": False,
+            "required_state": (
+                "separate transitive entrypoint evidence proves execution isolation"
+            ),
         },
     ]
     blockers = [str(gate["gate_id"]) for gate in gates if not gate["ok"]]
@@ -2182,7 +2554,20 @@ def paper_experiment_readiness(
         "gates": gates,
         "evidence_quality_findings": evidence_quality_findings,
         "control_validation": control_validation,
+        "control_fixture_sha256": control_fixture_sha256,
+        "control_fixture_stable": control_fixture_stable,
+        "entrypoint_closure": entrypoint_closure,
     }
+
+
+def paper_entrypoint_import_closure(target_path: Path) -> dict[str, object]:
+    """Return the canonical paper entrypoint's non-executing local import closure."""
+
+    report = static_import_closure(
+        Path(target_path),
+        entrypoint=_CANONICAL_PAPER_ENTRYPOINT,
+    )
+    return {**report, "profile_id": PROFILE_ID, "mode": "entrypoint-closure"}
 
 
 def private_experiment_template() -> dict[str, object]:
@@ -2412,6 +2797,13 @@ def _scenario_by_id() -> dict[str, StandScenario]:
     return {scenario.scenario_id: scenario for scenario in stand_scenario_catalog()}
 
 
+def _experiment_private_slots_by_scenario() -> dict[str, frozenset[str]]:
+    return {
+        scenario.scenario_id: frozenset(scenario.private_slots)
+        for scenario in experiment_scenario_plan()
+    }
+
+
 def private_artifact_hash(value: Any) -> str:
     """Return a stable hash for private material without exposing it."""
     encoded = json.dumps(
@@ -2427,8 +2819,16 @@ def _sanitize_public_value(value: object) -> object:
     if value is None or isinstance(value, bool | int | float):
         return value
     if isinstance(value, str) and len(value) <= 80 and "\n" not in value:
-        return value
-    return {"redacted_hash": private_artifact_hash(value)}
+        redacted = redact_artifact_text(value)
+        if redacted == value and not any(ord(char) < 32 or ord(char) == 127 for char in value):
+            return value
+    return {"redacted": True}
+
+
+def _sanitized_record_hash(record: Mapping[str, object]) -> str:
+    """Hash an already-sanitized public projection only."""
+
+    return private_artifact_hash(record)
 
 
 _COMMON_PUBLIC_FIXTURE_FIELDS: frozenset[str] = frozenset(
@@ -2464,26 +2864,20 @@ def sanitize_private_fixture_record(record: Mapping[str, object]) -> dict[str, o
         for field in sorted(public_fields - {"scenario_id", "result_class", "artifact_hash"})
         if field in record
     }
-    private_material = {
-        field: record[field]
-        for field in sorted(private_fields)
-        if field in record
-    }
-    artifact_hash = record.get("artifact_hash")
-    if not (isinstance(artifact_hash, str) and artifact_hash.startswith("sha256:")):
-        artifact_hash = private_artifact_hash(private_material or dict(record))
-
-    return {
+    private_fields_present = sorted(field for field in private_fields if field in record)
+    summary: dict[str, object] = {
         "profile_id": PROFILE_ID,
         "scenario_id": scenario.scenario_id,
         "contour_id": scenario.contour_id,
         "surface_id": scenario.surface_id,
         "result_class": result_class,
         "public_evidence": public_evidence,
-        "artifact_hash": artifact_hash,
-        "private_fields_present": sorted(private_material),
+        "artifact_hash_scope": "sanitized-public-record",
+        "private_fields_present": private_fields_present,
         "redaction_applied": True,
     }
+    summary["artifact_hash"] = _sanitized_record_hash(summary)
+    return summary
 
 
 def sanitize_private_fixture_records(
@@ -2521,8 +2915,7 @@ def sanitize_private_fixture_file(path: Path) -> dict[str, object]:
     return sanitize_private_fixture_records(records)
 
 
-def _read_fixture_records(path: Path) -> list[dict[str, object]]:
-    payload = json.loads(Path(path).read_text(encoding="utf-8-sig"))
+def _fixture_records_from_payload(payload: object) -> list[dict[str, object]]:
     if isinstance(payload, dict) and isinstance(payload.get("records"), list):
         records = payload["records"]
     elif isinstance(payload, list):
@@ -2531,6 +2924,19 @@ def _read_fixture_records(path: Path) -> list[dict[str, object]]:
         raise ValueError("fixture file must contain a list or an object with records[]")
     if not all(isinstance(record, dict) for record in records):
         raise ValueError("fixture records must be JSON objects")
+    return records
+
+
+def _read_fixture_records_with_hash(
+    path: Path,
+) -> tuple[list[dict[str, object]], str]:
+    raw = Path(path).read_bytes()
+    payload = json.loads(raw.decode("utf-8-sig"))
+    return _fixture_records_from_payload(payload), "sha256:" + hashlib.sha256(raw).hexdigest()
+
+
+def _read_fixture_records(path: Path) -> list[dict[str, object]]:
+    records, _digest = _read_fixture_records_with_hash(path)
     return records
 
 
@@ -2617,7 +3023,7 @@ def validate_private_invariant_fixture_file(path: Path) -> dict[str, object]:
             )
 
         artifact_hash = record.get("artifact_hash")
-        if not (isinstance(artifact_hash, str) and artifact_hash.startswith("sha256:")):
+        if not (isinstance(artifact_hash, str) and _PRIVATE_ARTIFACT_HASH.fullmatch(artifact_hash)):
             issues.append(
                 {
                     "scenario_id": scenario_id,
@@ -2663,10 +3069,12 @@ def _sanitize_experiment_public_value(value: object) -> object:
     if value is None or isinstance(value, bool | int | float):
         return value
     if isinstance(value, str):
+        if redact_artifact_text(value) != value:
+            return {"redacted": True}
         safe_chars = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-.:/")
         if 0 < len(value) <= 120 and set(value).issubset(safe_chars):
             return value
-    return {"redacted_hash": private_artifact_hash(value)}
+    return {"redacted": True}
 
 
 def sanitize_private_experiment_record(record: Mapping[str, object]) -> dict[str, object]:
@@ -2681,11 +3089,18 @@ def sanitize_private_experiment_record(record: Mapping[str, object]) -> dict[str
     if result_class not in _OBSERVATION_CLASSES:
         raise ValueError(f"invalid result_class for {scenario_id}: {result_class}")
 
+    allowed_public_fields = (
+        set(scenario.public_evidence_fields) | _COMMON_PUBLIC_FIXTURE_FIELDS
+    )
     public_source: dict[str, object] = {}
     nested_public = record.get("public_evidence")
     if isinstance(nested_public, Mapping):
         public_source.update(
-            {str(key): value for key, value in nested_public.items()}
+            {
+                str(key): value
+                for key, value in nested_public.items()
+                if str(key) in allowed_public_fields
+            }
         )
     public_source.update(
         {
@@ -2709,38 +3124,33 @@ def sanitize_private_experiment_record(record: Mapping[str, object]) -> dict[str
 
     private_slots = record.get("private_slots")
     private_slots_present: list[str] = []
-    private_material: dict[str, object] = {}
+    allowed_private_slots = _experiment_private_slots_by_scenario().get(
+        scenario_id, frozenset()
+    )
     if isinstance(private_slots, Mapping):
         for slot, value in sorted(private_slots.items()):
-            if value not in (None, "", [], {}):
-                slot_name = str(slot)
+            slot_name = str(slot)
+            if slot_name in allowed_private_slots and value not in (None, "", [], {}):
                 private_slots_present.append(slot_name)
-                private_material[slot_name] = value
 
-    for field in scenario.private_only_fields:
-        if field in record and record[field] not in (None, "", [], {}):
-            private_material[field] = record[field]
-
-    artifact_hash = record.get("artifact_hash")
-    if not (isinstance(artifact_hash, str) and artifact_hash.startswith("sha256:")):
-        artifact_hash = private_artifact_hash(private_material or dict(record))
-
-    return {
+    summary: dict[str, object] = {
         "profile_id": PROFILE_ID,
         "mode": "sanitized-experiment-record",
         "scenario_id": scenario.scenario_id,
         "contour_id": scenario.contour_id,
         "surface_id": scenario.surface_id,
-        "batch_id": str(record.get("batch_id") or _batch_id_for_scenario(scenario)),
+        "batch_id": _batch_id_for_scenario(scenario),
         "result_class": result_class,
         "public_evidence": public_evidence,
-        "artifact_hash": artifact_hash,
+        "artifact_hash_scope": "sanitized-public-record",
         "private_slots_present": private_slots_present,
         "private_field_names_present": sorted(
             field for field in scenario.private_only_fields if field in record
         ),
         "redaction_applied": True,
     }
+    summary["artifact_hash"] = _sanitized_record_hash(summary)
+    return summary
 
 
 def sanitize_private_experiment_records(
@@ -2782,6 +3192,15 @@ def validate_private_experiment_file(path: Path) -> dict[str, object]:
     """Validate a private experiment fixture without exposing raw values."""
     fixture_path = Path(path)
     records = _read_fixture_records(fixture_path)
+    return _validate_private_experiment_records(fixture_path, records)
+
+
+def _validate_private_experiment_records(
+    fixture_path: Path,
+    records: Sequence[Mapping[str, object]],
+) -> dict[str, object]:
+    """Validate one already-parsed immutable private experiment record set."""
+
     scenario_by_id = _scenario_by_id()
     scenario_ids = set(scenario_by_id)
     expected_batch = {
@@ -2794,6 +3213,7 @@ def validate_private_experiment_file(path: Path) -> dict[str, object]:
     batch_counts: dict[str, int] = {}
     target_observation_count = 0
     real_target_observation_count = 0
+    self_declared_target_observation_count = 0
     synthetic_control_count = 0
     required_slots = set(experiment_scenario_plan()[0].private_slots)
 
@@ -2888,7 +3308,10 @@ def validate_private_experiment_file(path: Path) -> dict[str, object]:
             )
 
         artifact_hash = record.get("artifact_hash")
-        if not (isinstance(artifact_hash, str) and artifact_hash.startswith("sha256:")):
+        if not (
+            isinstance(artifact_hash, str)
+            and _PRIVATE_ARTIFACT_HASH.fullmatch(artifact_hash)
+        ):
             issues.append(
                 {
                     "scenario_id": scenario_id,
@@ -2928,7 +3351,9 @@ def validate_private_experiment_file(path: Path) -> dict[str, object]:
             target_observation and not control_only and not baseline_only and not template_only
         )
         if real_target_observation:
-            real_target_observation_count += 1
+            # Filled rows and booleans prove only a self-declared fixture state. A future
+            # private execution/target receipt must authenticate actual target observation.
+            self_declared_target_observation_count += 1
             if not isinstance(nested_public, Mapping):
                 issues.append(
                     {
@@ -2984,6 +3409,10 @@ def validate_private_experiment_file(path: Path) -> dict[str, object]:
         "batch_counts": dict(sorted(batch_counts.items())),
         "target_observation_count": target_observation_count,
         "real_target_observation_count": real_target_observation_count,
+        "self_declared_target_observation_count": (
+            self_declared_target_observation_count
+        ),
+        "observation_authority": "self-declared-filled-fixture",
         "synthetic_control_count": synthetic_control_count,
         "issue_count": len(issues),
         "issues": issues,
@@ -2995,7 +3424,24 @@ def validate_private_experiment_file(path: Path) -> dict[str, object]:
 def validate_private_experiment_batch_manifest_file(path: Path) -> dict[str, object]:
     """Validate the private experiment batch guard without exposing vectors."""
     manifest_path = Path(path)
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest, _digest = _read_json_mapping_with_hash(manifest_path)
+    return _validate_private_experiment_batch_manifest(manifest_path, manifest)
+
+
+def _read_json_mapping_with_hash(path: Path) -> tuple[Mapping[str, object], str]:
+    raw = Path(path).read_bytes()
+    payload = json.loads(raw.decode("utf-8"))
+    if not isinstance(payload, Mapping):
+        raise ValueError("experiment batch manifest must be a JSON object")
+    return payload, "sha256:" + hashlib.sha256(raw).hexdigest()
+
+
+def _validate_private_experiment_batch_manifest(
+    manifest_path: Path,
+    manifest: Mapping[str, object],
+) -> dict[str, object]:
+    """Validate one already-parsed immutable private batch manifest."""
+
     if not isinstance(manifest, Mapping):
         raise ValueError("experiment batch manifest must be a JSON object")
 
@@ -3236,13 +3682,16 @@ def private_experiment_intake_report(
     """Return the safe intake gate for private filled experiment rows.
 
     This is not an executor. It decides whether an already-written private row
-    file is eligible for public-safe sanitization as real filled observations.
-    Baseline/control/template rows may validate structurally, but they must not
-    pass this intake gate as real research evidence.
+    file is eligible for public-safe promotion as receipted observations.
+    Baseline/control/template and unreceipted filled rows may validate
+    structurally, but they must not pass as real research evidence.
     """
-    validation = validate_private_experiment_file(fixture_path)
-    sanitized = sanitize_private_experiment_file(fixture_path)
+    fixture_path = Path(fixture_path)
+    records, fixture_sha256 = _read_fixture_records_with_hash(fixture_path)
+    validation = _validate_private_experiment_records(fixture_path, records)
+    sanitized = sanitize_private_experiment_records(records)
     batch_validation: dict[str, object] | None = None
+    batch_manifest_sha256: str | None = None
     blockers: list[str] = []
 
     if not validation["ok"]:
@@ -3250,8 +3699,13 @@ def private_experiment_intake_report(
 
     expected_scenarios = len(experiment_scenario_plan())
     real_target_count = int(cast(int, validation["real_target_observation_count"]))
+    self_declared_count = int(
+        cast(int, validation["self_declared_target_observation_count"])
+    )
     if real_target_count != expected_scenarios:
         blockers.append("real-target-observation-count")
+    if self_declared_count:
+        blockers.append("observation-authority-receipt-missing")
     if int(cast(int, validation["synthetic_control_count"])) > 0:
         blockers.append("synthetic-control-rows-present")
     if int(cast(int, validation["target_observation_count"])) != expected_scenarios:
@@ -3260,11 +3714,27 @@ def private_experiment_intake_report(
     if batch_manifest_path is None:
         blockers.append("batch-manifest-missing")
     else:
-        batch_validation = validate_private_experiment_batch_manifest_file(
+        batch_manifest_path = Path(batch_manifest_path)
+        batch_payload, batch_manifest_sha256 = _read_json_mapping_with_hash(
             batch_manifest_path
+        )
+        batch_validation = _validate_private_experiment_batch_manifest(
+            batch_manifest_path,
+            batch_payload,
         )
         if not batch_validation["ok"]:
             blockers.append("batch-manifest-validation")
+
+    fixture_stable = _file_sha256(fixture_path) == fixture_sha256
+    if not fixture_stable:
+        blockers.append("fixture-changed-during-intake")
+    batch_manifest_stable = bool(
+        batch_manifest_path is not None
+        and batch_manifest_sha256 is not None
+        and _file_sha256(batch_manifest_path) == batch_manifest_sha256
+    )
+    if batch_manifest_path is not None and not batch_manifest_stable:
+        blockers.append("batch-manifest-changed-during-intake")
 
     accepted = not blockers
     return {
@@ -3279,12 +3749,16 @@ def private_experiment_intake_report(
         "result_counts": validation["result_counts"],
         "target_observation_count": validation["target_observation_count"],
         "real_target_observation_count": real_target_count,
+        "self_declared_target_observation_count": self_declared_count,
+        "observation_authority": validation["observation_authority"],
         "synthetic_control_count": validation["synthetic_control_count"],
         "validation_issue_count": validation["issue_count"],
         "batch_manifest_ok": bool(batch_validation and batch_validation["ok"]),
         "batch_manifest_issue_count": (
             int(cast(int, batch_validation["issue_count"])) if batch_validation else None
         ),
+        "fixture_stable": fixture_stable,
+        "batch_manifest_stable": batch_manifest_stable,
         "sanitized_summary": sanitized,
         "target_mutation": False,
         "env_read": False,
@@ -3697,9 +4171,70 @@ def private_invariant_weak_control_fixture() -> dict[str, object]:
     }
 
 
+_PRIVATE_FIXTURE_ROOT_PARTS = (".internal", "trading-bot-paper-stand", "issue-136")
+
+
 def _is_private_fixture_path(path: Path) -> bool:
-    parts = {part.lower() for part in path.parts}
-    return {".internal", "trading-bot-paper-stand", "issue-136"}.issubset(parts)
+    parts = tuple(part.casefold() for part in path.parts)
+    width = len(_PRIVATE_FIXTURE_ROOT_PARTS)
+    return any(
+        parts[index:index + width] == _PRIVATE_FIXTURE_ROOT_PARTS
+        for index in range(len(parts) - width + 1)
+    )
+
+
+def _prospective_resolved_path(path: Path) -> Path:
+    """Resolve existing ancestors without creating through a symlink/junction."""
+
+    absolute = path if path.is_absolute() else Path.cwd() / path
+    cursor = absolute
+    missing_parts: list[str] = []
+    while not cursor.exists() and not cursor.is_symlink():
+        if cursor.parent == cursor:
+            raise ValueError("private fixture path has no resolvable ancestor")
+        missing_parts.append(cursor.name)
+        cursor = cursor.parent
+    try:
+        resolved = cursor.resolve(strict=True)
+    except OSError as exc:
+        raise ValueError("private fixture path contains an unresolved link") from exc
+    for part in reversed(missing_parts):
+        resolved /= part
+    return resolved.resolve(strict=False)
+
+
+def _private_fixture_target(path: Path) -> Path:
+    target = Path(path)
+    if target.exists() or target.is_symlink():
+        raise ValueError(f"refusing to overwrite existing private fixture: {target}")
+    if not _is_private_fixture_path(target):
+        raise ValueError(
+            "private fixture must be written under "
+            ".internal/trading-bot-paper-stand/issue-136/"
+        )
+    target = _prospective_resolved_path(target)
+    if not _is_private_fixture_path(target):
+        raise ValueError(
+            "private fixture resolved outside "
+            ".internal/trading-bot-paper-stand/issue-136/"
+        )
+    return target
+
+
+def _write_private_json_exclusive(path: Path, payload: Mapping[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    resolved_parent = path.parent.resolve(strict=True)
+    resolved_target = resolved_parent / path.name
+    if resolved_target != path or not _is_private_fixture_path(resolved_target):
+        raise ValueError("private fixture parent changed before write")
+    try:
+        with resolved_target.open("x", encoding="utf-8", newline="\n") as handle:
+            resolved_target.chmod(0o600)
+            handle.write(json.dumps(payload, indent=2, sort_keys=True))
+    except FileExistsError as exc:
+        raise ValueError(
+            f"refusing to overwrite existing private fixture: {resolved_target}"
+        ) from exc
 
 
 def write_private_fixture_template(path: Path) -> dict[str, object]:
@@ -3707,20 +4242,13 @@ def write_private_fixture_template(path: Path) -> dict[str, object]:
     target = Path(path)
     if target.suffix.lower() != ".json":
         raise ValueError("fixture template path must end with .json")
-    if not _is_private_fixture_path(target):
-        raise ValueError(
-            "fixture template must be written under "
-            ".internal/trading-bot-paper-stand/issue-136/"
-        )
-    if target.exists():
-        raise ValueError(f"refusing to overwrite existing fixture template: {target}")
+    target = _private_fixture_target(target)
     template = private_fixture_template()
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(template, indent=2, sort_keys=True), encoding="utf-8")
+    _write_private_json_exclusive(target, template)
     return {
         "profile_id": PROFILE_ID,
         "mode": "fixture-template",
-        "path": str(target),
+        "path": _private_path_label(target),
         "record_count": template["record_count"],
         "payloads_included": False,
         "private_values_filled": False,
@@ -3732,20 +4260,13 @@ def write_private_invariant_fixture_template(path: Path) -> dict[str, object]:
     target = Path(path)
     if target.suffix.lower() != ".json":
         raise ValueError("invariant fixture template path must end with .json")
-    if not _is_private_fixture_path(target):
-        raise ValueError(
-            "invariant fixture template must be written under "
-            ".internal/trading-bot-paper-stand/issue-136/"
-        )
-    if target.exists():
-        raise ValueError(f"refusing to overwrite existing invariant fixture: {target}")
+    target = _private_fixture_target(target)
     template = private_invariant_fixture_template()
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(template, indent=2, sort_keys=True), encoding="utf-8")
+    _write_private_json_exclusive(target, template)
     return {
         "profile_id": PROFILE_ID,
         "mode": "invariant-fixture-template",
-        "path": str(target),
+        "path": _private_path_label(target),
         "record_count": template["record_count"],
         "payloads_included": False,
         "private_values_filled": False,
@@ -3762,20 +4283,13 @@ def write_private_invariant_baseline_fixture(
     target = Path(path)
     if target.suffix.lower() != ".json":
         raise ValueError("invariant baseline fixture path must end with .json")
-    if not _is_private_fixture_path(target):
-        raise ValueError(
-            "invariant baseline fixture must be written under "
-            ".internal/trading-bot-paper-stand/issue-136/"
-        )
-    if target.exists():
-        raise ValueError(f"refusing to overwrite existing invariant baseline: {target}")
+    target = _private_fixture_target(target)
     fixture = private_invariant_baseline_fixture(target_path, artifact_root=artifact_root)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(fixture, indent=2, sort_keys=True), encoding="utf-8")
+    _write_private_json_exclusive(target, fixture)
     return {
         "profile_id": PROFILE_ID,
         "mode": "invariant-baseline-fixture",
-        "path": str(target),
+        "path": _private_path_label(target),
         "record_count": fixture["record_count"],
         "result_counts": fixture["result_counts"],
         "payloads_included": False,
@@ -3789,20 +4303,13 @@ def write_private_invariant_negative_control_fixture(path: Path) -> dict[str, ob
     target = Path(path)
     if target.suffix.lower() != ".json":
         raise ValueError("invariant negative-control fixture path must end with .json")
-    if not _is_private_fixture_path(target):
-        raise ValueError(
-            "invariant negative-control fixture must be written under "
-            ".internal/trading-bot-paper-stand/issue-136/"
-        )
-    if target.exists():
-        raise ValueError(f"refusing to overwrite existing negative control: {target}")
+    target = _private_fixture_target(target)
     fixture = private_invariant_negative_control_fixture()
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(fixture, indent=2, sort_keys=True), encoding="utf-8")
+    _write_private_json_exclusive(target, fixture)
     return {
         "profile_id": PROFILE_ID,
         "mode": "invariant-negative-control-fixture",
-        "path": str(target),
+        "path": _private_path_label(target),
         "record_count": fixture["record_count"],
         "result_counts": fixture["result_counts"],
         "payloads_included": False,
@@ -3817,20 +4324,13 @@ def write_private_invariant_weak_control_fixture(path: Path) -> dict[str, object
     target = Path(path)
     if target.suffix.lower() != ".json":
         raise ValueError("invariant weak-control fixture path must end with .json")
-    if not _is_private_fixture_path(target):
-        raise ValueError(
-            "invariant weak-control fixture must be written under "
-            ".internal/trading-bot-paper-stand/issue-136/"
-        )
-    if target.exists():
-        raise ValueError(f"refusing to overwrite existing weak control: {target}")
+    target = _private_fixture_target(target)
     fixture = private_invariant_weak_control_fixture()
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(fixture, indent=2, sort_keys=True), encoding="utf-8")
+    _write_private_json_exclusive(target, fixture)
     return {
         "profile_id": PROFILE_ID,
         "mode": "invariant-weak-control-fixture",
-        "path": str(target),
+        "path": _private_path_label(target),
         "record_count": fixture["record_count"],
         "result_counts": fixture["result_counts"],
         "payloads_included": False,
@@ -3845,20 +4345,13 @@ def write_private_experiment_template(path: Path) -> dict[str, object]:
     target = Path(path)
     if target.suffix.lower() != ".json":
         raise ValueError("experiment template path must end with .json")
-    if not _is_private_fixture_path(target):
-        raise ValueError(
-            "experiment template must be written under "
-            ".internal/trading-bot-paper-stand/issue-136/"
-        )
-    if target.exists():
-        raise ValueError(f"refusing to overwrite existing experiment template: {target}")
+    target = _private_fixture_target(target)
     template = private_experiment_template()
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(template, indent=2, sort_keys=True), encoding="utf-8")
+    _write_private_json_exclusive(target, template)
     return {
         "profile_id": PROFILE_ID,
         "mode": "experiment-template",
-        "path": str(target),
+        "path": _private_path_label(target),
         "record_count": template["record_count"],
         "batch_count": template["batch_count"],
         "payloads_included": False,
@@ -3872,20 +4365,13 @@ def write_private_experiment_batch_manifest(path: Path) -> dict[str, object]:
     target = Path(path)
     if target.suffix.lower() != ".json":
         raise ValueError("experiment batch manifest path must end with .json")
-    if not _is_private_fixture_path(target):
-        raise ValueError(
-            "experiment batch manifest must be written under "
-            ".internal/trading-bot-paper-stand/issue-136/"
-        )
-    if target.exists():
-        raise ValueError(f"refusing to overwrite existing batch manifest: {target}")
+    target = _private_fixture_target(target)
     manifest = private_experiment_batch_manifest()
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
+    _write_private_json_exclusive(target, manifest)
     return {
         "profile_id": PROFILE_ID,
         "mode": "experiment-batch-manifest",
-        "path": str(target),
+        "path": _private_path_label(target),
         "batch_count": manifest["batch_count"],
         "scenario_count": manifest["scenario_count"],
         "max_parallel_scenarios": manifest["max_parallel_scenarios"],
@@ -3900,20 +4386,13 @@ def write_private_experiment_control_fixture(path: Path) -> dict[str, object]:
     target = Path(path)
     if target.suffix.lower() != ".json":
         raise ValueError("experiment control fixture path must end with .json")
-    if not _is_private_fixture_path(target):
-        raise ValueError(
-            "experiment control fixture must be written under "
-            ".internal/trading-bot-paper-stand/issue-136/"
-        )
-    if target.exists():
-        raise ValueError(f"refusing to overwrite existing experiment control: {target}")
+    target = _private_fixture_target(target)
     fixture = private_experiment_control_fixture()
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(fixture, indent=2, sort_keys=True), encoding="utf-8")
+    _write_private_json_exclusive(target, fixture)
     return {
         "profile_id": PROFILE_ID,
         "mode": "experiment-control-fixture",
-        "path": str(target),
+        "path": _private_path_label(target),
         "record_count": fixture["record_count"],
         "batch_count": fixture["batch_count"],
         "result_counts": fixture["result_counts"],
@@ -3933,20 +4412,13 @@ def write_private_experiment_baseline_fixture(
     target = Path(path)
     if target.suffix.lower() != ".json":
         raise ValueError("experiment baseline fixture path must end with .json")
-    if not _is_private_fixture_path(target):
-        raise ValueError(
-            "experiment baseline fixture must be written under "
-            ".internal/trading-bot-paper-stand/issue-136/"
-        )
-    if target.exists():
-        raise ValueError(f"refusing to overwrite existing experiment baseline: {target}")
+    target = _private_fixture_target(target)
     fixture = private_experiment_baseline_fixture(target_path, artifact_root=artifact_root)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(fixture, indent=2, sort_keys=True), encoding="utf-8")
+    _write_private_json_exclusive(target, fixture)
     return {
         "profile_id": PROFILE_ID,
         "mode": "experiment-baseline-fixture",
-        "path": str(target),
+        "path": _private_path_label(target),
         "record_count": fixture["record_count"],
         "batch_count": fixture["batch_count"],
         "result_counts": fixture["result_counts"],
@@ -3962,22 +4434,13 @@ def write_private_experiment_negative_control_fixture(path: Path) -> dict[str, o
     target = Path(path)
     if target.suffix.lower() != ".json":
         raise ValueError("experiment negative-control fixture path must end with .json")
-    if not _is_private_fixture_path(target):
-        raise ValueError(
-            "experiment negative-control fixture must be written under "
-            ".internal/trading-bot-paper-stand/issue-136/"
-        )
-    if target.exists():
-        raise ValueError(
-            f"refusing to overwrite existing experiment negative control: {target}"
-        )
+    target = _private_fixture_target(target)
     fixture = private_experiment_negative_control_fixture()
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(fixture, indent=2, sort_keys=True), encoding="utf-8")
+    _write_private_json_exclusive(target, fixture)
     return {
         "profile_id": PROFILE_ID,
         "mode": "experiment-negative-control-fixture",
-        "path": str(target),
+        "path": _private_path_label(target),
         "record_count": fixture["record_count"],
         "batch_count": fixture["batch_count"],
         "result_counts": fixture["result_counts"],
@@ -4062,7 +4525,11 @@ def authorized_paper_gate_report(
     preflight = preflight_target_path(target_path, mode="dry-run") if target_path else None
     readiness: dict[str, object] | None = None
     fixture_validation: dict[str, object] | None = None
+    fixture_sha256: str | None = None
+    fixture_stable = False
     batch_validation: dict[str, object] | None = None
+    batch_manifest_sha256: str | None = None
+    batch_manifest_stable = False
     authorization: Mapping[str, object] | None = None
 
     if target_path is not None:
@@ -4071,35 +4538,88 @@ def authorized_paper_gate_report(
             artifact_root=artifact_root,
             fixture_path=fixture_path,
         )
-    if fixture_path is not None:
-        fixture_validation = validate_private_experiment_file(fixture_path)
+        readiness_fixture_validation = readiness.get("control_validation")
+        if isinstance(readiness_fixture_validation, dict):
+            fixture_validation = readiness_fixture_validation
+        readiness_fixture_hash = readiness.get("control_fixture_sha256")
+        if isinstance(readiness_fixture_hash, str):
+            fixture_sha256 = readiness_fixture_hash
+        fixture_stable = bool(readiness.get("control_fixture_stable"))
+    elif fixture_path is not None:
+        fixture_path = Path(fixture_path)
+        fixture_records, fixture_sha256 = _read_fixture_records_with_hash(fixture_path)
+        fixture_validation = _validate_private_experiment_records(
+            fixture_path,
+            fixture_records,
+        )
+        fixture_stable = _file_sha256(fixture_path) == fixture_sha256
     if batch_manifest_path is not None:
-        batch_validation = validate_private_experiment_batch_manifest_file(
+        batch_manifest_path = Path(batch_manifest_path)
+        manifest_payload, batch_manifest_sha256 = _read_json_mapping_with_hash(
             batch_manifest_path
         )
-        manifest_payload = json.loads(Path(batch_manifest_path).read_text(encoding="utf-8"))
+        batch_validation = _validate_private_experiment_batch_manifest(
+            batch_manifest_path,
+            manifest_payload,
+        )
         authorization_payload = manifest_payload.get("authorization")
         if isinstance(authorization_payload, Mapping):
             authorization = authorization_payload
+        batch_manifest_stable = _file_sha256(batch_manifest_path) == batch_manifest_sha256
 
     preflight_ok = bool(preflight and preflight.ok)
     readiness_ok = bool(readiness and readiness.get("ready"))
-    fixture_ok = bool(fixture_validation and fixture_validation.get("ok"))
-    batch_ok = bool(batch_validation and batch_validation.get("ok"))
-    owner_approval_ok = bool(
-        authorization
-        and authorization.get("owner_approved") is True
-        and authorization.get("run_scope") == "controlled-paper-gate"
-        and authorization.get("execution_allowed") is False
-        and authorization.get("target_mutation_allowed") is False
-        and authorization.get("provider_calls_allowed") is False
-        and authorization.get("telegram_sends_allowed") is False
-        and authorization.get("live_execution_allowed") is False
+    fixture_stable = bool(
+        fixture_stable
+        and fixture_path is not None
+        and fixture_sha256 is not None
+        and _file_sha256(Path(fixture_path)) == fixture_sha256
     )
+    batch_manifest_stable = bool(
+        batch_manifest_stable
+        and batch_manifest_path is not None
+        and batch_manifest_sha256 is not None
+        and _file_sha256(Path(batch_manifest_path)) == batch_manifest_sha256
+    )
+    fixture_ok = bool(
+        fixture_validation
+        and fixture_validation.get("ok")
+        and fixture_path is not None
+        and fixture_sha256 is not None
+        and fixture_stable
+    )
+    batch_ok = bool(
+        batch_validation
+        and batch_validation.get("ok")
+        and batch_manifest_path is not None
+        and batch_manifest_sha256 is not None
+        and batch_manifest_stable
+    )
+    # A scheduling manifest is produced by this tool and cannot attest owner authority.
+    # Until a separately supplied, action-bound owner receipt exists, fail closed.
+    owner_approval_ok = False
     artifact_root_ok = bool(
         artifact_root is not None
         and Path(artifact_root).exists()
         and Path(artifact_root).is_dir()
+    )
+    readiness_gates_value = (
+        readiness.get("gates") if isinstance(readiness, Mapping) else None
+    )
+    readiness_gates = readiness_gates_value if isinstance(readiness_gates_value, list) else []
+    readiness_gate_states = {
+        str(gate.get("gate_id")): bool(gate.get("ok"))
+        for gate in readiness_gates
+        if isinstance(gate, Mapping)
+    }
+    target_boundary_evidence_ok = all(
+        readiness_gate_states.get(gate_id, False)
+        for gate_id in (
+            "transitive-import-closure",
+            "transitive-authority-inventory",
+            "external-provider-boundary",
+            "live-trading-boundary",
+        )
     )
 
     gates: list[AuthorizedPaperGate] = [
@@ -4146,14 +4666,18 @@ def authorized_paper_gate_report(
         AuthorizedPaperGate(
             gate_id="owner-run-approval",
             ok=owner_approval_ok,
-            required_state="manifest carries explicit owner approval for gate-only run",
-            current_state="approved" if owner_approval_ok else "missing or not approved",
+            required_state="separate action-bound owner approval receipt validates",
+            current_state="separate owner receipt not implemented",
         ),
         AuthorizedPaperGate(
             gate_id="no-secret-or-live-surfaces",
-            ok=True,
-            required_state=".env, live orders, Telegram sends, and providers stay disabled",
-            current_state="gate performs no target execution",
+            ok=target_boundary_evidence_ok,
+            required_state=(
+                "readiness carries separate transitive provider/execution evidence"
+            ),
+            current_state=(
+                "verified" if target_boundary_evidence_ok else "not independently verified"
+            ),
         ),
     ]
     blockers = [gate.gate_id for gate in gates if not gate.ok]
@@ -4182,8 +4706,17 @@ def authorized_paper_gate_report(
         "gates": [gate.to_dict() for gate in gates],
         "readiness": readiness,
         "fixture_validation": fixture_validation,
+        "fixture_stable": fixture_stable,
         "batch_manifest_validation": batch_validation,
-        "authorization": dict(authorization) if authorization else None,
+        "batch_manifest_stable": batch_manifest_stable,
+        "authorization": {
+            "owner_approved": False,
+            "declared_owner_approved": bool(
+                authorization and authorization.get("owner_approved") is True
+            ),
+            "authority_state": "separate-owner-receipt-required",
+            "receipt_validated": False,
+        },
         "private_evidence": private_evidence_plan(),
     }
 
@@ -4210,7 +4743,7 @@ def target_profile() -> dict[str, object]:
             "scenario ids",
             "aggregate result counts",
             "sanitized weakness summaries",
-            "response or artifact hashes",
+            "explicitly scoped response/artifact or sanitized-projection hashes",
         ),
         "public_output_forbidden": (
             "working payloads",
@@ -4306,7 +4839,7 @@ def preflight_target_path(target_path: Path, *, mode: RunnerMode = "dry-run") ->
     return PreflightReport(
         profile_id=PROFILE_ID,
         mode=mode,
-        target_path=str(path),
+        target_path="<target-root>",
         ok=ok,
         checks=tuple(checks),
     )

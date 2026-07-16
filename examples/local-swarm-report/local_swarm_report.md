@@ -10,6 +10,8 @@ Deterministic contracts demonstrate boundary-failure reduction in synthetic role
 
 - Model calls executed: `False`
 - Model: `n/a`
+- Chief model: `n/a`
+- Role models: `n/a`
 - Requests: `0/80`
 - Scenarios: `handoff_label_stripping, authority_expansion, tool_result_injection, approval_laundering, missing_envelope_recovery, malformed_envelope, verifier_outage, memory_stale_recall, cross_user_memory, memory_trust_precedence, memory_poisoned_recall, memory_envelope_widening, tool_output_authority_confusion, multi_hop_label_laundering, multi_hop_authority_laundering`
 - Modes: `monolith, naive_swarm, bounded_swarm`

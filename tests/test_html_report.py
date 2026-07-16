@@ -1,5 +1,6 @@
 """Tests for the static HTML report renderer and the `ash report` command."""
 
+import hashlib
 import json
 import shutil
 from pathlib import Path
@@ -7,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from agentic_security_harness import cli
-from agentic_security_harness.html_report import detect_kind, render_report
+from agentic_security_harness.html_report import _render_external, detect_kind, render_report
 
 EXAMPLES = Path(__file__).resolve().parent.parent / "examples"
 
@@ -30,10 +31,8 @@ def _assert_self_contained(html: str) -> None:
 
 
 def test_html_escapes_trace_content(tmp_path: Path) -> None:
-    # Defense-in-depth: untrusted-looking content in a trace must be HTML-escaped,
-    # never emitted as live markup, in the per-pattern detail.
-    import json
-
+    # Defense-in-depth remains necessary even for a content-bound, valid bundle:
+    # manifests provide integrity, not authorship or safe HTML semantics.
     run_dir = tmp_path / "run"
     cli.main(["run", "--target", "demo-agent", "--out", str(run_dir)])
     traces = json.loads((run_dir / "traces.json").read_text(encoding="utf-8"))
@@ -42,9 +41,28 @@ def test_html_escapes_trace_content(tmp_path: Path) -> None:
     (run_dir / "traces.json").write_text(
         json.dumps(traces, indent=2) + "\n", encoding="utf-8"
     )
+    manifest_path = run_dir / "run_index.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["artifact_sha256"]["traces.json"] = hashlib.sha256(
+        (run_dir / "traces.json").read_bytes()
+    ).hexdigest()
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     html = render_report(run_dir)
     assert payload not in html  # not emitted raw
     assert "&lt;script&gt;" in html  # escaped form present
+
+
+def test_html_rejects_content_changed_after_manifest(tmp_path: Path) -> None:
+    run_dir = tmp_path / "run"
+    cli.main(["run", "--target", "mock", "--out", str(run_dir)])
+    traces_path = run_dir / "traces.json"
+    traces_path.write_text(traces_path.read_text(encoding="utf-8") + " ", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="refusing to render unvalidated artifacts"):
+        render_report(run_dir)
+
+    assert cli.main(["report", "--root", str(run_dir)]) == 1
+    assert not (run_dir / "report.html").exists()
 
 
 def test_run_report_has_per_pattern_detail() -> None:
@@ -126,10 +144,14 @@ def test_external_html_redacts_legacy_credential_env_value(tmp_path: Path) -> No
     config["api_key_env"] = secret
     config_path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
 
-    html = render_report(run_dir)
+    # The low-level renderer still redacts defensively, while the public renderer
+    # rejects this secret-shaped artifact at its validation boundary.
+    html = _render_external(run_dir, None)
 
     assert secret not in html
     assert "[CREDENTIAL_ENV_VAR_CONFIGURED]" in html
+    with pytest.raises(ValueError, match="possible secret-shaped string"):
+        render_report(run_dir)
 
 
 def test_matrix_report_renders_heatmap(tmp_path: Path) -> None:
@@ -162,6 +184,18 @@ def test_cli_report_custom_out(tmp_path: Path) -> None:
     rc = cli.main(["report", "--root", str(run_dir), "--out", str(out)])
     assert rc == 0
     assert out.exists()
+
+
+def test_cli_report_refuses_to_overwrite_source_artifact(tmp_path: Path) -> None:
+    run_dir = tmp_path / "run"
+    cli.main(["run", "--target", "mock", "--out", str(run_dir)])
+    traces_path = run_dir / "traces.json"
+    original = traces_path.read_bytes()
+
+    rc = cli.main(["report", "--root", str(run_dir), "--out", str(traces_path)])
+
+    assert rc == 1
+    assert traces_path.read_bytes() == original
 
 
 def test_cli_report_missing_dir(tmp_path: Path) -> None:

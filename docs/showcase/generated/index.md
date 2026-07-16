@@ -1,22 +1,28 @@
 # Agentic Security Harness - generated showcase
 
-Generated from recorded run artifacts. JSON artifacts remain the source of truth.
+Generated from current content-bound validated run artifacts. JSON artifacts remain the source of truth.
 
-- Source root: `demo-agent-report`
-- Runs discovered: 1
-- Cards generated: 24
+- Source root: demo\-agent\-report
+- Current content-bound runs: 0
+- Cards generated: 0
+- Behavioral expectation status: independently recomputed at generation
 
 ## Run summary
 
-| Run | Kind | Scenario | Target/model | Outcomes |
-|---|---|---|---|---|
-| `run_e6faffdab7` | run | `seed-corpus` | `demo-local-agent` | failed=24, passed=0 |
+No current content-bound validated run manifests found.
+
+Run a benchmark first, for example:
+
+```bash
+ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison
+ash validate reports/comparison
+```
 
 ## Card counts
 
 | Type | Count |
 |---|---|
-| finding | 24 |
+| (none) | 0 |
 
 ## Claim boundary
 

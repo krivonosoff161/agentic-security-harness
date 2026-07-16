@@ -4,48 +4,55 @@ This page explains how public project work is tracked. It is intentionally small
 GitHub Issues and milestones are the source of truth for work in progress; repository
 docs describe the current shipped state.
 
-## Current evidence milestone
+## Current GitHub snapshot
 
-Active public-development track:
+Snapshot verified against GitHub on **2026-07-14**:
 
 | Milestone | Purpose |
 |---|---|
-| [v0.17 public evidence showcase and local model probes](https://github.com/krivonosoff161/agentic-security-harness/milestone/5) | Make benchmark evidence easy to inspect before reading code, then add bounded local real-model probes. |
+| [v0.17 public evidence showcase and local model probes](https://github.com/krivonosoff161/agentic-security-harness/milestone/5) | Historical planning bucket; all 12 linked issues are closed. The milestone itself remains open and must not be described as active work. |
 
-The milestone is not a release claim. It is a work tracker for the next credibility
-slice: local Prometheus/Ollama probes, scenario timelines, failure cards, and the
-design-led inter-agent handoff integrity track.
+All five visible milestones are 100% complete with zero open issues. Milestone state is
+administrative metadata, not a release or active-work claim.
 
 ## Open work in this track
 
-| Issue | Track | Current focus |
-|---|---|---|
-| [#140 docs: add phantom resource trust as next research contour](https://github.com/krivonosoff161/agentic-security-harness/issues/140) | Research map / phantom resources | Add hallucinated/model-generated resource trust as planned contour #8 while keeping the current seven-scenario trading-stand gate unchanged. |
-| [#136 research: add trading-bot-v2 paper stand target profile](https://github.com/krivonosoff161/agentic-security-harness/issues/136) | Owned target / adapter research | Treat `trading-bot-v2` as an authorized paper-only target stand while keeping ASH as the security runner and evidence owner. |
-| [#96 docs: harden public evidence boundary and showcase claims](https://github.com/krivonosoff161/agentic-security-harness/issues/96) | Showcase / evidence boundary | Make public local-model campaign evidence explicit about public fields, private raw calculations, response-hash anchors, validation checks, and non-claims. |
-| [#87 docs: rebuild GitHub showcase and documentation map](https://github.com/krivonosoff161/agentic-security-harness/issues/87) | Showcase / documentation | Make the public README, evidence map, tracker, and status docs agree with the committed examples and current claim boundaries. |
+No open product or research issues as of 2026-07-14. New work is not active until a
+GitHub issue or an explicitly recorded local task names its invariant, evidence class,
+done criteria, and owner boundary.
 
 ## Open maintenance work
 
-None currently tracked.
+Four automated dependency pull requests are open as of the snapshot date:
+
+- [#152](https://github.com/krivonosoff161/agentic-security-harness/pull/152) — CodeQL Actions group;
+- [#153](https://github.com/krivonosoff161/agentic-security-harness/pull/153) — `build`;
+- [#154](https://github.com/krivonosoff161/agentic-security-harness/pull/154) — `mypy`;
+- [#155](https://github.com/krivonosoff161/agentic-security-harness/pull/155) — `ruff`.
+
+These are maintenance PRs, not an active benchmark research roadmap.
 
 ## Recently completed in this track
 
 | Issue | Track | Delivered focus |
 |---|---|---|
+| [#140 docs: add phantom resource trust as next research contour](https://github.com/krivonosoff161/agentic-security-harness/issues/140) | Research map / phantom resources | Added the planned contour to the research map; no implementation or experiment was delivered. |
+| [#136 research: add trading-bot-v2 paper stand target profile](https://github.com/krivonosoff161/agentic-security-harness/issues/136) | Owned target / paper stand | Added the read-only paper-stand profile, static/artifact probes, private evidence contracts, and fail-closed authorization/readiness gates; no target executor was delivered. |
+| [#96 docs: harden public evidence boundary and showcase claims](https://github.com/krivonosoff161/agentic-security-harness/issues/96) | Showcase / evidence boundary | Documented public fields, private raw calculations, response-hash anchors, validation checks, adapter-error visibility, and non-claims. |
+| [#87 docs: rebuild GitHub showcase and documentation map](https://github.com/krivonosoff161/agentic-security-harness/issues/87) | Showcase / documentation | Rebuilt the public README, evidence map, tracker, and status navigation; ongoing synchronization remains maintenance work. |
 | [#92 research: add local swarm defense contour](https://github.com/krivonosoff161/agentic-security-harness/issues/92) | Local swarm / semantic defenses | `ash swarm-defense-contour` adds a four-family synthetic control-attribution layer across 15 scenario combinations, with bounded, naive, and ablation rows plus sanitized public artifacts. |
 | [#94 research: add live mini-swarm defense campaign](https://github.com/krivonosoff161/agentic-security-harness/issues/94), [#100 deepen local mini-swarm defense evidence](https://github.com/krivonosoff161/agentic-security-harness/issues/100) | Local swarm / live model evidence | `ash swarm-defense-live-campaign` adds private local worker/chief probes over the four-family contour, with committed sanitized base, long-session, and deep multi-model metrics, replay-ablation attribution, Wilson intervals, model breakdowns, and raw transcripts kept under `.internal/`. |
 | [#61 research: add bounded local swarm runner](https://github.com/krivonosoff161/agentic-security-harness/issues/61) | Local swarm / runtime | `ash local-swarm` compares monolith, naive swarm, and bounded swarm over deterministic local-swarm scenarios, with bounded contracts making the pass/block decision. |
 | [#63 research: expand bounded local swarm evidence suite](https://github.com/krivonosoff161/agentic-security-harness/issues/63) | Local swarm / evidence | Committed `examples/local-swarm-report/` records the 15-scenario deterministic suite and validates with `ash validate examples/local-swarm-report`. |
 | [#64 research: add local-swarm evidence-quality calculations](https://github.com/krivonosoff161/agentic-security-harness/issues/64) | Local swarm / evidence quality | `ash evidence-quality` summarizes recorded external/local artifacts for contract coverage, transcript hash coverage, adapter-error rates, runtime-mode coverage, and evidence maturity. |
 | [#65 research: deepen local-swarm memory, tool, and multi-hop attacks](https://github.com/krivonosoff161/agentic-security-harness/issues/65) | Local swarm / deep variants | Deterministic memory-poisoning, tool-output authority-confusion, multi-hop laundering, verifier-outage, and executable deep invariant probes are represented in the local-swarm suite and variation matrix. |
-| [#66 research: run local Prometheus swarm evaluation](https://github.com/krivonosoff161/agentic-security-harness/issues/66) | Local swarm / local empirical | Full 15-scenario local Ollama runs completed for `prometheus-qwen15b-lowctx:latest` and `qwen2.5:1.5b`; public docs classify the result as local empirical evidence-quality context, not model safety. |
+| [#66 research: run local Prometheus swarm evaluation](https://github.com/krivonosoff161/agentic-security-harness/issues/66) | Local swarm / unreconciled maintainer report | Historical documentation declares two full 15-scenario runs. The public worktree lacks the private bundles and a reconciliation receipt, so model/runtime identity and aggregates are not publicly authenticated. |
 | [#67 research: add local-swarm attack variation matrix](https://github.com/krivonosoff161/agentic-security-harness/issues/67) | Local swarm / attack matrix | `ash local-swarm-matrix` writes a deterministic 43-row attack variation matrix across 9 families, including 10 executable deep invariant probes. |
-| [#80 research: live local-model secret-leak variation campaign](https://github.com/krivonosoff161/agentic-security-harness/issues/80) | Secret-egress / local empirical | `ash secret-leak-campaign --execute-variations` records private local-model pressure probes and writes sanitized public aggregates with raw prompts/responses kept under `.internal/`. |
-| [#82 research: semantic parameter drift in local mini-swarm](https://github.com/krivonosoff161/agentic-security-harness/issues/82) | Semantic drift / local empirical | `ash semantic-drift-campaign` records deterministic and local-model semantic relabeling probes with public sanitized metrics and private raw transcripts/canaries. |
+| [#80 research: live local-model secret-leak variation campaign](https://github.com/krivonosoff161/agentic-security-harness/issues/80) | Secret-egress / unreconciled detector summary | The public artifact retains declared detector labels and aggregates; private-byte retention and execution origin remain unverified without a reconciliation receipt. |
+| [#82 research: semantic parameter drift in local mini-swarm](https://github.com/krivonosoff161/agentic-security-harness/issues/82) | Semantic drift / historical detector summary | Deterministic rows remain an executable specification; the committed schema-`0.1` observation summary predates current schema `0.2` and is not current empirical evidence. |
 | [#19 feature: local Prometheus suite](https://github.com/krivonosoff161/agentic-security-harness/issues/19) | Local runtime | `ash local-suite` runs bounded named local-model profiles through the prompt-only OpenAI-compatible path; the low-context Prometheus profile is first-class, dry-run is the default, real runs validate artifacts, and weak evidence remains explicitly pass/finding/inconclusive/adapter_error. |
 | [#20 feature: scenario timeline](https://github.com/krivonosoff161/agentic-security-harness/issues/20) | Corpus / multi-turn | `ScenarioTimeline` fixtures cover delayed activation, context overload, and handoff provenance; each has an invariant, deterministic validator expectation, and `replay_timeline()` shows the vulnerable finding/protected PASS decision step. |
-| [#21 feature: trace replay and failure cards](https://github.com/krivonosoff161/agentic-security-harness/issues/21) | Reports | `ash showcase` generates artifact-driven failure cards with trace replay steps, trace/remediation artifact references, reproduce commands, and explicit non-claims; committed generated example is reproducible from `examples/demo-agent-report`. |
+| [#21 feature: trace replay and failure cards](https://github.com/krivonosoff161/agentic-security-harness/issues/21) | Reports | `ash showcase` generates artifact-driven failure cards only from current content-bound validated runs, with trace replay steps, trace/remediation artifact references, reproduce commands, and explicit non-claims. The legacy `examples/demo-agent-report` source is intentionally excluded and reproduces the committed empty state. |
 | [#29 fix: clarify external run diff status labels](https://github.com/krivonosoff161/agentic-security-harness/issues/29) | Reports / maintenance | Run-diff labels split decisive `finding_fixed`/`new_finding` from non-decisive `inconclusive_error_drift`/`stable_inconclusive`/`stable_error`; `error`/`adapter_error` transitions are never reported as security fixes. |
 | [#25 docs: public evidence showcase](https://github.com/krivonosoff161/agentic-security-harness/issues/25) | Showcase | Public showcase entry point and evidence pages exist for reviewer navigation. |
 | [#22 docs: metric contract](https://github.com/krivonosoff161/agentic-security-harness/issues/22) | Metrics | Stable vocabulary for GitHub traffic, benchmark evidence, runtime evidence, and project-process metrics. |
@@ -79,7 +86,7 @@ issue was closed when no issue number exists.
 | SEM-1 | Semantic drift propagation | Closed the first semantic mini-swarm research unit: slow `A -> C` relabeling, worker-to-chief propagation, deterministic controls, ablation reopenings, local-model observations, and explicit non-claims. | `docs/semantic-drift-propagation-closure.md`, `examples/semantic-drift-sanitized/`, `examples/semantic-propagation-sanitized/`, `tests/test_semantic_drift_campaign.py`, `tests/test_semantic_propagation_campaign.py`. | Raw prompts, raw responses, synthetic canaries, canonical-state hashes, and calculation notes remain private under `.internal/`. |
 | SEM-2 | Semantic consensus laundering | Closed the first consensus-laundering sub-unit: one poisoned worker plus one conservative worker cannot be averaged into acceptance when worker attestation, canonical state, cross-worker checks, and chief verification hold. | `docs/semantic-consensus-laundering-closure.md`, `examples/semantic-propagation-sanitized/`, `tests/test_semantic_propagation_campaign.py`. | This is a declared two-worker synthetic topology, not production swarm coverage or a model vulnerability claim. |
 | SEM-3 | Local swarm defense contour | Added a four-family synthetic control-attribution layer for semantic drift, worker-to-chief propagation, consensus laundering, and benign-framed boundary leaks across all non-empty family combinations. | `docs/local-swarm-defense-contour.md`, `examples/swarm-defense-contour-sanitized/`, `tests/test_swarm_defense_contour.py`. | Raw local-model probes remain private; this is not production swarm coverage or a model vulnerability claim. |
-| SEM-4 | Sanitized local-model mini-swarm campaign | Ran bounded private local worker/chief probes across the four-family contour and published sanitized model ids, topology ids, pressure labels, response-hash metrics, verifier block attribution, replay-ablation reopenings, adapter flags, long-session per-turn response hashes, Wilson intervals, and deep multi-model breakdowns. | `docs/live-mini-swarm-defense-campaign.md`, `docs/private-public-evidence-boundary.md`, `examples/swarm-defense-live-sanitized/`, `examples/swarm-defense-live-long-session-sanitized/`, `examples/swarm-defense-live-deep-sanitized/`, `tests/test_swarm_defense_live_campaign.py`. | Raw local-model prompts, responses, canaries, and calculation notes remain private; this is not a CVE, model leaderboard, or production swarm safety claim. |
+| SEM-4 | Historical loopback-endpoint mini-swarm campaign | Quarantined pre-0.5 examples after finding detector-category and partial-event censoring defects; current contract is implemented but unexecuted. | `docs/live-mini-swarm-defense-campaign.md`, `docs/showcase/evidence-map.md`, `tests/test_swarm_defense_live_campaign.py`. | Legacy canary absence and causal reopening claims are withdrawn; raw transcripts remain private. |
 
 Supporting docs:
 
@@ -128,9 +135,10 @@ Supporting docs:
   experiment observations: filled private slots, public evidence object,
   opaque condition id, and no control/baseline/template marker.
 - [trading-bot-invariant-baseline-sanitized-summary-2026-07-03.md](trading-bot-invariant-baseline-sanitized-summary-2026-07-03.md)
-  records the baseline artifact-schema fixture round-trip: 7 pass, 0 finding,
-  0 inconclusive, 0 error, validation ok with 0 issues, and no payloads or
-  private values included.
+  records the historical baseline artifact-schema fixture round-trip. Its seven
+  former `pass` labels are withdrawn: current semantics classify schema-only
+  safe-shaped rows as 7 inconclusive, while explicit unsafe bounded values are
+  findings. No payloads or private values are included.
 - [trading-bot-invariant-negative-control-sanitized-summary-2026-07-03.md](trading-bot-invariant-negative-control-sanitized-summary-2026-07-03.md)
   records the synthetic finding-path control: 0 pass, 7 finding, 0
   inconclusive, 0 error, validation ok with 0 issues, and no payloads or
@@ -170,14 +178,15 @@ Supporting docs:
   were caused by generic marker names and are now resolved by schema-key
   markers.
 - [trading-bot-artifact-invariant-probe-snapshot-2026-07-03.md](trading-bot-artifact-invariant-probe-snapshot-2026-07-03.md)
-  records the first schema-level invariant check over existing paper artifacts:
-  7 scenarios mapped, 7 artifact-schema passes, 0 findings, 0 inconclusive, and
-  0 errors, with no raw rows or private values included.
+  records the historical first schema-level check over existing paper
+  artifacts. Its seven former artifact-schema `pass` labels are withdrawn
+  because field presence cannot prove scenario behavior; the current clean
+  schema-only result is seven inconclusive rows.
 - [trading-bot-real-artifact-observation-2026-07-03.md](trading-bot-real-artifact-observation-2026-07-03.md)
-  records the first public-safe observation over real existing paper artifacts:
-  the chain is present and bounded, ASH `artifact-e2e-observation` reports
-  13 artifact checks ok with `execution_boundary_ok=true`, `result_class=pass`,
-  and no evidence-quality findings. Raw card text remains private.
+  records a historical public-safe observation over real paper artifacts: 13
+  files passed the old presence/parse/flag checks. It predates cross-artifact
+  identity verification, so its former `pass` is structural legacy evidence,
+  not proof of a continuous causal chain. Raw card text remains private.
 - [trading-bot-controlled-experiment-plan-2026-07-03.md](trading-bot-controlled-experiment-plan-2026-07-03.md)
   records the next public-safe layer: three controlled 3-4 scenario paper
   batches over the seven mapped contours, with private evidence slots and no
@@ -188,10 +197,9 @@ Supporting docs:
   0 finding, 7 inconclusive, 0 error, validation ok with 0 issues, no target
   observation, and no raw private values.
 - [trading-bot-experiment-baseline-sanitized-summary-2026-07-03.md](trading-bot-experiment-baseline-sanitized-summary-2026-07-03.md)
-  records the first observed private experiment baseline round-trip: 7
-  scenarios, 7 pass, 0 finding, 0 inconclusive, 0 error, validation ok with 0
-  issues, target observation from existing paper artifacts, and no raw private
-  values.
+  records a historical private experiment baseline round-trip whose seven
+  schema-derived `pass` labels are withdrawn. Under the current contract the
+  same clean schema-only evidence is inconclusive, not target behavioral proof.
 - [trading-bot-experiment-negative-control-sanitized-summary-2026-07-03.md](trading-bot-experiment-negative-control-sanitized-summary-2026-07-03.md)
   records the first private experiment finding-path control round-trip: 7
   scenarios, 0 pass, 7 finding, 0 inconclusive, 0 error, validation ok with 0
@@ -205,10 +213,10 @@ Supporting docs:
   structurally valid but blocked from promotion because it has 0 real filled
   target-observation rows.
 - [trading-bot-experiment-readiness-snapshot-2026-07-03.md](trading-bot-experiment-readiness-snapshot-2026-07-03.md)
-  records the current pre-experiment gate: target preflight, artifact-chain,
-  execution-boundary, evidence-quality, control-fixture, provider-boundary, and
-  live-boundary all pass; readiness is `ready` for private filled experiment
-  rows.
+  records historical output from the former pre-experiment gate. Its `ready`
+  interpretation is withdrawn: that version did not verify cross-artifact
+  identities and treated provider/execution boundaries as constant passes.
+  Current readiness fails closed until both evidence gaps are resolved.
 - `ash trading-stand --mode offline-fixture` maps sanitized stand-shaped controls
   into `pass`, `finding`, `inconclusive`, and `error` without touching the target.
 - `ash trading-stand --mode scenario-catalog` prints the public-safe scenario
@@ -280,8 +288,9 @@ Supporting docs:
   sanitization and blocks baseline/control/template row sets.
 - `ash trading-stand --mode experiment-readiness --target-path <trading-bot-v2>
   [--artifact-root <private-paper-root>] [--fixture-path <private-json>]`
-  evaluates whether artifact, control, safety, and evidence-quality gates allow
-  filled private experiment rows.
+  evaluates artifact shape, cross-artifact causal identities, control, safety,
+  and evidence-quality gates. Provider/execution isolation remains blocked
+  until supported by separate transitive entrypoint evidence.
 - `ash trading-stand --mode validate-experiment --fixture-path <private-json>`
   checks filled private experiment rows for seven-scenario coverage, expected
   batch ids, valid result classes, hash anchors, private slots,

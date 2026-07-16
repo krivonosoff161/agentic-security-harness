@@ -23,6 +23,10 @@ def test_registry_has_core_artifacts() -> None:
         "trace", "scorecard", "remediation", "matrix",
         "run_config", "external_summary", "run_manifest", "run_diff",
         "evidence_quality",
+        "run_stats",
+        "showcase",
+        "evidence_status_registry",
+        "private_public_reconciliation",
     ):
         assert kind in SCHEMA_VERSIONS
         assert schema_version(kind)
@@ -31,6 +35,25 @@ def test_registry_has_core_artifacts() -> None:
 def test_check_known_version_ok() -> None:
     assert check_schema_version("trace", "0.1") is None
     assert is_known("trace", "0.1")
+
+
+def test_run_manifest_registry_keeps_legacy_versions_readable() -> None:
+    assert schema_version("run_manifest") == "0.3"
+    assert is_known("run_manifest", "0.1")
+    assert is_known("run_manifest", "0.2")
+
+
+def test_run_diff_registry_keeps_legacy_versions_readable() -> None:
+    assert schema_version("run_diff") == "0.3"
+    assert is_known("run_diff", "0.1")
+    assert is_known("run_diff", "0.2")
+
+
+def test_derived_history_registry_keeps_legacy_versions_readable() -> None:
+    for kind in ("run_stats", "showcase"):
+        assert schema_version(kind) == "0.2"
+        assert is_known(kind, "0.1")
+        assert is_known(kind, "0.2")
 
 
 def test_check_unknown_future_version_errors() -> None:

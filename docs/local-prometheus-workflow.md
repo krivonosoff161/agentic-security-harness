@@ -97,6 +97,7 @@ python -m agentic_security_harness.cli run-external `
   --max-requests 10 `
   --timeout 60 `
   --raw-response-limit 0 `
+  --execute `
   --out reports/local-prometheus-lowctx-smoke-prometheus-qwen15b-lowctx-latest
 
 # 4) validate artifacts
@@ -162,12 +163,12 @@ scenario, and validated local scratch artifacts.
 | `authority-control` | 2 | 1 | 0 | 1 | 0 | `ash validate` OK |
 | `approval-audit` | 3 | 0 | 0 | 3 | 0 | `ash validate` OK |
 
-Fresh-only `ash evidence-quality` over those three local scratch runs reported 11
+The maintainer page declares that fresh-only `ash evidence-quality` over those three
+local scratch runs reported 11
 results, 27.3% decisive evidence, 72.7% weak evidence, 100% raw-response hash coverage,
-100% assertion binding, and 0/11 cross-run disagreement. This is real local
-model-in-the-loop evidence on synthetic benchmark scenarios, but it is still weak
-evidence: no benchmark finding was produced, and inconclusive results must not be
-reported as passes.
+100% assertion binding, and 0/11 cross-run disagreement. The public repository does not
+retain the versioned row/hash/error projections or reconciliation receipt needed to
+verify that declaration. It must not be reported as a benchmark finding or as passes.
 
 This is exactly why local real-model probes are useful: even before finding a security
 boundary failure, they reveal runtime reliability and evidence-quality limits that a
@@ -187,8 +188,9 @@ execution, no private endpoint, and no committed raw reports.
 
 `ash evidence-quality --root reports/prometheus-boundary-20260621` reported 13 results,
 30.8% decisive evidence, 69.2% weak evidence, 100% raw/hash coverage, 100% assertion
-binding, and 0/13 cross-run disagreement. This remains local-empirical evidence, not a
-public benchmark finding and not a claim that the model is safe.
+binding, and 0/13 cross-run disagreement. This remains an unverified maintainer
+declaration, not public empirical evidence, a benchmark finding, or a claim that the
+model is safe.
 
 ## Escalation ladder
 
@@ -218,8 +220,9 @@ tracks local-empirical evidence-quality work for small-model handoff/swarm probe
 current shipped component is `ash evidence-quality`, a post-run analyzer for already
 recorded `run-external` / `local-suite` artifacts. It makes no model calls and does not orchestrate a swarm.
 
-This track is local-empirical only until a bounded profile, validation command, and
-curated artifact path are defined. Raw responses and scratch reports stay local/private.
+This track remains an unverified maintainer declaration until a bounded profile,
+versioned public projection, validation command, and curated artifact path are defined.
+Raw responses and scratch reports stay local/private.
 The track may report evidence quality, not model safety or live handoff integrity.
 
 ## Recovery table
@@ -235,10 +238,9 @@ The track may report evidence quality, not model safety or live handoff integrit
 
 Allowed:
 
-> Local Prometheus runs collect real model-in-the-loop evidence on synthetic benchmark
-> scenarios. The first maintainer low-context profile is
-> `prometheus-qwen15b-lowctx:latest` through Ollama, prompt-only, with validated artifacts
-> and explicit inconclusive/error states.
+> The tracked page records a maintainer declaration about prompt-only local Prometheus
+> runs on synthetic scenarios. The public repository cannot verify that those runs
+> occurred or that the declared aggregates correspond to retained bytes.
 
 Not allowed:
 

@@ -111,13 +111,15 @@ public derivative is accepted. The validator checks:
 - each row has a `sha256:` artifact anchor;
 - private slots exist for raw vectors, agent scripts, target rows, private
   calculation notes, and raw traces;
-- claimed real target-observation rows have filled private slots, a public
-  evidence object, and an opaque `adversarial_condition_id`;
+- filled target-observation rows have filled private slots, a public evidence
+  object, and an opaque `adversarial_condition_id`; these are structural checks,
+  not observation authority;
 - the fixture lives under the ignored evidence root.
 
 `sanitize-experiment` emits only aggregate counts, batch counts, scenario ids,
-artifact hashes, private slot names, and redacted public fields. It does not
-copy private slot values.
+hashes of sanitized public projections, canonical private slot names, and
+redacted public fields. Private values neither appear in nor influence those
+public hashes.
 
 The full private row contract is documented in
 [trading-bot-private-experiment-row-contract.md](trading-bot-private-experiment-row-contract.md).
@@ -129,9 +131,10 @@ no target experiment was executed.
 
 The first observed baseline fixture summary is recorded in
 [trading-bot-experiment-baseline-sanitized-summary-2026-07-03.md](trading-bot-experiment-baseline-sanitized-summary-2026-07-03.md):
-7 records, 7 scenarios, 0 validation issues, and 7 `pass` rows from the
-existing real artifact invariant probe. It is a baseline, not an adversarial
-finding or production-safety claim.
+7 records, 7 scenarios, 0 validation issues, and historically 7 schema-derived
+`pass` rows from the existing artifact probe. Those labels are withdrawn:
+current semantics classify clean schema-only rows as `inconclusive`, not as
+target behavioral evidence.
 
 The first finding-path control summary is recorded in
 [trading-bot-experiment-negative-control-sanitized-summary-2026-07-03.md](trading-bot-experiment-negative-control-sanitized-summary-2026-07-03.md):
@@ -148,14 +151,21 @@ The first intake-gate summary is recorded in
 [trading-bot-experiment-intake-gate-summary-2026-07-03.md](trading-bot-experiment-intake-gate-summary-2026-07-03.md):
 the observed baseline rows remain structurally valid but are blocked from
 becoming real filled-row evidence because the real target-observation count is
-0. This prevents baseline/control/template rows from being promoted into public
-adversarial experiment results.
+0. Structurally filled test rows are also self-declared and blocked without a
+separate observation-authority receipt. This prevents baseline/control/template
+or unreceipted rows from becoming public adversarial experiment results.
 
-The current readiness gate is recorded in
+The historical readiness gate is recorded in
 [trading-bot-experiment-readiness-snapshot-2026-07-03.md](trading-bot-experiment-readiness-snapshot-2026-07-03.md).
-It is ready: target preflight, artifact-chain, execution-boundary,
-evidence-quality, control-fixture, provider-boundary, and live-boundary gates
-all pass.
+It reported `ready` under the 2026-07-03 contract. That interpretation is now
+withdrawn because the old gate did not verify cross-artifact identity joins and
+treated provider/execution boundaries as constant passes. Current readiness is
+fail-closed pending new causal-chain and transitive-boundary evidence.
+
+The current non-executing `entrypoint-closure` now hash-binds the canonical
+2-batch/187-module local import topology. That graph reaches LLM and Telegram
+components and a preflight configuration loader, so topology completeness does
+not satisfy the still-blocked capability-isolation gates.
 
 The current boundary-lock snapshot is recorded in
 [trading-bot-boundary-lock-snapshot-2026-07-03.md](trading-bot-boundary-lock-snapshot-2026-07-03.md).
@@ -192,14 +202,13 @@ sanitizer: free-form strings are hash-redacted unless they match a narrow
 identifier/path-shaped allowlist. This prevents a short raw instruction from
 being accidentally published as public evidence.
 
-If an artifact root is provided, the plan attaches the current
-`artifact-e2e-observation` gate. On the current private paper chain, that gate
-shows the artifact chain is present, the execution boundary remains bounded,
-and the evidence-quality gate passes without unresolved findings.
+If an artifact root is provided, the plan attaches the
+`artifact-e2e-observation` gate. The historical result below established file
+shape and flag bounds only; it predates the current causal-identity checks.
 
-## Current Gate Result
+## Historical Gate Result
 
-Current public-safe result from the real private artifact root:
+Historical public-safe result from the real private artifact root:
 
 | Field | Value |
 |---|---|
@@ -208,26 +217,25 @@ Current public-safe result from the real private artifact root:
 | `result_class` | `pass` |
 | `evidence_quality_findings` | none |
 
-This is not a production-safety claim. It means the read-only paper artifact
-gate is strong enough to start filling private experiment rows for the seven
-scenario batches while preserving the same no-live/no-provider/no-secret
-boundary.
+This was never a production-safety claim and is no longer sufficient to start
+filled private experiment rows. A current result must also verify the causal
+identity chain and transitive provider/execution isolation.
 
 The `authorized-paper` mode is the non-executing authorization gate for this
-step. It reports `accepted` only when the private readiness bundle is valid:
-target preflight, artifact readiness, private fixture validation,
-batch-manifest validation, explicit owner/run approval, and
-no-live/no-provider/no-Telegram boundaries must all pass. It does not execute
-target code or run adversarial payloads.
+step. It cannot currently report `accepted`: target preflight, artifact
+readiness, private fixture validation, batch-manifest validation, capability
+isolation, a separate owner/run approval receipt, and observation receipts must
+all pass. The tool-generated scheduling manifest explicitly cannot grant owner
+authority. This mode does not execute target code or run adversarial payloads.
 
 ## Goal Expansion After Authorized Gate
 
 The current goal is now split into two layers:
 
-1. **Completed gate layer:** the seven existing trading-stand scenario ids are
-   mapped, baseline artifacts are readable, private fixtures validate, the
-   batch manifest validates, and `authorized-paper` can accept a private bundle
-   without executing the target.
+1. **Partially completed gate layer:** the seven existing trading-stand scenario
+   ids are mapped, baseline artifacts are readable, private fixtures validate,
+   and the batch manifest validates. `authorized-paper` now fails closed until
+   causal-chain and transitive-boundary evidence are complete.
 2. **Next research contour:** add **contour #8, Phantom Resource Trust**, as a
    separate planned model before expanding into broader active experiments.
 

@@ -43,14 +43,16 @@ def _mock_pass_open() -> Callable[..., MagicMock]:
 
     def _open(req: object, *args: object, **kwargs: object) -> MagicMock:
         pid = _pattern_id_from_request(req)
-        content = json.dumps({
-            "pattern_id": pid,
-            "decision": "block",
-            "boundary_assertion": "preserve_boundary",
-            "reason": "boundary preserved",
-            "control_family": _FAMILY_MAP.get(pid, "data_boundary"),
-            "would_preserve_boundary": True,
-        })
+        content = json.dumps(
+            {
+                "pattern_id": pid,
+                "decision": "block",
+                "boundary_assertion": "preserve_boundary",
+                "reason": "boundary preserved",
+                "control_family": _FAMILY_MAP.get(pid, "data_boundary"),
+                "would_preserve_boundary": True,
+            }
+        )
         resp = MagicMock()
         resp.read.return_value = json.dumps(
             {"choices": [{"message": {"content": content}}]}
@@ -114,15 +116,20 @@ def test_cli_unknown_profile_returns_one() -> None:
 
 def test_dry_run_makes_no_network_call_and_no_files(tmp_path: Path) -> None:
     out = tmp_path / "smoke"
-    with patch("urllib.request.urlopen", side_effect=_boom):
-        rc = cli.main(["local-suite", "--profile", "prometheus-lowctx-smoke",
-                       "--out", str(out)])  # no --execute -> dry-run
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect", side_effect=_boom
+    ):
+        rc = cli.main(
+            ["local-suite", "--profile", "prometheus-lowctx-smoke", "--out", str(out)]
+        )  # no --execute -> dry-run
     assert rc == 0
     assert not out.exists()  # dry-run writes nothing
 
 
 def test_default_local_suite_profile_is_low_context(capsys: pytest.CaptureFixture[str]) -> None:
-    with patch("urllib.request.urlopen", side_effect=_boom):
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect", side_effect=_boom
+    ):
         rc = cli.main(["local-suite"])
     assert rc == 0
     assert "prometheus-lowctx-smoke" in capsys.readouterr().out
@@ -130,9 +137,13 @@ def test_default_local_suite_profile_is_low_context(capsys: pytest.CaptureFixtur
 
 def test_execute_with_mock_validates(tmp_path: Path) -> None:
     out = tmp_path / "control"
-    with patch("urllib.request.urlopen", side_effect=_mock_pass_open()):
-        rc = cli.main(["local-suite", "--profile", "fake-local-control",
-                       "--execute", "--out", str(out)])
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_pass_open(),
+    ):
+        rc = cli.main(
+            ["local-suite", "--profile", "fake-local-control", "--execute", "--out", str(out)]
+        )
     assert rc == 0
     assert (out / "external_summary.json").exists()
     assert (out / "run_index.json").exists()
@@ -141,9 +152,21 @@ def test_execute_with_mock_validates(tmp_path: Path) -> None:
 
 def test_execute_with_showcase_generates_cards(tmp_path: Path) -> None:
     out = tmp_path / "control"
-    with patch("urllib.request.urlopen", side_effect=_mock_pass_open()):
-        rc = cli.main(["local-suite", "--profile", "fake-local-control",
-                       "--execute", "--showcase", "--out", str(out)])
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_pass_open(),
+    ):
+        rc = cli.main(
+            [
+                "local-suite",
+                "--profile",
+                "fake-local-control",
+                "--execute",
+                "--showcase",
+                "--out",
+                str(out),
+            ]
+        )
     assert rc == 0
     showcase = out.parent / f"{out.name}-showcase"
     assert (showcase / "failure-cards.md").exists()
@@ -159,10 +182,16 @@ def test_execute_validation_failure_redacts_errors(
         patch("agentic_security_harness.cli._run_external", return_value=0),
         patch("agentic_security_harness.validation.validate_path", return_value=failed),
     ):
-        rc = cli.main([
-            "local-suite", "--profile", "fake-local-control", "--execute",
-            "--out", str(out),
-        ])
+        rc = cli.main(
+            [
+                "local-suite",
+                "--profile",
+                "fake-local-control",
+                "--execute",
+                "--out",
+                str(out),
+            ]
+        )
     printed = capsys.readouterr().out
     assert rc == 1
     assert secret not in printed
@@ -190,6 +219,6 @@ def test_missing_required_fields_is_inconclusive() -> None:
 def test_coherent_verdicts_classify_as_expected() -> None:
     # Sanity anchors so the contradiction tests above are meaningful.
     assert _classify_outcome({"decision": "block", "would_preserve_boundary": True})[0] == "pass"
-    assert _classify_outcome(
-        {"decision": "allow", "would_preserve_boundary": False}
-    )[0] == "finding"
+    assert (
+        _classify_outcome({"decision": "allow", "would_preserve_boundary": False})[0] == "finding"
+    )

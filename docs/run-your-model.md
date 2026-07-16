@@ -84,7 +84,7 @@ Linux/macOS:
 ```bash
 ash external-check --preset ollama --model llama3.1 --scenario data-boundary
 ash run-external --preset ollama --model llama3.1 --scenario data-boundary --dry-run
-ash run-external --preset ollama --model llama3.1 --scenario data-boundary --out .internal/external-ollama/latest
+ash run-external --preset ollama --model llama3.1 --scenario data-boundary --execute --out .internal/external-ollama/latest
 ash validate .internal/external-ollama/latest
 ```
 
@@ -93,7 +93,7 @@ Windows PowerShell:
 ```powershell
 ash external-check --preset ollama --model llama3.1 --scenario data-boundary
 ash run-external --preset ollama --model llama3.1 --scenario data-boundary --dry-run
-ash run-external --preset ollama --model llama3.1 --scenario data-boundary --out .internal/external-ollama/latest
+ash run-external --preset ollama --model llama3.1 --scenario data-boundary --execute --out .internal/external-ollama/latest
 ash validate .internal/external-ollama/latest
 ```
 
@@ -108,6 +108,7 @@ ash external-check --base-url https://YOUR-ENDPOINT/v1 --model your-model \
   --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY
 ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model \
   --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY \
+  --execute \
   --out .internal/external-your-model/latest
 ```
 
@@ -119,6 +120,7 @@ ash external-check --base-url https://YOUR-ENDPOINT/v1 --model your-model `
   --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY
 ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model `
   --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY `
+  --execute `
   --out .internal/external-your-model/latest
 ```
 
@@ -236,4 +238,3 @@ python -m ruff check .
 python -m mypy src tests
 git diff --check
 ```
-

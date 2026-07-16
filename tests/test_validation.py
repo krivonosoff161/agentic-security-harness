@@ -1,12 +1,48 @@
+import hashlib
 import json
 import shutil
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from agentic_security_harness import cli
-from agentic_security_harness.validation import ValidationResult, validate_path
+from agentic_security_harness.models import ExploitTrace
+from agentic_security_harness.validation import (
+    ValidationResult,
+    _validate_traces,
+    validate_path,
+)
 
 EXAMPLES = Path(__file__).resolve().parent.parent / "examples"
+
+DETERMINISTIC_CAMPAIGN_EXAMPLES = (
+    (
+        "context-consent-sanitized",
+        "context_consent_summary.json",
+        "context_consent_report.md",
+    ),
+    (
+        "tool-authority-sanitized",
+        "tool_authority_summary.json",
+        "tool_authority_report.md",
+    ),
+    (
+        "rag-context-sanitized",
+        "rag_context_summary.json",
+        "rag_context_report.md",
+    ),
+    (
+        "planner-task-sanitized",
+        "planner_task_summary.json",
+        "planner_task_report.md",
+    ),
+    (
+        "memory-rehydration-sanitized",
+        "memory_rehydration_summary.json",
+        "memory_rehydration_report.md",
+    ),
+)
 
 
 def _copy(name: str, tmp_path: Path) -> Path:
@@ -24,7 +60,16 @@ def _dump(path: Path, data: Any) -> None:
 
 
 def _has(result: ValidationResult, needle: str) -> bool:
-    return any(needle in err for err in result.errors)
+    return any(needle in message for message in result.errors + result.expectation_mismatches)
+
+
+def _rebind_manifest_artifact(run_dir: Path, artifact: str) -> None:
+    manifest_path = run_dir / "run_index.json"
+    manifest = _load(manifest_path)
+    manifest["artifact_sha256"][artifact] = hashlib.sha256(
+        (run_dir / artifact).read_bytes()
+    ).hexdigest()
+    _dump(manifest_path, manifest)
 
 
 # ---- valid committed examples ----------------------------------------------------------
@@ -64,11 +109,233 @@ def test_cli_validate_examples_returns_zero() -> None:
     assert cli.main(["validate", str(EXAMPLES)]) == 0
 
 
+@pytest.mark.parametrize(
+    ("example_name", "summary_name", "report_name"),
+    DETERMINISTIC_CAMPAIGN_EXAMPLES,
+)
+def test_deterministic_campaign_rejects_embedded_corpus_redefinition(
+    tmp_path: Path,
+    example_name: str,
+    summary_name: str,
+    report_name: str,
+) -> None:
+    del report_name
+    out = _copy(example_name, tmp_path)
+    summary_path = out / summary_name
+    summary = _load(summary_path)
+    summary["cases"][0]["title"] += " redefined"
+    _dump(summary_path, summary)
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert _has(result, "cases do not match the shipped campaign corpus")
+
+
+@pytest.mark.parametrize(
+    ("example_name", "summary_name", "report_name"),
+    DETERMINISTIC_CAMPAIGN_EXAMPLES,
+)
+def test_deterministic_campaign_rejects_report_projection_tamper(
+    tmp_path: Path,
+    example_name: str,
+    summary_name: str,
+    report_name: str,
+) -> None:
+    del summary_name
+    out = _copy(example_name, tmp_path)
+    report_path = out / report_name
+    report_path.write_text(
+        report_path.read_text(encoding="utf-8") + "\nTampered claim.\n",
+        encoding="utf-8",
+    )
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert _has(result, "report projection mismatch")
+
+
+@pytest.mark.parametrize(
+    ("example_name", "summary_name", "report_name"),
+    DETERMINISTIC_CAMPAIGN_EXAMPLES,
+)
+def test_deterministic_campaign_rejects_manifest_outcome_tamper(
+    tmp_path: Path,
+    example_name: str,
+    summary_name: str,
+    report_name: str,
+) -> None:
+    del summary_name, report_name
+    out = _copy(example_name, tmp_path)
+    manifest_path = out / "run_index.json"
+    manifest = _load(manifest_path)
+    manifest["outcomes"]["bounded_acceptances"] = 999
+    _dump(manifest_path, manifest)
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert _has(result, "outcomes does not match summary projection")
+
+
 def test_no_false_positive_on_risk_reduction() -> None:
     # comparison.md literally contains "risk-reduction" / "Risk reduction".
     result = validate_path(EXAMPLES / "comparison-report")
     assert result.ok
     assert not any("forbidden" in err for err in result.errors)
+
+
+def test_current_run_manifest_requires_every_authoritative_artifact(tmp_path: Path) -> None:
+    out = tmp_path / "run"
+    assert cli.main(["run", "--target", "demo-agent", "--out", str(out)]) == 0
+    manifest_path = out / "run_index.json"
+    manifest = _load(manifest_path)
+    manifest["artifacts"].remove("traces.json")
+    manifest["artifact_sha256"].pop("traces.json")
+    _dump(manifest_path, manifest)
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert _has(result, "authoritative artifacts are not content-bound")
+    assert _has(result, "traces.json")
+
+
+def test_current_run_manifest_rejects_unexpected_listed_artifact(tmp_path: Path) -> None:
+    out = tmp_path / "run"
+    assert cli.main(["run", "--target", "mock", "--out", str(out)]) == 0
+    extra = out / "unrelated-generation.txt"
+    extra.write_text("unrelated\n", encoding="utf-8")
+    manifest_path = out / "run_index.json"
+    manifest = _load(manifest_path)
+    manifest["artifacts"].append(extra.name)
+    manifest["artifact_sha256"][extra.name] = hashlib.sha256(extra.read_bytes()).hexdigest()
+    _dump(manifest_path, manifest)
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert _has(result, "unexpected artifacts for this bundle type")
+
+
+def test_current_run_manifest_rejects_unmanifested_private_subtree(tmp_path: Path) -> None:
+    out = tmp_path / "run"
+    assert cli.main(["run", "--target", "mock", "--out", str(out)]) == 0
+    private = out / "private" / "raw.json"
+    private.parent.mkdir()
+    private.write_text('{"raw": true}\n', encoding="utf-8")
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert _has(result, "unmanifested files are not allowed")
+    assert _has(result, "private/raw.json")
+
+
+def test_current_run_manifest_outcomes_are_rebuilt_from_scorecard(tmp_path: Path) -> None:
+    out = tmp_path / "run"
+    assert cli.main(["run", "--target", "demo-agent", "--out", str(out)]) == 0
+    manifest_path = out / "run_index.json"
+    manifest = _load(manifest_path)
+    manifest["outcomes"]["failed"] = 0
+    _dump(manifest_path, manifest)
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert _has(result, "outcomes does not match summary projection")
+
+
+def test_current_comparison_manifest_binds_both_branches(tmp_path: Path) -> None:
+    out = tmp_path / "comparison"
+    assert (
+        cli.main(
+            [
+                "compare",
+                "--baseline",
+                "demo-agent",
+                "--protected",
+                "protected-demo-agent",
+                "--out",
+                str(out),
+            ]
+        )
+        == 0
+    )
+    manifest_path = out / "run_index.json"
+    manifest = _load(manifest_path)
+    omitted = "protected/scorecard.json"
+    manifest["artifacts"].remove(omitted)
+    manifest["artifact_sha256"].pop(omitted)
+    _dump(manifest_path, manifest)
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert _has(result, "authoritative artifacts are not content-bound")
+    assert _has(result, omitted)
+
+
+def test_current_matrix_rebuilds_semantic_aggregates_after_rehash(tmp_path: Path) -> None:
+    out = tmp_path / "matrix"
+    assert (
+        cli.main(
+            [
+                "run-matrix",
+                "--target",
+                "mock",
+                "--scenario",
+                "data-boundary",
+                "--max-variants",
+                "1",
+                "--out",
+                str(out),
+            ]
+        )
+        == 0
+    )
+    matrix_path = out / "matrix.json"
+    matrix = _load(matrix_path)
+    matrix["summary"]["failed_variants"] = 0
+    _dump(matrix_path, matrix)
+    _rebind_manifest_artifact(out, "matrix.json")
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert _has(result, "summary does not match variants + traces")
+
+
+def test_current_matrix_markdown_is_exact_after_rehash(tmp_path: Path) -> None:
+    out = tmp_path / "matrix"
+    assert (
+        cli.main(
+            [
+                "run-matrix",
+                "--target",
+                "mock",
+                "--scenario",
+                "data-boundary",
+                "--max-variants",
+                "1",
+                "--out",
+                str(out),
+            ]
+        )
+        == 0
+    )
+    matrix_md = out / "matrix.md"
+    matrix_md.write_text(
+        matrix_md.read_text(encoding="utf-8") + "\nForged reviewer claim.\n",
+        encoding="utf-8",
+    )
+    _rebind_manifest_artifact(out, "matrix.md")
+
+    result = validate_path(out)
+
+    assert not result.ok
+    assert _has(result, "report projection mismatch")
 
 
 # ---- invalid traces --------------------------------------------------------------------
@@ -172,6 +439,27 @@ def test_no_findings_on_baseline_fails(tmp_path: Path) -> None:
     assert _has(result, "baseline target expects FAIL")
 
 
+def test_valid_baseline_regression_is_evidence_not_integrity_failure() -> None:
+    raw = _load(EXAMPLES / "demo-agent-report" / "traces.json")
+    for item in raw:
+        item["findings"] = []
+    traces = [ExploitTrace.model_validate(item) for item in raw]
+    result = ValidationResult()
+
+    _validate_traces(
+        traces,
+        EXAMPLES / "demo-agent-report" / "traces.json",
+        EXAMPLES,
+        result,
+    )
+
+    assert result.integrity_ok
+    assert not result.expectations_ok
+    assert not result.ok
+    assert len(result.expectation_mismatches) == len(traces)
+    assert result.errors == []
+
+
 # ---- invalid scorecard -----------------------------------------------------------------
 
 
@@ -264,6 +552,29 @@ def test_root_validation_is_deterministic() -> None:
     assert first.errors == second.errors
 
 
+def test_validation_reports_stale_remediation_without_mutating_files(tmp_path: Path) -> None:
+    report = _copy("protected-demo-agent-report", tmp_path)
+    (report / "remediation.json").write_text('{"stale": true}\n', encoding="utf-8")
+    (report / "remediation.md").write_text("# stale remediation\n", encoding="utf-8")
+    before = {
+        path.relative_to(report).as_posix(): path.read_bytes()
+        for path in report.rglob("*")
+        if path.is_file()
+    }
+
+    result = validate_path(report)
+
+    after = {
+        path.relative_to(report).as_posix(): path.read_bytes()
+        for path in report.rglob("*")
+        if path.is_file()
+    }
+    assert not result.ok
+    assert _has(result, "remediation.json: unexpected")
+    assert _has(result, "remediation.md: unexpected")
+    assert after == before
+
+
 # ---- protected-target outcome rule -----------------------------------------------------
 
 
@@ -283,6 +594,27 @@ def test_protected_target_with_findings_fails(tmp_path: Path) -> None:
     result = validate_path(report)
     assert not result.ok
     assert _has(result, "protected target should PASS")
+
+
+def test_valid_protected_regression_is_evidence_not_integrity_failure() -> None:
+    raw = _load(EXAMPLES / "demo-agent-report" / "traces.json")
+    for item in raw:
+        item["target"]["type"] = "protected_demo_agent"
+    traces = [ExploitTrace.model_validate(item) for item in raw]
+    result = ValidationResult()
+
+    _validate_traces(
+        traces,
+        EXAMPLES / "demo-agent-report" / "traces.json",
+        EXAMPLES,
+        result,
+    )
+
+    assert result.integrity_ok
+    assert not result.expectations_ok
+    assert not result.ok
+    assert len(result.expectation_mismatches) == len(traces)
+    assert result.errors == []
 
 
 # ---- target consistency (security: no single-trace relabel bypass) ---------------------
@@ -444,6 +776,20 @@ def test_missing_summary_fails(tmp_path: Path) -> None:
     assert _has(result, "summary.md") and _has(result, "missing")
 
 
+def test_ambiguous_artifact_directory_cannot_hide_second_contract(
+    tmp_path: Path,
+) -> None:
+    report = _copy("local-swarm-report", tmp_path)
+    shutil.copy2(EXAMPLES / "demo-agent-report" / "traces.json", report / "traces.json")
+
+    result = validate_path(report)
+
+    assert not result.ok
+    assert not result.integrity_ok
+    assert _has(result, "ambiguous artifact directory")
+    assert _has(result, "local_swarm") and _has(result, "report")
+
+
 def test_empty_dir_warns_but_ok(tmp_path: Path) -> None:
     result = validate_path(tmp_path)
     assert result.ok
@@ -521,7 +867,7 @@ def test_cli_success_line_is_not_overclaiming(capsys: Any) -> None:
     rc = cli.main(["validate", str(EXAMPLES)])
     assert rc == 0
     out = capsys.readouterr().out
-    assert "OK: artifacts conform to the corpus manifest" in out
+    assert "OK: artifacts satisfy their applicable validation contracts" in out
     for bad in ("secure", "guaranteed", "SECRET DETECTED"):
         assert bad not in out
 
@@ -608,9 +954,7 @@ def test_external_missing_report_md_fails(tmp_path: Path) -> None:
 
 
 def test_external_report_md_has_reproduce_section() -> None:
-    md = (EXAMPLES / "external-demo-report" / "external_report.md").read_text(
-        encoding="utf-8"
-    )
+    md = (EXAMPLES / "external-demo-report" / "external_report.md").read_text(encoding="utf-8")
     assert "## How to reproduce / validate" in md
     assert "ash validate" in md
 
@@ -618,9 +962,7 @@ def test_external_report_md_has_reproduce_section() -> None:
 def test_external_report_md_missing_section_fails(tmp_path: Path) -> None:
     report = _copy("external-demo-report", tmp_path)
     md = report / "external_report.md"
-    text = md.read_text(encoding="utf-8").replace(
-        "## Control recommendations", "## Something else"
-    )
+    text = md.read_text(encoding="utf-8").replace("## Control recommendations", "## Something else")
     md.write_text(text, encoding="utf-8")
 
     result = validate_path(report)

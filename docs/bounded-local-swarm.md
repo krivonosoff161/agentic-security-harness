@@ -130,17 +130,19 @@ outputs are evidence-quality context and are stored as hashes plus short preview
 lets a maintainer test a realistic weak-model swarm shape without giving any local model
 authority over the security verdict.
 
-## Local Real-Model Evaluation
+## Historical Unreconciled Local-Model Report
 
-The 15-scenario suite was run against two local Ollama models on 2026-06-21:
+Maintainer documentation declares that the 15-scenario suite was run against two local
+Ollama model identifiers on 2026-06-21:
 `prometheus-qwen15b-lowctx:latest` and `qwen2.5:1.5b`. Both runs covered all three modes
 and 120 role calls per model. `ash validate` passed, `ash evidence-quality` reported 100%
 contract coverage, 100% transcript-hash coverage, and 0% adapter-error rate for both.
 
 See [local-swarm-real-model-evaluation.md](local-swarm-real-model-evaluation.md).
 
-This is local-empirical evidence that the runner can exercise real weak local models. It
-is not a model pass, leaderboard result, or production-swarm safety proof.
+The public repository does not contain the private bundle or a reconciliation receipt.
+This is an unreconciled maintainer report, not authenticated runtime evidence, a model
+pass, leaderboard result, or production-swarm safety proof.
 
 ## Attack Variation Matrix
 

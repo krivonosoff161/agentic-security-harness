@@ -59,7 +59,6 @@ The next useful gaps are not more prompt variants. They are distinct invariants:
 
 | Candidate | Why it is next |
 |---|---|
-| `memory_governance.cross_agent_rehydration` | Memory resurrection across agents is not the same as first-turn context or planner decomposition. |
 | `recovery.trust_gate_no_path` | A safe block that gives no recovery path is operationally weak. |
 | `model_trust.weak_to_strong_escalation` | Weak-model output becoming chief authority is a different trust boundary. |
 | `data_boundary.summary_boundary_loss` | Summaries can drop envelope limits even without planner conversion. |

@@ -2,6 +2,9 @@
 
 This deterministic campaign measures whether synthetic retrieved context, citations, summaries, rankings, memory notes, or handoff summaries are mistaken for authority during an agentic workflow. Public artifacts contain case contracts, deterministic rows, aggregate metrics, agentic-pressure scores, propagation labels, and context fingerprints only.
 
+Evidence class: `executable_specification`.
+Control effects are derived from declared case dependencies and evaluation rules; they are not independent causal estimates.
+
 ## Attacker Model
 
 The modeled attacker can use AI to split influence across normal-looking retrieved artifacts, avoid direct jailbreak wording, and rely on retrieval, summary, planner, memory, or handoff steps to convert data into authority.
@@ -65,16 +68,16 @@ A clean validation result means artifact integrity and forbidden-marker checks p
 
 | Control | Required cases | Ablation mode | Bounded acceptances | Ablation acceptances | Full-contract blocks | Interpretation |
 | --- | ---: | --- | ---: | ---: | ---: | --- |
-| source_provenance | 7 | no_source_provenance | 0 | 7 | 7 | Removing source_provenance reopens every case that depends on it; the bounded contract blocks those rows. |
-| retrieval_trust_label | 2 | no_retrieval_trust_label | 0 | 2 | 2 | Removing retrieval_trust_label reopens every case that depends on it; the bounded contract blocks those rows. |
-| context_instruction_split | 4 | no_context_instruction_split | 0 | 4 | 4 | Removing context_instruction_split reopens every case that depends on it; the bounded contract blocks those rows. |
-| rank_is_not_authority | 2 | no_rank_is_not_authority | 0 | 2 | 2 | Removing rank_is_not_authority reopens every case that depends on it; the bounded contract blocks those rows. |
-| citation_permission_split | 3 | no_citation_permission_split | 0 | 3 | 3 | Removing citation_permission_split reopens every case that depends on it; the bounded contract blocks those rows. |
-| summary_provenance_preservation | 2 | no_summary_provenance_preservation | 0 | 2 | 2 | Removing summary_provenance_preservation reopens every case that depends on it; the bounded contract blocks those rows. |
-| planner_authority_gate | 6 | no_planner_authority_gate | 0 | 6 | 6 | Removing planner_authority_gate reopens every case that depends on it; the bounded contract blocks those rows. |
-| cross_document_independence | 1 | no_cross_document_independence | 0 | 1 | 1 | Removing cross_document_independence reopens every case that depends on it; the bounded contract blocks those rows. |
-| memory_quarantine | 1 | no_memory_quarantine | 0 | 1 | 1 | Removing memory_quarantine reopens every case that depends on it; the bounded contract blocks those rows. |
-| handoff_revalidation | 2 | no_handoff_revalidation | 0 | 2 | 2 | Removing handoff_revalidation reopens every case that depends on it; the bounded contract blocks those rows. |
+| source_provenance | 7 | no_source_provenance | 0 | 7 | 7 | The specification marks every case that depends on source_provenance accepted when that control is disabled; this is rule-derived attribution. |
+| retrieval_trust_label | 2 | no_retrieval_trust_label | 0 | 2 | 2 | The specification marks every case that depends on retrieval_trust_label accepted when that control is disabled; this is rule-derived attribution. |
+| context_instruction_split | 4 | no_context_instruction_split | 0 | 4 | 4 | The specification marks every case that depends on context_instruction_split accepted when that control is disabled; this is rule-derived attribution. |
+| rank_is_not_authority | 2 | no_rank_is_not_authority | 0 | 2 | 2 | The specification marks every case that depends on rank_is_not_authority accepted when that control is disabled; this is rule-derived attribution. |
+| citation_permission_split | 3 | no_citation_permission_split | 0 | 3 | 3 | The specification marks every case that depends on citation_permission_split accepted when that control is disabled; this is rule-derived attribution. |
+| summary_provenance_preservation | 2 | no_summary_provenance_preservation | 0 | 2 | 2 | The specification marks every case that depends on summary_provenance_preservation accepted when that control is disabled; this is rule-derived attribution. |
+| planner_authority_gate | 6 | no_planner_authority_gate | 0 | 6 | 6 | The specification marks every case that depends on planner_authority_gate accepted when that control is disabled; this is rule-derived attribution. |
+| cross_document_independence | 1 | no_cross_document_independence | 0 | 1 | 1 | The specification marks every case that depends on cross_document_independence accepted when that control is disabled; this is rule-derived attribution. |
+| memory_quarantine | 1 | no_memory_quarantine | 0 | 1 | 1 | The specification marks every case that depends on memory_quarantine accepted when that control is disabled; this is rule-derived attribution. |
+| handoff_revalidation | 2 | no_handoff_revalidation | 0 | 2 | 2 | The specification marks every case that depends on handoff_revalidation accepted when that control is disabled; this is rule-derived attribution. |
 
 ## Deterministic Contract Results
 

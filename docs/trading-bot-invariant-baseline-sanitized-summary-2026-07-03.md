@@ -7,6 +7,10 @@
 >
 > Source: ignored private fixture under
 > `.internal/trading-bot-paper-stand/issue-136/`.
+>
+> Historical status (2026-07-15): the seven schema-derived `pass` labels below
+> are withdrawn. The current contract classifies safe-shaped schema-only rows
+> as `inconclusive`; only explicit unsafe bounded values become findings.
 
 ## Boundary
 
@@ -67,11 +71,13 @@ Sanitized result:
 
 ## Interpretation
 
-The current paper stand can produce a sanitized baseline fixture for all seven
-mapped scenarios. That confirms the evidence pipeline works end-to-end without
-leaking private rows or touching live/external surfaces.
+This historical fixture shows that the sanitizer/validator pipeline completed
+without publishing private rows or touching live/external surfaces. It does not
+show that any of the seven behavioral invariants held.
 
-This baseline should be treated as a control group. The next layer is to fill
+The result table above is retained as historical output, not as a current
+verdict. A current schema-only replay would produce seven `inconclusive` rows.
+The next layer is to fill
 the same private fixture shape with paper-only malformed/adversarial
 observations, then sanitize those results into public `pass`, `finding`,
 `inconclusive`, or `error` counts.

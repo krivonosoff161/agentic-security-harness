@@ -20,7 +20,11 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from agentic_security_harness.run_manifest import build_manifest, write_run_manifest
-from agentic_security_harness.safe_io import write_text_artifact
+from agentic_security_harness.safe_io import (
+    atomic_evidence_bundle,
+    require_fresh_output_dir,
+    write_text_artifact,
+)
 from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 
 MemoryRehydrationScenarioId = Literal[
@@ -191,6 +195,8 @@ class MemoryRehydrationSummary(BaseModel):
     schema_version: str = SCHEMA_VERSIONS["memory_rehydration_campaign"]
     run_kind: Literal["memory_rehydration_campaign"] = "memory_rehydration_campaign"
     created_at: str = ""
+    evidence_kind: Literal["executable_specification"]
+    causal_scope: Literal["rule_derived_control_attribution"]
     claim_boundary: str = (
         "This deterministic campaign measures whether synthetic cross-agent memory "
         "rehydration turns old, expired, cross-scope, summarized, merged, or "
@@ -597,6 +603,8 @@ def build_memory_rehydration_campaign(*, created_at: str = "") -> MemoryRehydrat
     effects = _build_control_effects(cases, rows)
     return MemoryRehydrationSummary(
         created_at=created_at,
+        evidence_kind="executable_specification",
+        causal_scope="rule_derived_control_attribution",
         cases=cases,
         control_catalog=controls,
         deterministic_results=rows,
@@ -605,12 +613,14 @@ def build_memory_rehydration_campaign(*, created_at: str = "") -> MemoryRehydrat
     )
 
 
+@atomic_evidence_bundle("out_dir")
 def write_memory_rehydration_artifacts(
     out_dir: Path,
     summary: MemoryRehydrationSummary,
 ) -> list[Path]:
     """Write sanitized memory rehydration campaign artifacts."""
 
+    require_fresh_output_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     summary_path = out_dir / "memory_rehydration_summary.json"
     report_path = out_dir / "memory_rehydration_report.md"
@@ -652,6 +662,10 @@ def render_memory_rehydration_summary(summary: MemoryRehydrationSummary) -> str:
         "# Memory Rehydration Authority Campaign",
         "",
         summary.claim_boundary,
+        "",
+        "Evidence class: `executable_specification`.",
+        "Control effects are derived from declared case dependencies and evaluation rules; "
+        "they are not independent causal estimates.",
         "",
         "## Attacker Model",
         "",
@@ -958,14 +972,15 @@ def _control_effect_interpretation(
         return f"{control} is not required by the declared case set."
     if acceptances == required_cases:
         return (
-            f"Removing {control} reopens every case that depends on it; "
-            "the bounded contract blocks those rows."
+            f"The specification marks every case that depends on {control} accepted "
+            "when that control is disabled; this is rule-derived attribution."
         )
     if acceptances:
         return (
-            f"Removing {control} reopens {acceptances}/{required_cases} dependent rows."
+            f"The specification marks {acceptances}/{required_cases} dependent rows "
+            f"accepted when {control} is disabled; this is rule-derived attribution."
         )
-    return f"Removing {control} did not reopen a dependent row in this campaign."
+    return f"The specification did not mark a dependent row accepted without {control}."
 
 
 def _case_controls(

@@ -18,7 +18,13 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from agentic_security_harness.run_manifest import build_manifest, write_run_manifest
-from agentic_security_harness.safe_io import write_text_artifact
+from agentic_security_harness.safe_io import (
+    atomic_evidence_bundle,
+    atomic_private_bundle,
+    is_internal_output_dir,
+    require_fresh_output_dir,
+    write_text_artifact,
+)
 from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 
 ResilienceScenarioId = Literal[
@@ -194,7 +200,8 @@ class ResilienceSummary(BaseModel):
             "This is not a production-swarm certification.",
             "The state-vector model is an explicit defensive abstraction, not a proof "
             "that all future model behavior is covered.",
-            "A deterministic ablation reopening is control attribution, not a CVE.",
+            "A deterministic ablation branch is a rule-encoded dependency, not a causal "
+            "effect or a CVE.",
         ]
     )
 
@@ -565,14 +572,16 @@ def build_resilience_summary(
     )
 
 
+@atomic_private_bundle("out_dir")
 def write_resilience_private_artifacts(
     out_dir: Path,
     run: ResiliencePrivateRun,
 ) -> list[Path]:
     """Write private calculation artifacts under .internal."""
 
-    if ".internal" not in out_dir.parts:
+    if not is_internal_output_dir(out_dir):
         raise ValueError("private resilience output must be under .internal/")
+    require_fresh_output_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     raw_path = out_dir / "swarm_resilience_private.json"
     report_path = out_dir / "swarm_resilience_private.md"
@@ -581,12 +590,14 @@ def write_resilience_private_artifacts(
     return [raw_path, report_path]
 
 
+@atomic_evidence_bundle("out_dir")
 def write_resilience_artifacts(
     out_dir: Path,
     summary: ResilienceSummary,
 ) -> list[Path]:
     """Write sanitized public resilience campaign artifacts."""
 
+    require_fresh_output_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     summary_path = out_dir / "swarm_resilience_summary.json"
     digest_path = out_dir / "swarm_resilience_digest.json"
@@ -607,8 +618,15 @@ def write_resilience_artifacts(
     manifest = build_manifest(
         "swarm_resilience_campaign",
         out_dir,
+        created_at=summary.created_at,
         target="deterministic-mini-swarm-resilience",
         scenario="seven-family-resilience-stability-model",
+        outcomes={
+            "naive_unsafe_acceptances": summary.metrics.naive_unsafe_acceptances,
+            "bounded_unsafe_acceptances": summary.metrics.bounded_unsafe_acceptances,
+            "ablation_unsafe_acceptances": summary.metrics.ablation_unsafe_acceptances,
+            "benign_false_blocks": summary.metrics.benign_false_blocks,
+        },
         metadata={
             "command": "ash swarm-resilience-campaign --write --summary-out <dir>",
             "raw_artifacts_private": True,
@@ -683,7 +701,8 @@ def render_resilience_report(summary: ResilienceSummary) -> str:
         [
             "",
             "Private synthetic payload notes and calculation traces are not part of this",
-            "public summary. Public state hashes anchor private owner-side replay.",
+            "public summary. Public state hashes are commitments; they require owner-side "
+            "byte reconciliation before any replayability claim.",
         ]
     )
     return "\n".join(lines) + "\n"
@@ -888,7 +907,9 @@ def _metrics(observations: list[ResilienceObservation]) -> ResilienceMetrics:
     failures = Counter(item.first_failure_step for item in observations if item.first_failure_step)
     bounded_final = [item.final_stability_energy for item in observations if item.mode == "bounded"]
     hash_slots = sum(item.turns for item in observations)
-    hash_present = sum(len(item.state_hashes) for item in observations)
+    hash_present = sum(
+        1 for item in observations for digest in item.state_hashes if digest
+    )
     return ResilienceMetrics(
         scenarios=len(declared_resilience_scenarios()),
         observations=len(observations),

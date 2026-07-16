@@ -6,7 +6,228 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- Ambient environment/OS proxy discovery is disabled for model requests and the guarded local
+  page fetch. Explicit endpoints/gateways remain supported, while direct Python callers must
+  affirmatively opt into broader proxy routing.
+- The shared OpenAI-compatible client now refuses HTTP redirects by default, and all eleven
+  production model-request call sites state that policy explicitly. An AST contract prevents a
+  future call site from silently inheriting broader route authority.
+- `run-external` is now a no-network/no-files preview by default and requires `--execute` before
+  model requests or artifact writes. Generated reproduction commands and every runnable
+  documentation example explicitly choose `--dry-run` or `--execute`, enforced by CLI authority
+  and Markdown-command contract tests.
+- Every GitHub Actions checkout now disables persisted credentials, and a repository-wide workflow
+  contract requires full-commit action pins plus credential-free checkout steps.
+- The source-layout import path is established before the clean-container smoke import, and
+  deployment docs now distinguish the current local CLI Dockerfile from the unimplemented gateway
+  image. Hardening the Docker build-context private-path boundary remains separately guarded.
+- The release-artifact workflow is now tag-only, binds canonical tag, package, and dated
+  changelog versions, reruns pytest/Ruff/mypy/artifact validation, smoke-installs both sdist and
+  wheel, disables persisted checkout credentials, and emits unsigned SHA-256 checksums. This
+  closes release-gate bypasses without claiming artifact authenticity or enabling signing rights.
+- Added an end-to-end security audit causal map covering all 50 verified findings from Git/release
+  through evidence consumers and trading authority, with explicit repaired/partial/open states,
+  synthetic-versus-empirical limits, residual risks, and action-specific closure order.
+- Added a decision-ready artifact-authenticity design separating public release provenance from
+  private empirical reconciliation, with explicit signer/issuer/workflow policy, trusted-time
+  limits, verification gates, and authority required before any external signing workflow change.
+- Test fixtures now carry precise runtime/schema/swarm types, so the expanded
+  `mypy src tests` gate covers all 129 source and test files without suppressions.
+- Trading private-fixture and experiment sanitizers now allow only canonical public
+  fields/slot names, use constant redaction markers, ignore caller hash channels, and hash
+  only the already-sanitized public projection. Filled rows remain self-declared until a
+  separate observation receipt exists; generated batch manifests cannot attest owner approval,
+  and intake/gate paths parse once with internal byte-hash stability checks while publishing
+  booleans rather than private-file fingerprints.
+- All ten private trading-fixture writers now share an exclusive-create sink. Private-root names
+  must be contiguous and ordered, prospective traversal/link resolution and parent rechecks fail
+  closed, existing files are never truncated, and private permissions are applied before content.
+- Public report Markdown uses shared context-specific prose/table/code/fence encoding, and the
+  CLI neutralizes ANSI/OSC, carriage-return, C1, and bidi-format controls on both output streams.
+  Trading public summaries use portable path labels rather than absolute workstation roots.
+- Experiment readiness now binds the canonical paper entrypoint's hash-bound static topology.
+  Literal batch calls and local Python imports are followed without target execution; missing,
+  escaping, parse-error, dynamic-import, and file-cap states fail closed. Topology completeness
+  does not promote provider, messaging, configuration, or execution isolation.
+- Retention plans now label chronology as `unsigned_manifest_created_at`; applying any
+  candidate deletion fails closed unless the operator supplies the separate
+  `--accept-unsigned-chronology` acknowledgement in addition to `--apply`. Manifest hash and
+  applicable validation are still rechecked immediately before deletion. Apply also rebuilds
+  the exact current plan, binds candidate identity/labels/reasons, rejects caller-forged or stale
+  candidate sets, and rechecks each candidate immediately before its individual removal.
+  Internal apply paths remain absolute, while CLI text/JSON use a portable `<run-root>` projection
+  with relative candidate paths rather than workstation locations.
+- Current core `run`, `compare`, and `matrix` manifests are bound to rebuilt artifact
+  semantics and mandatory authoritative-file inventories. Matrix validation rebuilds every
+  variant/aggregate and exact Markdown, closing rehash-and-relabel and selective-hash-
+  omission paths into HTML, diff, stats, and retention consumers.
+- `ash showcase` schema v0.1 uses validator-recognized sources, source-manifest commitments,
+  a portable structured projection, context-escaped exact Markdown, a content-bound output
+  manifest, and source/output plus symlink-file refusal.
+- Run-statistics schema v0.1 replaces absolute source-root persistence and unbound aggregates
+  with portable labels, minimal source-manifest commitments, independently rebuilt counters,
+  exact Markdown, a content-bound output manifest, and source/output overlap refusal.
+- Run-diff schema v0.3 validates both input bundles, records source-manifest commitments,
+  validation scope, expectation status, and unsigned origin, then writes an exact Markdown
+  projection plus a content-bound `run_index.json`. CLI comparison refuses source/output
+  path overlap; v0.1/v0.2 diffs remain legacy-readable.
+- Evidence-quality schema v0.3 now aggregates only manifested bundles that pass applicable
+  artifact integrity validation. Each external/local-swarm row records the manifest schema,
+  `current_content_bound` versus `legacy_structural` validation, and explicitly unsigned
+  origin; invalid or post-manifest-modified inputs are excluded with warnings. Generated run
+  labels are portable, aggregates/comparison groups are independently rebuilt, and exact
+  JSON/Markdown output is protected by its own current manifest.
+- Static HTML reports now validate the directly supplied artifact tree before rendering.
+  Integrity, schema, projection, secret-marker, and manifest/hash failures stop publication;
+  behavioral expectation mismatches remain reportable but are displayed as an explicit
+  non-clean-result warning. Output directories are created only after validation succeeds;
+  custom output must be `.html` and cannot overwrite a source artifact or follow a symlink
+  file.
+- Run-history listing, SQLite indexing, stats, and retention now share one current,
+  content-bound, applicable-validator discovery contract. Parseable but unvalidated or legacy
+  manifests are excluded, and retention apply rechecks the planned manifest hash plus full
+  validation immediately before deleting an in-root candidate.
+- Repeated manifest discovery uses artifact-scoped validation: all run artifact/hash/
+  projection/expectation checks remain, while repository-global standards mapping and public
+  evidence-registry attachment are no longer repeated once per discovered manifest.
+- External config and summary schemas v0.2 now allocate one execution id before the
+  first request and carry it through runtime metadata, every result row, the summary,
+  and run-manifest v0.3. The direct producer writes the manifest itself, current-bundle
+  validation rejects deletion or identity mismatch, and reused non-empty output
+  directories fail closed.
+- `ash showcase` now consumes only current content-bound manifests that pass artifact
+  validation. The former legacy-0.1 generated-card source is retained as historical
+  input but produces an honest empty state rather than mutable reviewer cards.
+- Local-swarm manifests distinguish the canonical `shipped_full` profile from a
+  `custom_subset`; the validator requires all 15 scenarios and all three modes before a
+  bundle can support the shipped-profile claim.
+- Docs-only local runtime reports are classified as
+  `maintainer_declaration_unverified`, not empirical observations. Evidence-status
+  validation also rejects empirical classes paired with unexecuted or inapplicable
+  schema states.
+- Legacy semantic deterministic rows are classified as `historical_rule_snapshot` with
+  `legacy-structural-only` verification. A legacy schema can no longer be promoted to a
+  current executable specification merely because its embedded rows are self-consistent.
+- Swarm-contour summary and digest persistence now uses the central redacting artifact
+  writer, with a functional negative test for secret-shaped content.
+- External artifacts retain only a fixed credential-configured marker. CLI text, generated
+  reports, docs, and tests no longer claim that the credential environment-variable name is
+  persisted.
+- A versioned machine-readable evidence-status registry now classifies every public
+  showcase campaign by lifecycle, evidence class, schema state, causal scope, label
+  coverage, reconciliation, origin authentication, and allowed/forbidden claims.
+  `ash validate docs/evidence-status-registry.json` rejects impossible promotions,
+  missing/future schema versions, missing artifact paths, and missing validator anchors
+  without executing artifacts. Strong reconciliation, independent-review, causal, and
+  attestation states fail closed until a public receipt/attestation contract exists.
+  Ordinary validation of tracked examples now attaches their machine-readable evidence
+  classifications and explicitly marks historical/unreconciled empirical components as
+  `unverified-private-projection` even when artifact integrity is green.
+- Evidence-registry validator anchors are now typed artifact-family routes rather than
+  existence-only file pointers. A wrong-but-existing test/source anchor fails validation
+  when its registered artifact markers do not match the referenced public component.
+- Public research-problem and showcase evidence maps now distinguish lifecycle,
+  evidence class, schema state, causal scope, reconciliation, and origin status.
+  Synthetic branches use rule-derived wording, legacy detector summaries remain
+  historical, and `ash validate` strength is described per schema instead of as
+  one universal artifact-integrity guarantee.
+- Current-schema deterministic campaign validators now bind shipped canonical
+  corpora/static contracts, exact producer-rendered reports, and complete
+  semantic manifest projections. Negative controls rewrite stored artifact
+  hashes before validation, ensuring a generic content hash cannot authenticate
+  a redefined corpus, report, claim, or outcome projection.
+- Current semantic-drift and propagation validators bind producer claim/non-claim
+  contracts and canonical cases/controls while preserving behavioral regressions
+  as expectation failures. Legacy semantic schemas remain historical structural
+  evidence and are not retroactively promoted.
+- Current live swarm-defense and marketing-web validators bind claim boundaries
+  and non-claims to the producer contract, preventing a self-consistent artifact
+  rewrite from claiming production security.
+- Secret-egress validators now bind the deterministic campaign to its declared
+  scenario/mode/control corpus, rebuild every metric, verify row causality and
+  hash/error states, and require exact digest, report, and manifest projections.
+- Legacy live examples disclose structural-only historical status before any
+  metrics. Release-facing docs no longer treat public hash strings as proof of
+  retained private bytes, and the contour headline is synchronized to 112
+  rule-derived ablation acceptances.
+- Run-manifest schema v0.3 binds each listed artifact to the SHA-256 of its
+  exact persisted bytes and rejects duplicate, absolute, escaping, missing, or
+  self-referential artifact paths. This closes content-integrity gaps without
+  claiming signature-backed authorship; v0.1 and v0.2 remain readable.
+- Trading paper-stand artifact-schema observations now remain `inconclusive`
+  when they establish only field presence and bounded values. They become a
+  `finding` only when an explicit unsafe bounded value is observed; schema
+  shape alone no longer counts as behavioral evidence or a safety `pass`.
+- Trading paper-stand artifact observation now verifies cross-artifact identity
+  joins instead of treating file presence and parseability as a causal chain.
+  Readiness fails closed on incomplete/mismatched joins and on provider/execution
+  boundaries that lack separate transitive entrypoint evidence; the 2026-07-03
+  `ready` snapshot is explicitly historical.
+- Evidence credibility repair: deterministic consent/tool/RAG/planner/memory and swarm
+  contour artifacts are now explicitly versioned as executable specifications with
+  rule-derived control attribution, not independent causal estimates.
+- Live semantic-drift, propagation, and swarm-defense artifacts now carry an independent
+  review-label contract, private review-evidence hashes, label coverage, and confusion
+  matrices. Historical observations are explicitly `not_adjudicated` rather than being
+  treated as detector-confirming ground truth.
+- `ash validate` is observational: unexpected stale remediation artifacts are reported
+  as errors and are never deleted.
+- Campaign validation now rebuilds independent-label aggregates from observation rows,
+  uses topology-derived expected response slots for swarm hash coverage, and excludes
+  adapter-error rows from security-outcome rate denominators. The legacy circular
+  swarm block-rate field is reported as detector-policy consistency, not effectiveness.
+- Run-manifest schema v0.2 separates unique execution identity from deterministic
+  configuration fingerprint. The SQLite metadata index preserves repeated executions,
+  treats identical re-indexing as a no-op, and rejects mutation under an existing
+  execution identity; v0.1 manifests remain readable.
+- Validation results now expose separate integrity and expected-fixture gates. A
+  structurally valid baseline/protected regression remains valid evidence while the
+  overall validation command still fails its expectation gate.
+- Deterministic campaign validators now treat bounded/benign outcome regressions as
+  expectation failures while independently verifying the complete case/mode matrix,
+  case and scenario references, row decision consistency, control catalogs,
+  fingerprints, control effects, and every recomputed aggregate metric.
+- Artifact-directory dispatch now rejects directories that match more than one
+  artifact contract, preventing first-match routing from hiding a second report type.
+- Runtime network metadata is derived from the effective endpoint locality. A local
+  preset overridden with a non-loopback URL can no longer be labeled `local-only`, and
+  a remote preset pointed at loopback no longer claims a provider network.
+- Local-swarm validators now rebuild the scenario/mode result matrix and all aggregate
+  metrics from result rows, bind request counts to role transcripts, enforce request
+  caps, and independently recompute attack-matrix metrics.
+- Evidence-campaign validation now binds observations and ablations back to their cases,
+  recomputes decision/confusion relationships and row hashes, and rebuilds both campaign
+  and ablation metrics instead of trusting stored aggregates.
+- Swarm-defense contour and resilience validators now rebuild declared topology/mode or
+  scenario/mode/control matrices, verify row-level causal relationships, and recompute
+  control effects and all aggregate metrics. Self-consistent defense regressions remain
+  valid evidence but fail the separate expectation gate.
+- Current-schema public digests must be exact producer projections, including every
+  metric field. Local-swarm transcripts and attack-matrix rows are bound to canonical
+  replay, resilience state slots require non-empty SHA-256 evidence, and semantic-drift
+  and propagation validators now rebuild complete metrics and propagation control
+  effects at the producer's six-decimal precision.
+- Offline marketing-web validation now binds the declared scenario/mode/control matrix,
+  row-level decision relationships, every aggregate, and digest projection. Current
+  live-swarm and live-marketing summaries also replay every aggregate metric, while
+  live-marketing turn-hash coverage counts only non-empty SHA-256 slots.
+- Live swarm schema v0.5 and live marketing schema v0.3 now declare their planned axes,
+  loopback endpoint commitment, execution id, tool version, and transitive producer
+  fingerprint. The same execution id is bound through private run, public summary,
+  digest, and manifest; source changes during execution fail closed.
+- Live adapter failures are stage-specific. Blank content is an adapter failure,
+  outcome rates expose completed-stage denominators, legacy live digests exactly mirror
+  their raw summary metrics, and live marketing separates deterministic decision hashes
+  from chief-model response hashes. Owned marketing page content is independently
+  rebuilt during validation.
+- Live swarm canary aggregation now uses the detector's real `partial`, `full`,
+  `encoded`, and `recombined` categories instead of silently collapsing most leak kinds
+  to `none`.
+
 ### Added
+- `ash trading-stand --mode entrypoint-closure` for public-safe, non-executing inspection of
+  the canonical paper batch/Python import graph with relative module labels and file hashes.
 - Public security-stack positioning in the README and project map, linking the
   related playbooks, handoff protocol, and transfer-verifier repositories while
   keeping Agentic Security Harness scoped as the benchmark/evidence layer.

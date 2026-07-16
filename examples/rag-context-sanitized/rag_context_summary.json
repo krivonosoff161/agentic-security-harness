@@ -251,6 +251,7 @@
       "title": "Handoff inherits retrieved-context authority"
     }
   ],
+  "causal_scope": "rule_derived_control_attribution",
   "claim_boundary": "This deterministic campaign measures whether synthetic retrieved context, citations, summaries, rankings, memory notes, or handoff summaries are mistaken for authority during an agentic workflow. Public artifacts contain case contracts, deterministic rows, aggregate metrics, agentic-pressure scores, propagation labels, and context fingerprints only.",
   "control_catalog": [
     {
@@ -331,7 +332,7 @@
       "blocked_by_full_contract": 7,
       "bounded_acceptances": 0,
       "control_id": "source_provenance",
-      "interpretation": "Removing source_provenance reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on source_provenance accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 7
     },
     {
@@ -340,7 +341,7 @@
       "blocked_by_full_contract": 2,
       "bounded_acceptances": 0,
       "control_id": "retrieval_trust_label",
-      "interpretation": "Removing retrieval_trust_label reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on retrieval_trust_label accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 2
     },
     {
@@ -349,7 +350,7 @@
       "blocked_by_full_contract": 4,
       "bounded_acceptances": 0,
       "control_id": "context_instruction_split",
-      "interpretation": "Removing context_instruction_split reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on context_instruction_split accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 4
     },
     {
@@ -358,7 +359,7 @@
       "blocked_by_full_contract": 2,
       "bounded_acceptances": 0,
       "control_id": "rank_is_not_authority",
-      "interpretation": "Removing rank_is_not_authority reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on rank_is_not_authority accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 2
     },
     {
@@ -367,7 +368,7 @@
       "blocked_by_full_contract": 3,
       "bounded_acceptances": 0,
       "control_id": "citation_permission_split",
-      "interpretation": "Removing citation_permission_split reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on citation_permission_split accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 3
     },
     {
@@ -376,7 +377,7 @@
       "blocked_by_full_contract": 2,
       "bounded_acceptances": 0,
       "control_id": "summary_provenance_preservation",
-      "interpretation": "Removing summary_provenance_preservation reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on summary_provenance_preservation accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 2
     },
     {
@@ -385,7 +386,7 @@
       "blocked_by_full_contract": 6,
       "bounded_acceptances": 0,
       "control_id": "planner_authority_gate",
-      "interpretation": "Removing planner_authority_gate reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on planner_authority_gate accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 6
     },
     {
@@ -394,7 +395,7 @@
       "blocked_by_full_contract": 1,
       "bounded_acceptances": 0,
       "control_id": "cross_document_independence",
-      "interpretation": "Removing cross_document_independence reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on cross_document_independence accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 1
     },
     {
@@ -403,7 +404,7 @@
       "blocked_by_full_contract": 1,
       "bounded_acceptances": 0,
       "control_id": "memory_quarantine",
-      "interpretation": "Removing memory_quarantine reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on memory_quarantine accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 1
     },
     {
@@ -412,11 +413,11 @@
       "blocked_by_full_contract": 2,
       "bounded_acceptances": 0,
       "control_id": "handoff_revalidation",
-      "interpretation": "Removing handoff_revalidation reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on handoff_revalidation accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 2
     }
   ],
-  "created_at": "2026-07-02T17:19:22Z",
+  "created_at": "2026-07-14T20:35:42Z",
   "deterministic_results": [
     {
       "agentic_pressure": 1.811022,
@@ -2091,6 +2092,7 @@
       "verifier_decision": "allow"
     }
   ],
+  "evidence_kind": "executable_specification",
   "metrics": {
     "ablation_acceptances": 30,
     "acceptances_by_missing_control": {
@@ -2142,5 +2144,5 @@
     "This contour models agentic propagation, not a provider or model vulnerability."
   ],
   "run_kind": "rag_context_campaign",
-  "schema_version": "0.1"
+  "schema_version": "0.2"
 }

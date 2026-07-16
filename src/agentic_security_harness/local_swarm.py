@@ -41,8 +41,18 @@ from agentic_security_harness.memory_governance import (
     validate_memory_read,
 )
 from agentic_security_harness.models import DataEnvelope
+from agentic_security_harness.presets import is_loopback_base_url
 from agentic_security_harness.run_manifest import build_manifest, write_run_manifest
-from agentic_security_harness.safe_io import write_text_artifact
+from agentic_security_harness.safe_io import (
+    atomic_evidence_bundle,
+    require_fresh_output_dir,
+    write_text_artifact,
+)
+from agentic_security_harness.safe_markdown import (
+    markdown_code_span,
+    markdown_prose,
+    markdown_table_cell,
+)
 from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
 
 SwarmMode = Literal["monolith", "naive_swarm", "bounded_swarm"]
@@ -232,6 +242,10 @@ def run_local_swarm(
         normalized_role_models = normalize_role_models(role_models)
         if not base_url:
             raise ValueError("base_url is required when execute_model_calls=True")
+        if not is_loopback_base_url(base_url):
+            raise ValueError(
+                "local swarm model calls require a literal loopback HTTP(S) base URL"
+            )
         if not model:
             raise ValueError("model is required when execute_model_calls=True")
         if model_is_forbidden(model):
@@ -329,9 +343,17 @@ def build_swarm_metrics(
     )
 
 
+@atomic_evidence_bundle("out_dir")
 def write_local_swarm_artifacts(out_dir: Path, summary: LocalSwarmSummary) -> list[Path]:
     """Write JSON, Markdown, and run manifest artifacts for a local swarm run."""
 
+    campaign_profile = (
+        "shipped_full"
+        if summary.scenarios == list(SWARM_SCENARIOS)
+        and summary.modes == list(SWARM_MODES)
+        else "custom_subset"
+    )
+    require_fresh_output_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     json_path = write_text_artifact(
         out_dir / "local_swarm_summary.json",
@@ -352,6 +374,7 @@ def write_local_swarm_artifacts(out_dir: Path, summary: LocalSwarmSummary) -> li
             "verifier_blocks": summary.metrics.verifier_blocks,
         },
         metadata={
+            "campaign_profile": campaign_profile,
             "executed_model_calls": summary.executed_model_calls,
             "request_count": summary.request_count,
             "max_requests": summary.max_requests,
@@ -374,17 +397,19 @@ def render_swarm_report(summary: LocalSwarmSummary) -> str:
         "",
         "## Claim Boundary",
         "",
-        summary.claim_boundary,
+        markdown_prose(summary.claim_boundary),
         "",
         "## Run",
         "",
-        f"- Model calls executed: `{summary.executed_model_calls}`",
-        f"- Model: `{summary.model or 'n/a'}`",
-        f"- Chief model: `{summary.chief_model or summary.model or 'n/a'}`",
-        f"- Role models: `{_render_role_models(summary.role_models)}`",
-        f"- Requests: `{summary.request_count}/{summary.max_requests}`",
-        f"- Scenarios: `{', '.join(summary.scenarios)}`",
-        f"- Modes: `{', '.join(summary.modes)}`",
+        f"- Model calls executed: {markdown_code_span(summary.executed_model_calls)}",
+        f"- Model: {markdown_code_span(summary.model or 'n/a')}",
+        f"- Chief model: "
+        f"{markdown_code_span(summary.chief_model or summary.model or 'n/a')}",
+        f"- Role models: {markdown_code_span(_render_role_models(summary.role_models))}",
+        f"- Requests: "
+        f"{markdown_code_span(f'{summary.request_count}/{summary.max_requests}')}",
+        f"- Scenarios: {markdown_code_span(', '.join(summary.scenarios))}",
+        f"- Modes: {markdown_code_span(', '.join(summary.modes))}",
         "",
         "## Metrics",
         "",
@@ -414,10 +439,11 @@ def render_swarm_report(summary: LocalSwarmSummary) -> str:
         "| --- | --- | --- | ---: | --- |",
     ]
     for item in summary.results:
-        reasons = ", ".join(item.blocked_reasons) or "-"
+        reasons = markdown_table_cell(", ".join(item.blocked_reasons) or "-")
         lines.append(
             "| "
-            f"{item.scenario_id} | {item.mode} | {item.deterministic_verdict} | "
+            f"{markdown_table_cell(item.scenario_id)} | {markdown_table_cell(item.mode)} | "
+            f"{markdown_table_cell(item.deterministic_verdict)} | "
             f"{item.boundary_failure} | {reasons} |"
         )
     lines.extend(
@@ -984,6 +1010,8 @@ def _collect_role_transcripts(
                 timeout_seconds=timeout_seconds,
                 credential_env_var="",
                 max_retries=0,
+                allow_redirects=False,
+                allow_env_proxy=False,
             )
             content = extract_content(response).strip()
             transcripts.append(

@@ -26,6 +26,7 @@ examples/<pack-name>/              # committed sanitized artifact pack, if stabl
 docs/<topic>.md                    # methodology / result / non-claims
 docs/showcase/evidence-map.md      # reviewer-facing index row
 docs/research-claims.md            # claim registry row
+docs/evidence-status-registry.json # machine-readable evidence classification
 tests/test_<topic>.py              # schema, invariant, or doc-contract tests
 ```
 
@@ -55,8 +56,10 @@ The public pack may reference private material only by digest, for example:
 }
 ```
 
-Public artifacts do not include raw transcripts. They may include hashes that let
-the owner replay and audit the private material locally.
+Public artifacts do not include raw transcripts. Hash fields are commitments only: they
+do not prove that private bytes exist, match, or came from the declared execution. An
+owner-side reconciliation command must compare retained bytes and emit a dated receipt;
+authenticity additionally requires a separate trust root or signature.
 
 ## Required claim boundary
 
@@ -65,9 +68,10 @@ Every pack must say what the evidence proves and what it does not prove.
 Allowed wording:
 
 - "This pack validates the declared synthetic scenario under the stated topology."
-- "The local-model run is a sanitized empirical slice, not a model-safety verdict."
+- "This unreconciled public summary records declared detector labels and aggregates; it
+  does not authenticate the local-model run."
 - "The protected path blocked this modeled flow in this configuration."
-- "The result is hash-anchored to private owner-side raw responses."
+- "The public hash is a commitment pending owner-side private-byte reconciliation."
 
 Forbidden wording:
 
@@ -129,13 +133,16 @@ Before a local research result becomes a public evidence pack:
    keys, private URLs, or local absolute paths.
 3. Public summaries include enough metadata for a reviewer to understand the
    configuration.
-4. Private raw responses are represented by SHA-256 hashes when the claim depends on
-   local model behavior.
-5. `docs/research-claims.md` states the correct status:
-   - `synthetic_validation` for deterministic synthetic proof;
-   - `local_empirical` for local model evidence;
-   - `public_example` only when committed examples are sufficient to reproduce the
-     claim without private material.
-6. The evidence map links the pack.
-7. The PR description includes commands run and non-claims.
-
+4. Private raw responses are represented by SHA-256 commitments when the claim depends
+   on local model behavior; a separate receipt is required for byte reconciliation.
+5. `docs/research-claims.md` states the human-readable claim maturity/publication status;
+   it is not a substitute for lifecycle or evidence class.
+6. `docs/evidence-status-registry.json` separately records evidence class, schema state,
+   causal scope, label source and coverage, reconciliation state, origin authentication,
+   supported claim, and forbidden claims. Publication as a public example does not
+   promote any of those fields. A declared run without a receipt remains
+   `local_empirical_unreconciled`; only receipt-bound evidence may be classified
+   `local_empirical_reconciled`.
+7. `ash validate docs/evidence-status-registry.json` passes and the evidence map links
+   the pack.
+8. The PR description includes commands run and non-claims.

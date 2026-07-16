@@ -7,6 +7,10 @@
 >
 > Private source fixture:
 > `.internal/trading-bot-paper-stand/issue-136/manifests/experiment-baseline-2026-07-03.json`.
+>
+> Historical status (2026-07-15): the seven schema-derived `pass` labels below
+> are withdrawn. A safe-shaped schema row is now `inconclusive`; only explicit
+> unsafe bounded evidence supports a finding.
 
 ## Boundary
 
@@ -68,10 +72,10 @@ Batch counts:
 
 ## Interpretation
 
-This is not an adversarial finding and not a production-safety claim. It means
-the current existing paper artifacts satisfy the seven mapped experiment-row
-schemas and can serve as the baseline before private adversarial rows are
-filled.
+This historical output shows that the seven rows satisfied the experiment-row
+schema and passed through validation and sanitization. It does not show that
+the seven behavioral invariants held. Under the current contract the same clean
+schema-only evidence is seven `inconclusive` rows.
 
 The next stronger layer is to add private filled rows for the seven scenario
 batches. Those rows should keep raw vectors, timing details, target rows, agent

@@ -258,6 +258,7 @@
       "title": "Dependency memory activates a later protected step"
     }
   ],
+  "causal_scope": "rule_derived_control_attribution",
   "claim_boundary": "This deterministic campaign measures whether synthetic cross-agent memory rehydration turns old, expired, cross-scope, summarized, merged, or handoff memory into current authority. Public artifacts contain case contracts, deterministic rows, aggregate metrics, agentic-pressure scores, propagation labels, and context fingerprints only.",
   "control_catalog": [
     {
@@ -338,7 +339,7 @@
       "blocked_by_full_contract": 6,
       "bounded_acceptances": 0,
       "control_id": "memory_source_provenance",
-      "interpretation": "Removing memory_source_provenance reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on memory_source_provenance accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 6
     },
     {
@@ -347,7 +348,7 @@
       "blocked_by_full_contract": 3,
       "bounded_acceptances": 0,
       "control_id": "memory_scope_binding",
-      "interpretation": "Removing memory_scope_binding reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on memory_scope_binding accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 3
     },
     {
@@ -356,7 +357,7 @@
       "blocked_by_full_contract": 2,
       "bounded_acceptances": 0,
       "control_id": "memory_ttl_enforcement",
-      "interpretation": "Removing memory_ttl_enforcement reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on memory_ttl_enforcement accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 2
     },
     {
@@ -365,7 +366,7 @@
       "blocked_by_full_contract": 3,
       "bounded_acceptances": 0,
       "control_id": "trust_level_preservation",
-      "interpretation": "Removing trust_level_preservation reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on trust_level_preservation accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 3
     },
     {
@@ -374,7 +375,7 @@
       "blocked_by_full_contract": 4,
       "bounded_acceptances": 0,
       "control_id": "current_user_intent_anchor",
-      "interpretation": "Removing current_user_intent_anchor reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on current_user_intent_anchor accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 4
     },
     {
@@ -383,7 +384,7 @@
       "blocked_by_full_contract": 7,
       "bounded_acceptances": 0,
       "control_id": "rehydration_authority_gate",
-      "interpretation": "Removing rehydration_authority_gate reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on rehydration_authority_gate accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 7
     },
     {
@@ -392,7 +393,7 @@
       "blocked_by_full_contract": 3,
       "bounded_acceptances": 0,
       "control_id": "recipient_scope_check",
-      "interpretation": "Removing recipient_scope_check reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on recipient_scope_check accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 3
     },
     {
@@ -401,7 +402,7 @@
       "blocked_by_full_contract": 2,
       "bounded_acceptances": 0,
       "control_id": "merge_source_isolation",
-      "interpretation": "Removing merge_source_isolation reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on merge_source_isolation accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 2
     },
     {
@@ -410,7 +411,7 @@
       "blocked_by_full_contract": 1,
       "bounded_acceptances": 0,
       "control_id": "handoff_revalidation",
-      "interpretation": "Removing handoff_revalidation reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on handoff_revalidation accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 1
     },
     {
@@ -419,11 +420,11 @@
       "blocked_by_full_contract": 1,
       "bounded_acceptances": 0,
       "control_id": "dependency_revalidation_gate",
-      "interpretation": "Removing dependency_revalidation_gate reopens every case that depends on it; the bounded contract blocks those rows.",
+      "interpretation": "The specification marks every case that depends on dependency_revalidation_gate accepted when that control is disabled; this is rule-derived attribution.",
       "required_by_cases": 1
     }
   ],
-  "created_at": "2026-07-02T18:28:52Z",
+  "created_at": "2026-07-14T20:35:42Z",
   "deterministic_results": [
     {
       "agentic_pressure": 2.047517,
@@ -2102,6 +2103,7 @@
       "verifier_decision": "allow"
     }
   ],
+  "evidence_kind": "executable_specification",
   "metrics": {
     "ablation_acceptances": 32,
     "acceptances_by_missing_control": {
@@ -2153,5 +2155,5 @@
     "This contour models agentic propagation, not a provider or model vulnerability."
   ],
   "run_kind": "memory_rehydration_campaign",
-  "schema_version": "0.1"
+  "schema_version": "0.2"
 }

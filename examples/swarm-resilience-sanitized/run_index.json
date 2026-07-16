@@ -2,14 +2,19 @@
   "schema_version": "0.1",
   "run_id": "run_8cfaab937c",
   "run_kind": "swarm_resilience_campaign",
-  "created_at": "",
+  "created_at": "2026-06-26T13:14:03Z",
   "tool_version": "",
   "target": "deterministic-mini-swarm-resilience",
   "model": "",
   "scenario": "seven-family-resilience-stability-model",
   "variants": [],
   "repeats": 1,
-  "outcomes": {},
+  "outcomes": {
+    "naive_unsafe_acceptances": 7,
+    "bounded_unsafe_acceptances": 0,
+    "ablation_unsafe_acceptances": 18,
+    "benign_false_blocks": 0
+  },
   "metadata": {
     "command": "ash swarm-resilience-campaign --write --summary-out <dir>",
     "raw_artifacts_private": true

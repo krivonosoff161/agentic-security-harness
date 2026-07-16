@@ -1,4 +1,4 @@
-"""Packaging / Docker / devcontainer sanity checks (inspection only, no build)."""
+"""Packaging / Docker / devcontainer static contracts (no image build)."""
 
 import json
 from pathlib import Path
@@ -21,12 +21,46 @@ def test_dockerfile_is_safe_and_offline() -> None:
         stripped = line.strip()
         if stripped.startswith(("RUN ", "CMD ", "ENTRYPOINT ")):
             assert "run-external" not in stripped
+    # The clean base image can import the src-layout package at its build-time smoke step.
+    assert text.index("ENV PYTHONPATH=/app/src") < text.index(
+        'python -c "import agentic_security_harness'
+    )
 
 
 def test_dockerignore_excludes_heavy_and_secret_paths() -> None:
-    text = (ROOT / ".dockerignore").read_text(encoding="utf-8")
-    for pat in ("tests", "dist", "reports", "*.db", ".env"):
-        assert pat in text
+    lines = [
+        line.strip()
+        for line in (ROOT / ".dockerignore").read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+
+    assert lines[0] == "*"
+    assert {
+        "!pyproject.toml",
+        "!README.md",
+        "!LICENSE",
+        "!NOTICE",
+        "!requirements/",
+        "!requirements/runtime.txt",
+        "!src/",
+        "!src/**",
+        "!examples/",
+        "!examples/**",
+    }.issubset(lines)
+    assert not any(line in {"!docs/", "!tests/", "!./", "!**"} for line in lines)
+
+    final_public_allow = max(lines.index("!src/**"), lines.index("!examples/**"))
+    for pattern in (
+        "**/.env",
+        "**/.env.*",
+        "**/.internal/**",
+        "**/private-traces/**",
+        "**/raw-model-responses/**",
+        "**/reports/**",
+        "**/*.db",
+        "**/*.sqlite3",
+    ):
+        assert lines.index(pattern) > final_public_allow
 
 
 def test_devcontainer_is_valid_json_no_secrets() -> None:

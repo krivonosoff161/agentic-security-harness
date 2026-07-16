@@ -2,6 +2,9 @@
 
 This deterministic campaign measures whether synthetic tool outputs are mistaken for commands, policy grants, schema authority, consent, or downstream handoff authority. Public artifacts contain case contracts, deterministic rows, aggregate metrics, authority-pressure scores, and output fingerprints only.
 
+Evidence class: `executable_specification`.
+Control effects are derived from declared case dependencies and evaluation rules; they are not independent causal estimates.
+
 ## Reproduce / Validate
 
 ```bash
@@ -57,14 +60,14 @@ A clean validation result means artifact integrity and forbidden-marker checks p
 
 | Control | Required cases | Ablation mode | Bounded acceptances | Ablation acceptances | Full-contract blocks | Interpretation |
 | --- | ---: | --- | ---: | ---: | ---: | --- |
-| source_provenance | 6 | no_source_provenance | 0 | 6 | 6 | Removing source_provenance reopens every case that depends on it; the bounded contract blocks those rows. |
-| authority_origin_gate | 5 | no_authority_origin_gate | 0 | 5 | 5 | Removing authority_origin_gate reopens every case that depends on it; the bounded contract blocks those rows. |
-| instruction_data_split | 3 | no_instruction_data_split | 0 | 3 | 3 | Removing instruction_data_split reopens every case that depends on it; the bounded contract blocks those rows. |
-| schema_pin | 1 | no_schema_pin | 0 | 1 | 1 | Removing schema_pin reopens every case that depends on it; the bounded contract blocks those rows. |
-| capability_binding | 3 | no_capability_binding | 0 | 3 | 3 | Removing capability_binding reopens every case that depends on it; the bounded contract blocks those rows. |
-| downstream_revalidation | 3 | no_downstream_revalidation | 0 | 3 | 3 | Removing downstream_revalidation reopens every case that depends on it; the bounded contract blocks those rows. |
-| recovery_policy_gate | 1 | no_recovery_policy_gate | 0 | 1 | 1 | Removing recovery_policy_gate reopens every case that depends on it; the bounded contract blocks those rows. |
-| metric_replay | 1 | no_metric_replay | 0 | 1 | 1 | Removing metric_replay reopens every case that depends on it; the bounded contract blocks those rows. |
+| source_provenance | 6 | no_source_provenance | 0 | 6 | 6 | The specification marks every case that depends on source_provenance accepted when that control is disabled; this is rule-derived attribution. |
+| authority_origin_gate | 5 | no_authority_origin_gate | 0 | 5 | 5 | The specification marks every case that depends on authority_origin_gate accepted when that control is disabled; this is rule-derived attribution. |
+| instruction_data_split | 3 | no_instruction_data_split | 0 | 3 | 3 | The specification marks every case that depends on instruction_data_split accepted when that control is disabled; this is rule-derived attribution. |
+| schema_pin | 1 | no_schema_pin | 0 | 1 | 1 | The specification marks every case that depends on schema_pin accepted when that control is disabled; this is rule-derived attribution. |
+| capability_binding | 3 | no_capability_binding | 0 | 3 | 3 | The specification marks every case that depends on capability_binding accepted when that control is disabled; this is rule-derived attribution. |
+| downstream_revalidation | 3 | no_downstream_revalidation | 0 | 3 | 3 | The specification marks every case that depends on downstream_revalidation accepted when that control is disabled; this is rule-derived attribution. |
+| recovery_policy_gate | 1 | no_recovery_policy_gate | 0 | 1 | 1 | The specification marks every case that depends on recovery_policy_gate accepted when that control is disabled; this is rule-derived attribution. |
+| metric_replay | 1 | no_metric_replay | 0 | 1 | 1 | The specification marks every case that depends on metric_replay accepted when that control is disabled; this is rule-derived attribution. |
 
 ## Deterministic Contract Results
 

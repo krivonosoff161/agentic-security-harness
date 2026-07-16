@@ -2022,6 +2022,6 @@
     "This is not a real-secret extraction.",
     "This is not a production-swarm certification.",
     "The state-vector model is an explicit defensive abstraction, not a proof that all future model behavior is covered.",
-    "A deterministic ablation reopening is control attribution, not a CVE."
+    "A deterministic ablation branch is a rule-encoded dependency, not a causal effect or a CVE."
   ]
 }

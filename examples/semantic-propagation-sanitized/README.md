@@ -1,10 +1,12 @@
 # Semantic propagation sanitized example
 
-This directory is a sanitized public snapshot for the worker-to-chief semantic
-propagation campaign.
+Historical/unreconciled detector-observation summary. The committed observation schema
+is `0.2`; the current producer schema is `0.3`. Public validation does not replay private
+response bytes or attest model/runtime identity. The deterministic projection remains
+an executable specification.
 
 Start with [`semantic_propagation_report.md`](semantic_propagation_report.md). The
-authoritative machine-readable artifact is
+primary legacy machine-readable record is
 [`semantic_propagation_summary.json`](semantic_propagation_summary.json).
 The public defense model is documented in
 [`docs/semantic-propagation-defense-model.md`](../../docs/semantic-propagation-defense-model.md).
@@ -36,11 +38,11 @@ ash validate reports/semantic-propagation
 - 6 declared defensive controls and 6 control-effect rows.
 - Bounded deterministic mode accepts 0 propagation attempts.
 - Ablation modes accept 20 propagation attempts when required controls are disabled.
-- The current private local-model smoke recorded 8 observations, 2 worker drift
+- The legacy public summary declares 8 detector-labelled observations, 2 worker drift
   detections, 3 chief acceptances, 2 synthetic canary leaks, 3 verifier blocks, and 1
   adapter error.
-- The current public summary has 87.5% response-hash coverage because the adapter-error
-  row has a worker response hash but no chief response hash.
+- Hash-field coverage is 87.5%. This does not prove retained private bytes, detector
+  truth, execution origin, or current-schema behavior.
 
 ## What It Does Not Prove
 
