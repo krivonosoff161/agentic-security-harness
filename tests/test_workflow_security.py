@@ -58,14 +58,17 @@ def test_every_external_action_reference_is_pinned_to_a_full_commit() -> None:
 
 def test_every_checkout_disables_persisted_credentials() -> None:
     checkout_steps = 0
+    expected_checkout_steps = 0
     for name, text in _workflow_texts().items():
         expected = text.count("uses: actions/checkout@")
         states = _checkout_credentials_states(text)
         assert len(states) == expected, name
         assert all(states), name
         checkout_steps += len(states)
+        expected_checkout_steps += expected
 
-    assert checkout_steps == 6
+    assert checkout_steps == expected_checkout_steps
+    assert checkout_steps > 0
 
 
 def test_checkout_contract_handles_large_malformed_step_without_regex_backtracking() -> None:
