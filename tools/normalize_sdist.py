@@ -49,7 +49,7 @@ def normalize_sdist(path: Path, *, epoch: int) -> None:
     temporary_name = ""
     try:
         with tempfile.NamedTemporaryFile(
-            mode="w+b", prefix=f".{source.name}.", suffix=".tmp", dir=source.parent, delete=False
+            mode="w+b", prefix=".sdist-", suffix=".tmp", dir=source.parent, delete=False
         ) as temporary:
             temporary_name = temporary.name
             with gzip.GzipFile(
