@@ -78,7 +78,7 @@ Docker `HEALTHCHECK` and by orchestrators. See
 pip install -e ".[dev]"
 python -m pytest            # full local test suite
 python -m ruff check .      # lint
-python -m mypy src tests    # type checks
+python -m mypy src tests tools    # type checks
 ash validate examples/      # validate committed benchmark artifacts and corpus
 git diff --check            # whitespace / conflict-marker check
 ```

@@ -1,6 +1,6 @@
 # Current state
 
-> Last reviewed: 2026-07-14.
+> Last reviewed: 2026-07-19.
 >
 > Scope: public status of `agentic-security-harness` on `main`, version `0.14.0`. This
 > page is a reviewer-facing status snapshot, not a roadmap promise.
@@ -171,7 +171,7 @@ Use these before trusting a local checkout or public example:
 ```bash
 python -m pytest
 python -m ruff check .
-python -m mypy src tests
+python -m mypy src tests tools
 ash validate examples/
 git diff --check
 ```

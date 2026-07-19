@@ -66,7 +66,7 @@ def test_release_workflow_enforces_repository_and_built_package_gates() -> None:
         "python -m pip install --require-hashes -r requirements/build.txt",
         "python -m pytest",
         "python -m ruff check .",
-        "python -m mypy src tests",
+        "python -m mypy src tests tools",
         "python -m agentic_security_harness.cli validate examples/",
         "python -m build --no-isolation",
         'export SOURCE_DATE_EPOCH="$(git show -s --format=%ct "$GITHUB_SHA")"',

@@ -11,7 +11,7 @@ Run all of these green before tagging:
 ```bash
 python -m pytest -q
 python -m ruff check .
-python -m mypy src tests
+python -m mypy src tests tools
 ash validate examples/
 python -m build --wheel        # optional locally; CI builds and smoke-installs wheel + sdist
 ```

@@ -69,7 +69,7 @@ jobs:
         run: |
           python -m pytest
           python -m ruff check .
-          python -m mypy src tests
+          python -m mypy src tests tools
           python -m agentic_security_harness.cli validate examples/
 
       - name: Build package

@@ -148,7 +148,7 @@ For code changes, run the relevant tests and linters. For broad changes, prefer:
 ```bash
 python -m pytest
 python -m ruff check .
-python -m mypy src tests
+python -m mypy src tests tools
 git diff --check
 ```
 

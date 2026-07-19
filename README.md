@@ -386,7 +386,7 @@ behavior in this release, and should not be described as a production gateway. S
 pip install -e ".[dev]"
 python -m pytest
 python -m ruff check .
-python -m mypy src tests
+python -m mypy src tests tools
 ash validate examples/        # validate committed benchmark artifacts
 ```
 

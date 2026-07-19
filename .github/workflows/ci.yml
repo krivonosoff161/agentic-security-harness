@@ -50,7 +50,7 @@ jobs:
         run: python -m ruff check .
 
       - name: Run mypy
-        run: python -m mypy src tests
+        run: python -m mypy src tests tools
 
       - name: Validate committed benchmark artifacts
         run: python -m agentic_security_harness.cli validate examples/
