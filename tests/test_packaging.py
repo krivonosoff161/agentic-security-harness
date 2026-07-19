@@ -80,3 +80,14 @@ def test_pyproject_packaging_fields() -> None:
     assert 'py.typed' in text
     assert 'license = "Apache-2.0"' in text
     assert 'requires-python = ">=3.11"' in text
+
+
+def test_package_ci_requires_byte_reproducible_wheel_and_sdist() -> None:
+    text = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    for marker in (
+        'export SOURCE_DATE_EPOCH="$(git show -s --format=%ct "$GITHUB_SHA")"',
+        "python tools/normalize_sdist.py",
+        "cmp dist/*.tar.gz reproducibility-check/*.tar.gz",
+        "cmp dist/*.whl reproducibility-check/*.whl",
+    ):
+        assert marker in text

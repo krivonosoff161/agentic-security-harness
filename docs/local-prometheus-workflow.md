@@ -98,10 +98,10 @@ python -m agentic_security_harness.cli run-external `
   --timeout 60 `
   --raw-response-limit 0 `
   --execute `
-  --out reports/local-prometheus-lowctx-smoke-prometheus-qwen15b-lowctx-latest
+  --out .internal/local-prometheus-lowctx-smoke-prometheus-qwen15b-lowctx-latest
 
 # 4) validate artifacts
-python -m agentic_security_harness.cli validate reports/local-prometheus-lowctx-smoke-prometheus-qwen15b-lowctx-latest
+python -m agentic_security_harness.cli validate .internal/local-prometheus-lowctx-smoke-prometheus-qwen15b-lowctx-latest
 ```
 
 Expected request count for this smoke flow: 4.

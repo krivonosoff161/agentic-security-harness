@@ -39,7 +39,12 @@ def _mock_swarm_open() -> Callable[..., MagicMock]:
                     role = line.split("Role: ", 1)[1].strip()
         resp = MagicMock()
         resp.read.return_value = json.dumps(
-            {"choices": [{"message": {"content": f"{role} follows deterministic gate."}}]}
+            {
+                "model": body["model"],
+                "choices": [
+                    {"message": {"content": f"{role} follows deterministic gate."}}
+                ],
+            }
         ).encode()
         resp.__enter__ = lambda s: s
         resp.__exit__ = MagicMock(return_value=False)
@@ -154,7 +159,10 @@ def test_execute_routes_roles_to_declared_models() -> None:
 
     def _fake_chat_completion(**kwargs: object) -> dict[str, object]:
         calls.append(str(kwargs["model"]))
-        return {"choices": [{"message": {"content": f"model={kwargs['model']}"}}]}
+        return {
+            "model": kwargs["model"],
+            "choices": [{"message": {"content": f"model={kwargs['model']}"}}],
+        }
 
     with patch(
         "agentic_security_harness.local_swarm.chat_completion",
@@ -187,6 +195,33 @@ def test_execute_routes_roles_to_declared_models() -> None:
     assert {item.model for item in summary.results[0].role_transcripts} == set(calls)
 
 
+def test_model_response_commitment_hashes_the_persisted_redacted_preview() -> None:
+    raw = "answer sk-ABCDEFGHIJ0123456789"
+    with patch(
+        "agentic_security_harness.local_swarm.chat_completion",
+        return_value={
+            "model": "toy-model",
+            "choices": [{"message": {"content": raw}}],
+        },
+    ):
+        summary = run_local_swarm(
+            scenarios=["handoff_label_stripping"],
+            modes=["monolith"],
+            execute_model_calls=True,
+            base_url="http://127.0.0.1:11434/v1",
+            model="toy-model",
+            max_requests=1,
+            created_at="",
+        )
+
+    transcript = summary.results[0].role_transcripts[0]
+    assert transcript.response_preview == "answer sk-[REDACTED]"
+    assert (
+        transcript.response_sha256
+        == hashlib.sha256(transcript.response_preview.encode("utf-8")).hexdigest()
+    )
+
+
 def test_request_cap_is_enforced() -> None:
     with pytest.raises(ValueError, match="exceeds max_requests"):
         run_local_swarm(
@@ -206,6 +241,30 @@ def test_artifacts_validate(tmp_path: Path) -> None:
     assert (out / "local_swarm_report.md").exists()
     assert (out / "run_index.json").exists()
     assert validate_path(out).ok
+
+
+def test_executed_artifact_writer_refuses_public_output(tmp_path: Path) -> None:
+    out = tmp_path / "public-swarm"
+    with patch(
+        "agentic_security_harness.local_swarm.chat_completion",
+        return_value={
+            "model": "toy-model",
+            "choices": [{"message": {"content": "private model text"}}],
+        },
+    ):
+        summary = run_local_swarm(
+            scenarios=["handoff_label_stripping"],
+            modes=["monolith"],
+            execute_model_calls=True,
+            base_url="http://127.0.0.1:11434/v1",
+            model="toy-model",
+            max_requests=1,
+            created_at="",
+        )
+
+    with pytest.raises(ValueError, match="executed local-swarm output"):
+        write_local_swarm_artifacts(out, summary)
+    assert not out.exists()
 
 
 def test_custom_subset_artifact_declares_profile_and_validates(tmp_path: Path) -> None:
@@ -320,7 +379,7 @@ def test_validator_rejects_local_swarm_manifest_semantic_rewrite(
 
 
 def test_execute_collects_hashed_role_transcripts(tmp_path: Path) -> None:
-    out = tmp_path / "swarm"
+    out = tmp_path / ".internal" / "swarm"
     with patch(
         "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
         side_effect=_mock_swarm_open(),
@@ -346,7 +405,7 @@ def test_execute_collects_hashed_role_transcripts(tmp_path: Path) -> None:
 
 
 def test_validator_rejects_non_sha_transcript_hash(tmp_path: Path) -> None:
-    out = tmp_path / "swarm-invalid-transcript-hash"
+    out = tmp_path / ".internal" / "swarm-invalid-transcript-hash"
     with patch(
         "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
         side_effect=_mock_swarm_open(),
@@ -390,6 +449,39 @@ def test_adapter_errors_are_counted_without_turning_into_contract_failures() -> 
     assert summary.metrics.role_transcript_hash_coverage == 0.0
 
 
+@pytest.mark.parametrize(
+    "response",
+    [
+        {"model": "toy-model", "choices": [{"message": {"content": "   "}}]},
+        {"model": "wrong-model", "choices": [{"message": {"content": "answer"}}]},
+        {"choices": [{"message": {"content": "answer"}}]},
+    ],
+)
+def test_blank_or_wrong_model_response_is_adapter_error(
+    response: dict[str, object],
+) -> None:
+    with patch(
+        "agentic_security_harness.local_swarm.chat_completion",
+        return_value=response,
+    ):
+        summary = run_local_swarm(
+            scenarios=["handoff_label_stripping"],
+            modes=["monolith"],
+            execute_model_calls=True,
+            base_url="http://127.0.0.1:11434/v1",
+            model="toy-model",
+            max_requests=1,
+            created_at="",
+        )
+
+    transcript = summary.results[0].role_transcripts[0]
+    assert transcript.adapter_error
+    assert not transcript.response_sha256
+    assert not transcript.response_preview
+    assert summary.metrics.adapter_error_rate == 1.0
+    assert summary.metrics.role_transcript_hash_coverage == 0.0
+
+
 def test_cli_dry_run_makes_no_network_call_and_no_files(tmp_path: Path) -> None:
     out = tmp_path / "dry"
     with patch(
@@ -419,6 +511,34 @@ def test_cli_refuses_calculator_before_network(tmp_path: Path) -> None:
         )
 
     assert rc == 1
+    assert not out.exists()
+
+
+def test_cli_refuses_public_live_output_before_network(tmp_path: Path) -> None:
+    out = tmp_path / "public-live-swarm"
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_boom,
+    ) as mock_open:
+        rc = cli.main(
+            [
+                "local-swarm",
+                "--execute",
+                "--scenario",
+                "handoff_label_stripping",
+                "--mode",
+                "monolith",
+                "--model",
+                "toy-model",
+                "--max-requests",
+                "1",
+                "--out",
+                str(out),
+            ]
+        )
+
+    assert rc == 1
+    mock_open.assert_not_called()
     assert not out.exists()
 
 

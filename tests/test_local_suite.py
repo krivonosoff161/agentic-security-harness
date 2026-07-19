@@ -55,7 +55,7 @@ def _mock_pass_open() -> Callable[..., MagicMock]:
         )
         resp = MagicMock()
         resp.read.return_value = json.dumps(
-            {"choices": [{"message": {"content": content}}]}
+            {"model": "fake-model", "choices": [{"message": {"content": content}}]}
         ).encode()
         resp.__enter__ = lambda s: s
         resp.__exit__ = MagicMock(return_value=False)
@@ -92,7 +92,7 @@ def test_profiles_match_docs() -> None:
 
 def test_default_output_dir_is_filesystem_safe() -> None:
     out = default_output_dir(LOCAL_PROFILES["prometheus-lowctx-smoke"])
-    assert ":" not in out and out.startswith("reports/local-")
+    assert ":" not in out and out.startswith(".internal/local-")
 
 
 def test_unknown_profile_raises() -> None:
@@ -136,7 +136,7 @@ def test_default_local_suite_profile_is_low_context(capsys: pytest.CaptureFixtur
 
 
 def test_execute_with_mock_validates(tmp_path: Path) -> None:
-    out = tmp_path / "control"
+    out = tmp_path / ".internal" / "control"
     with patch(
         "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
         side_effect=_mock_pass_open(),
@@ -150,8 +150,29 @@ def test_execute_with_mock_validates(tmp_path: Path) -> None:
     assert validate_path(out).ok
 
 
+def test_execute_refuses_public_output_before_network(tmp_path: Path) -> None:
+    out = tmp_path / "public-control"
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect"
+    ) as transport:
+        rc = cli.main(
+            [
+                "local-suite",
+                "--profile",
+                "fake-local-control",
+                "--execute",
+                "--out",
+                str(out),
+            ]
+        )
+
+    assert rc == 1
+    transport.assert_not_called()
+    assert not out.exists()
+
+
 def test_execute_with_showcase_generates_cards(tmp_path: Path) -> None:
-    out = tmp_path / "control"
+    out = tmp_path / ".internal" / "control"
     with patch(
         "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
         side_effect=_mock_pass_open(),
@@ -175,7 +196,7 @@ def test_execute_with_showcase_generates_cards(tmp_path: Path) -> None:
 def test_execute_validation_failure_redacts_errors(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    out = tmp_path / "control"
+    out = tmp_path / ".internal" / "control"
     secret = "sk-ABCDEFGHIJ0123456789"
     failed = SimpleNamespace(ok=False, errors=[f"raw value {secret} should not print"])
     with (

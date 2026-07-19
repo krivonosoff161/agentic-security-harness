@@ -23,13 +23,13 @@ Public-safe plan:
 
 ```bash
 ash trading-stand --mode boundary-lock \
-  --target-path C:/Users/krivo/trading-bot-v2
+  --target-path <user-home>/trading-bot-v2
 
 ash trading-stand --mode boundary-lock-review \
-  --target-path C:/Users/krivo/trading-bot-v2
+  --target-path <user-home>/trading-bot-v2
 
 ash trading-stand --mode experiment-plan \
-  --target-path C:/Users/krivo/trading-bot-v2 \
+  --target-path <user-home>/trading-bot-v2 \
   --artifact-root <private-strategy-lab-root>
 ```
 
@@ -44,7 +44,7 @@ Private validation and public-safe sanitization:
 
 ```bash
 ash trading-stand --mode experiment-baseline-fixture \
-  --target-path C:/Users/krivo/trading-bot-v2 \
+  --target-path <user-home>/trading-bot-v2 \
   --artifact-root <private-strategy-lab-root> \
   --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-baseline-2026-07-03.json
 

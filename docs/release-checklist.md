@@ -47,16 +47,31 @@ Then verify by hand:
 
 The tag-triggered release workflow independently rejects non-canonical tags, mismatched
 `pyproject.toml`/`__version__`/CHANGELOG versions, and any failure in pytest, Ruff, mypy, or
-committed-artifact validation before building. It smoke-installs both distributions and publishes
-unsigned SHA-256 checksums with the Actions artifact. Those checksums provide content identity,
-not author authenticity; the separate artifact-attestation trust-root decision remains open.
+committed-artifact validation before building. It builds twice from the same source commit,
+normalizes sdist archive metadata to the commit epoch, and requires exact wheel and sdist byte
+equality. It then smoke-installs both distributions and publishes SHA-256 checksums with the
+Actions artifact. After those gates it requests GitHub/Sigstore
+attestations for the exact wheel, sdist, and checksum file, and a separate job verifies the subject
+digest plus the expected repository, workflow, tag ref, source commit, issuer, builder, event,
+hosted-runner, SLSA-predicate, and verified-time policy.
+
+This workflow definition is not retroactive: existing releases remain unsigned, and the change is
+not operationally verified until a future authorized tag run passes the verification job. A green
+attestation proves the configured build provenance for the named bytes; it does not prove package
+safety, semantic truth, local-model execution, private observation, or reviewer identity. Evidence
+registry rows must remain below `signed_attested` until their exact subject and validated
+attestation are explicitly bound by a supported registry contract.
+
+The release artifact set does not currently include an SBOM. Dependency lock files are
+hash-pinned, but a generated CycloneDX document and its release-subject binding remain an explicit
+supply-chain gap rather than an implied shipped feature.
 
 ## Fake-server E2E (no external network)
 
 ```bash
 python examples/fake_openai_server.py            # terminal 1 (Ctrl+C to stop)
 ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary
-ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --execute --out reports/e2e
+ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --execute --out .internal/external-e2e
 ash report --root reports/e2e
 ash validate reports/e2e
 # stop the server; confirm the port is free

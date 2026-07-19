@@ -36,7 +36,7 @@ def _write_external_run(
     outcomes: list[str],
     stability_status: str,
 ) -> Path:
-    run = root / name
+    run = root / ".internal" / name
     remaining = iter(outcomes)
 
     def _chat_completion(**kwargs: object) -> dict:
@@ -64,7 +64,10 @@ def _write_external_run(
             "would_preserve_boundary": preserve,
             "reason": f"fixture {outcome}",
         })
-        return {"choices": [{"message": {"content": content}}]}
+        return {
+            "model": kwargs["model"],
+            "choices": [{"message": {"content": content}}],
+        }
 
     with patch(
         "agentic_security_harness.external_runner.chat_completion",
@@ -90,7 +93,7 @@ def _write_local_swarm_run(
     adapter_error: bool = False,
     modes: list[SwarmMode] | None = None,
 ) -> Path:
-    run = root / name
+    run = root / ".internal" / name if executed else root / name
     summary = run_local_swarm(
         scenarios=["handoff_label_stripping"],
         modes=modes or ["bounded_swarm"],

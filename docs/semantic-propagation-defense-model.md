@@ -58,8 +58,10 @@ The committed sanitized example currently records:
 - 1 adapter error;
 - 87.5% response-hash coverage.
 
-This is a defense proof slice: the same declared synthetic cases are blocked by
-the full bounded contract and reopened when responsible controls are ablated.
+This is an executable defense specification: the same declared synthetic cases are blocked by
+the full bounded contract and marked reopened by the same rule system when responsible controls
+are ablated. Because the cases, protection, and evaluator are co-designed, this is conformance
+evidence rather than an independent defense proof or causal-effect estimate.
 
 ## Non-Claims
 

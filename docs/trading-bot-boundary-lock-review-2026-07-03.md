@@ -17,7 +17,7 @@ lines, secrets, raw vectors, target rows, traces, or private calculations.
 
 ```bash
 ash trading-stand --mode boundary-lock-review \
-  --target-path C:/Users/krivo/trading-bot-v2
+  --target-path <user-home>/trading-bot-v2
 ```
 
 ## Public Result

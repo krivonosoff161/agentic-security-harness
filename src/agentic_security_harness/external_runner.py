@@ -17,7 +17,7 @@ from agentic_security_harness import __version__
 from agentic_security_harness.external_openai_compatible import (
     ExternalAPIError,
     chat_completion,
-    extract_content,
+    extract_verified_content,
 )
 from agentic_security_harness.external_prompt import render_pattern_prompt
 from agentic_security_harness.external_validation import validate_external_verdict
@@ -38,7 +38,7 @@ from agentic_security_harness.run_manifest import (
     write_run_manifest,
 )
 from agentic_security_harness.safe_io import (
-    atomic_evidence_bundle,
+    atomic_private_bundle,
     credential_env_var_lookup_name,
     require_fresh_output_dir,
     safe_credential_env_var_name,
@@ -111,7 +111,7 @@ def _classify_outcome(parsed: dict) -> tuple[str, str]:
     )
 
 
-@atomic_evidence_bundle("out_dir", skip_when=("dry_run", True))
+@atomic_private_bundle("out_dir", skip_when=("dry_run", True))
 def run_external(
     base_url: str,
     model: str,
@@ -129,7 +129,12 @@ def run_external(
     dry_run: bool = False,
     preset_name: str | None = None,
 ) -> ExternalSummary:
-    """Run external evaluation and write report artifacts."""
+    """Run external evaluation and write a private report bundle.
+
+    Live model responses are retained for replay, so every writing destination must
+    be under a normalized ``.internal`` tree. Dry runs make no request and write no
+    files.
+    """
     from agentic_security_harness.scenarios import get_scenario, get_variants
 
     route_error = base_url_error(base_url)
@@ -358,7 +363,7 @@ def _evaluate_one(
             allow_redirects=False,
             allow_env_proxy=False,
         )
-        content = extract_content(response)
+        content = extract_verified_content(response, expected_model=model)
         parsed = _parse_decision(content)
         verdict = validate_external_verdict(pattern, parsed)
         parse_error = "no valid JSON response" if not parsed else ""
@@ -694,7 +699,7 @@ def _reproduce_command_lines(config: RunConfig) -> list[str]:
     for i in range(0, len(flags), 3):
         chunk = " ".join(flags[i : i + 3])
         lines.append(f"  {chunk} \\")
-    lines.append("  --out reports/external-rerun")
+    lines.append("  --out .internal/external-rerun")
     return lines
 
 
@@ -843,7 +848,7 @@ def _build_external_report_md(summary: ExternalSummary, config: RunConfig) -> st
         "Then validate the artifacts:",
         "",
         "```bash",
-        "ash validate reports/external-rerun",
+        "ash validate .internal/external-rerun",
         "```",
         "",
         "Stochastic endpoints may differ across runs; increase `--repeats` to surface "

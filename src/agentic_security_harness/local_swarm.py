@@ -25,7 +25,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from agentic_security_harness.external_openai_compatible import (
     ExternalAPIError,
     chat_completion,
-    extract_content,
+    extract_verified_content,
 )
 from agentic_security_harness.handoff_integrity import (
     HandoffEnvelope,
@@ -45,6 +45,8 @@ from agentic_security_harness.presets import is_loopback_base_url
 from agentic_security_harness.run_manifest import build_manifest, write_run_manifest
 from agentic_security_harness.safe_io import (
     atomic_evidence_bundle,
+    canonical_persisted_text,
+    is_internal_output_dir,
     require_fresh_output_dir,
     write_text_artifact,
 )
@@ -243,9 +245,7 @@ def run_local_swarm(
         if not base_url:
             raise ValueError("base_url is required when execute_model_calls=True")
         if not is_loopback_base_url(base_url):
-            raise ValueError(
-                "local swarm model calls require a literal loopback HTTP(S) base URL"
-            )
+            raise ValueError("local swarm model calls require a literal loopback HTTP(S) base URL")
         if not model:
             raise ValueError("model is required when execute_model_calls=True")
         if model_is_forbidden(model):
@@ -253,9 +253,7 @@ def run_local_swarm(
                 "calculator model is reserved for the trading project and is refused here"
             )
         if request_count > max_requests:
-            raise ValueError(
-                f"request count {request_count} exceeds max_requests {max_requests}"
-            )
+            raise ValueError(f"request count {request_count} exceeds max_requests {max_requests}")
     else:
         normalized_role_models = normalize_role_models(role_models)
 
@@ -327,30 +325,35 @@ def build_swarm_metrics(
         naive_swarm_boundary_failures=naive,
         bounded_swarm_boundary_failures=bounded,
         verifier_blocks=sum(1 for item in results if item.verifier_blocked),
-        invalid_acceptances=sum(
-            1
-            for item in results
-            if _has_invalid_acceptance(item)
-        ),
+        invalid_acceptances=sum(1 for item in results if _has_invalid_acceptance(item)),
         bounded_failure_reduction_vs_naive=reduction,
         contract_coverage=_contract_coverage(results, scenario_count),
-        unique_blocked_reasons=len(
-            {reason for item in results for reason in item.blocked_reasons}
-        ),
+        unique_blocked_reasons=len({reason for item in results for reason in item.blocked_reasons}),
         evidence_completeness=_evidence_completeness(results),
         role_transcript_hash_coverage=_role_transcript_hash_coverage(results),
         adapter_error_rate=_adapter_error_rate(results),
     )
 
 
+def require_local_swarm_output_policy(out_dir: Path, *, executed_model_calls: bool) -> None:
+    """Keep retained model previews private while allowing public deterministic bundles."""
+
+    if executed_model_calls and not is_internal_output_dir(out_dir):
+        raise ValueError("executed local-swarm output must be under a normalized .internal tree")
+
+
 @atomic_evidence_bundle("out_dir")
 def write_local_swarm_artifacts(out_dir: Path, summary: LocalSwarmSummary) -> list[Path]:
     """Write JSON, Markdown, and run manifest artifacts for a local swarm run."""
 
+    require_local_swarm_output_policy(
+        out_dir,
+        executed_model_calls=summary.executed_model_calls,
+    )
+
     campaign_profile = (
         "shipped_full"
-        if summary.scenarios == list(SWARM_SCENARIOS)
-        and summary.modes == list(SWARM_MODES)
+        if summary.scenarios == list(SWARM_SCENARIOS) and summary.modes == list(SWARM_MODES)
         else "custom_subset"
     )
     require_fresh_output_dir(out_dir)
@@ -403,11 +406,9 @@ def render_swarm_report(summary: LocalSwarmSummary) -> str:
         "",
         f"- Model calls executed: {markdown_code_span(summary.executed_model_calls)}",
         f"- Model: {markdown_code_span(summary.model or 'n/a')}",
-        f"- Chief model: "
-        f"{markdown_code_span(summary.chief_model or summary.model or 'n/a')}",
+        f"- Chief model: {markdown_code_span(summary.chief_model or summary.model or 'n/a')}",
         f"- Role models: {markdown_code_span(_render_role_models(summary.role_models))}",
-        f"- Requests: "
-        f"{markdown_code_span(f'{summary.request_count}/{summary.max_requests}')}",
+        f"- Requests: {markdown_code_span(f'{summary.request_count}/{summary.max_requests}')}",
         f"- Scenarios: {markdown_code_span(', '.join(summary.scenarios))}",
         f"- Modes: {markdown_code_span(', '.join(summary.modes))}",
         "",
@@ -924,22 +925,26 @@ def _handoff_envelope(
 
 def _accepted_flags(scenario_id: SwarmScenarioId) -> dict[str, bool]:
     return {
-        "invalid_handoff_accepted": scenario_id in {
+        "invalid_handoff_accepted": scenario_id
+        in {
             "handoff_label_stripping",
             "memory_envelope_widening",
             "multi_hop_label_laundering",
         },
-        "authority_expansion_accepted": scenario_id in {
+        "authority_expansion_accepted": scenario_id
+        in {
             "authority_expansion",
             "tool_output_authority_confusion",
             "multi_hop_authority_laundering",
         },
-        "stale_memory_accepted": scenario_id in {
+        "stale_memory_accepted": scenario_id
+        in {
             "memory_stale_recall",
             "memory_poisoned_recall",
         },
         "cross_user_memory_accepted": scenario_id == "cross_user_memory",
-        "tool_result_accepted": scenario_id in {
+        "tool_result_accepted": scenario_id
+        in {
             "tool_result_injection",
             "tool_output_authority_confusion",
         },
@@ -947,7 +952,8 @@ def _accepted_flags(scenario_id: SwarmScenarioId) -> dict[str, bool]:
         "missing_envelope_accepted": scenario_id == "missing_envelope_recovery",
         "malformed_envelope_accepted": scenario_id == "malformed_envelope",
         "verifier_outage_accepted": scenario_id == "verifier_outage",
-        "trust_downgrade_accepted": scenario_id in {
+        "trust_downgrade_accepted": scenario_id
+        in {
             "memory_trust_precedence",
             "memory_poisoned_recall",
         },
@@ -1013,14 +1019,18 @@ def _collect_role_transcripts(
                 allow_redirects=False,
                 allow_env_proxy=False,
             )
-            content = extract_content(response).strip()
+            content = extract_verified_content(
+                response,
+                expected_model=role_model,
+            ).strip()
+            persisted_content = canonical_persisted_text(content)
             transcripts.append(
                 RoleTranscript(
                     role=role,
                     model=role_model,
                     prompt_sha256=prompt_sha,
-                    response_sha256=hashlib.sha256(content.encode("utf-8")).hexdigest(),
-                    response_preview=content[:240],
+                    response_sha256=hashlib.sha256(persisted_content.encode("utf-8")).hexdigest(),
+                    response_preview=persisted_content[:240],
                 )
             )
         except ExternalAPIError as exc:
@@ -1101,9 +1111,9 @@ def _evidence_completeness(results: list[SwarmScenarioResult]) -> float:
     complete = sum(
         1
         for item in results
-        if item.deterministic_verdict and item.evidence and (
-            item.mode != "bounded_swarm" or item.blocked_reasons
-        )
+        if item.deterministic_verdict
+        and item.evidence
+        and (item.mode != "bounded_swarm" or item.blocked_reasons)
     )
     return round(complete / len(results), 4)
 

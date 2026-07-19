@@ -71,7 +71,7 @@ ash run-external \
   --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary \
   --repeats 1 --temperature 0.0 --timeout 30 \
   --retries 1 --raw-response-limit 0 --variant base-envelope \
-  --out reports/external-rerun
+  --out .internal/external-rerun
 ```
 
 On Windows PowerShell, replace each trailing `\` with a backtick `` ` `` (or put the command on one line).
@@ -79,7 +79,7 @@ On Windows PowerShell, replace each trailing `\` with a backtick `` ` `` (or put
 Then validate the artifacts:
 
 ```bash
-ash validate reports/external-rerun
+ash validate .internal/external-rerun
 ```
 
 Stochastic endpoints may differ across runs; increase `--repeats` to surface flaky patterns. `run_config.json` is the authoritative record of what was run.

@@ -1,5 +1,6 @@
 import ast
 import os
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -8,6 +9,7 @@ from agentic_security_harness.safe_io import (
     PublishedBundleDurabilityError,
     atomic_evidence_bundle,
     atomic_private_bundle,
+    canonical_persisted_text,
     credential_env_var_lookup_name,
     is_internal_output_dir,
     is_staging_path,
@@ -75,6 +77,14 @@ def test_redact_artifact_text_covers_secret_shapes() -> None:
     assert "Bearer [REDACTED]" in redacted
 
 
+def test_canonical_persisted_text_is_the_hashable_redacted_scalar() -> None:
+    original = "model output sk-ABCDEFGHIJ0123456789"
+    persisted = canonical_persisted_text(original)
+
+    assert persisted == "model output sk-[REDACTED]"
+    assert persisted == redact_artifact_text(original)
+
+
 def test_write_text_artifact_creates_parent_and_redacts(tmp_path: Path) -> None:
     path = tmp_path / "nested" / "artifact.txt"
 
@@ -84,6 +94,31 @@ def test_write_text_artifact_creates_parent_and_redacts(tmp_path: Path) -> None:
     raw = path.read_bytes()
     assert b"\r\n" not in raw
     assert path.read_text(encoding="utf-8") == "token sk-[REDACTED]\n"
+
+
+def test_write_text_artifact_uses_a_bounded_temporary_name(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    observed: dict[str, object] = {}
+    original_mkstemp = tempfile.mkstemp
+
+    def capture_mkstemp(
+        suffix: str | None = None,
+        prefix: str | None = None,
+        dir: str | os.PathLike[str] | None = None,
+        text: bool = False,
+    ) -> tuple[int, str]:
+        observed.update({"suffix": suffix, "prefix": prefix, "dir": dir, "text": text})
+        return original_mkstemp(suffix=suffix, prefix=prefix, dir=dir, text=text)
+
+    monkeypatch.setattr(tempfile, "mkstemp", capture_mkstemp)
+    destination = tmp_path / ("long-artifact-name-" * 6 + ".json")
+
+    write_text_artifact(destination, "complete\n")
+
+    assert observed["prefix"] == ".ash-"
+    assert destination.read_text(encoding="utf-8") == "complete\n"
 
 
 def test_write_text_artifact_failure_keeps_existing_bytes(
@@ -106,7 +141,7 @@ def test_write_text_artifact_failure_keeps_existing_bytes(
         write_text_artifact(path, "next-generation\n")
 
     assert path.read_bytes() == b"committed-generation\n"
-    assert list(tmp_path.glob(".artifact.txt.*.tmp")) == []
+    assert list(tmp_path.glob(".ash-*.tmp")) == []
 
 
 def test_write_text_artifact_refuses_existing_symlink(tmp_path: Path) -> None:

@@ -349,17 +349,16 @@ def test_secret_variation_private_artifacts_keep_raw_under_private_dir(
 def test_secret_variation_probe_detects_model_leak(monkeypatch: Any) -> None:
     import agentic_security_harness.secret_leak_campaign as campaign
 
-    def fake_chat_completion(**kwargs: object) -> dict[str, str]:
+    def fake_chat_completion(**kwargs: object) -> dict[str, object]:
         messages = cast(list[dict[str, str]], kwargs["messages"])
         prompt = messages[-1]["content"]
         marker = str(prompt).split("marker = ", 1)[1].split("\n", 1)[0]
-        return {"content": marker}
-
-    def fake_extract_content(response: dict[str, str]) -> str:
-        return response["content"]
+        return {
+            "model": kwargs["model"],
+            "choices": [{"message": {"content": marker}}],
+        }
 
     monkeypatch.setattr(campaign, "chat_completion", fake_chat_completion)
-    monkeypatch.setattr(campaign, "extract_content", fake_extract_content)
 
     run = run_secret_leak_variation_probe(
         base_url="http://127.0.0.1:11434/v1",

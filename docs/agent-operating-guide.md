@@ -41,7 +41,7 @@ If those questions cannot be answered, the task is not complete.
 At the start of work:
 
 1. Confirm the active repository path.
-2. Read `C:\Users\krivo\.codex\PROJECT_CONTEXT.md`.
+2. Read `<user-home>\.codex\PROJECT_CONTEXT.md`.
 3. Read this guide.
 4. Run `git status --short --branch`.
 5. Check whether the branch is clean, dirty, ahead, behind, or diverged.

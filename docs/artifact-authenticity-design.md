@@ -1,7 +1,9 @@
 # Artifact Authenticity Trust-Root Design
 
-Date: 2026-07-15
-Status: decision-ready design verified against current primary documentation; no signing authority or external workflow change is implemented.
+Date: 2026-07-16
+Status: public release workflow implementation is present on the audit branch; no post-change tag
+has exercised it, historical subjects remain unsigned, and private/reviewer signing is not
+implemented.
 
 ## Problem
 
@@ -25,9 +27,10 @@ Use two trust domains rather than one universal project signature.
 ### Public release and deterministic evidence bundles
 
 Recommended root: GitHub Actions workload identity plus GitHub artifact attestations/Sigstore.
-The release workflow would build a deterministic subject, emit an in-toto/SLSA provenance
-attestation, and let consumers verify both the subject digest and the expected repository/workflow
-identity. For a public repository, the Sigstore public-good trust root and transparency log supply
+The release workflow builds exact wheel, source-distribution, and checksum subjects, emits
+in-toto/SLSA provenance attestations only after repository gates and smoke installs, and verifies
+both each subject digest and the expected repository/workflow/tag/source/builder policy in a
+separate job. For a public repository, the Sigstore public-good trust root and transparency log supply
 an independently auditable signing-time anchor. GitHub's private-repository Sigstore instance does
 not provide that public transparency log, so a private-repository policy must not claim the same
 public inclusion property.
@@ -93,28 +96,34 @@ field is supplied by the chosen trusted service and bound into the verified stat
 | Unsigned in-toto/SLSA JSON | Gives a useful interoperable statement shape, but remains forgeable. |
 | One shared long-lived key in CI and local workstations | Expands compromise scope and makes attribution, rotation, and revocation ambiguous. |
 
-## Minimum Safe Implementation Sequence
+## Implementation State And Remaining Sequence
 
-1. Owner chooses the public identity-disclosure policy and exact trusted workflow identity.
-2. Define the canonical release/evidence subject and deterministic archive rules.
-3. Add a versioned in-toto/SLSA v1.2 attestation policy and negative verification fixtures.
-4. Pin the currently selected `actions/attest` release by immutable commit and grant
+1. The user authorized the public GitHub Actions workload identity and exact tag-push workflow for
+   this audit branch; private/reviewer trust remains separate.
+2. Wheel, source distribution, and checksum file are the exact release-workflow subjects. A
+   canonical deterministic-example archive remains future work.
+3. The branch adds a versioned in-toto/SLSA v1.2 attestation policy and negative verification
+   fixtures.
+4. The branch pins `actions/attest` by immutable commit and grants
    `contents: read`, `id-token: write`, and `attestations: write` only to the release job that
    needs them. `artifact-metadata: write` is separate and is needed only if the owner chooses
    GitHub linked-artifact storage records.
-5. Generate an attestation only after tests, validation, package smoke, and subject digest creation.
-6. Add an independent verification job with expected repository/workflow/issuer constraints.
-7. Only then allow evidence status to reference a validated `signed_attested` receipt.
-8. Design the separate private reconciliation signer and revocation process; do not reuse release
+5. The branch generates attestations only after tests, validation, package smoke, and subject
+   digest creation.
+6. The branch adds a separate verification job with expected subject, repository, workflow, issuer,
+   tag ref, source digest, builder, event, hosted-runner, predicate, and verified-time constraints.
+7. Run a future authorized tag and independently retain/verify its exact subjects. Until that
+   succeeds, operational status remains unverified and historical artifacts remain unsigned.
+8. Only a future supported evidence-registry contract may reference a validated
+   `signed_attested` receipt; this workflow does not promote any current row.
+9. Design the separate private reconciliation signer and revocation process; do not reuse release
    provenance as owner observation or trading approval.
 
-## Decision Required
+## Decisions Still Required
 
-Implementation intentionally stops before changing GitHub permissions or invoking a signing
-service. The owner must choose:
+The public workflow implementation is authorized for the task branch, but merge and future tag
+creation remain owner decisions. The owner must still choose:
 
-- public Sigstore/GitHub identity and digest disclosure versus an offline managed key;
-- exact trusted workflow/ref/event policy;
 - whether deterministic examples are attested individually or as one canonical archive;
 - the signer and disclosure policy for private reconciliation receipts;
 - rotation, revocation, monitoring, and incident-response ownership.

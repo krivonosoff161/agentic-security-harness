@@ -19,6 +19,7 @@ from agentic_security_harness.external_openai_compatible import (
     _NoRedirectHandler,
     chat_completion,
     extract_content,
+    extract_verified_content,
 )
 from agentic_security_harness.external_prompt import render_pattern_prompt
 from agentic_security_harness.external_runner import (
@@ -58,6 +59,8 @@ def _mock_chat_open(
 ) -> Callable[..., MagicMock]:
     def _open(req: object, *args: object, **kwargs: object) -> MagicMock:
         pattern_id = _pattern_id_from_request(req)
+        request_data = req.data  # type: ignore[attr-defined]
+        requested_model = json.loads(request_data.decode("utf-8"))["model"]
         resp = MagicMock()
         content = json.dumps(
             {
@@ -70,7 +73,10 @@ def _mock_chat_open(
             }
         )
         resp.read.return_value = json.dumps(
-            {"choices": [{"message": {"content": content}}]}
+            {
+                "model": requested_model,
+                "choices": [{"message": {"content": content}}],
+            }
         ).encode()
         resp.__enter__ = lambda s: s
         resp.__exit__ = MagicMock(return_value=False)
@@ -155,6 +161,35 @@ def test_extract_content_valid() -> None:
 def test_extract_content_empty() -> None:
     assert extract_content({}) == ""
     assert extract_content({"choices": []}) == ""
+
+
+def test_extract_verified_content_requires_exact_model_and_nonblank_text() -> None:
+    response = {
+        "model": "expected",
+        "choices": [{"message": {"content": " usable "}}],
+    }
+    assert extract_verified_content(response, expected_model="expected") == " usable "
+
+
+@pytest.mark.parametrize(
+    "response,error",
+    [
+        ({"choices": [{"message": {"content": "answer"}}]}, "identity mismatch"),
+        (
+            {"model": "wrong", "choices": [{"message": {"content": "answer"}}]},
+            "identity mismatch",
+        ),
+        ({"model": "expected", "choices": [{"message": {"content": "   "}}]}, "blank"),
+        ({"model": "expected", "choices": []}, "blank"),
+        ([], "JSON object"),
+    ],
+)
+def test_extract_verified_content_fails_closed(
+    response: object,
+    error: str,
+) -> None:
+    with pytest.raises(ExternalAPIError, match=error):
+        extract_verified_content(response, expected_model="expected")
 
 
 def test_chat_completion_sends_correct_body() -> None:
@@ -419,7 +454,7 @@ def test_run_external_dry_run(
         base_url="http://localhost:8000/v1",
         model="test\n[OK] forged\x1b[31m\u202e",
         scenario_id="data-boundary",
-        out_dir=tmp_path / "ext",
+        out_dir=tmp_path / ".internal" / "ext",
         dry_run=True,
     )
     assert summary.total_checks == 6
@@ -430,7 +465,7 @@ def test_run_external_dry_run(
     assert "\u202e" not in output
     assert r"\n[OK] forged\x1b[31m\u202e" in output
     # Dry run should not create output dir
-    assert not (tmp_path / "ext").exists()
+    assert not (tmp_path / ".internal" / "ext").exists()
 
 
 def test_run_external_dry_run_with_repeats(tmp_path: Path) -> None:
@@ -438,13 +473,29 @@ def test_run_external_dry_run_with_repeats(tmp_path: Path) -> None:
         base_url="http://localhost:8000/v1",
         model="test",
         scenario_id="data-boundary",
-        out_dir=tmp_path / "ext",
+        out_dir=tmp_path / ".internal" / "ext",
         repeats=3,
         max_variants=2,
         dry_run=True,
     )
     assert summary.total_checks == 6 * 2  # 6 patterns x 2 variants
     assert summary.total_repeats == 3
+
+
+def test_run_external_refuses_public_live_output_before_network(tmp_path: Path) -> None:
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect"
+    ) as mock_open:
+        with pytest.raises(ValueError, match=r"under \.internal"):
+            run_external(
+                base_url="http://localhost:8000/v1",
+                model="test",
+                scenario_id="data-boundary",
+                out_dir=tmp_path / "public-external",
+            )
+
+    mock_open.assert_not_called()
+    assert not (tmp_path / "public-external").exists()
 
 
 def test_run_external_mock_endpoint(tmp_path: Path) -> None:
@@ -456,22 +507,24 @@ def test_run_external_mock_endpoint(tmp_path: Path) -> None:
             base_url="http://localhost:8000/v1",
             model="test",
             scenario_id="data-boundary",
-            out_dir=tmp_path / "ext",
+            out_dir=tmp_path / ".internal" / "ext",
             repeats=1,
             max_variants=1,
         )
 
     assert summary.total_checks == 6
     assert len(summary.patterns_with_findings) == 0
-    assert (tmp_path / "ext" / "run_config.json").exists()
-    assert (tmp_path / "ext" / "external_results.json").exists()
-    assert (tmp_path / "ext" / "external_summary.json").exists()
-    assert (tmp_path / "ext" / "external_report.md").exists()
-    assert (tmp_path / "ext" / "run_index.json").exists()
-    results = json.loads((tmp_path / "ext" / "external_results.json").read_text())
-    config = json.loads((tmp_path / "ext" / "run_config.json").read_text())
-    summary_data = json.loads((tmp_path / "ext" / "external_summary.json").read_text())
-    manifest = json.loads((tmp_path / "ext" / "run_index.json").read_text())
+    assert (tmp_path / ".internal" / "ext" / "run_config.json").exists()
+    assert (tmp_path / ".internal" / "ext" / "external_results.json").exists()
+    assert (tmp_path / ".internal" / "ext" / "external_summary.json").exists()
+    assert (tmp_path / ".internal" / "ext" / "external_report.md").exists()
+    assert (tmp_path / ".internal" / "ext" / "run_index.json").exists()
+    results = json.loads((tmp_path / ".internal" / "ext" / "external_results.json").read_text())
+    config = json.loads((tmp_path / ".internal" / "ext" / "run_config.json").read_text())
+    summary_data = json.loads(
+        (tmp_path / ".internal" / "ext" / "external_summary.json").read_text()
+    )
+    manifest = json.loads((tmp_path / ".internal" / "ext" / "run_index.json").read_text())
     execution_id = config["execution_id"]
     assert execution_id.startswith("run_")
     assert len(execution_id) == 36
@@ -487,16 +540,16 @@ def test_run_external_mock_endpoint(tmp_path: Path) -> None:
     assert config["runtime"]["tool_execution"] is False
     assert config["runtime"]["model_id"] == "test"
     assert config["network_mode"] == "local-only"
-    raw_path = tmp_path / "ext" / results[0]["raw_response_path"]
+    raw_path = tmp_path / ".internal" / "ext" / results[0]["raw_response_path"]
     assert raw_path.exists()
     assert results[0]["raw_response_sha256"]
     assert results[0]["assertion_result"] == "pass"
     assert "recovery_hint" in results[0]
-    assert validate_path(tmp_path / "ext").ok
+    assert validate_path(tmp_path / ".internal" / "ext").ok
 
 
 def test_current_external_validation_rejects_missing_manifest(tmp_path: Path) -> None:
-    out = tmp_path / "ext"
+    out = tmp_path / ".internal" / "ext"
     with patch(
         "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
         side_effect=_mock_chat_open(),
@@ -518,7 +571,7 @@ def test_current_external_validation_rejects_missing_manifest(tmp_path: Path) ->
 def test_current_external_validation_rejects_execution_identity_mismatch(
     tmp_path: Path,
 ) -> None:
-    out = tmp_path / "ext"
+    out = tmp_path / ".internal" / "ext"
     with patch(
         "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
         side_effect=_mock_chat_open(),
@@ -554,7 +607,7 @@ def test_run_external_finding_result(tmp_path: Path) -> None:
             base_url="http://localhost:8000/v1",
             model="test",
             scenario_id="data-boundary",
-            out_dir=tmp_path / "ext",
+            out_dir=tmp_path / ".internal" / "ext",
             repeats=1,
         )
 
@@ -607,12 +660,12 @@ def test_run_external_writes_request_count(tmp_path: Path) -> None:
             base_url="http://localhost:8000/v1",
             model="test",
             scenario_id="data-boundary",
-            out_dir=tmp_path / "ext",
+            out_dir=tmp_path / ".internal" / "ext",
             repeats=1,
             max_variants=1,
         )
 
-    config = json.loads((tmp_path / "ext" / "run_config.json").read_text())
+    config = json.loads((tmp_path / ".internal" / "ext" / "run_config.json").read_text())
     assert config["request_count"] == 6  # 6 patterns x 1 variant x 1 repeat
 
 
@@ -625,13 +678,15 @@ def test_run_external_raw_response_limit_keeps_full_raw_artifact(tmp_path: Path)
             base_url="http://localhost:8000/v1",
             model="test",
             scenario_id="perception-boundary",
-            out_dir=tmp_path / "ext",
+            out_dir=tmp_path / ".internal" / "ext",
             raw_response_limit=40,
         )
 
-    results = json.loads((tmp_path / "ext" / "external_results.json").read_text())
+    results = json.loads((tmp_path / ".internal" / "ext" / "external_results.json").read_text())
     result = results[0]
-    raw_text = (tmp_path / "ext" / result["raw_response_path"]).read_text(encoding="utf-8")
+    raw_text = (
+        tmp_path / ".internal" / "ext" / result["raw_response_path"]
+    ).read_text(encoding="utf-8")
     assert result["raw_response_truncated"] is True
     assert len(result["raw_response"]) == 40
     assert len(raw_text) == result["raw_response_chars"]
@@ -647,12 +702,12 @@ def test_run_external_preset_writes_local_runtime_metadata(tmp_path: Path) -> No
             base_url="http://localhost:11434/v1",
             model="llama3.1",
             scenario_id="perception-boundary",
-            out_dir=tmp_path / "ext",
+            out_dir=tmp_path / ".internal" / "ext",
             preset_name="ollama",
         )
 
-    config = json.loads((tmp_path / "ext" / "run_config.json").read_text())
-    report = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
+    config = json.loads((tmp_path / ".internal" / "ext" / "run_config.json").read_text())
+    report = (tmp_path / ".internal" / "ext" / "external_report.md").read_text(encoding="utf-8")
     assert config["runtime"]["runtime_name"] == "ollama"
     assert config["runtime"]["authorization_mode"] == "local_runtime"
     assert config["runtime"]["local_only"] is True
@@ -674,12 +729,14 @@ def test_run_external_redacts_mistaken_credential_env_value(tmp_path: Path) -> N
             base_url="http://localhost:8000/v1",
             model="test",
             scenario_id="perception-boundary",
-            out_dir=tmp_path / "ext",
+            out_dir=tmp_path / ".internal" / "ext",
             credential_env_var=secret,
         )
 
-    config_text = (tmp_path / "ext" / "run_config.json").read_text(encoding="utf-8")
-    report_text = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
+    config_text = (tmp_path / ".internal" / "ext" / "run_config.json").read_text(encoding="utf-8")
+    report_text = (
+        tmp_path / ".internal" / "ext" / "external_report.md"
+    ).read_text(encoding="utf-8")
     assert secret not in config_text
     assert secret not in report_text
     config = json.loads(config_text)
@@ -696,7 +753,7 @@ def test_run_external_dry_run_redacts_mistaken_credential_env_value(
         base_url="http://localhost:8000/v1",
         model="test",
         scenario_id="perception-boundary",
-        out_dir=tmp_path / "ext",
+        out_dir=tmp_path / ".internal" / "ext",
         credential_env_var=secret,
         dry_run=True,
     )
@@ -715,13 +772,13 @@ def test_run_external_adapter_error_has_recovery_hint(tmp_path: Path) -> None:
             base_url="http://localhost:11434/v1",
             model="missing-model",
             scenario_id="perception-boundary",
-            out_dir=tmp_path / "ext",
+            out_dir=tmp_path / ".internal" / "ext",
             preset_name="ollama",
         )
 
-    results = json.loads((tmp_path / "ext" / "external_results.json").read_text())
+    results = json.loads((tmp_path / ".internal" / "ext" / "external_results.json").read_text())
     assert "pull or load the model" in results[0]["recovery_hint"]
-    report = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
+    report = (tmp_path / ".internal" / "ext" / "external_report.md").read_text(encoding="utf-8")
     assert "## Recovery guidance" in report
 
 
@@ -761,7 +818,7 @@ def test_reproduce_command_includes_knobs_no_secret() -> None:
         "--max-variants 2",
         "--credential-env <ENV_VAR_NAME>",
         "--execute",
-        "--out reports/external-rerun",
+        "--out .internal/external-rerun",
     ):
         assert flag in cmd, flag
     # Single variant -> --variant; large request_count -> --max-requests.
@@ -781,11 +838,11 @@ def test_external_report_reproduce_section_has_knobs(tmp_path: Path) -> None:
             base_url="http://localhost:8000/v1",
             model="demo-model",
             scenario_id="data-boundary",
-            out_dir=tmp_path / "ext",
+            out_dir=tmp_path / ".internal" / "ext",
             repeats=2,
             credential_env_var="ASH_EXTERNAL_API_KEY",
         )
-    report = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
+    report = (tmp_path / ".internal" / "ext" / "external_report.md").read_text(encoding="utf-8")
     assert "## How to reproduce / validate" in report
     assert "--temperature" in report and "--timeout" in report
     assert "--raw-response-limit" in report
@@ -846,7 +903,7 @@ def test_run_external_findings_control_family_and_recommendations(
             base_url="http://localhost:8000/v1",
             model="test",
             scenario_id="data-boundary",
-            out_dir=tmp_path / "ext",
+            out_dir=tmp_path / ".internal" / "ext",
             repeats=1,
         )
 
@@ -854,7 +911,7 @@ def test_run_external_findings_control_family_and_recommendations(
     assert summary.findings_by_control_family.get("data_boundary", 0) == 5
     assert summary.findings_by_control_family.get("provider_boundary", 0) == 1
 
-    report = (tmp_path / "ext" / "external_report.md").read_text(encoding="utf-8")
+    report = (tmp_path / ".internal" / "ext" / "external_report.md").read_text(encoding="utf-8")
     assert "## Control recommendations" in report
     assert "### data_boundary" in report
     assert "Quick fix:" in report
@@ -870,11 +927,42 @@ def test_run_external_api_error(tmp_path: Path) -> None:
             base_url="http://localhost:8000/v1",
             model="test",
             scenario_id="data-boundary",
-            out_dir=tmp_path / "ext",
+            out_dir=tmp_path / ".internal" / "ext",
             repeats=1,
         )
 
     assert len(summary.error_patterns) == 6
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        {"model": "wrong", "choices": [{"message": {"content": "answer"}}]},
+        {"choices": [{"message": {"content": "answer"}}]},
+        {"model": "test", "choices": [{"message": {"content": "   "}}]},
+    ],
+)
+def test_run_external_invalid_identity_or_content_never_becomes_evidence(
+    tmp_path: Path,
+    response: dict[str, object],
+) -> None:
+    out = tmp_path / ".internal" / "ext"
+    with patch(
+        "agentic_security_harness.external_runner.chat_completion",
+        return_value=response,
+    ):
+        summary = run_external(
+            base_url="http://127.0.0.1:8000/v1",
+            model="test",
+            scenario_id="data-boundary",
+            out_dir=out,
+            repeats=1,
+        )
+
+    assert len(summary.error_patterns) == 6
+    results = json.loads((out / "external_results.json").read_text(encoding="utf-8"))
+    assert all(row["deterministic_cross_check"] == "adapter_error" for row in results)
+    assert all(not row["raw_response_sha256"] for row in results)
 
 
 def test_stability_status_stable_pass(tmp_path: Path) -> None:
@@ -886,7 +974,7 @@ def test_stability_status_stable_pass(tmp_path: Path) -> None:
             base_url="http://localhost:8000/v1",
             model="m",
             scenario_id="data-boundary",
-            out_dir=tmp_path / "ext",
+            out_dir=tmp_path / ".internal" / "ext",
             repeats=2,
         )
     assert all(rs.stability_status == "stable_pass" for rs in summary.repeat_summaries)
@@ -901,7 +989,7 @@ def test_stability_status_adapter_error(tmp_path: Path) -> None:
             base_url="http://localhost:8000/v1",
             model="m",
             scenario_id="data-boundary",
-            out_dir=tmp_path / "ext",
+            out_dir=tmp_path / ".internal" / "ext",
             repeats=2,
         )
     assert all(rs.stability_status == "adapter_error" for rs in summary.repeat_summaries)
@@ -938,7 +1026,10 @@ def test_stability_status_flaky(tmp_path: Path) -> None:
             )
         content = json.dumps(payload)
         resp.read.return_value = json.dumps(
-            {"choices": [{"message": {"content": content}}]}
+            {
+                "model": json.loads(req.data.decode("utf-8"))["model"],
+                "choices": [{"message": {"content": content}}],
+            }
         ).encode()
         resp.__enter__ = lambda s: s
         resp.__exit__ = MagicMock(return_value=False)
@@ -952,7 +1043,7 @@ def test_stability_status_flaky(tmp_path: Path) -> None:
             base_url="http://localhost:8000/v1",
             model="m",
             scenario_id="perception-boundary",
-            out_dir=tmp_path / "ext",
+            out_dir=tmp_path / ".internal" / "ext",
             repeats=2,
         )
     assert any(rs.stability_status == "flaky" for rs in summary.repeat_summaries)
@@ -990,7 +1081,10 @@ def test_run_external_flaky_detection(tmp_path: Path) -> None:
             )
         content = json.dumps(payload)
         resp.read.return_value = json.dumps(
-            {"choices": [{"message": {"content": content}}]}
+            {
+                "model": json.loads(req.data.decode("utf-8"))["model"],
+                "choices": [{"message": {"content": content}}],
+            }
         ).encode()
         resp.__enter__ = lambda s: s
         resp.__exit__ = MagicMock(return_value=False)
@@ -1004,7 +1098,7 @@ def test_run_external_flaky_detection(tmp_path: Path) -> None:
             base_url="http://localhost:8000/v1",
             model="test",
             scenario_id="perception-boundary",  # 1 pattern
-            out_dir=tmp_path / "ext",
+            out_dir=tmp_path / ".internal" / "ext",
             repeats=2,
         )
 
@@ -1324,8 +1418,8 @@ def test_cli_external_check_emits_copy_pasteable_next_command(
     assert "ash run-external --base-url http://localhost:8000/v1" in out
     assert "--model deepseek-chat" in out
     assert "--dry-run" in out
-    assert "--execute --out reports/external-run" in out
-    assert "ash validate reports/external-run" in out
+    assert "--execute --out .internal/external-run" in out
+    assert "ash validate .internal/external-run" in out
 
 
 def _wait_port(host: str, port: int, timeout_s: float = 5.0) -> None:

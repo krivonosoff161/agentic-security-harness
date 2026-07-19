@@ -69,8 +69,8 @@ ash evidence-quality \
   --out .internal/evidence-quality/2026-06-23-full-clean
 ```
 
-Raw model-response artifacts stay in local ignored `.internal/` or `reports/`
-directories. The public repository records only aggregate evidence-quality metrics,
+Raw model-response artifacts stay in local ignored `.internal/` directories; live execution
+refuses public `reports/` destinations. The public repository records only aggregate evidence-quality metrics,
 artifact schemas, sanitized examples, and claim boundaries.
 
 The 2026-06-23 evidence-quality refresh over local scratch artifacts reported:

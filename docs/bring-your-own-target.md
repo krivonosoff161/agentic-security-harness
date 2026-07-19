@@ -140,7 +140,7 @@ ash run-external --adapter openai-compatible \
   --repeats 3 \
   --execute \
   --credential-env ASH_EXTERNAL_API_KEY \
-  --out reports/external-demo
+  --out .internal/external-demo
 ```
 
 **Important:** External runs evaluate model decision boundaries with synthetic

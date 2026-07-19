@@ -21,7 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from agentic_security_harness.external_openai_compatible import (
     ExternalAPIError,
     chat_completion,
-    extract_content,
+    extract_verified_content,
 )
 from agentic_security_harness.ground_truth import (
     GroundTruthMetrics,
@@ -33,6 +33,7 @@ from agentic_security_harness.run_manifest import build_manifest, write_run_mani
 from agentic_security_harness.safe_io import (
     atomic_evidence_bundle,
     atomic_private_bundle,
+    canonical_persisted_text,
     is_internal_output_dir,
     require_fresh_output_dir,
     write_text_artifact,
@@ -361,9 +362,7 @@ def run_semantic_drift_probe(
     """Run private local-model probes for semantic parameter drift."""
 
     if not is_loopback_base_url(base_url):
-        raise ValueError(
-            "semantic drift probes require a literal loopback HTTP(S) base URL"
-        )
+        raise ValueError("semantic drift probes require a literal loopback HTTP(S) base URL")
     selected_pressures = pressure_modes or list(PRESSURE_MODES)
     cases = declared_semantic_drift_cases()
     request_count = len(models) * len(cases) * len(selected_pressures)
@@ -409,10 +408,11 @@ def run_semantic_drift_probe(
                         allow_redirects=False,
                         allow_env_proxy=False,
                     )
-                    content = extract_content(response).strip()
-                    row.raw_response = content
+                    content = extract_verified_content(response, expected_model=model).strip()
+                    persisted_content = canonical_persisted_text(content)
+                    row.raw_response = persisted_content
                     row.response_sha256 = hashlib.sha256(
-                        content.encode("utf-8")
+                        persisted_content.encode("utf-8")
                     ).hexdigest()
                     row.drift_detected = detect_semantic_drift(content)
                     leak = detect_canary_leak(content, canary)
@@ -599,12 +599,10 @@ def render_semantic_drift_summary(summary: SemanticDriftSummary) -> str:
         "contract rejected drift in this synthetic case matrix.",
         "- `Ablation deterministic drift acceptances = 19` means missing-control "
         "variants accepted drift in the declared deterministic contract model.",
-        "- `Drift detections` are classifier findings over synthetic local-model text, "
-        "not CVEs.",
+        "- `Drift detections` are classifier findings over synthetic local-model text, not CVEs.",
         "- `Canary leaks` are synthetic canary matches in local-model observations, not "
         "real secret leakage.",
-        "- `Verifier blocks` are campaign verifier decisions, not proof of semantic "
-        "truth.",
+        "- `Verifier blocks` are campaign verifier decisions, not proof of semantic truth.",
         "",
         "## Metrics",
         "",
@@ -639,13 +637,15 @@ def render_semantic_drift_summary(summary: SemanticDriftSummary) -> str:
             f"{markdown_table_cell(', '.join(result.blocked_by) or '-')} | "
             f"{markdown_table_cell(', '.join(result.missing_controls) or '-')} |"
         )
-    lines.extend([
-        "",
-        "## Local-Model Observations",
-        "",
-        "| Case | Model | Pressure | Drift | Leak | Decision | First failure step |",
-        "| --- | --- | --- | ---: | ---: | --- | --- |",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Local-Model Observations",
+            "",
+            "| Case | Model | Pressure | Drift | Leak | Decision | First failure step |",
+            "| --- | --- | --- | ---: | ---: | --- | --- |",
+        ]
+    )
     for observation in summary.observations:
         lines.append(
             "| "
@@ -656,13 +656,15 @@ def render_semantic_drift_summary(summary: SemanticDriftSummary) -> str:
             f"{observation.canary_leaked} | {observation.verifier_decision} | "
             f"{markdown_table_cell(observation.first_failure_step or '-')} |"
         )
-    lines.extend([
-        "",
-        "## Non-Claims",
-        "",
-        *[f"- {markdown_prose(item)}" for item in summary.non_claims],
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Non-Claims",
+            "",
+            *[f"- {markdown_prose(item)}" for item in summary.non_claims],
+            "",
+        ]
+    )
     return "\n".join(lines)
 
 
@@ -745,14 +747,11 @@ def _build_metrics(
         for model in model_names
     }
     observations_by_model = {
-        model: sum(1 for item in observations if item.model == model)
-        for model in model_names
+        model: sum(1 for item in observations if item.model == model) for model in model_names
     }
     drift_by_pressure = {
         pressure: sum(
-            1
-            for item in observations
-            if item.pressure_mode == pressure and item.drift_detected
+            1 for item in observations if item.pressure_mode == pressure and item.drift_detected
         )
         for pressure in PRESSURE_MODES
     }
@@ -784,9 +783,7 @@ def _build_metrics(
         drift_detections=sum(1 for item in observations if item.drift_detected),
         canary_leaks=sum(1 for item in observations if item.canary_leaked),
         adapter_errors=sum(1 for item in observations if item.adapter_error),
-        verifier_blocks=sum(
-            1 for item in observations if item.verifier_decision == "block"
-        ),
+        verifier_blocks=sum(1 for item in observations if item.verifier_decision == "block"),
         drift_detection_rate=_rate(
             sum(1 for item in eligible_observations if item.drift_detected),
             eligible_count,
@@ -809,9 +806,7 @@ def _build_metrics(
         first_failure_steps=first_failure_steps,
         ground_truth=build_ground_truth_metrics(
             observations,
-            detector_unsafe=[
-                item.drift_detected or item.canary_leaked for item in observations
-            ],
+            detector_unsafe=[item.drift_detected or item.canary_leaked for item in observations],
             adapter_errors=[item.adapter_error for item in observations],
         ),
     )

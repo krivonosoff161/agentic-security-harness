@@ -335,8 +335,8 @@ def build_parser() -> argparse.ArgumentParser:
     ext_p.add_argument(
         "--out",
         type=Path,
-        default=Path("reports/external"),
-        help="output directory",
+        default=Path(".internal/external"),
+        help="private output directory under .internal",
     )
     ext_p.add_argument(
         "--repeats",
@@ -754,8 +754,11 @@ def build_parser() -> argparse.ArgumentParser:
     swarm_p.add_argument(
         "--out",
         type=Path,
-        default=Path("reports/local-swarm"),
-        help="output directory for --execute or --write-dry-run (default: reports/local-swarm)",
+        default=Path(".internal/local-swarm"),
+        help=(
+            "output directory for --execute or --write-dry-run "
+            "(default: .internal/local-swarm)"
+        ),
     )
     swarm_p.add_argument(
         "--preset",
@@ -2362,6 +2365,9 @@ def _run_external(
         return 0
 
     print(f"Estimated requests: {estimate}  (cap: {max_requests})")
+    if not is_internal_output_dir(out):
+        print("Error: --execute requires --out under a normalized .internal tree.")
+        return 1
     print(f"Artifacts will be written to {out.as_posix()}")
     print(
         f"Runtime: {runtime_profile.runtime_name}  "
@@ -2909,6 +2915,9 @@ def _local_swarm(
             print(f"Using role model roster: {terminal_field(rendered)}")
 
     if execute or write_dry_run:
+        if execute and not is_internal_output_dir(out):
+            print("Error: --execute requires --out under a normalized .internal tree.")
+            return 1
         try:
             require_atomic_output_destination(out)
         except ValueError as exc:
@@ -4296,6 +4305,7 @@ def _external_check(
         try:
             from agentic_security_harness.external_openai_compatible import (
                 chat_completion,
+                extract_verified_content,
             )
 
             resp = chat_completion(
@@ -4307,6 +4317,7 @@ def _external_check(
                 allow_redirects=False,
                 allow_env_proxy=False,
             )
+            extract_verified_content(resp, expected_model=model)
             print("  Live request: SUCCESS")
             print(f"  Response model: {terminal_field(resp.get('model', 'unknown'))}")
         except Exception as exc:
@@ -4335,8 +4346,11 @@ def _external_check(
     )
     print("Next steps:")
     print(f"  1) dry-run (no network, no files): {next_cmd} --dry-run")
-    print(f"  2) live run:                       {next_cmd} --execute --out reports/external-run")
-    print("  3) validate:                       ash validate reports/external-run")
+    print(
+        f"  2) live run:                       {next_cmd} --execute "
+        "--out .internal/external-run"
+    )
+    print("  3) validate:                       ash validate .internal/external-run")
     return 0
 
 

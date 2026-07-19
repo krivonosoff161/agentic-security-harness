@@ -53,6 +53,17 @@ def redact_artifact_text(text: str) -> str:
     return redacted
 
 
+def canonical_persisted_text(text: str) -> str:
+    """Return the exact scalar representation safe artifact sinks will persist.
+
+    Producers must hash this representation rather than pre-redaction model text. The
+    detector may inspect the original in memory, but public commitments describe retained
+    bytes, not a value that the writer subsequently changes.
+    """
+
+    return redact_artifact_text(text)
+
+
 def safe_credential_env_var_name(value: object) -> str:
     """Return a safe credential marker for persisted metadata.
 
@@ -227,9 +238,7 @@ def staged_evidence_bundle(final_path: Path) -> Iterator[Path]:
 
     require_atomic_output_destination(final_path)
     final_path.parent.mkdir(parents=True, exist_ok=True)
-    staging_path = final_path.with_name(
-        f".{final_path.name}{_STAGING_MARKER}{uuid.uuid4().hex}"
-    )
+    staging_path = final_path.with_name(f".{final_path.name}{_STAGING_MARKER}{uuid.uuid4().hex}")
     staging_path.mkdir(mode=0o700)
     published = False
     try:
@@ -268,9 +277,7 @@ def staged_private_bundle(final_path: Path) -> Iterator[Path]:
         raise ValueError("private bundle output must be under .internal/")
     require_atomic_output_destination(final_path)
     final_path.parent.mkdir(parents=True, exist_ok=True)
-    staging_path = final_path.with_name(
-        f".{final_path.name}{_STAGING_MARKER}{uuid.uuid4().hex}"
-    )
+    staging_path = final_path.with_name(f".{final_path.name}{_STAGING_MARKER}{uuid.uuid4().hex}")
     staging_path.mkdir(mode=0o700)
     published = False
     try:
@@ -310,10 +317,7 @@ def _remap_staged_paths(value: Any, staging: Path, final: Path) -> Any:
     if isinstance(value, tuple):
         return tuple(_remap_staged_paths(item, staging, final) for item in value)
     if isinstance(value, dict):
-        return {
-            key: _remap_staged_paths(item, staging, final)
-            for key, item in value.items()
-        }
+        return {key: _remap_staged_paths(item, staging, final) for key, item in value.items()}
     return value
 
 
@@ -352,8 +356,17 @@ def atomic_evidence_bundle(
     return decorate
 
 
-def atomic_private_bundle(output_parameter: str) -> Callable[[Callable[P, R]], Callable[P, R]]:
-    """Wrap a private-artifact writer in :func:`staged_private_bundle`."""
+def atomic_private_bundle(
+    output_parameter: str,
+    *,
+    skip_when: tuple[str, object] | None = None,
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
+    """Wrap a private-artifact writer in :func:`staged_private_bundle`.
+
+    ``skip_when`` supports explicit non-writing modes. It has the same fail-closed
+    semantics as :func:`atomic_evidence_bundle`: every writing call must still use a
+    normalized ``.internal`` destination.
+    """
 
     def decorate(function: Callable[P, R]) -> Callable[P, R]:
         function_signature = signature(function)
@@ -364,6 +377,10 @@ def atomic_private_bundle(output_parameter: str) -> Callable[[Callable[P, R]], C
         def wrapped(*args: P.args, **kwargs: P.kwargs) -> R:
             bound = function_signature.bind(*args, **kwargs)
             bound.apply_defaults()
+            if skip_when is not None:
+                parameter, expected = skip_when
+                if bound.arguments.get(parameter) == expected:
+                    return function(*args, **kwargs)
             final_path = Path(cast(Path | str, bound.arguments[output_parameter]))
             with staged_private_bundle(final_path) as staging_path:
                 bound.arguments[output_parameter] = staging_path
@@ -392,7 +409,9 @@ def write_text_artifact(path: Path, text: str) -> Path:
     # contract tests. CodeQL cannot model this project-specific sanitizer.
     # codeql[py/clear-text-storage-sensitive-data]
     file_descriptor, temporary_name = tempfile.mkstemp(
-        prefix=f".{path.name}.",
+        # Keep the sibling name short. Deriving it from a long destination filename
+        # needlessly exhausted the Windows path budget after model calls had completed.
+        prefix=".ash-",
         suffix=".tmp",
         dir=path.parent,
     )

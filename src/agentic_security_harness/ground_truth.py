@@ -1,8 +1,8 @@
 """Independent ground-truth contract for sanitized live campaign observations.
 
-Detector output must never populate these labels. A reviewer labels private raw evidence,
-stores the review note privately, and publishes only the label plus its SHA-256 anchor.
-Historical rows without that review remain explicitly ``not_adjudicated``.
+Detector output must never populate these labels. Current public schemas cannot authenticate
+a reviewer receipt, so all accepted rows remain explicitly ``not_adjudicated``. The reserved
+``independent_review`` value must fail closed until a signed receipt policy is implemented.
 """
 
 from __future__ import annotations
@@ -40,7 +40,10 @@ class IndependentGroundTruth(BaseModel):
             raise ValueError("labeled rows require ground_truth_source=independent_review")
         if not _SHA256.fullmatch(self.ground_truth_evidence_sha256):
             raise ValueError("labeled rows require a lowercase SHA-256 review-evidence hash")
-        return self
+        raise ValueError(
+            "current schema cannot authenticate reviewer receipts; independent labels "
+            "remain not_adjudicated"
+        )
 
 
 class GroundTruthMetrics(BaseModel):

@@ -55,7 +55,8 @@ def test_every_manifested_producer_uses_atomic_bundle_publication() -> None:
                 for decorator in node.decorator_list
                 if isinstance(decorator, ast.Call)
                 and isinstance(decorator.func, ast.Name)
-                and decorator.func.id == "atomic_evidence_bundle"
+                and decorator.func.id
+                in {"atomic_evidence_bundle", "atomic_private_bundle"}
             ]
             label = f"{path.name}:{node.name}"
             producers.append(label)
@@ -138,7 +139,10 @@ def _mock_external_open(req: object, *args: object, **kwargs: object) -> MagicMo
             "would_preserve_boundary": True,
         }
     )
-    resp.read.return_value = json.dumps({"choices": [{"message": {"content": content}}]}).encode()
+    requested_model = json.loads(req.data.decode("utf-8"))["model"]  # type: ignore[attr-defined]
+    resp.read.return_value = json.dumps(
+        {"model": requested_model, "choices": [{"message": {"content": content}}]}
+    ).encode()
     resp.__enter__ = lambda s: s
     resp.__exit__ = MagicMock(return_value=False)
     return resp
@@ -408,11 +412,12 @@ def test_external_run_writes_metadata(tmp_path: Path) -> None:
                 "ASH_EXTERNAL_API_KEY",
                 "--execute",
                 "--out",
-                str(tmp_path / "ext"),
+                str(tmp_path / ".internal" / "ext"),
             ]
         )
     assert rc == 0
-    data = json.loads((tmp_path / "ext" / "run_index.json").read_text(encoding="utf-8"))
+    out = tmp_path / ".internal" / "ext"
+    data = json.loads((out / "run_index.json").read_text(encoding="utf-8"))
     meta = data["metadata"]
     assert meta["adapter_type"] == "openai-compatible"
     assert meta["model"] == "demo-model"
@@ -425,7 +430,7 @@ def test_external_run_writes_metadata(tmp_path: Path) -> None:
     assert meta["credential_env_var"] == "[CREDENTIAL_ENV_VAR_CONFIGURED]"
     assert meta["base_url_label"] == "http://localhost:8000/v1"
     # And the whole external dir still validates with the metadata checks on.
-    result = validate_path(tmp_path / "ext")
+    result = validate_path(out)
     assert result.ok, result.errors
 
 
@@ -447,15 +452,16 @@ def test_validate_rejects_missing_external_metadata(tmp_path: Path) -> None:
                 "data-boundary",
                 "--execute",
                 "--out",
-                str(tmp_path / "ext"),
+                str(tmp_path / ".internal" / "ext"),
             ]
         )
-    data = json.loads((tmp_path / "ext" / "run_index.json").read_text(encoding="utf-8"))
+    out = tmp_path / ".internal" / "ext"
+    data = json.loads((out / "run_index.json").read_text(encoding="utf-8"))
     del data["metadata"]["network_mode"]
-    (tmp_path / "ext" / "run_index.json").write_text(
+    (out / "run_index.json").write_text(
         json.dumps(data, indent=2) + "\n", encoding="utf-8"
     )
-    result = validate_path(tmp_path / "ext")
+    result = validate_path(out)
     assert not result.ok
     assert any("metadata missing keys" in e for e in result.errors)
 

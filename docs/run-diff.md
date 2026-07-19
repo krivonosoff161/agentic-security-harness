@@ -11,7 +11,7 @@ ash diff-runs --left reports/run-before --right reports/run-after --out reports/
 For external model/runtime artifacts, the narrower wrapper is:
 
 ```bash
-ash compare-models --left reports/external-a --right reports/external-b --out reports/model-diff
+ash compare-models --left .internal/external-a --right .internal/external-b --out reports/model-diff
 ```
 
 Both commands compare recorded artifacts only; they do not re-run targets or call models.

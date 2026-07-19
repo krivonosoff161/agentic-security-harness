@@ -69,6 +69,10 @@ def test_release_workflow_enforces_repository_and_built_package_gates() -> None:
         "python -m mypy src tests",
         "python -m agentic_security_harness.cli validate examples/",
         "python -m build --no-isolation",
+        'export SOURCE_DATE_EPOCH="$(git show -s --format=%ct "$GITHUB_SHA")"',
+        "python tools/normalize_sdist.py",
+        "cmp dist/*.tar.gz reproducibility-check/*.tar.gz",
+        "cmp dist/*.whl reproducibility-check/*.whl",
         "--force-reinstall dist/*.tar.gz",
         "--force-reinstall dist/*.whl",
         "assert f'v{ash.__version__}' == os.environ['RELEASE_TAG']",
@@ -78,13 +82,32 @@ def test_release_workflow_enforces_repository_and_built_package_gates() -> None:
         assert command in text
 
 
-def test_release_workflow_keeps_credentials_and_signing_authority_out() -> None:
+def test_release_workflow_scopes_attestation_authority_and_verifies_provenance() -> None:
     text = _workflow()
 
     assert "persist-credentials: false" in text
     assert re.search(r"(?m)^permissions:\n  contents: read$", text)
     assert "contents: write" not in text
-    assert "id-token: write" not in text
-    assert "attestations: write" not in text
+    assert text.count("id-token: write") == 1
+    assert text.count("attestations: write") == 1
+    assert "attestations: read" in text
+    assert "actions: read" in text
+    for marker in (
+        "uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6",
+        "dist/*.tar.gz",
+        "dist/*.whl",
+        "dist/SHA256SUMS",
+        "verify-provenance:",
+        "needs: build",
+        "gh attestation verify",
+        '--signer-workflow "$GITHUB_REPOSITORY/.github/workflows/release.yml"',
+        '--source-ref "$GITHUB_REF"',
+        '--source-digest "$GITHUB_SHA"',
+        '--cert-oidc-issuer "https://token.actions.githubusercontent.com"',
+        '--predicate-type "https://slsa.dev/provenance/v1"',
+        "--deny-self-hosted-runners",
+        "agentic_security_harness.attestation_policy",
+    ):
+        assert marker in text
     for reference in re.findall(r"(?m)^\s*uses:\s*([^\s#]+)", text):
         assert re.fullmatch(r"[^@\s]+@[0-9a-f]{40}", reference), reference

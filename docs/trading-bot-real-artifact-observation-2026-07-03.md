@@ -37,7 +37,7 @@ Harness-side observation command shape:
 
 ```bash
 ash trading-stand --mode artifact-e2e-observation \
-  --target-path C:/Users/krivo/trading-bot-v2 \
+  --target-path <user-home>/trading-bot-v2 \
   --artifact-root <private-strategy-lab-root>
 ```
 

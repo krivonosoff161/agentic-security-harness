@@ -171,8 +171,8 @@ def _model_slug(model: str) -> str:
 
 
 def default_output_dir(profile: LocalProfile) -> str:
-    """Deterministic output path for a profile run (under ``reports/``)."""
-    return f"reports/local-{profile.name}-{_model_slug(profile.model)}"
+    """Deterministic private output path for a live-capable profile run."""
+    return f".internal/local-{profile.name}-{_model_slug(profile.model)}"
 
 
 def max_total_requests() -> int:

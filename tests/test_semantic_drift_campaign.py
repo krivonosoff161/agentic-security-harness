@@ -3,6 +3,8 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
+import pytest
+
 from agentic_security_harness import cli
 from agentic_security_harness.semantic_drift_campaign import (
     SemanticDriftPrivateRun,
@@ -127,11 +129,7 @@ def test_semantic_drift_self_consistent_regression_is_expectation_only(
     tmp_path: Path,
 ) -> None:
     summary = build_semantic_drift_campaign(created_at="")
-    row = next(
-        item
-        for item in summary.deterministic_results
-        if item.mode == "bounded_swarm"
-    )
+    row = next(item for item in summary.deterministic_results if item.mode == "bounded_swarm")
     row.drift_accepted = True
     row.verifier_decision = "allow"
     row.blocked_by = []
@@ -185,8 +183,7 @@ def test_semantic_drift_validation_recomputes_ground_truth(tmp_path: Path) -> No
 
     assert not result.ok
     assert any(
-        "metrics.ground_truth.eligible_observations mismatch" in error
-        for error in result.errors
+        "metrics.ground_truth.eligible_observations mismatch" in error for error in result.errors
     )
 
 
@@ -203,10 +200,7 @@ def test_semantic_drift_validation_recomputes_every_current_metric(
     result = validate_path(out)
 
     assert not result.integrity_ok
-    assert any(
-        "metrics do not match recomputed campaign rows" in error
-        for error in result.errors
-    )
+    assert any("metrics do not match recomputed campaign rows" in error for error in result.errors)
 
 
 def test_semantic_drift_validation_rejects_digest_projection_tamper(
@@ -314,9 +308,7 @@ def test_semantic_drift_private_artifacts_keep_raw_under_private_dir(
         "semantic_drift_private.json",
         "semantic_drift_private.md",
     }
-    assert "ASH-SEMDRIFT-" in (out / "semantic_drift_private.json").read_text(
-        encoding="utf-8"
-    )
+    assert "ASH-SEMDRIFT-" in (out / "semantic_drift_private.json").read_text(encoding="utf-8")
 
 
 def test_semantic_drift_private_writer_rejects_public_dir(tmp_path: Path) -> None:
@@ -341,10 +333,12 @@ def test_semantic_drift_public_validation_rejects_private_artifact(
     out = tmp_path / "semantic-drift"
     write_semantic_drift_artifacts(out, build_semantic_drift_campaign(created_at=""))
     (out / "semantic_drift_private.json").write_text(
-        json.dumps({
-            "raw_prompt": "private marker ASH-SEMDRIFT-AAAABBBB-CCCCDDDD",
-            "canonical_state_hash": "a" * 64,
-        }),
+        json.dumps(
+            {
+                "raw_prompt": "private marker ASH-SEMDRIFT-AAAABBBB-CCCCDDDD",
+                "canonical_state_hash": "a" * 64,
+            }
+        ),
         encoding="utf-8",
     )
 
@@ -445,12 +439,14 @@ def test_semantic_drift_probe_detects_model_drift(monkeypatch: Any) -> None:
         prompt = messages[-1]["content"]
         marker = str(prompt).split("internal calculation only: ", 1)[1].split("\n", 1)[0]
         return {
+            "model": kwargs["model"],
             "choices": [
                 {
                     "message": {
                         "content": (
                             '{"canonical_mapping":"A=C","should_publish_A":true,'
-                            f'"public_report_fragment":"{marker}"}}'
+                            f'"public_report_fragment":"{marker}",'
+                            '"credential":"sk-ABCDEFGHIJ0123456789"}'
                         )
                     }
                 }
@@ -472,17 +468,55 @@ def test_semantic_drift_probe_detects_model_drift(monkeypatch: Any) -> None:
     assert summary.metrics.drift_detections == 4
     assert summary.metrics.canary_leaks == 4
     assert summary.metrics.verifier_blocks == 4
+    for transcript in run.transcripts:
+        assert "sk-ABCDEFGHIJ0123456789" not in transcript.raw_response
+        assert "sk-[REDACTED]" in transcript.raw_response
+        assert (
+            transcript.response_sha256
+            == hashlib.sha256(transcript.raw_response.encode("utf-8")).hexdigest()
+        )
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        {"model": "wrong", "choices": [{"message": {"content": "answer"}}]},
+        {"choices": [{"message": {"content": "answer"}}]},
+        {"model": "toy-model", "choices": [{"message": {"content": "   "}}]},
+    ],
+)
+def test_semantic_drift_invalid_identity_or_content_cannot_score(
+    monkeypatch: Any,
+    response: dict[str, object],
+) -> None:
+    import agentic_security_harness.semantic_drift_campaign as campaign
+
+    monkeypatch.setattr(campaign, "chat_completion", lambda **_kwargs: response)
+    run = run_semantic_drift_probe(
+        base_url="http://127.0.0.1:11434/v1",
+        models=["toy-model"],
+        pressure_modes=["pseudo_code"],
+        max_requests=4,
+        created_at="",
+    )
+
+    assert len(run.transcripts) == 4
+    assert all(row.adapter_error for row in run.transcripts)
+    assert all(not row.response_sha256 for row in run.transcripts)
+    assert all(not row.drift_detected and not row.canary_leaked for row in run.transcripts)
 
 
 def test_semantic_drift_cli_requires_private_out_for_execute(tmp_path: Path) -> None:
     out = tmp_path / "not-internal"
 
-    rc = cli.main([
-        "semantic-drift-campaign",
-        "--execute",
-        "--out",
-        str(out),
-    ])
+    rc = cli.main(
+        [
+            "semantic-drift-campaign",
+            "--execute",
+            "--out",
+            str(out),
+        ]
+    )
 
     assert rc == 1
 
@@ -490,13 +524,15 @@ def test_semantic_drift_cli_requires_private_out_for_execute(tmp_path: Path) -> 
 def test_semantic_drift_cli_rejects_reserved_calculator(tmp_path: Path) -> None:
     out = tmp_path / ".internal" / "semantic-drift"
 
-    rc = cli.main([
-        "semantic-drift-campaign",
-        "--execute",
-        "--out",
-        str(out),
-        "--model",
-        "calculator:latest",
-    ])
+    rc = cli.main(
+        [
+            "semantic-drift-campaign",
+            "--execute",
+            "--out",
+            str(out),
+            "--model",
+            "calculator:latest",
+        ]
+    )
 
     assert rc == 1

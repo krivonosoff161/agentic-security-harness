@@ -306,8 +306,9 @@ See [docs/roadmap.md](docs/roadmap.md).
   mock tool calls, data-envelope propagation, recipient-control checks); intentionally
   vulnerable for the seed patterns. No network, no LLM.
 - **Protected demo agent (`protected-demo-agent`)** - the same agent with simple deterministic
-  controls; records 0 modeled findings on the current 24-pattern synthetic corpus.
-  `ash compare` measures the reduction in findings.
+  controls authored in the same repository with knowledge of the public corpus and evaluator;
+  records 0 modeled findings on that 24-pattern synthetic corpus. `ash compare` reproduces the
+  fixture-defined difference; it is not an independent estimate of real-world effectiveness.
 - **Runner** - `pattern -> target -> trace` (mock or demo-agent).
 - **Scorecard** - a deterministic aggregate derived from traces.
 - **Demo CLI (`ash`)** - `ash run --target {mock,demo-agent,protected-demo-agent}`,
@@ -601,11 +602,11 @@ ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model --scen
 ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --dry-run
 
 # 3) minimal live run against the endpoint
-ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario perception-boundary --execute --out reports/external-demo
+ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario perception-boundary --execute --out .internal/external-demo
 
 # 4) validate + read the report (with control recommendations)
-ash validate reports/external-demo
-cat reports/external-demo/external_report.md
+ash validate .internal/external-demo
+cat .internal/external-demo/external_report.md
 ```
 
 `request_count = patterns x variants x repeats`; `run-external` refuses to exceed
@@ -623,7 +624,7 @@ contradictory model JSON is recorded as inconclusive.
 > generic gateway) with Windows/Linux/macOS commands: **[docs/connect-models.md](docs/connect-models.md)**.
 > Full path reference and troubleshooting: [docs/test-your-model.md](docs/test-your-model.md).
 
-## Measure risk reduction
+## Reproduce deterministic conformance differences
 
 `demo-agent` is **vulnerable by design**; `protected-demo-agent` is the same agent with
 **simple deterministic controls** across the current boundary families, including
@@ -646,8 +647,9 @@ In the committed example
 ([`examples/comparison-report/comparison.md`](examples/comparison-report/comparison.md)) the
 baseline fails all 24 patterns (24 findings) and the protected agent passes all 24 (0 findings).
 
-> Educational and synthetic: risk reduction is measured from deterministic mock traces,
-> **not** a guarantee of real-world protection.
+> Educational and synthetic: this is evaluator-coupled conformance evidence from deterministic
+> mock traces, **not** an independent risk-reduction estimate or guarantee of real-world
+> protection.
 
 ## Prior art
 

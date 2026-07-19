@@ -48,7 +48,7 @@ a report directory. The command prints a `Start here:` pointer and a run id. Ope
 ash report --root reports/demo        # validates first, then writes report.html
 ```
 
-## 4. Measure risk reduction (baseline vs protected)
+## 4. Reproduce the baseline/protected conformance difference
 
 ```bash
 ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison
@@ -76,7 +76,7 @@ python examples/fake_openai_server.py
 
 # terminal 2
 ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary
-ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --execute --out reports/external-demo
+ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --execute --out .internal/external-demo
 ```
 
 On Windows PowerShell, start the fake server in a separate window (no trailing `&`) and

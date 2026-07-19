@@ -8,7 +8,7 @@
 > Command:
 >
 > ```bash
-> ash trading-stand --mode static-probe --target-path C:/Users/krivo/trading-bot-v2
+> ash trading-stand --mode static-probe --target-path <user-home>/trading-bot-v2
 > ```
 
 ## Result Boundary
