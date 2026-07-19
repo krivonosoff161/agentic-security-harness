@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import copy
 import gzip
 import io
 import os
@@ -24,7 +23,7 @@ def normalize_sdist(path: Path, *, epoch: int) -> None:
     if not source.is_file() or not source.name.endswith(".tar.gz"):
         raise ValueError("sdist path must name one existing .tar.gz file")
 
-    entries: list[tuple[tarfile.TarInfo, bytes]] = []
+    entries: list[tuple[str, bool, bytes]] = []
     total_size = 0
     with tarfile.open(source, mode="r:gz") as archive:
         members = archive.getmembers()
@@ -44,7 +43,7 @@ def normalize_sdist(path: Path, *, epoch: int) -> None:
                 total_size += len(payload)
                 if total_size > _MAX_UNCOMPRESSED_BYTES:
                     raise ValueError("sdist exceeds the normalization size limit")
-            entries.append((copy.copy(member), payload))
+            entries.append((member.name, member.isdir(), payload))
 
     temporary_name = ""
     try:
@@ -58,15 +57,18 @@ def normalize_sdist(path: Path, *, epoch: int) -> None:
                 with tarfile.open(
                     fileobj=compressed, mode="w", format=tarfile.PAX_FORMAT
                 ) as output:
-                    for member, payload in sorted(entries, key=lambda item: item[0].name):
+                    for name, is_directory, payload in sorted(entries):
+                        member = tarfile.TarInfo(name)
+                        member.type = tarfile.DIRTYPE if is_directory else tarfile.REGTYPE
+                        member.size = 0 if is_directory else len(payload)
                         member.uid = 0
                         member.gid = 0
                         member.uname = ""
                         member.gname = ""
                         member.mtime = epoch
-                        member.mode = 0o755 if member.isdir() else 0o644
+                        member.mode = 0o755 if is_directory else 0o644
                         member.pax_headers = {}
-                        output.addfile(member, io.BytesIO(payload) if member.isfile() else None)
+                        output.addfile(member, None if is_directory else io.BytesIO(payload))
             temporary.flush()
             os.fsync(temporary.fileno())
         os.replace(temporary_name, source)

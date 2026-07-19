@@ -52,6 +52,7 @@ def test_normalization_makes_metadata_different_sdists_byte_identical(tmp_path: 
         ]
         assert all(item.mtime == EPOCH for item in archive.getmembers())
         assert all(item.uid == item.gid == 0 for item in archive.getmembers())
+        assert all("mtime" not in item.pax_headers for item in archive.getmembers())
 
 
 def test_normalization_uses_bounded_temporary_name(
