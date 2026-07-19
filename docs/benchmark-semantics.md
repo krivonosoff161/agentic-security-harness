@@ -96,7 +96,7 @@ Read these fields conservatively:
 | `worker_drift_detections` / `chief_acceptances` | A sanitized local-model observation matched the declared synthetic drift/propagation detector; it is not ground truth unless independently reviewed. |
 | `verifier_blocks` | The deterministic verifier classified the observation as blocked/reviewed. |
 | `adapter_errors` | A model/runtime call failed. Not a pass, not a finding, and not evidence of safety. |
-| `ground_truth.coverage` | Fraction of non-error observations independently reviewed against private raw evidence. Precision/recall claims require non-zero coverage. |
+| `ground_truth.coverage` | Fraction of non-error observations backed by an authenticated, observation-bound independent-review contract. The current schemas cannot verify that contract, so coverage must be zero and precision/recall claims are forbidden. |
 | `response_hash_coverage` | The fraction of expected public hash fields that are populated. A hash string does not prove private-byte retention, equality, execution origin, authorship, or semantic truth; those require reconciliation and, for authenticity, a trust root. |
 
 Campaign summaries may support a public claim only when the claim also states the

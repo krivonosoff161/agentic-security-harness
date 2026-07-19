@@ -1169,7 +1169,7 @@ def test_artifact_authenticity_design_separates_trust_domains_and_non_claims() -
         "The harness must never generate an \"owner\" signature for itself.",
         "A transparency-log inclusion time",
         "does not authenticate the run's self-declared `created_at`",
-        "no signing authority or external workflow change is implemented",
+        "historical subjects remain unsigned",
     ):
         assert phrase in design
 
@@ -1181,7 +1181,10 @@ def test_artifact_authenticity_design_separates_trust_domains_and_non_claims() -
     assert "SLSA v1.2" in design
     assert "slsa.dev/spec/v1.0" not in design
     assert "artifact-authenticity-design.md" in project_map
-    assert "Current release/evidence artifacts are content-bound but unsigned" in current_state
+    assert "Historical releases and examples remain unsigned" in current_state
+    assert "no post-change tag has executed" in current_state
+    assert "authentication_state=unverified" in _read("docs/evidence-classes.md")
+    assert "precision/recall claims are forbidden" in _read("docs/benchmark-semantics.md")
 
 
 def test_security_audit_causal_map_covers_every_task_finding_and_open_boundary() -> None:

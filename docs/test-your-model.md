@@ -72,14 +72,14 @@ ash run-external --adapter openai-compatible \
   --model fake-model \
   --scenario data-boundary \
   --execute \
-  --out reports/external-demo
+  --out .internal/external-demo
 ```
 
 Inspect the generated reports:
 
 ```bash
-cat reports/external-demo/external_report.md
-cat reports/external-demo/external_summary.json
+cat .internal/external-demo/external_report.md
+cat .internal/external-demo/external_summary.json
 ```
 
 PowerShell equivalent:
@@ -96,9 +96,9 @@ ash run-external --adapter openai-compatible `
   --model fake-model `
   --scenario data-boundary `
   --execute `
-  --out reports/external-demo
+  --out .internal/external-demo
 
-Get-Content reports/external-demo/external_report.md
+Get-Content .internal/external-demo/external_report.md
 ```
 
 Do not use the trailing bash `&` form in PowerShell. Open a second terminal or use
@@ -117,7 +117,7 @@ ash run-external --adapter openai-compatible \
   --repeats 3 \
   --credential-env ASH_EXTERNAL_API_KEY \
   --execute \
-  --out reports/external-deepseek
+  --out .internal/external-deepseek
 ```
 
 PowerShell:
@@ -132,7 +132,7 @@ ash run-external --adapter openai-compatible `
   --repeats 3 `
   --credential-env ASH_EXTERNAL_API_KEY `
   --execute `
-  --out reports/external-deepseek
+  --out .internal/external-deepseek
 ```
 
 ## Test a DeepSeek-compatible endpoint
@@ -147,7 +147,7 @@ ash run-external --adapter openai-compatible \
   --repeats 3 \
   --credential-env ASH_EXTERNAL_API_KEY \
   --execute \
-  --out reports/external-deepseek
+  --out .internal/external-deepseek
 ```
 
 ## Test an Alibaba/Qwen-compatible endpoint
@@ -162,7 +162,7 @@ ash run-external --adapter openai-compatible \
   --repeats 3 \
   --credential-env ASH_EXTERNAL_API_KEY \
   --execute \
-  --out reports/external-qwen
+  --out .internal/external-qwen
 ```
 
 ## Test a local vLLM server
@@ -174,7 +174,7 @@ ash run-external --adapter openai-compatible \
   --model your-model-name \
   --scenario data-boundary \
   --execute \
-  --out reports/external-vllm
+  --out .internal/external-vllm
 ```
 
 No `--credential-env` needed for local servers that don't require auth.

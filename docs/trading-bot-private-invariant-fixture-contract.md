@@ -37,7 +37,7 @@ To generate a baseline/control fixture from current paper artifacts:
 
 ```bash
 ash trading-stand --mode invariant-baseline-fixture \
-  --target-path C:/Users/krivo/trading-bot-v2 \
+  --target-path <user-home>/trading-bot-v2 \
   --artifact-root <private-strategy-lab-root> \
   --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/invariant-baseline.json
 ```

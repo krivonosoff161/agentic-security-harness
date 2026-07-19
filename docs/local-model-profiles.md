@@ -68,7 +68,7 @@ python -m agentic_security_harness.cli local-suite --profile prometheus-lowctx-a
 ```
 
 The command resolves the profile's preset/model/scenario/repeats/timeout/request-cap,
-enforces the request cap before any call, writes artifacts to a derived `reports/local-...`
+enforces the request cap before any call, writes live artifacts to a derived `.internal/local-...`
 path, validates them, and reports the weak-model classification
 (`stable_pass`/`inconclusive`/`adapter_error`). It never executes tools.
 
@@ -87,9 +87,9 @@ python -m agentic_security_harness.cli run-external `
   --timeout 60 `
   --raw-response-limit 0 `
   --execute `
-  --out reports/local-prometheus-lowctx-smoke-prometheus-qwen15b-lowctx-latest
+  --out .internal/local-prometheus-lowctx-smoke-prometheus-qwen15b-lowctx-latest
 
-python -m agentic_security_harness.cli validate reports/local-prometheus-lowctx-smoke-prometheus-qwen15b-lowctx-latest
+python -m agentic_security_harness.cli validate .internal/local-prometheus-lowctx-smoke-prometheus-qwen15b-lowctx-latest
 ```
 
 ## Planned local-empirical handoff profiles

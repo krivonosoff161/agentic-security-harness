@@ -73,9 +73,6 @@ def _private_run() -> LiveDefensePrivateRun:
                     "transition_table",
                 ],
                 first_failure_step="worker_drift",
-                ground_truth_label="unsafe",
-                ground_truth_source="independent_review",
-                ground_truth_evidence_sha256="d" * 64,
             )
         ],
     )
@@ -280,9 +277,7 @@ def test_live_chain_preserves_early_security_event_before_later_error(
     assert row.canary_leak_kind == "full"
     assert row.canary_leaked is True
     assert row.first_failure_step == "worker_drift"
-    observation = LiveDefenseObservation(
-        **row.model_dump(exclude=live_campaign._private_fields())
-    )
+    observation = LiveDefenseObservation(**row.model_dump(exclude=live_campaign._private_fields()))
     metrics = _build_metrics([observation])
     assert metrics.partial_security_event_observations == 1
     assert metrics.canary_outcome_observations == 1
@@ -313,16 +308,12 @@ def test_live_metrics_use_stage_completed_denominators(
             timeout_seconds=1,
             session_turns=1,
         )
-        return LiveDefenseObservation(
-            **private.model_dump(exclude=live_campaign._private_fields())
-        )
+        return LiveDefenseObservation(**private.model_dump(exclude=live_campaign._private_fields()))
 
     worker_error = build_error_row()
     chief_error = build_error_row()
     complete = LiveDefenseObservation(
-        **_private_run().transcripts[0].model_dump(
-            exclude=live_campaign._private_fields()
-        )
+        **_private_run().transcripts[0].model_dump(exclude=live_campaign._private_fields())
     )
 
     metrics = _build_metrics([worker_error, chief_error, complete])
@@ -351,8 +342,8 @@ def test_live_summary_strips_private_fields() -> None:
     assert summary.metrics.benign_allow_rate == 0.0
     assert summary.metrics.verifier_block_rate == 1.0
     assert summary.metrics.turn_hash_coverage == 1.0
-    assert summary.metrics.ground_truth.coverage == 1.0
-    assert summary.metrics.ground_truth.true_positives == 1
+    assert summary.metrics.ground_truth.coverage == 0.0
+    assert summary.metrics.ground_truth.labeled_observations == 0
     assert "chief_acceptance_rate" in summary.metrics.rate_confidence_intervals
     assert summary.metrics.observations_by_worker_model == {"qwen2.5:0.5b": 1}
     assert summary.metrics.chief_acceptance_by_worker_model == {"qwen2.5:0.5b": 1}
@@ -400,9 +391,6 @@ def test_live_summary_tracks_benign_and_model_breakdowns() -> None:
                 blocked_by=["audit_hash_chain", "canonical_state", "chief_verifier"],
                 missing_control_acceptances=["canonical_state", "chief_verifier"],
                 first_failure_step="worker_drift",
-                ground_truth_label="unsafe",
-                ground_truth_source="independent_review",
-                ground_truth_evidence_sha256="e" * 64,
             ),
             LiveDefensePrivateTranscript(
                 topology_id=topology.topology_id,
@@ -414,9 +402,6 @@ def test_live_summary_tracks_benign_and_model_breakdowns() -> None:
                 worker_turn_response_sha256=["c" * 64],
                 chief_response_sha256="d" * 64,
                 verifier_decision="allow",
-                ground_truth_label="benign",
-                ground_truth_source="independent_review",
-                ground_truth_evidence_sha256="f" * 64,
             ),
         ],
     )
@@ -428,9 +413,8 @@ def test_live_summary_tracks_benign_and_model_breakdowns() -> None:
     assert summary.metrics.benign_observations == 1
     assert summary.metrics.unsafe_block_rate == 1.0
     assert summary.metrics.benign_allow_rate == 1.0
-    assert summary.metrics.ground_truth.coverage == 1.0
-    assert summary.metrics.ground_truth.true_positives == 1
-    assert summary.metrics.ground_truth.true_negatives == 1
+    assert summary.metrics.ground_truth.coverage == 0.0
+    assert summary.metrics.ground_truth.labeled_observations == 0
     assert summary.metrics.turn_hash_coverage == 1.0
     assert summary.metrics.observations_by_worker_model == {
         "qwen2.5-coder:0.5b-instruct": 1,
@@ -521,8 +505,7 @@ def test_live_validation_rejects_private_fields(tmp_path: Path) -> None:
 
     assert not result.ok
     assert any(
-        "raw/private fields" in item or "raw_worker_prompt" in item
-        for item in result.errors
+        "raw/private fields" in item or "raw_worker_prompt" in item for item in result.errors
     )
 
 
@@ -664,10 +647,7 @@ def test_live_validation_recomputes_every_current_metric(tmp_path: Path) -> None
     result = validate_path(public_out)
 
     assert not result.integrity_ok
-    assert any(
-        "metrics do not match recomputed observations" in item
-        for item in result.errors
-    )
+    assert any("metrics do not match recomputed observations" in item for item in result.errors)
 
 
 def test_live_validation_binds_manifest_to_run_config(tmp_path: Path) -> None:
@@ -681,10 +661,7 @@ def test_live_validation_binds_manifest_to_run_config(tmp_path: Path) -> None:
     result = validate_path(public_out)
 
     assert not result.integrity_ok
-    assert any(
-        "metadata does not match live summary run_config" in item
-        for item in result.errors
-    )
+    assert any("metadata does not match live summary run_config" in item for item in result.errors)
 
 
 def test_live_validation_requires_current_utc_created_at(tmp_path: Path) -> None:

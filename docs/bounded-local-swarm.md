@@ -90,8 +90,8 @@ Run bounded sequential local-model role calls through Ollama:
 ash local-swarm --execute \
   --model prometheus-qwen15b-lowctx:latest \
   --max-requests 120 \
-  --out reports/local-swarm-prometheus
-ash validate reports/local-swarm-prometheus
+  --out .internal/local-swarm-prometheus
+ash validate .internal/local-swarm-prometheus
 ```
 
 For a smaller smoke, select one scenario and one mode:
@@ -102,7 +102,7 @@ ash local-swarm --execute \
   --mode bounded_swarm \
   --model prometheus-qwen15b-lowctx:latest \
   --max-requests 4 \
-  --out reports/local-swarm-prometheus-smoke
+  --out .internal/local-swarm-prometheus-smoke
 ```
 
 The command refuses `calculator` / `calculator:latest`. That local model is reserved for
@@ -121,14 +121,18 @@ ash local-swarm --execute \
   --scenario handoff_label_stripping \
   --mode bounded_swarm \
   --max-requests 4 \
-  --out reports/local-swarm-roster-smoke
-ash validate reports/local-swarm-roster-smoke
+  --out .internal/local-swarm-roster-smoke
+ash validate .internal/local-swarm-roster-smoke
 ```
 
 The deterministic verifier still makes the pass/block decision. Role-specific model
 outputs are evidence-quality context and are stored as hashes plus short previews. This
 lets a maintainer test a realistic weak-model swarm shape without giving any local model
 authority over the security verdict.
+
+Because those previews retain model-generated text, every `--execute` destination is restricted
+to a normalized `.internal/` tree. Deterministic `--write-dry-run` artifacts may still use a
+public `reports/` path.
 
 ## Historical Unreconciled Local-Model Report
 

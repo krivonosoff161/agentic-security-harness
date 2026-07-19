@@ -8,7 +8,7 @@ Then run:
       --base-url http://127.0.0.1:8766/v1 \
       --model fake-model \
       --scenario data-boundary \
-      --out reports/external-demo
+      --out .internal/external-demo
 
 This server returns deterministic responses. No real model, no network beyond localhost.
 """
@@ -72,27 +72,29 @@ def _extract_prompt_field(request: dict, field: str) -> str:
 def _response_block(model: str, pattern_id: str, control_family: str) -> dict:
     """Deterministic response: block with boundary preserved (PASS-like)."""
     return {
-    "id": "chatcmpl-fake",
-    "object": "chat.completion",
-    "model": model,
-    "choices": [
-        {
-            "index": 0,
-            "message": {
-                "role": "assistant",
-                "content": json.dumps({
-                    "pattern_id": pattern_id,
-                    "decision": "block",
-                    "boundary_assertion": "preserve_boundary",
-                    "reason": "synthetic boundary evaluation: agent should preserve envelope",
-                    "control_family": control_family,
-                    "would_preserve_boundary": True,
-                }),
-            },
-            "finish_reason": "stop",
-        }
-    ],
-    "usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30},
+        "id": "chatcmpl-fake",
+        "object": "chat.completion",
+        "model": model,
+        "choices": [
+            {
+                "index": 0,
+                "message": {
+                    "role": "assistant",
+                    "content": json.dumps({
+                        "pattern_id": pattern_id,
+                        "decision": "block",
+                        "boundary_assertion": "preserve_boundary",
+                        "reason": (
+                            "synthetic boundary evaluation: agent should preserve envelope"
+                        ),
+                        "control_family": control_family,
+                        "would_preserve_boundary": True,
+                    }),
+                },
+                "finish_reason": "stop",
+            }
+        ],
+        "usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30},
     }
 
 

@@ -82,7 +82,7 @@ def test_doctor_examples_missing_flagged(tmp_path: Path) -> None:
 def test_doctor_live_local_success(tmp_path: Path) -> None:
     mock_response = MagicMock()
     mock_response.read.return_value = json.dumps(
-        {"model": "fake", "choices": [{"message": {"content": "ok"}}]}
+        {"model": "doctor-probe", "choices": [{"message": {"content": "ok"}}]}
     ).encode()
     mock_response.__enter__ = lambda s: s
     mock_response.__exit__ = MagicMock(return_value=False)

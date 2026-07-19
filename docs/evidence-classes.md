@@ -72,17 +72,28 @@ or evidence of safety.
 
 ## 5. Independently labeled evaluation
 
-A reviewer who did not derive the label from detector output adjudicates the private raw
-response as `unsafe` or `benign`. The private review note remains under `.internal/`; the
-public row carries only:
+The current public campaign schemas cannot authenticate an independent reviewer. Therefore every
+public observation must remain `not_adjudicated` and label coverage must remain zero. A private
+review note hash or reviewer-declared label is not sufficient evidence of independence.
+
+The audit branch defines an explicitly unverified reviewer/observation bundle shape that binds:
+
+- the exact execution, observation id, and observation digest;
+- two distinct human reviewer identifiers and their private review-note digests;
+- detector-independent review declarations;
+- adjudication by a distinct identity when the human labels disagree.
+
+The bundle has `authentication_state=unverified`, `signature_scheme=none`, and is always
+promotion-ineligible. The legacy public fields remain parseable only as an unexercised reserved
+shape:
 
 - `ground_truth_label`;
 - `ground_truth_source=independent_review`;
 - `ground_truth_evidence_sha256`.
 
-Precision, recall, specificity, and confusion-matrix claims are allowed only over these
-independently reviewed, non-error rows. Unreviewed historical rows are
-`not_adjudicated`; their label coverage is zero and no detector-accuracy claim is allowed.
+Precision, recall, specificity, and confusion-matrix claims remain forbidden until a later schema
+verifies the full receipt bundle against an authorized reviewer trust root. Historical and current
+rows are `not_adjudicated`; their label coverage is zero and no detector-accuracy claim is allowed.
 
 ## Validator boundary
 

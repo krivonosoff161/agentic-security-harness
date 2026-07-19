@@ -21,7 +21,7 @@ Do not commit private or raw security research artifacts:
 Use local storage for raw work:
 
 ```text
-C:\Users\krivo\research-artifacts\security-harness\
+<user-home>\research-artifacts\security-harness\
 ```
 
 Public artifacts should be summaries, not raw dumps. If a result is useful for

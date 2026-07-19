@@ -35,7 +35,10 @@ def _mock_external_open(req: object, *args: object, **kwargs: object) -> MagicMo
             "would_preserve_boundary": True,
         }
     )
-    resp.read.return_value = json.dumps({"choices": [{"message": {"content": content}}]}).encode()
+    requested_model = json.loads(req.data.decode("utf-8"))["model"]  # type: ignore[attr-defined]
+    resp.read.return_value = json.dumps(
+        {"model": requested_model, "choices": [{"message": {"content": content}}]}
+    ).encode()
     resp.__enter__ = lambda s: s
     resp.__exit__ = MagicMock(return_value=False)
     return resp
@@ -103,7 +106,7 @@ def test_e2e_matrix_validate_report_pipeline(tmp_path: Path) -> None:
 
 
 def test_e2e_external_validate_report_pipeline(tmp_path: Path) -> None:
-    out = tmp_path / "external"
+    out = tmp_path / ".internal" / "external"
 
     with patch(
         "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
@@ -136,3 +139,31 @@ def test_e2e_external_validate_report_pipeline(tmp_path: Path) -> None:
     results = json.loads((out / "external_results.json").read_text(encoding="utf-8"))
     assert (out / results[0]["raw_response_path"]).exists()
     assert (out / "report.html").exists()
+
+
+def test_e2e_external_cli_refuses_public_live_output_before_network(tmp_path: Path) -> None:
+    out = tmp_path / "public-external"
+
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect"
+    ) as mock_open:
+        assert (
+            cli.main(
+                [
+                    "run-external",
+                    "--base-url",
+                    "http://localhost:8000/v1",
+                    "--model",
+                    "fake-model",
+                    "--scenario",
+                    "data-boundary",
+                    "--execute",
+                    "--out",
+                    str(out),
+                ]
+            )
+            == 1
+        )
+
+    mock_open.assert_not_called()
+    assert not out.exists()

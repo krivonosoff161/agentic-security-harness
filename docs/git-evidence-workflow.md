@@ -72,7 +72,7 @@ For broad changes, run:
 ```bash
 python -m pytest -q
 python -m ruff check .
-python -m mypy src tests
+python -m mypy src tests tools
 python -m agentic_security_harness.cli validate examples
 git diff --check
 ```
@@ -148,4 +148,3 @@ Not done:
 - "local tests pass but GitHub is red";
 - "the issue is closed manually while the PR has not merged";
 - "docs make a stronger claim than tests/artifacts prove".
-

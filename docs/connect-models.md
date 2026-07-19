@@ -16,6 +16,13 @@ This is **prompt-based evaluation only**: the model receives a synthetic benchma
 scenario and returns a structured JSON verdict. **No tools are executed**, no agent host
 is driven, and no streaming is used. See [What is not supported yet](#13-what-is-not-supported-yet).
 
+Every model-evidence path applies the same fail-closed response contract. The top-level
+`model` value must exactly match the requested model id, and
+`choices[0].message.content` must be a nonblank string. Missing or mismatched identity,
+missing content, and whitespace-only content are `adapter_error`; they are never hashed
+or counted as model behavior. This is an application integrity check, not cryptographic
+runtime authentication.
+
 ### Presets (optional shortcut)
 
 `ash external-presets` lists connection presets that fill a default `base_url` and suggest
@@ -154,11 +161,11 @@ ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model `
 ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model `
   --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY `
   --execute `
-  --out reports/external-run
+  --out .internal/external-run
 
 # 4) validate + read
-ash validate reports/external-run
-Get-Content reports/external-run/external_report.md
+ash validate .internal/external-run
+Get-Content .internal/external-run/external_report.md
 ```
 
 PowerShell notes:
@@ -185,11 +192,11 @@ ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model \
 ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model \
   --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY \
   --execute \
-  --out reports/external-run
+  --out .internal/external-run
 
 # 4) validate + read
-ash validate reports/external-run
-cat reports/external-run/external_report.md
+ash validate .internal/external-run
+cat .internal/external-run/external_report.md
 ```
 
 ## 7. Recipe: local fake server (free, no key)
@@ -206,8 +213,8 @@ python examples/fake_openai_server.py
 # terminal 2 - run against it
 ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary
 ash run-external  --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --dry-run
-ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario perception-boundary --execute --out reports/external-demo
-ash validate reports/external-demo
+ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario perception-boundary --execute --out .internal/external-demo
+ash validate .internal/external-demo
 ```
 
 On Windows, start the server in a separate PowerShell window (no trailing `&`).
@@ -222,8 +229,8 @@ at it. No key is needed unless you launched vLLM with `--api-key`.
 #   python -m vllm.entrypoints.openai.api_server --model <your-model>
 ash external-check --base-url http://localhost:8000/v1 --model <served-model-id> --scenario data-boundary
 ash run-external  --base-url http://localhost:8000/v1 --model <served-model-id> --scenario data-boundary --dry-run
-ash run-external --base-url http://localhost:8000/v1 --model <served-model-id> --scenario data-boundary --execute --out reports/external-vllm
-ash validate reports/external-vllm
+ash run-external --base-url http://localhost:8000/v1 --model <served-model-id> --scenario data-boundary --execute --out .internal/external-vllm
+ash validate .internal/external-vllm
 ```
 
 If you started vLLM with an API key, set `export ASH_EXTERNAL_API_KEY=...` and add
@@ -242,8 +249,8 @@ ash external-check --base-url https://api.deepseek.com/v1 --model deepseek-chat 
 ash run-external  --base-url https://api.deepseek.com/v1 --model deepseek-chat \
   --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --dry-run
 ash run-external --base-url https://api.deepseek.com/v1 --model deepseek-chat \
-  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --execute --out reports/external-deepseek
-ash validate reports/external-deepseek
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --execute --out .internal/external-deepseek
+ash validate .internal/external-deepseek
 ```
 
 ## 10. Recipe: Alibaba Cloud Model Studio (Qwen, compatible-mode)
@@ -264,8 +271,8 @@ ash run-external \
   --base-url https://dashscope-intl.aliyuncs.com/compatible-mode/v1 \
   --model qwen-plus --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY \
   --execute \
-  --out reports/external-qwen
-ash validate reports/external-qwen
+  --out .internal/external-qwen
+ash validate .internal/external-qwen
 ```
 
 Mainland-China host (confirm in the docs):
@@ -283,8 +290,8 @@ ash external-check --base-url https://YOUR-ENDPOINT/v1 --model your-model-id \
 ash run-external  --base-url https://YOUR-ENDPOINT/v1 --model your-model-id \
   --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --dry-run
 ash run-external --base-url https://YOUR-ENDPOINT/v1 --model your-model-id \
-  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --execute --out reports/external-gw
-ash validate reports/external-gw
+  --scenario data-boundary --credential-env ASH_EXTERNAL_API_KEY --execute --out .internal/external-gw
+ash validate .internal/external-gw
 ```
 
 The harness appends `/chat/completions` if your `--base-url` does not already end with
@@ -320,16 +327,16 @@ Ollama (default port `11434`, OpenAI-compatible endpoint under `/v1`):
 # Ollama running locally, model already pulled (e.g. `ollama pull llama3.1`)
 ash external-check --base-url http://localhost:11434/v1 --model llama3.1 --scenario data-boundary
 ash run-external  --base-url http://localhost:11434/v1 --model llama3.1 --scenario data-boundary --dry-run
-ash run-external --base-url http://localhost:11434/v1 --model llama3.1 --scenario data-boundary --execute --out reports/external-ollama
-ash validate reports/external-ollama
+ash run-external --base-url http://localhost:11434/v1 --model llama3.1 --scenario data-boundary --execute --out .internal/external-ollama
+ash validate .internal/external-ollama
 ```
 
 LM Studio (start its local server; default port `1234`):
 
 ```bash
 ash external-check --base-url http://localhost:1234/v1 --model <loaded-model-id> --scenario data-boundary
-ash run-external --base-url http://localhost:1234/v1 --model <loaded-model-id> --scenario data-boundary --execute --out reports/external-lmstudio
-ash validate reports/external-lmstudio
+ash run-external --base-url http://localhost:1234/v1 --model <loaded-model-id> --scenario data-boundary --execute --out .internal/external-lmstudio
+ash validate .internal/external-lmstudio
 ```
 
 Small local models often return prose instead of strict JSON. The harness records those
@@ -350,6 +357,8 @@ if the model card or local registry metadata is not public.
 | `HTTP 404` | wrong base URL path | most endpoints want `.../v1`; the harness adds `/chat/completions` |
 | `HTTP 301` / `HTTP 302` / other redirect error | endpoint or gateway redirects to another URL | configure the final authorized OpenAI-compatible base URL directly; redirects are intentionally refused |
 | `Invalid JSON response from ...` | endpoint returned non-JSON (HTML error page, proxy notice) | check the URL/gateway; try `external-check --live` to see the raw failure |
+| `response model identity mismatch` | endpoint omitted or rewrote the requested model id | configure the endpoint to return the exact requested id; do not alias silently in the gateway |
+| `blank assistant content` | response JSON had no usable assistant text | check the endpoint schema and ensure a nonblank `choices[0].message.content` is returned |
 | many `inconclusive` results | model returned prose, not the JSON verdict schema | set `--temperature 0.0`; use a stronger instruction-following model |
 | `estimated N requests exceeds the safety cap` | scope too large for the cap | reduce `--max-variants`/`--repeats`/scenario, or raise `--max-requests` |
 | `repeats must be between 1 and 10` | `--repeats` out of range | choose 1-10 |

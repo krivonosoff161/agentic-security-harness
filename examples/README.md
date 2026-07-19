@@ -99,11 +99,11 @@ python examples/fake_openai_server.py
 
 # terminal 2 - run the external path against it
 ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary
-ash run-external  --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --out reports/external-demo
-ash validate reports/external-demo
+ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --execute --out .internal/external-demo
+ash validate .internal/external-demo
 ```
 
-Expected: the run reports 4 checks / 4 requests / 0 findings (the fake server always
+Expected: the run reports 6 checks / 6 requests / 0 findings (the fake server always
 preserves the boundary), and `ash validate` returns `OK`. On Windows, start the server in
 a separate PowerShell window (no trailing `&`).
 

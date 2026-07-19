@@ -146,7 +146,9 @@ def chat_completion(
             try:
                 resp_body = exc.read().decode("utf-8", errors="replace")
             except Exception:
-                pass
+                # The original HTTP status remains authoritative when an optional
+                # diagnostic body cannot be read or decoded.
+                resp_body = ""
             last_error = ExternalAPIError(
                 f"HTTP {exc.code} from {base_url}: {exc.reason}",
                 status_code=exc.code,
@@ -177,3 +179,34 @@ def extract_content(response: dict[str, Any]) -> str:
         return response["choices"][0]["message"]["content"]
     except (KeyError, IndexError, TypeError):
         return ""
+
+
+def extract_verified_content(
+    response: object,
+    *,
+    expected_model: str,
+) -> str:
+    """Return usable assistant text only for the exact requested model identity.
+
+    Model-backed evidence must fail closed when an OpenAI-compatible endpoint omits or
+    rewrites the requested model id, or when it returns no adjudicable assistant text.
+    Keep this check beside the response parser so every producer applies the same rule.
+    """
+
+    if not isinstance(response, dict):
+        raise ExternalAPIError("chat completion response must be a JSON object")
+    actual_model = response.get("model")
+    if not isinstance(actual_model, str) or actual_model != expected_model:
+        received = (
+            actual_model
+            if isinstance(actual_model, str) and actual_model
+            else "<missing>"
+        )
+        raise ExternalAPIError(
+            "response model identity mismatch: "
+            f"expected {expected_model!r}, received {received!r}"
+        )
+    content = extract_content(response)
+    if not isinstance(content, str) or not content.strip():
+        raise ExternalAPIError("blank assistant content")
+    return content

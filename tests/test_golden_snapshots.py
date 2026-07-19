@@ -42,7 +42,10 @@ def _external_snapshot_open(req: object, *args: object, **kwargs: object) -> Mag
     }
     content = json.dumps(payload)
     resp = MagicMock()
-    resp.read.return_value = json.dumps({"choices": [{"message": {"content": content}}]}).encode()
+    requested_model = json.loads(req.data.decode("utf-8"))["model"]  # type: ignore[attr-defined]
+    resp.read.return_value = json.dumps(
+        {"model": requested_model, "choices": [{"message": {"content": content}}]}
+    ).encode()
     resp.__enter__ = lambda s: s
     resp.__exit__ = MagicMock(return_value=False)
     return resp
@@ -92,7 +95,7 @@ def test_golden_comparison_snapshot(tmp_path: Path) -> None:
 
 
 def test_golden_external_snapshot(tmp_path: Path) -> None:
-    out = tmp_path / "external-pass"
+    out = tmp_path / ".internal" / "external-pass"
     fixed_execution_id = "run_" + ("1" * 32)
     with (
         patch(

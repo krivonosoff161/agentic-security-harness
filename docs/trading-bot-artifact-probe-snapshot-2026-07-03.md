@@ -9,7 +9,7 @@
 >
 > ```bash
 > ash trading-stand --mode artifact-probe \
->   --target-path C:/Users/krivo/trading-bot-v2 \
+>   --target-path <user-home>/trading-bot-v2 \
 >   --artifact-root <private-strategy-lab-root>
 > ```
 

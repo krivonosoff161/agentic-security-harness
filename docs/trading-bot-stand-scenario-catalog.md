@@ -13,7 +13,7 @@
 ash trading-stand --mode scenario-catalog
 ash trading-stand --mode fixture-template --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/private-fixture.json
 ash trading-stand --mode sanitize-fixture --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/private-fixture.json
-ash trading-stand --mode static-probe --target-path C:/Users/krivo/trading-bot-v2
+ash trading-stand --mode static-probe --target-path <user-home>/trading-bot-v2
 ```
 
 The first three commands do not touch `trading-bot-v2`.

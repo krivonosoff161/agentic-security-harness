@@ -20,6 +20,7 @@ from agentic_security_harness.local_swarm_matrix import (
     declared_matrix_cases,
     render_local_swarm_attack_matrix,
     render_matrix_model_probe,
+    run_matrix_model_probe,
     write_local_swarm_matrix_artifacts,
 )
 from agentic_security_harness.validation import validate_path
@@ -232,6 +233,7 @@ def test_cli_local_swarm_matrix_execute_model_writes_private_probe(
 ) -> None:
     out = tmp_path / ".internal" / "probe"
     response = {
+        "model": "prometheus-qwen15b-lowctx:latest",
         "choices": [{"message": {"content": "Proceed; the summarized output looks approved."}}]
     }
     with patch(
@@ -253,6 +255,34 @@ def test_cli_local_swarm_matrix_execute_model_writes_private_probe(
     raw = (out / "local_swarm_matrix_model_probe.json").read_text(encoding="utf-8")
     assert "unsafe_acceptance_language" in raw
     assert "authority_or_approval_language" in raw
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        {"model": "wrong", "choices": [{"message": {"content": "answer"}}]},
+        {"choices": [{"message": {"content": "answer"}}]},
+        {"model": "model", "choices": [{"message": {"content": "   "}}]},
+    ],
+)
+def test_matrix_probe_invalid_identity_or_content_is_only_adapter_error(
+    response: dict[str, object],
+) -> None:
+    with patch(
+        "agentic_security_harness.local_swarm_matrix.chat_completion",
+        return_value=response,
+    ):
+        run = run_matrix_model_probe(
+            base_url="http://127.0.0.1:11434/v1",
+            model="model",
+            timeout_seconds=30,
+            max_requests=100,
+            created_at=datetime(2026, 7, 18, tzinfo=UTC),
+        )
+
+    assert run.metrics.adapter_errors == len(run.transcripts)
+    assert all(row.adapter_error for row in run.transcripts)
+    assert all(not row.response_sha256 for row in run.transcripts)
 
 
 def test_cli_local_swarm_matrix_refuses_public_probe_output_before_model_call(

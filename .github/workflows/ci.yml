@@ -50,7 +50,7 @@ jobs:
         run: python -m ruff check .
 
       - name: Run mypy
-        run: python -m mypy src tests
+        run: python -m mypy src tests tools
 
       - name: Validate committed benchmark artifacts
         run: python -m agentic_security_harness.cli validate examples/
@@ -75,7 +75,16 @@ jobs:
         run: python -m pip install --require-hashes -r requirements/build.txt
 
       - name: Build sdist and wheel
-        run: python -m build --no-isolation
+        run: |
+          set -euo pipefail
+          export SOURCE_DATE_EPOCH="$(git show -s --format=%ct "$GITHUB_SHA")"
+          for output in dist reproducibility-check; do
+            python -m build --no-isolation --outdir "$output"
+            python tools/normalize_sdist.py "$output"/*.tar.gz --epoch "$SOURCE_DATE_EPOCH"
+          done
+          cmp dist/*.tar.gz reproducibility-check/*.tar.gz
+          cmp dist/*.whl reproducibility-check/*.whl
+          rm -rf reproducibility-check
 
       - name: Smoke installed wheel
         run: |

@@ -16,7 +16,7 @@
 
 ```bash
 ash trading-stand --mode experiment-readiness \
-  --target-path C:/Users/krivo/trading-bot-v2 \
+  --target-path <user-home>/trading-bot-v2 \
   --artifact-root <private-strategy-lab-root> \
   --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-control-2026-07-03.json
 ```

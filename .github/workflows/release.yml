@@ -14,6 +14,10 @@ jobs:
     if: github.event_name == 'push' && github.ref_type == 'tag'
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     steps:
       - name: Check out repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -65,11 +69,20 @@ jobs:
         run: |
           python -m pytest
           python -m ruff check .
-          python -m mypy src tests
+          python -m mypy src tests tools
           python -m agentic_security_harness.cli validate examples/
 
       - name: Build package
-        run: python -m build --no-isolation
+        run: |
+          set -euo pipefail
+          export SOURCE_DATE_EPOCH="$(git show -s --format=%ct "$GITHUB_SHA")"
+          for output in dist reproducibility-check; do
+            python -m build --no-isolation --outdir "$output"
+            python tools/normalize_sdist.py "$output"/*.tar.gz --epoch "$SOURCE_DATE_EPOCH"
+          done
+          cmp dist/*.tar.gz reproducibility-check/*.tar.gz
+          cmp dist/*.whl reproducibility-check/*.whl
+          rm -rf reproducibility-check
 
       - name: Smoke installed sdist and wheel
         env:
@@ -86,6 +99,14 @@ jobs:
       - name: Write unsigned artifact checksums
         run: cd dist && sha256sum *.tar.gz *.whl > SHA256SUMS
 
+      - name: Attest exact release subjects
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
+        with:
+          subject-path: |
+            dist/*.tar.gz
+            dist/*.whl
+            dist/SHA256SUMS
+
       - name: Upload artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
@@ -93,3 +114,55 @@ jobs:
           path: dist/
           if-no-files-found: error
           retention-days: 14
+
+  verify-provenance:
+    name: Verify release provenance
+    needs: build
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      attestations: read
+      contents: read
+    steps:
+      - name: Check out verification policy
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+
+      - name: Download exact release subjects
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-dist-${{ github.ref_name }}
+          path: dist
+
+      - name: Verify signer, subject, source, and SLSA policy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for artifact in dist/*.tar.gz dist/*.whl dist/SHA256SUMS; do
+            policy_json="$RUNNER_TEMP/$(basename "$artifact").attestation.json"
+            gh attestation verify "$artifact" \
+              --repo "$GITHUB_REPOSITORY" \
+              --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/release.yml" \
+              --source-ref "$GITHUB_REF" \
+              --source-digest "$GITHUB_SHA" \
+              --cert-oidc-issuer "https://token.actions.githubusercontent.com" \
+              --predicate-type "https://slsa.dev/provenance/v1" \
+              --deny-self-hosted-runners \
+              --format json > "$policy_json"
+            PYTHONPATH=src python -m agentic_security_harness.attestation_policy \
+              --artifact "$artifact" \
+              --verification-json "$policy_json" \
+              --repository "$GITHUB_REPOSITORY" \
+              --workflow-path ".github/workflows/release.yml" \
+              --source-ref "$GITHUB_REF" \
+              --source-digest "$GITHUB_SHA"
+          done

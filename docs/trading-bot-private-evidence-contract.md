@@ -118,7 +118,7 @@ Current shipped commands are still non-executing:
 
 ```bash
 ash trading-stand --format json
-ash trading-stand --mode dry-run --target-path C:/Users/krivo/trading-bot-v2
+ash trading-stand --mode dry-run --target-path <user-home>/trading-bot-v2
 ash trading-stand --mode offline-fixture
 ash trading-stand --mode scenario-catalog
 ash trading-stand --mode fixture-template --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/private-fixture.json
@@ -126,7 +126,7 @@ ash trading-stand --mode sanitize-fixture --fixture-path .internal/trading-bot-p
 ash trading-stand --mode experiment-template --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-template.json
 ash trading-stand --mode validate-experiment --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/filled-experiment.json
 ash trading-stand --mode sanitize-experiment --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/filled-experiment.json
-ash trading-stand --mode authorized-paper --target-path C:/Users/krivo/trading-bot-v2
+ash trading-stand --mode authorized-paper --target-path <user-home>/trading-bot-v2
 ```
 
 `fixture-template` writes a 7-record private JSON template under the ignored

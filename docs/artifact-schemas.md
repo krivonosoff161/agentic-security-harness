@@ -196,9 +196,10 @@ Non-versioned by design:
   local-model semantic-parameter drift probes. Raw prompts, raw responses, canonical
   state hashes, and synthetic canary values remain under `.internal/`; the public
   artifact keeps only response hashes, classifications, model names, pressure labels,
-  and aggregate verifier metrics. Version 0.2 adds independent-review labels, private
-  review-evidence hashes, label coverage, and confusion-matrix metrics. Version 0.1
-  remains readable and is treated as unadjudicated.
+  and aggregate verifier metrics. Version 0.2 reserves fields shaped like independent-review
+  labels, private review-evidence hashes, label coverage, and confusion-matrix metrics, but the
+  current implementation fails closed because it cannot authenticate a reviewer receipt. Both
+  current and legacy public observations remain unadjudicated with zero label coverage.
 - `semantic_propagation_summary.json` is a sanitized aggregate over deterministic and
   private local-model worker-to-chief propagation probes. Raw worker/chief prompts,
   raw responses, canonical-state hashes, and synthetic canary values remain under

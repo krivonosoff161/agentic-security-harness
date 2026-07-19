@@ -193,35 +193,35 @@ Current public-safe commands:
 
 ```bash
 ash trading-stand --format json
-ash trading-stand --mode dry-run --target-path C:/Users/krivo/trading-bot-v2
+ash trading-stand --mode dry-run --target-path <user-home>/trading-bot-v2
 ash trading-stand --mode offline-fixture
 ash trading-stand --mode scenario-catalog
 ash trading-stand --mode fixture-template --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/private-fixture.json
 ash trading-stand --mode invariant-fixture-template --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/invariant-fixture-template.json
-ash trading-stand --mode invariant-baseline-fixture --target-path C:/Users/krivo/trading-bot-v2 --artifact-root <private-strategy-lab-root> --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/invariant-baseline.json
+ash trading-stand --mode invariant-baseline-fixture --target-path <user-home>/trading-bot-v2 --artifact-root <private-strategy-lab-root> --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/invariant-baseline.json
 ash trading-stand --mode invariant-negative-control-fixture --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/invariant-negative-control.json
 ash trading-stand --mode invariant-weak-control-fixture --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/invariant-weak-control.json
 ash trading-stand --mode validate-invariant-fixture --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/invariant-baseline.json
 ash trading-stand --mode sanitize-fixture --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/private-fixture.json
-ash trading-stand --mode static-probe --target-path C:/Users/krivo/trading-bot-v2
-ash trading-stand --mode boundary-lock --target-path C:/Users/krivo/trading-bot-v2
-ash trading-stand --mode boundary-lock-review --target-path C:/Users/krivo/trading-bot-v2
-ash trading-stand --mode artifact-probe --target-path C:/Users/krivo/trading-bot-v2
-ash trading-stand --mode artifact-probe --target-path C:/Users/krivo/trading-bot-v2 --artifact-root <private-strategy-lab-root>
-ash trading-stand --mode artifact-invariant-probe --target-path C:/Users/krivo/trading-bot-v2 --artifact-root <private-strategy-lab-root>
-ash trading-stand --mode artifact-e2e-observation --target-path C:/Users/krivo/trading-bot-v2 --artifact-root <private-strategy-lab-root>
-ash trading-stand --mode experiment-plan --target-path C:/Users/krivo/trading-bot-v2 --artifact-root <private-strategy-lab-root>
+ash trading-stand --mode static-probe --target-path <user-home>/trading-bot-v2
+ash trading-stand --mode boundary-lock --target-path <user-home>/trading-bot-v2
+ash trading-stand --mode boundary-lock-review --target-path <user-home>/trading-bot-v2
+ash trading-stand --mode artifact-probe --target-path <user-home>/trading-bot-v2
+ash trading-stand --mode artifact-probe --target-path <user-home>/trading-bot-v2 --artifact-root <private-strategy-lab-root>
+ash trading-stand --mode artifact-invariant-probe --target-path <user-home>/trading-bot-v2 --artifact-root <private-strategy-lab-root>
+ash trading-stand --mode artifact-e2e-observation --target-path <user-home>/trading-bot-v2 --artifact-root <private-strategy-lab-root>
+ash trading-stand --mode experiment-plan --target-path <user-home>/trading-bot-v2 --artifact-root <private-strategy-lab-root>
 ash trading-stand --mode experiment-template --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-template.json
-ash trading-stand --mode experiment-baseline-fixture --target-path C:/Users/krivo/trading-bot-v2 --artifact-root <private-strategy-lab-root> --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-baseline-2026-07-03.json
+ash trading-stand --mode experiment-baseline-fixture --target-path <user-home>/trading-bot-v2 --artifact-root <private-strategy-lab-root> --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-baseline-2026-07-03.json
 ash trading-stand --mode experiment-negative-control-fixture --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-negative-control-2026-07-03.json
 ash trading-stand --mode experiment-control-fixture --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-control-2026-07-03.json
 ash trading-stand --mode experiment-batch-manifest --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-batch-manifest-2026-07-03.json
 ash trading-stand --mode validate-experiment-batch-manifest --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-batch-manifest-2026-07-03.json
 ash trading-stand --mode experiment-intake --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/filled-experiment.json --manifest-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-batch-manifest-2026-07-03.json
-ash trading-stand --mode experiment-readiness --target-path C:/Users/krivo/trading-bot-v2 --artifact-root <private-strategy-lab-root> --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-control-2026-07-03.json
+ash trading-stand --mode experiment-readiness --target-path <user-home>/trading-bot-v2 --artifact-root <private-strategy-lab-root> --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/experiment-control-2026-07-03.json
 ash trading-stand --mode validate-experiment --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/filled-experiment.json
 ash trading-stand --mode sanitize-experiment --fixture-path .internal/trading-bot-paper-stand/issue-136/manifests/filled-experiment.json
-ash trading-stand --mode authorized-paper --target-path C:/Users/krivo/trading-bot-v2
+ash trading-stand --mode authorized-paper --target-path <user-home>/trading-bot-v2
 ```
 
 The `offline-fixture` mode uses sanitized, stand-shaped controls. It does not

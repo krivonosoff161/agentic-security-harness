@@ -227,7 +227,10 @@ def _check_reports_writable(reports_root: Path) -> DoctorCheck:
 
 
 def _check_live_local(base_url: str, credential_env_var: str) -> DoctorCheck:
-    from agentic_security_harness.external_openai_compatible import chat_completion
+    from agentic_security_harness.external_openai_compatible import (
+        chat_completion,
+        extract_verified_content,
+    )
 
     if not is_loopback_base_url(base_url):
         return DoctorCheck(
@@ -247,6 +250,7 @@ def _check_live_local(base_url: str, credential_env_var: str) -> DoctorCheck:
             allow_redirects=False,
             allow_env_proxy=False,
         )
+        extract_verified_content(resp, expected_model="doctor-probe")
         return DoctorCheck(
             name="live_local",
             ok=True,

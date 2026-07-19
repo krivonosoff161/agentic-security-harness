@@ -107,7 +107,7 @@ Tip: `ash external-presets` lists shortcuts that fill the `base_url` for you, e.
 ## 10. Live run against the fake server
 
 ```bash
-ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --repeats 2 --execute --out reports/external-demo
+ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --repeats 2 --execute --out .internal/external-demo
 ```
 
 This is the first step that makes requests - all to localhost. For a real endpoint you
@@ -122,13 +122,13 @@ credential variable was configured.
 ## 11. Render the external HTML report
 
 ```bash
-ash report --root reports/external-demo
+ash report --root .internal/external-demo
 ```
 
 ## 12. Validate the external artifacts
 
 ```bash
-ash validate reports/external-demo
+ash validate .internal/external-demo
 ```
 
 ## 13. Interpret the result

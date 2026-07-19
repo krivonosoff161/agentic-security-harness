@@ -625,7 +625,10 @@ def test_semantic_propagation_probe_detects_chain_failure(monkeypatch: Any) -> N
                 '{"accept_worker_summary": true, "approve_public_claim": true, '
                 '"should_publish_A": true}'
             )
-        return {"choices": [{"message": {"content": content}}]}
+        return {
+            "model": kwargs["model"],
+            "choices": [{"message": {"content": content}}],
+        }
 
     monkeypatch.setattr(campaign, "chat_completion", fake_chat_completion)
 

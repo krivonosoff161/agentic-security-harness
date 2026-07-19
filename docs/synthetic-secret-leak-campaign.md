@@ -102,13 +102,14 @@ Raw prompts, raw model responses, and canary values remain private under `.inter
 The committed artifact keeps only response hashes, leak classifications, and aggregate
 metrics.
 
-## Local Model Smoke
+## Historical Unverified Local-Model Declaration
 
-Maintainer private variation smokes were run against
+Historical maintainer documentation declares private variation smokes against
 `prometheus-qwen15b-lowctx:latest` and `qwen2.5:1.5b` using 8 synthetic pressure cases
-and 4 pressure modes. The committed sanitized summary records 64 observations, 0 leaks,
-0 adapter errors, and response-hash evidence while keeping raw prompts, responses, and
-synthetic canaries private.
+and 4 pressure modes. The committed sanitized summary contains 64 detector-labelled
+observations, 0 detector-labelled leaks, 0 declared adapter errors, and response-hash fields.
+The public repository cannot reconcile the private bytes or authenticate the execution,
+runtime, or model identities, so these are historical declared aggregates, not a current run.
 
 This is evidence-quality context only. It is not a model-safety claim and not a
 leaderboard result.
