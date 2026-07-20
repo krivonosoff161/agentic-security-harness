@@ -1,6 +1,8 @@
 import hashlib
 import json
+import os
 import shutil
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -8,13 +10,20 @@ import pytest
 
 from agentic_security_harness import cli
 from agentic_security_harness.models import ExploitTrace
+from agentic_security_harness.run_manifest import make_run_id
 from agentic_security_harness.validation import (
     ValidationResult,
+    _scan_secrets,
+    _validate_run_manifest,
     _validate_traces,
     validate_path,
 )
 
 EXAMPLES = Path(__file__).resolve().parent.parent / "examples"
+FAKE_SLACK_TOKEN = (
+    "xox"
+    "b-123456789012-123456789012-ABCDEFGHIJKLMNOPQRSTUVWX"
+)
 
 DETERMINISTIC_CAMPAIGN_EXAMPLES = (
     (
@@ -70,6 +79,71 @@ def _rebind_manifest_artifact(run_dir: Path, artifact: str) -> None:
         (run_dir / artifact).read_bytes()
     ).hexdigest()
     _dump(manifest_path, manifest)
+
+
+def _make_directory_link(link_path: Path, target: Path) -> None:
+    try:
+        os.symlink(target, link_path, target_is_directory=True)
+        return
+    except OSError as symlink_error:
+        if os.name != "nt":
+            pytest.skip(f"directory symlink unavailable: {symlink_error}")
+    try:
+        subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(link_path), str(target)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as junction_error:
+        pytest.skip(f"directory link/junction unavailable: {junction_error}")
+
+
+def _write_minimal_run_manifest(run_dir: Path, schema_version: str) -> None:
+    run_kind = "run"
+    target = "mock"
+    model = ""
+    scenario = ""
+    variants: list[str] = []
+    repeats = 1
+    config = {
+        "run_kind": run_kind,
+        "target": target,
+        "model": model,
+        "scenario": scenario,
+        "variants": variants,
+        "repeats": repeats,
+    }
+    run_id = make_run_id(
+        run_kind=run_kind,
+        target=target,
+        model=model,
+        scenario=scenario,
+        variants=variants,
+        repeats=repeats,
+    )
+    manifest = {
+        "schema_version": schema_version,
+        "run_id": run_id if schema_version == "0.1" else "run_0123456789abcdef0123456789abcdef",
+        "execution_id": "" if schema_version == "0.1" else "run_0123456789abcdef0123456789abcdef",
+        "config_fingerprint": "",
+        "created_at": "",
+        "tool_version": "0.0.0-test",
+        "outcomes": {},
+        "metadata": {},
+        "artifacts": [],
+        "artifact_sha256": {},
+        **config,
+    }
+    _dump(run_dir / "run_index.json", manifest)
+
+
+def _link_errors(result: ValidationResult) -> list[str]:
+    return [
+        message
+        for message in result.errors
+        if "link" in message.lower() or "reparse" in message.lower()
+    ]
 
 
 # ---- valid committed examples ----------------------------------------------------------
@@ -184,6 +258,122 @@ def test_no_false_positive_on_risk_reduction() -> None:
     result = validate_path(EXAMPLES / "comparison-report")
     assert result.ok
     assert not any("forbidden" in err for err in result.errors)
+
+
+@pytest.mark.parametrize("schema_version", ["0.1", "0.2", "0.3"])
+def test_run_manifest_rejects_unmanifested_directory_link_for_every_schema(
+    tmp_path: Path,
+    schema_version: str,
+) -> None:
+    run_dir = tmp_path / "run"
+    outside = tmp_path / "outside"
+    run_dir.mkdir()
+    outside.mkdir()
+    (outside / "outside.txt").write_text("outside\n", encoding="utf-8")
+    _write_minimal_run_manifest(run_dir, schema_version)
+    _make_directory_link(run_dir / "linked-subdir", outside)
+    result = ValidationResult()
+
+    _validate_run_manifest(run_dir, run_dir, result)
+
+    assert _link_errors(result)
+
+
+def test_validate_path_rejects_linked_root_component(tmp_path: Path) -> None:
+    real_root = tmp_path / "real-root"
+    linked_root = tmp_path / "linked-root"
+    real_root.mkdir()
+    _make_directory_link(linked_root, real_root)
+
+    result = validate_path(linked_root)
+
+    assert _link_errors(result)
+
+
+def test_validate_path_rejects_directory_that_resolves_outside_root(tmp_path: Path) -> None:
+    parent = tmp_path / "parent"
+    outside = tmp_path / "outside"
+    parent.mkdir()
+    outside.mkdir()
+    _write_minimal_run_manifest(outside, "0.1")
+    _make_directory_link(parent / "child", outside)
+
+    result = validate_path(parent)
+
+    assert _link_errors(result)
+
+
+def test_validate_path_does_not_recurse_into_external_linked_directory(tmp_path: Path) -> None:
+    parent = tmp_path / "parent"
+    outside = tmp_path / "outside"
+    parent.mkdir()
+    outside.mkdir()
+    (outside / "traces.json").write_text("not json", encoding="utf-8")
+    _make_directory_link(parent / "linked-external", outside)
+
+    result = validate_path(parent)
+
+    assert _link_errors(result)
+    assert not any("linked-external/traces.json" in err for err in result.errors)
+
+
+def test_json_loader_rejects_linked_manifest_before_reading_target(tmp_path: Path) -> None:
+    run_dir = tmp_path / "run"
+    outside = tmp_path / "outside"
+    run_dir.mkdir()
+    outside.mkdir()
+    (outside / "run_index.json").write_text(
+        json.dumps({"schema_version": "0.1", "outside_marker": "not from bundle"}),
+        encoding="utf-8",
+    )
+    _make_directory_link(run_dir / "run_index.json", outside)
+    result = ValidationResult()
+
+    _validate_run_manifest(run_dir, run_dir, result)
+
+    assert _link_errors(result)
+    assert not any("outside_marker" in err for err in result.errors)
+
+
+def test_cli_report_rejects_untrusted_linked_tree(tmp_path: Path) -> None:
+    run_dir = tmp_path / "run"
+    outside = tmp_path / "outside"
+    run_dir.mkdir()
+    outside.mkdir()
+    (outside / "outside.txt").write_text("outside\n", encoding="utf-8")
+    _write_minimal_run_manifest(run_dir, "0.1")
+    _make_directory_link(run_dir / "linked-subdir", outside)
+
+    exit_code = cli.main(["report", "--root", str(run_dir), "--out", str(tmp_path / "out.html")])
+
+    assert exit_code == 1
+    assert not (tmp_path / "out.html").exists()
+
+
+def test_secret_scan_blocks_common_credential_shapes_without_echoing_value(
+    tmp_path: Path,
+) -> None:
+    artifact = tmp_path / "artifact.md"
+    fake_values = {
+        "Google API key": "AIzaSyA000000000000000000000000000000000",
+        "Slack token": FAKE_SLACK_TOKEN,
+        "JWT": (
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+            "eyJzdWIiOiIxMjM0NTY3ODkwIn0."
+            "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        ),
+        "connection URI": "postgres://user:passw0rd@example.invalid:5432/db",
+        "generic assignment": "password = \"correct-horse-battery-staple\"",
+    }
+    artifact.write_text("\n".join(fake_values.values()), encoding="utf-8")
+    result = ValidationResult()
+
+    _scan_secrets(artifact, tmp_path, result)
+
+    assert len(result.errors) >= len(fake_values)
+    joined = "\n".join(result.errors)
+    for value in fake_values.values():
+        assert value not in joined
 
 
 def test_current_run_manifest_requires_every_authoritative_artifact(tmp_path: Path) -> None:

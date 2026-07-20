@@ -430,8 +430,9 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
     )[0]
     assert "#29" not in open_maintenance
     for pull_request in ("#152", "#153", "#154", "#155"):
-        assert pull_request in open_maintenance
-    assert "maintenance PRs, not an active benchmark research roadmap" in open_maintenance
+        assert pull_request not in open_maintenance
+    assert "previous Dependabot maintenance queue was closed" in open_maintenance
+    assert "fresh dependency state" in open_maintenance
     assert "pending repository review/merge" not in tracker
 
 

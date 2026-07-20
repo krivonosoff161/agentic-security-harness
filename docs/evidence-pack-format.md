@@ -61,6 +61,14 @@ do not prove that private bytes exist, match, or came from the declared executio
 owner-side reconciliation command must compare retained bytes and emit a dated receipt;
 authenticity additionally requires a separate trust root or signature.
 
+Before reviewing or publishing a third-party pack, run `ash validate` or `ash report`
+only on a local tree whose filesystem topology is trusted. The validator rejects
+symlinks, junctions, Windows reparse points, and paths that resolve outside the
+validation root for both current and readable legacy schemas. That is a filesystem
+boundary and artifact-integrity check; it is not a live re-run, a production-safety
+claim, or a race-free guarantee against a concurrent local writer changing files between
+check and read.
+
 ## Required claim boundary
 
 Every pack must say what the evidence proves and what it does not prove.
@@ -146,3 +154,6 @@ Before a local research result becomes a public evidence pack:
 7. `ash validate docs/evidence-status-registry.json` passes and the evidence map links
    the pack.
 8. The PR description includes commands run and non-claims.
+9. Secret scanning is treated as defense-in-depth over supported common credential
+   shapes; it does not replace operator review or a dedicated external secret scanner for
+   high-assurance release gates.

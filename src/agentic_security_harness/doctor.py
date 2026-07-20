@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import os
 import sys
-import tempfile
 from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -138,8 +137,12 @@ def _check_build_tool() -> DoctorCheck:
 
 def _check_writable(root: Path) -> DoctorCheck:
     try:
-        with tempfile.NamedTemporaryFile(dir=root, prefix=".ash_doctor_", delete=True):
-            pass
+        probe = root / f".ash_doctor_{os.getpid()}.tmp"
+        try:
+            with probe.open("x", encoding="utf-8") as fh:
+                fh.write("probe\n")
+        finally:
+            probe.unlink(missing_ok=True)
         return DoctorCheck(name="cwd_writable", ok=True, detail=f"{root.as_posix()} writable")
     except OSError as exc:
         return DoctorCheck(name="cwd_writable", ok=False, detail=f"not writable: {exc}")
@@ -195,12 +198,12 @@ def _check_reports_writable(reports_root: Path) -> DoctorCheck:
         if reports_root.exists():
             if not reports_root.is_dir():
                 raise OSError("report path exists but is not a directory")
-            with tempfile.NamedTemporaryFile(
-                dir=reports_root,
-                prefix=".ash_doctor_",
-                delete=True,
-            ):
-                pass
+            probe = reports_root / f".ash_doctor_{os.getpid()}.tmp"
+            try:
+                with probe.open("x", encoding="utf-8") as fh:
+                    fh.write("probe\n")
+            finally:
+                probe.unlink(missing_ok=True)
             detail = f"{reports_root.as_posix()} writable"
         else:
             probe_parent = reports_root.parent
@@ -208,11 +211,9 @@ def _check_reports_writable(reports_root: Path) -> DoctorCheck:
                 probe_parent = probe_parent.parent
             if not probe_parent.is_dir():
                 raise OSError("nearest existing report-path parent is not a directory")
-            with tempfile.TemporaryDirectory(
-                dir=probe_parent,
-                prefix=".ash_doctor_reports_",
-            ):
-                pass
+            probe_dir = probe_parent / f".ash_doctor_reports_{os.getpid()}"
+            probe_dir.mkdir()
+            probe_dir.rmdir()
             detail = f"{reports_root.as_posix()} can be created"
         return DoctorCheck(
             name="reports_writable",

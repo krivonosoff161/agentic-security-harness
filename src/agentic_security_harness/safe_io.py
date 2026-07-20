@@ -19,19 +19,7 @@ from inspect import signature
 from pathlib import Path
 from typing import Any, ParamSpec, TypeVar, cast
 
-_REDACTIONS: list[tuple[re.Pattern[str], str]] = [
-    (re.compile(r"(?<![A-Za-z0-9])sk-[A-Za-z0-9_-]{16,}"), "sk-[REDACTED]"),
-    (re.compile(r"(?<![A-Za-z0-9])AKIA[0-9A-Z]{16}"), "AKIA[REDACTED]"),
-    (re.compile(r"(?<![A-Za-z0-9])ghp_[A-Za-z0-9]{20,}"), "ghp_[REDACTED]"),
-    (
-        re.compile(
-            r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----.*?-----END [A-Z0-9 ]*PRIVATE KEY-----",
-            re.DOTALL,
-        ),
-        "-----BEGIN REDACTED PRIVATE KEY-----\n[REDACTED]\n-----END REDACTED PRIVATE KEY-----",
-    ),
-    (re.compile(r"Bearer\s+[A-Za-z0-9._~+/=-]{16,}"), "Bearer [REDACTED]"),
-]
+from agentic_security_harness.secret_hygiene import redact_secret_shapes
 
 _ENV_VAR_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,127}$")
 _STAGING_MARKER = ".ash-staging-"
@@ -47,10 +35,7 @@ class PublishedBundleDurabilityError(OSError):
 
 def redact_artifact_text(text: str) -> str:
     """Redact secret-shaped strings from artifact text before persistence."""
-    redacted = text
-    for pattern, replacement in _REDACTIONS:
-        redacted = pattern.sub(replacement, redacted)
-    return redacted
+    return redact_secret_shapes(text)
 
 
 def canonical_persisted_text(text: str) -> str:
@@ -139,6 +124,24 @@ def is_link_or_reparse(path: Path) -> bool:
     attributes = int(getattr(info, "st_file_attributes", 0))
     reparse_flag = int(getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0))
     return bool(reparse_flag and attributes & reparse_flag)
+
+
+def iter_link_or_reparse_entries(root: Path) -> Iterator[Path]:
+    """Yield link/reparse entries under ``root`` without recursing through them."""
+
+    pending = [root]
+    while pending:
+        current = pending.pop()
+        try:
+            children = list(current.iterdir())
+        except OSError:
+            continue
+        for child in children:
+            if is_link_or_reparse(child):
+                yield child
+                continue
+            if child.is_dir():
+                pending.append(child)
 
 
 def _require_no_link_components(path: Path) -> None:

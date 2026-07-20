@@ -6,7 +6,7 @@ docs describe the current shipped state.
 
 ## Current GitHub snapshot
 
-Snapshot verified against GitHub on **2026-07-14**:
+Snapshot verified against GitHub during the 2026-07-19 maintenance closeout:
 
 | Milestone | Purpose |
 |---|---|
@@ -17,20 +17,17 @@ administrative metadata, not a release or active-work claim.
 
 ## Open work in this track
 
-No open product or research issues as of 2026-07-14. New work is not active until a
-GitHub issue or an explicitly recorded local task names its invariant, evidence class,
-done criteria, and owner boundary.
+No open product or research issues as of 2026-07-14. The active local work is the
+hostile-audit remediation branch `codex/validator-trust-boundary-hardening`: validator
+filesystem-boundary hardening, secret-hygiene broadening, and evidence-claim positioning.
+It is a review branch, not a merged release.
 
 ## Open maintenance work
 
-Four automated dependency pull requests are open as of the snapshot date:
+The previous Dependabot maintenance queue was closed during the 2026-07-19 closeout:
+the CodeQL Actions update was merged, and the stale/yanked package PRs were closed. New
+maintenance work should start from current `main` with fresh dependency state.
 
-- [#152](https://github.com/krivonosoff161/agentic-security-harness/pull/152) — CodeQL Actions group;
-- [#153](https://github.com/krivonosoff161/agentic-security-harness/pull/153) — `build`;
-- [#154](https://github.com/krivonosoff161/agentic-security-harness/pull/154) — `mypy`;
-- [#155](https://github.com/krivonosoff161/agentic-security-harness/pull/155) — `ruff`.
-
-These are maintenance PRs, not an active benchmark research roadmap.
 
 ## Recently completed in this track
 

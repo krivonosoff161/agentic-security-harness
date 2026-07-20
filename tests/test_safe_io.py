@@ -21,6 +21,11 @@ from agentic_security_harness.safe_io import (
     write_text_artifact,
 )
 
+FAKE_SLACK_TOKEN = (
+    "xox"
+    "b-123456789012-123456789012-ABCDEFGHIJKLMNOPQRSTUVWX"
+)
+
 
 def test_every_private_directory_writer_uses_atomic_publication() -> None:
     package = Path(__file__).resolve().parents[1] / "src" / "agentic_security_harness"
@@ -61,6 +66,15 @@ def test_redact_artifact_text_covers_secret_shapes() -> None:
             "github ghp_abcdefghijklmnopqrstuvwxyz123456",
             "auth Bearer abcdefghijklmnopqrstuvwxyz123456",
             "-----BEGIN RSA PRIVATE KEY-----\nabc\n-----END RSA PRIVATE KEY-----",
+            "google AIzaSyA000000000000000000000000000000000",
+            f"slack {FAKE_SLACK_TOKEN}",
+            (
+                "jwt eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+                "eyJzdWIiOiIxMjM0NTY3ODkwIn0."
+                "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            ),
+            "uri postgres://user:passw0rd@example.invalid:5432/db",
+            'generic password = "correct-horse-battery-staple"',
         ]
     )
 
@@ -71,10 +85,17 @@ def test_redact_artifact_text_covers_secret_shapes() -> None:
     assert "ghp_abcdefghijklmnopqrstuvwxyz123456" not in redacted
     assert "Bearer abcdefghijklmnopqrstuvwxyz123456" not in redacted
     assert "BEGIN RSA PRIVATE KEY" not in redacted
+    assert "AIzaSyA000000000000000000000000000000000" not in redacted
+    assert FAKE_SLACK_TOKEN not in redacted
+    assert "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9" not in redacted
+    assert "postgres://user:passw0rd@example.invalid:5432/db" not in redacted
+    assert "correct-horse-battery-staple" not in redacted
     assert "sk-[REDACTED]" in redacted
     assert "AKIA[REDACTED]" in redacted
-    assert "ghp_[REDACTED]" in redacted
+    assert "github_[REDACTED]" in redacted
     assert "Bearer [REDACTED]" in redacted
+    assert "AIza[REDACTED]" in redacted
+    assert "xox[REDACTED]" in redacted
 
 
 def test_canonical_persisted_text_is_the_hashable_redacted_scalar() -> None:

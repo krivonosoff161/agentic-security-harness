@@ -32,13 +32,17 @@ from agentic_security_harness.reporting import (
     build_executive_md,
     build_summary_md,
 )
-from agentic_security_harness.safe_io import is_link_or_reparse
+from agentic_security_harness.safe_io import (
+    is_link_or_reparse,
+    iter_link_or_reparse_entries,
+)
 from agentic_security_harness.schema_versions import (
     CORPUS_VERSION,
     SCHEMA_VERSIONS,
     check_schema_version,
 )
 from agentic_security_harness.scorecard import ScorecardSummary, build_scorecard
+from agentic_security_harness.secret_hygiene import SECRET_PATTERNS
 
 if TYPE_CHECKING:
     from agentic_security_harness.run_config import ExternalResult, ExternalSummary, RunConfig
@@ -53,16 +57,7 @@ _BASELINE_TYPES = {"mock_agent", "demo_agent"}
 
 # Conservative, format-anchored markers. The left look-behind keeps "risk-reduction" and
 # similar prose from matching "sk-"; the length tails require key-shaped tokens.
-_SECRET_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
-    ("sk-", re.compile(r"(?<![A-Za-z0-9])sk-[A-Za-z0-9_-]{16,}")),
-    ("AKIA", re.compile(r"(?<![A-Za-z0-9])AKIA[0-9A-Z]{16}")),
-    ("ghp_", re.compile(r"(?<![A-Za-z0-9])ghp_[A-Za-z0-9]{20,}")),
-    ("Bearer", re.compile(r"Bearer\s+[A-Za-z0-9._~+/=-]{16,}")),
-    ("BEGIN PRIVATE KEY", re.compile(r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY")),
-    ("ASH-CANARY", re.compile(r"ASH-CANARY-[A-F0-9]{8,}-[A-F0-9]{8,}")),
-    ("ASH-SEMDRIFT", re.compile(r"ASH-SEMDRIFT-[A-F0-9]{8,}-[A-F0-9]{8,}")),
-    ("ASH-SEMPROP", re.compile(r"ASH-SEMPROP-[A-F0-9]{8,}-[A-F0-9]{8,}")),
-]
+_SECRET_PATTERNS = [(entry.label, entry.pattern) for entry in SECRET_PATTERNS]
 _SHA256_HEX = re.compile(r"^[0-9a-f]{64}$")
 _EXECUTION_ID = re.compile(r"^run_[0-9a-f]{32}$")
 
@@ -145,6 +140,54 @@ def _rel(path: Path, root: Path) -> str:
     except ValueError:
         return path.as_posix()
     return rel if rel and rel != "." else path.name
+
+
+def _path_within_root(path: Path, root: Path) -> bool:
+    try:
+        path.resolve(strict=False).relative_to(root.resolve(strict=False))
+    except (OSError, ValueError):
+        return False
+    return True
+
+
+def _path_has_link_or_reparse_component(path: Path, root: Path) -> bool:
+    try:
+        rel = path.relative_to(root)
+    except ValueError:
+        return is_link_or_reparse(path)
+    candidate = root
+    if is_link_or_reparse(candidate):
+        return True
+    for part in rel.parts:
+        candidate /= part
+        if is_link_or_reparse(candidate):
+            return True
+    return False
+
+
+def _reject_untrusted_path(path: Path, root: Path, result: ValidationResult) -> bool:
+    rel = _rel(path, root)
+    if _path_has_link_or_reparse_component(path, root):
+        result._err(f"{rel}: links or reparse points are not allowed in validation input")
+        return True
+    if not _path_within_root(path, root):
+        result._err(f"{rel}: path resolves outside the validation root")
+        return True
+    return False
+
+
+def _scan_tree_topology(dir_path: Path, root: Path, result: ValidationResult) -> bool:
+    link_entries = sorted(
+        candidate.relative_to(dir_path).as_posix()
+        for candidate in iter_link_or_reparse_entries(dir_path)
+    )
+    if link_entries:
+        result._err(
+            f"{_rel(dir_path, root)}: links or reparse points are not allowed "
+            f"in an evidence bundle: {link_entries}"
+        )
+        return False
+    return True
 
 
 def _is_protected(target: TargetDescriptor) -> bool:
@@ -299,6 +342,8 @@ def _recognized_artifact_kinds(path: Path) -> list[str]:
 
 
 def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
+    if _reject_untrusted_path(path, root, result):
+        return
     if not path.exists():
         result._err(f"missing path: {_rel(path, root)}")
         return
@@ -4994,6 +5039,8 @@ def _contains_forbidden_key(value: Any, key_name: str) -> bool:
 
 
 def _load_json(path: Path, root: Path, result: ValidationResult) -> Any:
+    if _reject_untrusted_path(path, root, result):
+        return None
     if not path.exists():
         result._err(f"{_rel(path, root)}: missing")
         return None
@@ -5023,6 +5070,8 @@ def _check_schema_version_file(
     Absent files and JSON parse errors are left to the artifact's own loader. A future or
     unknown version produces a clear, actionable error.
     """
+    if _reject_untrusted_path(path, root, result):
+        return
     if not path.exists():
         return
     try:
@@ -6404,6 +6453,8 @@ def _validate_run_manifest(dir_path: Path, root: Path, result: ValidationResult)
     manifest_path = dir_path / "run_index.json"
     if not manifest_path.exists():
         return
+    if not _scan_tree_topology(dir_path, root, result):
+        return
     from agentic_security_harness.run_manifest import (
         _RUN_KINDS,
         RunManifest,
@@ -6483,16 +6534,6 @@ def _validate_run_manifest(dir_path: Path, root: Path, result: ValidationResult)
             if _artifact_sha256(persisted_path) != declared_hash:
                 result._err(f"{rel}: artifact_sha256[{art!r}] content mismatch")
         allowed_unbound = {"README.md", "report.html"}
-        link_entries = sorted(
-            candidate.relative_to(dir_path).as_posix()
-            for candidate in dir_path.rglob("*")
-            if is_link_or_reparse(candidate)
-        )
-        if link_entries:
-            result._err(
-                f"{rel}: links or reparse points are not allowed in a current "
-                f"evidence bundle: {link_entries}"
-            )
         persisted_files = {
             candidate.relative_to(dir_path).as_posix()
             for candidate in dir_path.rglob("*")
@@ -6527,6 +6568,8 @@ def _validate_run_manifest(dir_path: Path, root: Path, result: ValidationResult)
 
 
 def _scan_secrets(path: Path, root: Path, result: ValidationResult) -> None:
+    if _reject_untrusted_path(path, root, result):
+        return
     if not path.exists():
         return
     try:
