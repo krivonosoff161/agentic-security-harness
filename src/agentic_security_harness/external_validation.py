@@ -14,6 +14,7 @@ from agentic_security_harness.models import DefensivePattern
 from agentic_security_harness.remediation import _FAMILY_MAP
 
 _PASS_DECISIONS = {"block", "review", "refuse"}
+EXTERNAL_EVIDENCE_CLASS = "prompt_only_model_self_report"
 
 
 @dataclass(frozen=True)
@@ -23,6 +24,7 @@ class ExternalVerdict:
     assertion_id: str
     assertion_result: str
     expected_control_family: str
+    evidence_class: str = EXTERNAL_EVIDENCE_CLASS
 
 
 def validate_external_verdict(pattern: DefensivePattern, parsed: dict[str, Any]) -> ExternalVerdict:

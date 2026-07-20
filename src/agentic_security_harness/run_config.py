@@ -197,6 +197,11 @@ class ExternalResult(BaseModel):
     assertion_id: str = ""
     assertion_result: str = ""
     expected_control_family: str = ""
+    evidence_class: str = "prompt_only_model_self_report"
+    evidence_limitation: str = (
+        "Prompt-only model self-report; not an agent-host/tool-execution test or "
+        "independently labelled evidence."
+    )
 
     @model_validator(mode="after")
     def derive_cross_check_for_legacy_artifacts(self) -> ExternalResult:

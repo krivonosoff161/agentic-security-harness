@@ -400,6 +400,7 @@ def _evaluate_one(
             assertion_id=verdict.assertion_id,
             assertion_result=verdict.assertion_result,
             expected_control_family=verdict.expected_control_family,
+            evidence_class=verdict.evidence_class,
         )
     except ExternalAPIError as exc:
         error_text = _external_error_text(exc)

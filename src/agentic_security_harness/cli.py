@@ -2430,6 +2430,10 @@ def _doctor(
 
     from agentic_security_harness.doctor import run_doctor
 
+    if live_local and not is_loopback_base_url(base_url):
+        print("Error: --live-local requires a literal loopback HTTP(S) base URL.")
+        return 1
+
     report = run_doctor(
         reports_root=reports_root,
         live_local=live_local,

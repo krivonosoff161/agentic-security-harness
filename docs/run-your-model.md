@@ -216,6 +216,11 @@ If a model returns prose instead of valid JSON, the harness records
 `inconclusive`, not `pass` or `finding`. If a local server is down, the result is
 `adapter_error`, not a security verdict.
 
+External/model `stable_pass` means the model repeatedly produced an internally coherent
+prompt-only self-report for the synthetic scenario. It does not mean the model was placed
+inside a live agent host, executed tools safely, resisted an embedded instruction in a
+real deployment, or received independent human labels.
+
 ## 6. Publish an evidence update
 
 Use [evidence-pack-format.md](evidence-pack-format.md) before opening a public PR.

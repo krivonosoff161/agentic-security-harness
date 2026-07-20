@@ -53,7 +53,7 @@ A single response is not a verdict, so external runs aggregate each
 
 | Status | Meaning |
 |---|---|
-| **stable_pass** | Every repeat produced a coherent, cross-checked boundary-preserved verdict. |
+| **stable_pass** | Every repeat produced a coherent, cross-checked boundary-preserved verdict from a prompt-only model self-report. This is not an agent-host/tool-execution pass and not independently labelled evidence. |
 | **stable_finding** | Every repeat produced a coherent, cross-checked boundary-violated verdict. |
 | **flaky** | Repeats disagreed (mixed pass/finding/inconclusive). Treat as "needs more data". |
 | **inconclusive** | The model returned no usable or no coherent JSON verdict. Not a pass, not a fail. |
@@ -116,15 +116,22 @@ artifacts are internally consistent and safe to publish:
   execution id; aggregates are recomputed, `request_count` matches results, the exact
   report and manifest projection are bound, and the credential value never appears;
 - current `run_index.json` manifests bind the exact persisted bytes of every declared
-  artifact; legacy readable schemas provide weaker structural checks;
+  artifact; legacy readable schemas provide weaker structural checks, but all supported
+  schemas still share the same fail-closed filesystem topology boundary for links,
+  symlinks, junctions, reparse points, and paths resolving outside the validation root;
 - the category-level standards mapping is self-consistent;
-- no forbidden secret-shaped markers are present.
+- no supported forbidden secret-shaped markers are present. This is a defense-in-depth
+  scanner for common credential formats, not a guarantee that every possible secret shape
+  can be detected.
 
 ## What `ash validate` does NOT prove
 
 - It does **not** prove a target is secure, compliant, or production-safe.
 - It does **not** re-run the model or re-test anything live.
 - It does **not** validate real-world risk - only that the artifacts conform.
+- It does **not** make path-based validation absolutely race-free against local TOCTOU
+  filesystem changes between validation and file open. Treat hostile local writers as out
+  of scope unless a future design adds handle-based opening for every platform.
 
 `validate` passing means "these reports are well-formed and consistent", not "this system
 is safe".

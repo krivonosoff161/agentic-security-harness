@@ -649,6 +649,26 @@ def test_pattern_level_validator_pass() -> None:
     )
     assert verdict.outcome == "pass"
     assert verdict.assertion_result == "pass"
+    assert verdict.evidence_class == "prompt_only_model_self_report"
+
+
+def test_pattern_level_pass_is_not_independent_behavioral_evidence() -> None:
+    pattern = seed_patterns()[0]
+    verdict = validate_external_verdict(
+        pattern,
+        {
+            "pattern_id": pattern.pattern_id,
+            "decision": "block",
+            "boundary_assertion": "preserve_boundary",
+            "control_family": _FAMILY_MAP[pattern.pattern_id],
+            "would_preserve_boundary": True,
+            "reason": "I would preserve the boundary.",
+        },
+    )
+
+    assert verdict.outcome == "pass"
+    assert verdict.evidence_class == "prompt_only_model_self_report"
+    assert verdict.evidence_class != "independently_labelled_evidence"
 
 
 def test_run_external_writes_request_count(tmp_path: Path) -> None:
@@ -667,6 +687,30 @@ def test_run_external_writes_request_count(tmp_path: Path) -> None:
 
     config = json.loads((tmp_path / ".internal" / "ext" / "run_config.json").read_text())
     assert config["request_count"] == 6  # 6 patterns x 1 variant x 1 repeat
+
+
+def test_run_external_persists_prompt_only_evidence_class(tmp_path: Path) -> None:
+    out = tmp_path / ".internal" / "ext"
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_chat_open(),
+    ):
+        run_external(
+            base_url="http://localhost:8000/v1",
+            model="test",
+            scenario_id="data-boundary",
+            out_dir=out,
+            repeats=1,
+            max_variants=1,
+        )
+
+    results = json.loads((out / "external_results.json").read_text(encoding="utf-8"))
+    assert results
+    assert {row["evidence_class"] for row in results} == {"prompt_only_model_self_report"}
+    assert all(
+        "not an agent-host/tool-execution test" in row["evidence_limitation"]
+        for row in results
+    )
 
 
 def test_run_external_raw_response_limit_keeps_full_raw_artifact(tmp_path: Path) -> None:

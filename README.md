@@ -114,9 +114,9 @@ That local evidence rule narrows, but does not weaken, the portfolio
 
 | Evidence track | Current public result | Inspect |
 |---|---:|---|
-| Deterministic corpus | `24` synthetic boundary patterns | [`docs/corpus.md`](docs/corpus.md) |
-| Baseline vs protected replay | `24 modeled findings -> 0 modeled findings` | [`examples/comparison-report/`](examples/comparison-report/) |
-| Bounded local swarm | `15` modeled swarm failures accepted by naive mode, `0` by bounded mode | [`examples/local-swarm-report/`](examples/local-swarm-report/) |
+| Deterministic corpus | `24` synthetic boundary patterns; deterministic conformance evidence, not independent attack measurement | [`docs/corpus.md`](docs/corpus.md) |
+| Baseline vs protected replay | `24 modeled findings -> 0 modeled findings`; evaluator-coupled synthetic replay | [`examples/comparison-report/`](examples/comparison-report/) |
+| Bounded local swarm | `15` modeled swarm failures accepted by naive mode, `0` by bounded mode; rule-derived control attribution | [`examples/local-swarm-report/`](examples/local-swarm-report/) |
 | Attack variation matrix | `43` rows, `9` families, `10` executable deep probes, bounded failures `0` | [`examples/local-swarm-attack-matrix/`](examples/local-swarm-attack-matrix/) |
 | Evidence executable specification | `24` scenario-author-labelled cases / `72` rule-derived observations; bounded declared-safe block consistency `0%` | [`examples/evidence-campaign-sanitized/`](examples/evidence-campaign-sanitized/) |
 | Synthetic secret-egress campaign | `4` topologies / `23` observations; naive leaks `4/4`, bounded leaks `0/4` | [`examples/secret-leak-campaign-sanitized/`](examples/secret-leak-campaign-sanitized/) |
@@ -138,6 +138,10 @@ sanitized evidence-quality snapshots. Public artifacts may expose model names, r
 observation counts, response hashes, aggregate labels, verifier attribution, and
 replay-ablation metrics; raw prompts, responses, canonical state hashes, and synthetic
 canaries stay private under `.internal/`.
+
+External OpenAI-compatible runs are prompt-only self-report checks. A `stable_pass`
+there means repeated coherent structured answers to a synthetic safety-evaluation prompt;
+it is not an agent-host/tool-execution result or independently labelled evidence.
 
 ## Visual evidence snapshot
 
