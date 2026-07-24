@@ -2343,7 +2343,7 @@ def _run_external(
     if raw_response_limit < 0:
         print("Error: raw-response-limit must be >= 0")
         return 1
-    runtime_profile = infer_runtime_profile(preset_name, base_url)
+    runtime_profile = infer_runtime_profile(preset_name, base_url, model)
 
     # Estimate request count and enforce the cost safety cap before any call.
     try:
@@ -4267,7 +4267,7 @@ def _external_check(
     # Check base URL
     redacted = _redact_url(base_url)
     print(f"  Base URL: {terminal_field(redacted)}")
-    runtime_profile = infer_runtime_profile(preset_name, base_url)
+    runtime_profile = infer_runtime_profile(preset_name, base_url, model)
     print(
         f"  Runtime: {terminal_field(runtime_profile.runtime_name)} "
         f"({terminal_field(runtime_profile.runtime_family)})"

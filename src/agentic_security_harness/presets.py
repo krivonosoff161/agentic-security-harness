@@ -200,10 +200,27 @@ def is_loopback_base_url(base_url: str) -> bool:
     return host in {"localhost", "127.0.0.1", "::1"}
 
 
-def infer_runtime_profile(preset_name: str | None, base_url: str) -> RuntimeProfile:
+def infer_runtime_profile(
+    preset_name: str | None,
+    base_url: str,
+    model: str = "",
+) -> RuntimeProfile:
     """Infer artifact-safe runtime metadata from the preset and effective URL."""
     preset = _PRESETS.get(preset_name or "")
     url_is_local = is_loopback_base_url(base_url)
+    if preset_name == "ollama" and url_is_local and model.endswith(":cloud"):
+        return RuntimeProfile(
+            runtime_name="ollama-cloud",
+            runtime_family="cloud-provider-via-local-gateway",
+            network_mode="authorized-external",
+            authorization_mode="authorized_external",
+            local_only=False,
+            model_license_note=(
+                "Ollama cloud model routed through the local Ollama gateway; verify "
+                "the Ollama plan, upstream model policy, and external-data boundary."
+            ),
+            recovery_guidance=list(_REMOTE_RECOVERY_GUIDANCE),
+        )
     if preset is not None and preset.local_only == url_is_local:
         guidance = (
             _LOCAL_RECOVERY_GUIDANCE if preset.local_only else _REMOTE_RECOVERY_GUIDANCE

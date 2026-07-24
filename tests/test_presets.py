@@ -55,6 +55,20 @@ def test_infer_runtime_profile_local_presets() -> None:
         assert profile.recovery_guidance
 
 
+def test_ollama_cloud_alias_is_not_classified_as_local_only() -> None:
+    profile = infer_runtime_profile(
+        "ollama",
+        "http://localhost:11434/v1",
+        "glm-5.1:cloud",
+    )
+
+    assert profile.runtime_name == "ollama-cloud"
+    assert profile.runtime_family == "cloud-provider-via-local-gateway"
+    assert profile.network_mode == "authorized-external"
+    assert profile.authorization_mode == "authorized_external"
+    assert profile.local_only is False
+
+
 def test_infer_runtime_profile_localhost_without_preset() -> None:
     profile = infer_runtime_profile(None, "http://127.0.0.1:8000/v1")
     assert profile.runtime_name == "local-openai-compatible"

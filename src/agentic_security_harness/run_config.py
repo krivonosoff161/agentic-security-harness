@@ -147,7 +147,7 @@ def build_external_runtime_metadata(
     """Build secret-free metadata describing the runtime under evaluation."""
     from agentic_security_harness.presets import infer_runtime_profile
 
-    profile = infer_runtime_profile(preset_name, base_url)
+    profile = infer_runtime_profile(preset_name, base_url, model)
     return ExternalRuntimeMetadata(
         runtime_name=profile.runtime_name,
         runtime_family=profile.runtime_family,

@@ -42,6 +42,11 @@ overrides the preset; `generic-openai-compatible` requires you to pass your own
 `--base-url`. Vendor URLs are starting points - confirm the current value in the
 provider's docs.
 
+Ollama aliases ending in `:cloud` are external provider routes even though the client
+connects to a loopback Ollama gateway. With `--preset ollama`, ASH records these as
+`ollama-cloud`, `authorized-external`, and `local_only=false`. They require the same
+provider-boundary authorization and data hygiene as a direct cloud endpoint.
+
 Every new `run-external` artifact records a `runtime` block in `run_config.json` with:
 
 - `runtime_name` / `runtime_family`;
