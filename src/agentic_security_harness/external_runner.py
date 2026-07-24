@@ -128,6 +128,8 @@ def run_external(
     only_variant_id: str | None = None,
     dry_run: bool = False,
     preset_name: str | None = None,
+    expected_response_model: str | None = None,
+    disable_provider_logging: bool = False,
 ) -> ExternalSummary:
     """Run external evaluation and write a private report bundle.
 
@@ -186,6 +188,10 @@ def run_external(
         network_mode=runtime.network_mode,
         runtime=runtime,
     )
+    if expected_response_model is not None:
+        run_config.expected_response_model = expected_response_model
+    if disable_provider_logging:
+        run_config.provider_data_logging_disabled = True
 
     if dry_run:
         print(f"Estimated requests: {total_requests}")
@@ -201,6 +207,11 @@ def run_external(
         print(f"  temperature: {temperature}")
         if credential_env_var_label:
             print("  credential_env_var: configured (value hidden)")
+        print(
+            "  expected_response_model: "
+            f"{terminal_field(expected_response_model or model)}"
+        )
+        print(f"  provider_data_logging_disabled: {disable_provider_logging}")
         return ExternalSummary(
             scenario_id=scenario_id,
             adapter_type="openai-compatible",
@@ -213,9 +224,16 @@ def run_external(
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # Write run_config.json
+    run_config_payload = run_config.model_dump(mode="json")
+    for optional_field in (
+        "expected_response_model",
+        "provider_data_logging_disabled",
+    ):
+        if optional_field not in run_config.model_fields_set:
+            run_config_payload.pop(optional_field, None)
     write_text_artifact(
         out_dir / "run_config.json",
-        json.dumps(run_config.model_dump(mode="json"), indent=2) + "\n",
+        json.dumps(run_config_payload, indent=2) + "\n",
     )
 
     all_results: list[ExternalResult] = []
@@ -238,6 +256,8 @@ def run_external(
                     credential_env_var_lookup,
                     out_dir,
                     execution_id,
+                    expected_response_model,
+                    disable_provider_logging,
                 )
                 all_results.append(result)
 
@@ -274,6 +294,36 @@ def run_external(
         _build_external_report_md(summary, run_config),
     )
 
+    manifest_metadata: dict[str, str | int | float | bool | None] = {
+        "adapter_type": run_config.adapter_type,
+        "model": run_config.model,
+        "base_url_label": run_config.base_url_label,
+        "scenario": run_config.scenario_id,
+        "max_variants": run_config.max_variants,
+        "repeats": run_config.repeats,
+        "temperature": run_config.temperature,
+        "timeout_seconds": run_config.timeout_seconds,
+        "max_retries": run_config.max_retries,
+        "raw_response_limit": run_config.raw_response_limit,
+        "request_count": summary.total_repeats,
+        "runtime_name": runtime.runtime_name,
+        "runtime_family": runtime.runtime_family,
+        "network_mode": runtime.network_mode,
+        "authorization_mode": runtime.authorization_mode,
+        "local_only": runtime.local_only,
+        "prompt_only": runtime.prompt_only,
+        "tool_execution": runtime.tool_execution,
+        "credential_env_var": run_config.credential_env_var,
+    }
+    if "expected_response_model" in run_config.model_fields_set:
+        manifest_metadata["expected_response_model"] = (
+            run_config.expected_response_model
+        )
+    if "provider_data_logging_disabled" in run_config.model_fields_set:
+        manifest_metadata["provider_data_logging_disabled"] = (
+            run_config.provider_data_logging_disabled
+        )
+
     manifest = build_manifest(
         "external",
         out_dir,
@@ -289,27 +339,7 @@ def run_external(
             "inconclusive": len(summary.inconclusive_patterns),
             "errors": len(summary.error_patterns),
         },
-        metadata={
-            "adapter_type": run_config.adapter_type,
-            "model": run_config.model,
-            "base_url_label": run_config.base_url_label,
-            "scenario": run_config.scenario_id,
-            "max_variants": run_config.max_variants,
-            "repeats": run_config.repeats,
-            "temperature": run_config.temperature,
-            "timeout_seconds": run_config.timeout_seconds,
-            "max_retries": run_config.max_retries,
-            "raw_response_limit": run_config.raw_response_limit,
-            "request_count": summary.total_repeats,
-            "runtime_name": runtime.runtime_name,
-            "runtime_family": runtime.runtime_family,
-            "network_mode": runtime.network_mode,
-            "authorization_mode": runtime.authorization_mode,
-            "local_only": runtime.local_only,
-            "prompt_only": runtime.prompt_only,
-            "tool_execution": runtime.tool_execution,
-            "credential_env_var": run_config.credential_env_var,
-        },
+        metadata=manifest_metadata,
         artifacts=_external_artifact_names(out_dir),
         tool_version=run_config.tool_version,
         created_at=run_config.created_at,
@@ -345,6 +375,8 @@ def _evaluate_one(
     credential_env_var: str,
     out_dir: Path,
     execution_id: str,
+    expected_response_model: str | None,
+    disable_provider_logging: bool,
 ) -> ExternalResult:
     """Evaluate one pattern variant repeat against the external endpoint."""
     rid = _result_id(pattern.pattern_id, variant_id, repeat_index)
@@ -362,8 +394,12 @@ def _evaluate_one(
             credential_env_var=credential_env_var,
             allow_redirects=False,
             allow_env_proxy=False,
+            disable_provider_logging=disable_provider_logging,
         )
-        content = extract_verified_content(response, expected_model=model)
+        content = extract_verified_content(
+            response,
+            expected_model=expected_response_model or model,
+        )
         parsed = _parse_decision(content)
         verdict = validate_external_verdict(pattern, parsed)
         parse_error = "no valid JSON response" if not parsed else ""
@@ -684,6 +720,12 @@ def _reproduce_command_lines(config: RunConfig) -> list[str]:
         f"--retries {config.max_retries}",
         f"--raw-response-limit {config.raw_response_limit}",
     ]
+    if config.expected_response_model is not None:
+        flags.append(
+            f"--expected-response-model {arg(config.expected_response_model)}"
+        )
+    if config.provider_data_logging_disabled:
+        flags.append("--disable-provider-logging")
     # Reproduce the exact variant when a single one was selected; otherwise the count.
     if len(config.selected_variants) == 1:
         flags.append(f"--variant {arg(config.selected_variants[0])}")
@@ -744,6 +786,19 @@ def _build_external_report_md(summary: ExternalSummary, config: RunConfig) -> st
         f"- Error patterns: {len(summary.error_patterns)}",
         "",
     ]
+    provider_lines: list[str] = []
+    if "expected_response_model" in config.model_fields_set:
+        provider_lines.append(
+            "- Expected response model: "
+            f"{markdown_code_span(config.expected_response_model or config.model)}"
+        )
+    if "provider_data_logging_disabled" in config.model_fields_set:
+        provider_lines.append(
+            f"- Provider data logging disabled: {config.provider_data_logging_disabled}"
+        )
+    if provider_lines:
+        model_line = lines.index(f"- Model: {markdown_code_span(config.model)}")
+        lines[model_line + 1 : model_line + 1] = provider_lines
 
     if summary.patterns_with_findings:
         lines += [

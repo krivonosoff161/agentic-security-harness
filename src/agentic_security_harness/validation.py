@@ -5864,6 +5864,13 @@ def _validate_current_external_bundle(
         },
         "artifacts": expected_artifacts,
     }
+    expected_metadata = cast(dict[str, Any], expected["metadata"])
+    if "expected_response_model" in config.model_fields_set:
+        expected_metadata["expected_response_model"] = config.expected_response_model
+    if "provider_data_logging_disabled" in config.model_fields_set:
+        expected_metadata["provider_data_logging_disabled"] = (
+            config.provider_data_logging_disabled
+        )
     actual = manifest.model_dump(mode="json")
     for field_name, expected_value in expected.items():
         if actual.get(field_name) != expected_value:

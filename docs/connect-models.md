@@ -17,7 +17,8 @@ scenario and returns a structured JSON verdict. **No tools are executed**, no ag
 is driven, and no streaming is used. See [What is not supported yet](#13-what-is-not-supported-yet).
 
 Every model-evidence path applies the same fail-closed response contract. The top-level
-`model` value must exactly match the requested model id, and
+`model` value must exactly match the requested model id (or an explicit, recorded
+`--expected-response-model` for a provider-documented normalization), and
 `choices[0].message.content` must be a nonblank string. Missing or mismatched identity,
 missing content, and whitespace-only content are `adapter_error`; they are never hashed
 or counted as model behavior. This is an application integrity check, not cryptographic
@@ -51,6 +52,24 @@ Every new `run-external` artifact records a `runtime` block in `run_config.json`
 - `prompt_only=true` and `tool_execution=false`;
 - recovery guidance for server-not-running, model-not-found, invalid JSON, timeout, and
   inconclusive output.
+
+### Providers that normalize model identity
+
+ASH fails closed when the response `model` differs from the requested `--model`.
+Some OpenAI-compatible providers require a routed request id but return a canonical
+model id. For that documented case, keep the mapping explicit and evidence-bound:
+
+```powershell
+ash run-external --base-url https://llm.api.cloud.yandex.net/v1 `
+  --model "gpt://<folder-id>/deepseek-v4-flash/latest" `
+  --expected-response-model "gpt://deepseek-v4-flash/latest" `
+  --disable-provider-logging --scenario data-boundary --dry-run
+```
+
+Without `--expected-response-model`, exact request/response identity remains mandatory.
+The logging flag sends only the fixed `x-data-logging-enabled: false` control; arbitrary
+provider headers are intentionally unsupported. Both settings are recorded in the
+private run configuration and manifest.
 
 ### Stochastic models and repeats
 

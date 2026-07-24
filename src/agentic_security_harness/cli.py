@@ -327,6 +327,19 @@ def build_parser() -> argparse.ArgumentParser:
         help="model name to use (e.g. deepseek-chat)",
     )
     ext_p.add_argument(
+        "--expected-response-model",
+        default=None,
+        help=(
+            "exact model id expected in the response when a provider normalizes "
+            "the request model id (default: the requested --model)"
+        ),
+    )
+    ext_p.add_argument(
+        "--disable-provider-logging",
+        action="store_true",
+        help="send the fixed x-data-logging-enabled: false provider control",
+    )
+    ext_p.add_argument(
         "--scenario",
         choices=scenario_ids(),
         default="data-boundary",
@@ -431,6 +444,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--model",
         required=True,
         help="model name",
+    )
+    check_p.add_argument(
+        "--expected-response-model",
+        default=None,
+        help="exact model id expected in a provider response (default: --model)",
+    )
+    check_p.add_argument(
+        "--disable-provider-logging",
+        action="store_true",
+        help="send the fixed x-data-logging-enabled: false provider control",
     )
     check_p.add_argument(
         "--scenario",
@@ -2301,6 +2324,8 @@ def _run_external(
     adapter: str,
     max_requests: int,
     preset_name: str | None,
+    expected_response_model: str | None,
+    disable_provider_logging: bool,
 ) -> int:
     from agentic_security_harness.external_runner import run_external
     from agentic_security_harness.scenarios import get_scenario, get_variants
@@ -2354,6 +2379,8 @@ def _run_external(
             only_variant_id=variant_id,
             dry_run=True,
             preset_name=preset_name,
+            expected_response_model=expected_response_model,
+            disable_provider_logging=disable_provider_logging,
         )
         print("No network call. No files written. (dry run)")
         if credential_env_var:
@@ -2395,6 +2422,8 @@ def _run_external(
             only_variant_id=variant_id,
             dry_run=False,
             preset_name=preset_name,
+            expected_response_model=expected_response_model,
+            disable_provider_logging=disable_provider_logging,
         )
     except (KeyError, ValueError) as exc:
         print(f"Error: {exc}")
@@ -2812,6 +2841,8 @@ def _local_suite(
         "openai-compatible",
         profile.max_requests,
         profile.preset,
+        None,
+        False,
     )
     if rc != 0:
         return rc
@@ -4218,6 +4249,8 @@ def _external_check(
     live: bool,
     max_requests: int,
     preset_name: str | None,
+    expected_response_model: str | None,
+    disable_provider_logging: bool,
 ) -> int:
     from agentic_security_harness.run_config import _redact_url
     from agentic_security_harness.scenarios import get_scenario, get_variants
@@ -4249,6 +4282,11 @@ def _external_check(
         print("  Model: MISSING -- provide --model")
         return 1
     print(f"  Model: {terminal_field(model)} -- OK")
+    print(
+        "  Expected response model: "
+        f"{terminal_field(expected_response_model or model)} -- OK"
+    )
+    print(f"  Provider data logging disabled: {disable_provider_logging}")
 
     # Check scenario
     try:
@@ -4320,8 +4358,12 @@ def _external_check(
                 credential_env_var=credential_env_var,
                 allow_redirects=False,
                 allow_env_proxy=False,
+                disable_provider_logging=disable_provider_logging,
             )
-            extract_verified_content(resp, expected_model=model)
+            extract_verified_content(
+                resp,
+                expected_model=expected_response_model or model,
+            )
             print("  Live request: SUCCESS")
             print(f"  Response model: {terminal_field(resp.get('model', 'unknown'))}")
         except Exception as exc:
@@ -4343,10 +4385,17 @@ def _external_check(
     )
     # Concrete copy-pasteable next step (dry-run first, then the live run).
     credential_flag = f" --credential-env {credential_env_var}" if credential_env_var else ""
+    response_model_flag = (
+        f" --expected-response-model {expected_response_model}"
+        if expected_response_model
+        else ""
+    )
+    logging_flag = " --disable-provider-logging" if disable_provider_logging else ""
     next_cmd = (
         f"ash run-external --base-url {redacted} --model {model} "
         f"--scenario {scenario_id} --repeats {repeats} "
         f"--max-variants {max_variants}{credential_flag}"
+        f"{response_model_flag}{logging_flag}"
     )
     print("Next steps:")
     print(f"  1) dry-run (no network, no files): {next_cmd} --dry-run")
@@ -4424,6 +4473,8 @@ def _main(argv: list[str] | None = None) -> int:
                 args.adapter,
                 args.max_requests,
                 args.preset,
+                args.expected_response_model,
+                args.disable_provider_logging,
             )
         return _external_check(
             base_url,
@@ -4436,6 +4487,8 @@ def _main(argv: list[str] | None = None) -> int:
             getattr(args, "live", False),
             args.max_requests,
             args.preset,
+            args.expected_response_model,
+            args.disable_provider_logging,
         )
     if args.command == "list-runs":
         return _list_runs(args.root, args.db)

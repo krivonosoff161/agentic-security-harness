@@ -87,6 +87,8 @@ class RunConfig(BaseModel):
     provider_label: str = ""
     base_url_label: str = ""
     model: str = ""
+    expected_response_model: str | None = None
+    provider_data_logging_disabled: bool | None = None
     temperature: float = 0.0
     timeout_seconds: int = 30
     max_retries: int = 1

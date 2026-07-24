@@ -220,6 +220,51 @@ def test_chat_completion_sends_correct_body() -> None:
         assert body["temperature"] == 0.5
 
 
+def test_chat_completion_can_disable_provider_logging_with_fixed_header() -> None:
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps(
+        {"model": "test-model", "choices": [{"message": {"content": "test"}}]}
+    ).encode()
+    mock_response.__enter__ = lambda s: s
+    mock_response.__exit__ = MagicMock(return_value=False)
+
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        return_value=mock_response,
+    ) as mock_open:
+        chat_completion(
+            base_url="http://localhost:8000/v1",
+            model="test-model",
+            messages=[{"role": "user", "content": "hi"}],
+            disable_provider_logging=True,
+        )
+
+    req = mock_open.call_args[0][0]
+    assert req.get_header("X-data-logging-enabled") == "false"
+
+
+def test_chat_completion_omits_provider_logging_header_by_default() -> None:
+    mock_response = MagicMock()
+    mock_response.read.return_value = json.dumps(
+        {"model": "test-model", "choices": [{"message": {"content": "test"}}]}
+    ).encode()
+    mock_response.__enter__ = lambda s: s
+    mock_response.__exit__ = MagicMock(return_value=False)
+
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        return_value=mock_response,
+    ) as mock_open:
+        chat_completion(
+            base_url="http://localhost:8000/v1",
+            model="test-model",
+            messages=[{"role": "user", "content": "hi"}],
+        )
+
+    req = mock_open.call_args[0][0]
+    assert req.get_header("X-data-logging-enabled") is None
+
+
 def test_chat_completion_refuses_redirects_by_default_before_second_hop() -> None:
     mock_response = MagicMock()
     mock_response.read.return_value = json.dumps(
@@ -546,6 +591,87 @@ def test_run_external_mock_endpoint(tmp_path: Path) -> None:
     assert results[0]["assertion_result"] == "pass"
     assert "recovery_hint" in results[0]
     assert validate_path(tmp_path / ".internal" / "ext").ok
+
+
+def test_run_external_accepts_explicit_normalized_response_model(tmp_path: Path) -> None:
+    request_model = "gpt://folder/deepseek-v4-flash/latest"
+    response_model = "gpt://deepseek-v4-flash/latest"
+
+    def normalized_response(req: object, *args: object, **kwargs: object) -> MagicMock:
+        response = _mock_chat_open()(req, *args, **kwargs)
+        payload = json.loads(response.read.return_value)
+        payload["model"] = response_model
+        response.read.return_value = json.dumps(payload).encode()
+        return response
+
+    out = tmp_path / ".internal" / "normalized"
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=normalized_response,
+    ):
+        summary = run_external(
+            base_url="https://provider.example/v1",
+            model=request_model,
+            expected_response_model=response_model,
+            disable_provider_logging=True,
+            scenario_id="perception-boundary",
+            out_dir=out,
+        )
+
+    assert not summary.error_patterns
+    config = json.loads((out / "run_config.json").read_text(encoding="utf-8"))
+    manifest = json.loads((out / "run_index.json").read_text(encoding="utf-8"))
+    assert config["model"] == request_model
+    assert config["expected_response_model"] == response_model
+    assert config["provider_data_logging_disabled"] is True
+    assert manifest["metadata"]["expected_response_model"] == response_model
+    assert manifest["metadata"]["provider_data_logging_disabled"] is True
+    assert validate_path(out).ok
+
+
+def test_run_external_default_identity_check_still_fails_closed(tmp_path: Path) -> None:
+    def wrong_model(req: object, *args: object, **kwargs: object) -> MagicMock:
+        response = _mock_chat_open()(req, *args, **kwargs)
+        payload = json.loads(response.read.return_value)
+        payload["model"] = "normalized-model"
+        response.read.return_value = json.dumps(payload).encode()
+        return response
+
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=wrong_model,
+    ):
+        summary = run_external(
+            base_url="https://provider.example/v1",
+            model="routed-model",
+            scenario_id="perception-boundary",
+            out_dir=tmp_path / ".internal" / "strict",
+        )
+
+    assert summary.error_patterns
+
+
+def test_run_external_rejects_response_outside_explicit_mapping(tmp_path: Path) -> None:
+    def unexpected_model(req: object, *args: object, **kwargs: object) -> MagicMock:
+        response = _mock_chat_open()(req, *args, **kwargs)
+        payload = json.loads(response.read.return_value)
+        payload["model"] = "gpt://unexpected/latest"
+        response.read.return_value = json.dumps(payload).encode()
+        return response
+
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=unexpected_model,
+    ):
+        summary = run_external(
+            base_url="https://provider.example/v1",
+            model="gpt://folder/requested/latest",
+            expected_response_model="gpt://documented/latest",
+            scenario_id="perception-boundary",
+            out_dir=tmp_path / ".internal" / "explicit-mismatch",
+        )
+
+    assert summary.error_patterns
 
 
 def test_current_external_validation_rejects_missing_manifest(tmp_path: Path) -> None:
