@@ -1,6 +1,6 @@
 # Project tracks
 
-> Last reviewed: 2026-07-01.
+> Last reviewed: 2026-07-26.
 >
 > Scope: how Agentic Security Harness relates to the future internal LLM Safety Gateway /
 > Runtime Verifier direction. This page records project direction; it does not announce a
@@ -31,7 +31,7 @@ This track is what users should run today.
 
 ## Track B: LLM Safety Gateway / Runtime Verifier
 
-**Status:** future research/product direction; not shipped in this repository today.
+**Status:** product foundation under review; no production runtime is shipped.
 
 The gateway/verifier direction would apply the harness lessons inside an organization
 that uses external or local LLMs. It would not need access to the internal state of a
@@ -66,6 +66,18 @@ It must not:
 - share the same keys and administrative path as the systems it monitors;
 - claim production protection before a working implementation and deployment model exist.
 
+The first bounded foundation is documented in
+[runtime-guard-product-foundation.md](runtime-guard-product-foundation.md). It adds
+metadata-only Pydantic contracts, a pure deterministic evaluator, adversarial tests,
+formal invariants, and provider/license gates. It has no CLI entry point, network
+listener, executor, credential broker, durable store, IAM integration, or deployment
+authority and must not be described as a gateway product.
+
+The advisory model routes are constrained by
+[runtime-guard-model-fleet-contract.md](runtime-guard-model-fleet-contract.md), and the
+Python contract plus falsifiable acceptance matrix are documented in
+[runtime-guard-api-acceptance-pack.md](runtime-guard-api-acceptance-pack.md).
+
 ## Relationship between the tracks
 
 Track A produces evidence. Track B would use that evidence as runtime policy input.
@@ -90,8 +102,8 @@ The split is intentional:
 
 1. Keep Agentic Security Harness release-facing: validated examples, stable docs,
    honest limitations, and public research release notes.
-2. Record gateway requirements as research/design docs only until the boundary, trust
-   model, privacy model, and minimal API are clear.
+2. Review the bounded executable specification, trust/privacy model, provider/legal
+   boundary, and minimal receipt API without adding an operational execution path.
 3. When implementation begins, decide whether the gateway is a separate repository. The
    default expectation is a separate repo once there is executable gateway code, because
    the users, deployment risk, privacy model, and operational responsibilities differ
