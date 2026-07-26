@@ -97,6 +97,10 @@ The next work is ordered by credibility, not by feature volume:
 9. **v1.0 stable benchmark release:** stable trace schema, stable corpus manifest, stable
    CLI, validated examples, coherent docs, public tag (see
    [release-checklist.md](release-checklist.md)).
+10. **Runtime Guard foundation review:** review the metadata-only executable
+    specification, formal invariants, provider/license boundary, privacy-safe evidence,
+    and adversarial tests. Do not add a proxy, executor, provider adapter, IAM path, or
+    deployment in this repository.
 
 ---
 

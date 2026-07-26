@@ -17,10 +17,12 @@ administrative metadata, not a release or active-work claim.
 
 ## Open work in this track
 
-No open product or research issues as of 2026-07-14. The active local work is the
-hostile-audit remediation branch `codex/validator-trust-boundary-hardening`: validator
-filesystem-boundary hardening, secret-hygiene broadening, and evidence-claim positioning.
-It is a review branch, not a merged release.
+No open product or research issues as of 2026-07-14. No new product or research issue is
+treated as shipped capability. The active local work is the bounded
+`codex/runtime-guard-foundation` branch: metadata contracts,
+deterministic policy evaluation, adversarial tests, formal invariants, and provider /
+license gates for the future Runtime Guard track. It is review work, not a production
+gateway or merged release.
 
 ## Open maintenance work
 
