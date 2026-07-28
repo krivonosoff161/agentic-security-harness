@@ -1,0 +1,300 @@
+{
+  "schema_version": "0.1",
+  "ontology": "docs/threat-ontology.md",
+  "identity_rule": "Aliases share a primary family when their protected invariant and causal promotion transition are equivalent.",
+  "families": [
+    {
+      "id": "T01",
+      "slug": "data_becomes_instruction",
+      "implemented_aliases": [
+        "indirect_prompt_injection_via_tool_output"
+      ],
+      "planned_aliases": []
+    },
+    {
+      "id": "T02",
+      "slug": "envelope_weakening",
+      "implemented_aliases": [
+        "data_boundary_recipient_confusion",
+        "data_boundary_classification_mutation",
+        "data_boundary_handoff_label_stripping"
+      ],
+      "planned_aliases": [
+        "data_boundary.multi_hop_recipient_laundering",
+        "data_boundary.summary_boundary_loss"
+      ]
+    },
+    {
+      "id": "T03",
+      "slug": "secret_reconstruction_or_egress",
+      "implemented_aliases": [
+        "provider_boundary_leakage_sanitized",
+        "secret.label_laundering",
+        "secret.split_recombination",
+        "asset.external_llm_context",
+        "asset.public_report_unredacted"
+      ],
+      "planned_aliases": []
+    },
+    {
+      "id": "T04",
+      "slug": "memory_poisoning_and_rehydration",
+      "implemented_aliases": [
+        "memory_poisoning_sanitized",
+        "data_boundary_memory_envelope_drift",
+        "memory_governance.unscoped_memory_persistence",
+        "memory_governance.environment_injected_poisoning",
+        "memory_governance.unintentional_cross_user",
+        "memory.recall.expired_policy",
+        "memory.recall.cross_agent_instruction"
+      ],
+      "planned_aliases": [
+        "temporal.stale_memory_authority"
+      ]
+    },
+    {
+      "id": "T05",
+      "slug": "consent_and_approval_laundering",
+      "implemented_aliases": [
+        "approval_laundering.underjustified_confirmation",
+        "consent.stale.approval_reuse",
+        "consent.handoff.claims_user_approved"
+      ],
+      "planned_aliases": [
+        "approval_context.missing_provenance"
+      ]
+    },
+    {
+      "id": "T06",
+      "slug": "capability_and_authority_expansion",
+      "implemented_aliases": [
+        "capability.delegation_chain_drift",
+        "transfer.delegated_agent_identity_drift",
+        "generation3.authority_ceiling_exceeded"
+      ],
+      "planned_aliases": [
+        "temporal.permission_drift",
+        "capability.revocation_missing"
+      ]
+    },
+    {
+      "id": "T07",
+      "slug": "tool_and_mcp_deception",
+      "implemented_aliases": [
+        "tool_permission_abuse_sanitized",
+        "mcp.tool_schema_deception",
+        "mcp.tool_selection_manipulation",
+        "toolauth.schema.annotation_smuggling"
+      ],
+      "planned_aliases": [
+        "tool_result.cross_model_instruction_trust"
+      ]
+    },
+    {
+      "id": "T08",
+      "slug": "phantom_resource_trust",
+      "implemented_aliases": [],
+      "planned_aliases": [
+        "phantom_resource.model_generated_resource_trust"
+      ]
+    },
+    {
+      "id": "T09",
+      "slug": "semantic_drift",
+      "implemented_aliases": [
+        "semantic.var.canonical_public_relabel",
+        "semantic.var.summary_laundering_chain",
+        "propagation.var.worker_relabel_to_chief"
+      ],
+      "planned_aliases": [
+        "semantic.long_session_drift"
+      ]
+    },
+    {
+      "id": "T10",
+      "slug": "consensus_laundering",
+      "implemented_aliases": [
+        "semantic.consensus_laundering",
+        "propagation.var.multi_worker_consensus_poison"
+      ],
+      "planned_aliases": []
+    },
+    {
+      "id": "T11",
+      "slug": "weak_to_strong_model_escalation",
+      "implemented_aliases": [],
+      "planned_aliases": [
+        "model_trust.weak_to_strong_escalation",
+        "model_trust.filter_context_suppression"
+      ]
+    },
+    {
+      "id": "T12",
+      "slug": "cross_surface_and_provider_contamination",
+      "implemented_aliases": [
+        "cross_provider.metadata_drop",
+        "cross_provider.multi_hop_metadata_decay"
+      ],
+      "planned_aliases": [
+        "cross_app.data_instruction_contamination",
+        "provider_boundary.cross_provider_label_loss",
+        "provider_boundary.fallback_envelope_loss"
+      ]
+    },
+    {
+      "id": "T13",
+      "slug": "planning_creates_authority",
+      "implemented_aliases": [
+        "planner.context.untrusted_subtask",
+        "planner.handoff.parent_authority",
+        "planner.dependency.delayed_activation"
+      ],
+      "planned_aliases": []
+    },
+    {
+      "id": "T14",
+      "slug": "delayed_and_multi_turn_activation",
+      "implemented_aliases": [
+        "sleeping_prompt.delayed_activation",
+        "indirect_instruction.multi_turn_escalation"
+      ],
+      "planned_aliases": []
+    },
+    {
+      "id": "T15",
+      "slug": "budget_and_recursive_amplification",
+      "implemented_aliases": [
+        "budget.loop_abuse",
+        "budget.recursive_execution_amplification"
+      ],
+      "planned_aliases": [
+        "budget.global_concurrent_reservation_bypass"
+      ]
+    },
+    {
+      "id": "T16",
+      "slug": "perception_and_ambient_authority",
+      "implemented_aliases": [
+        "perception_boundary.sensor_command_confusion",
+        "ambient_authority.environmental_privilege_escalation"
+      ],
+      "planned_aliases": [
+        "perception.semantic_audio_image_advisory"
+      ]
+    },
+    {
+      "id": "T17",
+      "slug": "identity_provenance_and_handoff_integrity",
+      "implemented_aliases": [
+        "handoff.payload_rewrite_hash_mismatch",
+        "handoff.expired_replay_after_delay",
+        "transfer.repo_text_to_tool_write"
+      ],
+      "planned_aliases": [
+        "inter_agent.handoff_integrity",
+        "handoff.signature_scope_ignored"
+      ]
+    },
+    {
+      "id": "T18",
+      "slug": "audit_integrity_and_context_completeness",
+      "implemented_aliases": [
+        "audit.spam_label_abuse",
+        "audit.hash_chain_tamper",
+        "transfer.audit_gap_after_summary"
+      ],
+      "planned_aliases": [
+        "audit_context_split.action_audit_divergence"
+      ]
+    },
+    {
+      "id": "T19",
+      "slug": "telemetry_omission_or_forgery",
+      "implemented_aliases": [
+        "telemetry.incomplete_stream_abstention",
+        "telemetry.cross_project_sha_replay"
+      ],
+      "planned_aliases": [
+        "telemetry.producer_attestation_missing"
+      ]
+    },
+    {
+      "id": "T20",
+      "slug": "swarm_campaign_coordination",
+      "implemented_aliases": [
+        "swarm.target_convergence",
+        "swarm.distributed_replay",
+        "swarm.low_slow_coordination",
+        "generation3.cross_boundary_temporal_motif"
+      ],
+      "planned_aliases": [
+        "swarm.field_calibrated_campaign_detection"
+      ]
+    },
+    {
+      "id": "T21",
+      "slug": "policy_letter_versus_spirit",
+      "implemented_aliases": [],
+      "planned_aliases": [
+        "semantic.policy_letter_vs_spirit"
+      ]
+    },
+    {
+      "id": "T22",
+      "slug": "unsafe_recovery",
+      "implemented_aliases": [
+        "data_boundary_missing_envelope_recovery"
+      ],
+      "planned_aliases": [
+        "recovery.trust_gate_no_path"
+      ]
+    },
+    {
+      "id": "T23",
+      "slug": "receipt_replay_and_effect_substitution",
+      "implemented_aliases": [
+        "runtime.receipt_replay",
+        "runtime.payload_substitution",
+        "runtime.false_effect_claim",
+        "generation3.receipt_lifecycle_invalid"
+      ],
+      "planned_aliases": [
+        "runtime.distributed_receipt_consumption"
+      ]
+    },
+    {
+      "id": "T24",
+      "slug": "supply_chain_and_artifact_authenticity",
+      "implemented_aliases": [
+        "release.attestation_policy",
+        "mcp.schema_hash_drift"
+      ],
+      "planned_aliases": [
+        "resource.signed_source_resolution"
+      ]
+    },
+    {
+      "id": "T25",
+      "slug": "privacy_minimized_evidence",
+      "implemented_aliases": [
+        "evidence.raw_prompt_exclusion",
+        "evidence.hash_only_identity"
+      ],
+      "planned_aliases": [
+        "evidence.keyed_pseudonymization_and_retention"
+      ]
+    },
+    {
+      "id": "T26",
+      "slug": "sandbox_and_tcb_escape",
+      "implemented_aliases": [
+        "executor.path_traversal",
+        "executor.symlink_escape"
+      ],
+      "planned_aliases": [
+        "executor.windows_handle_based_sandbox",
+        "executor.hardlink_or_junction_race"
+      ]
+    }
+  ]
+}

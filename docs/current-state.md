@@ -1,6 +1,6 @@
 # Current state
 
-> Last reviewed: 2026-07-26.
+> Last reviewed: 2026-07-28.
 >
 > Scope: public status of `agentic-security-harness` on `main`, version `0.14.0`. This
 > page is a reviewer-facing status snapshot, not a roadmap promise.
@@ -70,6 +70,7 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 | Public project process | Shipped locally; provenance change unexercised | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, and a tag-only release artifact workflow that binds tag/package/CHANGELOG version and reruns the repository gates. Package/release CI now requires two exact-byte-equal wheel/sdist builds after commit-epoch sdist normalization. The workflow contains least-privilege attestation and independent policy-verification jobs, but no post-change tag has executed them; existing release artifacts remain unsigned and no release SBOM is shipped. |
 | Local CLI container | Shipped source definition; image unpublished | The root Dockerfile packages the source-layout CLI and runs the offline doctor as a non-root user. This is not the planned gateway image and does not attest network isolation. Docker build-context private-path exclusion is an open audit finding. |
 | Runtime Guard product foundation | Executable specification under review | Metadata-only action, capability, consent, handoff, provider, budget, decision, and evidence contracts plus a pure deterministic evaluator and synthetic adversarial tests. No proxy, executor, credential broker, durable ledger, IAM integration, deployment, or production protection is shipped. |
+| Portfolio threat ontology and shadow interchange | Task-branch draft | A provider-neutral 26-family ontology, baseline scenario alias registry, separated observation/data/authority/advisory/decision/effect design, and authority-free shadow evaluator are under review. The draft has no `allow` representation, receipt, executor, provider, device, deployment, or production authority. |
 
 ## Experimental
 
