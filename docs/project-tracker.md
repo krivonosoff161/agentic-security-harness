@@ -26,6 +26,14 @@ scenario adjudication, unified event envelope, constrained development design, a
 authority-free shadow evaluator. It is review work, not a merged release, production
 gateway, independent effectiveness result, or enforcement path.
 
+A separate provider-integrity task is tracked by
+[#169](https://github.com/krivonosoff161/agentic-security-harness/issues/169) and draft PR
+[#170](https://github.com/krivonosoff161/agentic-security-harness/pull/170). It records
+requested, operator-declared, and observed model identities without treating an
+operator alias as provider attestation, and records logging opt-out only as a request.
+PR #170 must be refreshed and revalidated after this portfolio/security PR is integrated;
+neither draft is shipped capability.
+
 ## Open maintenance work
 
 Six Dependabot PRs are open and remain maintenance work rather than shipped state:
