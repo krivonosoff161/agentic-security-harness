@@ -7,6 +7,7 @@
 - Execution ID: `run_11111111111111111111111111111111`
 - Adapter: `openai-compatible`
 - Model: `snapshot-model`
+- Observed response models: `snapshot-model`
 - Endpoint: `http://localhost:8000/v1`
 - Runtime: `local-openai-compatible` (local-runtime)
 - Network mode: `local-only`
