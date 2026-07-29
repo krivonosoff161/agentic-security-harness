@@ -141,7 +141,9 @@ serve as a sealed holdout.
 
 ## Open ontology work
 
-- bind every current Harness case and Runtime Guard generator family to one primary family;
+- independently review the provisional primary-family adjudication of all 120 current
+  executable Harness builder units;
+- bind every Runtime Guard generator family to one primary family;
 - distinguish aliases from genuinely different causal transitions;
 - add explicit revocation and uniformly over-privileged-window cases;
 - define semantic-sentinel abstention and disagreement cases;
