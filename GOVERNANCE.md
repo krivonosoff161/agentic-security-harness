@@ -27,6 +27,30 @@ Before a change is merged or pushed to `main`, verify:
 If a change affects generated artifacts, regenerate examples rather than editing
 scorecards or traces by hand.
 
+## Solo maintainer and external model assistance
+
+This project may be maintained by one human owner with bounded assistance from local or
+external language models. That does not turn a model into a maintainer, approver, custodian,
+or source of operational authority.
+
+- Give external models only public, synthetic, or sanitized inputs. Never send secrets,
+  private evidence, raw employee/model conversations, holdout labels, private paths, or
+  provider credentials.
+- Review provider terms, source licenses, and attribution before importing code, datasets, or
+  substantial text. Availability on the internet is not permission to copy.
+- Record a secret-safe provider/model class, task purpose, input classification, and
+  deterministic verification summary. Do not commit raw prompts or responses.
+- Counts, metrics, mappings, promotion gates, and security verdicts are owned by deterministic
+  code and reviewable evidence. Model agreement is not independent validation.
+- Model-generated changes receive the same hostile diff, secret, license, test, and exact-head
+  review as human-written changes.
+
+The solo-owner merge path remains evidence based: a linked GitHub issue, `codex/*` branch,
+pull request, exact-head required checks, resolved review threads, and an explicit owner merge
+action. A bounded local task record supplements that issue; it does not replace it. Zero
+required outside approvals is a solo-operability choice, not a claim of independent peer
+review.
+
 ## Methodology gates
 
 New benchmark patterns must define:
