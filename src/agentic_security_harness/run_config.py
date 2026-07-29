@@ -87,8 +87,8 @@ class RunConfig(BaseModel):
     provider_label: str = ""
     base_url_label: str = ""
     model: str = ""
-    expected_response_model: str | None = None
-    provider_data_logging_disabled: bool | None = None
+    operator_declared_model_alias: str | None = None
+    provider_logging_opt_out_requested: bool | None = None
     temperature: float = 0.0
     timeout_seconds: int = 30
     max_retries: int = 1
@@ -180,6 +180,9 @@ class ExternalResult(BaseModel):
     pattern_id: str
     variant_id: str = ""
     repeat_index: int = 0
+    requested_model: str = ""
+    operator_declared_model_alias: str = ""
+    observed_response_model: str = ""
     decision: str = "unclear"
     reason: str = ""
     control_family: str = ""
@@ -257,6 +260,7 @@ class ExternalSummary(BaseModel):
     scenario_id: str = ""
     adapter_type: str = ""
     model: str = ""
+    observed_response_models: list[str] = Field(default_factory=list)
     total_checks: int = 0
     total_repeats: int = 0
     corpus_version: str = CORPUS_VERSION

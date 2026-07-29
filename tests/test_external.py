@@ -220,7 +220,7 @@ def test_chat_completion_sends_correct_body() -> None:
         assert body["temperature"] == 0.5
 
 
-def test_chat_completion_can_disable_provider_logging_with_fixed_header() -> None:
+def test_chat_completion_can_request_provider_logging_opt_out() -> None:
     mock_response = MagicMock()
     mock_response.read.return_value = json.dumps(
         {"model": "test-model", "choices": [{"message": {"content": "test"}}]}
@@ -236,7 +236,7 @@ def test_chat_completion_can_disable_provider_logging_with_fixed_header() -> Non
             base_url="http://localhost:8000/v1",
             model="test-model",
             messages=[{"role": "user", "content": "hi"}],
-            disable_provider_logging=True,
+            request_provider_logging_opt_out=True,
         )
 
     req = mock_open.call_args[0][0]
@@ -612,8 +612,8 @@ def test_run_external_accepts_explicit_normalized_response_model(tmp_path: Path)
         summary = run_external(
             base_url="https://provider.example/v1",
             model=request_model,
-            expected_response_model=response_model,
-            disable_provider_logging=True,
+            operator_declared_model_alias=response_model,
+            request_provider_logging_opt_out=True,
             scenario_id="perception-boundary",
             out_dir=out,
         )
@@ -622,10 +622,19 @@ def test_run_external_accepts_explicit_normalized_response_model(tmp_path: Path)
     config = json.loads((out / "run_config.json").read_text(encoding="utf-8"))
     manifest = json.loads((out / "run_index.json").read_text(encoding="utf-8"))
     assert config["model"] == request_model
-    assert config["expected_response_model"] == response_model
-    assert config["provider_data_logging_disabled"] is True
-    assert manifest["metadata"]["expected_response_model"] == response_model
-    assert manifest["metadata"]["provider_data_logging_disabled"] is True
+    results = json.loads((out / "external_results.json").read_text(encoding="utf-8"))
+    report = (out / "external_report.md").read_text(encoding="utf-8")
+    assert config["operator_declared_model_alias"] == response_model
+    assert config["provider_logging_opt_out_requested"] is True
+    assert manifest["metadata"]["operator_declared_model_alias"] == response_model
+    assert manifest["metadata"]["provider_logging_opt_out_requested"] is True
+    assert manifest["metadata"]["observed_response_models"] == json.dumps(
+        [response_model], separators=(",", ":")
+    )
+    assert all(item["requested_model"] == request_model for item in results)
+    assert all(item["operator_declared_model_alias"] == response_model for item in results)
+    assert all(item["observed_response_model"] == response_model for item in results)
+    assert f"`{response_model}`" in report
     assert validate_path(out).ok
 
 
@@ -666,7 +675,7 @@ def test_run_external_rejects_response_outside_explicit_mapping(tmp_path: Path) 
         summary = run_external(
             base_url="https://provider.example/v1",
             model="gpt://folder/requested/latest",
-            expected_response_model="gpt://documented/latest",
+            operator_declared_model_alias="gpt://documented/latest",
             scenario_id="perception-boundary",
             out_dir=tmp_path / ".internal" / "explicit-mismatch",
         )
@@ -717,6 +726,50 @@ def test_current_external_validation_rejects_execution_identity_mismatch(
 
     assert not result.ok
     assert any("execution_id does not match run_config" in item for item in result.errors)
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "expected_error"),
+    [
+        ("requested_model", "tampered-request", "requested_model does not match"),
+        (
+            "operator_declared_model_alias",
+            "tampered-alias",
+            "operator_declared_model_alias does not match",
+        ),
+        (
+            "observed_response_model",
+            "tampered-observed",
+            "observed_response_model does not match",
+        ),
+    ],
+)
+def test_current_external_validation_rejects_model_provenance_tampering(
+    tmp_path: Path,
+    field: str,
+    value: str,
+    expected_error: str,
+) -> None:
+    out = tmp_path / ".internal" / "ext"
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_mock_chat_open(),
+    ):
+        run_external(
+            base_url="http://localhost:8000/v1",
+            model="test",
+            scenario_id="perception-boundary",
+            out_dir=out,
+        )
+    results_path = out / "external_results.json"
+    results = json.loads(results_path.read_text(encoding="utf-8"))
+    results[0][field] = value
+    results_path.write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
+
+    validation = validate_path(out)
+
+    assert not validation.ok
+    assert any(expected_error in item for item in validation.errors)
 
 
 def test_run_external_finding_result(tmp_path: Path) -> None:

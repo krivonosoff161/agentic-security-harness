@@ -5792,6 +5792,24 @@ def _validate_current_external_bundle(
                 f"{_rel(path / 'external_results.json', root)}[{index}]: "
                 "execution_id does not match run_config"
             )
+        expected_alias = config.operator_declared_model_alias or config.model
+        if item.requested_model != config.model:
+            result._err(
+                f"{_rel(path / 'external_results.json', root)}[{index}]: "
+                "requested_model does not match run_config"
+            )
+        if item.operator_declared_model_alias != (
+            config.operator_declared_model_alias or ""
+        ):
+            result._err(
+                f"{_rel(path / 'external_results.json', root)}[{index}]: "
+                "operator_declared_model_alias does not match run_config"
+            )
+        if not item.error and item.observed_response_model != expected_alias:
+            result._err(
+                f"{_rel(path / 'external_results.json', root)}[{index}]: "
+                "observed_response_model does not match the enforced response identity"
+            )
 
     from agentic_security_harness.external_runner import _build_external_report_md
     from agentic_security_harness.run_manifest import RunManifest
@@ -5861,15 +5879,21 @@ def _validate_current_external_bundle(
             "prompt_only": runtime.prompt_only,
             "tool_execution": runtime.tool_execution,
             "credential_env_var": config.credential_env_var,
+            "observed_response_models": json.dumps(
+                summary.observed_response_models,
+                separators=(",", ":"),
+            ),
         },
         "artifacts": expected_artifacts,
     }
     expected_metadata = cast(dict[str, Any], expected["metadata"])
-    if "expected_response_model" in config.model_fields_set:
-        expected_metadata["expected_response_model"] = config.expected_response_model
-    if "provider_data_logging_disabled" in config.model_fields_set:
-        expected_metadata["provider_data_logging_disabled"] = (
-            config.provider_data_logging_disabled
+    if "operator_declared_model_alias" in config.model_fields_set:
+        expected_metadata["operator_declared_model_alias"] = (
+            config.operator_declared_model_alias
+        )
+    if "provider_logging_opt_out_requested" in config.model_fields_set:
+        expected_metadata["provider_logging_opt_out_requested"] = (
+            config.provider_logging_opt_out_requested
         )
     actual = manifest.model_dump(mode="json")
     for field_name, expected_value in expected.items():
@@ -5977,6 +6001,15 @@ def _validate_external_summary(
             f"{rel}: total_checks {summary.total_checks} != "
             f"unique pattern/variant checks {total_checks}"
         )
+    observed_response_models = sorted(
+        {
+            item.observed_response_model
+            for item in results
+            if item.observed_response_model
+        }
+    )
+    if summary.observed_response_models != observed_response_models:
+        result._err(f"{rel}: observed_response_models does not match external_results")
 
     # Recompute per-pattern aggregates from results to catch tampered/stale summaries.
     finding_results = [

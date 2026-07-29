@@ -32,6 +32,7 @@ External runs make network calls only with the explicit ``--execute`` opt-in.
 
 import argparse
 import json
+import shlex
 import sys
 from contextlib import redirect_stderr, redirect_stdout
 from datetime import UTC, datetime
@@ -327,17 +328,20 @@ def build_parser() -> argparse.ArgumentParser:
         help="model name to use (e.g. deepseek-chat)",
     )
     ext_p.add_argument(
-        "--expected-response-model",
+        "--operator-declared-model-alias",
         default=None,
         help=(
-            "exact model id expected in the response when a provider normalizes "
-            "the request model id (default: the requested --model)"
+            "operator-declared exact response model id when a provider documents "
+            "normalization (default: the requested --model)"
         ),
     )
     ext_p.add_argument(
-        "--disable-provider-logging",
+        "--request-provider-logging-opt-out",
         action="store_true",
-        help="send the fixed x-data-logging-enabled: false provider control",
+        help=(
+            "request provider logging opt-out with the fixed "
+            "x-data-logging-enabled: false header; this is not proof it was honored"
+        ),
     )
     ext_p.add_argument(
         "--scenario",
@@ -446,14 +450,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="model name",
     )
     check_p.add_argument(
-        "--expected-response-model",
+        "--operator-declared-model-alias",
         default=None,
-        help="exact model id expected in a provider response (default: --model)",
+        help="operator-declared exact response model id (default: --model)",
     )
     check_p.add_argument(
-        "--disable-provider-logging",
+        "--request-provider-logging-opt-out",
         action="store_true",
-        help="send the fixed x-data-logging-enabled: false provider control",
+        help=(
+            "request provider logging opt-out with the fixed "
+            "x-data-logging-enabled: false header; this is not proof it was honored"
+        ),
     )
     check_p.add_argument(
         "--scenario",
@@ -2324,8 +2331,8 @@ def _run_external(
     adapter: str,
     max_requests: int,
     preset_name: str | None,
-    expected_response_model: str | None,
-    disable_provider_logging: bool,
+    operator_declared_model_alias: str | None,
+    request_provider_logging_opt_out: bool,
 ) -> int:
     from agentic_security_harness.external_runner import run_external
     from agentic_security_harness.scenarios import get_scenario, get_variants
@@ -2379,8 +2386,8 @@ def _run_external(
             only_variant_id=variant_id,
             dry_run=True,
             preset_name=preset_name,
-            expected_response_model=expected_response_model,
-            disable_provider_logging=disable_provider_logging,
+            operator_declared_model_alias=operator_declared_model_alias,
+            request_provider_logging_opt_out=request_provider_logging_opt_out,
         )
         print("No network call. No files written. (dry run)")
         if credential_env_var:
@@ -2422,8 +2429,8 @@ def _run_external(
             only_variant_id=variant_id,
             dry_run=False,
             preset_name=preset_name,
-            expected_response_model=expected_response_model,
-            disable_provider_logging=disable_provider_logging,
+            operator_declared_model_alias=operator_declared_model_alias,
+            request_provider_logging_opt_out=request_provider_logging_opt_out,
         )
     except (KeyError, ValueError) as exc:
         print(f"Error: {exc}")
@@ -4249,8 +4256,8 @@ def _external_check(
     live: bool,
     max_requests: int,
     preset_name: str | None,
-    expected_response_model: str | None,
-    disable_provider_logging: bool,
+    operator_declared_model_alias: str | None,
+    request_provider_logging_opt_out: bool,
 ) -> int:
     from agentic_security_harness.run_config import _redact_url
     from agentic_security_harness.scenarios import get_scenario, get_variants
@@ -4283,10 +4290,13 @@ def _external_check(
         return 1
     print(f"  Model: {terminal_field(model)} -- OK")
     print(
-        "  Expected response model: "
-        f"{terminal_field(expected_response_model or model)} -- OK"
+        "  Operator-declared response model alias: "
+        f"{terminal_field(operator_declared_model_alias or model)} -- OK"
     )
-    print(f"  Provider data logging disabled: {disable_provider_logging}")
+    print(
+        "  Provider logging opt-out requested: "
+        f"{request_provider_logging_opt_out}"
+    )
 
     # Check scenario
     try:
@@ -4358,11 +4368,11 @@ def _external_check(
                 credential_env_var=credential_env_var,
                 allow_redirects=False,
                 allow_env_proxy=False,
-                disable_provider_logging=disable_provider_logging,
+                request_provider_logging_opt_out=request_provider_logging_opt_out,
             )
             extract_verified_content(
                 resp,
-                expected_model=expected_response_model or model,
+                expected_model=operator_declared_model_alias or model,
             )
             print("  Live request: SUCCESS")
             print(f"  Response model: {terminal_field(resp.get('model', 'unknown'))}")
@@ -4384,16 +4394,27 @@ def _external_check(
         "network calls; only --live and run-external --execute do."
     )
     # Concrete copy-pasteable next step (dry-run first, then the live run).
-    credential_flag = f" --credential-env {credential_env_var}" if credential_env_var else ""
-    response_model_flag = (
-        f" --expected-response-model {expected_response_model}"
-        if expected_response_model
+    def arg(value: object) -> str:
+        return shlex.quote(" ".join(str(value).split()))
+
+    credential_flag = (
+        f" --credential-env {arg(credential_env_var)}"
+        if credential_env_var
         else ""
     )
-    logging_flag = " --disable-provider-logging" if disable_provider_logging else ""
+    response_model_flag = (
+        f" --operator-declared-model-alias {arg(operator_declared_model_alias)}"
+        if operator_declared_model_alias
+        else ""
+    )
+    logging_flag = (
+        " --request-provider-logging-opt-out"
+        if request_provider_logging_opt_out
+        else ""
+    )
     next_cmd = (
-        f"ash run-external --base-url {redacted} --model {model} "
-        f"--scenario {scenario_id} --repeats {repeats} "
+        f"ash run-external --base-url {arg(redacted)} --model {arg(model)} "
+        f"--scenario {arg(scenario_id)} --repeats {repeats} "
         f"--max-variants {max_variants}{credential_flag}"
         f"{response_model_flag}{logging_flag}"
     )
@@ -4473,8 +4494,8 @@ def _main(argv: list[str] | None = None) -> int:
                 args.adapter,
                 args.max_requests,
                 args.preset,
-                args.expected_response_model,
-                args.disable_provider_logging,
+                args.operator_declared_model_alias,
+                args.request_provider_logging_opt_out,
             )
         return _external_check(
             base_url,
@@ -4487,8 +4508,8 @@ def _main(argv: list[str] | None = None) -> int:
             getattr(args, "live", False),
             args.max_requests,
             args.preset,
-            args.expected_response_model,
-            args.disable_provider_logging,
+            args.operator_declared_model_alias,
+            args.request_provider_logging_opt_out,
         )
     if args.command == "list-runs":
         return _list_runs(args.root, args.db)
