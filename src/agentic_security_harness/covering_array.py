@@ -18,7 +18,7 @@ class ScenarioDesignRow:
 
     case_id: str
     factors: tuple[tuple[str, str], ...]
-    primary_family: str
+    development_family_hint: str
     expected_disposition: ShadowDisposition
 
     def as_dict(self) -> dict[str, str]:
@@ -126,7 +126,7 @@ def generate_default_pairwise_design() -> tuple[ScenarioDesignRow, ...]:
             ScenarioDesignRow(
                 case_id=case_id,
                 factors=candidate,
-                primary_family=_family(factors),
+                development_family_hint=_family(factors),
                 expected_disposition=_disposition(factors),
             )
         )

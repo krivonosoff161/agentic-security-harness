@@ -1,5 +1,6 @@
 {
   "schema_version": "0.1",
+  "registry_role": "family_alias_catalog_not_source_unit_adjudication",
   "ontology": "docs/threat-ontology.md",
   "identity_rule": "Aliases share a primary family when their protected invariant and causal promotion transition are equivalent.",
   "families": [

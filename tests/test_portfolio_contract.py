@@ -82,6 +82,12 @@ def test_incomplete_telemetry_forces_abstention() -> None:
     assert decision.reason_codes == ("telemetry.incomplete",)
 
 
+def test_missing_assessment_forces_abstention() -> None:
+    decision = evaluate_shadow_event(_event(), (), decided_at=NOW)
+    assert decision.disposition == "abstain"
+    assert decision.reason_codes == ("advisory.missing",)
+
+
 def test_advisory_inconclusive_forces_abstention() -> None:
     decision = evaluate_shadow_event(
         _event(),
@@ -114,6 +120,13 @@ def test_event_rejects_naive_time_and_self_parent() -> None:
         _event(occurred_at=datetime(2026, 7, 28, 10, 0))
     with pytest.raises(ValidationError, match="own parent"):
         _event(parent_event_ids=(SHA_A,))
+    with pytest.raises(ValidationError, match="supported range"):
+        _event(occurred_at=datetime(9999, 1, 1, tzinfo=UTC))
+
+
+def test_verified_attestation_cannot_be_self_declared_in_observation() -> None:
+    with pytest.raises(ValidationError):
+        _event(producer_attestation="verified")
 
 
 def test_advisory_cannot_represent_allow() -> None:
@@ -131,6 +144,28 @@ def test_adapter_audit_requires_authority_downgrade_for_synthesis() -> None:
             synthesized_fields=("producer_id_hash",),
             authority_downgrade=False,
             reason_codes=("adapter.raw_identity_requires_pseudonymizer",),
+        )
+
+
+def test_adapter_audit_field_classifications_are_pairwise_disjoint() -> None:
+    with pytest.raises(ValidationError, match="disjoint"):
+        AdapterAudit(
+            source_model="runtime_guard.observation_event",
+            completeness="complete",
+            mapped_fields=("event_id",),
+            dropped_fields=(),
+            synthesized_fields=("event_id",),
+            authority_downgrade=True,
+            reason_codes=(),
+        )
+
+
+def test_decision_cannot_precede_observation() -> None:
+    with pytest.raises(ValueError, match="cannot precede"):
+        evaluate_shadow_event(
+            _event(),
+            (_assessment(),),
+            decided_at=datetime(2026, 7, 28, 9, 59, tzinfo=UTC),
         )
 
 

@@ -16,6 +16,7 @@ from .secret_leak_campaign import build_secret_leak_campaign
 from .semantic_drift_campaign import build_semantic_drift_campaign
 from .semantic_propagation_campaign import build_semantic_propagation_campaign
 from .swarm_defense_contour import build_swarm_defense_contour
+from .swarm_resilience_campaign import declared_resilience_scenarios
 from .tool_authority_campaign import build_tool_authority_campaign
 
 UnitKind = Literal["case", "scenario", "variation_row", "contour_primitive"]
@@ -27,7 +28,8 @@ class ScenarioAdjudication:
     source_id: str
     unit_kind: UnitKind
     primary_family: str
-    canonical_alias_key: str
+    causal_case_key: str
+    equivalence_key: str | None
     review_status: Literal["provisional_internal_review"] = "provisional_internal_review"
 
 
@@ -90,6 +92,16 @@ _MARKETING_FAMILIES = {
     "benign_task_confusion": "T01",
 }
 
+_RESILIENCE_FAMILIES = {
+    "memory_long_session": "T04",
+    "semantic_term_drift": "T09",
+    "source_trust_poisoning": "T10",
+    "consensus_laundering": "T10",
+    "metric_verdict_attack": "T18",
+    "benign_fact_accumulation": "T03",
+    "stability_cascade": "T20",
+}
+
 _MATRIX_FAMILIES = {
     "base.handoff_label_stripping": "T02",
     "base.authority_expansion": "T06",
@@ -147,7 +159,9 @@ def build_scenario_adjudication() -> tuple[ScenarioAdjudication, ...]:
         source_id: str,
         unit_kind: UnitKind,
         family: str,
-        alias_source: str,
+        causal_source: str,
+        *,
+        equivalence_key: str | None = None,
     ) -> None:
         rows.append(
             ScenarioAdjudication(
@@ -155,7 +169,10 @@ def build_scenario_adjudication() -> tuple[ScenarioAdjudication, ...]:
                 source_id=source_id,
                 unit_kind=unit_kind,
                 primary_family=family,
-                canonical_alias_key=f"{family}:{alias_source}",
+                causal_case_key=(
+                    f"{family}:{source_builder}:{source_id}:{causal_source}"
+                ),
+                equivalence_key=equivalence_key,
             )
         )
 
@@ -246,7 +263,7 @@ def build_scenario_adjudication() -> tuple[ScenarioAdjudication, ...]:
             matrix_row.case_id,
             "variation_row",
             _MATRIX_FAMILIES[matrix_row.case_id],
-            matrix_row.base_scenario,
+            matrix_row.case_id,
         )
     for marketing_scenario in build_marketing_web_injection_campaign().scenarios:
         add(
@@ -255,6 +272,14 @@ def build_scenario_adjudication() -> tuple[ScenarioAdjudication, ...]:
             "scenario",
             _MARKETING_FAMILIES[marketing_scenario.scenario_id],
             marketing_scenario.scenario_id,
+        )
+    for resilience_scenario in declared_resilience_scenarios():
+        add(
+            "swarm_resilience_campaign",
+            resilience_scenario.scenario_id,
+            "scenario",
+            _RESILIENCE_FAMILIES[resilience_scenario.scenario_id],
+            resilience_scenario.scenario_id,
         )
 
     return tuple(rows)

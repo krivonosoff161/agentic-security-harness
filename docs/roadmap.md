@@ -103,9 +103,10 @@ The next work is ordered by credibility, not by feature volume:
     unseen-family labels stay outside the detector-development path. Keep private product
     internals in the separate Runtime Guard repository. Do not add a proxy, executor,
     provider adapter, IAM path, or deployment here.
-11. **Executable scenario adjudication:** independently review the explicit 120-unit
-    provisional ledger. Preserve source-unit kinds and migration history; do not use name
-    similarity as a security oracle.
+11. **Executable scenario adjudication:** independently review the explicit 127-unit,
+    13-builder provisional ledger. Preserve source-unit kinds and migration history; do not
+    treat the bounded builder list as a repository-wide total and do not use name similarity
+    as a security oracle. Add equivalence keys only after the full causal identity matches.
 
 ---
 

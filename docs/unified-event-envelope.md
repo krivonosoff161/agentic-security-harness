@@ -29,15 +29,15 @@ Required conceptual fields:
 | Field | Meaning |
 |---|---|
 | `schema_version` | Exact contract version |
-| `event_id` | Content-bound event identifier |
+| `event_id` | Producer-claimed digest-shaped event identifier; this draft validates shape only |
 | `project_id` | Canonical registered project |
 | `repository_id` | Repository identity, not a filesystem path |
 | `repository_sha` | Exact object id |
 | `occurred_at` | Timezone-aware event time |
-| `producer` | Pseudonymous producer identity and attestation state |
+| `producer` | Pseudonymous producer identity; the draft event can state only `unattested` |
 | `source_surface` | Tool, memory, provider, app, sensor, user or agent boundary |
 | `activity` | Typed transformation or attempted action |
-| `entity_refs` | Content hashes and safe evidence pointers |
+| `entity_refs` | Digest-shaped safe evidence pointers; existence/authenticity is external |
 | `parent_event_ids` | Explicit lineage; no inferred authority |
 | `data_envelope_ref` | Restrictions on content |
 | `authority_envelope_ref` | Optional authenticated authority, never model-generated |
@@ -45,6 +45,11 @@ Required conceptual fields:
 
 Raw prompts, raw tool output, credentials, private paths and unrestricted payloads are absent
 from the default event.
+
+The current Python model does not implement canonical serialization or cryptographic
+attestation. Hash-shaped values are untrusted claims until a separate verifier binds exact
+bytes and an attestation receipt. A producer cannot self-declare `verified` inside this
+observation.
 
 ## Non-expansion relations
 

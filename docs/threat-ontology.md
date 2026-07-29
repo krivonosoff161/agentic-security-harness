@@ -131,9 +131,11 @@ attack is represented.
 The initial executable pairwise design is implemented in
 `agentic_security_harness.covering_array`. It covers every feasible pair across a deliberately
 bounded six-axis vocabulary after causal constraints are applied. Each generated row carries
-only synthetic factor labels, a canonical family and an authority-free expected shadow
-disposition. It contains no prompts, payloads, provider routes, secrets, effects, or holdout
-labels.
+only synthetic factor labels, a non-canonical development-family hint and an authority-free
+expected shadow disposition. The six factors do not identify the full causal key (protected
+object, invariant and attempted effect are absent), so the hint must never be counted as an
+adjudicated family label. It contains no prompts, payloads, provider routes, secrets, effects,
+or holdout labels.
 
 This development design is not the unseen-family evaluation set. Its factors, constraints,
 case identifiers and expected dispositions are public to the developer and therefore cannot
@@ -141,8 +143,8 @@ serve as a sealed holdout.
 
 ## Open ontology work
 
-- independently review the provisional primary-family adjudication of all 120 current
-  executable Harness builder units;
+- independently review the provisional primary-family adjudication of the 127 units from the
+  13 explicitly enumerated Harness builders and continue searching for omitted builders;
 - bind every Runtime Guard generator family to one primary family;
 - distinguish aliases from genuinely different causal transitions;
 - add explicit revocation and uniformly over-privileged-window cases;

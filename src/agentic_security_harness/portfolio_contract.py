@@ -14,6 +14,7 @@ PROJECT_ID_PATTERN = r"^[a-z0-9][a-z0-9-]{0,127}$"
 REPOSITORY_ID_PATTERN = r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
 FAMILY_ID_PATTERN = r"^T(?:0[1-9]|1[0-9]|2[0-6])$"
 TOKEN_PATTERN = re.compile(r"^[a-z][a-z0-9_.-]{0,127}$")
+MAX_SUPPORTED_TIME = datetime(2100, 1, 1, tzinfo=UTC)
 
 TelemetryState = Literal["complete", "incomplete", "malformed", "unattested", "conflicting"]
 SourceSurface = Literal[
@@ -36,7 +37,10 @@ ShadowDisposition = Literal["observe", "challenge", "escalate", "abstain"]
 
 
 class SafeEvidencePointer(BaseModel):
-    """Content-bound pointer with no raw payload or machine path."""
+    """Digest-shaped pointer with no raw payload or machine path.
+
+    Shape validation does not prove that the referenced content exists or is authentic.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
@@ -57,7 +61,7 @@ class CanonicalObservationEvent(BaseModel):
     repository_sha: str = Field(pattern=GIT_OBJECT_PATTERN)
     occurred_at: datetime
     producer_id_hash: str = Field(pattern=SHA256_PATTERN)
-    producer_attestation: Literal["unattested", "verified"]
+    producer_attestation: Literal["unattested"] = "unattested"
     source_surface: SourceSurface
     activity: str = Field(min_length=1, max_length=128)
     entity_refs: tuple[SafeEvidencePointer, ...] = Field(default_factory=tuple)
@@ -72,6 +76,8 @@ class CanonicalObservationEvent(BaseModel):
         if self.occurred_at.tzinfo is None or self.occurred_at.utcoffset() is None:
             raise ValueError("occurred_at must be timezone-aware")
         if self.occurred_at.astimezone(UTC).year < 1970:
+            raise ValueError("occurred_at is outside the supported range")
+        if self.occurred_at.astimezone(UTC) > MAX_SUPPORTED_TIME:
             raise ValueError("occurred_at is outside the supported range")
         if not TOKEN_PATTERN.fullmatch(self.activity):
             raise ValueError("activity must be a canonical token")
@@ -136,8 +142,14 @@ class AdapterAudit(BaseModel):
         groups = (self.mapped_fields, self.dropped_fields, self.synthesized_fields)
         if any(len(group) != len(set(group)) for group in groups):
             raise ValueError("adapter field lists must be unique")
-        if set(self.mapped_fields) & set(self.dropped_fields):
-            raise ValueError("a field cannot be both mapped and dropped")
+        for index, group in enumerate(groups):
+            for other in groups[index + 1 :]:
+                if set(group) & set(other):
+                    raise ValueError("adapter field classifications must be disjoint")
+        if any(not TOKEN_PATTERN.fullmatch(value) for group in groups for value in group):
+            raise ValueError("adapter field names must be canonical tokens")
+        if any(not TOKEN_PATTERN.fullmatch(value) for value in self.reason_codes):
+            raise ValueError("adapter reason codes must be canonical tokens")
         if self.synthesized_fields and not self.authority_downgrade:
             raise ValueError("synthesized fields require an authority downgrade")
         if self.completeness != "complete" and not self.reason_codes:
@@ -166,6 +178,12 @@ class ShadowDecision(BaseModel):
             raise ValueError("decided_at must be timezone-aware")
         if len(self.assessment_ids) != len(set(self.assessment_ids)):
             raise ValueError("assessment ids must be unique")
+        if any(not re.fullmatch(SHA256_PATTERN, value) for value in self.assessment_ids):
+            raise ValueError("assessment ids must be lowercase SHA-256")
+        if len(self.reason_codes) != len(set(self.reason_codes)):
+            raise ValueError("reason codes must be unique")
+        if any(not TOKEN_PATTERN.fullmatch(value) for value in self.reason_codes):
+            raise ValueError("reason codes must be canonical tokens")
         return self
 
 
@@ -179,6 +197,8 @@ def evaluate_shadow_event(
 
     if decided_at.tzinfo is None or decided_at.utcoffset() is None:
         raise ValueError("decided_at must be timezone-aware")
+    if decided_at < event.occurred_at:
+        raise ValueError("decided_at cannot precede the observed event")
     mismatched = tuple(item for item in assessments if item.event_id != event.event_id)
     if mismatched:
         raise ValueError("every assessment must bind the exact event")
@@ -187,6 +207,9 @@ def evaluate_shadow_event(
     if event.telemetry_state != "complete":
         disposition: ShadowDisposition = "abstain"
         reason_codes.append(f"telemetry.{event.telemetry_state}")
+    elif not assessments:
+        disposition = "abstain"
+        reason_codes.append("advisory.missing")
     elif any(item.disposition in {"abstain", "inconclusive"} for item in assessments):
         disposition = "abstain"
         reason_codes.append("advisory.incomplete")
