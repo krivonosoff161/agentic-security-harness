@@ -418,7 +418,10 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
     for issue in ("#87", "#96", "#136", "#140"):
         assert issue not in open_work
         assert issue in completed
-    assert "No open product or research issues as of 2026-07-14." in open_work
+    assert "No product or research issue is treated as shipped capability." in open_work
+    assert "#168" in open_work
+    assert "#167" in open_work
+    assert "authority-free shadow evaluator" in open_work
     assert (
         "`ash evidence-quality` summarizes recorded external/local artifacts"
         in completed
@@ -431,8 +434,10 @@ def test_project_tracker_separates_open_and_completed_work() -> None:
     assert "#29" not in open_maintenance
     for pull_request in ("#152", "#153", "#154", "#155"):
         assert pull_request not in open_maintenance
-    assert "previous Dependabot maintenance queue was closed" in open_maintenance
-    assert "fresh dependency state" in open_maintenance
+    for pull_request in ("#159", "#160", "#163", "#164", "#165", "#166"):
+        assert pull_request in open_maintenance
+    assert "reviewed by class and exact head" in open_maintenance
+    assert "A Dependabot PR is not trusted" in open_maintenance
     assert "pending repository review/merge" not in tracker
 
 
