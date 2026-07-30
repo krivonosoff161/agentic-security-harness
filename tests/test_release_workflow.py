@@ -93,9 +93,9 @@ def test_release_workflow_scopes_attestation_authority_and_verifies_provenance()
     assert "attestations: read" in text
     assert "actions: read" in text
     for marker in (
-        "uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
-        "uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
-        "uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6",
+        "uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+        "uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d",
         "uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
         "uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c",
         "dist/*.tar.gz",
