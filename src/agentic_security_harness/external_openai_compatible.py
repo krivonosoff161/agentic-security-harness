@@ -86,6 +86,7 @@ def chat_completion(
     retry_backoff_seconds: float = 0.0,
     allow_redirects: bool = False,
     allow_env_proxy: bool = False,
+    request_provider_logging_opt_out: bool = False,
 ) -> dict[str, Any]:
     """Send a chat completion request to an OpenAI-compatible endpoint.
 
@@ -115,6 +116,13 @@ def chat_completion(
     }
     if credential:
         headers["Authorization"] = f"Bearer {credential}"
+    if request_provider_logging_opt_out:
+        # Fixed, non-secret provider request. This header does not prove that every
+        # backend component honored the opt-out, so callers must record it as a
+        # request rather than a confirmed provider state. Deliberately do not accept
+        # arbitrary user-supplied headers, which could expand authority or leak
+        # credentials.
+        headers["X-Data-Logging-Enabled"] = "false"
 
     req = urllib.request.Request(url, data=body, headers=headers, method="POST")
 

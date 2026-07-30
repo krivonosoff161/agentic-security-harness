@@ -40,7 +40,8 @@
     "local_only": true,
     "prompt_only": true,
     "tool_execution": false,
-    "credential_env_var": ""
+    "credential_env_var": "",
+    "observed_response_models": "[\"snapshot-model\"]"
   },
   "artifacts": [
     "external_report.md",
@@ -50,9 +51,9 @@
     "run_config.json"
   ],
   "artifact_sha256": {
-    "external_report.md": "bbd810bac833bb961799350b3247125bc6e2a03344aaba5025225ffc30855c6d",
-    "external_results.json": "b918277f615b8f4ccabecca30eef3b4bf29db6155d78ae6479a8cdc678786559",
-    "external_summary.json": "4e18886569e4d4709d538e0c4d5821a6bdba902d07616104b8cd08edfaa8e503",
+    "external_report.md": "42b640ba983810df8caa7b50da7f1061c1aeee5c363d48a305ea5e70cb0f9e6f",
+    "external_results.json": "abe7a73b72c9adebb41b41ab49fed9a1905c5ef3db7d4ab4e656a9ae815338be",
+    "external_summary.json": "ff71269d3583fb6493d89ac9c4e0407f2483c2ab5dc20a2f9ecea6040551aec4",
     "raw_responses/ext_03c36122.txt": "f98f79c939384d0ab38fea4b6a00c7e39551e6bfc9c82ae52bd58a7a05620383",
     "run_config.json": "fde806c1fb9c6a3fc19e1ff8a447a8e2209c3fa4afc4937810a1a4b7e5be77f4"
   }

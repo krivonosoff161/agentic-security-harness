@@ -17,7 +17,8 @@ scenario and returns a structured JSON verdict. **No tools are executed**, no ag
 is driven, and no streaming is used. See [What is not supported yet](#13-what-is-not-supported-yet).
 
 Every model-evidence path applies the same fail-closed response contract. The top-level
-`model` value must exactly match the requested model id, and
+`model` value must exactly match the requested model id (or an explicit, recorded
+`--operator-declared-model-alias` for a provider-documented normalization), and
 `choices[0].message.content` must be a nonblank string. Missing or mismatched identity,
 missing content, and whitespace-only content are `adapter_error`; they are never hashed
 or counted as model behavior. This is an application integrity check, not cryptographic
@@ -41,6 +42,11 @@ overrides the preset; `generic-openai-compatible` requires you to pass your own
 `--base-url`. Vendor URLs are starting points - confirm the current value in the
 provider's docs.
 
+Ollama aliases ending in `:cloud` are external provider routes even though the client
+connects to a loopback Ollama gateway. With `--preset ollama`, ASH records these as
+`ollama-cloud`, `authorized-external`, and `local_only=false`. They require the same
+provider-boundary authorization and data hygiene as a direct cloud endpoint.
+
 Every new `run-external` artifact records a `runtime` block in `run_config.json` with:
 
 - `runtime_name` / `runtime_family`;
@@ -51,6 +57,30 @@ Every new `run-external` artifact records a `runtime` block in `run_config.json`
 - `prompt_only=true` and `tool_execution=false`;
 - recovery guidance for server-not-running, model-not-found, invalid JSON, timeout, and
   inconclusive output.
+
+### Providers that normalize model identity
+
+ASH fails closed when the response `model` differs from the requested `--model`.
+Some OpenAI-compatible providers require a routed request id but return a canonical
+model id. For that documented case, keep the mapping explicit and evidence-bound:
+
+```powershell
+ash run-external --base-url https://ai.api.cloud.yandex.net/v1 `
+  --model "gpt://<folder-id>/<model-id>/latest" `
+  --operator-declared-model-alias "gpt://<documented-response-model>/latest" `
+  --request-provider-logging-opt-out --scenario data-boundary --dry-run
+```
+
+Without `--operator-declared-model-alias`, exact request/response identity remains
+mandatory. The alias is an operator declaration, not independent provider attestation.
+Every result records the requested model, declared alias and actually observed response
+model, and validation fails closed on a mismatch.
+
+The logging flag only requests an opt-out by sending the fixed
+`x-data-logging-enabled: false` control. It does not prove that every provider backend
+honored the request; verify the provider contract separately. Arbitrary provider
+headers are intentionally unsupported. Both settings are recorded in the
+private run configuration and manifest.
 
 ### Stochastic models and repeats
 

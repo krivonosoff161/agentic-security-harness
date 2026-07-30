@@ -32,20 +32,20 @@ The active provider-integrity task is tracked by
 [#170](https://github.com/krivonosoff161/agentic-security-harness/pull/170). It records
 requested, operator-declared, and observed model identities without treating an
 operator alias as provider attestation, and records logging opt-out only as a request.
-PR #170 has been refreshed from the post-#167 `main`; its complete local suite and
-exact-head GitHub checks are green. It remains draft, has no provider/live authority, and
-requires a separate owner merge decision.
+PR #170 has been refreshed from `main` after both #167 and the dependency refresh #174.
+Its complete local suite is green; fresh exact-head GitHub checks are required after this
+tracker update. It remains draft, has no provider/live authority, and requires a separate
+owner merge decision.
 
 ## Open maintenance work
 
-Draft PR [#174](https://github.com/krivonosoff161/agentic-security-harness/pull/174)
-consolidates the useful dependency changes from closed PRs #159, #164, #166 and #171-#173.
-It atomically aligns coupled CodeQL actions, keeps checkout/setup-python identities
-consistent across workflows, preserves the Windows-only hashed dependency, and adds a
-regression test for the cross-workflow pin invariant. Its clean Windows lock installation,
-full local suite, Linux/Windows CI, package build, CodeQL, Gitleaks, and PR fuzzing are
-green on the exact head. It remains unmerged maintenance work pending a separate owner
-decision.
+There is no open standalone maintenance PR. PR
+[#174](https://github.com/krivonosoff161/agentic-security-harness/pull/174) was
+squash-merged after exact-head review. It consolidated the useful dependency changes from
+closed PRs #159, #164, #166 and #171-#173, atomically aligned coupled CodeQL actions,
+kept checkout/setup-python identities consistent across workflows, preserved the
+Windows-only hashed dependency, and added a regression test for the cross-workflow pin
+invariant.
 
 Dependabot PRs #160, #163, and #165 were automatically closed when the new grouping and
 base configuration took effect. The remaining superseded individual PRs were closed with
@@ -57,6 +57,7 @@ because it was generated automatically. Dependency updates are reviewed by class
 
 | Issue | Track | Delivered focus |
 |---|---|---|
+| [PR #174 chore: consolidate verified dependency updates](https://github.com/krivonosoff161/agentic-security-harness/pull/174) | Supply chain / dependency maintenance | Consolidated the stale and partial Dependabot updates, repaired CodeQL action-version consistency and the Windows hash lock, and added a cross-workflow pin regression test; squash-merged after exact-head Linux, Windows, build, CodeQL, Gitleaks, and fuzzing checks. |
 | [#168 feat: add portfolio threat ontology and shadow contract](https://github.com/krivonosoff161/agentic-security-harness/issues/168) | Portfolio architecture / shadow contract | PR #167 merged the provider-neutral ontology, bounded 13-builder adjudication, unified authority-free event/advisory contract, constrained development coverage, solo-owner governance, and required Gitleaks check; it does not claim independent effectiveness or enforcement. |
 | [#140 docs: add phantom resource trust as next research contour](https://github.com/krivonosoff161/agentic-security-harness/issues/140) | Research map / phantom resources | Added the planned contour to the research map; no implementation or experiment was delivered. |
 | [#136 research: add trading-bot-v2 paper stand target profile](https://github.com/krivonosoff161/agentic-security-harness/issues/136) | Owned target / paper stand | Added the read-only paper-stand profile, static/artifact probes, private evidence contracts, and fail-closed authorization/readiness gates; no target executor was delivered. |

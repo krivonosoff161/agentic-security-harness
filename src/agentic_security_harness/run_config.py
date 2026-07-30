@@ -87,6 +87,8 @@ class RunConfig(BaseModel):
     provider_label: str = ""
     base_url_label: str = ""
     model: str = ""
+    operator_declared_model_alias: str | None = None
+    provider_logging_opt_out_requested: bool | None = None
     temperature: float = 0.0
     timeout_seconds: int = 30
     max_retries: int = 1
@@ -145,7 +147,7 @@ def build_external_runtime_metadata(
     """Build secret-free metadata describing the runtime under evaluation."""
     from agentic_security_harness.presets import infer_runtime_profile
 
-    profile = infer_runtime_profile(preset_name, base_url)
+    profile = infer_runtime_profile(preset_name, base_url, model)
     return ExternalRuntimeMetadata(
         runtime_name=profile.runtime_name,
         runtime_family=profile.runtime_family,
@@ -178,6 +180,9 @@ class ExternalResult(BaseModel):
     pattern_id: str
     variant_id: str = ""
     repeat_index: int = 0
+    requested_model: str = ""
+    operator_declared_model_alias: str = ""
+    observed_response_model: str = ""
     decision: str = "unclear"
     reason: str = ""
     control_family: str = ""
@@ -255,6 +260,7 @@ class ExternalSummary(BaseModel):
     scenario_id: str = ""
     adapter_type: str = ""
     model: str = ""
+    observed_response_models: list[str] = Field(default_factory=list)
     total_checks: int = 0
     total_repeats: int = 0
     corpus_version: str = CORPUS_VERSION

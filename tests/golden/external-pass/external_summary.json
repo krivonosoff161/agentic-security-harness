@@ -5,6 +5,9 @@
   "scenario_id": "perception-boundary",
   "adapter_type": "openai-compatible",
   "model": "snapshot-model",
+  "observed_response_models": [
+    "snapshot-model"
+  ],
   "total_checks": 1,
   "total_repeats": 1,
   "corpus_version": "0.13.0",

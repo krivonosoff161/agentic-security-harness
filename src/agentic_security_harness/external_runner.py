@@ -128,6 +128,8 @@ def run_external(
     only_variant_id: str | None = None,
     dry_run: bool = False,
     preset_name: str | None = None,
+    operator_declared_model_alias: str | None = None,
+    request_provider_logging_opt_out: bool = False,
 ) -> ExternalSummary:
     """Run external evaluation and write a private report bundle.
 
@@ -186,6 +188,10 @@ def run_external(
         network_mode=runtime.network_mode,
         runtime=runtime,
     )
+    if operator_declared_model_alias is not None:
+        run_config.operator_declared_model_alias = operator_declared_model_alias
+    if request_provider_logging_opt_out:
+        run_config.provider_logging_opt_out_requested = True
 
     if dry_run:
         print(f"Estimated requests: {total_requests}")
@@ -201,6 +207,14 @@ def run_external(
         print(f"  temperature: {temperature}")
         if credential_env_var_label:
             print("  credential_env_var: configured (value hidden)")
+        print(
+            "  operator_declared_model_alias: "
+            f"{terminal_field(operator_declared_model_alias or model)}"
+        )
+        print(
+            "  provider_logging_opt_out_requested: "
+            f"{request_provider_logging_opt_out}"
+        )
         return ExternalSummary(
             scenario_id=scenario_id,
             adapter_type="openai-compatible",
@@ -213,9 +227,16 @@ def run_external(
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # Write run_config.json
+    run_config_payload = run_config.model_dump(mode="json")
+    for optional_field in (
+        "operator_declared_model_alias",
+        "provider_logging_opt_out_requested",
+    ):
+        if optional_field not in run_config.model_fields_set:
+            run_config_payload.pop(optional_field, None)
     write_text_artifact(
         out_dir / "run_config.json",
-        json.dumps(run_config.model_dump(mode="json"), indent=2) + "\n",
+        json.dumps(run_config_payload, indent=2) + "\n",
     )
 
     all_results: list[ExternalResult] = []
@@ -238,6 +259,8 @@ def run_external(
                     credential_env_var_lookup,
                     out_dir,
                     execution_id,
+                    operator_declared_model_alias,
+                    request_provider_logging_opt_out,
                 )
                 all_results.append(result)
 
@@ -274,6 +297,40 @@ def run_external(
         _build_external_report_md(summary, run_config),
     )
 
+    manifest_metadata: dict[str, str | int | float | bool | None] = {
+        "adapter_type": run_config.adapter_type,
+        "model": run_config.model,
+        "base_url_label": run_config.base_url_label,
+        "scenario": run_config.scenario_id,
+        "max_variants": run_config.max_variants,
+        "repeats": run_config.repeats,
+        "temperature": run_config.temperature,
+        "timeout_seconds": run_config.timeout_seconds,
+        "max_retries": run_config.max_retries,
+        "raw_response_limit": run_config.raw_response_limit,
+        "request_count": summary.total_repeats,
+        "runtime_name": runtime.runtime_name,
+        "runtime_family": runtime.runtime_family,
+        "network_mode": runtime.network_mode,
+        "authorization_mode": runtime.authorization_mode,
+        "local_only": runtime.local_only,
+        "prompt_only": runtime.prompt_only,
+        "tool_execution": runtime.tool_execution,
+        "credential_env_var": run_config.credential_env_var,
+        "observed_response_models": json.dumps(
+            summary.observed_response_models,
+            separators=(",", ":"),
+        ),
+    }
+    if "operator_declared_model_alias" in run_config.model_fields_set:
+        manifest_metadata["operator_declared_model_alias"] = (
+            run_config.operator_declared_model_alias
+        )
+    if "provider_logging_opt_out_requested" in run_config.model_fields_set:
+        manifest_metadata["provider_logging_opt_out_requested"] = (
+            run_config.provider_logging_opt_out_requested
+        )
+
     manifest = build_manifest(
         "external",
         out_dir,
@@ -289,27 +346,7 @@ def run_external(
             "inconclusive": len(summary.inconclusive_patterns),
             "errors": len(summary.error_patterns),
         },
-        metadata={
-            "adapter_type": run_config.adapter_type,
-            "model": run_config.model,
-            "base_url_label": run_config.base_url_label,
-            "scenario": run_config.scenario_id,
-            "max_variants": run_config.max_variants,
-            "repeats": run_config.repeats,
-            "temperature": run_config.temperature,
-            "timeout_seconds": run_config.timeout_seconds,
-            "max_retries": run_config.max_retries,
-            "raw_response_limit": run_config.raw_response_limit,
-            "request_count": summary.total_repeats,
-            "runtime_name": runtime.runtime_name,
-            "runtime_family": runtime.runtime_family,
-            "network_mode": runtime.network_mode,
-            "authorization_mode": runtime.authorization_mode,
-            "local_only": runtime.local_only,
-            "prompt_only": runtime.prompt_only,
-            "tool_execution": runtime.tool_execution,
-            "credential_env_var": run_config.credential_env_var,
-        },
+        metadata=manifest_metadata,
         artifacts=_external_artifact_names(out_dir),
         tool_version=run_config.tool_version,
         created_at=run_config.created_at,
@@ -345,6 +382,8 @@ def _evaluate_one(
     credential_env_var: str,
     out_dir: Path,
     execution_id: str,
+    operator_declared_model_alias: str | None,
+    request_provider_logging_opt_out: bool,
 ) -> ExternalResult:
     """Evaluate one pattern variant repeat against the external endpoint."""
     rid = _result_id(pattern.pattern_id, variant_id, repeat_index)
@@ -362,8 +401,15 @@ def _evaluate_one(
             credential_env_var=credential_env_var,
             allow_redirects=False,
             allow_env_proxy=False,
+            request_provider_logging_opt_out=request_provider_logging_opt_out,
         )
-        content = extract_verified_content(response, expected_model=model)
+        observed_response_model = response.get("model")
+        if not isinstance(observed_response_model, str):
+            observed_response_model = ""
+        content = extract_verified_content(
+            response,
+            expected_model=operator_declared_model_alias or model,
+        )
         parsed = _parse_decision(content)
         verdict = validate_external_verdict(pattern, parsed)
         parse_error = "no valid JSON response" if not parsed else ""
@@ -383,6 +429,9 @@ def _evaluate_one(
             pattern_id=pattern.pattern_id,
             variant_id=variant_id,
             repeat_index=repeat_index,
+            requested_model=model,
+            operator_declared_model_alias=operator_declared_model_alias or "",
+            observed_response_model=observed_response_model,
             decision=parsed.get("decision", "unclear"),
             reason=verdict.reason,
             control_family=parsed.get("control_family", ""),
@@ -410,6 +459,8 @@ def _evaluate_one(
             pattern_id=pattern.pattern_id,
             variant_id=variant_id,
             repeat_index=repeat_index,
+            requested_model=model,
+            operator_declared_model_alias=operator_declared_model_alias or "",
             error=error_text,
             recovery_hint=_recovery_hint_for_error(error_text),
             deterministic_cross_check="adapter_error",
@@ -425,6 +476,8 @@ def _evaluate_one(
             pattern_id=pattern.pattern_id,
             variant_id=variant_id,
             repeat_index=repeat_index,
+            requested_model=model,
+            operator_declared_model_alias=operator_declared_model_alias or "",
             error=error_text,
             recovery_hint=_recovery_hint_for_error(error_text),
             deterministic_cross_check="adapter_error",
@@ -649,6 +702,13 @@ def _build_external_summary(
         scenario_id=scenario_id,
         adapter_type=adapter_type,
         model=model,
+        observed_response_models=sorted(
+            {
+                item.observed_response_model
+                for item in results
+                if item.observed_response_model
+            }
+        ),
         total_checks=len(groups),
         total_repeats=len(results),
         patterns_with_findings=sorted(set(patterns_with_findings)),
@@ -684,6 +744,13 @@ def _reproduce_command_lines(config: RunConfig) -> list[str]:
         f"--retries {config.max_retries}",
         f"--raw-response-limit {config.raw_response_limit}",
     ]
+    if config.operator_declared_model_alias is not None:
+        flags.append(
+            "--operator-declared-model-alias "
+            f"{arg(config.operator_declared_model_alias)}"
+        )
+    if config.provider_logging_opt_out_requested:
+        flags.append("--request-provider-logging-opt-out")
     # Reproduce the exact variant when a single one was selected; otherwise the count.
     if len(config.selected_variants) == 1:
         flags.append(f"--variant {arg(config.selected_variants[0])}")
@@ -716,6 +783,12 @@ def _build_external_report_md(summary: ExternalSummary, config: RunConfig) -> st
         f"- Execution ID: {markdown_code_span(config.execution_id)}",
         f"- Adapter: {markdown_code_span(config.adapter_type)}",
         f"- Model: {markdown_code_span(config.model)}",
+        "- Observed response models: "
+        + (
+            ", ".join(markdown_code_span(item) for item in summary.observed_response_models)
+            if summary.observed_response_models
+            else "none (all requests failed before verified response identity)"
+        ),
         f"- Endpoint: {markdown_code_span(config.base_url_label)}",
         f"- Runtime: {markdown_code_span(config.runtime.runtime_name)} "
         f"({markdown_prose(config.runtime.runtime_family)})",
@@ -744,6 +817,20 @@ def _build_external_report_md(summary: ExternalSummary, config: RunConfig) -> st
         f"- Error patterns: {len(summary.error_patterns)}",
         "",
     ]
+    provider_lines: list[str] = []
+    if "operator_declared_model_alias" in config.model_fields_set:
+        provider_lines.append(
+            "- Operator-declared response model alias: "
+            f"{markdown_code_span(config.operator_declared_model_alias or config.model)}"
+        )
+    if "provider_logging_opt_out_requested" in config.model_fields_set:
+        provider_lines.append(
+            "- Provider logging opt-out requested: "
+            f"{config.provider_logging_opt_out_requested}"
+        )
+    if provider_lines:
+        model_line = lines.index(f"- Model: {markdown_code_span(config.model)}")
+        lines[model_line + 1 : model_line + 1] = provider_lines
 
     if summary.patterns_with_findings:
         lines += [
