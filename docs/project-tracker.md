@@ -6,7 +6,7 @@ docs describe the current shipped state.
 
 ## Current GitHub snapshot
 
-Snapshot refreshed against GitHub on 2026-07-29:
+Snapshot refreshed against GitHub on 2026-07-30:
 
 | Milestone | Purpose |
 |---|---|
@@ -17,46 +17,47 @@ administrative metadata, not a release or active-work claim.
 
 ## Open work in this track
 
-No product or research issue is treated as shipped capability. The active public integration
-work is tracked by
-[#168](https://github.com/krivonosoff161/agentic-security-harness/issues/168) and draft PR
-[#167](https://github.com/krivonosoff161/agentic-security-harness/pull/167) on
-`codex/portfolio-threat-ontology`: a provider-neutral ontology, bounded provisional
-scenario adjudication, unified event envelope, constrained development design, and
-authority-free shadow evaluator. It is review work, not a merged release, production
-gateway, independent effectiveness result, or enforcement path.
+No product or research issue is treated as shipped capability.
 
-A separate provider-integrity task is tracked by
+PR [#167](https://github.com/krivonosoff161/agentic-security-harness/pull/167) was
+squash-merged after exact-head review, and linked issue
+[#168](https://github.com/krivonosoff161/agentic-security-harness/issues/168) is closed.
+The merged provider-neutral ontology, bounded provisional scenario adjudication, unified
+event envelope, constrained development design, and authority-free shadow evaluator are
+public development foundations. They are not a production gateway, independent
+effectiveness result, enforcement path, or release.
+
+The active provider-integrity task is tracked by
 [#169](https://github.com/krivonosoff161/agentic-security-harness/issues/169) and draft PR
 [#170](https://github.com/krivonosoff161/agentic-security-harness/pull/170). It records
 requested, operator-declared, and observed model identities without treating an
 operator alias as provider attestation, and records logging opt-out only as a request.
-PR #170 must be refreshed and revalidated after this portfolio/security PR is integrated;
-neither draft is shipped capability.
+PR #170 has been refreshed from the post-#167 `main`; its complete local suite and
+exact-head GitHub checks are green. It remains draft, has no provider/live authority, and
+requires a separate owner merge decision.
 
 ## Open maintenance work
 
-Six Dependabot PRs are open and remain maintenance work rather than shipped state:
+Draft PR [#174](https://github.com/krivonosoff161/agentic-security-harness/pull/174)
+consolidates the useful dependency changes from closed PRs #159, #164, #166 and #171-#173.
+It atomically aligns coupled CodeQL actions, keeps checkout/setup-python identities
+consistent across workflows, preserves the Windows-only hashed dependency, and adds a
+regression test for the cross-workflow pin invariant. Its clean Windows lock installation,
+full local suite, Linux/Windows CI, package build, CodeQL, Gitleaks, and PR fuzzing are
+green on the exact head. It remains unmerged maintenance work pending a separate owner
+decision.
 
-- [#163](https://github.com/krivonosoff161/agentic-security-harness/pull/163) and
-  [#164](https://github.com/krivonosoff161/agentic-security-harness/pull/164) are current-base,
-  mergeable, and green;
-- [#165](https://github.com/krivonosoff161/agentic-security-harness/pull/165) has a Windows
-  lock/hash failure;
-- [#166](https://github.com/krivonosoff161/agentic-security-harness/pull/166) updates a pinned
-  action identity and currently fails repository identity assertions;
-- [#159](https://github.com/krivonosoff161/agentic-security-harness/pull/159) and
-  [#160](https://github.com/krivonosoff161/agentic-security-harness/pull/160) are based on
-  older `main` state and have failing checks.
-
-Dependency updates are reviewed by class and exact head. A Dependabot PR is not trusted merely
-because it was generated automatically.
+Dependabot PRs #160, #163, and #165 were automatically closed when the new grouping and
+base configuration took effect. The remaining superseded individual PRs were closed with
+their exact failure or consolidation reason. A Dependabot PR is not trusted merely
+because it was generated automatically. Dependency updates are reviewed by class and exact head.
 
 
 ## Recently completed in this track
 
 | Issue | Track | Delivered focus |
 |---|---|---|
+| [#168 feat: add portfolio threat ontology and shadow contract](https://github.com/krivonosoff161/agentic-security-harness/issues/168) | Portfolio architecture / shadow contract | PR #167 merged the provider-neutral ontology, bounded 13-builder adjudication, unified authority-free event/advisory contract, constrained development coverage, solo-owner governance, and required Gitleaks check; it does not claim independent effectiveness or enforcement. |
 | [#140 docs: add phantom resource trust as next research contour](https://github.com/krivonosoff161/agentic-security-harness/issues/140) | Research map / phantom resources | Added the planned contour to the research map; no implementation or experiment was delivered. |
 | [#136 research: add trading-bot-v2 paper stand target profile](https://github.com/krivonosoff161/agentic-security-harness/issues/136) | Owned target / paper stand | Added the read-only paper-stand profile, static/artifact probes, private evidence contracts, and fail-closed authorization/readiness gates; no target executor was delivered. |
 | [#96 docs: harden public evidence boundary and showcase claims](https://github.com/krivonosoff161/agentic-security-harness/issues/96) | Showcase / evidence boundary | Documented public fields, private raw calculations, response-hash anchors, validation checks, adapter-error visibility, and non-claims. |
