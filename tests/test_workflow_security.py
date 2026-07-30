@@ -56,6 +56,22 @@ def test_every_external_action_reference_is_pinned_to_a_full_commit() -> None:
         assert re.fullmatch(r"[^@\s]+@[0-9a-f]{40}", reference), (name, reference)
 
 
+def test_coupled_action_families_use_one_commit_across_all_workflows() -> None:
+    references = "\n".join(_workflow_texts().values())
+    for family in (
+        "actions/checkout",
+        "actions/setup-python",
+        "github/codeql-action/",
+    ):
+        commits = set(
+            re.findall(
+                rf"(?m)^\s*uses:\s*{re.escape(family)}[^@\s]*@([0-9a-f]{{40}})",
+                references,
+            )
+        )
+        assert len(commits) == 1, (family, commits)
+
+
 def test_every_checkout_disables_persisted_credentials() -> None:
     checkout_steps = 0
     expected_checkout_steps = 0
