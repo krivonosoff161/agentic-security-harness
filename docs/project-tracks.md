@@ -1,6 +1,6 @@
 # Project tracks
 
-> Last reviewed: 2026-07-26.
+> Last reviewed: 2026-07-28.
 >
 > Scope: how Agentic Security Harness relates to the future internal LLM Safety Gateway /
 > Runtime Verifier direction. This page records project direction; it does not announce a
@@ -31,7 +31,7 @@ This track is what users should run today.
 
 ## Track B: LLM Safety Gateway / Runtime Verifier
 
-**Status:** product foundation under review; no production runtime is shipped.
+**Status:** a separate private product-research repository exists; no production runtime is shipped.
 
 The gateway/verifier direction would apply the harness lessons inside an organization
 that uses external or local LLMs. It would not need access to the internal state of a
@@ -66,12 +66,18 @@ It must not:
 - share the same keys and administrative path as the systems it monitors;
 - claim production protection before a working implementation and deployment model exist.
 
-The first bounded foundation is documented in
+The first public bounded foundation is documented in
 [runtime-guard-product-foundation.md](runtime-guard-product-foundation.md). It adds
 metadata-only Pydantic contracts, a pure deterministic evaluator, adversarial tests,
 formal invariants, and provider/license gates. It has no CLI entry point, network
 listener, executor, credential broker, durable store, IAM integration, or deployment
 authority and must not be described as a gateway product.
+
+A separate private Runtime Guard research implementation now owns receipt lifecycle,
+bounded synthetic execution, observe-only swarm scoring, and later detector-research
+foundations. Its existence does not turn this public repository into a gateway and does not
+establish production protection. The public cross-project boundary is limited to the
+provider-neutral ontology and authority-free interchange contract under review.
 
 The advisory model routes are constrained by
 [runtime-guard-model-fleet-contract.md](runtime-guard-model-fleet-contract.md), and the
@@ -104,10 +110,9 @@ The split is intentional:
    honest limitations, and public research release notes.
 2. Review the bounded executable specification, trust/privacy model, provider/legal
    boundary, and minimal receipt API without adding an operational execution path.
-3. When implementation begins, decide whether the gateway is a separate repository. The
-   default expectation is a separate repo once there is executable gateway code, because
-   the users, deployment risk, privacy model, and operational responsibilities differ
-   from the benchmark.
+3. Keep executable product research in the separate private Runtime Guard repository.
+   Promote only provider-neutral schemas, synthetic fixtures, and validated evidence into
+   the public Harness.
 
 ## Definition of separation
 

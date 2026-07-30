@@ -8,10 +8,19 @@ dist/
 .venv/
 venv/
 
-# Env & local data (note: .env.example IS tracked)
+# Env, credentials, and local data (note: .env.example IS tracked)
 .env
+.env.*
+!.env.example
 *.db
-*.sqlite3
+*.sqlite*
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+secrets*.json
+*.log
 
 # Generated demo reports (a curated example is committed under examples/demo-report/)
 reports/
@@ -20,6 +29,9 @@ reports/
 .codex-remote-attachments/
 private-traces/
 raw-model-responses/
+private-evidence/
+provider-responses/
+runtime-logs/
 attack-vectors/
 canary-runs/
 
