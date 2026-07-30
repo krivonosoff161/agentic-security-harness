@@ -97,6 +97,16 @@ The next work is ordered by credibility, not by feature volume:
 9. **v1.0 stable benchmark release:** stable trace schema, stable corpus manifest, stable
    CLI, validated examples, coherent docs, public tag (see
    [release-checklist.md](release-checklist.md)).
+10. **Portfolio ontology and interchange review:** review the 26-family ontology,
+    scenario-alias registry, authority-free observation/advisory contract, and shadow
+    evaluator. Use the constrained public pairwise generator only for development coverage;
+    unseen-family labels stay outside the detector-development path. Keep private product
+    internals in the separate Runtime Guard repository. Do not add a proxy, executor,
+    provider adapter, IAM path, or deployment here.
+11. **Executable scenario adjudication:** independently review the explicit 127-unit,
+    13-builder provisional ledger. Preserve source-unit kinds and migration history; do not
+    treat the bounded builder list as a repository-wide total and do not use name similarity
+    as a security oracle. Add equivalence keys only after the full causal identity matches.
 
 ---
 
@@ -105,8 +115,9 @@ The next work is ordered by credibility, not by feature volume:
 The current release-facing track is **Agentic Security Harness**: a public research
 benchmark with synthetic targets, traces, scorecards, validators, and sanitized evidence.
 
-The related **LLM Safety Gateway / Runtime Verifier** direction is a future track, not a
-shipped runtime. It would apply harness evidence at organization boundaries such as LLM
+The related **LLM Safety Gateway / Runtime Verifier** direction now has a separate private
+product-research repository, but it is not a shipped runtime. It would apply Harness
+evidence at organization boundaries such as LLM
 traffic, tool calls, file writes, git operations, source provenance, consent receipts, and
 privacy-preserving evidence. Keep it documented separately until it has its own design
 review, trust-domain model, and implementation boundary. See

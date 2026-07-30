@@ -6,7 +6,7 @@ docs describe the current shipped state.
 
 ## Current GitHub snapshot
 
-Snapshot verified against GitHub during the 2026-07-19 maintenance closeout:
+Snapshot refreshed against GitHub on 2026-07-29:
 
 | Milestone | Purpose |
 |---|---|
@@ -17,16 +17,40 @@ administrative metadata, not a release or active-work claim.
 
 ## Open work in this track
 
-No open product or research issues as of 2026-07-14. The active local work is the
-hostile-audit remediation branch `codex/validator-trust-boundary-hardening`: validator
-filesystem-boundary hardening, secret-hygiene broadening, and evidence-claim positioning.
-It is a review branch, not a merged release.
+No product or research issue is treated as shipped capability. The active public integration
+work is tracked by
+[#168](https://github.com/krivonosoff161/agentic-security-harness/issues/168) and draft PR
+[#167](https://github.com/krivonosoff161/agentic-security-harness/pull/167) on
+`codex/portfolio-threat-ontology`: a provider-neutral ontology, bounded provisional
+scenario adjudication, unified event envelope, constrained development design, and
+authority-free shadow evaluator. It is review work, not a merged release, production
+gateway, independent effectiveness result, or enforcement path.
+
+A separate provider-integrity task is tracked by
+[#169](https://github.com/krivonosoff161/agentic-security-harness/issues/169) and draft PR
+[#170](https://github.com/krivonosoff161/agentic-security-harness/pull/170). It records
+requested, operator-declared, and observed model identities without treating an
+operator alias as provider attestation, and records logging opt-out only as a request.
+PR #170 must be refreshed and revalidated after this portfolio/security PR is integrated;
+neither draft is shipped capability.
 
 ## Open maintenance work
 
-The previous Dependabot maintenance queue was closed during the 2026-07-19 closeout:
-the CodeQL Actions update was merged, and the stale/yanked package PRs were closed. New
-maintenance work should start from current `main` with fresh dependency state.
+Six Dependabot PRs are open and remain maintenance work rather than shipped state:
+
+- [#163](https://github.com/krivonosoff161/agentic-security-harness/pull/163) and
+  [#164](https://github.com/krivonosoff161/agentic-security-harness/pull/164) are current-base,
+  mergeable, and green;
+- [#165](https://github.com/krivonosoff161/agentic-security-harness/pull/165) has a Windows
+  lock/hash failure;
+- [#166](https://github.com/krivonosoff161/agentic-security-harness/pull/166) updates a pinned
+  action identity and currently fails repository identity assertions;
+- [#159](https://github.com/krivonosoff161/agentic-security-harness/pull/159) and
+  [#160](https://github.com/krivonosoff161/agentic-security-harness/pull/160) are based on
+  older `main` state and have failing checks.
+
+Dependency updates are reviewed by class and exact head. A Dependabot PR is not trusted merely
+because it was generated automatically.
 
 
 ## Recently completed in this track
