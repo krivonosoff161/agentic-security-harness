@@ -97,9 +97,10 @@ The next work is ordered by credibility, not by feature volume:
 9. **v1.0 stable benchmark release:** stable trace schema, stable corpus manifest, stable
    CLI, validated examples, coherent docs, public tag (see
    [release-checklist.md](release-checklist.md)).
-10. **Portfolio ontology and interchange review:** review the 26-family ontology,
-    scenario-alias registry, authority-free observation/advisory contract, and shadow
-    evaluator. Use the constrained public pairwise generator only for development coverage;
+10. **Portfolio ontology and interchange maintenance:** maintain and independently review
+    the merged 26-family ontology, scenario-alias registry, authority-free
+    observation/advisory contract, and shadow evaluator. Use the constrained public
+    pairwise generator only for development coverage;
     unseen-family labels stay outside the detector-development path. Keep private product
     internals in the separate Runtime Guard repository. Do not add a proxy, executor,
     provider adapter, IAM path, or deployment here.
