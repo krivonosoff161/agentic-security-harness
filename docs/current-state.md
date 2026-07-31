@@ -1,5 +1,10 @@
 # Current state
 
+Portfolio contract pin: `2026.07.31-rc1`. Harness owns the public canonical-envelope
+development contract and synthetic regression/falsification modules; operational
+authority remains `none`. See
+[`security-portfolio-roadmap.md`](security-portfolio-roadmap.md).
+
 > Last reviewed: 2026-07-28.
 >
 > Scope: public status of `agentic-security-harness` on `main`, version `0.14.0`. This

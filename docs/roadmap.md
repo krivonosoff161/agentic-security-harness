@@ -1,5 +1,11 @@
 # Roadmap
 
+Portfolio-wide module ownership, dependencies, evidence ceilings, and owner gates
+are defined by the generated public projection linked from
+[`security-portfolio-roadmap.md`](security-portfolio-roadmap.md). This local roadmap
+owns only `M02-canonical-envelope` and `M12-harness-regression`; it cannot promote
+the private product roadmap.
+
 Harness-first and trace-first. Versioning is feature-gated, not date-gated; each version
 is shippable. Built-in/local targets are local, deterministic, and synthetic: no network,
 no provider calls, no real secrets. The experimental `run-external --execute` path makes

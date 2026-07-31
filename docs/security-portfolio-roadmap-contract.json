@@ -1,0 +1,30 @@
+{
+  "schema_version": "SecurityPortfolioLocalContract.v2",
+  "roadmap_version": "2026.07.31-rc1",
+  "upstream_projection_source_hint": "https://github.com/krivonosoff161/krivonosoff161/blob/main/docs/security-portfolio-roadmap-public.yaml",
+  "public_projection_sha256": "d960d5a710c152c28ad9837ebd665a476d0fc99562076ff6f1c5f24e73dd0bd6",
+  "public_projection_size": 28926,
+  "vendored_projection_path": "docs/security-portfolio-roadmap-public.yaml",
+  "upstream_private_source_sha256": "181a0dd7fad62699693895b1bd5189c91984140a48a35afe811d948efee57fca",
+  "repository_id": "agentic-security-harness",
+  "roadmap_authority": "owned_module_projection",
+  "owned_modules": [
+    {
+      "id": "M02-canonical-envelope",
+      "status": "partial"
+    },
+    {
+      "id": "M12-harness-regression",
+      "status": "implemented_development"
+    }
+  ],
+  "forbidden_promotions": [
+    "additive_scenario_count",
+    "certification",
+    "lossless_three_model_conversion",
+    "operational_authority",
+    "production_effectiveness",
+    "stable_product_api"
+  ],
+  "authority": "none"
+}
