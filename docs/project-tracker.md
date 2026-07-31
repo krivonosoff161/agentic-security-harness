@@ -6,7 +6,7 @@ docs describe the current shipped state.
 
 ## Current GitHub snapshot
 
-Snapshot refreshed against GitHub on 2026-07-30:
+Snapshot refreshed against GitHub on 2026-07-31:
 
 | Milestone | Purpose |
 |---|---|
@@ -27,15 +27,13 @@ event envelope, constrained development design, and authority-free shadow evalua
 public development foundations. They are not a production gateway, independent
 effectiveness result, enforcement path, or release.
 
-The active provider-integrity task is tracked by
-[#169](https://github.com/krivonosoff161/agentic-security-harness/issues/169) and draft PR
-[#170](https://github.com/krivonosoff161/agentic-security-harness/pull/170). It records
-requested, operator-declared, and observed model identities without treating an
-operator alias as provider attestation, and records logging opt-out only as a request.
-PR #170 has been refreshed from `main` after both #167 and the dependency refresh #174.
-Its complete local suite is green; fresh exact-head GitHub checks are required after this
-tracker update. It remains draft, has no provider/live authority, and requires a separate
-owner merge decision.
+The provider-integrity task tracked by
+[#169](https://github.com/krivonosoff161/agentic-security-harness/issues/169) was completed
+by PR [#170](https://github.com/krivonosoff161/agentic-security-harness/pull/170). It records
+requested, operator-declared, and observed model identities without treating an operator
+alias as provider attestation, and records logging opt-out only as a request. PR #170 was
+squash-merged after exact-head local and GitHub verification; issue #169 closed
+automatically. The merged slice has no provider/live authority.
 
 ## Open maintenance work
 

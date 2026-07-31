@@ -68,8 +68,7 @@ defined in the
 This repository remains the benchmark/evidence layer; repo-local docs define
 the `ash` CLI, artifacts, examples, and evidence boundaries.
 
-The portfolio integration contract currently under review is intentionally
-authority-free:
+The merged portfolio integration contract is intentionally authority-free:
 
 - [Threat ontology](docs/threat-ontology.md) defines 26 provider-neutral failure families.
 - [Scenario adjudication ledger](docs/scenario-adjudication-ledger.md) records 127 bounded
@@ -79,7 +78,7 @@ authority-free:
 
 The `24` seed patterns below remain the deterministic baseline corpus. The `127` units are a
 larger provisional builder inventory, not 127 canonical attacks, not a repository-wide total,
-and not independent effectiveness evidence. The integration contract has no `allow` receipt,
+and not independent effectiveness evidence. The merged integration contract has no `allow` receipt,
 executor, provider, device, deployment, or production authority.
 
 OWASP LLM 2025 quick map:

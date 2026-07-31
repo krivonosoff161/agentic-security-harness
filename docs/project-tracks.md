@@ -77,7 +77,8 @@ A separate private Runtime Guard research implementation now owns receipt lifecy
 bounded synthetic execution, observe-only swarm scoring, and later detector-research
 foundations. Its existence does not turn this public repository into a gateway and does not
 establish production protection. The public cross-project boundary is limited to the
-provider-neutral ontology and authority-free interchange contract under review.
+merged provider-neutral ontology and authority-free interchange contract. That contract
+remains a development and conformance boundary, not production integration.
 
 The advisory model routes are constrained by
 [runtime-guard-model-fleet-contract.md](runtime-guard-model-fleet-contract.md), and the
