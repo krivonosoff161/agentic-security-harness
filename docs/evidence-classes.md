@@ -1,6 +1,6 @@
 # Evidence classes and causal claims
 
-> Last reviewed: 2026-07-15.
+> Last reviewed: 2026-08-01.
 
 Agentic Security Harness publishes several kinds of evidence. They are not interchangeable.
 Every public metric must be read through its evidence class before it is used in a claim.
@@ -76,7 +76,7 @@ The current public campaign schemas cannot authenticate an independent reviewer.
 public observation must remain `not_adjudicated` and label coverage must remain zero. A private
 review note hash or reviewer-declared label is not sufficient evidence of independence.
 
-The audit branch defines an explicitly unverified reviewer/observation bundle shape that binds:
+The merged repository defines an explicitly unverified reviewer/observation bundle shape that binds:
 
 - the exact execution, observation id, and observation digest;
 - two distinct human reviewer identifiers and their private review-note digests;

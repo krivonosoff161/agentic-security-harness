@@ -1,6 +1,6 @@
 # Project tracks
 
-> Last reviewed: 2026-07-28.
+> Last reviewed: 2026-08-01.
 >
 > Scope: how Agentic Security Harness relates to the future internal LLM Safety Gateway /
 > Runtime Verifier direction. This page records project direction; it does not announce a
@@ -31,7 +31,9 @@ This track is what users should run today.
 
 ## Track B: LLM Safety Gateway / Runtime Verifier
 
-**Status:** a separate private product-research repository exists; no production runtime is shipped.
+**Status:** the private Runtime Guard repository is the canonical Security product
+composition root with a merged authority-free roadmap and bounded shadow research;
+no production runtime is shipped and no production protection is claimed.
 
 The gateway/verifier direction would apply the harness lessons inside an organization
 that uses external or local LLMs. It would not need access to the internal state of a

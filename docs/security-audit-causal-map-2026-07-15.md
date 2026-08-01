@@ -1,7 +1,12 @@
 # Security Audit Causal Map
 
 Date: 2026-07-15
-Status: active authorized audit map, remediation blocked on owner authority; not a completion or security-certification claim.
+Status: **HISTORICAL / SUPERSEDED** audit map. The remediation state described
+below is retained as dated evidence and must not be read as current project status.
+It remains not a completion or security-certification claim.
+Current truth is in [`current-state.md`](current-state.md),
+[`project-tracker.md`](project-tracker.md), and the generated
+[`security-portfolio-roadmap.md`](security-portfolio-roadmap.md).
 
 ## Scope And Authority
 

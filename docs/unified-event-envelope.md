@@ -1,6 +1,9 @@
 # Unified event and envelope contract
 
-> Status: integration design draft. No current runtime consumes this contract.
+> Status: partial authority-free integration contract. Runtime Guard consumes a
+> one-way bounded observation projection in shadow/advisory tests; no stable
+> cross-repository schema, reverse authoritative conversion, allow receipt, or
+> executor connection is claimed.
 
 ## Purpose
 

@@ -12,14 +12,16 @@ SCENARIO_REGISTRY_PATH = ROOT / "docs" / "scenario-family-registry.json"
 
 def test_portfolio_artifacts_do_not_embed_machine_paths_or_secrets() -> None:
     artifacts = (
+        ROOT / "AGENTS.md",
         SCENARIO_REGISTRY_PATH,
         ONTOLOGY_PATH,
         ENVELOPE_PATH,
     )
     forbidden_paths = (
-        "C:\\\\Users",
+        "C:\\Users",
         "C:/Users",
-        "E:\\\\AI",
+        "E:\\AI",
+        "E:/AI",
     )
     for artifact in artifacts:
         text = artifact.read_text(encoding="utf-8").lower()
