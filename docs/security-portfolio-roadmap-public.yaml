@@ -1,0 +1,978 @@
+{
+  "schema_version": "SecurityPortfolioRoadmapPublic.v1",
+  "roadmap_version": "2026.07.31-rc1",
+  "baseline_date": "2026-07-31",
+  "source_sha256": "181a0dd7fad62699693895b1bd5189c91984140a48a35afe811d948efee57fca",
+  "authority": "none",
+  "thesis": "Prevent untrusted observations from becoming trusted context, authority, capability, consent, or effects without provenance, explicit policy, bounded execution, and privacy-minimized evidence.",
+  "global_invariants": [
+    "advisory_output_never_grants_authority",
+    "missing_fields_are_not_inferred",
+    "adapters_cannot_promote_trust_or_capability",
+    "detector_confidence_is_not_consent",
+    "allow_receipts_are_action_bound_short_lived_and_single_use",
+    "raw_prompts_tool_outputs_and_secrets_are_not_default_evidence",
+    "synthetic_or_common_control_evidence_is_not_field_validation",
+    "consumed_holdouts_are_never_reused_for_tuning_or_claims",
+    "enforcement_release_provider_and_device_actions_remain_owner_gated"
+  ],
+  "repositories": [
+    {
+      "id": "agentic-runtime-guard",
+      "repository": "krivonosoff161/agentic-runtime-guard",
+      "visibility": "private",
+      "role": "product_composition_root",
+      "roadmap_authority": "canonical_private"
+    },
+    {
+      "id": "agentic-security-harness",
+      "repository": "krivonosoff161/agentic-security-harness",
+      "visibility": "public",
+      "role": "falsification_and_evidence_lab",
+      "roadmap_authority": "owned_module_projection"
+    },
+    {
+      "id": "agentic-transfer-verifier",
+      "repository": "krivonosoff161/agentic-transfer-verifier",
+      "visibility": "public",
+      "role": "transfer_verification_library",
+      "roadmap_authority": "owned_module_projection"
+    },
+    {
+      "id": "ai-agent-handoff",
+      "repository": "krivonosoff161/ai-agent-handoff",
+      "visibility": "public",
+      "role": "handoff_protocol_and_edge_guard",
+      "roadmap_authority": "owned_module_projection"
+    },
+    {
+      "id": "llm-router",
+      "repository": "krivonosoff161/llm-router",
+      "visibility": "public",
+      "role": "provider_and_cost_adapter",
+      "roadmap_authority": "owned_module_projection"
+    },
+    {
+      "id": "llm-cheap-filter",
+      "repository": "krivonosoff161/llm-cheap-filter",
+      "visibility": "public",
+      "role": "cost_aware_triage",
+      "roadmap_authority": "owned_module_projection"
+    },
+    {
+      "id": "llm-safety-playbooks",
+      "repository": "krivonosoff161/llm-safety-playbooks",
+      "visibility": "public",
+      "role": "human_operating_guidance",
+      "roadmap_authority": "owned_module_projection"
+    },
+    {
+      "id": "profile-portfolio",
+      "repository": "krivonosoff161/krivonosoff161",
+      "visibility": "public",
+      "role": "sanitized_portfolio_projection",
+      "roadmap_authority": "public_projection_only"
+    }
+  ],
+  "status_profiles": {
+    "partial": {
+      "implementation": "partial",
+      "verification": "partial",
+      "independence": "not_established",
+      "integration": "partial",
+      "release": "not_released",
+      "authority": "none"
+    },
+    "implemented_bounded": {
+      "implementation": "implemented",
+      "verification": "mechanically_verified_bounded",
+      "independence": "not_established",
+      "integration": "integrated_local",
+      "release": "not_released",
+      "authority": "bounded_synthetic_only"
+    },
+    "implemented_synthetic": {
+      "implementation": "implemented",
+      "verification": "synthetic_only",
+      "independence": "not_established",
+      "integration": "integrated_local",
+      "release": "not_released",
+      "authority": "bounded_synthetic_only"
+    },
+    "implemented_development": {
+      "implementation": "implemented",
+      "verification": "development_corpus_only",
+      "independence": "not_established",
+      "integration": "integrated",
+      "release": "public_library_not_certification",
+      "authority": "none"
+    },
+    "implemented_pattern_guard": {
+      "implementation": "implemented",
+      "verification": "pattern_fixture_only",
+      "independence": "not_established",
+      "integration": "edge_only",
+      "release": "public_library",
+      "authority": "advisory_only"
+    },
+    "implemented_guidance": {
+      "implementation": "implemented",
+      "verification": "human_review_only",
+      "independence": "not_applicable",
+      "integration": "documentation_only",
+      "release": "public_guidance",
+      "authority": "none"
+    },
+    "preregistered_not_implemented": {
+      "implementation": "not_implemented",
+      "verification": "not_evaluated",
+      "independence": "not_established",
+      "integration": "not_integrated",
+      "release": "not_released",
+      "authority": "none"
+    },
+    "research_only": {
+      "implementation": "research_prototype",
+      "verification": "mixed_with_falsification",
+      "independence": "insufficient",
+      "integration": "outside_authoritative_core",
+      "release": "not_released",
+      "authority": "advisory_only"
+    },
+    "planned": {
+      "implementation": "not_implemented",
+      "verification": "not_evaluated",
+      "independence": "not_established",
+      "integration": "not_integrated",
+      "release": "not_released",
+      "authority": "none"
+    },
+    "optional_support": {
+      "implementation": "implemented_support",
+      "verification": "engineering_fixtures",
+      "independence": "not_established",
+      "integration": "optional_outside_trusted_core",
+      "release": "public_library",
+      "authority": "advisory_or_explicit_network_client"
+    }
+  },
+  "modules": [
+    {
+      "id": "M01-boundary-adapters",
+      "owner": "agentic-runtime-guard",
+      "status": "partial",
+      "evidence_class": "executable_specification",
+      "depends_on": [],
+      "delivers": [
+        "typed_source_decoding",
+        "explicit_incomplete_telemetry",
+        "no_authority_projection"
+      ],
+      "next_gates": [
+        "loss_accounting_for_each_source",
+        "authenticated_producer_design"
+      ],
+      "forbidden_claims": [
+        "complete_telemetry",
+        "authenticated_source"
+      ]
+    },
+    {
+      "id": "M02-canonical-envelope",
+      "owner": "agentic-security-harness",
+      "status": "partial",
+      "evidence_class": "development_contract",
+      "depends_on": [],
+      "delivers": [
+        "provider_neutral_event",
+        "scenario_identity",
+        "authority_free_advisory"
+      ],
+      "next_gates": [
+        "stable_cross_repository_schema",
+        "lossless_required_field_adapters",
+        "version_migration_tests"
+      ],
+      "forbidden_claims": [
+        "stable_product_api",
+        "lossless_three_model_conversion"
+      ]
+    },
+    {
+      "id": "M03-trust-graph",
+      "owner": "agentic-runtime-guard",
+      "status": "partial",
+      "evidence_class": "executable_specification",
+      "depends_on": [
+        "M02-canonical-envelope"
+      ],
+      "delivers": [
+        "typed_lineage",
+        "transfer_edges",
+        "authority_transitions",
+        "incomplete_observation_marking"
+      ],
+      "next_gates": [
+        "producer_attestation",
+        "telemetry_loss_budget",
+        "cross_repository_conformance"
+      ],
+      "forbidden_claims": [
+        "complete_lineage",
+        "cryptographic_identity"
+      ]
+    },
+    {
+      "id": "M04-transfer-verifier",
+      "owner": "agentic-transfer-verifier",
+      "status": "partial",
+      "evidence_class": "executable_specification",
+      "depends_on": [],
+      "delivers": [
+        "provenance_checks",
+        "freshness_checks",
+        "authority_non_expansion",
+        "capability_checks"
+      ],
+      "next_gates": [
+        "json_loader",
+        "cli_and_report_artifacts",
+        "runtime_advisory_adapter",
+        "representative_transfer_labels"
+      ],
+      "forbidden_claims": [
+        "authentication_service",
+        "semantic_truth",
+        "incident_probability"
+      ]
+    },
+    {
+      "id": "M05-deterministic-policy",
+      "owner": "agentic-runtime-guard",
+      "status": "implemented_bounded",
+      "evidence_class": "mechanically_verified_bounded_contour",
+      "depends_on": [],
+      "delivers": [
+        "default_deny_policy",
+        "explicit_invariants",
+        "decision_explanations"
+      ],
+      "next_gates": [
+        "advisory_input_contract",
+        "policy_version_migration",
+        "hostile_bypass_review"
+      ],
+      "forbidden_claims": [
+        "production_non_bypassability",
+        "semantic_intent_detection"
+      ]
+    },
+    {
+      "id": "M06-semantic-sentinel",
+      "owner": "agentic-runtime-guard",
+      "status": "preregistered_not_implemented",
+      "evidence_class": "design_only",
+      "depends_on": [],
+      "delivers": [
+        "meaning_drift_advisory",
+        "policy_intent_advisory",
+        "abstention_and_disagreement"
+      ],
+      "next_gates": [
+        "artifact_license_code_template_policy_commitment",
+        "leakage_audit",
+        "independent_family_partition",
+        "selective_risk_evaluation"
+      ],
+      "forbidden_claims": [
+        "implemented_detector",
+        "validated_accuracy",
+        "blocking_authority",
+        "universal_model_judge"
+      ]
+    },
+    {
+      "id": "M07-swarm-analyzer",
+      "owner": "agentic-runtime-guard",
+      "status": "research_only",
+      "evidence_class": "mixed_synthetic_and_falsified",
+      "depends_on": [
+        "M02-canonical-envelope",
+        "M03-trust-graph"
+      ],
+      "delivers": [
+        "temporal_swarm_features",
+        "selective_abstention",
+        "campaign_risk_advisory"
+      ],
+      "next_gates": [
+        "new_frozen_hypothesis",
+        "new_unseen_family_evaluation",
+        "independent_custody"
+      ],
+      "forbidden_claims": [
+        "calibrated_attack_probability",
+        "field_validated_verdict",
+        "generation2_reuse"
+      ]
+    },
+    {
+      "id": "M08-decision-gateway",
+      "owner": "agentic-runtime-guard",
+      "status": "planned",
+      "evidence_class": "architecture_only",
+      "depends_on": [
+        "M05-deterministic-policy",
+        "M06-semantic-sentinel",
+        "M07-swarm-analyzer"
+      ],
+      "delivers": [
+        "authoritative_advisory_separation",
+        "abstention_propagation",
+        "policy_bound_combination"
+      ],
+      "next_gates": [
+        "formal_combination_algebra",
+        "conflict_tests",
+        "no_authority_promotion_proof"
+      ],
+      "forbidden_claims": [
+        "implemented_product_gate",
+        "model_confidence_as_consent"
+      ]
+    },
+    {
+      "id": "M09-receipt-authority",
+      "owner": "agentic-runtime-guard",
+      "status": "implemented_bounded",
+      "evidence_class": "mechanically_verified_bounded_contour",
+      "depends_on": [
+        "M05-deterministic-policy"
+      ],
+      "delivers": [
+        "action_bound_receipt",
+        "short_lived_receipt",
+        "single_use_ledger"
+      ],
+      "next_gates": [
+        "receipt_lifecycle_security_review",
+        "key_isolation",
+        "concurrency_and_crash_tests"
+      ],
+      "forbidden_claims": [
+        "hostile_os_non_bypassability",
+        "general_purpose_capability_token"
+      ]
+    },
+    {
+      "id": "M10-bounded-executor",
+      "owner": "agentic-runtime-guard",
+      "status": "implemented_synthetic",
+      "evidence_class": "mechanically_verified_bounded_contour",
+      "depends_on": [
+        "M09-receipt-authority"
+      ],
+      "delivers": [
+        "one_receipt_one_effect",
+        "bounded_filesystem_fixture"
+      ],
+      "next_gates": [
+        "os_sandbox_design",
+        "junction_hardlink_handle_race_tests",
+        "disposable_pilot"
+      ],
+      "forbidden_claims": [
+        "production_enforcement",
+        "general_shell_authority"
+      ]
+    },
+    {
+      "id": "M11-evidence-ledger",
+      "owner": "agentic-runtime-guard",
+      "status": "partial",
+      "evidence_class": "executable_specification",
+      "depends_on": [],
+      "delivers": [
+        "decision_effect_separation",
+        "integrity_pointers",
+        "privacy_minimized_records"
+      ],
+      "next_gates": [
+        "pseudonymization_review",
+        "retention_policy",
+        "tamper_evidence",
+        "restore_and_loss_tests"
+      ],
+      "forbidden_claims": [
+        "forensic_completeness",
+        "raw_transcript_archive"
+      ]
+    },
+    {
+      "id": "M12-harness-regression",
+      "owner": "agentic-security-harness",
+      "status": "implemented_development",
+      "evidence_class": "synthetic_executable_specification",
+      "depends_on": [],
+      "delivers": [
+        "deterministic_corpus",
+        "campaign_generators",
+        "covering_arrays",
+        "artifact_validation",
+        "sanitized_reports"
+      ],
+      "next_gates": [
+        "scenario_alias_registry",
+        "causal_ablations",
+        "unseen_family_protocol",
+        "product_contract_replay"
+      ],
+      "forbidden_claims": [
+        "certification",
+        "production_effectiveness",
+        "additive_scenario_count"
+      ]
+    },
+    {
+      "id": "M13-handoff-edge",
+      "owner": "ai-agent-handoff",
+      "status": "implemented_pattern_guard",
+      "evidence_class": "engineering_fixture",
+      "depends_on": [],
+      "delivers": [
+        "operator_handoff_protocol",
+        "path_and_command_pattern_guard"
+      ],
+      "next_gates": [
+        "verified_metadata_adapter",
+        "sequence_safety_tests"
+      ],
+      "forbidden_claims": [
+        "semantic_security_control",
+        "cryptographic_handoff_verification"
+      ]
+    },
+    {
+      "id": "M14-provider-router",
+      "owner": "llm-router",
+      "status": "optional_support",
+      "evidence_class": "engineering_fixture",
+      "depends_on": [],
+      "delivers": [
+        "provider_routing",
+        "retry_accounting",
+        "usage_and_budget_arithmetic"
+      ],
+      "next_gates": [
+        "concurrent_budget_reservations",
+        "provider_contract_tests",
+        "secret_broker_boundary"
+      ],
+      "forbidden_claims": [
+        "policy_gateway",
+        "secret_manager",
+        "invoice_truth"
+      ]
+    },
+    {
+      "id": "M15-cost-triage",
+      "owner": "llm-cheap-filter",
+      "status": "optional_support",
+      "evidence_class": "engineering_fixture",
+      "depends_on": [
+        "M14-provider-router"
+      ],
+      "delivers": [
+        "deterministic_prefilter",
+        "cheap_to_chief_escalation",
+        "cost_arithmetic"
+      ],
+      "next_gates": [
+        "labelled_routing_errors",
+        "independent_chief_validation",
+        "cannot_lower_guard_decision_test"
+      ],
+      "forbidden_claims": [
+        "security_control",
+        "correctness_oracle",
+        "cheap_model_agreement_as_trust"
+      ]
+    },
+    {
+      "id": "M16-operator-playbooks",
+      "owner": "llm-safety-playbooks",
+      "status": "implemented_guidance",
+      "evidence_class": "human_guidance",
+      "depends_on": [],
+      "delivers": [
+        "boundary_guidance",
+        "secret_guidance",
+        "handoff_guidance",
+        "authorized_research_guidance"
+      ],
+      "next_gates": [
+        "map_playbooks_to_machine_controls",
+        "operator_usability_review"
+      ],
+      "forbidden_claims": [
+        "enforcement",
+        "runtime_isolation",
+        "provenance_validation"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "source": "M01-boundary-adapters",
+      "target": "M02-canonical-envelope",
+      "type": "projects_to",
+      "authority_effect": "downgrade_only"
+    },
+    {
+      "source": "M02-canonical-envelope",
+      "target": "M03-trust-graph",
+      "type": "projects_to",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M03-trust-graph",
+      "target": "M04-transfer-verifier",
+      "type": "informs",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M04-transfer-verifier",
+      "target": "M05-deterministic-policy",
+      "type": "advises",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M02-canonical-envelope",
+      "target": "M06-semantic-sentinel",
+      "type": "projects_to",
+      "authority_effect": "downgrade_only"
+    },
+    {
+      "source": "M02-canonical-envelope",
+      "target": "M07-swarm-analyzer",
+      "type": "projects_to",
+      "authority_effect": "downgrade_only"
+    },
+    {
+      "source": "M06-semantic-sentinel",
+      "target": "M08-decision-gateway",
+      "type": "advises",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M07-swarm-analyzer",
+      "target": "M08-decision-gateway",
+      "type": "advises",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M05-deterministic-policy",
+      "target": "M08-decision-gateway",
+      "type": "constrains",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M08-decision-gateway",
+      "target": "M09-receipt-authority",
+      "type": "authorizes_bounded",
+      "authority_effect": "bounded_explicit_only"
+    },
+    {
+      "source": "M09-receipt-authority",
+      "target": "M10-bounded-executor",
+      "type": "authorizes_bounded",
+      "authority_effect": "bounded_explicit_only"
+    },
+    {
+      "source": "M08-decision-gateway",
+      "target": "M11-evidence-ledger",
+      "type": "records_to",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M10-bounded-executor",
+      "target": "M11-evidence-ledger",
+      "type": "records_to",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M12-harness-regression",
+      "target": "M02-canonical-envelope",
+      "type": "validates",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M12-harness-regression",
+      "target": "M06-semantic-sentinel",
+      "type": "validates",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M12-harness-regression",
+      "target": "M07-swarm-analyzer",
+      "type": "validates",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M13-handoff-edge",
+      "target": "M02-canonical-envelope",
+      "type": "projects_to",
+      "authority_effect": "downgrade_only"
+    },
+    {
+      "source": "M05-deterministic-policy",
+      "target": "M14-provider-router",
+      "type": "constrains",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M05-deterministic-policy",
+      "target": "M15-cost-triage",
+      "type": "constrains",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M16-operator-playbooks",
+      "target": "M05-deterministic-policy",
+      "type": "informs",
+      "authority_effect": "none"
+    }
+  ],
+  "phases": [
+    {
+      "id": "P0-evidence-and-governance-baseline",
+      "status": "complete",
+      "depends_on": [],
+      "modules": [
+        "M11-evidence-ledger",
+        "M12-harness-regression",
+        "M16-operator-playbooks"
+      ],
+      "exit_criteria": [
+        "portfolio_roles_documented",
+        "claims_separated_by_evidence_class",
+        "private_and_public_boundaries_declared",
+        "owner_gates_explicit"
+      ],
+      "criterion_status": {
+        "portfolio_roles_documented": "pass",
+        "claims_separated_by_evidence_class": "pass",
+        "private_and_public_boundaries_declared": "pass",
+        "owner_gates_explicit": "pass"
+      }
+    },
+    {
+      "id": "P1-contract-convergence",
+      "status": "active",
+      "depends_on": [
+        "P0-evidence-and-governance-baseline"
+      ],
+      "modules": [
+        "M01-boundary-adapters",
+        "M02-canonical-envelope",
+        "M03-trust-graph",
+        "M04-transfer-verifier",
+        "M13-handoff-edge"
+      ],
+      "exit_criteria": [
+        "versioned_canonical_envelope",
+        "field_level_loss_accounting",
+        "no_authority_promotion_tests",
+        "cross_repository_shadow_conformance"
+      ],
+      "criterion_status": {
+        "versioned_canonical_envelope": "unsatisfied",
+        "field_level_loss_accounting": "partial",
+        "no_authority_promotion_tests": "partial",
+        "cross_repository_shadow_conformance": "partial"
+      }
+    },
+    {
+      "id": "P2-shadow-product-slice",
+      "status": "planned",
+      "depends_on": [
+        "P1-contract-convergence"
+      ],
+      "modules": [
+        "M05-deterministic-policy",
+        "M06-semantic-sentinel",
+        "M07-swarm-analyzer",
+        "M08-decision-gateway",
+        "M11-evidence-ledger",
+        "M12-harness-regression"
+      ],
+      "exit_criteria": [
+        "end_to_end_fake_source_no_effect_sink",
+        "advisory_authority_type_separation",
+        "conflict_and_abstention_tests",
+        "privacy_minimized_evidence"
+      ],
+      "criterion_status": {
+        "end_to_end_fake_source_no_effect_sink": "unsatisfied",
+        "advisory_authority_type_separation": "partial",
+        "conflict_and_abstention_tests": "unsatisfied",
+        "privacy_minimized_evidence": "partial"
+      }
+    },
+    {
+      "id": "P3-scientific-validation",
+      "status": "planned",
+      "depends_on": [
+        "P2-shadow-product-slice"
+      ],
+      "modules": [
+        "M06-semantic-sentinel",
+        "M07-swarm-analyzer",
+        "M12-harness-regression"
+      ],
+      "exit_criteria": [
+        "single_frozen_candidate_per_claim",
+        "family_disjoint_development_and_holdout",
+        "multiplicity_control",
+        "selective_risk_with_abstention",
+        "independent_or_explicit_single_operator_custody",
+        "negative_results_preserved"
+      ],
+      "criterion_status": {
+        "single_frozen_candidate_per_claim": "partial",
+        "family_disjoint_development_and_holdout": "unsatisfied",
+        "multiplicity_control": "partial",
+        "selective_risk_with_abstention": "partial",
+        "independent_or_explicit_single_operator_custody": "partial",
+        "negative_results_preserved": "pass"
+      }
+    },
+    {
+      "id": "P4-privacy_preserving_pilot",
+      "status": "owner_gated",
+      "depends_on": [
+        "P1-contract-convergence",
+        "P2-shadow-product-slice",
+        "P3-scientific-validation"
+      ],
+      "modules": [
+        "M01-boundary-adapters",
+        "M03-trust-graph",
+        "M08-decision-gateway",
+        "M11-evidence-ledger",
+        "M13-handoff-edge",
+        "M16-operator-playbooks"
+      ],
+      "exit_criteria": [
+        "rights_cleared_disposable_fixtures",
+        "visible_consent",
+        "retention_and_deletion_proof",
+        "incident_and_rollback_runbook",
+        "no_raw_prompt_default_storage"
+      ],
+      "criterion_status": {
+        "rights_cleared_disposable_fixtures": "unsatisfied",
+        "visible_consent": "unsatisfied",
+        "retention_and_deletion_proof": "unsatisfied",
+        "incident_and_rollback_runbook": "unsatisfied",
+        "no_raw_prompt_default_storage": "partial"
+      }
+    },
+    {
+      "id": "P5-bounded-enforcement",
+      "status": "owner_gated",
+      "depends_on": [
+        "P4-privacy_preserving_pilot"
+      ],
+      "modules": [
+        "M05-deterministic-policy",
+        "M08-decision-gateway",
+        "M09-receipt-authority",
+        "M10-bounded-executor",
+        "M11-evidence-ledger"
+      ],
+      "exit_criteria": [
+        "os_sandbox_hostile_review",
+        "receipt_key_isolation",
+        "race_and_crash_recovery_tests",
+        "fail_closed_manual_override",
+        "rollback_and_kill_switch",
+        "independent_security_review"
+      ],
+      "criterion_status": {
+        "os_sandbox_hostile_review": "unsatisfied",
+        "receipt_key_isolation": "unsatisfied",
+        "race_and_crash_recovery_tests": "unsatisfied",
+        "fail_closed_manual_override": "unsatisfied",
+        "rollback_and_kill_switch": "unsatisfied",
+        "independent_security_review": "unsatisfied"
+      }
+    },
+    {
+      "id": "P6-productization",
+      "status": "owner_gated",
+      "depends_on": [
+        "P5-bounded-enforcement"
+      ],
+      "modules": [
+        "M12-harness-regression",
+        "M14-provider-router",
+        "M15-cost-triage",
+        "M16-operator-playbooks"
+      ],
+      "exit_criteria": [
+        "license_and_public_private_split",
+        "supported_platform_matrix",
+        "signed_release_and_sbom",
+        "upgrade_and_migration_contract",
+        "support_and_vulnerability_process",
+        "claims_match_evidence"
+      ],
+      "criterion_status": {
+        "license_and_public_private_split": "unsatisfied",
+        "supported_platform_matrix": "unsatisfied",
+        "signed_release_and_sbom": "unsatisfied",
+        "upgrade_and_migration_contract": "unsatisfied",
+        "support_and_vulnerability_process": "unsatisfied",
+        "claims_match_evidence": "partial"
+      }
+    }
+  ],
+  "claims": [
+    {
+      "id": "C01-bounded-guard-core",
+      "module": "M05-deterministic-policy",
+      "supported_claim": "Deterministic policy and bounded synthetic invariants are mechanically reproducible.",
+      "evidence_class": "mechanically_verified_bounded_contour",
+      "causal_scope": "current implementation and tests",
+      "forbidden_promotions": [
+        "hostile_os_non_bypassability",
+        "production_protection"
+      ],
+      "next_gate": "hostile_bypass_review"
+    },
+    {
+      "id": "C02-generation2-falsification",
+      "module": "M07-swarm-analyzer",
+      "supported_claim": "Generation 2 failed its consumed holdout and the negative result is preserved.",
+      "evidence_class": "independently_labelled_evaluation",
+      "causal_scope": "consumed Generation 2 synthetic holdout",
+      "forbidden_promotions": [
+        "reuse_for_tuning",
+        "detector_success"
+      ],
+      "next_gate": "new_hypothesis_and_new_holdout"
+    },
+    {
+      "id": "C03-generation3-visible-conformance",
+      "module": "M07-swarm-analyzer",
+      "supported_claim": "The frozen H1-N profile passed its one allowed visible common-control conformance run.",
+      "evidence_class": "internal_precommitted_conformance",
+      "causal_scope": "visible synthetic profile only",
+      "forbidden_promotions": [
+        "independent_validation",
+        "field_effectiveness",
+        "sealed_holdout_success"
+      ],
+      "next_gate": "independent_replacement_specification"
+    },
+    {
+      "id": "C04-semantic-sentinel-design",
+      "module": "M06-semantic-sentinel",
+      "supported_claim": "A falsifiable isolated Sentinel design and uncertainty budget are preregistered.",
+      "evidence_class": "design_only",
+      "causal_scope": "preregistration documents",
+      "forbidden_promotions": [
+        "implemented_detector",
+        "measured_accuracy",
+        "blocking_authority"
+      ],
+      "next_gate": "artifact_and_protocol_commitment"
+    },
+    {
+      "id": "C05-harness-specification",
+      "module": "M12-harness-regression",
+      "supported_claim": "Encoded rules and synthetic fixtures reproduce their declared outcomes.",
+      "evidence_class": "synthetic_executable_specification",
+      "causal_scope": "committed public corpus",
+      "forbidden_promotions": [
+        "certification",
+        "universal_agent_safety",
+        "field_accuracy"
+      ],
+      "next_gate": "independent_representative_labels"
+    }
+  ],
+  "residual_risks": [
+    {
+      "id": "R1-envelope-fragmentation",
+      "severity": "high",
+      "status": "open",
+      "mitigated_by": [
+        "P1-contract-convergence"
+      ]
+    },
+    {
+      "id": "R2-semantic-detector-absent",
+      "severity": "high",
+      "status": "open",
+      "mitigated_by": [
+        "P2-shadow-product-slice",
+        "P3-scientific-validation"
+      ]
+    },
+    {
+      "id": "R3-telemetry-and-attestation-incomplete",
+      "severity": "high",
+      "status": "open",
+      "mitigated_by": [
+        "P1-contract-convergence",
+        "P4-privacy_preserving_pilot"
+      ]
+    },
+    {
+      "id": "R4-hostile-os-bypass",
+      "severity": "high",
+      "status": "open",
+      "mitigated_by": [
+        "P5-bounded-enforcement"
+      ]
+    },
+    {
+      "id": "R5-independent-holdout-absent",
+      "severity": "high",
+      "status": "open",
+      "mitigated_by": [
+        "P3-scientific-validation"
+      ]
+    },
+    {
+      "id": "R6-privacy-and-retention-unproven",
+      "severity": "high",
+      "status": "open",
+      "mitigated_by": [
+        "P4-privacy_preserving_pilot"
+      ]
+    },
+    {
+      "id": "R7-provider-and-budget-boundaries",
+      "severity": "medium",
+      "status": "open",
+      "mitigated_by": [
+        "P6-productization"
+      ]
+    }
+  ],
+  "owner_gates": [
+    "merge",
+    "release_or_tag",
+    "deployment",
+    "enforcement_activation",
+    "real_provider_or_live_endpoint_use",
+    "real_camera_or_microphone_use",
+    "private_or_personal_data_use",
+    "real_sealed_holdout_execution",
+    "repository_visibility_or_license_change"
+  ],
+  "rendered_markdown_sha256": "ff5b01721822b0d3b0b7020894bb252c281eacc50ad79ea4b0bff5a2d0840227"
+}
