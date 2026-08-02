@@ -1,8 +1,8 @@
 {
   "schema_version": "SecurityPortfolioRoadmapPublic.v1",
-  "roadmap_version": "2026.07.31-rc1",
-  "baseline_date": "2026-07-31",
-  "source_sha256": "181a0dd7fad62699693895b1bd5189c91984140a48a35afe811d948efee57fca",
+  "roadmap_version": "2026.08.02-r4-trajectory-containment",
+  "baseline_date": "2026-08-02",
+  "source_sha256": "b390c467da372a8f1d8db0ed85afab5e96d4187a6d8a056a6b3541472679f69d",
   "authority": "none",
   "thesis": "Prevent untrusted observations from becoming trusted context, authority, capability, consent, or effects without provenance, explicit policy, bounded execution, and privacy-minimized evidence.",
   "global_invariants": [
@@ -14,7 +14,10 @@
     "raw_prompts_tool_outputs_and_secrets_are_not_default_evidence",
     "synthetic_or_common_control_evidence_is_not_field_validation",
     "consumed_holdouts_are_never_reused_for_tuning_or_claims",
-    "enforcement_release_provider_and_device_actions_remain_owner_gated"
+    "enforcement_release_provider_and_device_actions_remain_owner_gated",
+    "runtime_outcomes_never_encode_scientific_labels",
+    "candidate_views_exclude_effect_and_containment_outcomes",
+    "missing_trajectory_or_telemetry_proof_forces_abstention"
   ],
   "repositories": [
     {
@@ -160,8 +163,8 @@
     {
       "id": "M01-boundary-adapters",
       "owner": "agentic-runtime-guard",
-      "status": "partial",
-      "evidence_class": "executable_specification",
+      "status": "implemented_development",
+      "evidence_class": "synthetic_executable_specification",
       "depends_on": [],
       "delivers": [
         "typed_source_decoding",
@@ -169,8 +172,8 @@
         "no_authority_projection"
       ],
       "next_gates": [
-        "loss_accounting_for_each_source",
-        "authenticated_producer_design"
+        "authenticated_producer_design",
+        "version_migration_tests"
       ],
       "forbidden_claims": [
         "complete_telemetry",
@@ -180,8 +183,8 @@
     {
       "id": "M02-canonical-envelope",
       "owner": "agentic-security-harness",
-      "status": "partial",
-      "evidence_class": "development_contract",
+      "status": "implemented_development",
+      "evidence_class": "synthetic_executable_specification",
       "depends_on": [],
       "delivers": [
         "provider_neutral_event",
@@ -189,20 +192,19 @@
         "authority_free_advisory"
       ],
       "next_gates": [
-        "stable_cross_repository_schema",
-        "lossless_required_field_adapters",
-        "version_migration_tests"
+        "version_migration_tests",
+        "authenticated_producer_design"
       ],
       "forbidden_claims": [
-        "stable_product_api",
-        "lossless_three_model_conversion"
+        "production_stable_api",
+        "authenticated_source"
       ]
     },
     {
       "id": "M03-trust-graph",
       "owner": "agentic-runtime-guard",
-      "status": "partial",
-      "evidence_class": "executable_specification",
+      "status": "implemented_development",
+      "evidence_class": "synthetic_executable_specification",
       "depends_on": [
         "M02-canonical-envelope"
       ],
@@ -215,7 +217,7 @@
       "next_gates": [
         "producer_attestation",
         "telemetry_loss_budget",
-        "cross_repository_conformance"
+        "durable_external_head"
       ],
       "forbidden_claims": [
         "complete_lineage",
@@ -225,8 +227,8 @@
     {
       "id": "M04-transfer-verifier",
       "owner": "agentic-transfer-verifier",
-      "status": "partial",
-      "evidence_class": "executable_specification",
+      "status": "implemented_development",
+      "evidence_class": "synthetic_executable_specification",
       "depends_on": [],
       "delivers": [
         "provenance_checks",
@@ -235,10 +237,8 @@
         "capability_checks"
       ],
       "next_gates": [
-        "json_loader",
-        "cli_and_report_artifacts",
-        "runtime_advisory_adapter",
-        "representative_transfer_labels"
+        "representative_transfer_labels",
+        "authenticated_producer_design"
       ],
       "forbidden_claims": [
         "authentication_service",
@@ -270,8 +270,8 @@
     {
       "id": "M06-semantic-sentinel",
       "owner": "agentic-runtime-guard",
-      "status": "preregistered_not_implemented",
-      "evidence_class": "design_only",
+      "status": "implemented_development",
+      "evidence_class": "synthetic_executable_specification",
       "depends_on": [],
       "delivers": [
         "meaning_drift_advisory",
@@ -279,14 +279,17 @@
         "abstention_and_disagreement"
       ],
       "next_gates": [
-        "artifact_license_code_template_policy_commitment",
-        "leakage_audit",
+        "new_preregistered_candidate_cycle_after_negative_development_result",
+        "claim_wide_burn_registry",
+        "hiding_label_commitments",
+        "immutable_external_terminal_anchoring",
+        "isolated_generator_candidate_evaluator",
         "independent_family_partition",
-        "selective_risk_evaluation"
+        "official_sealed_selective_risk_evaluation"
       ],
       "forbidden_claims": [
-        "implemented_detector",
         "validated_accuracy",
+        "local_model_generalization",
         "blocking_authority",
         "universal_model_judge"
       ]
@@ -319,8 +322,8 @@
     {
       "id": "M08-decision-gateway",
       "owner": "agentic-runtime-guard",
-      "status": "planned",
-      "evidence_class": "architecture_only",
+      "status": "implemented_development",
+      "evidence_class": "synthetic_executable_specification",
       "depends_on": [
         "M05-deterministic-policy",
         "M06-semantic-sentinel",
@@ -329,16 +332,18 @@
       "delivers": [
         "authoritative_advisory_separation",
         "abstention_propagation",
-        "policy_bound_combination"
+        "policy_bound_combination",
+        "generation3_semantic_no_effect_path"
       ],
       "next_gates": [
-        "formal_combination_algebra",
-        "conflict_tests",
-        "no_authority_promotion_proof"
+        "durable_external_head",
+        "open_development_evaluation",
+        "authenticated_producer_design"
       ],
       "forbidden_claims": [
-        "implemented_product_gate",
-        "model_confidence_as_consent"
+        "production_product_gate",
+        "model_confidence_as_consent",
+        "blocking_authority"
       ]
     },
     {
@@ -436,16 +441,18 @@
     {
       "id": "M13-handoff-edge",
       "owner": "ai-agent-handoff",
-      "status": "implemented_pattern_guard",
-      "evidence_class": "engineering_fixture",
+      "status": "implemented_development",
+      "evidence_class": "synthetic_executable_specification",
       "depends_on": [],
       "delivers": [
         "operator_handoff_protocol",
-        "path_and_command_pattern_guard"
-      ],
-      "next_gates": [
+        "path_and_command_pattern_guard",
         "verified_metadata_adapter",
         "sequence_safety_tests"
+      ],
+      "next_gates": [
+        "authenticated_producer_design",
+        "representative_handoff_labels"
       ],
       "forbidden_claims": [
         "semantic_security_control",
@@ -518,6 +525,98 @@
         "enforcement",
         "runtime_isolation",
         "provenance_validation"
+      ]
+    },
+    {
+      "id": "M17-typed-outcome-contract",
+      "owner": "agentic-security-harness",
+      "status": "implemented_development",
+      "evidence_class": "synthetic_executable_specification",
+      "depends_on": [
+        "M02-canonical-envelope"
+      ],
+      "delivers": [
+        "layer_discriminated_outcomes",
+        "closed_per_layer_values",
+        "scientific_label_exclusion"
+      ],
+      "next_gates": [
+        "external_consumer_version_migration",
+        "representative_cross_process_capture"
+      ],
+      "forbidden_claims": [
+        "policy_authority",
+        "execution_proof",
+        "scientific_ground_truth"
+      ]
+    },
+    {
+      "id": "M18-mcp-redaction-receipt",
+      "owner": "agentic-security-harness",
+      "status": "implemented_development",
+      "evidence_class": "synthetic_executable_specification",
+      "depends_on": [
+        "M02-canonical-envelope"
+      ],
+      "delivers": [
+        "bounded_mcp_shape_counts",
+        "explicit_dropped_field_classes",
+        "secret_safe_redaction_receipt"
+      ],
+      "next_gates": [
+        "authenticated_capture_binding",
+        "representative_mcp_telemetry"
+      ],
+      "forbidden_claims": [
+        "raw_payload_forensics",
+        "secret_anonymity",
+        "complete_mcp_telemetry"
+      ]
+    },
+    {
+      "id": "M19-trajectory-accounting",
+      "owner": "agentic-security-harness",
+      "status": "implemented_development",
+      "evidence_class": "synthetic_executable_specification",
+      "depends_on": [
+        "M02-canonical-envelope",
+        "M03-trust-graph"
+      ],
+      "delivers": [
+        "commitment_bound_causal_dag",
+        "root_leaf_cycle_and_unresolved_accounting",
+        "bounded_completeness_state"
+      ],
+      "next_gates": [
+        "authenticated_producer_witness",
+        "family_disjoint_unseen_trajectories"
+      ],
+      "forbidden_claims": [
+        "authenticated_causal_origin",
+        "complete_real_world_lineage"
+      ]
+    },
+    {
+      "id": "M20-telemetry-completeness",
+      "owner": "agentic-security-harness",
+      "status": "implemented_development",
+      "evidence_class": "synthetic_executable_specification",
+      "depends_on": [
+        "M01-boundary-adapters",
+        "M19-trajectory-accounting"
+      ],
+      "delivers": [
+        "expected_observed_channel_accounting",
+        "loss_and_rejection_counts",
+        "abstain_on_unproven_completeness"
+      ],
+      "next_gates": [
+        "authenticated_channel_capture",
+        "measured_loss_budget_pilot"
+      ],
+      "forbidden_claims": [
+        "forensic_completeness",
+        "caller_asserted_complete_as_proof"
       ]
     }
   ],
@@ -641,6 +740,60 @@
       "target": "M05-deterministic-policy",
       "type": "informs",
       "authority_effect": "none"
+    },
+    {
+      "source": "M02-canonical-envelope",
+      "target": "M17-typed-outcome-contract",
+      "type": "informs",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M02-canonical-envelope",
+      "target": "M18-mcp-redaction-receipt",
+      "type": "informs",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M03-trust-graph",
+      "target": "M19-trajectory-accounting",
+      "type": "informs",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M01-boundary-adapters",
+      "target": "M20-telemetry-completeness",
+      "type": "informs",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M19-trajectory-accounting",
+      "target": "M20-telemetry-completeness",
+      "type": "informs",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M17-typed-outcome-contract",
+      "target": "M08-decision-gateway",
+      "type": "projects_to",
+      "authority_effect": "none"
+    },
+    {
+      "source": "M18-mcp-redaction-receipt",
+      "target": "M08-decision-gateway",
+      "type": "projects_to",
+      "authority_effect": "downgrade_only"
+    },
+    {
+      "source": "M19-trajectory-accounting",
+      "target": "M08-decision-gateway",
+      "type": "projects_to",
+      "authority_effect": "downgrade_only"
+    },
+    {
+      "source": "M20-telemetry-completeness",
+      "target": "M08-decision-gateway",
+      "type": "constrains",
+      "authority_effect": "none"
     }
   ],
   "phases": [
@@ -668,7 +821,7 @@
     },
     {
       "id": "P1-contract-convergence",
-      "status": "active",
+      "status": "complete",
       "depends_on": [
         "P0-evidence-and-governance-baseline"
       ],
@@ -686,15 +839,15 @@
         "cross_repository_shadow_conformance"
       ],
       "criterion_status": {
-        "versioned_canonical_envelope": "unsatisfied",
-        "field_level_loss_accounting": "partial",
-        "no_authority_promotion_tests": "partial",
-        "cross_repository_shadow_conformance": "partial"
+        "versioned_canonical_envelope": "pass",
+        "field_level_loss_accounting": "pass",
+        "no_authority_promotion_tests": "pass",
+        "cross_repository_shadow_conformance": "pass"
       }
     },
     {
       "id": "P2-shadow-product-slice",
-      "status": "planned",
+      "status": "complete",
       "depends_on": [
         "P1-contract-convergence"
       ],
@@ -713,15 +866,15 @@
         "privacy_minimized_evidence"
       ],
       "criterion_status": {
-        "end_to_end_fake_source_no_effect_sink": "unsatisfied",
-        "advisory_authority_type_separation": "partial",
-        "conflict_and_abstention_tests": "unsatisfied",
-        "privacy_minimized_evidence": "partial"
+        "end_to_end_fake_source_no_effect_sink": "pass",
+        "advisory_authority_type_separation": "pass",
+        "conflict_and_abstention_tests": "pass",
+        "privacy_minimized_evidence": "pass"
       }
     },
     {
       "id": "P3-scientific-validation",
-      "status": "planned",
+      "status": "active",
       "depends_on": [
         "P2-shadow-product-slice"
       ],
@@ -739,12 +892,47 @@
         "negative_results_preserved"
       ],
       "criterion_status": {
-        "single_frozen_candidate_per_claim": "partial",
+        "single_frozen_candidate_per_claim": "pass",
         "family_disjoint_development_and_holdout": "unsatisfied",
         "multiplicity_control": "partial",
         "selective_risk_with_abstention": "partial",
         "independent_or_explicit_single_operator_custody": "partial",
         "negative_results_preserved": "pass"
+      }
+    },
+    {
+      "id": "P3a-r4-trajectory-containment",
+      "status": "complete",
+      "depends_on": [
+        "P2-shadow-product-slice"
+      ],
+      "modules": [
+        "M17-typed-outcome-contract",
+        "M18-mcp-redaction-receipt",
+        "M19-trajectory-accounting",
+        "M20-telemetry-completeness",
+        "M06-semantic-sentinel",
+        "M07-swarm-analyzer",
+        "M08-decision-gateway",
+        "M12-harness-regression"
+      ],
+      "exit_criteria": [
+        "companion_contracts_content_bound",
+        "candidate_and_evaluator_views_separated",
+        "matched_benign_twins_and_cluster_rules_frozen",
+        "open_synthetic_containment_campaign_reproducible",
+        "new_candidate_frozen_before_results",
+        "negative_results_preserved",
+        "zero_authority_promotion"
+      ],
+      "criterion_status": {
+        "companion_contracts_content_bound": "pass",
+        "candidate_and_evaluator_views_separated": "pass",
+        "matched_benign_twins_and_cluster_rules_frozen": "pass",
+        "open_synthetic_containment_campaign_reproducible": "pass",
+        "new_candidate_frozen_before_results": "pass",
+        "negative_results_preserved": "pass",
+        "zero_authority_promotion": "pass"
       }
     },
     {
@@ -877,20 +1065,51 @@
       "next_gate": "independent_replacement_specification"
     },
     {
-      "id": "C04-semantic-sentinel-design",
+      "id": "C04-semantic-sentinel-development",
       "module": "M06-semantic-sentinel",
-      "supported_claim": "A falsifiable isolated Sentinel design and uncertainty budget are preregistered.",
-      "evidence_class": "design_only",
-      "causal_scope": "preregistration documents",
+      "supported_claim": "A deterministic authority-free Sentinel candidate, complete freeze contract, component-level evaluator and exact abstention-aware statistics are reproducible; correlation-aware accounting correctly rejects a visible 1610-case corpus as only 20 causal components. The frozen local candidate then failed a separate bounded 20-case compatibility run by challenging every benign case.",
+      "evidence_class": "synthetic_executable_specification",
+      "causal_scope": "candidate-visible public synthetic development only; the negative local compatibility result is descriptive, not inferential",
       "forbidden_promotions": [
-        "implemented_detector",
-        "measured_accuracy",
+        "local_model_performance",
+        "measured_generalization",
+        "sealed_holdout_success",
         "blocking_authority"
       ],
-      "next_gate": "artifact_and_protocol_commitment"
+      "next_gate": "new_preregistered_candidate_cycle_after_negative_development_result"
     },
     {
-      "id": "C05-harness-specification",
+      "id": "C05-generation3-semantic-shadow-integration",
+      "module": "M08-decision-gateway",
+      "supported_claim": "One owned bounded adapter call binds a canonical observation to pinned Semantic Sentinel and Generation 3 component identities; the synthetic integration test then feeds the advisory through the existing no-effect sink.",
+      "evidence_class": "synthetic_executable_specification",
+      "causal_scope": "fresh public synthetic development fixtures only",
+      "forbidden_promotions": [
+        "detector_generalization",
+        "field_effectiveness",
+        "sealed_holdout_success",
+        "blocking_authority",
+        "cross_process_replay_prevention"
+      ],
+      "next_gate": "new_family_disjoint_development_evaluation"
+    },
+    {
+      "id": "C07-semantic-p3-preparation",
+      "module": "M06-semantic-sentinel",
+      "supported_claim": "Typed candidate-visible and evaluator-only development projections, one exact-head 17-component local candidate identity, candidate-independent claim-burn identity, fixed-family multiplicity and abstention-aware descriptive risk are mechanically reproducible without holdout material or authority.",
+      "evidence_class": "synthetic_executable_specification",
+      "causal_scope": "public deterministic preparation mechanics plus secret-safe exact-head digest evidence; no model execution",
+      "forbidden_promotions": [
+        "local_model_performance",
+        "family_disjoint_validation",
+        "sealed_holdout_success",
+        "independent_custody",
+        "blocking_authority"
+      ],
+      "next_gate": "durable_claim_burn_hiding_anchor_isolation_and_sealed_evaluation"
+    },
+    {
+      "id": "C06-harness-specification",
       "module": "M12-harness-regression",
       "supported_claim": "Encoded rules and synthetic fixtures reproduce their declared outcomes.",
       "evidence_class": "synthetic_executable_specification",
@@ -901,6 +1120,22 @@
         "field_accuracy"
       ],
       "next_gate": "independent_representative_labels"
+    },
+    {
+      "id": "C08-r4-trajectory-containment-development",
+      "module": "M19-trajectory-accounting",
+      "supported_claim": "Exact pinned companion contracts, a feature-only frozen detector, content-bound evaluator labels and an 80-case open synthetic campaign are reproducible. The descriptive result is 32 TP, 40 TN and 8 harmful abstentions with no system errors or effects; harmful detection including errors is 0.8, counterfactual pre-effect detection is 0.6 and worst-family harmful detection is 0.0.",
+      "evidence_class": "synthetic_executable_specification",
+      "causal_scope": "public synthetic common-control development corpus; structural unattested lineage and counterfactual effect boundary only",
+      "forbidden_promotions": [
+        "authenticated_causal_detection",
+        "containment_effectiveness",
+        "field_generalization",
+        "independent_validation",
+        "sealed_holdout_success",
+        "production_authority"
+      ],
+      "next_gate": "authenticated_telemetry_and_family_disjoint_evaluation"
     }
   ],
   "residual_risks": [
@@ -913,11 +1148,10 @@
       ]
     },
     {
-      "id": "R2-semantic-detector-absent",
+      "id": "R2-semantic-local-model-unvalidated",
       "severity": "high",
       "status": "open",
       "mitigated_by": [
-        "P2-shadow-product-slice",
         "P3-scientific-validation"
       ]
     },
@@ -961,6 +1195,14 @@
       "mitigated_by": [
         "P6-productization"
       ]
+    },
+    {
+      "id": "R8-long-horizon-causality-unidentifiable",
+      "severity": "high",
+      "status": "open",
+      "mitigated_by": [
+        "P3a-r4-trajectory-containment"
+      ]
     }
   ],
   "owner_gates": [
@@ -974,5 +1216,5 @@
     "real_sealed_holdout_execution",
     "repository_visibility_or_license_change"
   ],
-  "rendered_markdown_sha256": "ff5b01721822b0d3b0b7020894bb252c281eacc50ad79ea4b0bff5a2d0840227"
+  "rendered_markdown_sha256": "db53d37f9c5d55cb00d764104c8fe9035cefa3aeb464d36687daa3ba931ed124"
 }

@@ -1,13 +1,14 @@
 # Current state
 
-Portfolio contract pin: `2026.07.31-rc1`. Harness owns the public canonical-envelope
-development contract and synthetic regression/falsification modules; operational
-authority remains `none`. See
+Portfolio contract pin: `2026.08.02-r4-trajectory-containment`. Harness owns the public
+canonical-envelope, synthetic regression/falsification, typed-outcome, MCP redaction,
+trajectory-accounting, and telemetry-completeness modules; operational authority remains
+`none`. See
 [`security-portfolio-roadmap.md`](security-portfolio-roadmap.md).
 
-> Last reviewed: 2026-08-01 against merged Security Portfolio projection
-> `2026.07.31-rc1` and Harness main baseline
-> `f967b904ad823f4d2307a3a2cd1b413c069542e8`.
+> Last reviewed: 2026-08-02 against merged Security Portfolio projection
+> `2026.08.02-r4-trajectory-containment` and Harness main baseline
+> `d0402353aa25d442743897d56e54946273ab999c`.
 >
 > Scope: public status of `agentic-security-harness` on `main`, version `0.14.0`. This
 > page is a reviewer-facing status snapshot, not a roadmap promise.
