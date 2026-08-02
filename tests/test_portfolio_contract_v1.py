@@ -169,7 +169,10 @@ def test_v1_decoder_rejects_ambiguous_noncanonical_and_oversized_payloads() -> N
     with pytest.raises(PortfolioObservationContractError, match="byte limit"):
         decode_portfolio_observation_v1(b"x" * (MAX_PORTFOLIO_OBSERVATION_BYTES + 1))
     deep_json = b'{"x":' + b"[" * 1_500 + b"0" + b"]" * 1_500 + b"}\n"
-    with pytest.raises(PortfolioObservationContractError, match="UTF-8 JSON"):
+    # CPython's JSON recursion threshold varies by platform/build. Both paths are
+    # fail-closed: parsing may reject the nesting, or the resulting unknown top-level
+    # field is rejected by the exact V1 field universe.
+    with pytest.raises(PortfolioObservationContractError, match="UTF-8 JSON|fields"):
         decode_portfolio_observation_v1(deep_json)
 
 
