@@ -1,9 +1,10 @@
 # Unified event and envelope contract
 
-> Status: partial authority-free integration contract. Runtime Guard consumes a
-> one-way bounded observation projection in shadow/advisory tests; no stable
-> cross-repository schema, reverse authoritative conversion, allow receipt, or
-> executor connection is claimed.
+> Status: Harness-owned `portfolio-observation-v1.0` wire contract implemented locally with
+> content-bound schema, synthetic conformance fixtures and exhaustive adapter-audit
+> primitives. Runtime Guard still consumes the earlier one-way draft projection until its
+> adapter pins this exact schema and fixture manifest. No reverse authoritative conversion,
+> allow receipt, or executor connection is claimed.
 
 ## Purpose
 
@@ -49,10 +50,31 @@ Required conceptual fields:
 Raw prompts, raw tool output, credentials, private paths and unrestricted payloads are absent
 from the default event.
 
-The current Python model does not implement canonical serialization or cryptographic
-attestation. Hash-shaped values are untrusted claims until a separate verifier binds exact
-bytes and an attestation receipt. A producer cannot self-declare `verified` inside this
-observation.
+The stable V1 Python model implements one bounded canonical representation: UTF-8 JSON,
+sorted keys, compact separators, UTC timestamps with six fractional digits, and one trailing
+line feed. Unknown, missing, duplicate, oversized, non-canonical, and unsupported-version
+payloads fail closed. The JSON Schema, manifest, and synthetic positive/negative fixtures are
+content-bound under `schemas/portfolio-observation.v1.*` and
+`tests/fixtures/portfolio-observation-v1/`.
+
+`event_id` deliberately remains a producer-claimed digest-shaped identifier. It is not a
+content hash and does not prove provenance. `ObservationCommitmentV1` separately records the
+exact canonical-byte SHA-256 and a domain/schema-separated commitment. Neither object can
+state verified producer attestation or operational authority. Cryptographic producer
+attestation remains unimplemented.
+
+## Stable V1 wire and version boundary
+
+- Contract id: `portfolio-observation-v1.0`.
+- Maximum canonical record size: 4096 bytes including the trailing line feed.
+- Maximum event collection cardinalities: 64 evidence pointers and 64 parent event ids.
+- Adapter audits are bounded to 128 declared fields, 128 mappings and 64 reason codes.
+- Commitment domain: `agentic-security-portfolio/observation/v1.0`.
+- Legacy `portfolio-observation-v0.1` objects are not silently decoded as V1.
+- A future migration must be an explicit pure function with downgrade-only tests; schema
+  negotiation or best-effort field inference is forbidden.
+- The generated JSON Schema describes value shape. The Python decoder additionally enforces
+  duplicate-key rejection and exact canonical bytes.
 
 ## Non-expansion relations
 
@@ -127,6 +149,17 @@ Every adapter must publish a field matrix:
 | Telemetry | Missing lineage or producer attestation cannot be silently filled |
 | Authority | Text fields and model output never populate authenticated authority |
 | Errors | Structural failure yields abstention/fail-closed, not a negative finding |
+
+`AdapterAuditV1` makes the loss row executable. An adapter declares exact source and target
+field universes, identity/derived mappings, dropped source fields, context-supplied targets,
+and constant targets. The classifications must be disjoint and exhaustive on both sides.
+The target universe is fixed to every field of `CanonicalObservationEventV1`; an adapter
+cannot claim completeness by declaring a convenient subset.
+Dropping, deriving, supplying context, or inserting constants requires
+`authority_downgrade=true`; `authority_envelope_ref` and `operational_authority` must remain
+constant targets in this shadow contract. A source provenance label such as
+`classification_source` is an identity, not a trust rank, and cannot self-promote by changing
+its text value.
 
 ## First compatibility targets
 

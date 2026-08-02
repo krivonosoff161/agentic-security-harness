@@ -81,7 +81,7 @@ def test_memory_read_rejects_scope_mismatch() -> None:
         (_env(allowed_purpose=["summarize", "export"]), "read:allowed_purpose_expanded"),
         (_env(can_forward=True), "read:can_forward_weakened"),
         (_env(data_class="public"), "read:data_class_downgraded"),
-        (_env(classification_source="untrusted"), "read:classification_source_downgraded"),
+        (_env(classification_source="untrusted"), "read:classification_source_changed"),
     ],
 )
 def test_memory_read_rejects_read_time_envelope_drift(

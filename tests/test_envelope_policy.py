@@ -95,8 +95,21 @@ def test_unknown_classification_or_source_must_stay_identical() -> None:
         baseline,
     ) == (
         "data_class_policy_unknown_or_changed",
-        "classification_source_policy_unknown_or_changed",
+        "classification_source_changed",
     )
+
+
+def test_classification_source_cannot_self_promote() -> None:
+    baseline = _env(classification_source="untrusted_source")
+
+    assert envelope_violations(
+        _env(classification_source="trusted_policy"),
+        baseline,
+    ) == ("classification_source_changed",)
+    assert envelope_violations(
+        _env(classification_source="policy_engine"),
+        _env(classification_source="trusted_policy"),
+    ) == ("classification_source_changed",)
 
 
 def test_missing_candidate_envelope_is_rejected_when_baseline_exists() -> None:

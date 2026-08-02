@@ -1,0 +1,44 @@
+{
+  "schema_version": "portfolio-observation-contract-manifest-v1.0",
+  "contract_id": "portfolio-observation-v1.0",
+  "canonicalization": "utf8-json-sort-keys-compact-utc-microseconds-lf-v1",
+  "max_bytes": 4096,
+  "max_entity_refs": 64,
+  "max_parent_event_ids": 64,
+  "max_adapter_fields": 128,
+  "max_adapter_mappings": 128,
+  "max_adapter_reason_codes": 64,
+  "commitment_domain": "agentic-security-portfolio/observation/v1.0",
+  "event_id_semantics": "producer_claim_shape_only",
+  "schema_path": "schemas/portfolio-observation.v1.schema.json",
+  "schema_sha256": "19371f188b080accfdac489e985b9642f547c3300c0b56b44527eb97f550c26f",
+  "fixtures": [
+    {
+      "path": "tests/fixtures/portfolio-observation-v1/valid/minimal.json",
+      "expected": "accept",
+      "sha256": "bb8c6b19917fc779766b3399181832043778668fcbd720cfde2b644b8a2bc841"
+    },
+    {
+      "path": "tests/fixtures/portfolio-observation-v1/invalid/unknown-field.json",
+      "expected": "reject",
+      "sha256": "41edac12660469097be7bd6cfdf61724363f25be5c7a436e117a2a19307b3c19"
+    },
+    {
+      "path": "tests/fixtures/portfolio-observation-v1/invalid/missing-field.json",
+      "expected": "reject",
+      "sha256": "f10d515c22551e07558588fe76ea60eebad1403efdb29203b4b802f2231941e0"
+    },
+    {
+      "path": "tests/fixtures/portfolio-observation-v1/invalid/wrong-version.json",
+      "expected": "reject",
+      "sha256": "1793dde222ba99516c693d81ac9512c321459d2a73869e2d2f395ce59002db27"
+    },
+    {
+      "path": "tests/fixtures/portfolio-observation-v1/invalid/duplicate-field.json",
+      "expected": "reject",
+      "sha256": "66561207428401a4eace7587fd375bfb4084594c686e35b270f78ad9bd98225b"
+    }
+  ],
+  "producer_attestation": "unattested_only",
+  "operational_authority": "none"
+}
