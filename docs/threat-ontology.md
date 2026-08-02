@@ -45,12 +45,12 @@ synthetic payload becomes a variation unless it changes at least one causal fiel
 |---|---|
 | Protected object | data, instruction, provenance, identity, trust, authority, capability, consent, policy, memory, resource, telemetry, evidence, effect |
 | Source | user, model, agent, tool, MCP server, retrieval, memory, document, browser/app surface, sensor transcript, environment, provider, audit record |
-| Transition | accept, summarize, classify, retrieve, recall, merge, delegate, plan, select tool, invoke, fallback, retry, persist, replay, attest, execute |
+| Transition | accept, summarize, classify, retrieve, recall, merge, delegate, plan, select tool, invoke, fallback, retry, reroute, split, reconstruct, persist, replay, attest, execute |
 | Topology | single, linear chain, worker-chief, fan-out, fan-in, multi-hop, multi-session, cross-user, cross-app, cross-provider, shared-resource swarm |
-| Timing | immediate, delayed, stale, expired, replayed, burst, low-and-slow, long-session |
+| Timing | immediate, delayed, stale, expired, replayed, burst, low-and-slow, long-session, bounded-observation-horizon |
 | Modality | structured event, text, tool metadata, OCR, ASR, image feature, audio feature, filesystem metadata |
 | Guard state | naive, bounded, ablated, incomplete, degraded, unavailable, forged telemetry |
-| Decision | allow, deny, challenge, escalate, abstain, quarantine |
+| Decision | allow, deny, challenge, escalate, abstain, quarantine, pause |
 | Evidence | executable specification, synthetic observation, independently labelled evaluation, historical declaration, design-only |
 
 ## Canonical threat families
@@ -83,6 +83,51 @@ synthetic payload becomes a variation unless it changes at least one causal fiel
 | T24 | Supply-chain and artifact authenticity | Generated resources, schemas, packages and releases require independent provenance evidence | Phantom-resource design, schema pinning, release attestations |
 | T25 | Privacy-minimized evidence | Hashing and minimization do not become false anonymity claims; raw sensitive content stays separate | Evidence contracts and current hash-linkability residual risk |
 | T26 | Sandbox and trusted-computing-base escape | An authorized effect cannot escape its declared local boundary | Bounded filesystem slice only; OS-specific production sandbox remains open |
+
+## R4 trajectory extension
+
+The OWASP Agentic Top 10 2026 and MITRE ATLAS `2026.07` delta mostly refine existing
+families. The R4 hostile review identified two possible protected invariants that the
+current T01-T26 wording does not fully express, but neither is canonical yet:
+
+- **T27 candidate - fault-propagation containment.** A fault that is already present must
+  not amplify across agents, sessions or workflows beyond the declared propagation budget.
+  This is narrower than the origin defect and stronger than merely observing coordination.
+- **T28 candidate - objective and behavioural integrity.** An agent's apparently valid
+  local actions must remain bound to its declared objective and governance envelope across
+  a trajectory. This is distinct from initial goal hijack and from over-granted authority.
+
+Admission requires, for each candidate, one deterministic positive scenario, a
+near-neighbour benign twin, a protected invariant that cannot be represented without loss
+by T01-T26, and hostile review. Until then, all implemented coverage remains T01-T26 and
+claims about T27/T28 are explicitly prohibited.
+
+The causal identity of an R4 trajectory extends, but does not replace, the scenario key:
+
+```text
+(logical_operation,
+ attempt_and_idempotency_identity,
+ visible_constraint_encounters,
+ authorized_route_set_and_transitions,
+ lineage_witness_and_completeness,
+ observation_horizon_and_censoring,
+ pre_effect_candidate_view,
+ evaluator_only_effect_outcome)
+```
+
+The current public event contract does not carry enough information to identify these
+fields. Until R4.2 introduces a versioned, field-loss-accounted contract, the portfolio may
+describe observed sequences or deterministic contract violations but cannot claim causal
+retry, route, lineage or containment-escape detection.
+
+Containment success, effect occurrence and no-effect receipt consumption are evaluator-only
+facts. Exposing them to a detector would leak the answer. Likewise, producer-claimed parent
+links establish structural lineage only; they do not prove authenticated causal origin.
+
+Required benign twins keep workload, timing, graph size, retry count, route sequence and
+observable failures fixed. They differ only in a candidate-visible verified invariant such
+as revocation, permitted-route membership or provenance completeness. If that distinction
+is hidden from the candidate, the pair is scientifically inadmissible.
 
 ## Alias examples
 

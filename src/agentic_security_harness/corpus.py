@@ -205,7 +205,7 @@ _CORPUS: list[CorpusEntry] = [
             "pin tool-schema provenance and hash; treat annotations as untrusted "
             "until approved; validate output shape"
         ),
-        owasp_agentic=["ASI02", "ASI06"],
+        owasp_agentic=["ASI02", "ASI04"],
     ),
     CorpusEntry(
         pattern_id="audit.hash_chain_tamper",
@@ -257,7 +257,7 @@ _CORPUS: list[CorpusEntry] = [
             "include data_class, recipient, purpose, and risk in every approval request; "
             "one action per confirmation; reject on ambiguity"
         ),
-        owasp_agentic=["ASI05"],
+        owasp_agentic=["ASI09"],
     ),
     CorpusEntry(
         pattern_id="memory_governance.unscoped_memory_persistence",

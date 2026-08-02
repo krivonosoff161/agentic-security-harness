@@ -1,6 +1,7 @@
 # Standards mapping
 
-> Last reviewed: 2026-06-16 (v0.13 + unreleased docs).
+> Last reviewed: 2026-08-02 against OWASP Agentic Top 10 2026 and MITRE ATLAS
+> content release `2026.07`.
 >
 > Scope: implemented local corpus only (24 deterministic seed patterns across 14
 > categories). This page maps each pattern **category** to external security frameworks
@@ -18,8 +19,8 @@
   `nist_ai_rmf` mapping in the same module (function level only, not sub-categories).
 - **MITRE ATLAS** - conservative category-level IDs verified against the official
   [`mitre-atlas/atlas-data`](https://github.com/mitre-atlas/atlas-data) distribution,
-  content version `2026.05`, format version `6.0.0`
-  ([source YAML](https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.05.yaml)).
+  content version `2026.07`, format version `6.0.0`
+  ([source YAML](https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.07.yaml)).
   IDs stay empty where a mapping would be speculative.
 
 The machine-readable mapping is the source of truth; `ash validate` runs a self-check
@@ -39,14 +40,14 @@ OWASP LLM, NIST AI RMF, and a verified MITRE ATLAS technique are present. A row 
 | Category | OWASP Agentic | OWASP LLM 2025 | NIST AI RMF | MITRE ATLAS | Status |
 |---|---|---|---|---|---|
 | `ambient_authority` | ASI02, ASI03 | LLM06 | MEASURE, MANAGE | [AML.T0053](https://atlas.mitre.org/techniques/AML.T0053) | mapped |
-| `approval_laundering` | ASI05 | LLM06 | GOVERN, MANAGE | (deferred) | partial |
+| `approval_laundering` | ASI09 | LLM06 | GOVERN, MANAGE | (deferred) | partial |
 | `audit_bypass` | ASI03 | (deferred) | GOVERN, MANAGE | (deferred) | partial |
 | `audit_integrity` | ASI03 | (deferred) | GOVERN, MANAGE | (deferred) | partial |
 | `budget_exhaustion` | ASI02 | LLM10 | MEASURE, MANAGE | [AML.T0034.002](https://atlas.mitre.org/techniques/AML.T0034.002) | mapped |
 | `capability_delegation` | ASI02, ASI07 | LLM06 | MEASURE, MANAGE | (deferred) | partial |
 | `data_boundary` | ASI03, ASI04, ASI06, ASI07 | LLM02 | MAP, MEASURE, MANAGE | [AML.T0057](https://atlas.mitre.org/techniques/AML.T0057) | mapped |
 | `indirect_prompt_injection` | ASI01, ASI02 | LLM01 | MEASURE, MANAGE | [AML.T0051.001](https://atlas.mitre.org/techniques/AML.T0051.001) | mapped |
-| `mcp_tool_schema` | ASI02, ASI06 | LLM06 | MEASURE, MANAGE | [AML.T0110](https://atlas.mitre.org/techniques/AML.T0110) | mapped |
+| `mcp_tool_schema` | ASI02, ASI04 | LLM06 | MEASURE, MANAGE | [AML.T0110](https://atlas.mitre.org/techniques/AML.T0110), [AML.T0110.000](https://atlas.mitre.org/techniques/AML.T0110.000) | mapped |
 | `memory_governance` | ASI01, ASI03, ASI06 | LLM04, LLM02 | MEASURE, MANAGE | [AML.T0080](https://atlas.mitre.org/techniques/AML.T0080), [AML.T0080.000](https://atlas.mitre.org/techniques/AML.T0080.000) | mapped |
 | `memory_poisoning` | ASI06 | LLM04 | MEASURE, MANAGE | [AML.T0080.000](https://atlas.mitre.org/techniques/AML.T0080.000) | mapped |
 | `perception_boundary` | ASI01 | LLM01 | MEASURE | [AML.T0051.001](https://atlas.mitre.org/techniques/AML.T0051.001) | mapped |
@@ -91,7 +92,7 @@ agent stack preserves the relevant labels in known failure shapes.
 ## MITRE ATLAS verification decision
 
 The project now asserts a small verified subset of MITRE ATLAS IDs, using the official
-ATLAS data release `2026.05` as the review anchor. The verified subset covers the current
+ATLAS data release `2026.07` as the review anchor. The verified subset covers the current
 agentic failure shapes that have direct ATLAS matches:
 
 | ATLAS ID | ATLAS name | Used for |
@@ -104,6 +105,12 @@ agentic failure shapes that have direct ATLAS matches:
 | [AML.T0080.000](https://atlas.mitre.org/techniques/AML.T0080.000) | AI Agent Context Poisoning: Memory | `memory_governance`, `memory_poisoning` |
 | [AML.T0094](https://atlas.mitre.org/techniques/AML.T0094) | Delay Execution of LLM Instructions | `sleeping_prompt` |
 | [AML.T0110](https://atlas.mitre.org/techniques/AML.T0110) | AI Agent Tool Poisoning | `mcp_tool_schema` |
+| [AML.T0110.000](https://atlas.mitre.org/techniques/AML.T0110.000) | AI Agent Tool Poisoning: Definition and Instructions | `mcp_tool_schema` |
+
+ATLAS `2026.07` also introduced implementation- and runtime-response poisoning
+sub-techniques. They are recorded in the R4 delta but are not asserted in the implemented
+corpus until matching causal fixtures exist. A standards release is navigation evidence,
+not permission to claim new detector coverage.
 
 The following categories intentionally remain MITRE-deferred:
 

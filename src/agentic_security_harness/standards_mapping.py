@@ -8,7 +8,7 @@ It maps each implemented pattern category to:
 - OWASP Top 10 for LLM Applications 2025 (``owasp_llm``),
 - NIST AI RMF core functions (``nist_ai_rmf``: GOVERN / MAP / MEASURE / MANAGE),
 - MITRE ATLAS (``mitre_atlas``) - verified, conservative category-level IDs from
-  ATLAS 2026.05 where there is a direct fit; otherwise deferred.
+  ATLAS 2026.07 where there is a direct fit; otherwise deferred.
 
 ``status`` is honest about completeness: ``mapped`` (owasp_agentic + owasp_llm + nist +
 mitre all present), ``partial`` (some present, some deferred), ``deferred`` (mostly unmapped).
@@ -32,10 +32,10 @@ class _Spec(TypedDict):
     rationale: str
 
 NIST_FUNCTIONS = ("GOVERN", "MAP", "MEASURE", "MANAGE")
-MITRE_ATLAS_VERSION = "2026.05"
+MITRE_ATLAS_VERSION = "2026.07"
 MITRE_ATLAS_SOURCE = (
     "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/"
-    "ATLAS-2026.05.yaml"
+    "ATLAS-2026.07.yaml"
 )
 
 # ID format guards (verified at validation time).
@@ -43,7 +43,7 @@ _ASI_RE = re.compile(r"^ASI\d{2}$")
 _LLM_RE = re.compile(r"^LLM\d{2}$")
 _ATLAS_RE = re.compile(r"^AML\.T\d{4}(\.\d{3})?$")
 
-# Verified against MITRE's public ATLAS 2026.05 YAML distribution. Keep this as a
+# Verified against MITRE's public ATLAS 2026.07 YAML distribution. Keep this as a
 # deliberately small allow-list so new IDs cannot appear without an explicit review.
 MITRE_ATLAS_VERIFIED_TECHNIQUES: dict[str, str] = {
     "AML.T0034.002": "Agentic Resource Consumption",
@@ -54,6 +54,7 @@ MITRE_ATLAS_VERIFIED_TECHNIQUES: dict[str, str] = {
     "AML.T0080.000": "AI Agent Context Poisoning: Memory",
     "AML.T0094": "Delay Execution of LLM Instructions",
     "AML.T0110": "AI Agent Tool Poisoning",
+    "AML.T0110.000": "AI Agent Tool Poisoning: Definition and Instructions",
 }
 
 
@@ -113,10 +114,10 @@ _CATEGORY: dict[str, _Spec] = {
     "mcp_tool_schema": {
         "owasp_llm": ["LLM06"],
         "nist_ai_rmf": ["MEASURE", "MANAGE"],
-        "mitre_atlas": ["AML.T0110"],
+        "mitre_atlas": ["AML.T0110", "AML.T0110.000"],
         "rationale": "Unverified tool schema/annotations are trusted - excessive agency "
-        "(LLM06); ATLAS AI Agent Tool Poisoning covers MCP tool description/parameter "
-        "poisoning.",
+        "(LLM06); ATLAS AI Agent Tool Poisoning and its Definition and Instructions "
+        "sub-technique directly cover poisoned tool descriptions and parameters.",
     },
     "capability_delegation": {
         "owasp_llm": ["LLM06"],
