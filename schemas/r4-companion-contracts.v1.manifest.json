@@ -17,7 +17,7 @@
   ],
   "fixture_runner": {
     "path": "tests/test_companion_contracts.py",
-    "sha256": "272c514f2e6f00fee42054c2125381ac2b4151d2d4aedc8c81b44ee0cb7073c8"
+    "sha256": "d9b7c6cdb32d93141c50dee8fc59a11fb4795a69f4657c5258f739de54b05eec"
   },
   "contracts": [
     {

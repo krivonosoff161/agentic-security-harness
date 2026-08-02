@@ -17,7 +17,9 @@ from tools.r4_companion_schemas import (
 
 from agentic_security_harness.companion_contracts import (
     CompanionContractError,
+    CoverageExpectationProfileV1,
     MCPRedactionReceiptV1,
+    TrajectoryAccountingV1,
     TrajectoryObservationRefV1,
     build_coverage_expectation_profile_v1,
     build_portfolio_outcome_v1,
@@ -275,7 +277,7 @@ def accounting(
     observations: tuple[TrajectoryObservationRefV1, ...],
     *,
     expected_event_count: int | None = None,
-):
+) -> TrajectoryAccountingV1:
     return build_trajectory_accounting_v1(
         expected_event_count=expected_event_count or len(observations),
         observations=observations,
@@ -517,7 +519,7 @@ def audit() -> AdapterAuditV1:
     )
 
 
-def profile(expected_event_count: int = 3):
+def profile(expected_event_count: int = 3) -> CoverageExpectationProfileV1:
     return build_coverage_expectation_profile_v1(
         project_id="agentic-security-harness",
         repository_id="krivonosoff161/agentic-security-harness",
@@ -622,13 +624,13 @@ def _run_fixture_operation(operation: str) -> str:
         if operation == "outcome_valid":
             validate_portfolio_outcome_v1(outcome("advisory", "observe"))
         elif operation == "outcome_authority_promotion":
-            value = outcome("advisory", "observe")
-            value["operational_authority"] = "execute"
-            validate_portfolio_outcome_v1(value)
+            outcome_payload = outcome("advisory", "observe")
+            outcome_payload["operational_authority"] = "execute"
+            validate_portfolio_outcome_v1(outcome_payload)
         elif operation == "mcp_impossible_counts":
-            value = summarize_mcp_payload_v1(mcp_bytes({"type": "tool_result"}))
-            payload = value.model_dump(mode="python")
-            payload["object_count"] = value.object_count + 1
+            receipt = summarize_mcp_payload_v1(mcp_bytes({"type": "tool_result"}))
+            payload = receipt.model_dump(mode="python")
+            payload["object_count"] = receipt.object_count + 1
             MCPRedactionReceiptV1.model_validate(payload)
         elif operation == "trajectory_distinct_lineage":
             first, second, third = refs()
