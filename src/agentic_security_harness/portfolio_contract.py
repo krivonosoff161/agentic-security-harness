@@ -387,6 +387,7 @@ class AdapterAuditV1(BaseModel):
     schema_version: Literal["portfolio-adapter-audit-v1.0"]
     source_model: Literal[
         "harness.runtime_guard_foundation",
+        "handoff.metadata_sidecar",
         "runtime_guard.observation_event",
         "transfer_verifier.transfer_envelope",
     ]

@@ -166,6 +166,8 @@ its text value.
 1. Harness `ActionEnvelope`/`GuardContext` to canonical objects;
 2. Runtime Guard `ObservationEvent` and `ActionRequest` to canonical objects;
 3. Transfer Verifier `TransferEnvelope`/`TransferEdge` to canonical objects.
+4. AI Agent Handoff's strict `handoff.metadata_sidecar` to canonical observations; raw
+   Markdown remains untrusted content and is never the adapter source model.
 
 The adapters should first be implemented as pure functions with round-trip and intentional
 loss tests. No executor, provider or live agent integration is needed for this phase.

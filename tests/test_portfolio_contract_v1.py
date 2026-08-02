@@ -111,6 +111,84 @@ def _audit(**updates: object) -> AdapterAuditV1:
     return AdapterAuditV1.model_validate(values)
 
 
+def test_v1_audit_accepts_truthful_handoff_metadata_source_identity() -> None:
+    source_fields = (
+        "schema_version",
+        "artifact_kind",
+        "artifact_sha256",
+        "sequence",
+        "created_at",
+        "producer_id_hash",
+        "parent_artifact_sha256",
+    )
+    target_fields = tuple(CanonicalObservationEventV1.model_fields)
+    values: dict[str, object] = {
+        "schema_version": "portfolio-adapter-audit-v1.0",
+        "source_model": "handoff.metadata_sidecar",
+        "target_model": "portfolio-observation-v1.0",
+        "completeness": "partial",
+        "source_fields": source_fields,
+        "target_fields": target_fields,
+        "mappings": (
+            AdapterFieldMappingV1(
+                source_fields=source_fields,
+                target_fields=(
+                    "event_id",
+                    "occurred_at",
+                    "producer_id_hash",
+                    "activity",
+                    "entity_refs",
+                ),
+                transformation="derived",
+                authority_effect="downgrade",
+            ),
+        ),
+        "dropped_source_fields": (),
+        "context_target_fields": (
+            "project_id",
+            "repository_id",
+            "repository_sha",
+            "source_surface",
+            "data_envelope_ref",
+            "telemetry_state",
+            "parent_event_ids",
+        ),
+        "constant_target_fields": (
+            "schema_version",
+            "producer_attestation",
+            "authority_envelope_ref",
+            "operational_authority",
+        ),
+        "authority_downgrade": True,
+        "reason_codes": (
+            "adapter.artifact_digest_only",
+            "adapter.handoff_text_untrusted",
+            "adapter.producer_unattested",
+        ),
+        "operational_authority": "none",
+    }
+    audit = AdapterAuditV1.model_validate(values)
+    assert audit.source_model == "handoff.metadata_sidecar"
+    assert set(audit.source_fields) == set(source_fields)
+    assert set(audit.target_fields) == set(target_fields)
+    assert audit.operational_authority == "none"
+
+    missing = dict(values, source_fields=source_fields[:-1])
+    with pytest.raises(ValidationError, match="accounting"):
+        AdapterAuditV1.model_validate(missing)
+    overlap = dict(values, dropped_source_fields=("artifact_sha256",))
+    with pytest.raises(ValidationError, match="disjoint"):
+        AdapterAuditV1.model_validate(overlap)
+    no_downgrade = dict(values, authority_downgrade=False)
+    with pytest.raises(ValidationError, match="authority downgrade"):
+        AdapterAuditV1.model_validate(no_downgrade)
+
+
+def test_v1_audit_rejects_unregistered_source_identity() -> None:
+    with pytest.raises(ValidationError, match="source_model"):
+        _audit(source_model="handoff.markdown_or_model_claim")
+
+
 def test_v1_wire_round_trip_is_exact_bounded_and_timezone_canonical() -> None:
     event = _event()
     encoded = encode_portfolio_observation_v1(event)
