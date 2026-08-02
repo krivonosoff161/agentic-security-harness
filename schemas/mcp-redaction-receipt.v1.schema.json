@@ -1,0 +1,127 @@
+{
+  "additionalProperties": false,
+  "description": "A bounded structural receipt that contains no raw MCP values.",
+  "properties": {
+    "schema_version": {
+      "const": "mcp-redaction-receipt-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_surface": {
+      "const": "mcp",
+      "title": "Source Surface",
+      "type": "string"
+    },
+    "redaction_profile": {
+      "const": "portfolio-mcp-structural-v1",
+      "title": "Redaction Profile",
+      "type": "string"
+    },
+    "top_level_type": {
+      "enum": [
+        "object",
+        "array",
+        "scalar"
+      ],
+      "title": "Top Level Type",
+      "type": "string"
+    },
+    "visited_node_count": {
+      "maximum": 4096,
+      "minimum": 0,
+      "title": "Visited Node Count",
+      "type": "integer"
+    },
+    "object_count": {
+      "maximum": 4096,
+      "minimum": 0,
+      "title": "Object Count",
+      "type": "integer"
+    },
+    "array_count": {
+      "maximum": 4096,
+      "minimum": 0,
+      "title": "Array Count",
+      "type": "integer"
+    },
+    "scalar_count": {
+      "maximum": 4096,
+      "minimum": 0,
+      "title": "Scalar Count",
+      "type": "integer"
+    },
+    "content_block_count": {
+      "maximum": 4096,
+      "minimum": 0,
+      "title": "Content Block Count",
+      "type": "integer"
+    },
+    "embedded_resource_count": {
+      "maximum": 4096,
+      "minimum": 0,
+      "title": "Embedded Resource Count",
+      "type": "integer"
+    },
+    "unknown_content_type_count": {
+      "maximum": 4096,
+      "minimum": 0,
+      "title": "Unknown Content Type Count",
+      "type": "integer"
+    },
+    "truncated_count": {
+      "maximum": 4096,
+      "minimum": 0,
+      "title": "Truncated Count",
+      "type": "integer"
+    },
+    "dropped_field_classes": {
+      "items": {
+        "enum": [
+          "credential",
+          "locator",
+          "raw_argument",
+          "raw_error",
+          "raw_output",
+          "embedded_resource",
+          "raw_scalar"
+        ],
+        "type": "string"
+      },
+      "title": "Dropped Field Classes",
+      "type": "array"
+    },
+    "telemetry_state": {
+      "enum": [
+        "complete",
+        "incomplete",
+        "rejected"
+      ],
+      "title": "Telemetry State",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "source_surface",
+    "redaction_profile",
+    "top_level_type",
+    "visited_node_count",
+    "object_count",
+    "array_count",
+    "scalar_count",
+    "content_block_count",
+    "embedded_resource_count",
+    "unknown_content_type_count",
+    "truncated_count",
+    "dropped_field_classes",
+    "telemetry_state",
+    "operational_authority"
+  ],
+  "title": "MCPRedactionReceiptV1",
+  "type": "object"
+}

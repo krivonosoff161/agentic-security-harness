@@ -2,9 +2,10 @@
 
 > Status: Harness-owned `portfolio-observation-v1.0` wire contract implemented locally with
 > content-bound schema, synthetic conformance fixtures and exhaustive adapter-audit
-> primitives. Runtime Guard still consumes the earlier one-way draft projection until its
-> adapter pins this exact schema and fixture manifest. No reverse authoritative conversion,
-> allow receipt, or executor connection is claimed.
+> primitives. Runtime Guard, Transfer Verifier and AI Agent Handoff now pin the exact V1
+> owner schema/manifest through downgrade-only adapters. This proves cross-repository
+> conformance for the pinned versions, not authenticated producers or complete telemetry.
+> No reverse authoritative conversion, allow receipt, or executor connection is claimed.
 
 ## Purpose
 
@@ -62,6 +63,42 @@ content hash and does not prove provenance. `ObservationCommitmentV1` separately
 exact canonical-byte SHA-256 and a domain/schema-separated commitment. Neither object can
 state verified producer attestation or operational authority. Cryptographic producer
 attestation remains unimplemented.
+
+## R4 companion contracts
+
+The stable observation remains unchanged. Five separate Harness-owned contracts add bounded
+accounting without turning observations into authority:
+
+- `portfolio-outcome-v1.0` separates advisory, policy, verification, execution and
+  no-effect sink records; every record is content-bound, evidence-only and non-executable,
+  while scientific candidate projection exposes only advisory records and physically
+  excludes policy, verification, execution and sink proxy labels;
+- `mcp-redaction-receipt-v1.0` retains structural counts and dropped-field classes, never
+  raw MCP arguments, output, errors, locators or credentials;
+- `portfolio-trajectory-accounting-v1.0` binds every observation commitment, complete edge,
+  logical operation, retry/idempotency identity, route transition and route permission. It
+  is evaluator-only, uses closed non-scientific vocabularies, rejects inconsistent attempt
+  identities, binds canonical UTC event timestamps, derives its complete event span, and
+  derives a content-bound trajectory identity independent of input ordering or timezone
+  representation. Unknown retry/route evidence forces incomplete state, and causal edge
+  timestamps cannot run backwards;
+- `portfolio-coverage-expectation-v1.0` declares content-bound expected channels and event
+  count for a repository identity and reviewed source digest. External ordering evidence is
+  still required before calling that declaration a temporal precommitment;
+- `portfolio-telemetry-manifest-v1.0` demonstrates self-consistency against that pinned
+  profile, embeds the validated adapter audit and trajectory evidence, and forces
+  incomplete/rejected state when channels, records, trajectory evidence or the observation
+  window are incomplete. It does not independently authenticate producers or prove
+  end-to-end capture.
+
+Their generated JSON Schemas are shape checks. Exact schemas, Python semantic validator and
+positive/negative fixtures are content-bound by
+`schemas/r4-companion-contracts.v1.manifest.json`. Scientific attack and containment labels
+remain evaluator-only and absent from runtime contracts; execution and no-effect outcomes
+are evaluator-visible evidence that candidate projection cannot receive.
+The general `project_companion_for_candidate_v1` boundary revalidates every companion and
+returns only advisory outcomes; evaluator-only trajectory, telemetry, policy, verification,
+execution and sink records are physically withheld.
 
 ## Stable V1 wire and version boundary
 

@@ -1,0 +1,400 @@
+{
+  "$defs": {
+    "AdvisoryOutcomeV1": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "portfolio-outcome-v1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "record_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Record Id",
+          "type": "string"
+        },
+        "observation_commitment_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Observation Commitment Sha256",
+          "type": "string"
+        },
+        "producer_attestation": {
+          "const": "unattested",
+          "title": "Producer Attestation",
+          "type": "string"
+        },
+        "evidence_only": {
+          "const": true,
+          "title": "Evidence Only",
+          "type": "boolean"
+        },
+        "executable": {
+          "const": false,
+          "title": "Executable",
+          "type": "boolean"
+        },
+        "operational_authority": {
+          "const": "none",
+          "title": "Operational Authority",
+          "type": "string"
+        },
+        "layer": {
+          "const": "advisory",
+          "title": "Layer",
+          "type": "string"
+        },
+        "reported_value": {
+          "enum": [
+            "observe",
+            "challenge",
+            "escalate",
+            "abstain",
+            "inconclusive"
+          ],
+          "title": "Reported Value",
+          "type": "string"
+        },
+        "candidate_visibility": {
+          "const": "visible",
+          "title": "Candidate Visibility",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "record_id",
+        "observation_commitment_sha256",
+        "producer_attestation",
+        "evidence_only",
+        "executable",
+        "operational_authority",
+        "layer",
+        "reported_value",
+        "candidate_visibility"
+      ],
+      "title": "AdvisoryOutcomeV1",
+      "type": "object"
+    },
+    "ExecutionOutcomeV1": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "portfolio-outcome-v1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "record_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Record Id",
+          "type": "string"
+        },
+        "observation_commitment_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Observation Commitment Sha256",
+          "type": "string"
+        },
+        "producer_attestation": {
+          "const": "unattested",
+          "title": "Producer Attestation",
+          "type": "string"
+        },
+        "evidence_only": {
+          "const": true,
+          "title": "Evidence Only",
+          "type": "boolean"
+        },
+        "executable": {
+          "const": false,
+          "title": "Executable",
+          "type": "boolean"
+        },
+        "operational_authority": {
+          "const": "none",
+          "title": "Operational Authority",
+          "type": "string"
+        },
+        "layer": {
+          "const": "execution",
+          "title": "Layer",
+          "type": "string"
+        },
+        "reported_value": {
+          "enum": [
+            "succeeded",
+            "failed",
+            "rejected"
+          ],
+          "title": "Reported Value",
+          "type": "string"
+        },
+        "candidate_visibility": {
+          "const": "evaluator_only",
+          "title": "Candidate Visibility",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "record_id",
+        "observation_commitment_sha256",
+        "producer_attestation",
+        "evidence_only",
+        "executable",
+        "operational_authority",
+        "layer",
+        "reported_value",
+        "candidate_visibility"
+      ],
+      "title": "ExecutionOutcomeV1",
+      "type": "object"
+    },
+    "PolicyDecisionOutcomeV1": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "portfolio-outcome-v1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "record_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Record Id",
+          "type": "string"
+        },
+        "observation_commitment_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Observation Commitment Sha256",
+          "type": "string"
+        },
+        "producer_attestation": {
+          "const": "unattested",
+          "title": "Producer Attestation",
+          "type": "string"
+        },
+        "evidence_only": {
+          "const": true,
+          "title": "Evidence Only",
+          "type": "boolean"
+        },
+        "executable": {
+          "const": false,
+          "title": "Executable",
+          "type": "boolean"
+        },
+        "operational_authority": {
+          "const": "none",
+          "title": "Operational Authority",
+          "type": "string"
+        },
+        "layer": {
+          "const": "policy_decision",
+          "title": "Layer",
+          "type": "string"
+        },
+        "reported_value": {
+          "enum": [
+            "allow",
+            "block",
+            "ask_user",
+            "sandbox_only",
+            "log_only"
+          ],
+          "title": "Reported Value",
+          "type": "string"
+        },
+        "candidate_visibility": {
+          "const": "evaluator_only",
+          "title": "Candidate Visibility",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "record_id",
+        "observation_commitment_sha256",
+        "producer_attestation",
+        "evidence_only",
+        "executable",
+        "operational_authority",
+        "layer",
+        "reported_value",
+        "candidate_visibility"
+      ],
+      "title": "PolicyDecisionOutcomeV1",
+      "type": "object"
+    },
+    "ShadowSinkOutcomeV1": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "portfolio-outcome-v1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "record_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Record Id",
+          "type": "string"
+        },
+        "observation_commitment_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Observation Commitment Sha256",
+          "type": "string"
+        },
+        "producer_attestation": {
+          "const": "unattested",
+          "title": "Producer Attestation",
+          "type": "string"
+        },
+        "evidence_only": {
+          "const": true,
+          "title": "Evidence Only",
+          "type": "boolean"
+        },
+        "executable": {
+          "const": false,
+          "title": "Executable",
+          "type": "boolean"
+        },
+        "operational_authority": {
+          "const": "none",
+          "title": "Operational Authority",
+          "type": "string"
+        },
+        "layer": {
+          "const": "shadow_sink",
+          "title": "Layer",
+          "type": "string"
+        },
+        "reported_value": {
+          "enum": [
+            "accepted_no_effect",
+            "rejected_invalid",
+            "incomplete"
+          ],
+          "title": "Reported Value",
+          "type": "string"
+        },
+        "candidate_visibility": {
+          "const": "evaluator_only",
+          "title": "Candidate Visibility",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "record_id",
+        "observation_commitment_sha256",
+        "producer_attestation",
+        "evidence_only",
+        "executable",
+        "operational_authority",
+        "layer",
+        "reported_value",
+        "candidate_visibility"
+      ],
+      "title": "ShadowSinkOutcomeV1",
+      "type": "object"
+    },
+    "VerificationOutcomeV1": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "portfolio-outcome-v1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "record_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Record Id",
+          "type": "string"
+        },
+        "observation_commitment_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Observation Commitment Sha256",
+          "type": "string"
+        },
+        "producer_attestation": {
+          "const": "unattested",
+          "title": "Producer Attestation",
+          "type": "string"
+        },
+        "evidence_only": {
+          "const": true,
+          "title": "Evidence Only",
+          "type": "boolean"
+        },
+        "executable": {
+          "const": false,
+          "title": "Executable",
+          "type": "boolean"
+        },
+        "operational_authority": {
+          "const": "none",
+          "title": "Operational Authority",
+          "type": "string"
+        },
+        "layer": {
+          "const": "verification",
+          "title": "Layer",
+          "type": "string"
+        },
+        "reported_value": {
+          "enum": [
+            "pass",
+            "warn",
+            "fail"
+          ],
+          "title": "Reported Value",
+          "type": "string"
+        },
+        "candidate_visibility": {
+          "const": "evaluator_only",
+          "title": "Candidate Visibility",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "record_id",
+        "observation_commitment_sha256",
+        "producer_attestation",
+        "evidence_only",
+        "executable",
+        "operational_authority",
+        "layer",
+        "reported_value",
+        "candidate_visibility"
+      ],
+      "title": "VerificationOutcomeV1",
+      "type": "object"
+    }
+  },
+  "discriminator": {
+    "mapping": {
+      "advisory": "#/$defs/AdvisoryOutcomeV1",
+      "execution": "#/$defs/ExecutionOutcomeV1",
+      "policy_decision": "#/$defs/PolicyDecisionOutcomeV1",
+      "shadow_sink": "#/$defs/ShadowSinkOutcomeV1",
+      "verification": "#/$defs/VerificationOutcomeV1"
+    },
+    "propertyName": "layer"
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/AdvisoryOutcomeV1"
+    },
+    {
+      "$ref": "#/$defs/PolicyDecisionOutcomeV1"
+    },
+    {
+      "$ref": "#/$defs/VerificationOutcomeV1"
+    },
+    {
+      "$ref": "#/$defs/ExecutionOutcomeV1"
+    },
+    {
+      "$ref": "#/$defs/ShadowSinkOutcomeV1"
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "schema_version": "r4-companion-fixtures-v1.0",
+  "authority": "none",
+  "cases": [
+    {
+      "case_id": "outcome-content-bound",
+      "operation": "outcome_valid",
+      "contract_id": "portfolio-outcome-v1.0",
+      "expected_verdict": "valid",
+      "invariant": "record_id binds every evidence-only field"
+    },
+    {
+      "case_id": "outcome-authority-promotion",
+      "operation": "outcome_authority_promotion",
+      "contract_id": "portfolio-outcome-v1.0",
+      "expected_verdict": "invalid",
+      "invariant": "operational authority cannot be promoted"
+    },
+    {
+      "case_id": "mcp-impossible-counts",
+      "operation": "mcp_impossible_counts",
+      "contract_id": "mcp-redaction-receipt-v1.0",
+      "expected_verdict": "invalid",
+      "invariant": "visited structural counts must balance"
+    },
+    {
+      "case_id": "trajectory-distinct-lineage",
+      "operation": "trajectory_distinct_lineage",
+      "contract_id": "portfolio-trajectory-accounting-v1.0",
+      "expected_verdict": "valid",
+      "invariant": "all edges retries routes and commitments are content-bound"
+    },
+    {
+      "case_id": "telemetry-missing-channel",
+      "operation": "telemetry_missing_channel",
+      "contract_id": "portfolio-telemetry-manifest-v1.0",
+      "expected_verdict": "valid",
+      "invariant": "missing expected channel yields incomplete not complete"
+    },
+    {
+      "case_id": "coverage-profile-tamper",
+      "operation": "coverage_profile_tamper",
+      "contract_id": "portfolio-coverage-expectation-v1.0",
+      "expected_verdict": "invalid",
+      "invariant": "profile_id binds repository expectations and source digest"
+    },
+    {
+      "case_id": "mcp-resource-shaped-key",
+      "operation": "mcp_resource_shaped_key",
+      "contract_id": "mcp-redaction-receipt-v1.0",
+      "expected_verdict": "valid",
+      "invariant": "resource-shaped keys are loss-accounted without parser failure"
+    },
+    {
+      "case_id": "trajectory-label-token",
+      "operation": "trajectory_label_token",
+      "contract_id": "portfolio-trajectory-accounting-v1.0",
+      "expected_verdict": "invalid",
+      "invariant": "scientific label tokens are outside the closed trajectory vocabulary"
+    },
+    {
+      "case_id": "trajectory-attempt-conflict",
+      "operation": "trajectory_attempt_conflict",
+      "contract_id": "portfolio-trajectory-accounting-v1.0",
+      "expected_verdict": "invalid",
+      "invariant": "one attempt identity cannot declare conflicting ordinals"
+    },
+    {
+      "case_id": "telemetry-missing-evidence",
+      "operation": "telemetry_missing_evidence",
+      "contract_id": "portfolio-telemetry-manifest-v1.0",
+      "expected_verdict": "invalid",
+      "invariant": "complete telemetry embeds and binds actual audit and trajectory evidence"
+    },
+    {
+      "case_id": "trajectory-order-timezone-normalization",
+      "operation": "trajectory_order_timezone_normalization",
+      "contract_id": "portfolio-trajectory-accounting-v1.0",
+      "expected_verdict": "valid",
+      "invariant": "equivalent event order and timezone representations share one identity"
+    },
+    {
+      "case_id": "trajectory-event-span-tamper",
+      "operation": "trajectory_event_span_tamper",
+      "contract_id": "portfolio-trajectory-accounting-v1.0",
+      "expected_verdict": "invalid",
+      "invariant": "complete horizon is derived from canonical event timestamps"
+    },
+    {
+      "case_id": "candidate-evaluator-boundary",
+      "operation": "candidate_evaluator_boundary",
+      "contract_id": "portfolio-trajectory-accounting-v1.0",
+      "expected_verdict": "valid",
+      "invariant": "candidate projection physically excludes evaluator-only trajectory"
+    },
+    {
+      "case_id": "trajectory-reversed-causal-time",
+      "operation": "trajectory_reversed_causal_time",
+      "contract_id": "portfolio-trajectory-accounting-v1.0",
+      "expected_verdict": "invalid",
+      "invariant": "a child event cannot precede its resolved parent"
+    },
+    {
+      "case_id": "trajectory-unknown-incomplete",
+      "operation": "trajectory_unknown_incomplete",
+      "contract_id": "portfolio-trajectory-accounting-v1.0",
+      "expected_verdict": "valid",
+      "invariant": "unknown retry or route evidence cannot yield complete accounting"
+    },
+    {
+      "case_id": "trajectory-route-phase-conflict",
+      "operation": "trajectory_route_phase_conflict",
+      "contract_id": "portfolio-trajectory-accounting-v1.0",
+      "expected_verdict": "invalid",
+      "invariant": "initial route transition is valid only on the first attempt"
+    },
+    {
+      "case_id": "trajectory-orphan-retry",
+      "operation": "trajectory_orphan_retry",
+      "contract_id": "portfolio-trajectory-accounting-v1.0",
+      "expected_verdict": "invalid",
+      "invariant": "a retry requires resolved prior-attempt ancestry and nondecreasing time"
+    }
+  ]
+}
