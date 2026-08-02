@@ -19,18 +19,6 @@ CLASSIFICATION_RANK = {
     "restricted": 3,
 }
 
-SOURCE_RANK = {
-    "unknown": 0,
-    "untrusted": 0,
-    "untrusted_source": 0,
-    "tool_output": 0,
-    "user": 1,
-    "trusted_policy": 2,
-    "trusted_source": 2,
-    "policy_engine": 3,
-}
-
-
 @dataclass(frozen=True)
 class EnvelopeCheck:
     """Result of a deterministic envelope restriction check."""
@@ -111,14 +99,12 @@ def envelope_violations(
     if baseline.requires_confirmation is True and candidate.requires_confirmation is False:
         violations.append("requires_confirmation_removed")
 
-    source_violation = _ranked_non_decrease(
-        candidate.classification_source,
-        baseline.classification_source,
-        SOURCE_RANK,
-        field="classification_source",
-    )
-    if source_violation:
-        violations.append(source_violation)
+    # Provenance labels are identities, not an orderable trust lattice. A downstream
+    # envelope cannot self-promote its classification source merely by choosing a label
+    # with a higher nominal rank. Reclassification requires a separate authenticated
+    # receipt outside this synthetic restriction relation.
+    if candidate.classification_source != baseline.classification_source:
+        violations.append("classification_source_changed")
 
     if baseline.classification_mutable is False and candidate.classification_mutable is True:
         violations.append("classification_mutable_weakened")
