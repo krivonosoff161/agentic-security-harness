@@ -1,7 +1,7 @@
 # Artifact Authenticity Trust-Root Design
 
 Date: 2026-07-16
-Status: public release workflow implementation is present on the audit branch; no post-change tag
+Status: public release workflow implementation is present on `main`; no post-change tag
 has exercised it, historical subjects remain unsigned, and private/reviewer signing is not
 implemented.
 
@@ -98,19 +98,19 @@ field is supplied by the chosen trusted service and bound into the verified stat
 
 ## Implementation State And Remaining Sequence
 
-1. The user authorized the public GitHub Actions workload identity and exact tag-push workflow for
-   this audit branch; private/reviewer trust remains separate.
+1. The public GitHub Actions workload identity and exact tag-push workflow are merged on
+   `main`; private/reviewer trust remains separate and no post-change tag has exercised them.
 2. Wheel, source distribution, and checksum file are the exact release-workflow subjects. A
    canonical deterministic-example archive remains future work.
-3. The branch adds a versioned in-toto/SLSA v1.2 attestation policy and negative verification
+3. The repository includes a versioned in-toto/SLSA v1.2 attestation policy and negative verification
    fixtures.
-4. The branch pins `actions/attest` by immutable commit and grants
+4. The repository pins `actions/attest` by immutable commit and grants
    `contents: read`, `id-token: write`, and `attestations: write` only to the release job that
    needs them. `artifact-metadata: write` is separate and is needed only if the owner chooses
    GitHub linked-artifact storage records.
-5. The branch generates attestations only after tests, validation, package smoke, and subject
+5. The release workflow generates attestations only after tests, validation, package smoke, and subject
    digest creation.
-6. The branch adds a separate verification job with expected subject, repository, workflow, issuer,
+6. The repository includes a separate verification job with expected subject, repository, workflow, issuer,
    tag ref, source digest, builder, event, hosted-runner, predicate, and verified-time constraints.
 7. Run a future authorized tag and independently retain/verify its exact subjects. Until that
    succeeds, operational status remains unverified and historical artifacts remain unsigned.
@@ -121,8 +121,8 @@ field is supplied by the chosen trusted service and bound into the verified stat
 
 ## Decisions Still Required
 
-The public workflow implementation is authorized for the task branch, but merge and future tag
-creation remain owner decisions. The owner must still choose:
+The public workflow implementation is merged on `main`. A future tag run and private signing
+remain separate owner decisions. The owner must still choose:
 
 - whether deterministic examples are attested individually or as one canonical archive;
 - the signer and disclosure policy for private reconciliation receipts;

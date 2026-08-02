@@ -5,7 +5,9 @@ development contract and synthetic regression/falsification modules; operational
 authority remains `none`. See
 [`security-portfolio-roadmap.md`](security-portfolio-roadmap.md).
 
-> Last reviewed: 2026-07-28.
+> Last reviewed: 2026-08-01 against merged Security Portfolio projection
+> `2026.07.31-rc1` and Harness main baseline
+> `f967b904ad823f4d2307a3a2cd1b413c069542e8`.
 >
 > Scope: public status of `agentic-security-harness` on `main`, version `0.14.0`. This
 > page is a reviewer-facing status snapshot, not a roadmap promise.

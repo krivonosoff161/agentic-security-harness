@@ -1,8 +1,9 @@
 # Runtime Guard product foundation
 
-> Status: executable specification under review; not a production gateway.
+> Status: bounded executable specification merged through PR #162; not a production gateway,
+> deployed proxy, or enforcement claim.
 >
-> Reviewed: 2026-07-26.
+> Reviewed: 2026-08-01.
 
 ## Product thesis
 
