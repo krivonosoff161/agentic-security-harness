@@ -1,0 +1,56 @@
+{
+  "schema_version": "r4-companion-contract-manifest-v1.0",
+  "owner": "agentic-security-harness",
+  "authority": "none",
+  "observation_contract_unchanged": "portfolio-observation-v1.0",
+  "schema_role": "shape_only_semantic_validation_requires_python_validator_and_fixtures",
+  "validator": {
+    "path": "src/agentic_security_harness/companion_contracts.py",
+    "sha256": "d3cda08f3abf1370c1a15876bb30c0aff9c1c5114eaa695d67f7fd3ecd440c69"
+  },
+  "fixtures": [
+    {
+      "path": "tests/fixtures/r4-companion-contracts/cases.json",
+      "sha256": "f63c6b03f0b9cdaa89a6684b3280525c2e7e47d37fbae81a969981279dde6c83",
+      "verdict_semantics": "valid_must_accept_invalid_must_reject"
+    }
+  ],
+  "fixture_runner": {
+    "path": "tests/test_companion_contracts.py",
+    "sha256": "272c514f2e6f00fee42054c2125381ac2b4151d2d4aedc8c81b44ee0cb7073c8"
+  },
+  "contracts": [
+    {
+      "contract_id": "mcp-redaction-receipt-v1.0",
+      "schema_path": "schemas/mcp-redaction-receipt.v1.schema.json",
+      "schema_sha256": "e8f009d4aac032fdee46c33cb69277241996ad82a7ceed88e93f19b2cb122ef0"
+    },
+    {
+      "contract_id": "portfolio-coverage-expectation-v1.0",
+      "schema_path": "schemas/portfolio-coverage-expectation.v1.schema.json",
+      "schema_sha256": "ba4d470af182fffc739b809c110e218e60ae874118a1f41cfd8a73f4892d6def"
+    },
+    {
+      "contract_id": "portfolio-outcome-v1.0",
+      "schema_path": "schemas/portfolio-outcome.v1.schema.json",
+      "schema_sha256": "b2fd4e0cdd0468a9fd3a15f070bfd24d688db0006ccdbeec033374b114196987"
+    },
+    {
+      "contract_id": "portfolio-telemetry-manifest-v1.0",
+      "schema_path": "schemas/portfolio-telemetry-manifest.v1.schema.json",
+      "schema_sha256": "1d1f317cffe7e9cf7a42a276e2a5456795e1a1b06be895891404e022d844c55c"
+    },
+    {
+      "contract_id": "portfolio-trajectory-accounting-v1.0",
+      "schema_path": "schemas/portfolio-trajectory-accounting.v1.schema.json",
+      "schema_sha256": "ccc74029a0d0b9fafd59d33dfe0b8a1c889cbe44009b00c565a4d1f050549565"
+    }
+  ],
+  "forbidden_content": [
+    "scientific_labels",
+    "raw_mcp_arguments",
+    "raw_mcp_output",
+    "credentials",
+    "operational_authority_grant"
+  ]
+}

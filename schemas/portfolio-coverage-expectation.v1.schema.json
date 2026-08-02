@@ -1,0 +1,75 @@
+{
+  "additionalProperties": false,
+  "description": "Precommitted expectation boundary; it is evidence, never authority.",
+  "properties": {
+    "schema_version": {
+      "const": "portfolio-coverage-expectation-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "profile_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Profile Id",
+      "type": "string"
+    },
+    "project_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,127}$",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "repository_id": {
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+      "title": "Repository Id",
+      "type": "string"
+    },
+    "repository_sha": {
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+      "title": "Repository Sha",
+      "type": "string"
+    },
+    "expected_channels": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "title": "Expected Channels",
+      "type": "array"
+    },
+    "expected_event_count": {
+      "maximum": 4096,
+      "minimum": 1,
+      "title": "Expected Event Count",
+      "type": "integer"
+    },
+    "expectation_source_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Expectation Source Sha256",
+      "type": "string"
+    },
+    "producer_attestation": {
+      "const": "unattested",
+      "title": "Producer Attestation",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "profile_id",
+    "project_id",
+    "repository_id",
+    "repository_sha",
+    "expected_channels",
+    "expected_event_count",
+    "expectation_source_sha256",
+    "producer_attestation",
+    "operational_authority"
+  ],
+  "title": "CoverageExpectationProfileV1",
+  "type": "object"
+}

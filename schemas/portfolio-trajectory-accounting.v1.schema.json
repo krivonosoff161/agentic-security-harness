@@ -1,0 +1,364 @@
+{
+  "$defs": {
+    "TrajectoryCommitmentBindingV1": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "observation_commitment_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Observation Commitment Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event_id",
+        "observation_commitment_sha256"
+      ],
+      "title": "TrajectoryCommitmentBindingV1",
+      "type": "object"
+    },
+    "TrajectoryEdgeV1": {
+      "additionalProperties": false,
+      "properties": {
+        "parent_event_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Parent Event Id",
+          "type": "string"
+        },
+        "child_event_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Child Event Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "parent_event_id",
+        "child_event_id"
+      ],
+      "title": "TrajectoryEdgeV1",
+      "type": "object"
+    },
+    "TrajectoryObservationRefV1": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "title": "Occurred At",
+          "type": "string"
+        },
+        "observation_commitment_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Observation Commitment Sha256",
+          "type": "string"
+        },
+        "logical_operation_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Logical Operation Id",
+          "type": "string"
+        },
+        "attempt_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Attempt Id",
+          "type": "string"
+        },
+        "attempt_ordinal": {
+          "maximum": 4096,
+          "minimum": 1,
+          "title": "Attempt Ordinal",
+          "type": "integer"
+        },
+        "idempotency_identity": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Idempotency Identity",
+          "type": "string"
+        },
+        "retry_cause": {
+          "enum": [
+            "initial",
+            "bounded_retry",
+            "policy_retry",
+            "transport_retry",
+            "unknown"
+          ],
+          "title": "Retry Cause",
+          "type": "string"
+        },
+        "route_id_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Route Id Hash",
+          "type": "string"
+        },
+        "route_transition_reason": {
+          "enum": [
+            "initial",
+            "declared_failover",
+            "policy_transition",
+            "unknown"
+          ],
+          "title": "Route Transition Reason",
+          "type": "string"
+        },
+        "permitted_route_set_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Permitted Route Set Sha256",
+          "type": "string"
+        },
+        "route_permitted": {
+          "title": "Route Permitted",
+          "type": "boolean"
+        },
+        "constraint_encounters": {
+          "items": {
+            "enum": [
+              "budget_boundary",
+              "route_not_permitted",
+              "time_boundary",
+              "tool_boundary",
+              "unknown"
+            ],
+            "type": "string"
+          },
+          "maxItems": 16,
+          "title": "Constraint Encounters",
+          "type": "array"
+        },
+        "parent_event_ids": {
+          "items": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "maxItems": 64,
+          "title": "Parent Event Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "event_id",
+        "occurred_at",
+        "observation_commitment_sha256",
+        "logical_operation_id",
+        "attempt_id",
+        "attempt_ordinal",
+        "idempotency_identity",
+        "retry_cause",
+        "route_id_hash",
+        "route_transition_reason",
+        "permitted_route_set_sha256",
+        "route_permitted",
+        "constraint_encounters",
+        "parent_event_ids"
+      ],
+      "title": "TrajectoryObservationRefV1",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "portfolio-trajectory-accounting-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "trajectory_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Trajectory Id",
+      "type": "string"
+    },
+    "candidate_visibility": {
+      "const": "evaluator_only",
+      "title": "Candidate Visibility",
+      "type": "string"
+    },
+    "logical_operation_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Logical Operation Id",
+      "type": "string"
+    },
+    "expected_event_count": {
+      "maximum": 4096,
+      "minimum": 1,
+      "title": "Expected Event Count",
+      "type": "integer"
+    },
+    "observed_event_count": {
+      "maximum": 4096,
+      "minimum": 0,
+      "title": "Observed Event Count",
+      "type": "integer"
+    },
+    "observation_horizon_started_at": {
+      "format": "date-time",
+      "title": "Observation Horizon Started At",
+      "type": "string"
+    },
+    "observation_horizon_ended_at": {
+      "format": "date-time",
+      "title": "Observation Horizon Ended At",
+      "type": "string"
+    },
+    "censoring_state": {
+      "enum": [
+        "complete",
+        "left_censored",
+        "right_censored"
+      ],
+      "title": "Censoring State",
+      "type": "string"
+    },
+    "observations": {
+      "items": {
+        "$ref": "#/$defs/TrajectoryObservationRefV1"
+      },
+      "maxItems": 4096,
+      "minItems": 1,
+      "title": "Observations",
+      "type": "array"
+    },
+    "event_commitments": {
+      "items": {
+        "$ref": "#/$defs/TrajectoryCommitmentBindingV1"
+      },
+      "maxItems": 4096,
+      "title": "Event Commitments",
+      "type": "array"
+    },
+    "edges": {
+      "items": {
+        "$ref": "#/$defs/TrajectoryEdgeV1"
+      },
+      "maxItems": 262144,
+      "title": "Edges",
+      "type": "array"
+    },
+    "attempt_ids": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "maxItems": 4096,
+      "title": "Attempt Ids",
+      "type": "array"
+    },
+    "idempotency_identities": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "maxItems": 4096,
+      "title": "Idempotency Identities",
+      "type": "array"
+    },
+    "route_violation_event_ids": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "maxItems": 4096,
+      "title": "Route Violation Event Ids",
+      "type": "array"
+    },
+    "root_event_ids": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "maxItems": 4096,
+      "title": "Root Event Ids",
+      "type": "array"
+    },
+    "leaf_event_ids": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "maxItems": 4096,
+      "title": "Leaf Event Ids",
+      "type": "array"
+    },
+    "unresolved_parent_event_ids": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "maxItems": 262144,
+      "title": "Unresolved Parent Event Ids",
+      "type": "array"
+    },
+    "duplicate_event_ids": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "maxItems": 4096,
+      "title": "Duplicate Event Ids",
+      "type": "array"
+    },
+    "duplicate_observation_commitments": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "maxItems": 4096,
+      "title": "Duplicate Observation Commitments",
+      "type": "array"
+    },
+    "cycle_verdict": {
+      "enum": [
+        "acyclic",
+        "cycle_detected"
+      ],
+      "title": "Cycle Verdict",
+      "type": "string"
+    },
+    "completeness": {
+      "enum": [
+        "complete",
+        "incomplete",
+        "invalid"
+      ],
+      "title": "Completeness",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "trajectory_id",
+    "candidate_visibility",
+    "logical_operation_id",
+    "expected_event_count",
+    "observed_event_count",
+    "observation_horizon_started_at",
+    "observation_horizon_ended_at",
+    "censoring_state",
+    "observations",
+    "event_commitments",
+    "edges",
+    "attempt_ids",
+    "idempotency_identities",
+    "route_violation_event_ids",
+    "root_event_ids",
+    "leaf_event_ids",
+    "unresolved_parent_event_ids",
+    "duplicate_event_ids",
+    "duplicate_observation_commitments",
+    "cycle_verdict",
+    "completeness",
+    "operational_authority"
+  ],
+  "title": "TrajectoryAccountingV1",
+  "type": "object"
+}

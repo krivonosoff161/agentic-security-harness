@@ -4,9 +4,9 @@ These JSON Schema files are public integration aids for tools that need to inspe
 Agentic Security Harness artifacts without importing the Python package.
 
 The authoritative in-process validator is still `ash validate`, backed by the Pydantic
-models and `src/agentic_security_harness/schema_versions.py`. These schemas intentionally
-cover the stable top-level contract and allow additional properties while the project is
-pre-v1.0.
+models and `src/agentic_security_harness/schema_versions.py`. Legacy artifact schemas may
+allow additional properties while the package remains pre-v1.0. The stable portfolio
+observation and R4 companion contracts are strict and reject unknown fields.
 
 | File | Artifact |
 |---|---|
@@ -14,6 +14,23 @@ pre-v1.0.
 | `scorecard.schema.json` | `scorecard.json`. |
 | `remediation.schema.json` | `remediation.json`. |
 | `run-manifest.schema.json` | `run_index.json`. |
+| `portfolio-observation.v1.schema.json` | Stable authority-free portfolio observation. |
+| `portfolio-outcome.v1.schema.json` | Layer-discriminated authority-free outcome. |
+| `mcp-redaction-receipt.v1.schema.json` | Secret-safe structural MCP receipt. |
+| `portfolio-trajectory-accounting.v1.schema.json` | Bounded DAG and completeness accounting. |
+| `portfolio-telemetry-manifest.v1.schema.json` | Expected/observed telemetry proof. |
+| `portfolio-coverage-expectation.v1.schema.json` | Precommitted expected channels and event count. |
+
+The R4 companion schemas are strict (`additionalProperties: false`) shape checks only.
+Cross-field and graph semantics require the Python validator plus the positive/negative
+fixtures bound in `r4-companion-contracts.v1.manifest.json`. The manifest records exact
+digests for schemas, validator source and fixtures; it does not authenticate a producer or
+prove telemetry completeness by itself. Regenerate or check the bundle with:
+
+```powershell
+$env:PYTHONPATH = "src"
+python tools/r4_companion_schemas.py --root . --check
+```
 
 Use `ash validate <path>` for full corpus consistency, standards mapping, secret-marker
 scans, and cross-artifact checks.
