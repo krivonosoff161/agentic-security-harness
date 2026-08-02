@@ -5,7 +5,9 @@ from pathlib import Path
 from agentic_security_harness.corpus import corpus_manifest
 from agentic_security_harness.patterns import seed_patterns
 from agentic_security_harness.standards_mapping import (
+    MITRE_ATLAS_SOURCE,
     MITRE_ATLAS_VERIFIED_TECHNIQUES,
+    MITRE_ATLAS_VERSION,
     NIST_FUNCTIONS,
     standards_mapping,
     validate_standards_mapping,
@@ -37,6 +39,12 @@ def test_owasp_agentic_single_sourced_from_corpus() -> None:
         assert set(m.owasp_agentic) == by_cat[m.category]
 
 
+def test_corrected_agentic_semantics_are_explicit() -> None:
+    by_category = {m.category: m for m in standards_mapping()}
+    assert by_category["approval_laundering"].owasp_agentic == ["ASI09"]
+    assert by_category["mcp_tool_schema"].owasp_agentic == ["ASI02", "ASI04"]
+
+
 def test_nist_functions_are_valid() -> None:
     for m in standards_mapping():
         for fn in m.nist_ai_rmf:
@@ -50,6 +58,10 @@ def test_mitre_atlas_verified_subset_is_asserted() -> None:
     assert by_category["memory_poisoning"].mitre_atlas == ["AML.T0080.000"]
     assert by_category["sleeping_prompt"].mitre_atlas == ["AML.T0094"]
     assert by_category["budget_exhaustion"].mitre_atlas == ["AML.T0034.002"]
+    assert by_category["mcp_tool_schema"].mitre_atlas == [
+        "AML.T0110",
+        "AML.T0110.000",
+    ]
 
     still_deferred = {
         "approval_laundering",
@@ -64,6 +76,11 @@ def test_mitre_atlas_ids_are_allow_listed() -> None:
     asserted = {code for m in standards_mapping() for code in m.mitre_atlas}
     assert asserted
     assert asserted <= set(MITRE_ATLAS_VERIFIED_TECHNIQUES)
+
+
+def test_mitre_atlas_review_anchor_is_current_and_content_bound() -> None:
+    assert MITRE_ATLAS_VERSION == "2026.07"
+    assert MITRE_ATLAS_SOURCE.endswith("/dist/v6/ATLAS-2026.07.yaml")
 
 
 def test_empty_owasp_llm_is_explicit_not_mapped() -> None:

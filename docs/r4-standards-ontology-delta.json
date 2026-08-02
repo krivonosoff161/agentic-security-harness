@@ -1,0 +1,98 @@
+{
+  "schema_version": "R4StandardsOntologyDelta.v1",
+  "reviewed_at": "2026-08-02",
+  "authority": "none",
+  "claim_boundary": "standards_crosswalk_and_contract_gap_only",
+  "new_canonical_family": false,
+  "candidate_invariants": [
+    {
+      "candidate_id": "T27",
+      "title": "Fault-propagation containment",
+      "source_anchor": "ASI08",
+      "status": "candidate_not_canonical",
+      "admission_gate": "deterministic_positive_and_near_neighbor_negative_plus_hostile_review"
+    },
+    {
+      "candidate_id": "T28",
+      "title": "Objective and behavioural integrity",
+      "source_anchor": "ASI10",
+      "status": "candidate_not_canonical",
+      "admission_gate": "deterministic_positive_and_near_neighbor_negative_plus_hostile_review"
+    }
+  ],
+  "sources": [
+    {
+      "id": "owasp-agentic-top10",
+      "version": "2026",
+      "url": "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/",
+      "role": "risk_taxonomy_not_certification"
+    },
+    {
+      "id": "mitre-atlas",
+      "version": "2026.07",
+      "url": "https://raw.githubusercontent.com/mitre-atlas/atlas-data/main/dist/v6/ATLAS-2026.07.yaml",
+      "role": "adversary_technique_navigation_not_control_proof"
+    },
+    {
+      "id": "openai-long-horizon",
+      "version": "2026-07-20",
+      "url": "https://openai.com/index/safety-alignment-long-horizon-models/",
+      "role": "incident_derived_hypothesis_source"
+    }
+  ],
+  "owasp_crosswalk": [
+    {"external_id": "ASI01", "title": "Agent Goal Hijack", "primary_families": ["T01", "T13", "T14", "T21"]},
+    {"external_id": "ASI02", "title": "Tool Misuse and Exploitation", "primary_families": ["T06", "T07", "T15", "T23", "T26"]},
+    {"external_id": "ASI03", "title": "Identity and Privilege Abuse", "primary_families": ["T06", "T17", "T23"]},
+    {"external_id": "ASI04", "title": "Agentic Supply Chain Vulnerabilities", "primary_families": ["T07", "T08", "T24"]},
+    {"external_id": "ASI05", "title": "Unexpected Code Execution", "primary_families": ["T07", "T23", "T26"]},
+    {"external_id": "ASI06", "title": "Memory and Context Poisoning", "primary_families": ["T04", "T09", "T14"]},
+    {"external_id": "ASI07", "title": "Insecure Inter-Agent Communication", "primary_families": ["T02", "T06", "T17", "T20"]},
+    {"external_id": "ASI08", "title": "Cascading Failures", "primary_families": ["T15", "T19", "T20", "T22"], "candidate_invariant": "T27"},
+    {"external_id": "ASI09", "title": "Human-Agent Trust Exploitation", "primary_families": ["T05", "T16", "T21"]},
+    {"external_id": "ASI10", "title": "Rogue Agents", "primary_families": ["T06", "T18", "T19", "T20", "T26"], "candidate_invariant": "T28"}
+  ],
+  "atlas_2026_07_delta": [
+    {"external_id": "AML.T0115", "title": "Publish Poisoned AI Artifacts", "families": ["T08", "T24"], "implementation_state": "planned_variant"},
+    {"external_id": "AML.T0018.003", "title": "Manipulate AI Model: Modify Prompt Construction Logic", "families": ["T01", "T21", "T24"], "implementation_state": "planned_variant"},
+    {"external_id": "AML.T0110.000", "title": "AI Agent Tool Poisoning: Definition and Instructions", "families": ["T07"], "implementation_state": "mapped_existing_fixture"},
+    {"external_id": "AML.T0110.001", "title": "AI Agent Tool Poisoning: Implementation", "families": ["T07", "T24"], "implementation_state": "planned_variant"},
+    {"external_id": "AML.T0110.002", "title": "AI Agent Tool Poisoning: Runtime Response", "families": ["T07", "T19"], "implementation_state": "r4_contract_gap"},
+    {"external_id": "AML.M0035", "title": "AI Red Team", "families": ["T18", "T24"], "implementation_state": "process_mitigation_not_threat_family"},
+    {"external_id": "AML.M0036", "title": "Limit AI Workload Resource Consumption", "families": ["T15"], "implementation_state": "mitigation_reference"}
+  ],
+  "trajectory_hypothesis": {
+    "status": "contract_extension_required",
+    "existing_primary_families": ["T07", "T19", "T20", "T22", "T24", "T26"],
+    "candidate_visible_required_fields": [
+      "logical_operation_id",
+      "attempt_identity",
+      "idempotency_identity",
+      "visible_constraint_encounters",
+      "route_transition",
+      "permitted_route_predicate",
+      "lineage_witness",
+      "telemetry_completeness",
+      "observation_horizon"
+    ],
+    "evaluator_only_fields": [
+      "effect_occurred",
+      "containment_escaped",
+      "no_effect_receipt_consumed"
+    ],
+    "forbidden_candidate_fields": [
+      "attack_label",
+      "family_label",
+      "escape_outcome",
+      "evaluator_error",
+      "holdout_identity"
+    ],
+    "allowed_claim_before_r4_2": "descriptive_sequence_or_deterministic_contract_violation_only",
+    "forbidden_claims": [
+      "causal_retry_detection",
+      "verified_inter_agent_origin",
+      "containment_escape_detection",
+      "field_effectiveness"
+    ]
+  }
+}
