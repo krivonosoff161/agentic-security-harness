@@ -9,6 +9,9 @@ Agentic Security Harness owns six public portfolio modules:
 - `M19-trajectory-accounting`: retry, route-change, timing, and lineage accounting;
 - `M20-telemetry-completeness`: explicit missing-field and incomplete-telemetry semantics.
 
+All six modules are `implemented_development`: verified only within their declared
+development/synthetic contours, not independently or in production.
+
 The vendored [`security-portfolio-roadmap-public.yaml`](security-portfolio-roadmap-public.yaml)
 is the digest-bound portfolio-wide sanitized projection. The profile copy is a publication
 location, not digest authority. The private Runtime Guard repository owns the canonical
