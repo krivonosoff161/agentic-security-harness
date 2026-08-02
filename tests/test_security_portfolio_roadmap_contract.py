@@ -20,7 +20,13 @@ def test_security_portfolio_contract_is_self_contained_and_digest_bound() -> Non
     assert hashlib.sha256(raw).hexdigest() == contract["public_projection_sha256"]
     projection = json.loads(raw)
     assert projection["schema_version"] == "SecurityPortfolioRoadmapPublic.v1"
+    assert projection["roadmap_version"] == contract["roadmap_version"]
+    assert projection["source_sha256"] == contract["upstream_private_source_sha256"]
     assert projection["authority"] == contract["authority"] == "none"
+    repository = next(
+        item for item in projection["repositories"] if item["id"] == contract["repository_id"]
+    )
+    assert repository["roadmap_authority"] == contract["roadmap_authority"]
     owned = [
         {"id": item["id"], "status": item["status"]}
         for item in projection["modules"]
@@ -37,11 +43,18 @@ def test_security_portfolio_contract_is_self_contained_and_digest_bound() -> Non
     )
     assert contract["owned_modules"] == owned
     assert contract["forbidden_promotions"] == forbidden
+    assert all(
+        projection["status_profiles"][item["status"]]["authority"] == contract["authority"]
+        for item in owned
+    )
 
 
 def test_human_contract_matches_machine_pin() -> None:
     value = json.loads(CONTRACT.read_text(encoding="utf-8"))
     document = DOCUMENT.read_text(encoding="utf-8")
     assert value["roadmap_version"] in document
-    assert all(item["id"] in document for item in value["owned_modules"])
+    assert all(
+        item["id"] in document and item["status"] in document
+        for item in value["owned_modules"]
+    )
     assert "Authority: `none`" in document
