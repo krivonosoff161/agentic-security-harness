@@ -1224,3 +1224,28 @@ def test_security_audit_causal_map_covers_every_task_finding_and_open_boundary()
 
     for text in (project_map, readme):
         assert "security-audit-causal-map-2026-07-15.md" in text
+
+
+def test_r5_public_status_is_sanitized_and_does_not_promote_private_research() -> None:
+    status = _read("docs/r5-research-status.md")
+    normalized_status = " ".join(status.split())
+    current_state = _read("docs/current-state.md")
+    readme = _read("README.md")
+
+    for phrase in (
+        "stopped before `PRECOMMIT`",
+        "no sealed synthetic verdict",
+        "independence is not claimed",
+        "promotion is not eligible",
+        "operational authority is `none`",
+        "does not amend it",
+    ):
+        assert phrase in normalized_status
+
+    for text in (current_state, readme):
+        assert "r5-research-status.md" in text
+
+    assert not re.search(r"[0-9a-f]{64}", status)
+    assert "C:\\" not in status
+    assert "E:\\" not in status
+    assert "private key" not in status.lower()

@@ -7,6 +7,11 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Changed
+- Consolidated the blocked Ruff, CodeQL, Scorecard, and release-attestation dependency
+  updates, preserving the Windows-only hashed `colorama` lock entry and keeping coupled
+  GitHub action families on one reviewed commit. Added a sanitized R5 research checkpoint
+  that records preparation failures before `PRECOMMIT` without publishing private custody
+  data or claiming a sealed verdict, independence, promotion, or operational authority.
 - Ambient environment/OS proxy discovery is disabled for model requests and the guarded local
   page fetch. Explicit endpoints/gateways remain supported, while direct Python callers must
   affirmatively opt into broader proxy routing.
