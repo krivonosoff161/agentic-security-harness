@@ -42,8 +42,8 @@ release-attestation dependency updates into one reviewed branch. It preserves th
 Windows-only hashed `colorama` requirement that was lost by the Linux-generated Ruff
 lock update, updates coupled action pins atomically, and publishes the bounded
 [R5 research status](r5-research-status.md) in
-[PR #191](https://github.com/krivonosoff161/agentic-security-harness/pull/191). Its
-exact-head check result remains pending until GitHub CI reaches a terminal state.
+[PR #191](https://github.com/krivonosoff161/agentic-security-harness/pull/191). GitHub's
+live check rollup is the source of truth for its current exact-head verification state.
 
 PR
 [#174](https://github.com/krivonosoff161/agentic-security-harness/pull/174) was
