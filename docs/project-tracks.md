@@ -84,8 +84,8 @@ remains a development and conformance boundary, not production integration.
 
 Its current R5 checkpoint is documented only through the sanitized
 [R5 research status](r5-research-status.md). The private track has not produced a sealed
-R5 verdict: three preparation paths stopped before `PRECOMMIT`, and the reviewed V4
-recovery protocol has not been invoked. This status does not update the public portfolio
+R5 verdict: three preparation paths stopped before `PRECOMMIT`, and one keyless, read-only V4
+readiness inspection completed without activation. This status does not update the public portfolio
 pin, establish independence, or grant promotion or operational authority.
 
 The advisory model routes are constrained by

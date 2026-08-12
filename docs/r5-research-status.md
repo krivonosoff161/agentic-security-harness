@@ -13,9 +13,10 @@ exact-head preparation and custody protocol. The first three preparation/recover
 stopped before `PRECOMMIT`. No holdout case, label, seed, or result was consumed, and no
 scientific `PASS`, `FAIL`, or witnessed `VOID` verdict exists.
 
-A fourth, append-only recovery protocol has passed private synthetic code review and CI.
-It has not been invoked against the retained custody state. Its implementation status is
-therefore **readiness infrastructure only**, not evaluation evidence.
+A fourth, append-only recovery protocol has passed private synthetic code review and CI. One
+keyless, read-only readiness inspection completed without creating a marker, intent, attempt
+subtree, or scientific lifecycle transition. No activation occurred. Its status is therefore
+**readiness infrastructure only**, not evaluation evidence.
 
 ## Public claim boundary
 
@@ -35,8 +36,8 @@ remains `2026.08.02-r4-trajectory-containment`; this status page does not amend 
 ## Next evidence gates
 
 1. Keep the public Harness dependency and CI contour green.
-2. Complete one exact-head, read-only private readiness inspection.
-3. Require a separate owner-bound gate before any live recovery marker, `PRECOMMIT`, or
+2. Preserve the completed exact-head, read-only private readiness receipt as governance evidence.
+3. Require a separate receipt-bound owner gate before any live recovery marker, `PRECOMMIT`, or
    sealed execution.
 4. If a single authorized run reaches a terminal witnessed state, publish only the
    sanitized terminal contract and update the public portfolio projection separately.
