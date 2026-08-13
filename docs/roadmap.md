@@ -75,48 +75,52 @@ agent-host adapters are future.
 
 The next work is ordered by credibility, not by feature volume:
 
-1. **Keep public status synchronized:** maintain
+1. **v0.15 self-service research release:** make Ubuntu/Linux the primary clean-install
+   contour, retain Windows compatibility, and deliver one deterministic installed-package
+   path from `ash quickstart` to validated evidence and a self-contained HTML report. Track
+   the gate publicly in [milestone 6](https://github.com/krivonosoff161/agentic-security-harness/milestone/6).
+2. **Keep public status synchronized:** maintain
    [current-state.md](current-state.md), this roadmap, the capability matrix, and the
    README so reviewers can see what is shipped, experimental, planned, and out of scope.
    Active violation-model development is summarized in
    [research-problem-map.md](research-problem-map.md). Active public work is tracked in
    [project-tracker.md](project-tracker.md) and GitHub milestones; open issues are not
    shipped capability.
-2. **Document official/authorized testing paths:** keep
+3. **Document official/authorized testing paths:** keep
    [authorized-testing-paths.md](authorized-testing-paths.md) aligned with the security
    policy, adapter contract, provider-safe wording, and local-runtime guidance.
-3. **MITRE ATLAS upkeep + pattern versioning:** keep asserted technique ids checked
+4. **MITRE ATLAS upkeep + pattern versioning:** keep asserted technique ids checked
    against the official ATLAS release; add a severity-rationale and pattern-version policy.
-4. **Cross-app contamination and audit context split:** implement only after each pattern
+5. **Cross-app contamination and audit context split:** implement only after each pattern
    proposal states the invariant, topology, trace evidence, protected control, and
    residual risk.
-5. **Public evidence showcase upkeep:** keep README, `docs/showcase/evidence-map.md`,
+6. **Public evidence showcase upkeep:** keep README, `docs/showcase/evidence-map.md`,
    examples, and claim registries synchronized so front-page metrics match committed
    artifacts.
-6. **Multi-agent handoff expansion:** keep the shipped `toy-multi-agent` slice current,
+7. **Multi-agent handoff expansion:** keep the shipped `toy-multi-agent` slice current,
    then add only reviewed handoff patterns with explicit invariants, trace evidence, and
    safety gates.
-7. **Local-runtime evidence upkeep:** keep the Ollama / LM Studio / vLLM prompt-only path
+8. **Local-runtime evidence upkeep:** keep the Ollama / LM Studio / vLLM prompt-only path
    explicit in artifacts, including model-license notes, `local-only` mode, and recovery
    guidance.
-8. **Recovery-path corpus design:** `recovery.trust_gate_no_path` is designed in the
+9. **Recovery-path corpus design:** `recovery.trust_gate_no_path` is designed in the
    corpus expansion plan; implementation must stay deterministic and avoid provider-
    specific appeal workflows.
-9. **v1.0 stable benchmark release:** stable trace schema, stable corpus manifest, stable
+10. **v1.0 stable benchmark release:** stable trace schema, stable corpus manifest, stable
    CLI, validated examples, coherent docs, public tag (see
    [release-checklist.md](release-checklist.md)).
-10. **Portfolio ontology and interchange maintenance:** maintain and independently review
+11. **Portfolio ontology and interchange maintenance:** maintain and independently review
     the merged 26-family ontology, scenario-alias registry, authority-free
     observation/advisory contract, and shadow evaluator. Use the constrained public
     pairwise generator only for development coverage;
     unseen-family labels stay outside the detector-development path. Keep private product
     internals in the separate Runtime Guard repository. Do not add a proxy, executor,
     provider adapter, IAM path, or deployment here.
-11. **Executable scenario adjudication:** independently review the explicit 127-unit,
+12. **Executable scenario adjudication:** independently review the explicit 127-unit,
     13-builder provisional ledger. Preserve source-unit kinds and migration history; do not
     treat the bounded builder list as a repository-wide total and do not use name similarity
     as a security oracle. Add equivalence keys only after the full causal identity matches.
-12. **R5 public evidence boundary:** maintain the validator-backed
+13. **R5 public evidence boundary:** maintain the validator-backed
     [sanitized terminal projection](r5-research-status.md) without importing private source,
     raw cases/labels/seeds, keys, ledger, or custody data. The terminal `FAIL` closes this
     frozen candidate's one-burn contour; any new scientific candidate requires a separate

@@ -15,10 +15,15 @@ The demo runs the same 24 synthetic patterns against a vulnerable demo agent and
 protected version, then writes traces, scorecards, and a comparison report.
 
 ```bash
-pip install -e ".[dev]"
-ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison
-ash validate reports/comparison
+python -m pip install .
+ash quickstart --out reports/quickstart
 ```
+
+`ash quickstart` is the Linux-first, no-network first-user path. It checks the installed
+package and output location, compares the vulnerable and protected local demos on the same
+24-pattern corpus, validates the generated evidence, and renders a self-contained HTML report.
+Ubuntu is the primary clean-install contour;
+Windows remains covered by the cross-platform test matrix.
 
 Expected deterministic demo result:
 
@@ -163,11 +168,13 @@ it is not an agent-host/tool-execution result or independently labelled evidence
 ## Quick demo
 
 ```bash
-pip install -e ".[dev]"
-ash validate examples/
-ash compare --baseline demo-agent --protected protected-demo-agent --out reports/comparison
-ash validate reports/comparison
+python -m pip install .
+ash quickstart --out reports/quickstart
 ```
+
+Expected output: `24 modeled findings -> 0`, `reports/quickstart/report.html`, and validated
+JSON/Markdown evidence.
+The command is deterministic, local, and does not call a model or the network.
 
 Expected public demo: the vulnerable `demo-agent` records `24 modeled findings`; the
 `protected-demo-agent` records `0 modeled findings` on the same corpus. The committed

@@ -93,3 +93,41 @@ jobs:
           python -c "import importlib.resources as r; import agentic_security_harness as ash; assert r.files('agentic_security_harness').joinpath('py.typed').is_file(); print(ash.__version__)"
           ash --help
           ash validate examples/
+
+  linux-installed-quickstart:
+    name: Linux installed quickstart / Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Build and install wheel
+        run: |
+          set -euo pipefail
+          python -m pip install --require-hashes -r requirements/build.txt
+          python -m pip install --require-hashes -r requirements/runtime.txt
+          python -m build --no-isolation --wheel --outdir dist
+          python -m pip install --no-deps --force-reinstall dist/*.whl
+
+      - name: Run first-user pipeline outside the source checkout
+        run: |
+          set -euo pipefail
+          user_dir="$(mktemp -d)"
+          cd "$user_dir"
+          ash quickstart --out result
+          test -f result/run_index.json
+          test -f result/report.html
+          ash validate result

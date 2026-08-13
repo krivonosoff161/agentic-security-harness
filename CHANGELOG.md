@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- Added a Linux-first `ash quickstart` command that runs an installed-package preflight,
+  deterministic local benchmark, evidence validation, and self-contained HTML rendering
+  without network access.
+- Added clean installed-wheel quickstart coverage on Ubuntu for Python 3.11, 3.12, and
+  3.13 while retaining the existing Windows compatibility job.
+
 ### Changed
 - Consolidated the blocked Ruff, CodeQL, Scorecard, and release-attestation dependency
   updates, preserving the Windows-only hashed `colorama` lock entry and keeping coupled

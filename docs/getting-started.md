@@ -13,17 +13,24 @@ with no API keys and no network.
 ```bash
 git clone https://github.com/krivonosoff161/agentic-security-harness
 cd agentic-security-harness
-python -m pip install -e ".[dev]"
+python -m pip install .
 ash --help
 ```
 
 Requires Python 3.11+. Pure Python; the only runtime dependency is `pydantic`.
+Ubuntu/Linux is the primary clean-install and first-user contour; Windows remains an
+explicit compatibility target in CI.
 
 Confirm your environment is ready (no network):
 
 ```bash
-ash doctor
+ash quickstart --out reports/quickstart
 ```
+
+This single no-network command performs an installed-package preflight, compares the
+vulnerable and protected local demos on the same 24-pattern corpus, validates the evidence,
+and writes `reports/quickstart/report.html`.
+Use `ash doctor` for the fuller source-checkout and optional local-endpoint diagnostics.
 
 ## 2. See what is available
 

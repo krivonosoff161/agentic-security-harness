@@ -20,6 +20,7 @@ READ_ONLY_COMMANDS = {
     "list-runs",
 }
 COMMAND_AUTHORIZES_BOUNDED_WRITES = {
+    "quickstart",
     "run",
     "compare",
     "run-matrix",

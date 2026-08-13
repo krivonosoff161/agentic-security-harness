@@ -562,6 +562,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="reports directory to check is writable (default: ./reports)",
     )
 
+    quickstart_p = sub.add_parser(
+        "quickstart",
+        help="compare vulnerable/protected demos, validate evidence, and render HTML",
+    )
+    quickstart_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path("reports/quickstart"),
+        help="new output directory (default: reports/quickstart)",
+    )
+
     sub.add_parser(
         "external-presets",
         help="list connection presets for the external OpenAI-compatible path",
@@ -2491,6 +2502,39 @@ def _doctor(
     for cmd in report.next_commands:
         print(f"  {cmd}")
     return 0 if report.ok else 1
+
+
+def _quickstart(out: Path) -> int:
+    """Run the installed-package, no-network first-user pipeline."""
+    from agentic_security_harness.doctor import run_doctor
+
+    print("Agentic Security Harness quickstart")
+    print("=" * 40)
+    print("Mode: local synthetic benchmark; network disabled")
+    print("Step 1/4: environment preflight")
+    report = run_doctor(reports_root=out.parent, include_source_assets=False)
+    blocking = [check for check in report.checks if check.ok is False]
+    if blocking:
+        for check in blocking:
+            print(f"  [!!] {check.name}: {check.detail}")
+        print("Quickstart stopped before writing benchmark artifacts.")
+        return 1
+    print("  environment ready")
+
+    print("Step 2/4: compare vulnerable and protected local demos")
+    if _compare("demo-agent", "protected-demo-agent", out) != 0:
+        return 1
+    print("Step 3/4: validate generated evidence")
+    if _validate(out) != 0:
+        return 1
+    print("Step 4/4: render self-contained HTML")
+    if _report(out, None) != 0:
+        return 1
+
+    print("Quickstart complete.")
+    print(f"Open: {(out / 'report.html').as_posix()}")
+    print("Scope: synthetic benchmark evidence, not production safety certification.")
+    return 0
 
 
 def _external_presets() -> int:
@@ -4430,6 +4474,8 @@ def _external_check(
 
 def _main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "quickstart":
+        return _quickstart(args.out)
     if args.command == "run":
         return _run(args.target, args.out)
     if args.command == "compare":

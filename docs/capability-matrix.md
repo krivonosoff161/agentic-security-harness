@@ -12,6 +12,7 @@ the topology page is the methodology map.
 
 | Mode | Command | Network (default) | Uses a model/provider | Determinism | Corpus scope | Repeats | Scenario variants | Writes `run_index.json` | `ash validate` |
 |---|---|---|---|---|---|---|---|---|---|
+| First-user quickstart | `quickstart --out <dir>` | offline | no | deterministic | full (24), baseline vs protected | no | no | yes | runs automatically |
 | `mock` | `run --target mock` | offline | no | deterministic | full (24) | no | no | yes | yes |
 | `demo-agent` | `run --target demo-agent` | offline | no | deterministic | full (24) | no | no | yes | yes |
 | `protected-demo-agent` | `run --target protected-demo-agent` | offline | no | deterministic | full (24) | no | no | yes | yes |
@@ -28,6 +29,7 @@ the topology page is the methodology map.
 
 | Mode | Good for | Does not cover |
 |---|---|---|
+| First-user quickstart | Reproducing the `24 modeled findings -> 0` local comparison from an installed package, validating it, and rendering one complete evidence bundle. | A real model, production control, or independent safety certification. |
 | `mock` | Fast smoke check that the pipeline and a full-FAIL baseline work. | Realistic agent behavior. |
 | `demo-agent` | The vulnerable-by-design baseline (FAILs all 24). | A real agent. |
 | `protected-demo-agent` | The controlled baseline (PASSes all 24); the before/after story via `compare`. | Proof a real control works in production. |
