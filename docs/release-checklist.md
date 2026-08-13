@@ -75,8 +75,8 @@ supply-chain gap rather than an implied shipped feature.
 python examples/fake_openai_server.py            # terminal 1 (Ctrl+C to stop)
 ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary
 ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --execute --out .internal/external-e2e
-ash report --root reports/e2e
-ash validate reports/e2e
+ash report --root .internal/external-e2e
+ash validate .internal/external-e2e
 # stop the server; confirm the port is free
 ```
 

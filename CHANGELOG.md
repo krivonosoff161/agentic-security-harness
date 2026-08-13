@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-08-13
+
 ### Added
 - Added a Linux-first `ash quickstart` command that runs an installed-package preflight,
   deterministic local benchmark, evidence validation, and self-contained HTML rendering
@@ -14,6 +16,10 @@ All notable changes to this project are documented here. The format follows
   3.13 while retaining the existing Windows compatibility job.
 
 ### Changed
+- External run validation now treats the self-contained `report.html` and optional
+  `README.md` as unbound presentation companions, so the documented
+  `run-external -> report -> validate` workflow remains valid without weakening the
+  content-bound evidence manifest.
 - Consolidated the blocked Ruff, CodeQL, Scorecard, and release-attestation dependency
   updates, preserving the Windows-only hashed `colorama` lock entry and keeping coupled
   GitHub action families on one reviewed commit. Added the sanitized, content-bound R5

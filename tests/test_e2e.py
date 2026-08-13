@@ -52,6 +52,7 @@ def test_e2e_run_validate_report_pipeline(tmp_path: Path) -> None:
     assert cli.main(["run", "--target", "mock", "--out", str(out)]) == 0
     assert cli.main(["validate", str(out)]) == 0
     assert cli.main(["report", "--root", str(out)]) == 0
+    assert cli.main(["validate", str(out)]) == 0
 
     assert (out / "traces.json").exists()
     assert (out / "scorecard.json").exists()
