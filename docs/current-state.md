@@ -6,11 +6,11 @@ trajectory-accounting, and telemetry-completeness modules; operational authority
 `none`. See
 [`security-portfolio-roadmap.md`](security-portfolio-roadmap.md).
 
-> Last reviewed: 2026-08-12 against merged Security Portfolio projection
+> Last reviewed: 2026-08-13 against merged Security Portfolio projection
 > `2026.08.02-r4-trajectory-containment` and Harness main baseline
-> `f88854fbd0ecb05c6e08e3bf3b4326d274f337b2`.
+> `1f0ce38de367c45b5083b881a33412a0f4a71ce9`.
 >
-> Scope: public status of `agentic-security-harness` on `main`, version `0.14.0`. This
+> Scope: public status of `agentic-security-harness`, release `0.15.0`. This
 > page is a reviewer-facing status snapshot, not a roadmap promise.
 
 ## One-line status
@@ -41,9 +41,9 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 | Boundary-layer variation matrices | Shipped local slice | `boundary-layer-evidence-matrix.md` and `tests/test_boundary_variation_matrices.py` tie declared handoff, authority, and memory-governance variation rows to executable deterministic checks. |
 | Scenario timeline contract | Shipped local slice | `ScenarioTimeline`, `validate_timeline()`, three committed fixtures, and `replay_timeline()` model multi-turn/delayed/context-overload/handoff scenarios with explicit invariant and decision step. |
 | Portable artifacts | Shipped | `traces.json`, `scorecard.json`, `summary.md`, `executive.md`, remediation, run manifests. |
-| Artifact authenticity | Workflow implementation awaiting a real tag run | The tag workflow now creates GitHub/Sigstore attestations for the exact wheel, sdist, and checksum subjects after its gates, then verifies repository/workflow/tag/source/builder/predicate policy in a separate job. Historical releases and examples remain unsigned, no current evidence-registry row is `signed_attested`, and private/reviewer authenticity remains a separate unimplemented trust domain. |
+| Artifact authenticity | Tag-bound release workflow | The tag workflow creates GitHub/Sigstore attestations for the exact wheel, sdist, and checksum subjects after its gates, then verifies repository/workflow/tag/source/builder/predicate policy in a separate job. Exact release status remains visible in GitHub Actions/attestations. Historical releases and examples remain unsigned, no evidence-registry row is promoted automatically, and private/reviewer authenticity remains a separate unimplemented trust domain. |
 | Static reports | Shipped | `ash report --root <run-dir>` first validates the supplied artifact tree with the same fail-closed filesystem topology boundary as `ash validate`, then writes a self-contained HTML report; integrity failures stop publication and behavioral expectation mismatches are shown as non-clean results. |
-| Linux-first quickstart | In development for v0.15 | `ash quickstart` runs an installed-package preflight, deterministic vulnerable-vs-protected comparison, validation, and self-contained HTML rendering without network access. Ubuntu/Python 3.11-3.13 clean-install jobs are the primary user contour; Windows compatibility remains tested. |
+| Linux-first quickstart | Shipped in v0.15 | `ash quickstart` runs an installed-package preflight, deterministic vulnerable-vs-protected comparison, validation, and self-contained HTML rendering without network access. Ubuntu/Python 3.11-3.13 clean-install jobs are the primary user contour; Windows compatibility remains tested. |
 | Run history and maintenance | Shipped | `list-runs`, `index-runs`, `stats`, and `retention` consume only current content-bound validated runs. Stats v0.1 retains portable source-manifest commitments and rebuildable aggregates in a content-bound output; retention rebuilds the exact current plan, rechecks candidate identity and validation immediately before removal, and requires explicit acceptance of unsigned `created_at` chronology. Absolute paths remain internal to apply while normal text/JSON uses a portable root marker and relative candidates. Recursive deletion remains non-transactional under a concurrent local writer. |
 | Run/model diff | Shipped | Schema 0.3 compares only validator-accepted manifested sources, records source-manifest commitments and unsigned validation scope, and writes an exact content-bound diff bundle; source/output overlap is refused. |
 | External OpenAI-compatible prompt check | Experimental | `run-external` is dry-run by default; `--execute` is required for prompt-only network calls, live bundles are restricted to `.internal`, and no tool execution is available. Current schema 0.2 creates one pre-request execution identity and a content-bound manifest; the committed schema-0.1 fake-endpoint example remains legacy structural evidence. |

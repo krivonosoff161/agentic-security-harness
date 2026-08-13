@@ -20,19 +20,18 @@ open issues describe active work, not shipped capability.
 
 No product or research issue is treated as shipped capability.
 
-The current productization contour is intentionally user-facing rather than another broad
+The v0.15 productization contour is intentionally user-facing rather than another broad
 research expansion:
 
-- [Issue 192](https://github.com/krivonosoff161/agentic-security-harness/issues/192) defines the
-  v0.15.0 acceptance gate;
-- [Issue 193](https://github.com/krivonosoff161/agentic-security-harness/issues/193) implements
-  the Linux-first, no-network `ash quickstart` vertical path;
-- [Issue 194](https://github.com/krivonosoff161/agentic-security-harness/issues/194) proves the
-  installed wheel on Ubuntu/Python 3.11-3.13 while retaining Windows compatibility;
-- [Issue 195](https://github.com/krivonosoff161/agentic-security-harness/issues/195) makes the
-  first ten minutes and expected report visible;
-- [Issue 196](https://github.com/krivonosoff161/agentic-security-harness/issues/196) is the
-  separately gated v0.15.0 release-artifact step.
+- [Issue 192](https://github.com/krivonosoff161/agentic-security-harness/issues/192) and
+  [Issue 196](https://github.com/krivonosoff161/agentic-security-harness/issues/196) track
+  the acceptance and release-artifact gates;
+- Issues [193](https://github.com/krivonosoff161/agentic-security-harness/issues/193),
+  [194](https://github.com/krivonosoff161/agentic-security-harness/issues/194), and
+  [195](https://github.com/krivonosoff161/agentic-security-harness/issues/195) are completed:
+  the Linux-first no-network quickstart, Ubuntu installed-wheel matrix, Windows compatibility,
+  and first-ten-minute documentation are delivered by
+  [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
 The v1.0 contract blockers are tracked by
 [Issue 197](https://github.com/krivonosoff161/agentic-security-harness/issues/197),

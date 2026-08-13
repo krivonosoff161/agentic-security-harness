@@ -5854,7 +5854,8 @@ def _validate_current_external_bundle(
     expected_artifacts = sorted(
         candidate.relative_to(path).as_posix()
         for candidate in path.rglob("*")
-        if candidate.is_file() and candidate.name != "run_index.json"
+        if candidate.is_file()
+        and candidate.name not in {"run_index.json", "report.html", "README.md"}
     )
     expected = {
         "run_kind": "external",
