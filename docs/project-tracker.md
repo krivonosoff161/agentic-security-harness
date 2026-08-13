@@ -38,10 +38,12 @@ automatically. The merged slice has no provider/live authority.
 ## Open maintenance work
 
 The current maintenance contour consolidates the blocked Ruff, CodeQL, Scorecard, and
-release-attestation dependency updates into one reviewed branch. It preserves the
+release-attestation dependency updates and the terminal R5 public projection in one
+reviewed branch. It preserves the
 Windows-only hashed `colorama` requirement that was lost by the Linux-generated Ruff
 lock update, updates coupled action pins atomically, and publishes the bounded
-[R5 research status](r5-research-status.md) in
+[R5 sealed synthetic result](r5-research-status.md), its sanitized artifact, and a
+deterministic aggregate-statistics validator in
 [PR #191](https://github.com/krivonosoff161/agentic-security-harness/pull/191). GitHub's
 live check rollup is the source of truth for its current exact-head verification state.
 

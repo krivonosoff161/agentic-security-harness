@@ -82,11 +82,12 @@ establish production protection. The public cross-project boundary is limited to
 merged provider-neutral ontology and authority-free interchange contract. That contract
 remains a development and conformance boundary, not production integration.
 
-Its current R5 checkpoint is documented only through the sanitized
-[R5 research status](r5-research-status.md). The private track has not produced a sealed
-R5 verdict: three preparation paths stopped before `PRECOMMIT`, and one keyless, read-only V4
-readiness inspection completed without activation. This status does not update the public portfolio
-pin, establish independence, or grant promotion or operational authority.
+Its R5 result is projected through the sanitized, validator-backed
+[R5 sealed synthetic status](r5-research-status.md). One frozen common-control run reached
+terminal scientific `FAIL`; aggregate calculations and receipt bindings are public, while
+raw cases, labels, seeds, keys, ledger, and custody remain private. The result does not
+establish independence, population performance, promotion, production protection, or
+operational authority.
 
 The advisory model routes are constrained by
 [runtime-guard-model-fleet-contract.md](runtime-guard-model-fleet-contract.md), and the

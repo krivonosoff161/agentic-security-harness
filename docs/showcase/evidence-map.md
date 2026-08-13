@@ -7,6 +7,10 @@ things separate:
 - sanitized local-model evidence-quality snapshots;
 - private calculations that must stay under `.internal/`.
 
+The R5 terminal projection is a distinct case: raw sealed-run material stays private, but
+the safe aggregate counts, formulas, thresholds, commitments, signatures, and terminal
+receipt are committed publicly with a deterministic validator.
+
 See [Evidence classes and causal claims](../evidence-classes.md): deterministic ablation
 metrics are executable-specification results, and detector accuracy requires independent
 labels rather than detector-derived unsafe/benign buckets.
@@ -48,12 +52,19 @@ The field-level publication rule is defined in
 | RAG context authority boundary | `examples/rag-context-sanitized/` + `docs/rag-context-campaign.md` | `ash validate examples/rag-context-sanitized` | `7` cases / `91` rows; 7 naive, 0 bounded, 30 ablation acceptances | The executable specification reproduces the declared retrieval-authority rules and rule-derived ablations. | Independent causal effect, production RAG-agent safety, or provider/model claims. |
 | Planner task authority boundary | `examples/planner-task-sanitized/` + `docs/planner-task-campaign.md` | `ash validate examples/planner-task-sanitized` | `7` cases / `91` rows; 7 naive, 0 bounded, 32 ablation acceptances | The executable specification reproduces the declared planner-authority rules and rule-derived ablations. | Independent causal effect, production planner safety, or exhaustive coverage. |
 | Memory rehydration authority boundary | `examples/memory-rehydration-sanitized/` + `docs/memory-rehydration-campaign.md` | `ash validate examples/memory-rehydration-sanitized` | `7` cases / `91` rows; 7 naive, 0 bounded, 32 ablation acceptances | The executable specification reproduces the declared memory-authority rules and rule-derived ablations. | Independent causal effect, production memory-agent safety, or exhaustive coverage. |
+| Runtime Guard R5 sealed synthetic result | `examples/r5-sealed-synthetic-sanitized/` + `docs/r5-research-status.md` | `ash validate examples/r5-sealed-synthetic-sanitized` | `920` roots / `10` families; recall `0.636`, specificity `0.828`, balanced accuracy `0.732`, MCC `0.47279641242768755`; terminal `FAIL` | One frozen common-control run reached its content-bound terminal state, and the validator recomputes the disclosed aggregate metrics, exact-binomial lower indices, and failed gates. | Independent evaluation, population inference, promotion eligibility, production protection, or operational authority. |
 
 ## Private Calculation Boundary
 
 The public artifacts deliberately omit raw local-model prompts, raw responses,
 canonical-state hashes, and synthetic canary values. Those are private calculation
 artifacts and must remain under `.internal/`.
+
+For R5, private custody additionally retains cases, labels, seeds, role payloads, witness
+key material, and the lifecycle ledger. This does not make the terminal calculation
+opaque: the public projection includes all aggregate numerators/denominators, thresholds,
+exact lower indices, timing bins, commitments, and terminal receipt needed by the shipped
+validator.
 
 Public summaries may include:
 

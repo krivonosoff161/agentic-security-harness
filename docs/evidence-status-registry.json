@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1",
-  "reviewed_at": "2026-07-15",
+  "reviewed_at": "2026-08-13",
   "entries": [
     {
       "evidence_id": "corpus.comparison",
@@ -421,6 +421,22 @@
       "validator_anchor": "tests/test_local_suite.py",
       "supported_claim": "The maintainer document declares bounded local smoke counts and evidence-quality limitations.",
       "forbidden_claims": ["authenticated runtime execution", "public benchmark finding", "model safety"]
+    },
+    {
+      "evidence_id": "runtime-guard.r5-terminal",
+      "title": "Runtime Guard R5 sealed synthetic terminal projection",
+      "lifecycle_status": "shipped",
+      "evidence_class": "single_operator_precommitted_synthetic",
+      "schema_state": "current_executed",
+      "causal_scope": "internal_synthetic_acceptance_index_no_population_inference",
+      "label_source": "none",
+      "label_coverage": 0.0,
+      "reconciliation_state": "reconciled_with_receipt",
+      "origin_authentication": "content_bound",
+      "artifact_paths": ["examples/r5-sealed-synthetic-sanitized"],
+      "validator_anchor": "tests/test_r5_public_projection.py",
+      "supported_claim": "One common-control sealed synthetic R5 run reached a content-bound terminal FAIL under the frozen internal acceptance index.",
+      "forbidden_claims": ["independent evaluation", "population inference", "production protection", "promotion eligibility", "operational authority"]
     },
     {
       "evidence_id": "runtime.local-swarm-history",

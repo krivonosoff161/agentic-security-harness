@@ -116,10 +116,11 @@ The next work is ordered by credibility, not by feature volume:
     13-builder provisional ledger. Preserve source-unit kinds and migration history; do not
     treat the bounded builder list as a repository-wide total and do not use name similarity
     as a security oracle. Add equivalence keys only after the full causal identity matches.
-12. **R5 public evidence boundary:** keep the
-    [sanitized R5 status](r5-research-status.md) synchronized without importing private
-    source or custody data. A public R5 projection may advance only after one terminal,
-    witnessed, owner-authorized sealed result and a separate projection review.
+12. **R5 public evidence boundary:** maintain the validator-backed
+    [sanitized terminal projection](r5-research-status.md) without importing private source,
+    raw cases/labels/seeds, keys, ledger, or custody data. The terminal `FAIL` closes this
+    frozen candidate's one-burn contour; any new scientific candidate requires a separate
+    preregistration and owner gate rather than a rerun.
 
 ---
 
