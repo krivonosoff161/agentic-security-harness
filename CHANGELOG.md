@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.15.1] - 2026-08-13
+
+### Fixed
+- The independent release-provenance job now executes its standard-library-only policy
+  checker directly, avoiding an unintended import of the package runtime dependencies in
+  the deliberately minimal verification environment.
+
 ## [0.15.0] - 2026-08-13
 
 ### Added

@@ -23,7 +23,7 @@ boundary, not because a provider, model name, prompt wording, or framework chang
 
 ## Current release baseline
 
-Agentic Security Harness v0.15.0 has three explicitly separated layers of public evidence:
+Agentic Security Harness v0.15.1 has three explicitly separated layers of public evidence:
 
 1. A **24-pattern deterministic corpus** for core agentic boundary failures.
 2. **Executable specifications** whose controls and ablation outcomes are rule-derived.
