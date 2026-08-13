@@ -10,22 +10,23 @@ Snapshot refreshed against GitHub on 2026-08-13:
 
 | Milestone | Purpose |
 |---|---|
-| [v0.15.0 self-service research release](https://github.com/krivonosoff161/agentic-security-harness/milestone/6) | Active Linux-first productization cycle: clean installed-wheel use, one-command quickstart, validated HTML evidence, onboarding, and release packaging. |
+| [v0.15.1 self-service research release](https://github.com/krivonosoff161/agentic-security-harness/milestone/6) | Completed Linux-first productization cycle: clean installed-wheel use, one-command quickstart, validated HTML evidence, onboarding, checksums, and verified provenance. |
 | [v1.0 readiness](https://github.com/krivonosoff161/agentic-security-harness/milestone/1) | Stable trace/corpus contracts, independently reviewed standards mappings, and release-distribution maturity. |
 
-Completed historical milestones `v0.14` through `v0.17` are closed. Milestone state and
+Completed milestones `v0.14` through `v0.17` and the v0.15.1 self-service release are closed. Milestone state and
 open issues describe active work, not shipped capability.
 
 ## Open work in this track
 
 No product or research issue is treated as shipped capability.
 
-The v0.15 productization contour is intentionally user-facing rather than another broad
-research expansion:
+The v0.15 productization contour is complete and intentionally user-facing rather than
+another broad research expansion:
 
-- [Issue 192](https://github.com/krivonosoff161/agentic-security-harness/issues/192) and
-  [Issue 196](https://github.com/krivonosoff161/agentic-security-harness/issues/196) track
-  the acceptance and release-artifact gates;
+- [Issues 192](https://github.com/krivonosoff161/agentic-security-harness/issues/192) and
+  [196](https://github.com/krivonosoff161/agentic-security-harness/issues/196) closed the
+  acceptance and release-artifact gates with
+  [v0.15.1](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v0.15.1);
 - Issues [193](https://github.com/krivonosoff161/agentic-security-harness/issues/193),
   [194](https://github.com/krivonosoff161/agentic-security-harness/issues/194), and
   [195](https://github.com/krivonosoff161/agentic-security-harness/issues/195) are completed:

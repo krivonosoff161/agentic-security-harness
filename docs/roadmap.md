@@ -75,10 +75,11 @@ agent-host adapters are future.
 
 The next work is ordered by credibility, not by feature volume:
 
-1. **v0.15 self-service research release:** make Ubuntu/Linux the primary clean-install
-   contour, retain Windows compatibility, and deliver one deterministic installed-package
-   path from `ash quickstart` to validated evidence and a self-contained HTML report. Track
-   the gate publicly in [milestone 6](https://github.com/krivonosoff161/agentic-security-harness/milestone/6).
+1. **v0.15.1 self-service research release (completed):** Ubuntu/Linux is the primary
+   clean-install contour, Windows compatibility is retained, and `ash quickstart` provides
+   one deterministic installed-package path to validated evidence and a self-contained HTML
+   report. Wheel, sdist, checksums, and verified provenance are published in the
+   [v0.15.1 release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v0.15.1).
 2. **Keep public status synchronized:** maintain
    [current-state.md](current-state.md), this roadmap, the capability matrix, and the
    README so reviewers can see what is shipped, experimental, planned, and out of scope.
