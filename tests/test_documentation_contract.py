@@ -1188,7 +1188,8 @@ def test_artifact_authenticity_design_separates_trust_domains_and_non_claims() -
     assert "slsa.dev/spec/v1.0" not in design
     assert "artifact-authenticity-design.md" in project_map
     assert "Historical releases and examples remain unsigned" in current_state
-    assert "no post-change tag has executed" in current_state
+    assert "v0.15.0` tag built, smoke-installed, checksummed, and attested" in current_state
+    assert "before any GitHub Release was published" in current_state
     assert "authentication_state=unverified" in _read("docs/evidence-classes.md")
     assert "precision/recall claims are forbidden" in _read("docs/benchmark-semantics.md")
 

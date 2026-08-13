@@ -43,7 +43,7 @@ def test_release_identity_script_accepts_current_canonical_tag(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.chdir(ROOT)
-    monkeypatch.setenv("RELEASE_TAG", "v0.15.0")
+    monkeypatch.setenv("RELEASE_TAG", "v0.15.1")
 
     exec(compile(_identity_script(), str(WORKFLOW), "exec"), {})
 
@@ -110,8 +110,11 @@ def test_release_workflow_scopes_attestation_authority_and_verifies_provenance()
         '--cert-oidc-issuer "https://token.actions.githubusercontent.com"',
         '--predicate-type "https://slsa.dev/provenance/v1"',
         "--deny-self-hosted-runners",
-        "agentic_security_harness.attestation_policy",
+        "python src/agentic_security_harness/attestation_policy.py",
     ):
         assert marker in text
+    verify_job = text.split("  verify-provenance:", 1)[1]
+    assert "PYTHONPATH=src" not in verify_job
+    assert "python -m agentic_security_harness" not in verify_job
     for reference in re.findall(r"(?m)^\s*uses:\s*([^\s#]+)", text):
         assert re.fullmatch(r"[^@\s]+@[0-9a-f]{40}", reference), reference

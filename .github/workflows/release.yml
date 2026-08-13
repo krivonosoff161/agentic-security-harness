@@ -158,7 +158,7 @@ jobs:
               --predicate-type "https://slsa.dev/provenance/v1" \
               --deny-self-hosted-runners \
               --format json > "$policy_json"
-            PYTHONPATH=src python -m agentic_security_harness.attestation_policy \
+            python src/agentic_security_harness/attestation_policy.py \
               --artifact "$artifact" \
               --verification-json "$policy_json" \
               --repository "$GITHUB_REPOSITORY" \
