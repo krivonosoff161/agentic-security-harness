@@ -6,9 +6,9 @@ trajectory-accounting, and telemetry-completeness modules; operational authority
 `none`. See
 [`security-portfolio-roadmap.md`](security-portfolio-roadmap.md).
 
-> Last reviewed: 2026-08-02 against merged Security Portfolio projection
+> Last reviewed: 2026-08-12 against merged Security Portfolio projection
 > `2026.08.02-r4-trajectory-containment` and Harness main baseline
-> `d0402353aa25d442743897d56e54946273ab999c`.
+> `f88854fbd0ecb05c6e08e3bf3b4326d274f337b2`.
 >
 > Scope: public status of `agentic-security-harness` on `main`, version `0.14.0`. This
 > page is a reviewer-facing status snapshot, not a roadmap promise.
@@ -78,6 +78,7 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 | Public project process | Shipped locally; provenance change unexercised | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, and a tag-only release artifact workflow that binds tag/package/CHANGELOG version and reruns the repository gates. Package/release CI now requires two exact-byte-equal wheel/sdist builds after commit-epoch sdist normalization. The workflow contains least-privilege attestation and independent policy-verification jobs, but no post-change tag has executed them; existing release artifacts remain unsigned and no release SBOM is shipped. |
 | Local CLI container | Shipped source definition; image unpublished | The root Dockerfile packages the source-layout CLI and runs the offline doctor as a non-root user. The fail-closed `.dockerignore` allowlist excludes local/private descendants and is covered by repository hygiene tests. This is not the planned gateway image, no image is published, and the source definition does not attest runtime network isolation. |
 | Runtime Guard product foundation | Shipped bounded executable specification | Metadata-only action, capability, consent, handoff, provider, budget, decision, and evidence contracts plus a pure deterministic evaluator and synthetic adversarial tests were merged through PR #162. No proxy, executor, credential broker, durable ledger, IAM integration, deployment, or production protection is shipped. |
+| Runtime Guard R5 sealed synthetic research | Terminal `FAIL`; sanitized public projection | One frozen common-control run reached `PRECOMMITTED` -> `CONSUMED` -> `COMPLETED` and failed three preregistered gates: recall lower index, counterfactual pre-effect lower index, and balanced accuracy. The public validator recomputes the aggregate statistics and receipt bindings; private cases, labels, seeds, keys, ledger, and custody remain outside Git. Independence, promotion, production protection, and operational authority are not claimed. See [r5-research-status.md](r5-research-status.md). |
 | Portfolio threat ontology and shadow interchange | Shipped authority-free integration contract | A provider-neutral 26-family [ontology](threat-ontology.md), explicit [provisional adjudication](scenario-adjudication-ledger.md) of 127 units from 13 enumerated executable builders, a 27-row constrained development design covering all 238 feasible factor pairs, a [unified event envelope](unified-event-envelope.md), and an authority-free shadow evaluator were merged through PR #167. The inventory is not a repository-wide total, no cross-source equivalence is asserted, the development family values are non-canonical hints rather than adjudicated labels, and the rows are not holdout evidence. The contract has no `allow` representation, receipt, executor, provider, device, deployment, or production authority. |
 
 ## Experimental

@@ -1,6 +1,6 @@
 # Project tracks
 
-> Last reviewed: 2026-08-01.
+> Last reviewed: 2026-08-12.
 >
 > Scope: how Agentic Security Harness relates to the future internal LLM Safety Gateway /
 > Runtime Verifier direction. This page records project direction; it does not announce a
@@ -81,6 +81,13 @@ foundations. Its existence does not turn this public repository into a gateway a
 establish production protection. The public cross-project boundary is limited to the
 merged provider-neutral ontology and authority-free interchange contract. That contract
 remains a development and conformance boundary, not production integration.
+
+Its R5 result is projected through the sanitized, validator-backed
+[R5 sealed synthetic status](r5-research-status.md). One frozen common-control run reached
+terminal scientific `FAIL`; aggregate calculations and receipt bindings are public, while
+raw cases, labels, seeds, keys, ledger, and custody remain private. The result does not
+establish independence, population performance, promotion, production protection, or
+operational authority.
 
 The advisory model routes are constrained by
 [runtime-guard-model-fleet-contract.md](runtime-guard-model-fleet-contract.md), and the

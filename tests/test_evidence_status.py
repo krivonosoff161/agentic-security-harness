@@ -54,7 +54,7 @@ def _registry(entries: list[EvidenceStatusEntry]) -> EvidenceStatusRegistry:
 def test_public_evidence_status_registry_is_valid_and_resolves_paths() -> None:
     registry = load_evidence_status_registry(REGISTRY_PATH)
 
-    assert len(registry.entries) == 27
+    assert len(registry.entries) == 28
     assert validate_registry_artifact_paths(registry, repository_root=ROOT) == []
     assert all(entry.lifecycle_status == "shipped" for entry in registry.entries)
     assert all(
@@ -115,6 +115,7 @@ def test_registry_covers_every_showcase_campaign_directory() -> None:
         "examples/rag-context-sanitized",
         "examples/planner-task-sanitized",
         "examples/memory-rehydration-sanitized",
+        "examples/r5-sealed-synthetic-sanitized",
     }
 
     assert registered == required
@@ -397,7 +398,12 @@ def test_validate_examples_attaches_machine_readable_evidence_limitations() -> N
     }
 
     assert result.ok
-    assert len(result.evidence_statuses) == 24
+    assert len(result.evidence_statuses) == 25
+    assert any(
+        status.evidence_id == "runtime-guard.r5-terminal"
+        and status.projection_verification == "reconciled-private-projection"
+        for status in result.evidence_statuses
+    )
     assert unverified == {
         "egress.local-variations",
         "marketing.live-history",

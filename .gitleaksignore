@@ -7,3 +7,5 @@ ef55233d83579bcb8e13f199976fece7c76236a6:src/agentic_security_harness/reconcilia
 515a356aa9316997eb586a8ad8d1cccfff36f954:tests/test_external.py:generic-api-key:533
 515a356aa9316997eb586a8ad8d1cccfff36f954:tests/test_external.py:generic-api-key:555
 73054aeef732e49ec30c0398db5ae36f4be7b192:tests/test_local_suite.py:generic-api-key:156
+7ab3f1040a863a0754a2d03b3b8362d6e3565d92:examples/r5-sealed-synthetic-sanitized/terminal-envelope.json:generic-api-key:1
+7ab3f1040a863a0754a2d03b3b8362d6e3565d92:docs/r5-research-status.md:generic-api-key:54

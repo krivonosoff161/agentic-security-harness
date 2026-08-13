@@ -1224,3 +1224,31 @@ def test_security_audit_causal_map_covers_every_task_finding_and_open_boundary()
 
     for text in (project_map, readme):
         assert "security-audit-causal-map-2026-07-15.md" in text
+
+
+def test_r5_public_status_exposes_terminal_calculations_without_promotion() -> None:
+    status = _read("docs/r5-research-status.md")
+    normalized_status = " ".join(status.split())
+    current_state = _read("docs/current-state.md")
+    readme = _read("README.md")
+
+    for phrase in (
+        "terminal state is **`FAIL`**",
+        "`159 / (159 + 91)`",
+        "`207 / (207 + 43)`",
+        "clopper-pearson",
+        "`independence=not_claimed`",
+        "`promotion_eligible=false`",
+        "`operational_authority=none`",
+        "not hidden to obscure the result",
+    ):
+        assert phrase.casefold() in normalized_status.casefold()
+
+    for text in (current_state, readme):
+        assert "r5-research-status.md" in text
+
+    assert "examples/r5-sealed-synthetic-sanitized" in status
+    assert re.search(r"[0-9a-f]{64}", status)
+    assert "C:\\" not in status
+    assert "E:\\" not in status
+    assert "raw cases" in status.lower()

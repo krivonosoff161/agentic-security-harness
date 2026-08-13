@@ -37,7 +37,17 @@ automatically. The merged slice has no provider/live authority.
 
 ## Open maintenance work
 
-There is no open standalone maintenance PR. PR
+The current maintenance contour consolidates the blocked Ruff, CodeQL, Scorecard, and
+release-attestation dependency updates and the terminal R5 public projection in one
+reviewed branch. It preserves the
+Windows-only hashed `colorama` requirement that was lost by the Linux-generated Ruff
+lock update, updates coupled action pins atomically, and publishes the bounded
+[R5 sealed synthetic result](r5-research-status.md), its sanitized artifact, and a
+deterministic aggregate-statistics validator in
+[PR #191](https://github.com/krivonosoff161/agentic-security-harness/pull/191). GitHub's
+live check rollup is the source of truth for its current exact-head verification state.
+
+PR
 [#174](https://github.com/krivonosoff161/agentic-security-harness/pull/174) was
 squash-merged after exact-head review. It consolidated the useful dependency changes from
 closed PRs #159, #164, #166 and #171-#173, atomically aligned coupled CodeQL actions,
@@ -46,9 +56,10 @@ Windows-only hashed dependency, and added a regression test for the cross-workfl
 invariant.
 
 Dependabot PRs #160, #163, and #165 were automatically closed when the new grouping and
-base configuration took effect. The remaining superseded individual PRs were closed with
-their exact failure or consolidation reason. A Dependabot PR is not trusted merely
-because it was generated automatically. Dependency updates are reviewed by class and exact head.
+base configuration took effect. Superseded individual PRs are closed only after their
+replacement is published and verified, with the exact failure or consolidation reason.
+A Dependabot PR is not trusted merely because it was generated automatically. Dependency
+updates are reviewed by class and exact head.
 
 
 ## Recently completed in this track

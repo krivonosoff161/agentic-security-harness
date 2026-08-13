@@ -117,6 +117,7 @@ class ValidationResult(BaseModel):
     rag_context_campaign_dirs: list[str] = Field(default_factory=list)
     planner_task_campaign_dirs: list[str] = Field(default_factory=list)
     memory_rehydration_campaign_dirs: list[str] = Field(default_factory=list)
+    r5_public_projection_dirs: list[str] = Field(default_factory=list)
     evidence_status_registry_files: list[str] = Field(default_factory=list)
     evidence_statuses: list[ValidatedEvidenceStatus] = Field(default_factory=list)
 
@@ -332,6 +333,7 @@ def _recognized_artifact_kinds(path: Path) -> list[str]:
         ("rag_context", _is_rag_context_campaign_dir(path)),
         ("planner_task", _is_planner_task_campaign_dir(path)),
         ("memory_rehydration", _is_memory_rehydration_campaign_dir(path)),
+        ("r5_public_projection", (path / "aggregate-evidence.json").exists()),
         ("run_diff", (path / "run_diff.json").exists()),
         ("evidence_quality", (path / "evidence_quality.json").exists()),
         ("run_stats", (path / "run_stats.json").exists()),
@@ -418,6 +420,20 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
     elif _is_memory_rehydration_campaign_dir(path):
         result.memory_rehydration_campaign_dirs.append(_rel(path, root))
         _validate_memory_rehydration_campaign_dir(path, root, result)
+    elif (path / "aggregate-evidence.json").exists():
+        result.r5_public_projection_dirs.append(_rel(path, root))
+        from agentic_security_harness.r5_public_projection import (
+            validate_r5_public_projection,
+        )
+
+        for error in validate_r5_public_projection(path):
+            result._err(f"{_rel(path, root)}: {error}")
+        for artifact in (
+            path / "aggregate-evidence.json",
+            path / "terminal-envelope.json",
+            path / "publication-manifest.json",
+        ):
+            _scan_secrets(artifact, root, result)
     elif (path / "run_diff.json").exists():
         result.run_diff_dirs.append(_rel(path, root))
         _validate_run_diff_dir(path, root, result)

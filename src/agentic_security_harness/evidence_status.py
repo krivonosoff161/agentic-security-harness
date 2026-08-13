@@ -26,6 +26,7 @@ EvidenceClass = Literal[
     "local_empirical_unreconciled",
     "local_empirical_reconciled",
     "independently_labelled_evaluation",
+    "single_operator_precommitted_synthetic",
 ]
 SchemaState = Literal[
     "current_executed",
@@ -39,6 +40,7 @@ CausalScope = Literal[
     "detector_observation",
     "observed_association",
     "independent_causal_estimate",
+    "internal_synthetic_acceptance_index_no_population_inference",
 ]
 LabelSource = Literal["none", "scenario_author", "detector_derived", "independent_review"]
 ReconciliationState = Literal[
@@ -95,6 +97,7 @@ _VALIDATOR_CONTRACT_MARKERS: dict[str, frozenset[str]] = {
     "tests/test_memory_rehydration_campaign.py": frozenset({
         "memory_rehydration_summary.json"
     }),
+    "tests/test_r5_public_projection.py": frozenset({"aggregate-evidence.json"}),
     "tests/test_handoff_integrity.py": frozenset({"comparison.md"}),
     "tests/test_local_suite.py": frozenset({"local-prometheus-workflow.md"}),
 }
@@ -236,6 +239,20 @@ class EvidenceStatusEntry(BaseModel):
             if self.reconciliation_state != "reconciled_with_receipt":
                 raise ValueError("reconciled evidence requires a receipt")
 
+        if self.evidence_class == "single_operator_precommitted_synthetic":
+            if self.schema_state != "current_executed":
+                raise ValueError("R5 terminal evidence requires an executed current schema")
+            if self.causal_scope != (
+                "internal_synthetic_acceptance_index_no_population_inference"
+            ):
+                raise ValueError("R5 terminal evidence requires its bounded acceptance scope")
+            if self.label_source != "none" or self.label_coverage != 0.0:
+                raise ValueError("R5 common-control evidence cannot claim independent labels")
+            if self.reconciliation_state != "reconciled_with_receipt":
+                raise ValueError("R5 terminal evidence requires the public receipt chain")
+            if self.origin_authentication != "content_bound":
+                raise ValueError("R5 terminal evidence is content-bound, not independently signed")
+
         if self.causal_scope == "independent_causal_estimate" and self.evidence_class not in {
             "independently_labelled_evaluation",
             "local_empirical_reconciled",
@@ -259,7 +276,9 @@ class EvidenceStatusEntry(BaseModel):
             or self.causal_scope == "independent_causal_estimate"
             or self.origin_authentication in {"content_bound", "signed_attested"}
         )
-        if unsupported_assurance_promotion:
+        if unsupported_assurance_promotion and self.evidence_class != (
+            "single_operator_precommitted_synthetic"
+        ):
             raise ValueError(
                 "unsupported assurance promotion: requires a validated public "
                 "receipt/attestation contract"

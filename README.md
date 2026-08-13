@@ -385,7 +385,10 @@ A related but separate future track is an internal **LLM Safety Gateway / Runtim
 Verifier**: an organizational control layer for observing LLM traffic, tool calls,
 provenance, consent boundaries, and privacy-preserving evidence. It is not shipped
 behavior in this release, and should not be described as a production gateway. See
-[docs/project-tracks.md](docs/project-tracks.md).
+[docs/project-tracks.md](docs/project-tracks.md). The sanitized
+[R5 sealed synthetic result](docs/r5-research-status.md) is public and validator-backed:
+one frozen common-control run reached terminal scientific `FAIL`; independence, promotion,
+production protection, and operational authority are not claimed.
 
 ## Current vs planned
 
