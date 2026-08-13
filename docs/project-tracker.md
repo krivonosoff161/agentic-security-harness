@@ -6,18 +6,39 @@ docs describe the current shipped state.
 
 ## Current GitHub snapshot
 
-Snapshot refreshed against GitHub on 2026-07-31:
+Snapshot refreshed against GitHub on 2026-08-13:
 
 | Milestone | Purpose |
 |---|---|
-| [v0.17 public evidence showcase and local model probes](https://github.com/krivonosoff161/agentic-security-harness/milestone/5) | Historical planning bucket; all 12 linked issues are closed. The milestone itself remains open and must not be described as active work. |
+| [v0.15.0 self-service research release](https://github.com/krivonosoff161/agentic-security-harness/milestone/6) | Active Linux-first productization cycle: clean installed-wheel use, one-command quickstart, validated HTML evidence, onboarding, and release packaging. |
+| [v1.0 readiness](https://github.com/krivonosoff161/agentic-security-harness/milestone/1) | Stable trace/corpus contracts, independently reviewed standards mappings, and release-distribution maturity. |
 
-All five visible milestones are 100% complete with zero open issues. Milestone state is
-administrative metadata, not a release or active-work claim.
+Completed historical milestones `v0.14` through `v0.17` are closed. Milestone state and
+open issues describe active work, not shipped capability.
 
 ## Open work in this track
 
 No product or research issue is treated as shipped capability.
+
+The current productization contour is intentionally user-facing rather than another broad
+research expansion:
+
+- [Issue 192](https://github.com/krivonosoff161/agentic-security-harness/issues/192) defines the
+  v0.15.0 acceptance gate;
+- [Issue 193](https://github.com/krivonosoff161/agentic-security-harness/issues/193) implements
+  the Linux-first, no-network `ash quickstart` vertical path;
+- [Issue 194](https://github.com/krivonosoff161/agentic-security-harness/issues/194) proves the
+  installed wheel on Ubuntu/Python 3.11-3.13 while retaining Windows compatibility;
+- [Issue 195](https://github.com/krivonosoff161/agentic-security-harness/issues/195) makes the
+  first ten minutes and expected report visible;
+- [Issue 196](https://github.com/krivonosoff161/agentic-security-harness/issues/196) is the
+  separately gated v0.15.0 release-artifact step.
+
+The v1.0 contract blockers are tracked by
+[Issue 197](https://github.com/krivonosoff161/agentic-security-harness/issues/197),
+[Issue 198](https://github.com/krivonosoff161/agentic-security-harness/issues/198),
+[Issue 199](https://github.com/krivonosoff161/agentic-security-harness/issues/199), and the
+[packaging/SBOM task](https://github.com/krivonosoff161/agentic-security-harness/issues/200).
 
 PR [#167](https://github.com/krivonosoff161/agentic-security-harness/pull/167) was
 squash-merged after exact-head review, and linked issue
@@ -37,15 +58,15 @@ automatically. The merged slice has no provider/live authority.
 
 ## Open maintenance work
 
-The current maintenance contour consolidates the blocked Ruff, CodeQL, Scorecard, and
-release-attestation dependency updates and the terminal R5 public projection in one
-reviewed branch. It preserves the
+PR [#191](https://github.com/krivonosoff161/agentic-security-harness/pull/191) merged the
+Ruff, CodeQL, Scorecard, and release-attestation dependency updates together with the
+terminal R5 public projection. It preserves the
 Windows-only hashed `colorama` requirement that was lost by the Linux-generated Ruff
 lock update, updates coupled action pins atomically, and publishes the bounded
 [R5 sealed synthetic result](r5-research-status.md), its sanitized artifact, and a
 deterministic aggregate-statistics validator in
-[PR #191](https://github.com/krivonosoff161/agentic-security-harness/pull/191). GitHub's
-live check rollup is the source of truth for its current exact-head verification state.
+public projection while private cases, labels, seeds, keys, ledger, and custody remain
+outside Git.
 
 PR
 [#174](https://github.com/krivonosoff161/agentic-security-harness/pull/174) was

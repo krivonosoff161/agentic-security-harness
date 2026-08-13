@@ -269,6 +269,7 @@ def run_doctor(
     base_url: str = "http://127.0.0.1:8766/v1",
     credential_env_var: str = _DEFAULT_KEY_ENV,
     api_key_env: str | None = None,
+    include_source_assets: bool = True,
 ) -> DoctorReport:
     """Run all diagnostics. Network is only touched when ``live_local`` is true."""
     if api_key_env is not None:
@@ -280,8 +281,6 @@ def run_doctor(
         _check_import(),
         _check_package_source(),
         _check_cli_commands(),
-        _check_examples(root),
-        _check_fake_server(root),
         _check_writable(root),
         _check_reports_writable(reports_root),
         _check_build_tool(),
@@ -289,12 +288,15 @@ def run_doctor(
         _check_external_adapters(),
         _check_presets(),
     ]
+    if include_source_assets:
+        checks[4:4] = [_check_examples(root), _check_fake_server(root)]
     if live_local:
         checks.append(_check_live_local(base_url, credential_env_var))
 
     blocking = [c for c in checks if c.ok is False]
     ok = not blocking
     next_commands = [
+        "ash quickstart --out reports/quickstart",
         "ash targets",
         "ash run --target demo-agent --out reports/demo",
         "ash report --root reports/demo",

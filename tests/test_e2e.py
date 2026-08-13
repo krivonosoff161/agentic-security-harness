@@ -9,6 +9,8 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from agentic_security_harness import cli
 from agentic_security_harness.remediation import _FAMILY_MAP
 
@@ -54,6 +56,42 @@ def test_e2e_run_validate_report_pipeline(tmp_path: Path) -> None:
     assert (out / "traces.json").exists()
     assert (out / "scorecard.json").exists()
     assert (out / "report.html").exists()
+
+
+def test_e2e_quickstart_from_installed_style_directory(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    work = tmp_path / "empty-user-directory"
+    work.mkdir()
+    out = work / "result"
+    monkeypatch.chdir(work)
+
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect"
+    ) as mock_open:
+        assert cli.main(["quickstart", "--out", str(out)]) == 0
+
+    mock_open.assert_not_called()
+
+    assert (out / "comparison.md").is_file()
+    assert (out / "baseline" / "scorecard.json").is_file()
+    assert (out / "protected" / "scorecard.json").is_file()
+    assert (out / "run_index.json").is_file()
+    assert (out / "report.html").is_file()
+
+
+def test_e2e_quickstart_refuses_existing_output_without_overwrite(
+    tmp_path: Path,
+) -> None:
+    out = tmp_path / "existing"
+    out.mkdir()
+    sentinel = out / "keep.txt"
+    sentinel.write_text("keep\n", encoding="utf-8")
+
+    assert cli.main(["quickstart", "--out", str(out)]) == 1
+    assert sentinel.read_text(encoding="utf-8") == "keep\n"
+    assert [path.name for path in out.iterdir()] == ["keep.txt"]
 
 
 def test_e2e_compare_validate_report_pipeline(tmp_path: Path) -> None:

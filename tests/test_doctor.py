@@ -79,6 +79,17 @@ def test_doctor_examples_missing_flagged(tmp_path: Path) -> None:
     assert ex.ok is False
 
 
+def test_doctor_installed_package_profile_does_not_require_checkout_assets(
+    tmp_path: Path,
+) -> None:
+    report = run_doctor(root=tmp_path, include_source_assets=False)
+    names = {check.name for check in report.checks}
+
+    assert report.ok is True
+    assert "examples_dir" not in names
+    assert "fake_server" not in names
+
+
 def test_doctor_live_local_success(tmp_path: Path) -> None:
     mock_response = MagicMock()
     mock_response.read.return_value = json.dumps(
