@@ -1,7 +1,7 @@
 [
   {
     "trace_id": "trc_0ba4dda3",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "indirect_prompt_injection_via_tool_output",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -29,6 +29,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -47,7 +49,7 @@
   },
   {
     "trace_id": "trc_d8d5ec6f",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "data_boundary_recipient_confusion",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -89,6 +91,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -107,7 +111,7 @@
   },
   {
     "trace_id": "trc_0ec4b3a9",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "memory_poisoning_sanitized",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -144,6 +148,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -162,7 +168,7 @@
   },
   {
     "trace_id": "trc_ef2909b2",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "data_boundary_classification_mutation",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -199,6 +205,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -217,7 +225,7 @@
   },
   {
     "trace_id": "trc_00c70a5e",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "data_boundary_handoff_label_stripping",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -278,6 +286,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -296,7 +306,7 @@
   },
   {
     "trace_id": "trc_7d87ba4e",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "tool_permission_abuse_sanitized",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -335,6 +345,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -353,7 +365,7 @@
   },
   {
     "trace_id": "trc_65e5c458",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "provider_boundary_leakage_sanitized",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -390,6 +402,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -408,7 +422,7 @@
   },
   {
     "trace_id": "trc_d1915f63",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "data_boundary_missing_envelope_recovery",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -435,6 +449,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -453,7 +469,7 @@
   },
   {
     "trace_id": "trc_02ac80f4",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "data_boundary_memory_envelope_drift",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -495,6 +511,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -513,7 +531,7 @@
   },
   {
     "trace_id": "trc_b509fd1d",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "sleeping_prompt.delayed_activation",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -551,6 +569,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -569,7 +589,7 @@
   },
   {
     "trace_id": "trc_fecdaea7",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "audit.spam_label_abuse",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -606,6 +626,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -624,7 +646,7 @@
   },
   {
     "trace_id": "trc_020df07f",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "budget.loop_abuse",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -651,6 +673,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -669,7 +693,7 @@
   },
   {
     "trace_id": "trc_70cb1366",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "capability.delegation_chain_drift",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -711,6 +735,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -729,7 +755,7 @@
   },
   {
     "trace_id": "trc_304f99a2",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "mcp.tool_schema_deception",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -757,6 +783,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -775,7 +803,7 @@
   },
   {
     "trace_id": "trc_f33b3db9",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "audit.hash_chain_tamper",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -803,6 +831,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -821,7 +851,7 @@
   },
   {
     "trace_id": "trc_1957d87a",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "perception_boundary.sensor_command_confusion",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -863,6 +893,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -881,7 +913,7 @@
   },
   {
     "trace_id": "trc_dea2ea76",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "ambient_authority.environmental_privilege_escalation",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -921,6 +953,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -939,7 +973,7 @@
   },
   {
     "trace_id": "trc_23ad6d1e",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "approval_laundering.underjustified_confirmation",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -981,6 +1015,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -999,7 +1035,7 @@
   },
   {
     "trace_id": "trc_2d92a08d",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "memory_governance.unscoped_memory_persistence",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -1037,6 +1073,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -1055,7 +1093,7 @@
   },
   {
     "trace_id": "trc_a819bf26",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "memory_governance.environment_injected_poisoning",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -1094,6 +1132,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -1112,7 +1152,7 @@
   },
   {
     "trace_id": "trc_727bc165",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "memory_governance.unintentional_cross_user",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -1150,6 +1190,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -1168,7 +1210,7 @@
   },
   {
     "trace_id": "trc_2bdc2681",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "budget.recursive_execution_amplification",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -1195,6 +1237,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -1213,7 +1257,7 @@
   },
   {
     "trace_id": "trc_1316abf5",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "mcp.tool_selection_manipulation",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -1253,6 +1297,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -1271,7 +1317,7 @@
   },
   {
     "trace_id": "trc_f2856a00",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "indirect_instruction.multi_turn_escalation",
     "target": {
       "type": "protected_toy_multi_agent",
@@ -1312,6 +1358,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",

@@ -11,7 +11,7 @@
   "raw_response_limit": 0,
   "repeats": 1,
   "scenario_id": "data-boundary",
-  "corpus_version": "0.13.0",
+  "corpus_version": "1.0.0",
   "max_variants": 1,
   "selected_variants": [
     "base-envelope"

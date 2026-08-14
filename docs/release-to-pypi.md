@@ -12,32 +12,58 @@ on PyPI yet. See the gates in [release-checklist.md](release-checklist.md).
 - Console script: `ash = agentic_security_harness.cli:main`.
 - License files `LICENSE` and `NOTICE` are included in the wheel.
 
-## Build and verify a wheel
+## Build and verify release subjects
 
 ```bash
-python -m pip install --upgrade build twine
-python -m build                  # builds sdist + wheel in dist/
-python -m twine check dist/*     # metadata sanity
+python -m pip install --require-hashes -r requirements/build.txt
+python -m build --no-isolation  # builds sdist + wheel in dist/
 # smoke-install the wheel in a clean env:
 python -m pip install --force-reinstall dist/*.whl
 ash --help
 ash validate examples/
 ```
 
-CI already runs the equivalent build + `twine check` + wheel smoke on every push.
+CI reproducibly builds and smoke-installs the wheel. The tag-only release workflow also
+builds and compares wheel/sdist twice, emits a deterministic CycloneDX 1.6 SBOM bound to
+their exact SHA-256 values and the hash-pinned runtime lock, includes the SBOM in
+`SHA256SUMS`, and attests all four release subjects. This is implemented for the next
+authorized tag; it is not retroactive evidence for older releases.
 
 ## Publishing to PyPI (future - when v1.0 gates pass)
 
-```bash
-# TestPyPI first
-python -m twine upload --repository testpypi dist/*
-# then PyPI (requires an API token in TWINE_PASSWORD; never commit it)
-python -m twine upload dist/*
-```
+No upload command or credential-bearing publication job is committed yet. Promotion is a
+separate owner action and must use PyPI Trusted Publishing (short-lived GitHub OIDC), not
+a repository token or local `TWINE_PASSWORD`.
 
-Do this only after: version bumped, CHANGELOG dated, schema/corpus frozen (see
-[artifact-schemas.md](artifact-schemas.md)), and the v1.0 blockers in
-[release-checklist.md](release-checklist.md) are cleared.
+### TestPyPI gate
+
+- exact tag, package version, package `__version__`, and dated changelog entry agree;
+- trace/corpus contracts and all v1 blockers required by the release decision are closed;
+- release CI, reproducible builds, installed sdist/wheel smoke, committed-artifact
+  validation, SBOM generation, checksums, attestations, and independent provenance policy
+  verification are green on that tag;
+- the protected `testpypi` GitHub environment has an owner-approved Trusted Publisher and
+  required reviewers; no long-lived package credential is stored;
+- upload only the already-attested wheel and sdist from the tag workflow, then install the
+  exact version from TestPyPI in a clean Linux environment and run `ash quickstart`,
+  `ash --help`, and artifact validation;
+- record the TestPyPI project URL, exact file hashes, install command/result, and rollback
+  decision. A failed or ambiguous smoke blocks PyPI; it never triggers an automatic retry.
+
+### PyPI promotion gate
+
+- require a new explicit owner approval after TestPyPI evidence is reviewed;
+- use a separate protected `pypi` environment/Trusted Publisher with no broad workflow
+  trigger; the release job must be tag-only and exact-SHA bound;
+- require PyPI filename/hash equality with the attested TestPyPI-approved wheel/sdist;
+- clean-install the published exact version on Linux Python 3.11-3.13 and Windows 3.11,
+  run the quickstart and validator, then publish release notes linking checksums, SBOM and
+  provenance evidence;
+- package indexes are immutable: a bad upload is corrected only by a new version. Never
+  overwrite, delete-and-reuse, or silently rebuild the same version.
+
+Until these gates and a publication workflow receive separate review/authority, source and
+GitHub Release installation remain the supported public paths.
 
 ## Docker (local/offline CLI + fake-server demo)
 

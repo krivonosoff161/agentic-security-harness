@@ -1,7 +1,7 @@
 [
   {
     "trace_id": "trc_56c0903a",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "indirect_prompt_injection_via_tool_output",
     "target": {
       "type": "protected_demo_agent",
@@ -57,6 +57,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -75,7 +77,7 @@
   },
   {
     "trace_id": "trc_fcf4b0da",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "data_boundary_recipient_confusion",
     "target": {
       "type": "protected_demo_agent",
@@ -145,6 +147,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -163,7 +167,7 @@
   },
   {
     "trace_id": "trc_918913ef",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "memory_poisoning_sanitized",
     "target": {
       "type": "protected_demo_agent",
@@ -221,6 +225,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -239,7 +245,7 @@
   },
   {
     "trace_id": "trc_aeb42971",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "data_boundary_classification_mutation",
     "target": {
       "type": "protected_demo_agent",
@@ -297,6 +303,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -315,7 +323,7 @@
   },
   {
     "trace_id": "trc_005afccb",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "data_boundary_handoff_label_stripping",
     "target": {
       "type": "protected_demo_agent",
@@ -383,6 +391,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -401,7 +411,7 @@
   },
   {
     "trace_id": "trc_6283d4cc",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "tool_permission_abuse_sanitized",
     "target": {
       "type": "protected_demo_agent",
@@ -461,6 +471,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -479,7 +491,7 @@
   },
   {
     "trace_id": "trc_d59e74d2",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "provider_boundary_leakage_sanitized",
     "target": {
       "type": "protected_demo_agent",
@@ -537,6 +549,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -555,7 +569,7 @@
   },
   {
     "trace_id": "trc_caddc192",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "data_boundary_missing_envelope_recovery",
     "target": {
       "type": "protected_demo_agent",
@@ -603,6 +617,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -621,7 +637,7 @@
   },
   {
     "trace_id": "trc_4861f76f",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "data_boundary_memory_envelope_drift",
     "target": {
       "type": "protected_demo_agent",
@@ -691,6 +707,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -709,7 +727,7 @@
   },
   {
     "trace_id": "trc_396d0e09",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "sleeping_prompt.delayed_activation",
     "target": {
       "type": "protected_demo_agent",
@@ -775,6 +793,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -793,7 +813,7 @@
   },
   {
     "trace_id": "trc_54c64000",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "audit.spam_label_abuse",
     "target": {
       "type": "protected_demo_agent",
@@ -851,6 +871,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -869,7 +891,7 @@
   },
   {
     "trace_id": "trc_618a23ad",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "budget.loop_abuse",
     "target": {
       "type": "protected_demo_agent",
@@ -917,6 +939,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -935,7 +959,7 @@
   },
   {
     "trace_id": "trc_9fdb802f",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "capability.delegation_chain_drift",
     "target": {
       "type": "protected_demo_agent",
@@ -991,6 +1015,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -1009,7 +1035,7 @@
   },
   {
     "trace_id": "trc_27f14e0e",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "mcp.tool_schema_deception",
     "target": {
       "type": "protected_demo_agent",
@@ -1065,6 +1091,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -1083,7 +1111,7 @@
   },
   {
     "trace_id": "trc_acc9f0f4",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "audit.hash_chain_tamper",
     "target": {
       "type": "protected_demo_agent",
@@ -1139,6 +1167,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -1157,7 +1187,7 @@
   },
   {
     "trace_id": "trc_8be21ea5",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "perception_boundary.sensor_command_confusion",
     "target": {
       "type": "protected_demo_agent",
@@ -1227,6 +1257,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -1245,7 +1277,7 @@
   },
   {
     "trace_id": "trc_29a799a3",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "ambient_authority.environmental_privilege_escalation",
     "target": {
       "type": "protected_demo_agent",
@@ -1313,6 +1345,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -1331,7 +1365,7 @@
   },
   {
     "trace_id": "trc_5c7832a1",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "approval_laundering.underjustified_confirmation",
     "target": {
       "type": "protected_demo_agent",
@@ -1401,6 +1435,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -1419,7 +1455,7 @@
   },
   {
     "trace_id": "trc_5571aee9",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "memory_governance.unscoped_memory_persistence",
     "target": {
       "type": "protected_demo_agent",
@@ -1485,6 +1521,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -1503,7 +1541,7 @@
   },
   {
     "trace_id": "trc_bd78b418",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "memory_governance.environment_injected_poisoning",
     "target": {
       "type": "protected_demo_agent",
@@ -1577,6 +1615,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -1595,7 +1635,7 @@
   },
   {
     "trace_id": "trc_bcb37b36",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "memory_governance.unintentional_cross_user",
     "target": {
       "type": "protected_demo_agent",
@@ -1661,6 +1701,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -1679,7 +1721,7 @@
   },
   {
     "trace_id": "trc_d77fcff5",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "budget.recursive_execution_amplification",
     "target": {
       "type": "protected_demo_agent",
@@ -1727,6 +1769,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -1745,7 +1789,7 @@
   },
   {
     "trace_id": "trc_c3aeb87c",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "mcp.tool_selection_manipulation",
     "target": {
       "type": "protected_demo_agent",
@@ -1813,6 +1857,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",
@@ -1831,7 +1877,7 @@
   },
   {
     "trace_id": "trc_27b1b0cf",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "indirect_instruction.multi_turn_escalation",
     "target": {
       "type": "protected_demo_agent",
@@ -1907,6 +1953,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "local",

@@ -53,12 +53,19 @@ def test_exploit_trace_rejects_empty_required_strings_and_paths() -> None:
             ExploitTrace(**kwargs)
 
 
+def test_exploit_trace_rejects_unknown_schema_version() -> None:
+    kwargs = _valid_trace_kwargs()
+    kwargs["schema_version"] = "9.9"
+    with pytest.raises(ValidationError, match="unknown/future schema_version"):
+        ExploitTrace(**kwargs)
+
+
 def test_exploit_trace_accepts_valid_trace_with_envelope() -> None:
     kwargs = _valid_trace_kwargs()
     kwargs["data_envelope"] = DataEnvelope(data_class="confidential", classification_mutable=False)
     kwargs["findings"] = [Finding(code="c", severity="high", message="m")]
     trace = ExploitTrace(**kwargs)
-    assert trace.schema_version == "0.1"
+    assert trace.schema_version == "1.0"
     assert trace.data_envelope is not None
     assert trace.data_envelope.classification_mutable is False
     assert trace.findings[0].severity == "high"

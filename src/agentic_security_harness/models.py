@@ -7,9 +7,9 @@ encryption protects transport/storage and does not solve prompt injection.
 
 from typing import Any, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from agentic_security_harness.schema_versions import SCHEMA_VERSIONS
+from agentic_security_harness.schema_versions import SCHEMA_VERSIONS, check_schema_version
 
 Severity = Literal["info", "low", "medium", "high", "critical"]
 
@@ -192,6 +192,14 @@ class ExploitTrace(BaseModel):
     findings: list[Finding] = Field(default_factory=list)
     data_envelope: DataEnvelope | None = None
     reproducibility: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("schema_version")
+    @classmethod
+    def validate_schema_version(cls, value: str) -> str:
+        error = check_schema_version("trace", value)
+        if error:
+            raise ValueError(error)
+        return value
 
 
 class DefensivePattern(BaseModel):

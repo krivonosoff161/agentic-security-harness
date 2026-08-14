@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from agentic_security_harness.corpus import corpus_manifest
+from agentic_security_harness.corpus import corpus_manifest, corpus_manifest_sha256
 from agentic_security_harness.evidence_status import (
     load_evidence_status_registry,
     validate_registry_artifact_paths,
@@ -40,9 +40,11 @@ from agentic_security_harness.schema_versions import (
     CORPUS_VERSION,
     SCHEMA_VERSIONS,
     check_schema_version,
+    is_deprecated,
 )
 from agentic_security_harness.scorecard import ScorecardSummary, build_scorecard
 from agentic_security_harness.secret_hygiene import SECRET_PATTERNS
+from agentic_security_harness.trace_schema import parse_trace_payload
 
 if TYPE_CHECKING:
     from agentic_security_harness.run_config import ExternalResult, ExternalSummary, RunConfig
@@ -5095,13 +5097,23 @@ def _check_schema_version_file(
     except (OSError, ValueError):
         return
     items = raw if (is_list and isinstance(raw, list)) else [raw]
+    deprecated: dict[str, list[int]] = {}
     for i, item in enumerate(items):
         if not isinstance(item, dict):
             continue
-        msg = check_schema_version(kind, item.get("schema_version"), required=required)
+        version = item.get("schema_version")
+        msg = check_schema_version(kind, version, required=required)
         if msg:
             where = f"[{i}]" if is_list else ""
             result._err(f"{_rel(path, root)}{where}: {msg}")
+        elif isinstance(version, str) and is_deprecated(kind, version):
+            deprecated.setdefault(version, []).append(i)
+    for version, indices in sorted(deprecated.items()):
+        where = f" at item(s) {indices}" if is_list else ""
+        result._warn(
+            f"{_rel(path, root)}: deprecated {kind} schema_version '{version}'{where}; "
+            f"current writer version is '{SCHEMA_VERSIONS[kind]}'"
+        )
 
 
 def _fmt_error(exc: ValidationError) -> str:
@@ -5125,9 +5137,12 @@ def _load_traces(path: Path, root: Path, result: ValidationResult) -> list[Explo
     ok = True
     for i, item in enumerate(raw):
         try:
-            traces.append(ExploitTrace.model_validate(item))
+            traces.append(parse_trace_payload(item))
         except ValidationError as exc:
             result._err(f"{_rel(path, root)}[{i}]: schema: {_fmt_error(exc)}")
+            ok = False
+        except ValueError as exc:
+            result._err(f"{_rel(path, root)}[{i}]: schema: {exc}")
             ok = False
     return traces if ok else None
 
@@ -5171,6 +5186,16 @@ def _validate_traces(
         msg = check_schema_version("trace", trace.schema_version)
         if msg:
             result._err(f"{prefix}: {msg}")
+        if trace.schema_version == SCHEMA_VERSIONS["trace"]:
+            if trace.reproducibility.get("corpus_version") != CORPUS_VERSION:
+                result._err(f"{prefix}: reproducibility corpus_version does not match")
+            if (
+                trace.reproducibility.get("corpus_manifest_sha256")
+                != corpus_manifest_sha256()
+            ):
+                result._err(
+                    f"{prefix}: reproducibility corpus_manifest_sha256 does not match"
+                )
         indices = [step.index for step in trace.steps]
         if indices != list(range(len(indices))):
             result._err(f"{prefix}: step indices not sequential from 0: {indices}")

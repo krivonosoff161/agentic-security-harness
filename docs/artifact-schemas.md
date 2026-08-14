@@ -17,7 +17,7 @@ mapping, and forbidden marker scans.
 
 | Artifact | Schema kind | Current `schema_version` | Written by | Validated by |
 |---|---|---|---|---|
-| `traces.json` (each item) | `trace` | 0.1 | `ash run`, `compare`, `run-matrix` | `ash validate` (per item) |
+| `traces.json` (each item) | `trace` | 1.0 | `ash run`, `compare`, `run-matrix` | `ash validate` (per item) |
 | `scorecard.json` | `scorecard` | 0.1 | `ash run`, `compare`, `run-matrix` | `ash validate` |
 | `remediation.json` | `remediation` | 0.1 | the above, when findings exist | `ash validate` |
 | `matrix.json` | `matrix` | 0.2 | `ash run-matrix` | `ash validate` |
@@ -294,8 +294,39 @@ Validation is artifact-integrity only - see
 - **Breaking change** (removing/renaming a field, changing a field's type or meaning,
   tightening a constraint): bump the **major** version. Old artifacts of the previous
   major are then read only if explicitly kept in `KNOWN_SCHEMA_VERSIONS`.
-- Until v1.0 the schemas may still move; from v1.0 the corpus manifest and trace schema
-  are frozen and this policy is enforced (see [release-checklist.md](release-checklist.md)).
+- The trace schema is frozen at `1.0`. The deterministic corpus is separately frozen at
+  `1.0.0`; its compatibility and identifier rules are documented in
+  [corpus.md](corpus.md).
+
+### Frozen corpus manifest v1 contract
+
+- `schemas/corpus-manifest.v1.json` is the exact 24-pattern public projection;
+  `schemas/corpus-manifest.v1.schema.json` is its closed portable shape contract.
+- The canonical semantic digest is independent of pretty-print whitespace. Current trace
+  writers record both the corpus version and digest in `reproducibility`, and validation
+  rejects drift for trace schema 1.0.
+- IDs are immutable and ordered within corpus 1.0.0. Replacement requires a new ID while
+  the retained old ID is explicitly deprecated and mapped; the current registries are
+  empty.
+- `tools/corpus_contract.py --root . --check` proves the committed projection and schema
+  equal the package models. The Python validator additionally enforces membership,
+  ordering, uniqueness, and deprecation/replacement semantics.
+
+### Frozen trace v1 contract
+
+- Current writers emit only `schema_version: "1.0"`.
+- Readers in the v1 release line accept both `1.0` and legacy `0.1`. Legacy input is
+  valid but produces one grouped deprecation warning per `traces.json`; support is not
+  removed before a future v2 compatibility decision.
+- `migrate_trace_payload_to_v1()` validates a complete `0.1` or `1.0` item and changes
+  only its version field. Migration is idempotent and does not infer missing evidence.
+- Unknown fields are rejected at the trace, target, step, finding, and data-envelope
+  levels. `reproducibility` is the only explicit extension map; consumers may retain
+  unknown keys there but must not treat them as validator authority.
+- Missing and unknown/future versions fail before semantic validation. A future trace
+  version becomes readable only through an explicit registry and compatibility change.
+- The committed `schemas/trace.schema.json`, Pydantic field set, v0.1/v1 fixtures, and
+  validator tests are checked together to prevent producer/consumer drift.
 
 ## What counts as a breaking change
 

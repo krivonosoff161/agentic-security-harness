@@ -7,6 +7,7 @@ from pathlib import Path
 from agentic_security_harness.schema_versions import (
     SCHEMA_VERSIONS,
     check_schema_version,
+    is_deprecated,
     is_known,
     schema_version,
 )
@@ -33,8 +34,12 @@ def test_registry_has_core_artifacts() -> None:
 
 
 def test_check_known_version_ok() -> None:
-    assert check_schema_version("trace", "0.1") is None
+    assert check_schema_version("trace", "1.0") is None
+    assert schema_version("trace") == "1.0"
+    assert is_known("trace", "1.0")
     assert is_known("trace", "0.1")
+    assert is_deprecated("trace", "0.1")
+    assert not is_deprecated("trace", "1.0")
 
 
 def test_run_manifest_registry_keeps_legacy_versions_readable() -> None:
@@ -122,3 +127,17 @@ def test_future_trace_version_fails_validation(tmp_path: Path) -> None:
     result = validate_path(report)
     assert not result.ok
     assert any("unknown/future schema_version" in e for e in result.errors)
+
+
+def test_legacy_trace_version_is_readable_with_one_grouped_warning(tmp_path: Path) -> None:
+    report = _copy("demo-agent-report", tmp_path)
+    traces_path = report / "traces.json"
+    traces = json.loads(traces_path.read_text(encoding="utf-8"))
+    for trace in traces:
+        trace["schema_version"] = "0.1"
+    traces_path.write_text(json.dumps(traces, indent=2) + "\n", encoding="utf-8")
+    result = validate_path(report)
+    assert result.ok
+    warnings = [warning for warning in result.warnings if "deprecated trace" in warning]
+    assert len(warnings) == 1
+    assert "current writer version is '1.0'" in warnings[0]

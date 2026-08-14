@@ -1,0 +1,202 @@
+{
+  "$defs": {
+    "CorpusEntry": {
+      "additionalProperties": false,
+      "description": "Curated metadata for one implemented defensive test pattern.",
+      "properties": {
+        "pattern_id": {
+          "minLength": 1,
+          "title": "Pattern Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "implemented": {
+          "default": true,
+          "title": "Implemented",
+          "type": "boolean"
+        },
+        "baseline_expected": {
+          "default": "FAIL",
+          "enum": [
+            "FAIL",
+            "PASS"
+          ],
+          "title": "Baseline Expected",
+          "type": "string"
+        },
+        "protected_expected": {
+          "default": "PASS",
+          "enum": [
+            "FAIL",
+            "PASS"
+          ],
+          "title": "Protected Expected",
+          "type": "string"
+        },
+        "broke_at": {
+          "title": "Broke At",
+          "type": "string"
+        },
+        "data_boundary_fields_used": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Data Boundary Fields Used",
+          "type": "array"
+        },
+        "mitigation": {
+          "title": "Mitigation",
+          "type": "string"
+        },
+        "docs_reference": {
+          "default": "docs/corpus.md",
+          "title": "Docs Reference",
+          "type": "string"
+        },
+        "safe_research_note": {
+          "default": "Sanitized synthetic scenario; mock-only; no real data, network, or payloads.",
+          "title": "Safe Research Note",
+          "type": "string"
+        },
+        "owasp_agentic": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Owasp Agentic",
+          "type": "array"
+        },
+        "owasp_llm": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Owasp Llm",
+          "type": "array"
+        },
+        "mitre_atlas": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Mitre Atlas",
+          "type": "array"
+        }
+      },
+      "required": [
+        "pattern_id",
+        "name",
+        "category",
+        "severity",
+        "implemented",
+        "baseline_expected",
+        "protected_expected",
+        "broke_at",
+        "data_boundary_fields_used",
+        "mitigation",
+        "docs_reference",
+        "safe_research_note",
+        "owasp_agentic",
+        "owasp_llm",
+        "mitre_atlas"
+      ],
+      "title": "CorpusEntry",
+      "type": "object"
+    },
+    "CorpusPatternReplacement": {
+      "additionalProperties": false,
+      "description": "One explicit, reviewable replacement for a retained deprecated id.",
+      "properties": {
+        "deprecated_pattern_id": {
+          "title": "Deprecated Pattern Id",
+          "type": "string"
+        },
+        "replacement_pattern_id": {
+          "title": "Replacement Pattern Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "deprecated_pattern_id",
+        "replacement_pattern_id"
+      ],
+      "title": "CorpusPatternReplacement",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Closed shape contract for the stable deterministic corpus manifest. Pattern identity, ordering, deprecation and replacement semantics are enforced by the Python validator.",
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "corpus_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Corpus Version",
+      "type": "string"
+    },
+    "pattern_count": {
+      "minimum": 1,
+      "title": "Pattern Count",
+      "type": "integer"
+    },
+    "patterns": {
+      "items": {
+        "$ref": "#/$defs/CorpusEntry"
+      },
+      "title": "Patterns",
+      "type": "array"
+    },
+    "deprecated_pattern_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Deprecated Pattern Ids",
+      "type": "array"
+    },
+    "pattern_replacements": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/CorpusPatternReplacement"
+      },
+      "title": "Pattern Replacements",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "corpus_version",
+    "pattern_count",
+    "patterns",
+    "deprecated_pattern_ids",
+    "pattern_replacements"
+  ],
+  "title": "Agentic Security Harness corpus manifest v1",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/krivonosoff161/agentic-security-harness/schemas/corpus-manifest.v1.schema.json"
+}

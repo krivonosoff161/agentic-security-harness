@@ -8,7 +8,20 @@ encryption.
 """
 
 from agentic_security_harness.adapter_base import TargetAdapterBase
-from agentic_security_harness.corpus import CorpusEntry, corpus_manifest
+from agentic_security_harness.corpus import (
+    CORPUS_MANIFEST_SCHEMA_VERSION,
+    DEPRECATED_PATTERN_IDS,
+    PATTERN_REPLACEMENTS,
+    V1_PATTERN_IDS,
+    CorpusEntry,
+    CorpusManifestV1,
+    CorpusPatternReplacement,
+    corpus_contract,
+    corpus_manifest,
+    corpus_manifest_sha256,
+    parse_corpus_contract_json,
+    parse_corpus_contract_payload,
+)
 from agentic_security_harness.demo_adapter import DemoAgentTarget, run_scenarios
 from agentic_security_harness.demo_agent import DemoAgent
 from agentic_security_harness.doctor import DoctorReport, run_doctor
@@ -97,6 +110,12 @@ from agentic_security_harness.stats import (
     build_run_stats,
     write_run_stats,
 )
+from agentic_security_harness.trace_schema import (
+    TRACE_SCHEMA_LEGACY_VERSIONS,
+    TRACE_SCHEMA_V1,
+    migrate_trace_payload_to_v1,
+    parse_trace_payload,
+)
 from agentic_security_harness.validation import ValidationResult, validate_path
 from agentic_security_harness.version import __version__
 
@@ -128,6 +147,10 @@ __all__ = [
     "SCHEMA_VERSIONS",
     "schema_version",
     "check_schema_version",
+    "TRACE_SCHEMA_V1",
+    "TRACE_SCHEMA_LEGACY_VERSIONS",
+    "parse_trace_payload",
+    "migrate_trace_payload_to_v1",
     "RunDiff",
     "diff_runs",
     "write_run_diff",
@@ -145,7 +168,17 @@ __all__ = [
     "build_scorecard",
     "seed_patterns",
     "CorpusEntry",
+    "CorpusManifestV1",
+    "CorpusPatternReplacement",
+    "CORPUS_MANIFEST_SCHEMA_VERSION",
+    "V1_PATTERN_IDS",
+    "DEPRECATED_PATTERN_IDS",
+    "PATTERN_REPLACEMENTS",
+    "corpus_contract",
     "corpus_manifest",
+    "corpus_manifest_sha256",
+    "parse_corpus_contract_json",
+    "parse_corpus_contract_payload",
     "write_reports",
     "write_comparison",
     "build_summary_md",
