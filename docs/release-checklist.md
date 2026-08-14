@@ -84,8 +84,8 @@ ash validate .internal/external-e2e
 
 v1.0 means a stable, dependable benchmark. Open blockers:
 
-- [ ] **Stable trace schema** - freeze `schema_version` and document the compatibility
-      policy.
+- [x] **Stable trace schema** - schema 1.0, its closed-field contract, the v0.1 read
+      window, migration behavior, and regression fixtures are documented and tested.
 - [ ] **Stable corpus manifest** - freeze pattern ids and the corpus fields; document a
       deprecation policy for renames.
 - [ ] **Standards mapping review** - verify OWASP LLM / NIST category mappings with a

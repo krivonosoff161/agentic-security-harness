@@ -12,7 +12,7 @@ from __future__ import annotations
 
 # Current schema_version written by this build, keyed by artifact kind.
 SCHEMA_VERSIONS: dict[str, str] = {
-    "trace": "0.1",            # one item in traces.json
+    "trace": "1.0",            # frozen v1 contract for one item in traces.json
     "scorecard": "0.1",       # scorecard.json
     "remediation": "0.1",     # remediation.json
     "matrix": "0.2",          # matrix.json
@@ -54,6 +54,10 @@ CORPUS_VERSION = "0.13.0"
 KNOWN_SCHEMA_VERSIONS: dict[str, frozenset[str]] = {
     kind: frozenset({version}) for kind, version in SCHEMA_VERSIONS.items()
 }
+KNOWN_SCHEMA_VERSIONS["trace"] = frozenset({
+    "0.1",
+    SCHEMA_VERSIONS["trace"],
+})
 KNOWN_SCHEMA_VERSIONS["run_diff"] = frozenset({
     "0.1",
     "0.2",
@@ -107,6 +111,12 @@ KNOWN_SCHEMA_VERSIONS["marketing_web_live_campaign"] = frozenset({
     SCHEMA_VERSIONS["marketing_web_live_campaign"],
 })
 
+# Readable versions that current writers no longer emit. A deprecated version remains
+# structurally valid until a future major compatibility decision removes it.
+DEPRECATED_SCHEMA_VERSIONS: dict[str, frozenset[str]] = {
+    "trace": frozenset({"0.1"}),
+}
+
 
 def schema_version(kind: str) -> str:
     """Return the current schema_version string for an artifact kind."""
@@ -116,6 +126,11 @@ def schema_version(kind: str) -> str:
 def is_known(kind: str, version: str) -> bool:
     """True if this build can read ``version`` of ``kind``."""
     return version in KNOWN_SCHEMA_VERSIONS.get(kind, frozenset())
+
+
+def is_deprecated(kind: str, version: str) -> bool:
+    """True when ``version`` is readable but no longer emitted by this build."""
+    return version in DEPRECATED_SCHEMA_VERSIONS.get(kind, frozenset())
 
 
 def check_schema_version(

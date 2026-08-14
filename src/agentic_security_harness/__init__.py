@@ -97,6 +97,12 @@ from agentic_security_harness.stats import (
     build_run_stats,
     write_run_stats,
 )
+from agentic_security_harness.trace_schema import (
+    TRACE_SCHEMA_LEGACY_VERSIONS,
+    TRACE_SCHEMA_V1,
+    migrate_trace_payload_to_v1,
+    parse_trace_payload,
+)
 from agentic_security_harness.validation import ValidationResult, validate_path
 from agentic_security_harness.version import __version__
 
@@ -128,6 +134,10 @@ __all__ = [
     "SCHEMA_VERSIONS",
     "schema_version",
     "check_schema_version",
+    "TRACE_SCHEMA_V1",
+    "TRACE_SCHEMA_LEGACY_VERSIONS",
+    "parse_trace_payload",
+    "migrate_trace_payload_to_v1",
     "RunDiff",
     "diff_runs",
     "write_run_diff",

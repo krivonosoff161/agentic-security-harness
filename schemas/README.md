@@ -10,7 +10,7 @@ observation and R4 companion contracts are strict and reject unknown fields.
 
 | File | Artifact |
 |---|---|
-| `trace.schema.json` | One item inside `traces.json`. |
+| `trace.schema.json` | Frozen schema 1.0 for one item inside `traces.json`; closed typed fields with `reproducibility` as the explicit extension map. |
 | `scorecard.schema.json` | `scorecard.json`. |
 | `remediation.schema.json` | `remediation.json`. |
 | `run-manifest.schema.json` | `run_index.json`. |
@@ -34,3 +34,8 @@ python tools/r4_companion_schemas.py --root . --check
 
 Use `ash validate <path>` for full corpus consistency, standards mapping, secret-marker
 scans, and cross-artifact checks.
+
+The trace v1 schema is closed at every typed object boundary. Historical trace schema
+`0.1` remains readable by `ash validate` during the v1 compatibility window and can be
+normalized with `migrate_trace_payload_to_v1`; the public schema file describes only the
+version current writers emit.

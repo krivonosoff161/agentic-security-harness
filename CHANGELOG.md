@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- Froze the public trace artifact contract at schema 1.0. Writers emit 1.0, while
+  validators retain legacy 0.1 read support with a grouped deprecation warning and a
+  shape-preserving migration helper. Typed trace objects now have a matching closed JSON
+  Schema; `reproducibility` remains the explicit non-authoritative extension map.
+
 ## [0.15.1] - 2026-08-13
 
 ### Fixed

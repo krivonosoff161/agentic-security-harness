@@ -16,7 +16,7 @@ not mean production certification, real-target coverage, or a model leaderboard.
 | Surface | v1.0 target status | Current status | Evidence / gate |
 |---|---|---|---|
 | Local deterministic corpus | Stable at v1.0 | 24 shipped patterns, still pre-1.0 mutable | Freeze pattern ids and corpus fields; document deprecation policy. |
-| Trace artifact schema | Stable at v1.0 | `schema_version=0.1`, policy documented | Freeze `trace` schema major version; run `ash validate examples/`. |
+| Trace artifact schema | Stable at v1.0 | Frozen `schema_version=1.0`; legacy `0.1` remains readable with a deprecation warning | Keep contract fixtures, migration tests, and `ash validate examples/` green. |
 | Scorecard / remediation schemas | Stable at v1.0 | Versioned and validated | Confirm compatibility policy in [artifact-schemas.md](artifact-schemas.md). |
 | Run manifest / run diff schemas | Stable enough for CLI history | Versioned and validated | Keep `run_index.json` and `run_diff.json` schema checks green. |
 | Static HTML / Markdown reports | View layer, not canonical schema | Shipped | JSON remains authoritative; HTML/Markdown must not make stronger claims. |
@@ -87,7 +87,7 @@ Not allowed:
 
 | Blocker | Why it matters | Exit gate |
 |---|---|---|
-| Trace schema freeze | External users need stable trace parsing. | Final trace schema review; compatibility policy confirmed; examples validate. |
+| Trace schema freeze | External users need stable trace parsing. | Implemented as schema 1.0 with closed typed fields, v0.1 compatibility/migration fixtures, and validator regression coverage; exact-head review and CI remain the merge gate. |
 | Corpus manifest freeze | Pattern ids are public contract. | Pattern id / field freeze and deprecation policy documented. |
 | Standards second review | Mapping claims need independent verification. | OWASP LLM / NIST category mappings reviewed; MITRE ATLAS subset rechecked. |
 | Real adapter contract finalization | Future adapters must not weaken authorization/safety boundaries. | Adapter contract and authorization docs aligned; safety gates tested. |

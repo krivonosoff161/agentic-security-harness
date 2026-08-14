@@ -1,0 +1,37 @@
+{
+  "trace_id": "trc_schema_fixture",
+  "schema_version": "0.1",
+  "pattern_id": "fixture.pattern",
+  "target": {
+    "type": "fixture",
+    "name": "fixture-target",
+    "adapter": "local"
+  },
+  "graph_path": [
+    "input",
+    "decision"
+  ],
+  "steps": [
+    {
+      "index": 0,
+      "actor": "fixture-target",
+      "action": "input",
+      "input_ref": null,
+      "observed": "synthetic input accepted"
+    },
+    {
+      "index": 1,
+      "actor": "fixture-target",
+      "action": "decision",
+      "input_ref": null,
+      "observed": "synthetic decision recorded"
+    }
+  ],
+  "expected_vulnerable_behavior": "Synthetic fixture expectation.",
+  "observed_behavior": "Synthetic fixture observation.",
+  "findings": [],
+  "data_envelope": null,
+  "reproducibility": {
+    "fixture": "trace-schema-contract"
+  }
+}

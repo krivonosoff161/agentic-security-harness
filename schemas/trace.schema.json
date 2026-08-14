@@ -1,8 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/krivonosoff161/agentic-security-harness/schemas/trace.schema.json",
-  "title": "Agentic Security Harness trace",
+  "title": "Agentic Security Harness trace v1",
+  "description": "Frozen schema 1.0 for one item inside traces.json. Historical 0.1 traces remain readable through ash validate and the migration helper.",
   "type": "object",
+  "additionalProperties": false,
   "required": [
     "schema_version",
     "trace_id",
@@ -16,17 +18,97 @@
     "reproducibility"
   ],
   "properties": {
-    "schema_version": { "type": "string" },
+    "schema_version": { "const": "1.0" },
     "trace_id": { "type": "string", "minLength": 1 },
     "pattern_id": { "type": "string", "minLength": 1 },
-    "target": { "type": "object" },
-    "graph_path": { "type": "array", "items": { "type": "string" } },
-    "steps": { "type": "array", "items": { "type": "object" } },
+    "target": { "$ref": "#/$defs/target" },
+    "graph_path": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/trace_step" }
+    },
     "expected_vulnerable_behavior": { "type": "string" },
     "observed_behavior": { "type": "string" },
-    "findings": { "type": "array", "items": { "type": "object" } },
-    "data_envelope": { "type": ["object", "null"] },
-    "reproducibility": { "type": "object" }
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "data_envelope": {
+      "oneOf": [
+        { "$ref": "#/$defs/data_envelope" },
+        { "type": "null" }
+      ]
+    },
+    "reproducibility": {
+      "type": "object",
+      "description": "Explicit extension map. Keys are producer-defined and values must be JSON data.",
+      "additionalProperties": true
+    }
   },
-  "additionalProperties": true
+  "$defs": {
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "name", "adapter"],
+      "properties": {
+        "type": { "type": "string" },
+        "name": { "type": "string" },
+        "adapter": { "type": "string" }
+      }
+    },
+    "trace_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "actor", "action"],
+      "properties": {
+        "index": { "type": "integer" },
+        "actor": { "type": "string" },
+        "action": { "type": "string" },
+        "input_ref": { "type": ["string", "null"], "default": null },
+        "observed": { "type": ["string", "null"], "default": null }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "severity", "message"],
+      "properties": {
+        "code": { "type": "string" },
+        "severity": {
+          "enum": ["info", "low", "medium", "high", "critical"]
+        },
+        "message": { "type": "string" },
+        "broke_at": { "type": ["string", "null"], "default": null },
+        "mitigation": { "type": ["string", "null"], "default": null }
+      }
+    },
+    "data_envelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "data_class": { "type": "string", "default": "public" },
+        "allowed_recipients": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": []
+        },
+        "allowed_purpose": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": []
+        },
+        "can_store": { "type": "boolean", "default": true },
+        "can_forward": { "type": "boolean", "default": true },
+        "ttl_seconds": { "type": ["integer", "null"], "default": null },
+        "requires_confirmation": { "type": "boolean", "default": false },
+        "classification_source": { "type": "string", "default": "unknown" },
+        "classification_mutable": { "type": "boolean", "default": false }
+      }
+    }
+  }
 }

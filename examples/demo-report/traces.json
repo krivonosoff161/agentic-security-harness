@@ -1,7 +1,7 @@
 [
   {
     "trace_id": "trc_62939164",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "indirect_prompt_injection_via_tool_output",
     "target": {
       "type": "mock_agent",
@@ -83,7 +83,7 @@
   },
   {
     "trace_id": "trc_2e67e071",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "data_boundary_recipient_confusion",
     "target": {
       "type": "mock_agent",
@@ -179,7 +179,7 @@
   },
   {
     "trace_id": "trc_f1c6af53",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "memory_poisoning_sanitized",
     "target": {
       "type": "mock_agent",
@@ -263,7 +263,7 @@
   },
   {
     "trace_id": "trc_9cf20576",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "data_boundary_classification_mutation",
     "target": {
       "type": "mock_agent",
@@ -347,7 +347,7 @@
   },
   {
     "trace_id": "trc_3fad6f4e",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "data_boundary_handoff_label_stripping",
     "target": {
       "type": "mock_agent",
@@ -441,7 +441,7 @@
   },
   {
     "trace_id": "trc_70562829",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "tool_permission_abuse_sanitized",
     "target": {
       "type": "mock_agent",
@@ -527,7 +527,7 @@
   },
   {
     "trace_id": "trc_b8fd0ab5",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "provider_boundary_leakage_sanitized",
     "target": {
       "type": "mock_agent",
@@ -611,7 +611,7 @@
   },
   {
     "trace_id": "trc_cc56019a",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "data_boundary_missing_envelope_recovery",
     "target": {
       "type": "mock_agent",
@@ -685,7 +685,7 @@
   },
   {
     "trace_id": "trc_de2ea423",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "data_boundary_memory_envelope_drift",
     "target": {
       "type": "mock_agent",
@@ -781,7 +781,7 @@
   },
   {
     "trace_id": "trc_8dc7c350",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "sleeping_prompt.delayed_activation",
     "target": {
       "type": "mock_agent",
@@ -873,7 +873,7 @@
   },
   {
     "trace_id": "trc_0960149c",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "audit.spam_label_abuse",
     "target": {
       "type": "mock_agent",
@@ -957,7 +957,7 @@
   },
   {
     "trace_id": "trc_33432327",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "budget.loop_abuse",
     "target": {
       "type": "mock_agent",
@@ -1031,7 +1031,7 @@
   },
   {
     "trace_id": "trc_b197143b",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "capability.delegation_chain_drift",
     "target": {
       "type": "mock_agent",
@@ -1113,7 +1113,7 @@
   },
   {
     "trace_id": "trc_55f9429b",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "mcp.tool_schema_deception",
     "target": {
       "type": "mock_agent",
@@ -1195,7 +1195,7 @@
   },
   {
     "trace_id": "trc_511c0681",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "audit.hash_chain_tamper",
     "target": {
       "type": "mock_agent",
@@ -1277,7 +1277,7 @@
   },
   {
     "trace_id": "trc_f7500e44",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "perception_boundary.sensor_command_confusion",
     "target": {
       "type": "mock_agent",
@@ -1373,7 +1373,7 @@
   },
   {
     "trace_id": "trc_e5f0e6f8",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "ambient_authority.environmental_privilege_escalation",
     "target": {
       "type": "mock_agent",
@@ -1467,7 +1467,7 @@
   },
   {
     "trace_id": "trc_da0de12b",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "approval_laundering.underjustified_confirmation",
     "target": {
       "type": "mock_agent",
@@ -1563,7 +1563,7 @@
   },
   {
     "trace_id": "trc_a7084ef8",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "memory_governance.unscoped_memory_persistence",
     "target": {
       "type": "mock_agent",
@@ -1655,7 +1655,7 @@
   },
   {
     "trace_id": "trc_92f497ab",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "memory_governance.environment_injected_poisoning",
     "target": {
       "type": "mock_agent",
@@ -1755,7 +1755,7 @@
   },
   {
     "trace_id": "trc_cc087d62",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "memory_governance.unintentional_cross_user",
     "target": {
       "type": "mock_agent",
@@ -1847,7 +1847,7 @@
   },
   {
     "trace_id": "trc_a4e7ca88",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "budget.recursive_execution_amplification",
     "target": {
       "type": "mock_agent",
@@ -1921,7 +1921,7 @@
   },
   {
     "trace_id": "trc_0424c864",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "mcp.tool_selection_manipulation",
     "target": {
       "type": "mock_agent",
@@ -2015,7 +2015,7 @@
   },
   {
     "trace_id": "trc_78f3c101",
-    "schema_version": "0.1",
+    "schema_version": "1.0",
     "pattern_id": "indirect_instruction.multi_turn_escalation",
     "target": {
       "type": "mock_agent",
