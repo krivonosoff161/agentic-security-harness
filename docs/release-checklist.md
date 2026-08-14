@@ -86,8 +86,9 @@ v1.0 means a stable, dependable benchmark. Open blockers:
 
 - [x] **Stable trace schema** - schema 1.0, its closed-field contract, the v0.1 read
       window, migration behavior, and regression fixtures are documented and tested.
-- [ ] **Stable corpus manifest** - freeze pattern ids and the corpus fields; document a
-      deprecation policy for renames.
+- [x] **Stable corpus manifest** - corpus 1.0.0 freezes the 24 ordered pattern ids and
+      fields, publishes a closed manifest/schema plus canonical digest, and documents
+      explicit deprecation/replacement rules.
 - [ ] **Standards mapping review** - verify OWASP LLM / NIST category mappings with a
       second reviewer; re-check the current MITRE ATLAS verified subset against the latest
       official ATLAS release.

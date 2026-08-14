@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from agentic_security_harness.corpus import corpus_manifest
+from agentic_security_harness.corpus import corpus_manifest, corpus_manifest_sha256
 from agentic_security_harness.evidence_status import (
     load_evidence_status_registry,
     validate_registry_artifact_paths,
@@ -5186,6 +5186,16 @@ def _validate_traces(
         msg = check_schema_version("trace", trace.schema_version)
         if msg:
             result._err(f"{prefix}: {msg}")
+        if trace.schema_version == SCHEMA_VERSIONS["trace"]:
+            if trace.reproducibility.get("corpus_version") != CORPUS_VERSION:
+                result._err(f"{prefix}: reproducibility corpus_version does not match")
+            if (
+                trace.reproducibility.get("corpus_manifest_sha256")
+                != corpus_manifest_sha256()
+            ):
+                result._err(
+                    f"{prefix}: reproducibility corpus_manifest_sha256 does not match"
+                )
         indices = [step.index for step in trace.steps]
         if indices != list(range(len(indices))):
             result._err(f"{prefix}: step indices not sequential from 0: {indices}")

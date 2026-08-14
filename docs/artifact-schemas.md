@@ -294,8 +294,23 @@ Validation is artifact-integrity only - see
 - **Breaking change** (removing/renaming a field, changing a field's type or meaning,
   tightening a constraint): bump the **major** version. Old artifacts of the previous
   major are then read only if explicitly kept in `KNOWN_SCHEMA_VERSIONS`.
-- The trace schema is frozen at `1.0`. The corpus manifest remains a separate v1.0 gate
-  (see [release-checklist.md](release-checklist.md)).
+- The trace schema is frozen at `1.0`. The deterministic corpus is separately frozen at
+  `1.0.0`; its compatibility and identifier rules are documented in
+  [corpus.md](corpus.md).
+
+### Frozen corpus manifest v1 contract
+
+- `schemas/corpus-manifest.v1.json` is the exact 24-pattern public projection;
+  `schemas/corpus-manifest.v1.schema.json` is its closed portable shape contract.
+- The canonical semantic digest is independent of pretty-print whitespace. Current trace
+  writers record both the corpus version and digest in `reproducibility`, and validation
+  rejects drift for trace schema 1.0.
+- IDs are immutable and ordered within corpus 1.0.0. Replacement requires a new ID while
+  the retained old ID is explicitly deprecated and mapped; the current registries are
+  empty.
+- `tools/corpus_contract.py --root . --check` proves the committed projection and schema
+  equal the package models. The Python validator additionally enforces membership,
+  ordering, uniqueness, and deprecation/replacement semantics.
 
 ### Frozen trace v1 contract
 

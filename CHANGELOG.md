@@ -11,6 +11,10 @@ All notable changes to this project are documented here. The format follows
   validators retain legacy 0.1 read support with a grouped deprecation warning and a
   shape-preserving migration helper. Typed trace objects now have a matching closed JSON
   Schema; `reproducibility` remains the explicit non-authoritative extension map.
+- Froze the deterministic corpus at version 1.0.0 with a closed public manifest,
+  immutable ordered pattern identifiers, explicit deprecation/replacement registries,
+  and a canonical semantic digest carried by newly written traces. Committed examples,
+  schemas, validators, and generators now bind the same corpus contract.
 
 ## [0.15.1] - 2026-08-13
 

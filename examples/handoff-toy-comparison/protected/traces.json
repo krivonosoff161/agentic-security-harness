@@ -29,6 +29,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -89,6 +91,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -144,6 +148,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -199,6 +205,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -278,6 +286,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -335,6 +345,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -390,6 +402,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -435,6 +449,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -495,6 +511,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -551,6 +569,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -606,6 +626,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -651,6 +673,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -711,6 +735,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -757,6 +783,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -803,6 +831,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -863,6 +893,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -921,6 +953,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -981,6 +1015,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -1037,6 +1073,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -1094,6 +1132,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -1150,6 +1190,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -1195,6 +1237,8 @@
     "findings": [],
     "data_envelope": null,
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -1253,6 +1297,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",
@@ -1312,6 +1358,8 @@
       "classification_mutable": false
     },
     "reproducibility": {
+      "corpus_version": "1.0.0",
+      "corpus_manifest_sha256": "487a35d2e91b9a8e76a92a18079262cc99319f96f5be76750395ad697496ff85",
       "deterministic": true,
       "seed": 0,
       "adapter_name": "protected-toy-multi-agent",

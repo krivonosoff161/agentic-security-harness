@@ -587,6 +587,29 @@ def test_duplicate_trace_id_fails(tmp_path: Path) -> None:
     assert _has(result, "duplicate trace_id")
 
 
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("corpus_version", "1.0.1", "reproducibility corpus_version does not match"),
+        (
+            "corpus_manifest_sha256",
+            "0" * 64,
+            "reproducibility corpus_manifest_sha256 does not match",
+        ),
+    ],
+)
+def test_current_traces_reject_corpus_contract_drift(
+    tmp_path: Path, field: str, value: str, message: str
+) -> None:
+    report = _copy("demo-agent-report", tmp_path)
+    data = _load(report / "traces.json")
+    data[0]["reproducibility"][field] = value
+    _dump(report / "traces.json", data)
+    result = validate_path(report)
+    assert not result.ok
+    assert _has(result, message)
+
+
 def test_non_sequential_step_indices_fails(tmp_path: Path) -> None:
     report = _copy("demo-agent-report", tmp_path)
     data = _load(report / "traces.json")

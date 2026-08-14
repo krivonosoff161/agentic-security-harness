@@ -11,6 +11,8 @@ observation and R4 companion contracts are strict and reject unknown fields.
 | File | Artifact |
 |---|---|
 | `trace.schema.json` | Frozen schema 1.0 for one item inside `traces.json`; closed typed fields with `reproducibility` as the explicit extension map. |
+| `corpus-manifest.v1.json` | Exact corpus 1.0.0 projection with 24 ordered pattern contracts. |
+| `corpus-manifest.v1.schema.json` | Closed portable shape schema for the corpus manifest. |
 | `scorecard.schema.json` | `scorecard.json`. |
 | `remediation.schema.json` | `remediation.json`. |
 | `run-manifest.schema.json` | `run_index.json`. |
@@ -34,6 +36,13 @@ python tools/r4_companion_schemas.py --root . --check
 
 Use `ash validate <path>` for full corpus consistency, standards mapping, secret-marker
 scans, and cross-artifact checks.
+
+Regenerate or verify the corpus projection and shape schema with:
+
+```powershell
+$env:PYTHONPATH = "src"
+python tools/corpus_contract.py --root . --check
+```
 
 The trace v1 schema is closed at every typed object boundary. Historical trace schema
 `0.1` remains readable by `ash validate` during the v1 compatibility window and can be

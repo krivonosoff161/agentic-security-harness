@@ -11,6 +11,41 @@
 > NIST AI RMF, and verified MITRE ATLAS mappings are maintained at category level. See
 > [standards-mapping.md](standards-mapping.md).
 
+## Stable corpus v1 contract
+
+Corpus version `1.0.0` freezes the ordered 24-pattern public contract. The exact
+machine-readable projection is
+[`schemas/corpus-manifest.v1.json`](../schemas/corpus-manifest.v1.json), its closed shape
+schema is
+[`schemas/corpus-manifest.v1.schema.json`](../schemas/corpus-manifest.v1.schema.json),
+and the Python validator remains authoritative for cross-field semantics. Run:
+
+```bash
+PYTHONPATH=src python tools/corpus_contract.py --root . --check
+```
+
+The stable fields are every manifest top-level field and every `CorpusEntry` field:
+identity, display metadata, category/severity, implementation and expected outcomes,
+break point, data-boundary coverage, mitigation/documentation/safety notes, and standards
+mappings. New traces bind both `corpus_version` and the canonical
+`corpus_manifest_sha256`; the digest is over canonical semantic JSON, not whitespace.
+
+Pattern ID policy for the v1 line:
+
+- an existing ID is never renamed, removed, reordered, reused, or silently given a new
+  tested security invariant;
+- a replacement receives a new ID while the old ID remains in the manifest and is listed
+  in `deprecated_pattern_ids` plus one explicit `pattern_replacements` record;
+- additive reviewed patterns require a corpus minor-version bump; compatible metadata
+  correction requires a patch bump; changing a field's meaning or removing a field waits
+  for a new corpus major version;
+- current deprecation and replacement registries are empty. Deprecation is documentation,
+  not permission for validators to reinterpret historical evidence.
+
+The JSON Schema checks the closed portable shape. ID ordering, exact v1 membership,
+deprecation/replacement coherence, trace binding, and generator parity are regression
+tested by the Python suite.
+
 ## Patterns
 
 | # | Pattern | Failure mode probed | ASI | Severity | Baseline | Protected | Break point |

@@ -34,7 +34,7 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 
 | Area | Status | Evidence |
 |---|---|---|
-| Local deterministic corpus | Shipped | 24 sanitized seed patterns in `corpus.py` and `patterns.py`. |
+| Local deterministic corpus | Shipped stable v1 contract | Corpus 1.0.0 freezes 24 ordered sanitized seed ids and fields in a closed committed manifest/schema; new traces bind its canonical semantic digest. |
 | Local targets | Shipped | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, `protected-toy-multi-agent`. |
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
 | Inter-agent handoff verifier toy topology | Shipped local slice | `handoff_integrity.py`, `toy-multi-agent`, and `protected-toy-multi-agent` model deterministic label-loss and authority-expansion handoffs. |

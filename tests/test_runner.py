@@ -1,3 +1,4 @@
+from agentic_security_harness.corpus import corpus_manifest_sha256
 from agentic_security_harness.mock_target import MockTarget
 from agentic_security_harness.models import (
     CapabilityCheckResult,
@@ -47,6 +48,11 @@ def test_runner_one_trace_per_pattern() -> None:
     traces = HarnessRunner(MockTarget()).run_many(patterns)
     assert len(traces) == len(patterns)
     assert [t.pattern_id for t in traces] == [p.pattern_id for p in patterns]
+    assert all(trace.reproducibility["corpus_version"] == "1.0.0" for trace in traces)
+    assert all(
+        trace.reproducibility["corpus_manifest_sha256"] == corpus_manifest_sha256()
+        for trace in traces
+    )
 
 
 def test_trace_ids_deterministic_and_unique() -> None:

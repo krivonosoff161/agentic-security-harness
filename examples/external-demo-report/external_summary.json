@@ -5,7 +5,7 @@
   "model": "fake-model",
   "total_checks": 6,
   "total_repeats": 6,
-  "corpus_version": "0.13.0",
+  "corpus_version": "1.0.0",
   "patterns_with_findings": [],
   "flaky_patterns": [],
   "inconclusive_patterns": [],
