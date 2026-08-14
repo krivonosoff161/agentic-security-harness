@@ -14,7 +14,9 @@ Snapshot refreshed against GitHub on 2026-08-14:
 | [v1.0 readiness](https://github.com/krivonosoff161/agentic-security-harness/milestone/1) | Completed technical readiness: stable trace/corpus contracts, adapter/docs alignment, cross-platform CI, and release-distribution maturity. |
 | [Post-v1 independent review](https://github.com/krivonosoff161/agentic-security-harness/milestone/7) | Non-blocking independent standards review and durable second-reviewer governance. |
 
-Completed milestones `v0.14` through `v0.17` and the v0.15.1 self-service release are closed. Milestone state and
+Completed milestones `v0.14` through `v0.17`, the v0.15.1 self-service release, and the
+[v1.0.0 release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.0.0)
+are closed. Milestone state and
 open issues describe active work, not shipped capability.
 
 ## Open work in this track
@@ -35,7 +37,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete. Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.0.0` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.0.0/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are

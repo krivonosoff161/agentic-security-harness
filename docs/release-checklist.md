@@ -1,8 +1,8 @@
 # Release checklist
 
 Practical preflight for cutting a public research release. The stable v1.0 benchmark
-contract is technically release-ready; this checklist still requires a fresh exact release
-commit and an explicitly authorized tag run. The broader readiness map is
+contract was released as `v1.0.0` on 2026-08-14; this checklist remains the required
+procedure for subsequent releases. The broader readiness map is
 [v1-readiness.md](v1-readiness.md).
 
 ## Every release
@@ -64,8 +64,8 @@ attestations for the exact wheel, sdist, and checksum file, and a separate job v
 digest plus the expected repository, workflow, tag ref, source commit, issuer, builder, event,
 hosted-runner, SLSA-predicate, and verified-time policy.
 
-This workflow definition is not retroactive: existing releases remain unsigned, and the change is
-not operationally verified until a future authorized tag run passes the verification job. A green
+This workflow definition is not retroactive: older releases remain unsigned. The `v1.0.0`
+tag run passed the build and independent provenance verification jobs. A green
 attestation proves the configured build provenance for the named bytes; it does not prove package
 safety, semantic truth, local-model execution, private observation, or reviewer identity. Evidence
 registry rows must remain below `signed_attested` until their exact subject and validated
@@ -74,7 +74,7 @@ attestation are explicitly bound by a supported registry contract.
 The tag workflow now generates a deterministic CycloneDX 1.6 SBOM from exact wheel/sdist
 metadata plus the hash-pinned runtime lock. The document records both subject hashes and
 source tag/SHA, is covered by `SHA256SUMS`, and is itself attested and independently
-verified. This takes effect only on the next authorized tag; older release sets remain
+verified. `v1.0.0` is the first release set carrying this SBOM; older release sets remain
 truthfully SBOM-free.
 
 ## Fake-server E2E (no external network)
@@ -104,10 +104,9 @@ v1.0 means a stable, dependable synthetic benchmark contract. Technical gates:
       on the integrated contracts and remaining external gates; documentation tests pass.
 - [x] **Integrated-main CI matrix confirmed** - exact commit `7c5ad061` passed Ubuntu
       3.11-3.13, Windows 3.11, installed-wheel smokes, build, CodeQL, and secret scan.
-- [ ] **Release execution gate** - the future authorized tag must produce and verify
-      exact-subject wheel/sdist/SBOM/checksum attestations. Workflow readiness is not a
-      substitute for a completed tag run; this is performed by the release, not a reason to
-      hold the tested source contract indefinitely.
+- [x] **Release execution gate** - tag `v1.0.0` produced and independently verified
+      exact-subject wheel/sdist/SBOM/checksum attestations in release run
+      [`31827272644`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/31827272644).
 - [x] **GitHub project surface current** - issue templates, PR template, CODEOWNERS,
       governance, support, and maintainer docs match the release scope.
 

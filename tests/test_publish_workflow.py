@@ -66,6 +66,9 @@ def test_publish_action_is_commit_pinned_and_post_publish_smokes_are_bounded() -
     assert 'host = "test.pypi.org"' in text
     assert 'else "pypi.org"' in text
     assert "published subject mismatch" in text
+    assert text.count(
+        'if path.suffix == ".whl" or path.name.endswith(".tar.gz")'
+    ) == 2
     assert "agentic-security-harness==$version" in text
     assert "ash quickstart" in text
     assert "ash validate" in text
