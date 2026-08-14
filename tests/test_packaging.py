@@ -1,6 +1,8 @@
 """Packaging / Docker / devcontainer static contracts (no image build)."""
 
 import json
+import re
+import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -80,6 +82,24 @@ def test_pyproject_packaging_fields() -> None:
     assert 'py.typed' in text
     assert 'license = "Apache-2.0"' in text
     assert 'requires-python = ">=3.11"' in text
+
+
+def test_v1_release_metadata_is_synchronized_without_claiming_publication() -> None:
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    version_text = (ROOT / "src/agentic_security_harness/version.py").read_text("utf-8")
+    citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
+    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    release_notes = (ROOT / "docs/releases/v1.0.0.md").read_text(encoding="utf-8")
+
+    package_version = re.search(r'^__version__ = "([^"]+)"$', version_text, re.MULTILINE)
+    assert package_version is not None
+    assert project["version"] == package_version.group(1) == "1.0.0"
+    assert 'Development Status :: 4 - Beta' in project["classifiers"]
+    assert 'version: "1.0.0"' in citation
+    assert "date-released:" not in citation
+    assert "## [1.0.0] - 2026-08-14" in changelog
+    assert "Agentic Security Harness v1.0.0" in release_notes
+    assert "not a production safety certification" in release_notes
 
 
 def test_package_ci_requires_byte_reproducible_wheel_and_sdist() -> None:
