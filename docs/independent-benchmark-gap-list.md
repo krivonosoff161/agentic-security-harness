@@ -3,8 +3,8 @@
 Honest list of what is still missing for this to feel like a fully self-serve, independent
 benchmark module. **Nothing here is implemented by listing it** - these are future-work
 notes captured during the v0.12.1 UX-hardening pass so they are not lost. Items must not
-be built before the benchmark methodology stabilizes (see
-[release-checklist.md](release-checklist.md) for v1.0 blockers).
+be confused with the stable technical contract (see
+[release-checklist.md](release-checklist.md) for release gates and non-blocking follow-up).
 
 ## Onboarding / UX
 

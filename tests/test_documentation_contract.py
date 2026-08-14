@@ -472,7 +472,7 @@ def test_handoff_toy_topology_documents_verifier_math_and_claim_boundary() -> No
         assert phrase in topology
 
 
-def test_v1_readiness_matrix_is_linked_and_explicit_about_blockers() -> None:
+def test_v1_readiness_matrix_is_linked_and_explicit_about_release_gates() -> None:
     readiness = _read("docs/v1-readiness.md")
     release_checklist = _read("docs/release-checklist.md")
     readme = _read("README.md")
@@ -482,10 +482,11 @@ def test_v1_readiness_matrix_is_linked_and_explicit_about_blockers() -> None:
         "Clean install path",
         "Fake-server path",
         "Claim boundaries for v1.0",
-        "Open v1.0 blockers",
+        "v1.0 technical gates and disclosed follow-up",
         "Trace schema freeze",
         "Corpus manifest freeze",
-        "not a claim that v1.0 is ready",
+        "ready for a separately authorized exact-tag run",
+        "independent review is not claimed",
     ):
         assert phrase in readiness
 
