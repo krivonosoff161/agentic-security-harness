@@ -56,6 +56,13 @@ jobs:
           changelog = Path("CHANGELOG.md").read_text("utf-8")
           if f"## [{project_version}] - " not in changelog:
               raise SystemExit(f"CHANGELOG has no dated release section for {project_version}")
+          citation = Path("CITATION.cff").read_text("utf-8")
+          citation_match = re.search(r'^version: "([^"]+)"$', citation, re.MULTILINE)
+          if citation_match is None or citation_match.group(1) != project_version:
+              raise SystemExit("CITATION.cff version does not match the release identity")
+          release_notes = Path(f"docs/releases/v{project_version}.md")
+          if not release_notes.is_file():
+              raise SystemExit(f"release notes are missing: {release_notes}")
           PY
 
       - name: Install locked verification and build dependencies

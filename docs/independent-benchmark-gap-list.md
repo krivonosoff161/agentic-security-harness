@@ -40,7 +40,9 @@ be confused with the stable technical contract (see
 
 ## Distribution
 
-- PyPI publishing and a pinned, reproducible install. **Future.**
+- PyPI publishing and a pinned, reproducible install. **Release gate prepared, not yet
+  executed.** The manual OIDC workflow reuses exact attested tag artifacts; package-index
+  environments and publication evidence remain external gates.
 - An optional container/devcontainer for a zero-setup try. **Future, docs-only for now.**
 
 ## Explicitly out of scope until methodology stabilizes

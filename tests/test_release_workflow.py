@@ -35,6 +35,9 @@ def test_release_workflow_is_tag_only_and_binds_version_identity() -> None:
         'Path("src/agentic_security_harness/version.py")',
         'f"## [{project_version}] - "',
         'tag != f"v{project_version}"',
+        'Path("CITATION.cff")',
+        'citation_match.group(1) != project_version',
+        'Path(f"docs/releases/v{project_version}.md")',
     ):
         assert marker in text
 
@@ -43,7 +46,7 @@ def test_release_identity_script_accepts_current_canonical_tag(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.chdir(ROOT)
-    monkeypatch.setenv("RELEASE_TAG", "v0.15.1")
+    monkeypatch.setenv("RELEASE_TAG", "v1.0.0")
 
     exec(compile(_identity_script(), str(WORKFLOW), "exec"), {})
 

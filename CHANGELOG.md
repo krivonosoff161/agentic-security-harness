@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-08-14
+
 ### Changed
 - Froze the public trace artifact contract at schema 1.0. Writers emit 1.0, while
   validators retain legacy 0.1 read support with a grouped deprecation warning and a
@@ -18,7 +20,11 @@ All notable changes to this project are documented here. The format follows
 - Added a deterministic CycloneDX 1.6 release SBOM generated from exact wheel/sdist
   metadata and the hash-pinned runtime lock. The tag workflow binds the SBOM to both
   distribution hashes and source identity, includes it in checksums/attestations, and
-  independently verifies it; PyPI publication remains separately gated and disabled.
+  independently verifies it.
+- Prepared the stable v1 package identity, Beta maturity classifier, concise public
+  landing page, and an OIDC-only TestPyPI/PyPI promotion workflow. Package-index
+  publication remains a separately approved operation and is not implied by this source
+  release preparation.
 
 ## [0.15.1] - 2026-08-13
 

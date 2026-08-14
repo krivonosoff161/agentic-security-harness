@@ -1,8 +1,9 @@
 # Releasing (PyPI, Docker, devcontainer)
 
 The package is import- and wheel-clean today; this page is the practical path to a public
-release. PyPI publishing itself is **future** (a v1.0 step) - do not assume the package is
-on PyPI yet. See the gates in [release-checklist.md](release-checklist.md).
+release. The repository contains a manual, environment-gated OIDC promotion workflow, but
+the package is **not on PyPI yet**. Workflow readiness is not publication authority. See
+the gates in [release-checklist.md](release-checklist.md).
 
 ## Packaging facts (current)
 
@@ -29,11 +30,25 @@ their exact SHA-256 values and the hash-pinned runtime lock, includes the SBOM i
 `SHA256SUMS`, and attests all four release subjects. This is implemented for the next
 authorized tag; it is not retroactive evidence for older releases.
 
-## Publishing to PyPI (future - when v1.0 gates pass)
+## Publishing to TestPyPI and PyPI
 
-No upload command or credential-bearing publication job is committed yet. Promotion is a
-separate owner action and must use PyPI Trusted Publishing (short-lived GitHub OIDC), not
-a repository token or local `TWINE_PASSWORD`.
+`.github/workflows/publish-pypi.yml` is a manual `workflow_dispatch` workflow. It accepts
+an exact canonical release tag, the successful tag-triggered `release.yml` run id, and one
+closed target (`testpypi` or `pypi`). It can run only when the workflow itself is selected
+at the exact tag ref. Promotion remains a separate owner action and uses PyPI Trusted
+Publishing (short-lived GitHub OIDC), never a repository token or local
+`TWINE_PASSWORD`.
+
+Before first use, configure two protected GitHub environments named exactly `testpypi`
+and `pypi`, then configure matching Trusted Publishers at the package indexes. Environment
+reviewers and deployment protection rules are repository settings, not code, and must be
+confirmed in GitHub before dispatch. A workflow file cannot reserve the package name or
+prove that those external settings exist.
+
+The workflow downloads only the artifact produced by the named successful tag-triggered
+release run, verifies its checksums and GitHub attestations against the selected tag/SHA,
+and copies only the wheel and sdist into the upload directory. It never rebuilds package
+bytes during promotion.
 
 ### TestPyPI gate
 
@@ -62,8 +77,14 @@ a repository token or local `TWINE_PASSWORD`.
 - package indexes are immutable: a bad upload is corrected only by a new version. Never
   overwrite, delete-and-reuse, or silently rebuild the same version.
 
-Until these gates and a publication workflow receive separate review/authority, source and
-GitHub Release installation remain the supported public paths.
+The production branch of the workflow reads TestPyPI's official JSON metadata and requires
+exact filename/SHA-256 equality with the attested wheel and sdist before requesting a PyPI
+OIDC token. After upload it smoke-installs the exact version on Linux Python 3.11-3.13 and
+Windows Python 3.11.
+
+Until the external environments, Trusted Publishers, exact-tag release run, and explicit
+promotion gates are completed, source and GitHub Release installation remain the supported
+public paths.
 
 ## Docker (local/offline CLI + fake-server demo)
 

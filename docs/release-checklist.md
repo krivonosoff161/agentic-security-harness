@@ -20,6 +20,7 @@ python -m build --wheel        # optional locally; CI builds and smoke-installs 
 Then verify by hand:
 
 - [ ] `pyproject.toml` `version`, `__version__`, and the top `CHANGELOG.md` entry agree.
+- [ ] `CITATION.cff` version agrees; add `date-released` only in the exact release commit.
 - [ ] `CHANGELOG.md` has a dated section for this version (move items out of `Unreleased`).
 - [ ] GitHub release notes are drafted from `CHANGELOG.md`; no future feature is listed as
       shipped.
@@ -48,6 +49,10 @@ Then verify by hand:
       [showcase-report-checklist.md](showcase-report-checklist.md).
 - [ ] No local-only files staged (e.g. `reports/`, untracked notes).
 - [ ] Fake-server E2E passes locally (see below).
+- [ ] GitHub environments `testpypi` and `pypi` exist with reviewed deployment protection,
+      and both package indexes have exact-repository Trusted Publishers configured.
+- [ ] The manual package promotion workflow is dispatched only at the exact successful tag,
+      first to TestPyPI and then, after evidence review and separate approval, to PyPI.
 
 The tag-triggered release workflow independently rejects non-canonical tags, mismatched
 `pyproject.toml`/`__version__`/CHANGELOG versions, and any failure in pytest, Ruff, mypy, or
@@ -121,5 +126,6 @@ standards review and independent maintainer governance are not claimed.
 
 These remain future tracks (see [roadmap.md](roadmap.md)) and must not be presented as
 shipped: native provider adapters, agent-host / tool-use adapters, streaming, a web
-report viewer / dashboard, a persistent result database, published Docker images, PyPI
-publishing, and any cross-model leaderboard.
+report viewer / dashboard, a persistent result database, published Docker images, and any
+cross-model leaderboard. PyPI promotion is a release operation, not a shipped runtime
+capability; it remains false until the exact package-index gates complete.

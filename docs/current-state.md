@@ -8,15 +8,16 @@ trajectory-accounting, and telemetry-completeness modules; operational authority
 
 > Last reviewed: 2026-08-14 against merged Security Portfolio projection
 > `2026.08.02-r4-trajectory-containment` and Harness main baseline
-> `7c5ad061df71aa9b3c4fad313173a1784ab37563`.
+> `b8fb6933c8b912b2ab14d221144c2e77cf548cf7`.
 >
-> Scope: public status of `agentic-security-harness`, release `0.15.1`. This
-> page is a reviewer-facing status snapshot, not a roadmap promise.
+> Scope: public status of `agentic-security-harness`, published release `0.15.1`, and
+> the untagged `1.0.0` release-candidate source. This page is a reviewer-facing status
+> snapshot, not a roadmap promise or publication claim.
 
 ## One-line status
 
-Agentic Security Harness is a **public research release**: a working trace-first,
-defensive benchmark for agentic AI boundary failures with committed
+Agentic Security Harness is a **public research benchmark with a v1.0-ready source
+contract**: a working trace-first defensive benchmark for agentic AI boundary failures with committed
 deterministic examples, bounded local-swarm evidence, evidence-campaign metrics, and
 sanitized local-model semantic-drift / propagation probes.
 
@@ -39,6 +40,7 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 
 | Area | Status | Evidence |
 |---|---|---|
+| Package identity | v1.0.0 release candidate; not yet tagged or published to PyPI | Package metadata, `__version__`, citation metadata, changelog, README, and the manual OIDC promotion contract are synchronized. Tagging, GitHub Release creation, TestPyPI, and PyPI remain separate owner-approved operations. |
 | Local deterministic corpus | Shipped stable v1 contract | Corpus 1.0.0 freezes 24 ordered sanitized seed ids and fields in a closed committed manifest/schema; new traces bind its canonical semantic digest. |
 | Local targets | Shipped | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, `protected-toy-multi-agent`. |
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |

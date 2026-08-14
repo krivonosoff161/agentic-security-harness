@@ -172,8 +172,9 @@ shipped benchmark scope until they have their own design review and release boun
   file-based `run_index.json` + hash-chain story is proven.
 - **Published Docker image** - the repository has a Dockerfile and devcontainer; publishing
   official images is future.
-- **PyPI publication** - package build docs exist; publishing wheels remains future once
-  the CLI and trace schema are stable.
+- **PyPI publication** - the stable package identity and a manual OIDC-only promotion
+  workflow are prepared. Actual TestPyPI/PyPI publication remains an exact-tag,
+  environment-protected owner gate and is not yet completed.
 - **Deeper scenario corpus expansion** - more boundary families and variants.
 - **Agentic topology expansion** - model chains, router/filter/validator paths,
   cross-provider handoff, and recovery-path patterns selected by invariant, not full
