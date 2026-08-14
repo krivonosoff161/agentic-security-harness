@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/status-v1.0--ready-blue)
+![Status](https://img.shields.io/badge/status-v1.0.0--released-brightgreen)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -20,19 +20,20 @@ validate, compare, and review.
 
 ## Quickstart
 
-Install the current source checkout:
+Install the stable release from PyPI:
+
+```bash
+python -m pip install agentic-security-harness==1.0.0
+ash quickstart --out reports/quickstart
+```
+
+For source development:
 
 ```bash
 git clone https://github.com/krivonosoff161/agentic-security-harness.git
 cd agentic-security-harness
 python -m pip install .
 ash quickstart --out reports/quickstart
-```
-
-After the separately gated PyPI publication, the primary install command becomes:
-
-```bash
-python -m pip install agentic-security-harness
 ```
 
 `ash quickstart` is local and no-network. It runs the same stable 24-pattern corpus against
@@ -107,7 +108,7 @@ runtime evidence.
 - Linux/Python 3.11-3.13 as the primary installed-package contour, with Windows 3.11
   compatibility coverage.
 - Reproducible wheel/sdist builds, checksums, GitHub attestations, and an exact-subject
-  CycloneDX SBOM in the next authorized tag workflow.
+  CycloneDX SBOM in the public `v1.0.0` release.
 
 The exact shipped, experimental, planned, and historical surfaces live in
 [`docs/current-state.md`](docs/current-state.md) and
@@ -209,10 +210,10 @@ a handoff file is not a sandbox, and a passing benchmark is not a production cer
 
 ## Release and package status
 
-The source tree is prepared for the stable v1 contract. Tagging, GitHub Release creation,
-TestPyPI upload, and PyPI publication remain separate, auditable owner gates. Until the
-package-index promotion succeeds, source and GitHub Release installation are the supported
-paths.
+The stable `v1.0.0` contract is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.0.0/) and as an attested
+[GitHub Release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.0.0).
+Future releases remain separate, auditable owner gates.
 
 - [Release checklist](docs/release-checklist.md)
 - [PyPI release process](docs/release-to-pypi.md)

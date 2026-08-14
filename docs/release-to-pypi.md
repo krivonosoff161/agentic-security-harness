@@ -1,9 +1,9 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The package is import- and wheel-clean today; this page is the practical path to a public
-release. The repository contains a manual, environment-gated OIDC promotion workflow, but
-the package is **not on PyPI yet**. Workflow readiness is not publication authority. See
-the gates in [release-checklist.md](release-checklist.md).
+The package is published as `1.0.0` on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.0.0/). This page documents the
+manual, environment-gated OIDC promotion path used for that release and required for
+future releases. See the gates in [release-checklist.md](release-checklist.md).
 
 ## Packaging facts (current)
 
@@ -27,8 +27,8 @@ ash validate examples/
 CI reproducibly builds and smoke-installs the wheel. The tag-only release workflow also
 builds and compares wheel/sdist twice, emits a deterministic CycloneDX 1.6 SBOM bound to
 their exact SHA-256 values and the hash-pinned runtime lock, includes the SBOM in
-`SHA256SUMS`, and attests all four release subjects. This is implemented for the next
-authorized tag; it is not retroactive evidence for older releases.
+`SHA256SUMS`, and attests all four release subjects. Release `v1.0.0` exercised this
+contract successfully; it is not retroactive evidence for older releases.
 
 ## Publishing to TestPyPI and PyPI
 
@@ -82,9 +82,11 @@ exact filename/SHA-256 equality with the attested wheel and sdist before request
 OIDC token. After upload it smoke-installs the exact version on Linux Python 3.11-3.13 and
 Windows Python 3.11.
 
-Until the external environments, Trusted Publishers, exact-tag release run, and explicit
-promotion gates are completed, source and GitHub Release installation remain the supported
-public paths.
+For `v1.0.0`, both package indexes expose wheel/sdist SHA-256 values identical to the
+attested GitHub Release subjects. The first promotion runs uploaded successfully but their
+post-upload verifier falsely included action-generated `*.publish.attestation` sidecars in
+the expected package-file set. Independent index-hash checks and clean installed-package
+quickstarts passed; the verifier now restricts comparison to wheel and sdist subjects.
 
 ## Docker (local/offline CLI + fake-server demo)
 

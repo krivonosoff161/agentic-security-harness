@@ -99,7 +99,8 @@ field is supplied by the chosen trusted service and bound into the verified stat
 ## Implementation State And Remaining Sequence
 
 1. The public GitHub Actions workload identity and exact tag-push workflow are merged on
-   `main`; private/reviewer trust remains separate and no post-change tag has exercised them.
+   `main`; release `v1.0.0` exercised them successfully. Private/reviewer trust remains
+   separate.
 2. Wheel, source distribution, and checksum file are the exact release-workflow subjects. A
    canonical deterministic-example archive remains future work.
 3. The repository includes a versioned in-toto/SLSA v1.2 attestation policy and negative verification
@@ -112,8 +113,8 @@ field is supplied by the chosen trusted service and bound into the verified stat
    digest creation.
 6. The repository includes a separate verification job with expected subject, repository, workflow, issuer,
    tag ref, source digest, builder, event, hosted-runner, predicate, and verified-time constraints.
-7. Run a future authorized tag and independently retain/verify its exact subjects. Until that
-   succeeds, operational status remains unverified and historical artifacts remain unsigned.
+7. Tag `v1.0.0` independently retained and verified its exact subjects. Historical
+   pre-v1 artifacts remain unsigned.
 8. Only a future supported evidence-registry contract may reference a validated
    `signed_attested` receipt; this workflow does not promote any current row.
 9. Design the separate private reconciliation signer and revocation process; do not reuse release
@@ -121,8 +122,8 @@ field is supplied by the chosen trusted service and bound into the verified stat
 
 ## Decisions Still Required
 
-The public workflow implementation is merged on `main`. A future tag run and private signing
-remain separate owner decisions. The owner must still choose:
+The public workflow implementation is merged on `main` and was exercised by `v1.0.0`.
+Future tag runs and private signing remain separate owner decisions. The owner must still choose:
 
 - whether deterministic examples are attested individually or as one canonical archive;
 - the signer and disclosure policy for private reconciliation receipts;

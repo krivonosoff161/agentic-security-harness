@@ -107,10 +107,10 @@ The next work is ordered by credibility, not by feature volume:
 9. **Recovery-path corpus design:** `recovery.trust_gate_no_path` is designed in the
    corpus expansion plan; implementation must stay deterministic and avoid provider-
    specific appeal workflows.
-10. **v1.0 stable benchmark release:** trace schema 1.0, corpus 1.0.0, and the
-    exact-subject release SBOM are integrated. Keep the stable CLI, validated examples,
-    coherent docs, and release gates green. The technical contract is ready for a
-    separately authorized exact-tag run; independent standards and reviewer governance
+10. **v1.0 stable benchmark release (completed):** trace schema 1.0, corpus 1.0.0, and the
+    exact-subject release SBOM are published in `v1.0.0` on GitHub and PyPI. Keep the
+    stable CLI, validated examples, coherent docs, and release gates green. Independent
+    standards and reviewer governance
     remain transparent, non-blocking post-v1 work
     (see [release-checklist.md](release-checklist.md)).
 11. **Portfolio ontology and interchange maintenance:** maintain and independently review
@@ -172,9 +172,6 @@ shipped benchmark scope until they have their own design review and release boun
   file-based `run_index.json` + hash-chain story is proven.
 - **Published Docker image** - the repository has a Dockerfile and devcontainer; publishing
   official images is future.
-- **PyPI publication** - the stable package identity and a manual OIDC-only promotion
-  workflow are prepared. Actual TestPyPI/PyPI publication remains an exact-tag,
-  environment-protected owner gate and is not yet completed.
 - **Deeper scenario corpus expansion** - more boundary families and variants.
 - **Agentic topology expansion** - model chains, router/filter/validator paths,
   cross-provider handoff, and recovery-path patterns selected by invariant, not full

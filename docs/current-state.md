@@ -7,17 +7,17 @@ trajectory-accounting, and telemetry-completeness modules; operational authority
 [`security-portfolio-roadmap.md`](security-portfolio-roadmap.md).
 
 > Last reviewed: 2026-08-14 against merged Security Portfolio projection
-> `2026.08.02-r4-trajectory-containment` and Harness main baseline
-> `b8fb6933c8b912b2ab14d221144c2e77cf548cf7`.
+> `2026.08.02-r4-trajectory-containment` and the `v1.0.0` release commit
+> `71295922b8053a188431d0f510f1e9146435c742`.
 >
-> Scope: public status of `agentic-security-harness`, published release `0.15.1`, and
-> the untagged `1.0.0` release-candidate source. This page is a reviewer-facing status
+> Scope: public status of `agentic-security-harness` and published release `1.0.0`.
+> This page is a reviewer-facing status
 > snapshot, not a roadmap promise or publication claim.
 
 ## One-line status
 
-Agentic Security Harness is a **public research benchmark with a v1.0-ready source
-contract**: a working trace-first defensive benchmark for agentic AI boundary failures with committed
+Agentic Security Harness is a **published v1.0.0 public research benchmark**: a working
+trace-first defensive benchmark for agentic AI boundary failures with committed
 deterministic examples, bounded local-swarm evidence, evidence-campaign metrics, and
 sanitized local-model semantic-drift / propagation probes.
 
@@ -25,8 +25,8 @@ It is strong enough to show as a public research benchmark/toolkit. It is not a
 production certification benchmark, a general pentest tool, or a claim that a target is
 secure.
 
-The stable v1.0 trace/corpus contract and release-supply-chain implementation are
-technically ready for a separately authorized release run. Independent standards review
+The stable v1.0 trace/corpus contract is available from PyPI and an attested GitHub
+Release. Independent standards review
 and independent maintainer governance remain public post-v1 tasks and are not claimed as
 completed.
 
@@ -40,7 +40,7 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 
 | Area | Status | Evidence |
 |---|---|---|
-| Package identity | v1.0.0 release candidate; not yet tagged or published to PyPI | Package metadata, `__version__`, citation metadata, changelog, README, and the manual OIDC promotion contract are synchronized. Tagging, GitHub Release creation, TestPyPI, and PyPI remain separate owner-approved operations. |
+| Package identity | v1.0.0 published to PyPI and GitHub Releases | The exact tag workflow built and verified reproducible wheel/sdist subjects, checksums, a CycloneDX SBOM, and GitHub/Sigstore attestations. TestPyPI and PyPI expose the same wheel/sdist SHA-256 values. |
 | Local deterministic corpus | Shipped stable v1 contract | Corpus 1.0.0 freezes 24 ordered sanitized seed ids and fields in a closed committed manifest/schema; new traces bind its canonical semantic digest. |
 | Local targets | Shipped | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, `protected-toy-multi-agent`. |
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
@@ -83,7 +83,7 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 | Evidence pack format | Shipped docs slice | `docs/evidence-pack-format.md` defines how future local research becomes sanitized public evidence with private/public boundaries, hashes, claim rows, tests, and validation commands. |
 | Local real-model swarm probes | Unverified maintainer declaration | Historical documentation declares two full 15-scenario runs and complete hash-field coverage. No versioned public result projection or reconciliation receipt is present, so the repository cannot verify that the runs occurred or bind the aggregates to retained bytes. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
-| Public project process | v0.15.1 released with verified provenance | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, and a tag-only release artifact workflow bind tag/package/CHANGELOG version and rerun the repository gates. The `v0.15.1` workflow reproducibly built and smoke-installed wheel/sdist subjects, published checksums and GitHub/Sigstore attestations, and independently verified repository/workflow/tag/source/builder/predicate policy. The next authorized tag is configured to add an exact-subject CycloneDX SBOM; v0.15.1 remains truthfully SBOM-free. The retained `v0.15.0` tag is transparent failed-gate evidence and has no GitHub Release. |
+| Public project process | v1.0.0 released with verified provenance | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, and a tag-only release workflow bind tag/package/CHANGELOG version and rerun the repository gates. The `v1.0.0` workflow reproducibly built and smoke-installed wheel/sdist subjects, published checksums plus an exact-subject CycloneDX SBOM, created GitHub/Sigstore attestations, and independently verified repository/workflow/tag/source/builder/predicate policy. The retained `v0.15.0` tag is transparent failed-gate evidence and has no GitHub Release. |
 | Local CLI container | Shipped source definition; image unpublished | The root Dockerfile packages the source-layout CLI and runs the offline doctor as a non-root user. The fail-closed `.dockerignore` allowlist excludes local/private descendants and is covered by repository hygiene tests. This is not the planned gateway image, no image is published, and the source definition does not attest runtime network isolation. |
 | Runtime Guard product foundation | Shipped bounded executable specification | Metadata-only action, capability, consent, handoff, provider, budget, decision, and evidence contracts plus a pure deterministic evaluator and synthetic adversarial tests were merged through PR #162. No proxy, executor, credential broker, durable ledger, IAM integration, deployment, or production protection is shipped. |
 | Runtime Guard R5 sealed synthetic research | Terminal `FAIL`; sanitized public projection | One frozen common-control run reached `PRECOMMITTED` -> `CONSUMED` -> `COMPLETED` and failed three preregistered gates: recall lower index, counterfactual pre-effect lower index, and balanced accuracy. The public validator recomputes the aggregate statistics and receipt bindings; private cases, labels, seeds, keys, ledger, and custody remain outside Git. Independence, promotion, production protection, and operational authority are not claimed. See [r5-research-status.md](r5-research-status.md). |
