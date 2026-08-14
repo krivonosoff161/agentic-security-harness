@@ -46,7 +46,7 @@ SCHEMA_VERSIONS: dict[str, str] = {
 
 # Current implemented defensive corpus revision. Artifact schema versions describe file
 # shape; corpus version describes benchmark content and pattern semantics.
-CORPUS_VERSION = "0.13.0"
+CORPUS_VERSION = "1.0.0"
 
 # Versions this build can READ for each artifact kind (forward/back compatibility).
 # Today each kind reads exactly its current version; widen these sets when a

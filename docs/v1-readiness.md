@@ -15,7 +15,7 @@ not mean production certification, real-target coverage, or a model leaderboard.
 
 | Surface | v1.0 target status | Current status | Evidence / gate |
 |---|---|---|---|
-| Local deterministic corpus | Stable at v1.0 | 24 shipped patterns, still pre-1.0 mutable | Freeze pattern ids and corpus fields; document deprecation policy. |
+| Local deterministic corpus | Stable at v1.0 | Frozen corpus 1.0.0: 24 ordered ids, closed manifest fields, explicit deprecation/replacement policy | Keep committed manifest/schema, generator, traces, and validator digest bindings green. |
 | Trace artifact schema | Stable at v1.0 | Frozen `schema_version=1.0`; legacy `0.1` remains readable with a deprecation warning | Keep contract fixtures, migration tests, and `ash validate examples/` green. |
 | Scorecard / remediation schemas | Stable at v1.0 | Versioned and validated | Confirm compatibility policy in [artifact-schemas.md](artifact-schemas.md). |
 | Run manifest / run diff schemas | Stable enough for CLI history | Versioned and validated | Keep `run_index.json` and `run_diff.json` schema checks green. |
@@ -88,7 +88,7 @@ Not allowed:
 | Blocker | Why it matters | Exit gate |
 |---|---|---|
 | Trace schema freeze | External users need stable trace parsing. | Implemented as schema 1.0 with closed typed fields, v0.1 compatibility/migration fixtures, and validator regression coverage; exact-head review and CI remain the merge gate. |
-| Corpus manifest freeze | Pattern ids are public contract. | Pattern id / field freeze and deprecation policy documented. |
+| Corpus manifest freeze | Pattern ids are public contract. | Implemented as corpus 1.0.0 with a closed committed manifest/schema, canonical semantic digest, immutable identifiers, and explicit deprecation/replacement policy; exact-head review and CI remain the merge gate. |
 | Standards second review | Mapping claims need independent verification. | OWASP LLM / NIST category mappings reviewed; MITRE ATLAS subset rechecked. |
 | Real adapter contract finalization | Future adapters must not weaken authorization/safety boundaries. | Adapter contract and authorization docs aligned; safety gates tested. |
 | Docs/reference pass | Public readers must see current-vs-planned clearly. | README/current-state/capability matrix/release checklist agree. |

@@ -7,6 +7,7 @@ reproduces the same traces.
 import hashlib
 from typing import Any
 
+from agentic_security_harness.corpus import corpus_manifest_sha256
 from agentic_security_harness.models import (
     CapabilityCheckResult,
     DefensivePattern,
@@ -16,6 +17,7 @@ from agentic_security_harness.models import (
     TargetDescriptor,
     TargetMetadata,
 )
+from agentic_security_harness.schema_versions import CORPUS_VERSION
 
 
 def _trace_id(pattern_id: str, target_name: str) -> str:
@@ -72,6 +74,8 @@ class HarnessRunner:
         metadata: TargetMetadata, health: HealthStatus, check: CapabilityCheckResult
     ) -> dict[str, Any]:
         payload: dict[str, Any] = {
+            "corpus_version": CORPUS_VERSION,
+            "corpus_manifest_sha256": corpus_manifest_sha256(),
             "deterministic": metadata.deterministic,
             "seed": metadata.run_seed if metadata.run_seed is not None else 0,
             "adapter_name": metadata.adapter_name,

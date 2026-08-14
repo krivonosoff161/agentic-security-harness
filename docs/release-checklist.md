@@ -65,9 +65,11 @@ safety, semantic truth, local-model execution, private observation, or reviewer 
 registry rows must remain below `signed_attested` until their exact subject and validated
 attestation are explicitly bound by a supported registry contract.
 
-The release artifact set does not currently include an SBOM. Dependency lock files are
-hash-pinned, but a generated CycloneDX document and its release-subject binding remain an explicit
-supply-chain gap rather than an implied shipped feature.
+The tag workflow now generates a deterministic CycloneDX 1.6 SBOM from exact wheel/sdist
+metadata plus the hash-pinned runtime lock. The document records both subject hashes and
+source tag/SHA, is covered by `SHA256SUMS`, and is itself attested and independently
+verified. This takes effect only on the next authorized tag; older release sets remain
+truthfully SBOM-free.
 
 ## Fake-server E2E (no external network)
 
@@ -86,8 +88,9 @@ v1.0 means a stable, dependable benchmark. Open blockers:
 
 - [x] **Stable trace schema** - schema 1.0, its closed-field contract, the v0.1 read
       window, migration behavior, and regression fixtures are documented and tested.
-- [ ] **Stable corpus manifest** - freeze pattern ids and the corpus fields; document a
-      deprecation policy for renames.
+- [x] **Stable corpus manifest** - corpus 1.0.0 freezes the 24 ordered pattern ids and
+      fields, publishes a closed manifest/schema plus canonical digest, and documents
+      explicit deprecation/replacement rules.
 - [ ] **Standards mapping review** - verify OWASP LLM / NIST category mappings with a
       second reviewer; re-check the current MITRE ATLAS verified subset against the latest
       official ATLAS release.
@@ -95,7 +98,8 @@ v1.0 means a stable, dependable benchmark. Open blockers:
       (still future; see [adapter-contract.md](adapter-contract.md)).
 - [ ] **Docs pass** - every doc cross-reference resolves; no stale counts; limitations
       page current.
-- [ ] **CI matrix confirmed** - Ubuntu (3.11-3.13) + Windows green on the release commit.
+- [ ] **CI matrix confirmed** - Ubuntu (3.11-3.13) + Windows green on the release commit;
+      tag artifacts include exact-subject SBOM/checksum/attestation verification.
 - [ ] **GitHub project surface current** - issue templates, PR template, CODEOWNERS,
       governance, support, and maintainer docs still match the release scope.
 

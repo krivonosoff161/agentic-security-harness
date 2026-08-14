@@ -10,7 +10,7 @@
   ],
   "total_checks": 1,
   "total_repeats": 1,
-  "corpus_version": "0.13.0",
+  "corpus_version": "1.0.0",
   "patterns_with_findings": [],
   "flaky_patterns": [],
   "inconclusive_patterns": [],
