@@ -15,6 +15,10 @@ All notable changes to this project are documented here. The format follows
   immutable ordered pattern identifiers, explicit deprecation/replacement registries,
   and a canonical semantic digest carried by newly written traces. Committed examples,
   schemas, validators, and generators now bind the same corpus contract.
+- Added a deterministic CycloneDX 1.6 release SBOM generated from exact wheel/sdist
+  metadata and the hash-pinned runtime lock. The tag workflow binds the SBOM to both
+  distribution hashes and source identity, includes it in checksums/attestations, and
+  independently verifies it; PyPI publication remains separately gated and disabled.
 
 ## [0.15.1] - 2026-08-13
 

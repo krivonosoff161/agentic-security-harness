@@ -76,7 +76,12 @@ def test_release_workflow_enforces_repository_and_built_package_gates() -> None:
         "--force-reinstall dist/*.tar.gz",
         "--force-reinstall dist/*.whl",
         "assert f'v{ash.__version__}' == os.environ['RELEASE_TAG']",
-        "cd dist && sha256sum *.tar.gz *.whl > SHA256SUMS",
+        "python tools/release_sbom.py",
+        "--runtime-lock requirements/runtime.txt",
+        "--source-sha \"$GITHUB_SHA\"",
+        "--source-ref \"$GITHUB_REF\"",
+        "--output dist/agentic-security-harness.cdx.json",
+        "cd dist && sha256sum *.tar.gz *.whl *.cdx.json > SHA256SUMS",
         "if-no-files-found: error",
     ):
         assert command in text
@@ -100,6 +105,7 @@ def test_release_workflow_scopes_attestation_authority_and_verifies_provenance()
         "uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c",
         "dist/*.tar.gz",
         "dist/*.whl",
+        "dist/*.cdx.json",
         "dist/SHA256SUMS",
         "verify-provenance:",
         "needs: build",
