@@ -1,8 +1,9 @@
 # Release checklist
 
-Practical preflight for cutting a public research release. The project is **pre-1.0**;
-this list is the path toward a stable v1.0 benchmark contract, not a claim that v1.0 is
-ready. The broader readiness map is [v1-readiness.md](v1-readiness.md).
+Practical preflight for cutting a public research release. The stable v1.0 benchmark
+contract is technically release-ready; this checklist still requires a fresh exact release
+commit and an explicitly authorized tag run. The broader readiness map is
+[v1-readiness.md](v1-readiness.md).
 
 ## Every release
 
@@ -82,31 +83,39 @@ ash validate .internal/external-e2e
 # stop the server; confirm the port is free
 ```
 
-## v1.0 blockers (not done yet)
+## v1.0 technical readiness
 
-v1.0 means a stable, dependable benchmark. Open blockers:
+v1.0 means a stable, dependable synthetic benchmark contract. Technical gates:
 
 - [x] **Stable trace schema** - schema 1.0, its closed-field contract, the v0.1 read
       window, migration behavior, and regression fixtures are documented and tested.
 - [x] **Stable corpus manifest** - corpus 1.0.0 freezes the 24 ordered pattern ids and
       fields, publishes a closed manifest/schema plus canonical digest, and documents
       explicit deprecation/replacement rules.
-- [ ] **Standards mapping review** - verify OWASP LLM / NIST category mappings with a
-      second reviewer; re-check the current MITRE ATLAS verified subset against the latest
-      official ATLAS release.
 - [x] **Real adapter contract** - authorization modes, offline/default behavior, explicit
       execution gates, metadata redaction, and validation requirements are documented and
       tested. Native/provider and tool-executing adapters remain future.
 - [x] **Docs pass** - current state, tracker, roadmap, limitations, and v1 readiness agree
       on the integrated contracts and remaining external gates; documentation tests pass.
-- [x] **Integrated-main CI matrix confirmed** - exact commit `55aebe9c` passed Ubuntu
+- [x] **Integrated-main CI matrix confirmed** - exact commit `7c5ad061` passed Ubuntu
       3.11-3.13, Windows 3.11, installed-wheel smokes, build, CodeQL, and secret scan.
-- [ ] **Release-tag artifact gate** - the future authorized tag must produce and verify
+- [ ] **Release execution gate** - the future authorized tag must produce and verify
       exact-subject wheel/sdist/SBOM/checksum attestations. Workflow readiness is not a
-      substitute for a completed tag run.
+      substitute for a completed tag run; this is performed by the release, not a reason to
+      hold the tested source contract indefinitely.
 - [x] **GitHub project surface current** - issue templates, PR template, CODEOWNERS,
-      governance, support, and maintainer docs match the release scope; the missing second
-      reviewer remains explicitly tracked by issue #205.
+      governance, support, and maintainer docs match the release scope.
+
+## Non-blocking post-v1 credibility work
+
+- [ ] Independently review the OWASP LLM / NIST mappings and re-check the direct-fit MITRE
+      ATLAS subset ([issue #199](https://github.com/krivonosoff161/agentic-security-harness/issues/199)).
+- [ ] Add a durable second GitHub reviewer and then strengthen approval rules
+      ([issue #205](https://github.com/krivonosoff161/agentic-security-harness/issues/205)).
+
+These tasks improve external confidence but do not invalidate the tested deterministic
+benchmark contract. Until they are completed, release material must say that independent
+standards review and independent maintainer governance are not claimed.
 
 ## Not in scope for v1.0
 

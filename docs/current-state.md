@@ -8,7 +8,7 @@ trajectory-accounting, and telemetry-completeness modules; operational authority
 
 > Last reviewed: 2026-08-14 against merged Security Portfolio projection
 > `2026.08.02-r4-trajectory-containment` and Harness main baseline
-> `55aebe9cb34f7dc07ff8dcaed6a89fc44171b9e0`.
+> `7c5ad061df71aa9b3c4fad313173a1784ab37563`.
 >
 > Scope: public status of `agentic-security-harness`, release `0.15.1`. This
 > page is a reviewer-facing status snapshot, not a roadmap promise.
@@ -23,6 +23,11 @@ sanitized local-model semantic-drift / propagation probes.
 It is strong enough to show as a public research benchmark/toolkit. It is not a
 production certification benchmark, a general pentest tool, or a claim that a target is
 secure.
+
+The stable v1.0 trace/corpus contract and release-supply-chain implementation are
+technically ready for a separately authorized release run. Independent standards review
+and independent maintainer governance remain public post-v1 tasks and are not claimed as
+completed.
 
 Evidence classes are explicit in [evidence-classes.md](evidence-classes.md): deterministic
 control-ablation contours are executable specifications with rule-derived attribution;

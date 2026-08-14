@@ -109,8 +109,9 @@ The next work is ordered by credibility, not by feature volume:
    specific appeal workflows.
 10. **v1.0 stable benchmark release:** trace schema 1.0, corpus 1.0.0, and the
     exact-subject release SBOM are integrated. Keep the stable CLI, validated examples,
-    coherent docs, and release gates green; a public v1.0 tag remains blocked on the
-    independent standards/governance gates and a separately authorized release decision
+    coherent docs, and release gates green. The technical contract is ready for a
+    separately authorized exact-tag run; independent standards and reviewer governance
+    remain transparent, non-blocking post-v1 work
     (see [release-checklist.md](release-checklist.md)).
 11. **Portfolio ontology and interchange maintenance:** maintain and independently review
     the merged 26-family ontology, scenario-alias registry, authority-free

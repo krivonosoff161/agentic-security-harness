@@ -1,9 +1,9 @@
 # v1.0 readiness matrix
 
-This page tracks the path toward a stable v1.0 benchmark. It is a readiness map, not a
-release announcement, and not a claim that v1.0 is ready. The current project status is a
-public research release until the blockers in [release-checklist.md](release-checklist.md)
-are cleared.
+This page records the stable v1.0 benchmark contract. It is a readiness map, not a release
+announcement: the technical contract is ready for a separately authorized exact-tag run,
+while independent standards review and independent maintainer governance remain disclosed
+post-v1 credibility work.
 
 ## Release principle
 
@@ -83,20 +83,22 @@ Not allowed:
 - native provider / agent-host support before implementation;
 - cross-model leaderboard or vendor ranking.
 
-## Open v1.0 blockers
+## v1.0 technical gates and disclosed follow-up
 
-| Blocker | Why it matters | Exit gate |
+| Gate | Why it matters | Status / exit gate |
 |---|---|---|
 | Trace schema freeze | External users need stable trace parsing. | Integrated in `main` as schema 1.0 with closed typed fields, v0.1 compatibility/migration fixtures, and validator regression coverage. |
 | Corpus manifest freeze | Pattern ids are public contract. | Integrated in `main` as corpus 1.0.0 with a closed committed manifest/schema, canonical semantic digest, immutable identifiers, and explicit deprecation/replacement policy. |
-| Standards second review | Mapping claims need independent verification. | OWASP LLM / NIST category mappings reviewed; MITRE ATLAS subset rechecked. |
+| Independent standards review | Improves confidence in mapping claims but does not change deterministic benchmark execution. | Non-blocking post-v1 issue #199; independent review is not claimed until completed. |
 | Real adapter contract finalization | Future adapters must not weaken authorization/safety boundaries. | Contract, authorization modes, offline defaults, explicit execution gates, redaction rules, and tests are aligned; native/provider adapters remain future. |
 | Docs/reference pass | Public readers must see current-vs-planned clearly. | Integrated-state reconciliation is current and documentation contract tests are green. |
-| Integrated-main CI | Cross-platform install and artifact validation must pass. | Exact `main` commit `55aebe9c` passed Ubuntu 3.11-3.13, Windows 3.11, installed-wheel smokes, build, CodeQL, and secret scan. |
-| Release-tag artifact gate | Published subjects must bind the release source and dependency inventory. | The workflow is implemented; the future authorized tag must still produce and verify wheel/sdist/SBOM/checksum attestations. |
+| Integrated-main CI | Cross-platform install and artifact validation must pass. | Exact `main` commit `7c5ad061` passed Ubuntu 3.11-3.13, Windows 3.11, installed-wheel smokes, build, CodeQL, and secret scan. |
+| Release execution gate | Published subjects must bind the release source and dependency inventory. | The workflow is implemented; the authorized tag run must produce and verify wheel/sdist/SBOM/checksum attestations. |
+| Independent maintainer governance | A second durable reviewer would strengthen branch governance. | Non-blocking post-v1 issue #205; independent governance is not claimed until completed. |
 
 ## Release decision
 
-Do not tag v1.0 until every blocker above has an owner, evidence, and a green release
-commit. If a blocker is intentionally deferred, rename the milestone rather than shipping
-v1.0 with a hidden gap.
+Tag v1.0 only from an explicitly authorized, exact, green release commit and require the
+tag workflow to verify every published subject. Issues #199 and #205 do not block that
+technical release: they stay public in the post-v1 milestone, and release notes must not
+claim independent standards validation, certification, or independent maintainer review.

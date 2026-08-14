@@ -11,7 +11,8 @@ Snapshot refreshed against GitHub on 2026-08-14:
 | Milestone | Purpose |
 |---|---|
 | [v0.15.1 self-service research release](https://github.com/krivonosoff161/agentic-security-harness/milestone/6) | Completed Linux-first productization cycle: clean installed-wheel use, one-command quickstart, validated HTML evidence, onboarding, checksums, and verified provenance. |
-| [v1.0 readiness](https://github.com/krivonosoff161/agentic-security-harness/milestone/1) | Stable trace/corpus contracts, independently reviewed standards mappings, and release-distribution maturity. |
+| [v1.0 readiness](https://github.com/krivonosoff161/agentic-security-harness/milestone/1) | Completed technical readiness: stable trace/corpus contracts, adapter/docs alignment, cross-platform CI, and release-distribution maturity. |
+| [Post-v1 independent review](https://github.com/krivonosoff161/agentic-security-harness/milestone/7) | Non-blocking independent standards review and durable second-reviewer governance. |
 
 Completed milestones `v0.14` through `v0.17` and the v0.15.1 self-service release are closed. Milestone state and
 open issues describe active work, not shipped capability.
@@ -34,11 +35,12 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The v1.0 milestone now retains only the independent standards review
-[tracked in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/199) and the
-durable second-reviewer governance task
-[tracked in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). These are
-external review/governance gates, not missing benchmark implementation.
+The technical v1.0 readiness milestone is complete. Independent standards review
+[remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
+does the durable second-reviewer governance task
+[in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are
+non-blocking post-v1 credibility work: the project does not claim that either independent
+gate has already been satisfied.
 
 PR [#167](https://github.com/krivonosoff161/agentic-security-harness/pull/167) was
 squash-merged after exact-head review, and linked issue
