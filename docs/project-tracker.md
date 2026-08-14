@@ -6,7 +6,7 @@ docs describe the current shipped state.
 
 ## Current GitHub snapshot
 
-Snapshot refreshed against GitHub on 2026-08-13:
+Snapshot refreshed against GitHub on 2026-08-14:
 
 | Milestone | Purpose |
 |---|---|
@@ -34,11 +34,11 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The v1.0 contract blockers are tracked by
-[Issue 197](https://github.com/krivonosoff161/agentic-security-harness/issues/197),
-[Issue 198](https://github.com/krivonosoff161/agentic-security-harness/issues/198),
-[Issue 199](https://github.com/krivonosoff161/agentic-security-harness/issues/199), and the
-[packaging/SBOM task](https://github.com/krivonosoff161/agentic-security-harness/issues/200).
+The v1.0 milestone now retains only the independent standards review
+[tracked in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/199) and the
+durable second-reviewer governance task
+[tracked in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). These are
+external review/governance gates, not missing benchmark implementation.
 
 PR [#167](https://github.com/krivonosoff161/agentic-security-harness/pull/167) was
 squash-merged after exact-head review, and linked issue
@@ -87,6 +87,7 @@ updates are reviewed by class and exact head.
 
 | Issue | Track | Delivered focus |
 |---|---|---|
+| [#197 stable trace schema](https://github.com/krivonosoff161/agentic-security-harness/issues/197), [#198 frozen corpus manifest](https://github.com/krivonosoff161/agentic-security-harness/issues/198), and [#200 release SBOM](https://github.com/krivonosoff161/agentic-security-harness/issues/200) | v1.0 contracts / release supply chain | PR #206 integrated trace schema 1.0, corpus 1.0.0, and an exact-subject CycloneDX SBOM into `main` after the stacked PR #207 and PR #208 gates; all exact-head and post-merge checks passed. |
 | [PR #174 chore: consolidate verified dependency updates](https://github.com/krivonosoff161/agentic-security-harness/pull/174) | Supply chain / dependency maintenance | Consolidated the stale and partial Dependabot updates, repaired CodeQL action-version consistency and the Windows hash lock, and added a cross-workflow pin regression test; squash-merged after exact-head Linux, Windows, build, CodeQL, Gitleaks, and fuzzing checks. |
 | [#168 feat: add portfolio threat ontology and shadow contract](https://github.com/krivonosoff161/agentic-security-harness/issues/168) | Portfolio architecture / shadow contract | PR #167 merged the provider-neutral ontology, bounded 13-builder adjudication, unified authority-free event/advisory contract, constrained development coverage, solo-owner governance, and required Gitleaks check; it does not claim independent effectiveness or enforcement. |
 | [#140 docs: add phantom resource trust as next research contour](https://github.com/krivonosoff161/agentic-security-harness/issues/140) | Research map / phantom resources | Added the planned contour to the research map; no implementation or experiment was delivered. |

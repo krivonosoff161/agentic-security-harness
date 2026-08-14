@@ -87,12 +87,13 @@ Not allowed:
 
 | Blocker | Why it matters | Exit gate |
 |---|---|---|
-| Trace schema freeze | External users need stable trace parsing. | Implemented as schema 1.0 with closed typed fields, v0.1 compatibility/migration fixtures, and validator regression coverage; exact-head review and CI remain the merge gate. |
-| Corpus manifest freeze | Pattern ids are public contract. | Implemented as corpus 1.0.0 with a closed committed manifest/schema, canonical semantic digest, immutable identifiers, and explicit deprecation/replacement policy; exact-head review and CI remain the merge gate. |
+| Trace schema freeze | External users need stable trace parsing. | Integrated in `main` as schema 1.0 with closed typed fields, v0.1 compatibility/migration fixtures, and validator regression coverage. |
+| Corpus manifest freeze | Pattern ids are public contract. | Integrated in `main` as corpus 1.0.0 with a closed committed manifest/schema, canonical semantic digest, immutable identifiers, and explicit deprecation/replacement policy. |
 | Standards second review | Mapping claims need independent verification. | OWASP LLM / NIST category mappings reviewed; MITRE ATLAS subset rechecked. |
-| Real adapter contract finalization | Future adapters must not weaken authorization/safety boundaries. | Adapter contract and authorization docs aligned; safety gates tested. |
-| Docs/reference pass | Public readers must see current-vs-planned clearly. | README/current-state/capability matrix/release checklist agree. |
-| CI release commit | Cross-platform install and artifact validation must pass. | Ubuntu 3.11-3.13, Windows 3.11, build package, CodeQL green. |
+| Real adapter contract finalization | Future adapters must not weaken authorization/safety boundaries. | Contract, authorization modes, offline defaults, explicit execution gates, redaction rules, and tests are aligned; native/provider adapters remain future. |
+| Docs/reference pass | Public readers must see current-vs-planned clearly. | Integrated-state reconciliation is current and documentation contract tests are green. |
+| Integrated-main CI | Cross-platform install and artifact validation must pass. | Exact `main` commit `55aebe9c` passed Ubuntu 3.11-3.13, Windows 3.11, installed-wheel smokes, build, CodeQL, and secret scan. |
+| Release-tag artifact gate | Published subjects must bind the release source and dependency inventory. | The workflow is implemented; the future authorized tag must still produce and verify wheel/sdist/SBOM/checksum attestations. |
 
 ## Release decision
 

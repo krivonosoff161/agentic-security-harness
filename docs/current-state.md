@@ -6,9 +6,9 @@ trajectory-accounting, and telemetry-completeness modules; operational authority
 `none`. See
 [`security-portfolio-roadmap.md`](security-portfolio-roadmap.md).
 
-> Last reviewed: 2026-08-13 against merged Security Portfolio projection
+> Last reviewed: 2026-08-14 against merged Security Portfolio projection
 > `2026.08.02-r4-trajectory-containment` and Harness main baseline
-> `da1edd47259e63f8b97d7d4e8fa161542ecd2068`.
+> `55aebe9cb34f7dc07ff8dcaed6a89fc44171b9e0`.
 >
 > Scope: public status of `agentic-security-harness`, release `0.15.1`. This
 > page is a reviewer-facing status snapshot, not a roadmap promise.

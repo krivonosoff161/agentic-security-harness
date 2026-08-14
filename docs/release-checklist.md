@@ -94,14 +94,19 @@ v1.0 means a stable, dependable benchmark. Open blockers:
 - [ ] **Standards mapping review** - verify OWASP LLM / NIST category mappings with a
       second reviewer; re-check the current MITRE ATLAS verified subset against the latest
       official ATLAS release.
-- [ ] **Real adapter contract** - finalise the contract for non-synthetic adapters
-      (still future; see [adapter-contract.md](adapter-contract.md)).
-- [ ] **Docs pass** - every doc cross-reference resolves; no stale counts; limitations
-      page current.
-- [ ] **CI matrix confirmed** - Ubuntu (3.11-3.13) + Windows green on the release commit;
-      tag artifacts include exact-subject SBOM/checksum/attestation verification.
-- [ ] **GitHub project surface current** - issue templates, PR template, CODEOWNERS,
-      governance, support, and maintainer docs still match the release scope.
+- [x] **Real adapter contract** - authorization modes, offline/default behavior, explicit
+      execution gates, metadata redaction, and validation requirements are documented and
+      tested. Native/provider and tool-executing adapters remain future.
+- [x] **Docs pass** - current state, tracker, roadmap, limitations, and v1 readiness agree
+      on the integrated contracts and remaining external gates; documentation tests pass.
+- [x] **Integrated-main CI matrix confirmed** - exact commit `55aebe9c` passed Ubuntu
+      3.11-3.13, Windows 3.11, installed-wheel smokes, build, CodeQL, and secret scan.
+- [ ] **Release-tag artifact gate** - the future authorized tag must produce and verify
+      exact-subject wheel/sdist/SBOM/checksum attestations. Workflow readiness is not a
+      substitute for a completed tag run.
+- [x] **GitHub project surface current** - issue templates, PR template, CODEOWNERS,
+      governance, support, and maintainer docs match the release scope; the missing second
+      reviewer remains explicitly tracked by issue #205.
 
 ## Not in scope for v1.0
 
