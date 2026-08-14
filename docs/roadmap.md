@@ -107,9 +107,11 @@ The next work is ordered by credibility, not by feature volume:
 9. **Recovery-path corpus design:** `recovery.trust_gate_no_path` is designed in the
    corpus expansion plan; implementation must stay deterministic and avoid provider-
    specific appeal workflows.
-10. **v1.0 stable benchmark release:** stable trace schema, stable corpus manifest, stable
-   CLI, validated examples, coherent docs, public tag (see
-   [release-checklist.md](release-checklist.md)).
+10. **v1.0 stable benchmark release:** trace schema 1.0, corpus 1.0.0, and the
+    exact-subject release SBOM are integrated. Keep the stable CLI, validated examples,
+    coherent docs, and release gates green; a public v1.0 tag remains blocked on the
+    independent standards/governance gates and a separately authorized release decision
+    (see [release-checklist.md](release-checklist.md)).
 11. **Portfolio ontology and interchange maintenance:** maintain and independently review
     the merged 26-family ontology, scenario-alias registry, authority-free
     observation/advisory contract, and shadow evaluator. Use the constrained public
