@@ -75,7 +75,11 @@ def test_verification_workflow_runs_bounded_cross_platform_smokes() -> None:
     assert "os: windows-latest" in text
     for version in ('python: "3.11"', 'python: "3.12"', 'python: "3.13"'):
         assert version in text
-    assert "test-files.pythonhosted.org" in text
+    exact_lines = {line.strip() for line in text.splitlines()}
+    assert (
+        'if parsed.scheme != "https" or parsed.hostname != "test-files.pythonhosted.org":'
+        in exact_lines
+    )
     assert "downloaded TestPyPI wheel digest mismatch" in text
     assert 'python -m pip install --no-deps "$wheel"' in text
     assert "--extra-index-url" not in text
