@@ -53,6 +53,9 @@ Then verify by hand:
       and both package indexes have exact-repository Trusted Publishers configured.
 - [ ] The manual package promotion workflow is dispatched only at the exact successful tag,
       first to TestPyPI and then, after evidence review and separate approval, to PyPI.
+- [ ] If an upload succeeded but a post-upload observation failed, use the main-only,
+      read-only `verify-published-release.yml` workflow; never retry or overwrite the
+      immutable package version merely to change historical CI status.
 
 The tag-triggered release workflow independently rejects non-canonical tags, mismatched
 `pyproject.toml`/`__version__`/CHANGELOG versions, and any failure in pytest, Ruff, mypy, or

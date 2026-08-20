@@ -88,6 +88,29 @@ post-upload verifier falsely included action-generated `*.publish.attestation` s
 the expected package-file set. Independent index-hash checks and clean installed-package
 quickstarts passed; the verifier now restricts comparison to wheel and sdist subjects.
 
+### Read-only verification of an existing release
+
+Historical GitHub Actions runs are immutable, and package indexes do not permit replacing
+an existing version. Do not rerun an upload to make an old status green. Instead,
+`.github/workflows/verify-published-release.yml` provides a manual, main-only verification
+path for an already published tag. It has no environment, OIDC token, package-index
+credential, or write permission.
+
+Given the exact release tag and successful tag-triggered `release.yml` run id, it:
+
+- checks out the tag and binds it to the successful source workflow and non-draft GitHub
+  Release;
+- downloads the immutable GitHub Release asset set, verifies `SHA256SUMS`, and revalidates
+  all four GitHub/Sigstore attestations against the tag commit and pinned release workflow;
+- requires exact wheel/sdist filename and SHA-256 equality on both TestPyPI and PyPI;
+- clean-installs the exact published version from TestPyPI on Linux and from PyPI on Linux
+  Python 3.11-3.13 plus Windows Python 3.11, then runs `ash --help`, `ash quickstart`, and
+  `ash validate`.
+
+A successful verification run adds current read-only evidence. It does not rewrite the
+historical promotion runs, republish the package, or grant deployment/enforcement
+authority.
+
 ## Docker (local/offline CLI + fake-server demo)
 
 A `Dockerfile` builds a local, offline image. No secrets, no network at runtime by
