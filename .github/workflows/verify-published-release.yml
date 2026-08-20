@@ -1,0 +1,301 @@
+name: Verify published release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Exact published tag to verify (for example v1.0.0)
+        required: true
+        type: string
+      release_run_id:
+        description: Successful tag-triggered Release artifacts workflow run id
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: package-verification-${{ inputs.release_tag }}
+  cancel-in-progress: false
+
+jobs:
+  verify-subjects:
+    name: Verify published subjects
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      attestations: read
+      contents: read
+    outputs:
+      version: ${{ steps.identity.outputs.version }}
+      wheel_sha256: ${{ steps.indexes.outputs.wheel_sha256 }}
+    steps:
+      - name: Check out current verification policy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          path: verification-policy
+          persist-credentials: false
+
+      - name: Check out exact selected tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.release_tag }}
+          path: release-source
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Verify tag, release, and successful source workflow
+        id: identity
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_RUN_ID: ${{ inputs.release_run_id }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          if ! [[ "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "release_tag must be an exact vX.Y.Z tag" >&2
+            exit 1
+          fi
+          release_sha="$(git -C release-source rev-parse HEAD)"
+          test "$(git -C release-source rev-parse "$RELEASE_TAG^{}")" = "$release_sha"
+          version="${RELEASE_TAG#v}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+          run_json="$RUNNER_TEMP/release-run.json"
+          release_json="$RUNNER_TEMP/release.json"
+          gh api "/repos/$GITHUB_REPOSITORY/actions/runs/$RELEASE_RUN_ID" > "$run_json"
+          gh release view "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --json tagName,isDraft,isPrerelease > "$release_json"
+          python - "$run_json" "$release_json" "$release_sha" "$RELEASE_TAG" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          run = json.loads(Path(sys.argv[1]).read_text("utf-8"))
+          release = json.loads(Path(sys.argv[2]).read_text("utf-8"))
+          expected_run = {
+              "conclusion": "success",
+              "event": "push",
+              "head_sha": sys.argv[3],
+              "head_branch": sys.argv[4],
+              "path": ".github/workflows/release.yml",
+              "status": "completed",
+          }
+          observed_run = {key: run.get(key) for key in expected_run}
+          if observed_run != expected_run:
+              raise SystemExit(
+                  f"release workflow identity mismatch: "
+                  f"expected={expected_run!r}, observed={observed_run!r}"
+              )
+          expected_release = {
+              "tagName": sys.argv[4],
+              "isDraft": False,
+              "isPrerelease": False,
+          }
+          if release != expected_release:
+              raise SystemExit(
+                  f"GitHub Release identity mismatch: "
+                  f"expected={expected_release!r}, observed={release!r}"
+              )
+          PY
+
+      - name: Download immutable GitHub Release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          mkdir dist
+          gh release download "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --dir dist
+
+      - name: Verify closed asset set, checksums, and attestations
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          release_sha="$(git -C release-source rev-parse HEAD)"
+          python - "$version" <<'PY'
+          import sys
+          from pathlib import Path
+
+          version = sys.argv[1]
+          expected = {
+              "SHA256SUMS",
+              "agentic-security-harness.cdx.json",
+              f"agentic_security_harness-{version}-py3-none-any.whl",
+              f"agentic_security_harness-{version}.tar.gz",
+          }
+          observed = {path.name for path in Path("dist").iterdir() if path.is_file()}
+          if observed != expected:
+              raise SystemExit(
+                  f"GitHub Release asset mismatch: "
+                  f"expected={sorted(expected)}, observed={sorted(observed)}"
+              )
+          PY
+          cd dist
+          sha256sum --check SHA256SUMS
+          cd ..
+          for artifact in dist/*.tar.gz dist/*.whl dist/*.cdx.json dist/SHA256SUMS; do
+            policy_json="$RUNNER_TEMP/$(basename "$artifact").attestation.json"
+            gh attestation verify "$artifact" \
+              --repo "$GITHUB_REPOSITORY" \
+              --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/release.yml" \
+              --source-ref "refs/tags/$RELEASE_TAG" \
+              --source-digest "$release_sha" \
+              --cert-oidc-issuer "https://token.actions.githubusercontent.com" \
+              --predicate-type "https://slsa.dev/provenance/v1" \
+              --deny-self-hosted-runners \
+              --format json > "$policy_json"
+            python verification-policy/src/agentic_security_harness/attestation_policy.py \
+              --artifact "$artifact" \
+              --verification-json "$policy_json" \
+              --repository "$GITHUB_REPOSITORY" \
+              --workflow-path ".github/workflows/release.yml" \
+              --source-ref "refs/tags/$RELEASE_TAG" \
+              --source-digest "$release_sha"
+          done
+
+      - name: Verify TestPyPI and PyPI filename/hash equality
+        id: indexes
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import time
+          import urllib.error
+          import urllib.request
+          from pathlib import Path
+
+          version = os.environ["RELEASE_TAG"].removeprefix("v")
+          expected = {
+              path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+              for path in sorted(Path("dist").iterdir())
+              if path.suffix == ".whl" or path.name.endswith(".tar.gz")
+          }
+          for host in ("test.pypi.org", "pypi.org"):
+              url = f"https://{host}/pypi/agentic-security-harness/{version}/json"
+              observed = None
+              for attempt in range(1, 6):
+                  try:
+                      with urllib.request.urlopen(url, timeout=30) as response:
+                          payload = json.load(response)
+                      observed = {
+                          item["filename"]: item["digests"]["sha256"]
+                          for item in payload.get("urls", [])
+                          if item.get("packagetype") in {"bdist_wheel", "sdist"}
+                      }
+                      if observed == expected:
+                          break
+                  except urllib.error.HTTPError as exc:
+                      if exc.code != 404:
+                          raise
+                  if attempt < 5:
+                      time.sleep(15)
+              if observed != expected:
+                  raise SystemExit(
+                      f"{host} subject mismatch: expected={sorted(expected)}, "
+                      f"observed={sorted(observed or {})}"
+                  )
+              print(f"verified {host}: {sorted(observed)}")
+          PY
+          wheel_sha256="$(sha256sum dist/*.whl | awk '{print $1}')"
+          echo "wheel_sha256=$wheel_sha256" >> "$GITHUB_OUTPUT"
+
+  smoke:
+    name: Smoke ${{ matrix.index }} (${{ matrix.os }}, Python ${{ matrix.python }})
+    needs: verify-subjects
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    permissions: {}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - index: testpypi
+            os: ubuntu-latest
+            python: "3.11"
+          - index: pypi
+            os: ubuntu-latest
+            python: "3.11"
+          - index: pypi
+            os: ubuntu-latest
+            python: "3.12"
+          - index: pypi
+            os: ubuntu-latest
+            python: "3.13"
+          - index: pypi
+            os: windows-latest
+            python: "3.11"
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install and validate exact published package
+        shell: bash
+        env:
+          PACKAGE_INDEX: ${{ matrix.index }}
+          VERSION: ${{ needs.verify-subjects.outputs.version }}
+          WHEEL_SHA256: ${{ needs.verify-subjects.outputs.wheel_sha256 }}
+        run: |
+          set -euo pipefail
+          if [ "$PACKAGE_INDEX" = "testpypi" ]; then
+            wheel="$RUNNER_TEMP/agentic_security_harness-$VERSION-py3-none-any.whl"
+            python - "$VERSION" "$WHEEL_SHA256" "$wheel" <<'PY'
+          import hashlib
+          import json
+          import sys
+          import urllib.parse
+          import urllib.request
+          from pathlib import Path
+
+          version, expected_sha256, destination = sys.argv[1:]
+          metadata_url = (
+              f"https://test.pypi.org/pypi/agentic-security-harness/{version}/json"
+          )
+          with urllib.request.urlopen(metadata_url, timeout=30) as response:
+              payload = json.load(response)
+          expected_name = f"agentic_security_harness-{version}-py3-none-any.whl"
+          wheels = [
+              item
+              for item in payload.get("urls", [])
+              if item.get("packagetype") == "bdist_wheel"
+              and item.get("filename") == expected_name
+          ]
+          if len(wheels) != 1 or wheels[0]["digests"]["sha256"] != expected_sha256:
+              raise SystemExit("TestPyPI wheel identity mismatch")
+          wheel_url = wheels[0]["url"]
+          parsed = urllib.parse.urlparse(wheel_url)
+          if parsed.scheme != "https" or parsed.hostname != "test-files.pythonhosted.org":
+              raise SystemExit("unexpected TestPyPI file host")
+          with urllib.request.urlopen(wheel_url, timeout=60) as response:
+              wheel_bytes = response.read()
+          if hashlib.sha256(wheel_bytes).hexdigest() != expected_sha256:
+              raise SystemExit("downloaded TestPyPI wheel digest mismatch")
+          Path(destination).write_bytes(wheel_bytes)
+          PY
+            python -m pip install "pydantic>=2,<3"
+            python -m pip install --no-deps "$wheel"
+          else
+            python -m pip install "agentic-security-harness==$VERSION"
+          fi
+          ash --help
+          ash quickstart --out "$RUNNER_TEMP/quickstart"
+          ash validate "$RUNNER_TEMP/quickstart"
