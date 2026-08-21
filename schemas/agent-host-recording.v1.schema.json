@@ -1,0 +1,405 @@
+{
+  "$defs": {
+    "AgentHostDescriptorV1": {
+      "additionalProperties": false,
+      "description": "Safe, provider-neutral description of the producing host adapter.\n\nValues are producer declarations, not provider attestations.  The descriptor cannot\ncontain credentials, endpoints, raw prompts, tool arguments, or authority grants.",
+      "properties": {
+        "schema_version": {
+          "const": "agent-host-descriptor-v1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "adapter_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Adapter Id",
+          "type": "string"
+        },
+        "adapter_version": {
+          "pattern": "^[0-9A-Za-z][0-9A-Za-z.+_-]{0,63}$",
+          "title": "Adapter Version",
+          "type": "string"
+        },
+        "host_type": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Host Type",
+          "type": "string"
+        },
+        "runtime_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Runtime Id",
+          "type": "string"
+        },
+        "runtime_version": {
+          "pattern": "^[0-9A-Za-z][0-9A-Za-z.+_-]{0,63}$",
+          "title": "Runtime Version",
+          "type": "string"
+        },
+        "capture_mode": {
+          "enum": [
+            "recorded_offline",
+            "authorized_live_capture"
+          ],
+          "title": "Capture Mode",
+          "type": "string"
+        },
+        "network_mode": {
+          "enum": [
+            "off",
+            "local_only",
+            "authorized_external"
+          ],
+          "title": "Network Mode",
+          "type": "string"
+        },
+        "raw_payload_policy": {
+          "const": "digests_only",
+          "title": "Raw Payload Policy",
+          "type": "string"
+        },
+        "producer_attestation": {
+          "const": "unattested",
+          "title": "Producer Attestation",
+          "type": "string"
+        },
+        "operational_authority": {
+          "const": "none",
+          "title": "Operational Authority",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "adapter_id",
+        "adapter_version",
+        "host_type",
+        "runtime_id",
+        "runtime_version",
+        "capture_mode",
+        "network_mode",
+        "raw_payload_policy",
+        "producer_attestation",
+        "operational_authority"
+      ],
+      "title": "AgentHostDescriptorV1",
+      "type": "object"
+    },
+    "CanonicalObservationEventV1": {
+      "additionalProperties": false,
+      "description": "Stable authority-free wire observation.\n\n``event_id`` remains a producer-claimed digest-shaped identifier. The separate\n:class:`ObservationCommitmentV1` binds canonical bytes without promoting that claim.",
+      "properties": {
+        "schema_version": {
+          "const": "portfolio-observation-v1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "event_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "project_id": {
+          "pattern": "^[a-z0-9][a-z0-9-]{0,127}$",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "repository_id": {
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+          "title": "Repository Id",
+          "type": "string"
+        },
+        "repository_sha": {
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+          "title": "Repository Sha",
+          "type": "string"
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "title": "Occurred At",
+          "type": "string"
+        },
+        "producer_id_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Producer Id Hash",
+          "type": "string"
+        },
+        "producer_attestation": {
+          "const": "unattested",
+          "title": "Producer Attestation",
+          "type": "string"
+        },
+        "source_surface": {
+          "enum": [
+            "user",
+            "agent",
+            "model",
+            "tool",
+            "mcp",
+            "retrieval",
+            "memory",
+            "document",
+            "app",
+            "sensor",
+            "environment",
+            "provider",
+            "audit"
+          ],
+          "title": "Source Surface",
+          "type": "string"
+        },
+        "activity": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Activity",
+          "type": "string"
+        },
+        "entity_refs": {
+          "items": {
+            "$ref": "#/$defs/SafeEvidencePointer"
+          },
+          "maxItems": 64,
+          "title": "Entity Refs",
+          "type": "array"
+        },
+        "parent_event_ids": {
+          "items": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "maxItems": 64,
+          "title": "Parent Event Ids",
+          "type": "array"
+        },
+        "data_envelope_ref": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Data Envelope Ref",
+          "type": "string"
+        },
+        "authority_envelope_ref": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Authority Envelope Ref"
+        },
+        "telemetry_state": {
+          "enum": [
+            "complete",
+            "incomplete",
+            "malformed",
+            "unattested",
+            "conflicting"
+          ],
+          "title": "Telemetry State",
+          "type": "string"
+        },
+        "operational_authority": {
+          "const": "none",
+          "title": "Operational Authority",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "event_id",
+        "project_id",
+        "repository_id",
+        "repository_sha",
+        "occurred_at",
+        "producer_id_hash",
+        "producer_attestation",
+        "source_surface",
+        "activity",
+        "entity_refs",
+        "parent_event_ids",
+        "data_envelope_ref",
+        "authority_envelope_ref",
+        "telemetry_state",
+        "operational_authority"
+      ],
+      "title": "CanonicalObservationEventV1",
+      "type": "object"
+    },
+    "ObservationCommitmentV1": {
+      "additionalProperties": false,
+      "description": "Domain-separated commitment to exact canonical observation bytes.",
+      "properties": {
+        "schema_version": {
+          "const": "portfolio-observation-commitment-v1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "observation_schema_version": {
+          "const": "portfolio-observation-v1.0",
+          "title": "Observation Schema Version",
+          "type": "string"
+        },
+        "domain": {
+          "const": "agentic-security-portfolio/observation/v1.0",
+          "title": "Domain",
+          "type": "string"
+        },
+        "content_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "commitment_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Commitment Sha256",
+          "type": "string"
+        },
+        "operational_authority": {
+          "const": "none",
+          "title": "Operational Authority",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "observation_schema_version",
+        "domain",
+        "content_sha256",
+        "commitment_sha256",
+        "operational_authority"
+      ],
+      "title": "ObservationCommitmentV1",
+      "type": "object"
+    },
+    "SafeEvidencePointer": {
+      "additionalProperties": false,
+      "description": "Digest-shaped pointer with no raw payload or machine path.\n\nShape validation does not prove that the referenced content exists or is authentic.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "artifact",
+            "event",
+            "policy",
+            "trace",
+            "report"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Digest",
+          "type": "string"
+        },
+        "locator_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Locator Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "digest",
+        "locator_id"
+      ],
+      "title": "SafeEvidencePointer",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Closed record of one corpus pattern observed at an external agent host.\n\nThe record deliberately contains no security verdict.  It binds a self-contained,\nordered event graph and exact per-event commitments so a later evaluator can reason\nover evidence without treating the producer as an authority.",
+  "properties": {
+    "schema_version": {
+      "const": "agent-host-recording-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "recording_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Recording Id",
+      "type": "string"
+    },
+    "corpus_version": {
+      "const": "1.0.0",
+      "title": "Corpus Version",
+      "type": "string"
+    },
+    "corpus_manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Corpus Manifest Sha256",
+      "type": "string"
+    },
+    "pattern_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Pattern Id",
+      "type": "string"
+    },
+    "host": {
+      "$ref": "#/$defs/AgentHostDescriptorV1"
+    },
+    "events": {
+      "items": {
+        "$ref": "#/$defs/CanonicalObservationEventV1"
+      },
+      "maxItems": 2048,
+      "minItems": 1,
+      "title": "Events",
+      "type": "array"
+    },
+    "event_commitments": {
+      "items": {
+        "$ref": "#/$defs/ObservationCommitmentV1"
+      },
+      "maxItems": 2048,
+      "minItems": 1,
+      "title": "Event Commitments",
+      "type": "array"
+    },
+    "terminal_status": {
+      "enum": [
+        "completed",
+        "inconclusive",
+        "adapter_error"
+      ],
+      "title": "Terminal Status",
+      "type": "string"
+    },
+    "telemetry_state": {
+      "enum": [
+        "complete",
+        "incomplete",
+        "malformed",
+        "unattested",
+        "conflicting"
+      ],
+      "title": "Telemetry State",
+      "type": "string"
+    },
+    "verdict_semantics": {
+      "const": "observation_only_no_security_verdict",
+      "title": "Verdict Semantics",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "recording_id",
+    "corpus_version",
+    "corpus_manifest_sha256",
+    "pattern_id",
+    "host",
+    "events",
+    "event_commitments",
+    "terminal_status",
+    "telemetry_state",
+    "verdict_semantics",
+    "operational_authority"
+  ],
+  "title": "AgentHostRecordingV1",
+  "type": "object"
+}

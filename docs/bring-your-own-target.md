@@ -1,8 +1,10 @@
 # Bring your own target
 
-> **Agentic Security Harness.** This guide explains how a future authorized target adapter
-> can run the same benchmark corpus. The current release ships only local synthetic targets.
-> Real adapters are future work and require explicit authorization.
+> **Agentic Security Harness.** This guide explains how an authorized target adapter can
+> run the same benchmark corpus. The published v1.0.0 release ships only local synthetic
+> targets. The unreleased Agent Host V1 development contract now supports authority-free
+> offline record/replay inspection; live collectors remain future work and require explicit
+> authorization.
 
 ## What the benchmark checks
 
@@ -147,7 +149,7 @@ ash run-external --adapter openai-compatible \
 prompts. No tools are executed. This is not a benchmark-grade comparison yet.
 See the [adapter contract](adapter-contract.md) for details.
 
-### Future custom target path
+### Custom target and Agent Host paths
 
 The current release does **not** support loading arbitrary external adapters via CLI.
 The adapter contract is documented as the implementation contract and next integration
@@ -170,6 +172,11 @@ write_reports(traces, scorecard, Path("reports/your-target"))
 ```
 
 3. Run `ash validate reports/your-target` to check artifact conformance.
+
+For an external host that can emit canonical observation events without being loaded into
+the Harness process, use the [Agent Host Adapter SDK](agent-host-adapter.md) and inspect the
+result with `ash agent-host-inspect`. That development path produces observation-only
+evidence and deliberately does not convert producer self-reports into benchmark verdicts.
 
 ## What artifacts you get
 

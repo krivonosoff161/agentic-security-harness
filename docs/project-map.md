@@ -14,8 +14,10 @@ problem idea -> boundary invariant -> evaluation topology -> sanitized pattern
 
 Built-in/local targets are local, synthetic, deterministic, and offline. There is also an
 experimental, opt-in `run-external` path that evaluates an OpenAI-compatible endpoint with
-synthetic prompts (prompt-only, no tool execution). The release does not ship native
-provider adapters, agent-host/tool-use adapters, or the planned reference gateway.
+synthetic prompts (prompt-only, no tool execution). The current development tree contains
+an unreleased, offline Agent Host V1 record/replay inspection contract. The release does
+not ship native provider collectors, live agent-host/tool-use collectors, or the planned
+reference gateway.
 
 ## Public security-stack relationship
 
@@ -93,8 +95,8 @@ If those six points hold, the benchmark is coherent.
 | Schemas | Every JSON artifact carries a `schema_version` from one registry. | `src/agentic_security_harness/schema_versions.py`, [artifact-schemas.md](artifact-schemas.md) |
 | Validation | Checks report/external/manifest/diff artifacts, schema versions, and standards-mapping consistency. | `src/agentic_security_harness/validation.py` |
 | Diagnostics | `doctor` checks the environment (no network by default). | `src/agentic_security_harness/doctor.py` |
-| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `local-suite`, `local-swarm`, `local-swarm-matrix`, `diff-runs`, `compare-models`, `evidence-quality`, `evidence-campaign`, `secret-leak-campaign`, `semantic-drift-campaign`, `semantic-propagation-campaign`, `swarm-defense-contour`, `swarm-defense-live-campaign`, `marketing-web-injection-campaign`, `marketing-web-live-campaign`, `validate`, `report`, `showcase`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
-| Adapter contract | Rules and metadata models for future model/provider/runtime adapters. | [adapter-contract.md](adapter-contract.md), `models.py` |
+| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `agent-host-inspect`, `local-suite`, `local-swarm`, `local-swarm-matrix`, `diff-runs`, `compare-models`, `evidence-quality`, `evidence-campaign`, `secret-leak-campaign`, `semantic-drift-campaign`, `semantic-propagation-campaign`, `swarm-defense-contour`, `swarm-defense-live-campaign`, `marketing-web-injection-campaign`, `marketing-web-live-campaign`, `validate`, `report`, `showcase`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
+| Adapter contract | Rules and metadata models for target/model/runtime adapters plus the offline Agent Host V1 record/replay inspection contract. | [adapter-contract.md](adapter-contract.md), [agent-host-adapter.md](agent-host-adapter.md), `models.py`, `agent_host_adapter.py` |
 | Reporting design | How executive and technical reports should be shaped. | [reporting.md](reporting.md) |
 | Research problem map | Active public map of shipped deep contours, maintained evidence tracks, next violation-model candidates, and promotion rules. | [research-problem-map.md](research-problem-map.md) |
 | Research claims registry | Status table tracking each research claim from hypothesis through evidence artifacts. | [research-claims.md](research-claims.md) |
@@ -117,7 +119,7 @@ If those six points hold, the benchmark is coherent.
 ## What is not implemented today
 
 - No native provider SDK adapter (the external path is generic OpenAI-compatible only).
-- No agent-host / tool-use adapter (the external path does not execute tools).
+- No live agent-host / tool-use collector (the Agent Host V1 development slice only inspects retained canonical observations).
 - No streaming, multi-turn agent host, or MCP server adapter.
 - No multimodal/audio generation.
 - No HTTP reference gateway runtime.
@@ -149,7 +151,7 @@ Start here by role:
 | Bring-your-own-model user | [Run your model](run-your-model.md), [Connect models](connect-models.md), [Test your own model/runtime](test-your-model.md) | Test a local model, external OpenAI-compatible endpoint, or bounded local mini-swarm with explicit safety and privacy boundaries. |
 | Project status reviewer | [Current state](current-state.md), [Research problem map](research-problem-map.md), [Capability matrix](capability-matrix.md), [Roadmap](roadmap.md), [Project tracker](project-tracker.md) | Separate shipped, active research, planned, blocked work, and visible GitHub issue flow. |
 | Benchmark reviewer | [Benchmark protocol](benchmark-protocol.md), [Benchmark semantics](benchmark-semantics.md), [Artifact schemas](artifact-schemas.md) | Understand what the benchmark proves and what it does not prove. |
-| Adapter author | [Custom adapter tutorial](custom-adapter-tutorial.md), [Adapter contract](adapter-contract.md), [Bring your own target](bring-your-own-target.md) | Implement a target without forking the benchmark model. |
+| Adapter author | [Custom adapter tutorial](custom-adapter-tutorial.md), [Adapter contract](adapter-contract.md), [Agent Host Adapter SDK](agent-host-adapter.md), [Bring your own target](bring-your-own-target.md) | Implement a local target or authority-free external-host recording boundary without forking the benchmark model. |
 | Report reviewer | [Examples index](../examples/README.md), [Comparison example](../examples/comparison-report/README.md), [Reporting](reporting.md) | Inspect committed proof artifacts before running anything. |
 | Showcase reviewer | [Public evidence showcase](showcase/index.md), [Scenario matrix](showcase/scenario-matrix.md), [Weak spots and findings](showcase/weak-spots-and-findings.md) | See scenarios, current evidence, weak spots, findings, and next variations without reading code. |
 | Scenario designer | [Scenario timeline contract](scenario-timeline.md) | Model multi-step, multi-actor, delayed, or cross-boundary situations before adding corpus cases. |
