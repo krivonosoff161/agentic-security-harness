@@ -331,6 +331,46 @@ def test_gateway_check_is_read_only_and_path_private(
     assert not audit_dir.exists()
 
 
+def test_gateway_fixture_cli_runs_offline_without_printing_payload(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    config_path = tmp_path / "gateway.toml"
+    assert cli.main(["gateway-init", "--out", str(config_path)]) == 0
+    capsys.readouterr()
+    fixture = (
+        Path(__file__).parents[1]
+        / "examples"
+        / "provider-tool-adapters"
+        / "openai-responses.json"
+    )
+
+    assert (
+        cli.main(
+            [
+                "gateway-fixture",
+                "--config",
+                str(config_path),
+                "--provider",
+                "openai_responses",
+                "--input",
+                str(fixture),
+            ]
+        )
+        == 0
+    )
+    output = capsys.readouterr().out
+    assert "evaluated offline" in output
+    assert "allow=1 deny=0 require_approval=0" in output
+    assert "Provider/network/credentials: off" in output
+    assert "project-status" not in output
+    assert "call_synthetic" not in output
+    ledger = tmp_path / ".internal" / "runtime-gateway" / "gateway-audit.jsonl"
+    retained = ledger.read_text(encoding="utf-8")
+    assert "project-status" not in retained
+    assert "call_synthetic" not in retained
+
+
 def test_gateway_init_creates_once_and_generated_config_validates(
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],

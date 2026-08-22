@@ -37,7 +37,11 @@ COMMAND_AUTHORIZES_BOUNDED_WRITES = {
     "report",
     "showcase",
 }
-MODE_AUTHORIZES_BOUNDED_PRIVATE_WRITES = {"gateway-serve", "trading-stand"}
+MODE_AUTHORIZES_BOUNDED_PRIVATE_WRITES = {
+    "gateway-fixture",
+    "gateway-serve",
+    "trading-stand",
+}
 
 
 def _subcommands(parser: argparse.ArgumentParser) -> dict[str, argparse.ArgumentParser]:

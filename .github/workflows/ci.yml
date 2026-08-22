@@ -159,6 +159,17 @@ jobs:
         run: |
           set -euo pipefail
           docker volume create ash-gateway-ci-audit >/dev/null
+          fixture_output="$(docker run --rm \
+            --read-only --cap-drop ALL --security-opt no-new-privileges \
+            --tmpfs /tmp:size=16m --volume ash-gateway-ci-audit:/data \
+            --entrypoint ash ash-runtime-gateway:ci \
+            gateway-fixture --config /app/gateway.toml \
+            --provider openai_responses \
+            --input /app/provider-fixtures/openai-responses.json)"
+          printf '%s' "$fixture_output" | grep --fixed-strings \
+            'allow=1 deny=0 require_approval=0' >/dev/null
+          printf '%s' "$fixture_output" | grep --fixed-strings \
+            'Provider/network/credentials: off' >/dev/null
           docker run --detach --name ash-gateway-ci \
             --read-only --cap-drop ALL --security-opt no-new-privileges \
             --tmpfs /tmp:size=16m --volume ash-gateway-ci-audit:/data \

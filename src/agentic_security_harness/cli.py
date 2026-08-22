@@ -9,6 +9,7 @@ Commands:
   ash agent-host-quickstart --out <dir>
   ash gateway-init --out <gateway.toml>
   ash gateway-check --config <gateway.toml>
+  ash gateway-fixture --config <gateway.toml> --provider <family> --input <fixture.json>
   ash gateway-serve --config <gateway.toml>
   ash targets
   ash scenarios [--verbose]
@@ -43,7 +44,7 @@ import sys
 from contextlib import redirect_stderr, redirect_stdout
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from agentic_security_harness import __version__
 from agentic_security_harness.adapters import list_targets, make_target, target_ids
@@ -230,6 +231,29 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         required=True,
         help="closed Runtime Gateway V1 TOML config",
+    )
+
+    gateway_fixture_p = sub.add_parser(
+        "gateway-fixture",
+        help="evaluate one retained provider tool-call fixture offline",
+    )
+    gateway_fixture_p.add_argument(
+        "--config",
+        type=Path,
+        required=True,
+        help="closed Runtime Gateway V1 TOML config",
+    )
+    gateway_fixture_p.add_argument(
+        "--provider",
+        choices=("openai_responses", "anthropic_messages", "google_interactions", "mcp"),
+        required=True,
+        help="retained provider/tool envelope family",
+    )
+    gateway_fixture_p.add_argument(
+        "--input",
+        type=Path,
+        required=True,
+        help="bounded regular JSON fixture (contents are never printed or retained)",
     )
 
     sub.add_parser("targets", help="list registered built-in targets")
@@ -1886,6 +1910,68 @@ def _gateway_serve(config_path: Path) -> int:
     except (GatewayContractError, OSError, ValueError):
         print("Error: Runtime Gateway could not start safely")
         return 1
+    return 0
+
+
+def _gateway_fixture(config_path: Path, provider: str, input_path: Path) -> int:
+    """Evaluate one retained fixture through the local policy without provider access."""
+
+    from agentic_security_harness.provider_tool_adapters import (
+        MAX_PROVIDER_PAYLOAD_BYTES,
+        ProviderFamily,
+        ProviderToolAdapterError,
+        execute_provider_tool_payload_v1,
+    )
+    from agentic_security_harness.runtime_gateway import (
+        GatewayAuditLedger,
+        GatewayContractError,
+        GatewayEngine,
+        _read_safe_existing_file,
+        load_gateway_config_v1,
+    )
+
+    families = {
+        "openai_responses",
+        "anthropic_messages",
+        "google_interactions",
+        "mcp",
+    }
+    if provider not in families:
+        print("Error: provider fixture family is unsupported")
+        return 1
+    try:
+        config = load_gateway_config_v1(config_path)
+        payload = _read_safe_existing_file(
+            input_path,
+            label="provider fixture",
+            max_bytes=MAX_PROVIDER_PAYLOAD_BYTES,
+        )
+        with GatewayAuditLedger(config.audit_dir) as audit:
+            executions = execute_provider_tool_payload_v1(
+                GatewayEngine(audit),
+                cast(ProviderFamily, provider),
+                payload,
+                request_id=f"offline-fixture:{provider}",
+            )
+            snapshot = audit.snapshot()
+    except (GatewayContractError, ProviderToolAdapterError, OSError, ValueError):
+        print("Error: provider fixture could not be evaluated safely")
+        return 1
+    counts = {"allow": 0, "deny": 0, "require_approval": 0}
+    for execution in executions:
+        counts[execution.decision.disposition] += 1
+    print("Runtime Gateway provider fixture: evaluated offline")
+    print(f"  Provider family: {terminal_field(provider)}")
+    print(f"  Calls: {len(executions)}")
+    print(
+        f"  Decisions: allow={counts['allow']} deny={counts['deny']} "
+        f"require_approval={counts['require_approval']}"
+    )
+    print(f"  Policy SHA-256: {executions[0].decision.policy_sha256}")
+    print(f"  Audit head SHA-256: {snapshot.head_sha256}")
+    print("  Provider/network/credentials: off")
+    print("  Raw payload retained or printed: no")
+    print("  Operational authority: none")
     return 0
 
 
@@ -4758,6 +4844,8 @@ def _main(argv: list[str] | None = None) -> int:
         return _gateway_check(args.config)
     if args.command == "gateway-serve":
         return _gateway_serve(args.config)
+    if args.command == "gateway-fixture":
+        return _gateway_fixture(args.config, args.provider, args.input)
     if args.command == "targets":
         return _targets()
     if args.command == "scenarios":
