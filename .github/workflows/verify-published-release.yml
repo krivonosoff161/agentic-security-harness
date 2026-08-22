@@ -243,6 +243,13 @@ jobs:
             os: windows-latest
             python: "3.11"
     steps:
+      - name: Check out current verification policy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          path: verification-policy
+          persist-credentials: false
+
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
@@ -256,9 +263,9 @@ jobs:
           WHEEL_SHA256: ${{ needs.verify-subjects.outputs.wheel_sha256 }}
         run: |
           set -euo pipefail
-          if [ "$PACKAGE_INDEX" = "testpypi" ]; then
-            wheel="$RUNNER_TEMP/agentic_security_harness-$VERSION-py3-none-any.whl"
-            python - "$VERSION" "$WHEEL_SHA256" "$wheel" <<'PY'
+          wheel="$RUNNER_TEMP/agentic_security_harness-$VERSION-py3-none-any.whl"
+          requirement="$RUNNER_TEMP/published-wheel-requirement.txt"
+          python - "$PACKAGE_INDEX" "$VERSION" "$WHEEL_SHA256" "$wheel" "$requirement" <<'PY'
           import hashlib
           import json
           import sys
@@ -266,9 +273,16 @@ jobs:
           import urllib.request
           from pathlib import Path
 
-          version, expected_sha256, destination = sys.argv[1:]
+          index, version, expected_sha256, destination, requirement = sys.argv[1:]
+          hosts = {
+              "testpypi": ("test.pypi.org", "test-files.pythonhosted.org"),
+              "pypi": ("pypi.org", "files.pythonhosted.org"),
+          }
+          if index not in hosts:
+              raise SystemExit("unexpected package index")
+          metadata_host, file_host = hosts[index]
           metadata_url = (
-              f"https://test.pypi.org/pypi/agentic-security-harness/{version}/json"
+              f"https://{metadata_host}/pypi/agentic-security-harness/{version}/json"
           )
           with urllib.request.urlopen(metadata_url, timeout=30) as response:
               payload = json.load(response)
@@ -283,19 +297,22 @@ jobs:
               raise SystemExit("TestPyPI wheel identity mismatch")
           wheel_url = wheels[0]["url"]
           parsed = urllib.parse.urlparse(wheel_url)
-          if parsed.scheme != "https" or parsed.hostname != "test-files.pythonhosted.org":
-              raise SystemExit("unexpected TestPyPI file host")
+          if parsed.scheme != "https" or parsed.hostname != file_host:
+              raise SystemExit("unexpected package file host")
           with urllib.request.urlopen(wheel_url, timeout=60) as response:
               wheel_bytes = response.read()
           if hashlib.sha256(wheel_bytes).hexdigest() != expected_sha256:
-              raise SystemExit("downloaded TestPyPI wheel digest mismatch")
-          Path(destination).write_bytes(wheel_bytes)
+              raise SystemExit("downloaded wheel digest mismatch")
+          wheel_path = Path(destination).resolve()
+          wheel_path.write_bytes(wheel_bytes)
+          Path(requirement).write_text(
+              f"{wheel_path.as_uri()} --hash=sha256:{expected_sha256}\n",
+              encoding="utf-8",
+          )
           PY
-            python -m pip install "pydantic>=2,<3"
-            python -m pip install --no-deps "$wheel"
-          else
-            python -m pip install "agentic-security-harness==$VERSION"
-          fi
+          python -m pip install --require-hashes \
+            -r verification-policy/requirements/runtime.txt
+          python -m pip install --require-hashes --no-deps -r "$requirement"
           ash --help
           ash quickstart --out "$RUNNER_TEMP/quickstart"
           ash validate "$RUNNER_TEMP/quickstart"
