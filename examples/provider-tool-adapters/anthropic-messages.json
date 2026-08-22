@@ -1,0 +1,16 @@
+{
+  "content": [
+    {
+      "id": "toolu_synthetic",
+      "input": {
+        "key": "project-status"
+      },
+      "name": "synthetic.lookup",
+      "type": "tool_use"
+    }
+  ],
+  "id": "msg_synthetic",
+  "role": "assistant",
+  "stop_reason": "tool_use",
+  "type": "message"
+}

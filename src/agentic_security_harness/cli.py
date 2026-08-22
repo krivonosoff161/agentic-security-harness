@@ -7,6 +7,10 @@ Commands:
   ash agent-host-inspect <recording.json> [--format text|json]
   ash agent-host-evaluate <recording.json> [--format text|json]
   ash agent-host-quickstart --out <dir>
+  ash gateway-init --out <gateway.toml>
+  ash gateway-check --config <gateway.toml>
+  ash gateway-fixture --config <gateway.toml> --provider <family> --input <fixture.json>
+  ash gateway-serve --config <gateway.toml>
   ash targets
   ash scenarios [--verbose]
   ash trading-stand [--mode profile|dry-run|offline-fixture|scenario-catalog|
@@ -40,7 +44,7 @@ import sys
 from contextlib import redirect_stderr, redirect_stdout
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from agentic_security_harness import __version__
 from agentic_security_harness.adapters import list_targets, make_target, target_ids
@@ -194,6 +198,62 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("reports/agent-host-quickstart"),
         help="new public output directory (default: reports/agent-host-quickstart)",
+    )
+
+    gateway_init_p = sub.add_parser(
+        "gateway-init",
+        help="write one portable loopback Runtime Gateway V1 config",
+    )
+    gateway_init_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path("gateway.toml"),
+        help="new config file (default: gateway.toml; never overwritten)",
+    )
+
+    gateway_check_p = sub.add_parser(
+        "gateway-check",
+        help="validate one loopback synthetic Runtime Gateway config without starting it",
+    )
+    gateway_check_p.add_argument(
+        "--config",
+        type=Path,
+        required=True,
+        help="closed Runtime Gateway V1 TOML config",
+    )
+
+    gateway_serve_p = sub.add_parser(
+        "gateway-serve",
+        help="serve the local synthetic Runtime Gateway on IPv4 loopback",
+    )
+    gateway_serve_p.add_argument(
+        "--config",
+        type=Path,
+        required=True,
+        help="closed Runtime Gateway V1 TOML config",
+    )
+
+    gateway_fixture_p = sub.add_parser(
+        "gateway-fixture",
+        help="evaluate one retained provider tool-call fixture offline",
+    )
+    gateway_fixture_p.add_argument(
+        "--config",
+        type=Path,
+        required=True,
+        help="closed Runtime Gateway V1 TOML config",
+    )
+    gateway_fixture_p.add_argument(
+        "--provider",
+        choices=("openai_responses", "anthropic_messages", "google_interactions", "mcp"),
+        required=True,
+        help="retained provider/tool envelope family",
+    )
+    gateway_fixture_p.add_argument(
+        "--input",
+        type=Path,
+        required=True,
+        help="bounded regular JSON fixture (contents are never printed or retained)",
     )
 
     sub.add_parser("targets", help="list registered built-in targets")
@@ -1781,6 +1841,137 @@ def _agent_host_quickstart(out: Path) -> int:
     print("network: off; public payloads: digests only; producer: unattested")
     print("scope: deterministic synthetic fixture, not a security certification")
     print("operational authority: none")
+    return 0
+
+
+def _gateway_check(config_path: Path) -> int:
+    """Validate the closed local gateway configuration without creating runtime state."""
+
+    from agentic_security_harness.runtime_gateway import (
+        GatewayContractError,
+        default_gateway_policy_v1,
+        load_gateway_config_v1,
+    )
+
+    try:
+        config = load_gateway_config_v1(config_path)
+    except (GatewayContractError, OSError, ValueError):
+        print("Error: Runtime Gateway config is invalid or unsafe")
+        return 1
+    print("Runtime Gateway config: valid V1")
+    print(f"  Listener: http://{config.host}:{config.port}")
+    print(f"  Max body bytes: {config.max_body_bytes}")
+    print("  Audit destination: configured (path intentionally not printed)")
+    print(f"  Policy SHA-256: {default_gateway_policy_v1().sha256()}")
+    mode = "synthetic container" if config.synthetic_container_mode else "loopback synthetic"
+    print(f"  Mode: {mode}; no provider calls or credentials")
+    print("  Operational authority: none")
+    return 0
+
+
+def _gateway_init(out: Path) -> int:
+    """Write an installed-package-friendly local config without overwriting files."""
+
+    from agentic_security_harness.runtime_gateway import (
+        GatewayContractError,
+        write_gateway_example_config_v1,
+    )
+
+    try:
+        write_gateway_example_config_v1(out)
+    except (GatewayContractError, OSError, ValueError):
+        print("Error: Runtime Gateway config could not be created safely")
+        return 1
+    print(f"wrote Runtime Gateway V1 config to {terminal_field(out.as_posix())}")
+    print("review it, then run: ash gateway-check --config <gateway.toml>")
+    print("mode: loopback synthetic; no provider calls or credentials")
+    return 0
+
+
+def _gateway_serve(config_path: Path) -> int:
+    """Run the bounded local gateway until the operator interrupts it."""
+
+    from agentic_security_harness.runtime_gateway import (
+        GatewayContractError,
+        load_gateway_config_v1,
+        serve_gateway,
+    )
+
+    try:
+        config = load_gateway_config_v1(config_path)
+        print(f"Runtime Gateway listening on http://{config.host}:{config.port}")
+        mode = "synthetic container" if config.synthetic_container_mode else "loopback synthetic"
+        print(f"mode: {mode}; credentials and live providers are disabled")
+        print("press Ctrl+C to stop")
+        serve_gateway(config)
+    except KeyboardInterrupt:
+        print("Runtime Gateway stopped")
+        return 0
+    except (GatewayContractError, OSError, ValueError):
+        print("Error: Runtime Gateway could not start safely")
+        return 1
+    return 0
+
+
+def _gateway_fixture(config_path: Path, provider: str, input_path: Path) -> int:
+    """Evaluate one retained fixture through the local policy without provider access."""
+
+    from agentic_security_harness.provider_tool_adapters import (
+        MAX_PROVIDER_PAYLOAD_BYTES,
+        ProviderFamily,
+        ProviderToolAdapterError,
+        execute_provider_tool_payload_v1,
+    )
+    from agentic_security_harness.runtime_gateway import (
+        GatewayAuditLedger,
+        GatewayContractError,
+        GatewayEngine,
+        _read_safe_existing_file,
+        load_gateway_config_v1,
+    )
+
+    families = {
+        "openai_responses",
+        "anthropic_messages",
+        "google_interactions",
+        "mcp",
+    }
+    if provider not in families:
+        print("Error: provider fixture family is unsupported")
+        return 1
+    try:
+        config = load_gateway_config_v1(config_path)
+        payload = _read_safe_existing_file(
+            input_path,
+            label="provider fixture",
+            max_bytes=MAX_PROVIDER_PAYLOAD_BYTES,
+        )
+        with GatewayAuditLedger(config.audit_dir) as audit:
+            executions = execute_provider_tool_payload_v1(
+                GatewayEngine(audit),
+                cast(ProviderFamily, provider),
+                payload,
+                request_id=f"offline-fixture:{provider}",
+            )
+            snapshot = audit.snapshot()
+    except (GatewayContractError, ProviderToolAdapterError, OSError, ValueError):
+        print("Error: provider fixture could not be evaluated safely")
+        return 1
+    counts = {"allow": 0, "deny": 0, "require_approval": 0}
+    for execution in executions:
+        counts[execution.decision.disposition] += 1
+    print("Runtime Gateway provider fixture: evaluated offline")
+    print(f"  Provider family: {terminal_field(provider)}")
+    print(f"  Calls: {len(executions)}")
+    print(
+        f"  Decisions: allow={counts['allow']} deny={counts['deny']} "
+        f"require_approval={counts['require_approval']}"
+    )
+    print(f"  Policy SHA-256: {executions[0].decision.policy_sha256}")
+    print(f"  Audit head SHA-256: {snapshot.head_sha256}")
+    print("  Provider/network/credentials: off")
+    print("  Raw payload retained or printed: no")
+    print("  Operational authority: none")
     return 0
 
 
@@ -4647,6 +4838,14 @@ def _main(argv: list[str] | None = None) -> int:
         return _agent_host_evaluate(args.path, args.format)
     if args.command == "agent-host-quickstart":
         return _agent_host_quickstart(args.out)
+    if args.command == "gateway-init":
+        return _gateway_init(args.out)
+    if args.command == "gateway-check":
+        return _gateway_check(args.config)
+    if args.command == "gateway-serve":
+        return _gateway_serve(args.config)
+    if args.command == "gateway-fixture":
+        return _gateway_fixture(args.config, args.provider, args.input)
     if args.command == "targets":
         return _targets()
     if args.command == "scenarios":

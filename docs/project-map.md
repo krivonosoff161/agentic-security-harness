@@ -14,11 +14,11 @@ problem idea -> boundary invariant -> evaluation topology -> sanitized pattern
 
 Built-in/local targets are local, synthetic, deterministic, and offline. There is also an
 experimental, opt-in `run-external` path that evaluates an OpenAI-compatible endpoint with
-synthetic prompts (prompt-only, no tool execution). The current development tree contains
-an unreleased Agent Host V1 record/evaluate contract with explicit digest-only Python
-instrumentation and a built-in no-network owned-workflow quickstart. The release does not
-ship native provider collectors, arbitrary live agent-host/tool-use execution, or the planned
-reference gateway.
+synthetic prompts (prompt-only, no tool execution). Agent Host V1 ships canonical
+record/evaluate plus explicit digest-only Python instrumentation and a no-network
+owned-workflow quickstart. The active tree also contains a local synthetic reference
+gateway; it does not ship native provider collectors or arbitrary live agent-host/tool-use
+execution.
 
 ## Public security-stack relationship
 
@@ -71,6 +71,7 @@ If those six points hold, the benchmark is coherent.
 | Inter-agent handoff integrity | Deterministic local toy topology and verifier for provenance-preserving worker-to-senior handoffs; public example covers label loss and authority expansion. | `src/agentic_security_harness/handoff_integrity.py`, `src/agentic_security_harness/toy_adapters.py`, [handoff-toy-topology.md](handoff-toy-topology.md), [inter-agent-handoff-integrity.md](inter-agent-handoff-integrity.md), `examples/handoff-toy-comparison/` |
 | Memory governance invariant layer | Synthetic checks for memory envelope preservation, TTL from write time, provenance metadata, trust precedence, and scope isolation. | `src/agentic_security_harness/memory_governance.py`, [theory/memory-governance.md](theory/memory-governance.md) |
 | External path | Experimental, opt-in OpenAI-compatible prompt-only model check (`run-external`, `external-check`, `external-presets`). | `src/agentic_security_harness/external_runner.py`, `presets.py`, [connect-models.md](connect-models.md) |
+| Runtime Gateway | Local policy-before-dispatch service with bounded OpenAI-compatible and stateless MCP 2026-07-28 development endpoints, two fixed synthetic tools, keyed privacy commitments, hash-chain audit, aggregate dashboard, and Docker Compose. | `src/agentic_security_harness/runtime_gateway.py`, [runtime-gateway.md](runtime-gateway.md), `Dockerfile.gateway`, `compose.gateway.yml` |
 | Run your model path | Public operator path for deterministic demo, one local/remote OpenAI-compatible model, and local mini-swarm campaigns, with Windows and Linux/macOS commands. | [run-your-model.md](run-your-model.md), [connect-models.md](connect-models.md), [test-your-model.md](test-your-model.md) |
 | Local model suite | Bounded named local-model smoke profiles (`local-suite`); dry-run by default, validates and classifies weak-model output as inconclusive/adapter_error, never silently pass/finding. | `src/agentic_security_harness/local_profiles.py`, [local-prometheus-workflow.md](local-prometheus-workflow.md), [local-model-profiles.md](local-model-profiles.md) |
 | Trading paper stand | Non-executing owned-target profile with artifact/identity gates, private-row structural validation, receipt-blocked observation authority, sanitized-public projection hashes, and a hash-bound canonical batch/static-import closure. Provider, messaging, configuration, and execution isolation remain fail-closed. | `src/agentic_security_harness/trading_bot_stand.py`, `src/agentic_security_harness/static_import_closure.py`, [trading-bot-paper-stand-target-profile.md](trading-bot-paper-stand-target-profile.md) |
@@ -96,7 +97,7 @@ If those six points hold, the benchmark is coherent.
 | Schemas | Every JSON artifact carries a `schema_version` from one registry. | `src/agentic_security_harness/schema_versions.py`, [artifact-schemas.md](artifact-schemas.md) |
 | Validation | Checks report/external/manifest/diff artifacts, schema versions, and standards-mapping consistency. | `src/agentic_security_harness/validation.py` |
 | Diagnostics | `doctor` checks the environment (no network by default). | `src/agentic_security_harness/doctor.py` |
-| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `agent-host-inspect`, `agent-host-evaluate`, `agent-host-quickstart`, `local-suite`, `local-swarm`, `local-swarm-matrix`, `diff-runs`, `compare-models`, `evidence-quality`, `evidence-campaign`, `secret-leak-campaign`, `semantic-drift-campaign`, `semantic-propagation-campaign`, `swarm-defense-contour`, `swarm-defense-live-campaign`, `marketing-web-injection-campaign`, `marketing-web-live-campaign`, `validate`, `report`, `showcase`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
+| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `agent-host-inspect`, `agent-host-evaluate`, `agent-host-quickstart`, `gateway-init`, `gateway-check`, `gateway-serve`, `local-suite`, `local-swarm`, `local-swarm-matrix`, `diff-runs`, `compare-models`, `evidence-quality`, `evidence-campaign`, `secret-leak-campaign`, `semantic-drift-campaign`, `semantic-propagation-campaign`, `swarm-defense-contour`, `swarm-defense-live-campaign`, `marketing-web-injection-campaign`, `marketing-web-live-campaign`, `validate`, `report`, `showcase`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
 | Adapter contract | Rules and metadata models for target/model/runtime adapters plus Agent Host V1 record/evaluate, explicit owned-workflow instrumentation, and validated quickstart. | [adapter-contract.md](adapter-contract.md), [agent-host-adapter.md](agent-host-adapter.md), `models.py`, `agent_host_adapter.py`, `agent_host_evaluator.py`, `agent_host_workflow.py` |
 | Reporting design | How executive and technical reports should be shaped. | [reporting.md](reporting.md) |
 | Research problem map | Active public map of shipped deep contours, maintained evidence tracks, next violation-model candidates, and promotion rules. | [research-problem-map.md](research-problem-map.md) |
@@ -122,10 +123,14 @@ If those six points hold, the benchmark is coherent.
 - No native provider SDK adapter (the external path is generic OpenAI-compatible only).
 - No native live provider collector (the Agent Host V1 development slice records,
   inspects, and evaluates retained canonical observations only).
-- No streaming, multi-turn agent host, or MCP server adapter.
+- No streaming, multi-turn live agent host, or upstream MCP provider adapter. The local
+  Runtime Gateway exposes only a bounded synthetic MCP server contour.
 - No multimodal/audio generation.
-- No HTTP reference gateway runtime.
-- No durable production trace database or web dashboard. The shipped SQLite run metadata
+- No live-provider or production HTTP gateway runtime. The local synthetic reference
+  service is implemented but has no production authority.
+- No durable production trace database or production dashboard. The local gateway's
+  hash-chain audit and aggregate development dashboard are not an enterprise evidence
+  service. The shipped SQLite run metadata
   index is local optional metadata only; JSON/Markdown artifacts remain authoritative.
 
 These are roadmap or future-track items. They should not be described as shipped behavior.

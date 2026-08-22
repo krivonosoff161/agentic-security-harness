@@ -215,6 +215,8 @@ python -m pytest tests/test_agent_host_evaluator.py
 | Outcome certifies external-system security | Not claimed |
 | Runtime enforcement authority | None |
 
-The next separately reviewed slice is a native provider/agent-host collector over this
-explicit API. OpenAI, Anthropic, Google, MCP, and other live collectors remain future work
-with separate network, credential, privacy, retention, and authorization gates.
+The Runtime Gateway product branch now has a credential-free envelope layer that normalizes
+retained OpenAI Responses, Anthropic Messages, Google Interactions, and MCP tool calls into
+one policy contract. It still does not collect from a provider or authenticate a producer.
+Native live provider/agent-host collectors remain future work with separate network,
+credential, privacy, retention, and authorization gates.

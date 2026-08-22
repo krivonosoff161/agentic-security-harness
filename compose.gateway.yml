@@ -1,0 +1,22 @@
+services:
+  runtime-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    image: agentic-security-harness-runtime-gateway:dev
+    init: true
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "127.0.0.1:8787:8787"
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    volumes:
+      - gateway-audit:/data
+    restart: "no"
+
+volumes:
+  gateway-audit:
