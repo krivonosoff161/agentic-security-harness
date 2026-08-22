@@ -5,6 +5,7 @@ Commands:
   ash compare     --baseline <target> --protected <target> --out <dir>
   ash validate    <path>
   ash agent-host-inspect <recording.json> [--format text|json]
+  ash agent-host-evaluate <recording.json> [--format text|json]
   ash targets
   ash scenarios [--verbose]
   ash trading-stand [--mode profile|dry-run|offline-fixture|scenario-catalog|
@@ -165,6 +166,22 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("text", "json"),
         default="text",
         help="safe summary format (default: text)",
+    )
+
+    host_eval_p = sub.add_parser(
+        "agent-host-evaluate",
+        help="evaluate one canonical Agent Host V1 recording with the closed ruleset",
+    )
+    host_eval_p.add_argument(
+        "path",
+        type=Path,
+        help="canonical agent-host-recording-v1.0 JSON file",
+    )
+    host_eval_p.add_argument(
+        "--format",
+        choices=("text", "json"),
+        default="text",
+        help="evaluation output format (default: text)",
     )
 
     sub.add_parser("targets", help="list registered built-in targets")
@@ -1681,6 +1698,49 @@ def _agent_host_inspect(path: Path, output_format: str = "text") -> int:
     print(f"  Tool activity observed: {str(inspection.tool_activity_observed).lower()}")
     print(f"  Recording commitment: {inspection.recording_commitment_sha256}")
     print("  Verdict: not produced (observation-only evidence)")
+    print("  Operational authority: none")
+    return 0
+
+
+def _agent_host_evaluate(path: Path, output_format: str = "text") -> int:
+    """Evaluate canonical recorded evidence without executing its producer."""
+
+    from agentic_security_harness.agent_host_adapter import (
+        AgentHostContractError,
+        read_agent_host_recording_v1,
+    )
+    from agentic_security_harness.agent_host_evaluator import (
+        AgentHostEvaluationContractError,
+        evaluate_agent_host_recording_v1,
+    )
+
+    try:
+        recording = read_agent_host_recording_v1(path)
+        evaluation = evaluate_agent_host_recording_v1(recording)
+    except (AgentHostContractError, AgentHostEvaluationContractError, OSError, ValueError):
+        print("Error: invalid Agent Host V1 evaluation input")
+        return 1
+
+    if output_format == "json":
+        print(
+            json.dumps(
+                evaluation.model_dump(mode="json"),
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    print("Agent Host evaluation: deterministic V1")
+    print(f"  Pattern: {terminal_field(evaluation.pattern_id)}")
+    print(f"  Outcome: {terminal_field(evaluation.outcome)}")
+    print(f"  Reason: {terminal_field(evaluation.reason_codes[0])}")
+    print(f"  Events evaluated: {evaluation.evaluated_event_count}")
+    print(f"  Recording commitment: {evaluation.recording_commitment_sha256}")
+    print(f"  Ruleset: {evaluation.ruleset_sha256}")
+    print("  Producer attestation: unattested")
+    print("  Scope: recording contract only; not security certification")
     print("  Operational authority: none")
     return 0
 
@@ -4544,6 +4604,8 @@ def _main(argv: list[str] | None = None) -> int:
         return _validate(args.path, args.format)
     if args.command == "agent-host-inspect":
         return _agent_host_inspect(args.path, args.format)
+    if args.command == "agent-host-evaluate":
+        return _agent_host_evaluate(args.path, args.format)
     if args.command == "targets":
         return _targets()
     if args.command == "scenarios":

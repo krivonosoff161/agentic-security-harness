@@ -22,6 +22,10 @@ observation and R4 companion contracts are strict and reject unknown fields.
 | `portfolio-trajectory-accounting.v1.schema.json` | Bounded DAG and completeness accounting. |
 | `portfolio-telemetry-manifest.v1.schema.json` | Expected/observed telemetry proof. |
 | `portfolio-coverage-expectation.v1.schema.json` | Precommitted expected channels and event count. |
+| `agent-host-recording.v1.schema.json` | Closed provider-neutral Agent Host V1 recording. |
+| `agent-host-evaluation.v1.schema.json` | Closed deterministic Agent Host V1 evaluation result. |
+| `agent-host-evaluation-ruleset.v1.schema.json` | Closed ruleset shape for all 24 frozen corpus patterns. |
+| `agent-host-evaluation-ruleset.v1.json` | Exact content-bound Agent Host V1 ruleset. |
 
 The R4 companion schemas are strict (`additionalProperties: false`) shape checks only.
 Cross-field and graph semantics require the Python validator plus the positive/negative

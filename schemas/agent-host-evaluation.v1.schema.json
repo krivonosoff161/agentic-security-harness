@@ -1,0 +1,152 @@
+{
+  "additionalProperties": false,
+  "description": "Rule-derived result for one canonical recording, with no execution authority.",
+  "properties": {
+    "schema_version": {
+      "const": "agent-host-evaluation-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "evaluation_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Evaluation Id",
+      "type": "string"
+    },
+    "recording_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Recording Id",
+      "type": "string"
+    },
+    "recording_commitment_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Recording Commitment Sha256",
+      "type": "string"
+    },
+    "ruleset_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Ruleset Sha256",
+      "type": "string"
+    },
+    "rule_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Rule Sha256",
+      "type": "string"
+    },
+    "corpus_version": {
+      "const": "1.0.0",
+      "title": "Corpus Version",
+      "type": "string"
+    },
+    "corpus_manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Corpus Manifest Sha256",
+      "type": "string"
+    },
+    "pattern_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Pattern Id",
+      "type": "string"
+    },
+    "category": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Category",
+      "type": "string"
+    },
+    "severity": {
+      "enum": [
+        "info",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "title": "Severity",
+      "type": "string"
+    },
+    "broke_at": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Broke At",
+      "type": "string"
+    },
+    "outcome": {
+      "enum": [
+        "pass",
+        "finding",
+        "inconclusive",
+        "adapter_error"
+      ],
+      "title": "Outcome",
+      "type": "string"
+    },
+    "reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 1,
+      "minItems": 1,
+      "title": "Reason Codes",
+      "type": "array"
+    },
+    "terminal_event_id": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Terminal Event Id"
+    },
+    "evaluated_event_count": {
+      "minimum": 1,
+      "title": "Evaluated Event Count",
+      "type": "integer"
+    },
+    "evidence_class": {
+      "const": "deterministic_rule_derived_unattested_observation",
+      "title": "Evidence Class",
+      "type": "string"
+    },
+    "producer_attestation": {
+      "const": "unattested",
+      "title": "Producer Attestation",
+      "type": "string"
+    },
+    "outcome_scope": {
+      "const": "recording_contract_only_not_security_certification",
+      "title": "Outcome Scope",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "evaluation_id",
+    "recording_id",
+    "recording_commitment_sha256",
+    "ruleset_sha256",
+    "rule_sha256",
+    "corpus_version",
+    "corpus_manifest_sha256",
+    "pattern_id",
+    "category",
+    "severity",
+    "broke_at",
+    "outcome",
+    "reason_codes",
+    "evaluated_event_count",
+    "evidence_class",
+    "producer_attestation",
+    "outcome_scope",
+    "operational_authority"
+  ],
+  "title": "AgentHostEvaluationV1",
+  "type": "object"
+}

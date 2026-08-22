@@ -110,8 +110,10 @@ runtime evidence.
 - Reproducible wheel/sdist builds, checksums, GitHub attestations, and an exact-subject
   CycloneDX SBOM in the public `v1.0.0` release.
 - An unreleased provider-neutral Agent Host Adapter V1 development contract for canonical,
-  authority-free record/replay inspection. It does not execute a host or produce a
-  security verdict; see [Agent Host Adapter SDK](docs/agent-host-adapter.md).
+  authority-free record/replay inspection plus deterministic evaluation across all 24
+  frozen corpus patterns. It executes no host or tool and does not authenticate its
+  producer or certify an external system; see
+  [Agent Host Adapter SDK](docs/agent-host-adapter.md).
 
 The exact shipped, experimental, planned, and historical surfaces live in
 [`docs/current-state.md`](docs/current-state.md) and
@@ -163,7 +165,7 @@ The README is the front door; deeper contracts live in `docs/`:
 | How should reports be showcased? | [Showcase checklist](docs/showcase-report-checklist.md) |
 | How is evidence promoted? | [Evidence pack format](docs/evidence-pack-format.md) |
 | How are changes reviewed? | [Git evidence workflow](docs/git-evidence-workflow.md) |
-| How can an external agent host record observations? | [Agent Host Adapter SDK](docs/agent-host-adapter.md) |
+| How can an external agent host record and evaluate observations? | [Agent Host Adapter SDK](docs/agent-host-adapter.md) |
 
 Specialized reviewer paths:
 
