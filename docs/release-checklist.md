@@ -29,6 +29,10 @@ Then verify by hand:
 - [ ] A clean installed wheel runs `ash quickstart --out <new-temp-dir>` outside the
       source checkout and produces a valid `run_index.json` plus self-contained
       `report.html` on Ubuntu/Python 3.11-3.13; the Windows compatibility job is green.
+- [ ] The same clean installed wheel runs
+      `ash agent-host-quickstart --out <new-temp-dir>` outside the source checkout and the
+      resulting 48-case digest-only bundle passes `ash validate` on Ubuntu/Python
+      3.11-3.13; the Windows unit/CLI compatibility job is green.
 - [ ] README "What exists today" / "Current vs planned" match the code (no future feature
       described as current).
 - [ ] README status says `public research release` or the exact tagged release status,

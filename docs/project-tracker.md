@@ -6,7 +6,7 @@ docs describe the current shipped state.
 
 ## Current GitHub snapshot
 
-Snapshot refreshed against GitHub on 2026-08-14:
+Snapshot refreshed against GitHub on 2026-08-22:
 
 | Milestone | Purpose |
 |---|---|
@@ -92,7 +92,8 @@ updates are reviewed by class and exact head.
 
 | Issue | Track | Delivered focus |
 |---|---|---|
-| [PR #220 Agent Host Adapter SDK](https://github.com/krivonosoff161/agentic-security-harness/pull/220) | External agent integration | Merged the provider-neutral offline recording/inspection contract, exact commitments, fixtures, and trust boundary. The follow-up evaluator remains unreleased development work and live collectors remain future. |
+| [PR #221 Agent Host Evaluator V1](https://github.com/krivonosoff161/agentic-security-harness/pull/221) | External agent integration | Merged the deterministic offline evaluator for every frozen pattern, with fail-closed causal/terminal checks and explicit `pass`/`finding`/`inconclusive`/`adapter_error` outcomes. |
+| [PR #220 Agent Host Adapter SDK](https://github.com/krivonosoff161/agentic-security-harness/pull/220) | External agent integration | Merged the provider-neutral offline recording/inspection contract, exact commitments, fixtures, and trust boundary. Native provider collectors remain future. |
 | [#197 stable trace schema](https://github.com/krivonosoff161/agentic-security-harness/issues/197), [#198 frozen corpus manifest](https://github.com/krivonosoff161/agentic-security-harness/issues/198), and [#200 release SBOM](https://github.com/krivonosoff161/agentic-security-harness/issues/200) | v1.0 contracts / release supply chain | PR #206 integrated trace schema 1.0, corpus 1.0.0, and an exact-subject CycloneDX SBOM into `main` after the stacked PR #207 and PR #208 gates; all exact-head and post-merge checks passed. |
 | [PR #174 chore: consolidate verified dependency updates](https://github.com/krivonosoff161/agentic-security-harness/pull/174) | Supply chain / dependency maintenance | Consolidated the stale and partial Dependabot updates, repaired CodeQL action-version consistency and the Windows hash lock, and added a cross-workflow pin regression test; squash-merged after exact-head Linux, Windows, build, CodeQL, Gitleaks, and fuzzing checks. |
 | [#168 feat: add portfolio threat ontology and shadow contract](https://github.com/krivonosoff161/agentic-security-harness/issues/168) | Portfolio architecture / shadow contract | PR #167 merged the provider-neutral ontology, bounded 13-builder adjudication, unified authority-free event/advisory contract, constrained development coverage, solo-owner governance, and required Gitleaks check; it does not claim independent effectiveness or enforcement. |

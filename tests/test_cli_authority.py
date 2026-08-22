@@ -22,6 +22,7 @@ READ_ONLY_COMMANDS = {
     "list-runs",
 }
 COMMAND_AUTHORIZES_BOUNDED_WRITES = {
+    "agent-host-quickstart",
     "quickstart",
     "run",
     "compare",

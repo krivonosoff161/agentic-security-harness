@@ -32,6 +32,19 @@ vulnerable and protected local demos on the same 24-pattern corpus, validates th
 and writes `reports/quickstart/report.html`.
 Use `ash doctor` for the fuller source-checkout and optional local-endpoint diagnostics.
 
+To exercise the provider-neutral owned-workflow contour from the unreleased development
+tree, run:
+
+```bash
+ash agent-host-quickstart --out reports/agent-host-quickstart
+ash validate reports/agent-host-quickstart
+```
+
+This no-network command drives the built-in synthetic workflow through explicit
+instrumentation, 48 canonical recordings/evaluations, atomic publication, and the common
+validator. It stores digest-only public evidence and does not load an external agent,
+credential, prompt, tool payload, or plugin.
+
 ## 2. See what is available
 
 ```bash
@@ -121,6 +134,8 @@ produces the same id. Manifests are validated by `ash validate` when present.
 
 - [examples/README.md](../examples/README.md) - what each committed example shows.
 - [connect-models.md](connect-models.md) - connector recipes per stack.
+- [agent-host-adapter.md](agent-host-adapter.md) - explicit owned-workflow integration and
+  its privacy boundary.
 - [test-your-model.md](test-your-model.md) - the external path in depth.
 - [reporting-flow.md](reporting-flow.md) - what each artifact contains.
 - [threat-model.md](threat-model.md) - limitations and honest residual risk.

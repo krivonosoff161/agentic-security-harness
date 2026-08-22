@@ -15,8 +15,9 @@ problem idea -> boundary invariant -> evaluation topology -> sanitized pattern
 Built-in/local targets are local, synthetic, deterministic, and offline. There is also an
 experimental, opt-in `run-external` path that evaluates an OpenAI-compatible endpoint with
 synthetic prompts (prompt-only, no tool execution). The current development tree contains
-an unreleased, offline Agent Host V1 record/replay and deterministic evaluation contract. The release does
-not ship native provider collectors, live agent-host/tool-use collectors, or the planned
+an unreleased Agent Host V1 record/evaluate contract with explicit digest-only Python
+instrumentation and a built-in no-network owned-workflow quickstart. The release does not
+ship native provider collectors, arbitrary live agent-host/tool-use execution, or the planned
 reference gateway.
 
 ## Public security-stack relationship
@@ -95,8 +96,8 @@ If those six points hold, the benchmark is coherent.
 | Schemas | Every JSON artifact carries a `schema_version` from one registry. | `src/agentic_security_harness/schema_versions.py`, [artifact-schemas.md](artifact-schemas.md) |
 | Validation | Checks report/external/manifest/diff artifacts, schema versions, and standards-mapping consistency. | `src/agentic_security_harness/validation.py` |
 | Diagnostics | `doctor` checks the environment (no network by default). | `src/agentic_security_harness/doctor.py` |
-| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `agent-host-inspect`, `agent-host-evaluate`, `local-suite`, `local-swarm`, `local-swarm-matrix`, `diff-runs`, `compare-models`, `evidence-quality`, `evidence-campaign`, `secret-leak-campaign`, `semantic-drift-campaign`, `semantic-propagation-campaign`, `swarm-defense-contour`, `swarm-defense-live-campaign`, `marketing-web-injection-campaign`, `marketing-web-live-campaign`, `validate`, `report`, `showcase`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
-| Adapter contract | Rules and metadata models for target/model/runtime adapters plus the offline Agent Host V1 record/evaluate contract. | [adapter-contract.md](adapter-contract.md), [agent-host-adapter.md](agent-host-adapter.md), `models.py`, `agent_host_adapter.py`, `agent_host_evaluator.py` |
+| CLI | `run`, `compare`, `run-matrix`, `run-external`, `external-check`, `external-presets`, `agent-host-inspect`, `agent-host-evaluate`, `agent-host-quickstart`, `local-suite`, `local-swarm`, `local-swarm-matrix`, `diff-runs`, `compare-models`, `evidence-quality`, `evidence-campaign`, `secret-leak-campaign`, `semantic-drift-campaign`, `semantic-propagation-campaign`, `swarm-defense-contour`, `swarm-defense-live-campaign`, `marketing-web-injection-campaign`, `marketing-web-live-campaign`, `validate`, `report`, `showcase`, `doctor`, `list-runs`, `index-runs`, `stats`, `retention`, `targets`, `scenarios`. | `src/agentic_security_harness/cli.py` |
+| Adapter contract | Rules and metadata models for target/model/runtime adapters plus Agent Host V1 record/evaluate, explicit owned-workflow instrumentation, and validated quickstart. | [adapter-contract.md](adapter-contract.md), [agent-host-adapter.md](agent-host-adapter.md), `models.py`, `agent_host_adapter.py`, `agent_host_evaluator.py`, `agent_host_workflow.py` |
 | Reporting design | How executive and technical reports should be shaped. | [reporting.md](reporting.md) |
 | Research problem map | Active public map of shipped deep contours, maintained evidence tracks, next violation-model candidates, and promotion rules. | [research-problem-map.md](research-problem-map.md) |
 | Research claims registry | Status table tracking each research claim from hypothesis through evidence artifacts. | [research-claims.md](research-claims.md) |
@@ -119,7 +120,7 @@ If those six points hold, the benchmark is coherent.
 ## What is not implemented today
 
 - No native provider SDK adapter (the external path is generic OpenAI-compatible only).
-- No live agent-host / tool-use collector (the Agent Host V1 development slice records,
+- No native live provider collector (the Agent Host V1 development slice records,
   inspects, and evaluates retained canonical observations only).
 - No streaming, multi-turn agent host, or MCP server adapter.
 - No multimodal/audio generation.

@@ -32,6 +32,9 @@ Sanitized local empirical artifacts may publish:
 - model-level aggregate breakdowns, without publishing raw model text;
 - verifier/control attribution, replay-ablation metrics, and non-claims;
 - schema version, run kind, command shape, and validation commands.
+- Agent Host pattern/mode ids, canonical activity metadata, event/recording/evaluation
+  commitments, rule-derived outcome, and aggregate counts when the bundle declares
+  `raw_payload_policy=digests_only` and validates completely.
 
 These fields are enough to support public artifact review. They are not enough to prove
 semantic truthfulness or general model safety.
@@ -46,6 +49,8 @@ The following stay private under `.internal/` or another ignored local workspace
 - canonical state raw material and private calculation notes;
 - local absolute paths, machine-specific logs, and credentials;
 - operational notes that teach how to pressure a model into an unsafe response.
+- Agent Host raw prompt text, tool arguments/results, provider payloads, endpoint values,
+  exception text, producer credentials, and customer-owned content.
 
 Do not commit ad hoc `reports/` output as public evidence unless it has been curated,
 sanitized, validated, and explicitly promoted into `examples/`.

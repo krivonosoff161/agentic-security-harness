@@ -1,0 +1,189 @@
+{
+  "$defs": {
+    "AgentHostCaseResultV1": {
+      "additionalProperties": false,
+      "description": "Content-bound public projection for one workflow case.",
+      "properties": {
+        "pattern_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Pattern Id",
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "protected",
+            "vulnerable"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "recording_path": {
+          "pattern": "^(?:recordings|evaluations)/[a-z0-9_.-]+\\.json$",
+          "title": "Recording Path",
+          "type": "string"
+        },
+        "evaluation_path": {
+          "pattern": "^(?:recordings|evaluations)/[a-z0-9_.-]+\\.json$",
+          "title": "Evaluation Path",
+          "type": "string"
+        },
+        "recording_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Recording Id",
+          "type": "string"
+        },
+        "recording_commitment_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Recording Commitment Sha256",
+          "type": "string"
+        },
+        "evaluation_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Evaluation Id",
+          "type": "string"
+        },
+        "evaluation_commitment_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Evaluation Commitment Sha256",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "pass",
+            "finding",
+            "inconclusive",
+            "adapter_error"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pattern_id",
+        "mode",
+        "recording_path",
+        "evaluation_path",
+        "recording_id",
+        "recording_commitment_sha256",
+        "evaluation_id",
+        "evaluation_commitment_sha256",
+        "outcome"
+      ],
+      "title": "AgentHostCaseResultV1",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Closed public summary of deterministic owned-workflow observations.",
+  "properties": {
+    "schema_version": {
+      "const": "agent-host-run-summary-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "summary_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Summary Sha256",
+      "type": "string"
+    },
+    "corpus_version": {
+      "const": "1.0.0",
+      "title": "Corpus Version",
+      "type": "string"
+    },
+    "corpus_manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Corpus Manifest Sha256",
+      "type": "string"
+    },
+    "ruleset_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Ruleset Sha256",
+      "type": "string"
+    },
+    "workflow_id": {
+      "const": "synthetic.owned-agent-workflow",
+      "title": "Workflow Id",
+      "type": "string"
+    },
+    "workflow_version": {
+      "const": "1.0.0",
+      "title": "Workflow Version",
+      "type": "string"
+    },
+    "case_count": {
+      "maximum": 48,
+      "minimum": 1,
+      "title": "Case Count",
+      "type": "integer"
+    },
+    "cases": {
+      "items": {
+        "$ref": "#/$defs/AgentHostCaseResultV1"
+      },
+      "maxItems": 48,
+      "minItems": 1,
+      "title": "Cases",
+      "type": "array"
+    },
+    "outcomes": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "propertyNames": {
+        "enum": [
+          "pass",
+          "finding",
+          "inconclusive",
+          "adapter_error"
+        ]
+      },
+      "title": "Outcomes",
+      "type": "object"
+    },
+    "network_mode": {
+      "const": "off",
+      "title": "Network Mode",
+      "type": "string"
+    },
+    "raw_payload_policy": {
+      "const": "digests_only",
+      "title": "Raw Payload Policy",
+      "type": "string"
+    },
+    "producer_attestation": {
+      "const": "unattested",
+      "title": "Producer Attestation",
+      "type": "string"
+    },
+    "outcome_scope": {
+      "const": "synthetic_fixture_not_security_certification",
+      "title": "Outcome Scope",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "summary_sha256",
+    "corpus_version",
+    "corpus_manifest_sha256",
+    "ruleset_sha256",
+    "workflow_id",
+    "workflow_version",
+    "case_count",
+    "cases",
+    "outcomes",
+    "network_mode",
+    "raw_payload_policy",
+    "producer_attestation",
+    "outcome_scope",
+    "operational_authority"
+  ],
+  "title": "AgentHostRunSummaryV1",
+  "type": "object"
+}

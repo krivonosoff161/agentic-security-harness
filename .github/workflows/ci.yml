@@ -131,3 +131,7 @@ jobs:
           test -f result/run_index.json
           test -f result/report.html
           ash validate result
+          ash agent-host-quickstart --out agent-host-result
+          test -f agent-host-result/run_index.json
+          test -f agent-host-result/agent_host_summary.json
+          ash validate agent-host-result

@@ -61,6 +61,7 @@ _RUN_KINDS = frozenset(
         "rag_context_campaign",
         "planner_task_campaign",
         "memory_rehydration_campaign",
+        "agent_host",
     }
 )
 

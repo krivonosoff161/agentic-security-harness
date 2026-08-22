@@ -1,13 +1,15 @@
 # Agent Host Adapter SDK
 
-Status: implemented development slice; offline record/replay only; not part of the
-published `v1.0.0` package.
+Status: implemented development slice; offline record/evaluate plus a built-in synthetic
+owned-workflow quickstart; not part of the published `v1.0.0` package.
 
 The Agent Host Adapter V1 contract is the first provider-neutral integration surface for
 recording what an owned or explicitly authorized agent host declared it did. It reuses the
 stable authority-free portfolio observation envelope. A separate deterministic evaluator
-now classifies closed terminal events, while the development slice still stops before live
-host execution, provider transport, policy enforcement, or security certification.
+now classifies closed terminal events. An explicit Python collector API and a no-network
+reference workflow exercise the whole record/evaluate/publish path, while the development
+slice still stops before provider transport, arbitrary host execution, policy enforcement,
+or security certification.
 
 ## What this slice does
 
@@ -21,7 +23,10 @@ host execution, provider transport, policy enforcement, or security certificatio
 - provides `ash agent-host-inspect` for safe validation and replay summary;
 - keeps the recording itself at `observation_only_no_security_verdict`;
 - provides a separate content-bound evaluator and `ash agent-host-evaluate` over all 24
-  frozen corpus patterns, always with operational authority `none`.
+  frozen corpus patterns, always with operational authority `none`;
+- provides `AgentHostSessionV1` as an append-only digest-only instrumentation API;
+- provides `ash agent-host-quickstart` as a working 48-case protected/vulnerable workflow,
+  atomically published only after full bundle validation.
 
 The SDK does **not** load plugins dynamically, start a host process, open a network
 connection, read provider credentials, execute a tool, or trust a producer-supplied
@@ -41,13 +46,61 @@ recording, not proof that the recorded action occurred.
 | Evaluator schemas and ruleset | `schemas/agent-host-evaluation*.json` |
 | Evaluator fixtures | `tests/fixtures/agent-host-evaluation-v1/` |
 | Evaluator generator/checker | `tools/agent_host_evaluation_contract.py` |
+| Owned-workflow collector and bundle | `src/agentic_security_harness/agent_host_workflow.py` |
+| Run-summary schema and manifest | `schemas/agent-host-run-summary.v1.*` |
+| Owned-workflow fixtures | `tests/fixtures/agent-host-run-summary-v1/` |
+| Owned-workflow generator/checker | `tools/agent_host_workflow_contract.py` |
 
 The manifest binds the schema, validator, CLI, fixture runner, fixture bytes, byte/event
 limits, commitment domain, non-verdict semantics, and forbidden capabilities.
 
+## Working no-network quickstart
+
+```bash
+ash agent-host-quickstart --out reports/agent-host-quickstart
+ash validate reports/agent-host-quickstart
+```
+
+This executes only the built-in pure synthetic workflow. It runs all 24 frozen patterns in
+protected and vulnerable modes, producing 48 canonical recordings, 48 independently
+rebuildable evaluations, a content-bound summary, and `run_index.json`. The expected
+reference result is 24 `pass`, 24 `finding`, zero `inconclusive`, and zero `adapter_error`.
+Those counts verify the fixture and evaluator path; they are not measurements of a real
+agent or a security certification.
+
+The public bundle contains pattern identifiers, event metadata, timestamps, and SHA-256
+commitments. It does not contain raw prompts, tool arguments/results, credentials,
+endpoints, customer data, exception text, or local filesystem paths. The command has no
+network or dynamic-plugin surface and refuses to merge with an existing output directory.
+
 ## Producer integration
 
-A future authorized collector implements this structural protocol:
+An existing host integration may either emit the recording protocol directly or call the
+instrumented workflow API explicitly. The Harness never imports a caller-supplied module
+or executes a command string:
+
+```python
+from datetime import UTC, datetime
+
+from agentic_security_harness import run_owned_agent_workflow_v1
+
+result = run_owned_agent_workflow_v1(
+    pattern=pattern,
+    workflow=my_owned_workflow,
+    repository_sha=exact_source_sha,
+    occurred_at=datetime.now(UTC),
+)
+```
+
+`my_owned_workflow.run(pattern, session)` records only canonical activities and precomputed
+digest references through `session.observe(...)`, then chooses one terminal method:
+`boundary_preserved()`, `boundary_violated()`, `inconclusive()`, or `adapter_error()`.
+The application remains responsible for executing its own authorized work. The Harness
+session does not accept raw payload fields. Exceptions before terminalization become a
+sanitized `adapter_error`; an exception after a terminal event fails closed rather than
+returning a misleading pass.
+
+The lower-level retained-recording adapter remains available:
 
 ```python
 class AgentHostAdapterV1(Protocol):
@@ -162,7 +215,6 @@ python -m pytest tests/test_agent_host_evaluator.py
 | Outcome certifies external-system security | Not claimed |
 | Runtime enforcement authority | None |
 
-The next separately reviewed slice is an authorized collector integration that converts
-one real agent host's activity into this existing record/evaluate contract. Native OpenAI,
-Anthropic, Google, MCP, and other live collectors remain future work with explicit
-network, credential, and authorization gates.
+The next separately reviewed slice is a native provider/agent-host collector over this
+explicit API. OpenAI, Anthropic, Google, MCP, and other live collectors remain future work
+with separate network, credential, privacy, retention, and authorization gates.

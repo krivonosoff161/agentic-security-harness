@@ -21,7 +21,7 @@ terms, acceptable-use policies, or authorization boundaries.
 |---|---|---|---|
 | Demo synthetic lab | Built-in mock/demo/toy targets with synthetic data only. | Shipped. | Run config, traces, scorecard, validation result. |
 | Local runtime lab | A local OpenAI-compatible runtime such as Ollama, LM Studio, or vLLM. | Supported through experimental `run-external`; prompt-only, no tool execution. | `run_config.runtime`: runtime label, model id, `network_mode=local-only`, model license note, recovery guidance. |
-| Owned system assessment | A bounded harness-side profile or future adapter around a system controlled by the user or organization. | Read-only paper-stand profile, static/artifact probes, and fail-closed gates are shipped for `trading-bot-v2`; a target executor/runtime adapter remains future. | Written scope, adapter metadata, target owner, isolation, logs, and explicit execution authority. |
+| Owned system assessment | Explicit application-side instrumentation around a workflow controlled by the user or organization. | Agent Host V1 provides a digest-only Python session and a built-in no-network synthetic workflow. Native provider transport and arbitrary host execution remain future. | Written scope, adapter metadata, target owner, isolation, private-data retention policy, and explicit execution authority in the owned application. |
 | Customer-authorized assessment | Testing a third-party system with explicit permission. | Future adapter track; current docs only. | Rules of engagement, scope, dates, contacts, allowed tests. |
 | Provider bug bounty / safe harbor | Testing a provider product only inside its published scope. | Manual process outside the harness; artifacts may be generated if allowed. | Program URL, scope, allowed test class, no out-of-scope data. |
 | Standards-aligned benchmark | Mapping harness findings to public frameworks. | Partial. | Mapping source, category, status, and a clear "not certification" note. |
@@ -70,6 +70,11 @@ configuration, redacted base URL, credential env-var name, raw-response metadata
 cross-check status. New local-runtime runs also record `run_config.runtime` with
 `authorization_mode=local_runtime`, `prompt_only=true`, `tool_execution=false`, model
 license/policy note, and recovery guidance.
+
+The unreleased Agent Host owned-workflow API takes only canonical activities and digest
+references. The application, not the Harness CLI, executes the owned workflow. Public
+bundles must not contain prompts, tool arguments/results, credentials, endpoints, customer
+data, exception text, or absolute paths.
 
 ## Not allowed in this project
 

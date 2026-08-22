@@ -6,6 +6,7 @@ Commands:
   ash validate    <path>
   ash agent-host-inspect <recording.json> [--format text|json]
   ash agent-host-evaluate <recording.json> [--format text|json]
+  ash agent-host-quickstart --out <dir>
   ash targets
   ash scenarios [--verbose]
   ash trading-stand [--mode profile|dry-run|offline-fixture|scenario-catalog|
@@ -182,6 +183,17 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("text", "json"),
         default="text",
         help="evaluation output format (default: text)",
+    )
+
+    host_quickstart_p = sub.add_parser(
+        "agent-host-quickstart",
+        help="write a validated offline owned-workflow bundle for all 24 patterns",
+    )
+    host_quickstart_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path("reports/agent-host-quickstart"),
+        help="new public output directory (default: reports/agent-host-quickstart)",
     )
 
     sub.add_parser("targets", help="list registered built-in targets")
@@ -1608,6 +1620,7 @@ def _validate(path: Path, output_format: str = "text") -> int:
         "planner-task-campaign dir(s), "
         f"{len(result.memory_rehydration_campaign_dirs)} "
         "memory-rehydration-campaign dir(s), "
+        f"{len(result.agent_host_dirs)} Agent Host dir(s), "
         f"{len(result.evidence_status_registry_files)} "
         "evidence-status-registry file(s)"
     )
@@ -1742,6 +1755,32 @@ def _agent_host_evaluate(path: Path, output_format: str = "text") -> int:
     print("  Producer attestation: unattested")
     print("  Scope: recording contract only; not security certification")
     print("  Operational authority: none")
+    return 0
+
+
+def _agent_host_quickstart(out: Path) -> int:
+    """Publish the built-in synthetic owned-workflow contour without network access."""
+
+    from agentic_security_harness.agent_host_workflow import (
+        AgentHostWorkflowContractError,
+        write_agent_host_quickstart_v1,
+    )
+
+    try:
+        summary = write_agent_host_quickstart_v1(out)
+    except (AgentHostWorkflowContractError, OSError, ValueError):
+        print("Error: Agent Host quickstart bundle could not be published safely")
+        return 1
+    print(f"wrote validated Agent Host quickstart to {out.as_posix()}")
+    print(
+        f"cases: {summary.case_count}  pass: {summary.outcomes['pass']}  "
+        f"finding: {summary.outcomes['finding']}  "
+        f"inconclusive: {summary.outcomes['inconclusive']}  "
+        f"adapter_error: {summary.outcomes['adapter_error']}"
+    )
+    print("network: off; public payloads: digests only; producer: unattested")
+    print("scope: deterministic synthetic fixture, not a security certification")
+    print("operational authority: none")
     return 0
 
 
@@ -4606,6 +4645,8 @@ def _main(argv: list[str] | None = None) -> int:
         return _agent_host_inspect(args.path, args.format)
     if args.command == "agent-host-evaluate":
         return _agent_host_evaluate(args.path, args.format)
+    if args.command == "agent-host-quickstart":
+        return _agent_host_quickstart(args.out)
     if args.command == "targets":
         return _targets()
     if args.command == "scenarios":
