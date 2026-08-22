@@ -41,6 +41,7 @@ the topology page is the methodology map.
 | External (OpenAI-compatible) | Asking a model to judge synthetic scenarios; repeats + stochastic status. | Tool execution, agent-host behavior, or a real deployment. |
 | Agent Host V1 record/replay | Canonical offline inspection of authority-free retained host observations. | Does not execute a host/tool or authenticate the producer. |
 | Agent Host Evaluator V1 | Deterministically maps a closed terminal vocabulary over a complete causal recording to `pass`, `finding`, `inconclusive`, or `adapter_error` for all 24 corpus patterns. | Evaluates only an unattested recording contract; does not prove the action occurred, certify security, or enforce policy. |
+| Agent Host owned-workflow V1 | Explicit digest-only Python instrumentation plus a built-in 48-case no-network quickstart and atomically validated evidence bundle. | The CLI does not load or execute an arbitrary host; native provider transport and producer authentication are not shipped. |
 | Native / live agent-host collectors | (future) driving real provider SDKs or tool-executing agents. | Not shipped - do not assume it exists. |
 
 ## Notes

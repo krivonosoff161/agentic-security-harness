@@ -111,3 +111,14 @@ def test_package_ci_requires_byte_reproducible_wheel_and_sdist() -> None:
         "cmp dist/*.whl reproducibility-check/*.whl",
     ):
         assert marker in text
+
+
+def test_linux_installed_package_runs_agent_host_quickstart() -> None:
+    text = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    for marker in (
+        "ash agent-host-quickstart --out agent-host-result",
+        "test -f agent-host-result/run_index.json",
+        "test -f agent-host-result/agent_host_summary.json",
+        "ash validate agent-host-result",
+    ):
+        assert marker in text

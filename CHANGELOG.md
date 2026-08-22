@@ -17,6 +17,12 @@ All notable changes to this project are documented here. The format follows
   `pass`, `finding`, `inconclusive`, or `adapter_error`. `ash agent-host-evaluate`, schemas,
   commitments, content-bound fixtures, and adversarial graph tests remain offline,
   producer-unattested, authority-free, and explicitly not security certification.
+- Added the privacy-minimized Agent Host owned-workflow collector and
+  `ash agent-host-quickstart`. The explicit Python API accepts canonical metadata and
+  digest references rather than raw prompts/tool payloads; the built-in offline workflow
+  publishes 48 content-bound cases atomically only after deterministic rebuild and shared
+  artifact validation. It loads no caller plugin, opens no network connection, reads no
+  credential, and grants no operational authority.
 
 ## [1.0.0] - 2026-08-14
 

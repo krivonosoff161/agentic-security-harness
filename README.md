@@ -34,11 +34,18 @@ git clone https://github.com/krivonosoff161/agentic-security-harness.git
 cd agentic-security-harness
 python -m pip install .
 ash quickstart --out reports/quickstart
+ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
 
 `ash quickstart` is local and no-network. It runs the same stable 24-pattern corpus against
 both demo targets, validates the generated artifacts, and renders a self-contained HTML
 report.
+
+`ash agent-host-quickstart` is the working provider-neutral integration path in the
+unreleased development tree. It runs a built-in owned synthetic workflow through the
+instrumented collector, canonical recordings, deterministic evaluator, atomic bundle
+publication, and shared validator. It retains digest-only public evidence and makes no
+provider call.
 
 | Target | Modeled findings | Patterns passed |
 |---|---:|---:|
@@ -109,10 +116,10 @@ runtime evidence.
   compatibility coverage.
 - Reproducible wheel/sdist builds, checksums, GitHub attestations, and an exact-subject
   CycloneDX SBOM in the public `v1.0.0` release.
-- An unreleased provider-neutral Agent Host Adapter V1 development contract for canonical,
-  authority-free record/replay inspection plus deterministic evaluation across all 24
-  frozen corpus patterns. It executes no host or tool and does not authenticate its
-  producer or certify an external system; see
+- An unreleased provider-neutral Agent Host V1 development contour for canonical,
+  authority-free record/replay, deterministic evaluation, explicit Python instrumentation,
+  and a validated 48-case no-network quickstart. The CLI does not execute arbitrary hosts
+  or tools and does not authenticate its producer or certify an external system; see
   [Agent Host Adapter SDK](docs/agent-host-adapter.md).
 
 The exact shipped, experimental, planned, and historical surfaces live in

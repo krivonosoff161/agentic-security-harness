@@ -110,9 +110,12 @@ risks that are not captured by the current corpus.
    verified against the official ATLAS data release; otherwise the category remains
    deferred instead of overclaiming.
 
-5. **Real adapters require authorization, redaction, and metadata.** Non-synthetic adapters
-   must pass safety gates (no live exploitation, no real secrets, authorization model,
-   default offline mode, redaction) before being merged. No real adapters exist today.
+5. **Native provider adapters require authorization, redaction, and metadata.** The
+   development Agent Host API can instrument an explicitly owned application with
+   digest-only public events, but the CLI does not load or execute that application.
+   Native provider transports must pass separate gates (no live exploitation, no real
+   secrets in evidence, authorization model, default offline mode, redaction, retention,
+   and network policy) before being merged. No native provider adapter exists today.
 
 6. **Cross-app contamination not yet tested.** Data/instructions from one application
   surface leaking into another is a planned pattern (v0.10.x), not yet implemented.

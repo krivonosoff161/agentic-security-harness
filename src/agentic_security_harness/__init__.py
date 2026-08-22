@@ -3,9 +3,9 @@
 Pipeline: ``pattern -> target -> trace -> scorecard``. Built-in/local targets are
 deterministic and offline (no network, no provider calls). The experimental
 ``run-external --execute`` makes OpenAI-compatible calls only on explicit opt-in. The
-unreleased Agent Host V1 surface records and evaluates offline evidence but has no live
-collector; native provider adapters remain future. A ``DataEnvelope`` is a policy label,
-not encryption.
+unreleased Agent Host V1 surface records and evaluates offline evidence and exposes an
+explicit digest-only owned-workflow collector; native provider adapters remain future.
+A ``DataEnvelope`` is a policy label, not encryption.
 """
 
 from agentic_security_harness.adapter_base import TargetAdapterBase
@@ -35,6 +35,22 @@ from agentic_security_harness.agent_host_evaluator import (
     decode_agent_host_evaluation_v1,
     encode_agent_host_evaluation_v1,
     evaluate_agent_host_recording_v1,
+)
+from agentic_security_harness.agent_host_workflow import (
+    AgentHostCaseResultV1,
+    AgentHostRunSummaryV1,
+    AgentHostSessionV1,
+    AgentHostWorkflowContractError,
+    AgentHostWorkflowResultV1,
+    OwnedAgentWorkflowV1,
+    SyntheticOwnedAgentWorkflowV1,
+    agent_host_run_summary_v1_json_schema,
+    build_agent_host_quickstart_v1,
+    decode_agent_host_summary_v1,
+    encode_agent_host_summary_v1,
+    run_owned_agent_workflow_v1,
+    validate_agent_host_bundle_v1,
+    write_agent_host_quickstart_v1,
 )
 from agentic_security_harness.corpus import (
     CORPUS_MANIFEST_SCHEMA_VERSION,
@@ -184,6 +200,20 @@ __all__ = [
     "decode_agent_host_evaluation_v1",
     "encode_agent_host_evaluation_v1",
     "evaluate_agent_host_recording_v1",
+    "AgentHostCaseResultV1",
+    "AgentHostRunSummaryV1",
+    "AgentHostSessionV1",
+    "AgentHostWorkflowContractError",
+    "AgentHostWorkflowResultV1",
+    "OwnedAgentWorkflowV1",
+    "SyntheticOwnedAgentWorkflowV1",
+    "agent_host_run_summary_v1_json_schema",
+    "build_agent_host_quickstart_v1",
+    "decode_agent_host_summary_v1",
+    "encode_agent_host_summary_v1",
+    "run_owned_agent_workflow_v1",
+    "validate_agent_host_bundle_v1",
+    "write_agent_host_quickstart_v1",
     "TargetDescriptor",
     "TargetMetadata",
     "TraceStep",

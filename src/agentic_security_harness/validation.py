@@ -119,6 +119,7 @@ class ValidationResult(BaseModel):
     rag_context_campaign_dirs: list[str] = Field(default_factory=list)
     planner_task_campaign_dirs: list[str] = Field(default_factory=list)
     memory_rehydration_campaign_dirs: list[str] = Field(default_factory=list)
+    agent_host_dirs: list[str] = Field(default_factory=list)
     r5_public_projection_dirs: list[str] = Field(default_factory=list)
     evidence_status_registry_files: list[str] = Field(default_factory=list)
     evidence_statuses: list[ValidatedEvidenceStatus] = Field(default_factory=list)
@@ -207,6 +208,10 @@ def _is_external_dir(path: Path) -> bool:
     return (path / "run_config.json").exists() or (
         (path / "external_results.json").exists() and (path / "external_summary.json").exists()
     )
+
+
+def _is_agent_host_dir(path: Path) -> bool:
+    return (path / "agent_host_summary.json").exists()
 
 
 def _is_local_swarm_dir(path: Path) -> bool:
@@ -312,6 +317,7 @@ def _recognized_artifact_kinds(path: Path) -> list[str]:
     checks = (
         ("comparison", _is_comparison_dir(path)),
         ("external", _is_external_dir(path)),
+        ("agent_host", _is_agent_host_dir(path)),
         ("local_swarm", _is_local_swarm_dir(path)),
         ("local_swarm_matrix", _is_local_swarm_matrix_dir(path)),
         ("evidence_campaign", _is_evidence_campaign_dir(path)),
@@ -371,6 +377,9 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
     elif _is_external_dir(path):
         result.external_dirs.append(_rel(path, root))
         _validate_external_dir(path, root, result)
+    elif _is_agent_host_dir(path):
+        result.agent_host_dirs.append(_rel(path, root))
+        _validate_agent_host_dir(path, root, result)
     elif _is_local_swarm_dir(path):
         result.local_swarm_dirs.append(_rel(path, root))
         _validate_local_swarm_dir(path, root, result)
@@ -458,6 +467,50 @@ def _validate_into(path: Path, root: Path, result: ValidationResult) -> None:
             return
         for child in children:
             _validate_into(child, root, result)
+
+
+def _validate_agent_host_dir(
+    dir_path: Path,
+    root: Path,
+    result: ValidationResult,
+) -> None:
+    """Validate and deterministically rebuild one Agent Host quickstart bundle."""
+
+    from agentic_security_harness.agent_host_workflow import (
+        AgentHostWorkflowContractError,
+        validate_agent_host_bundle_v1,
+    )
+
+    try:
+        summary = validate_agent_host_bundle_v1(dir_path)
+    except (AgentHostWorkflowContractError, OSError, ValueError) as exc:
+        result._err(f"{_rel(dir_path, root)}: Agent Host bundle: {exc}")
+        return
+    _validate_run_manifest(dir_path, root, result)
+    _validate_manifest_fields(
+        dir_path,
+        root,
+        result,
+        expected={
+            "run_kind": "agent_host",
+            "target": "synthetic-owned-agent-workflow",
+            "scenario": "frozen-corpus-1.0.0",
+            "variants": ["protected", "vulnerable"],
+            "repeats": 1,
+            "outcomes": {
+                str(name): count for name, count in summary.outcomes.items()
+            },
+            "metadata": {
+                "evidence_class": "deterministic_rule_derived_unattested_observation",
+                "network_mode": "off",
+                "raw_payload_policy": "digests_only",
+                "operational_authority": "none",
+                "summary_sha256": summary.summary_sha256,
+            },
+        },
+    )
+    for artifact in sorted(candidate for candidate in dir_path.rglob("*") if candidate.is_file()):
+        _scan_secrets(artifact, root, result)
 
 
 def _find_repository_root(path: Path) -> Path | None:

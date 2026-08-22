@@ -1,0 +1,82 @@
+{
+  "schema_version": "agent-host-run-summary-contract-manifest-v1.0",
+  "contract_id": "agent-host-run-summary-v1.0",
+  "owner": "agentic-security-harness",
+  "canonicalization": "utf8-json-sort-keys-compact-lf-v1",
+  "max_bytes": 1048576,
+  "case_count": 48,
+  "pattern_count": 24,
+  "modes": [
+    "protected",
+    "vulnerable"
+  ],
+  "network_mode": "off",
+  "raw_payload_policy": "digests_only",
+  "producer_attestation": "unattested_only",
+  "outcome_scope": "synthetic_fixture_not_security_certification",
+  "operational_authority": "none",
+  "schema": {
+    "path": "schemas/agent-host-run-summary.v1.schema.json",
+    "sha256": "56a14cec133141bd2b811dd83f2dc7d79c07babd535a1f48b755e72cb1838a36"
+  },
+  "recording_contract": {
+    "path": "schemas/agent-host-recording.v1.manifest.json",
+    "sha256": "22ad4f8119e255230d56d510c3afb644dbdae8bff3ae9d6d238bf4b798b86adb"
+  },
+  "evaluation_contract": {
+    "path": "schemas/agent-host-evaluation.v1.manifest.json",
+    "sha256": "22f586b4d039d8cbdbe9d29f57ca4a9fff75c9ebb04039a28e909bbcb386fe84"
+  },
+  "producer": {
+    "path": "src/agentic_security_harness/agent_host_workflow.py",
+    "sha256": "d75279abc580e299125c52b8de53b4b244f8e973eed587a66c97d65e17ce4709"
+  },
+  "bundle_validator": {
+    "path": "src/agentic_security_harness/validation.py",
+    "sha256": "3643be72782acb8540d0f5251ae130f7de1398ee903e0d1b490f1b7253a5d37b"
+  },
+  "public_api": {
+    "path": "src/agentic_security_harness/__init__.py",
+    "sha256": "7b82b8e3392a19f0deef1ccfbd515ae5cd7d3e4bf74493aa8d6f60e30a41b70a"
+  },
+  "cli": {
+    "path": "src/agentic_security_harness/cli.py",
+    "command": "ash agent-host-quickstart",
+    "sha256": "041be83e51f7ccfa27708bc1d85adc025c868b0c97596015d29fb61e5032946d"
+  },
+  "fixture_runner": {
+    "path": "tests/test_agent_host_workflow.py",
+    "sha256": "f7e3918bdcbcc658357a8651a0579717217e37936f2ba2585dccf76f3d41c404"
+  },
+  "forbidden_capabilities": [
+    "dynamic_plugin_loading",
+    "arbitrary_host_process_execution",
+    "network_transport",
+    "provider_credentials",
+    "raw_prompt_or_tool_payload_retention",
+    "producer_security_verdict_trust",
+    "operational_authority_grant"
+  ],
+  "fixtures": [
+    {
+      "path": "tests/fixtures/agent-host-run-summary-v1/valid/quickstart.json",
+      "sha256": "a6f1684a073c1899f5926d2a384f2d2925df2dd388bc3b7fa91e1312ba0c6b47",
+      "expected": "accept"
+    },
+    {
+      "path": "tests/fixtures/agent-host-run-summary-v1/invalid/unknown-field.json",
+      "sha256": "14f7833fccb27eea5a57f08a8e002b599edeada6d97141d57a880f696422288e",
+      "expected": "reject"
+    },
+    {
+      "path": "tests/fixtures/agent-host-run-summary-v1/invalid/duplicate-field.json",
+      "sha256": "8748ab83e0dcae5291b6727cb8cf7aec7d1222e65a4412714a4c01d6ad335eaa",
+      "expected": "reject"
+    },
+    {
+      "path": "tests/fixtures/agent-host-run-summary-v1/invalid/noncanonical.json",
+      "sha256": "eebc25859507f2d6b09fe55be1fc4f8cfb4b95b780db07f9c6e7fe1f9c24a688",
+      "expected": "reject"
+    }
+  ]
+}
