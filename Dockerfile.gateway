@@ -1,0 +1,41 @@
+# Local synthetic Runtime Gateway image. It contains no provider adapter or credential path.
+FROM python:3.12-slim@sha256:d764629ce0ddd8c71fd371e9901efb324a95789d2315a47db7e4d27e78f1b0e9 AS builder
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /build
+COPY pyproject.toml README.md LICENSE NOTICE ./
+COPY requirements/build.txt requirements/runtime.txt ./requirements/
+COPY src ./src
+
+RUN python -m pip install --no-cache-dir --require-hashes -r requirements/build.txt \
+    && python -m pip install --no-cache-dir --require-hashes -r requirements/runtime.txt \
+    && python -m build --no-isolation --wheel --outdir /wheel
+
+FROM python:3.12-slim@sha256:d764629ce0ddd8c71fd371e9901efb324a95789d2315a47db7e4d27e78f1b0e9 AS runtime
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+COPY requirements/runtime.txt ./requirements/runtime.txt
+COPY --from=builder /wheel/*.whl /tmp/wheel/
+COPY examples/runtime-gateway/gateway.docker.toml ./gateway.toml
+
+RUN python -m pip install --no-cache-dir --require-hashes -r requirements/runtime.txt \
+    && python -m pip install --no-cache-dir --no-deps /tmp/wheel/*.whl \
+    && rm -rf /tmp/wheel \
+    && python -c "from agentic_security_harness.runtime_gateway import default_gateway_policy_v1; print(default_gateway_policy_v1().sha256())" \
+    && useradd --create-home --uid 10001 ash \
+    && mkdir -p /data \
+    && chown ash:ash /data
+
+USER ash
+EXPOSE 8787
+VOLUME ["/data"]
+
+HEALTHCHECK --interval=15s --timeout=3s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8787/healthz', timeout=2).read()"
+
+CMD ["ash", "gateway-serve", "--config", "/app/gateway.toml"]

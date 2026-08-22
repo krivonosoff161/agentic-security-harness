@@ -1,10 +1,10 @@
 # Project tracks
 
-> Last reviewed: 2026-08-12.
+> Last reviewed: 2026-08-22.
 >
-> Scope: how Agentic Security Harness relates to the future internal LLM Safety Gateway /
-> Runtime Verifier direction. This page records project direction; it does not announce a
-> shipped gateway product.
+> Scope: how Agentic Security Harness relates to the internal LLM Safety Gateway / Runtime
+> Verifier direction and the public local synthetic gateway contour. This page does not
+> claim production protection.
 
 ## Track A: Agentic Security Harness
 
@@ -31,11 +31,11 @@ This track is what users should run today.
 
 ## Track B: LLM Safety Gateway / Runtime Verifier
 
-**Status:** the private Runtime Guard repository is the canonical Security product
-composition root with a merged authority-free roadmap and bounded shadow research;
+**Status:** private Runtime Guard research remains the canonical private product-research
+root. This public repository now carries a bounded local synthetic reference gateway;
 no production runtime is shipped and no production protection is claimed.
 
-The gateway/verifier direction would apply the harness lessons inside an organization
+The production gateway/verifier direction would apply the harness lessons inside an organization
 that uses external or local LLMs. It would not need access to the internal state of a
 cloud model. Instead, it would observe the boundaries around model use:
 
@@ -73,14 +73,18 @@ The first public bounded foundation is documented in
 metadata-only Pydantic contracts, a pure deterministic evaluator, adversarial tests,
 formal invariants, and provider/license gates. It has no CLI entry point, network
 listener, executor, credential broker, durable store, IAM integration, or deployment
-authority and must not be described as a gateway product.
+authority. The newer [Runtime Gateway development contour](runtime-gateway.md) is a
+separate runnable reference layer: loopback/container-local HTTP, two fixed synthetic
+tools, closed pre-dispatch decisions, keyed privacy commitments, and a local hash-chain
+audit. It still has no live provider, credential broker, arbitrary executor, authenticated
+approval service, IAM integration, or production deployment authority.
 
-A separate private Runtime Guard research implementation now owns receipt lifecycle,
-bounded synthetic execution, observe-only swarm scoring, and later detector-research
-foundations. Its existence does not turn this public repository into a gateway and does not
-establish production protection. The public cross-project boundary is limited to the
-merged provider-neutral ontology and authority-free interchange contract. That contract
-remains a development and conformance boundary, not production integration.
+A separate private Runtime Guard research implementation owns private receipt lifecycle,
+bounded research execution, observe-only swarm scoring, and later detector foundations.
+The public reference gateway does not import private source or evidence and does not
+establish production protection. The portfolio cross-project boundary remains the merged
+provider-neutral ontology and authority-free interchange contract; the local gateway is a
+development/integration contour, not portfolio promotion or production integration.
 
 The public Harness also owns the Agent Host V1 **recording contract**: an offline,
 authority-free bridge from external host event records into canonical inspection evidence.
@@ -101,7 +105,8 @@ Python contract plus falsifiable acceptance matrix are documented in
 
 ## Relationship between the tracks
 
-Track A produces evidence. Track B would use that evidence as runtime policy input.
+Track A produces evidence. Track B now has a local synthetic reference implementation;
+using Harness evidence as real organizational policy input remains future work.
 
 | Harness evidence contour | Possible future gateway control |
 |---|---|
@@ -116,22 +121,22 @@ Track A produces evidence. Track B would use that evidence as runtime policy inp
 The split is intentional:
 
 - The harness stays credible by remaining a bounded, reproducible benchmark.
-- The gateway direction stays honest by being described as future runtime architecture,
-  not as shipped behavior.
+- The gateway direction stays honest by separating the shipped local synthetic behavior
+  from future provider, credential, approval, IAM, and production behavior.
 
 ## Near-term plan
 
 1. Keep Agentic Security Harness release-facing: validated examples, stable docs,
    honest limitations, and public research release notes.
-2. Review the bounded executable specification, trust/privacy model, provider/legal
-   boundary, and minimal receipt API without adding an operational execution path.
-3. Keep executable product research in the separate private Runtime Guard repository.
-   Promote only provider-neutral schemas, synthetic fixtures, and validated evidence into
-   the public Harness.
+2. Maintain the local synthetic gateway, privacy-minimized audit, Docker operator path,
+   and adversarial integration tests as a bounded public reference product.
+3. Add any provider transport, authenticated approval, arbitrary effect execution, IAM,
+   or deployment only through separate trust/privacy/release gates. Keep private research
+   evidence outside the public Harness.
 
 ## Definition of separation
 
-Agentic Security Harness may document gateway ideas and provide benchmark evidence that
-future gateway controls can replay. It should not quietly become an enterprise proxy,
-employee-monitoring store, or production policy engine without a separate issue, design
-review, implementation boundary, and release plan.
+Agentic Security Harness may implement a credential-free local synthetic gateway and
+provide benchmark evidence that future controls can replay. It must not quietly become an
+enterprise proxy, employee-monitoring store, credential broker, or production policy
+engine without a separate issue, design review, implementation boundary, and release plan.

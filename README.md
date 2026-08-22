@@ -48,6 +48,24 @@ instrumented collector, canonical recordings, deterministic evaluator, atomic bu
 publication, and shared validator. It retains digest-only public evidence and makes no
 provider call.
 
+### Runtime Gateway development contour
+
+The source tree now also contains a runnable local Runtime Gateway increment. It applies a
+closed policy before synthetic tool dispatch, exposes bounded OpenAI-compatible and MCP
+2026-07-28 stateless development endpoints, and maintains a privacy-minimized append-only
+audit chain:
+
+```bash
+ash gateway-init --out gateway.toml
+ash gateway-check --config gateway.toml
+ash gateway-serve --config gateway.toml
+```
+
+Open <http://127.0.0.1:8787/dashboard> after startup, or use the hardened Docker Compose
+profile in [Runtime Gateway development contour](docs/runtime-gateway.md). This is a
+credential-free synthetic integration surface, not yet a live provider adapter or
+production firewall.
+
 | Target | Modeled findings | Patterns passed |
 |---|---:|---:|
 | `demo-agent` | 24 | 0 |
@@ -174,6 +192,7 @@ The README is the front door; deeper contracts live in `docs/`:
 | How is evidence promoted? | [Evidence pack format](docs/evidence-pack-format.md) |
 | How are changes reviewed? | [Git evidence workflow](docs/git-evidence-workflow.md) |
 | How can an external agent host record and evaluate observations? | [Agent Host Adapter SDK](docs/agent-host-adapter.md) |
+| How can I run the local policy gateway and MCP/OpenAI-compatible demo? | [Runtime Gateway development contour](docs/runtime-gateway.md) |
 
 Specialized reviewer paths:
 

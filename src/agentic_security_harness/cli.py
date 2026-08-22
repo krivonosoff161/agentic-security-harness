@@ -7,6 +7,9 @@ Commands:
   ash agent-host-inspect <recording.json> [--format text|json]
   ash agent-host-evaluate <recording.json> [--format text|json]
   ash agent-host-quickstart --out <dir>
+  ash gateway-init --out <gateway.toml>
+  ash gateway-check --config <gateway.toml>
+  ash gateway-serve --config <gateway.toml>
   ash targets
   ash scenarios [--verbose]
   ash trading-stand [--mode profile|dry-run|offline-fixture|scenario-catalog|
@@ -194,6 +197,39 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("reports/agent-host-quickstart"),
         help="new public output directory (default: reports/agent-host-quickstart)",
+    )
+
+    gateway_init_p = sub.add_parser(
+        "gateway-init",
+        help="write one portable loopback Runtime Gateway V1 config",
+    )
+    gateway_init_p.add_argument(
+        "--out",
+        type=Path,
+        default=Path("gateway.toml"),
+        help="new config file (default: gateway.toml; never overwritten)",
+    )
+
+    gateway_check_p = sub.add_parser(
+        "gateway-check",
+        help="validate one loopback synthetic Runtime Gateway config without starting it",
+    )
+    gateway_check_p.add_argument(
+        "--config",
+        type=Path,
+        required=True,
+        help="closed Runtime Gateway V1 TOML config",
+    )
+
+    gateway_serve_p = sub.add_parser(
+        "gateway-serve",
+        help="serve the local synthetic Runtime Gateway on IPv4 loopback",
+    )
+    gateway_serve_p.add_argument(
+        "--config",
+        type=Path,
+        required=True,
+        help="closed Runtime Gateway V1 TOML config",
     )
 
     sub.add_parser("targets", help="list registered built-in targets")
@@ -1781,6 +1817,75 @@ def _agent_host_quickstart(out: Path) -> int:
     print("network: off; public payloads: digests only; producer: unattested")
     print("scope: deterministic synthetic fixture, not a security certification")
     print("operational authority: none")
+    return 0
+
+
+def _gateway_check(config_path: Path) -> int:
+    """Validate the closed local gateway configuration without creating runtime state."""
+
+    from agentic_security_harness.runtime_gateway import (
+        GatewayContractError,
+        default_gateway_policy_v1,
+        load_gateway_config_v1,
+    )
+
+    try:
+        config = load_gateway_config_v1(config_path)
+    except (GatewayContractError, OSError, ValueError):
+        print("Error: Runtime Gateway config is invalid or unsafe")
+        return 1
+    print("Runtime Gateway config: valid V1")
+    print(f"  Listener: http://{config.host}:{config.port}")
+    print(f"  Max body bytes: {config.max_body_bytes}")
+    print("  Audit destination: configured (path intentionally not printed)")
+    print(f"  Policy SHA-256: {default_gateway_policy_v1().sha256()}")
+    mode = "synthetic container" if config.synthetic_container_mode else "loopback synthetic"
+    print(f"  Mode: {mode}; no provider calls or credentials")
+    print("  Operational authority: none")
+    return 0
+
+
+def _gateway_init(out: Path) -> int:
+    """Write an installed-package-friendly local config without overwriting files."""
+
+    from agentic_security_harness.runtime_gateway import (
+        GatewayContractError,
+        write_gateway_example_config_v1,
+    )
+
+    try:
+        write_gateway_example_config_v1(out)
+    except (GatewayContractError, OSError, ValueError):
+        print("Error: Runtime Gateway config could not be created safely")
+        return 1
+    print(f"wrote Runtime Gateway V1 config to {terminal_field(out.as_posix())}")
+    print("review it, then run: ash gateway-check --config <gateway.toml>")
+    print("mode: loopback synthetic; no provider calls or credentials")
+    return 0
+
+
+def _gateway_serve(config_path: Path) -> int:
+    """Run the bounded local gateway until the operator interrupts it."""
+
+    from agentic_security_harness.runtime_gateway import (
+        GatewayContractError,
+        load_gateway_config_v1,
+        serve_gateway,
+    )
+
+    try:
+        config = load_gateway_config_v1(config_path)
+        print(f"Runtime Gateway listening on http://{config.host}:{config.port}")
+        mode = "synthetic container" if config.synthetic_container_mode else "loopback synthetic"
+        print(f"mode: {mode}; credentials and live providers are disabled")
+        print("press Ctrl+C to stop")
+        serve_gateway(config)
+    except KeyboardInterrupt:
+        print("Runtime Gateway stopped")
+        return 0
+    except (GatewayContractError, OSError, ValueError):
+        print("Error: Runtime Gateway could not start safely")
+        return 1
     return 0
 
 
@@ -4647,6 +4752,12 @@ def _main(argv: list[str] | None = None) -> int:
         return _agent_host_evaluate(args.path, args.format)
     if args.command == "agent-host-quickstart":
         return _agent_host_quickstart(args.out)
+    if args.command == "gateway-init":
+        return _gateway_init(args.out)
+    if args.command == "gateway-check":
+        return _gateway_check(args.config)
+    if args.command == "gateway-serve":
+        return _gateway_serve(args.config)
     if args.command == "targets":
         return _targets()
     if args.command == "scenarios":

@@ -29,6 +29,33 @@ def test_dockerfile_is_safe_and_offline() -> None:
     )
 
 
+def test_runtime_gateway_container_is_hardened_and_synthetic_only() -> None:
+    dockerfile = (ROOT / "Dockerfile.gateway").read_text(encoding="utf-8")
+    compose = (ROOT / "compose.gateway.yml").read_text(encoding="utf-8")
+    config = tomllib.loads(
+        (ROOT / "examples" / "runtime-gateway" / "gateway.docker.toml").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    assert "@sha256:" in dockerfile
+    assert " AS builder" in dockerfile
+    assert "python -m build --no-isolation --wheel" in dockerfile
+    assert "--no-deps /tmp/wheel/*.whl" in dockerfile
+    assert "USER ash" in dockerfile
+    assert 'CMD ["ash", "gateway-serve"' in dockerfile
+    assert "run-external" not in dockerfile
+    assert "--credential" not in dockerfile.casefold()
+    assert "api_key" not in dockerfile.casefold()
+    assert '"127.0.0.1:8787:8787"' in compose
+    assert "read_only: true" in compose
+    assert "no-new-privileges:true" in compose
+    assert "cap_drop:" in compose and "- ALL" in compose
+    assert config["host"] == "0.0.0.0"
+    assert config["synthetic_container_mode"] is True
+    assert config["audit_dir"] == "/data/audit"
+
+
 def test_dockerignore_excludes_heavy_and_secret_paths() -> None:
     lines = [
         line.strip()
@@ -38,6 +65,7 @@ def test_dockerignore_excludes_heavy_and_secret_paths() -> None:
 
     assert lines[0] == "*"
     assert {
+        "!Dockerfile.gateway",
         "!pyproject.toml",
         "!README.md",
         "!LICENSE",
@@ -120,5 +148,21 @@ def test_linux_installed_package_runs_agent_host_quickstart() -> None:
         "test -f agent-host-result/run_index.json",
         "test -f agent-host-result/agent_host_summary.json",
         "ash validate agent-host-result",
+        "ash gateway-init --out gateway.toml",
+        "ash gateway-check --config gateway.toml",
+        "test ! -e .internal/runtime-gateway",
+    ):
+        assert marker in text
+
+
+def test_ci_builds_and_smokes_runtime_gateway_container() -> None:
+    text = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    for marker in (
+        "runtime-gateway-container:",
+        "docker compose -f compose.gateway.yml config --quiet",
+        "docker build --file Dockerfile.gateway --tag ash-runtime-gateway:ci .",
+        "--publish 127.0.0.1:8787:8787",
+        "MCP-Protocol-Version: 2026-07-28",
+        '"supportedVersions":["2026-07-28"]',
     ):
         assert marker in text
