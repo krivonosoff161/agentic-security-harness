@@ -69,7 +69,12 @@ def test_publish_action_is_commit_pinned_and_post_publish_smokes_are_bounded() -
     assert text.count(
         'if path.suffix == ".whl" or path.name.endswith(".tar.gz")'
     ) == 2
-    assert "agentic-security-harness==$version" in text
+    assert 'f"agentic-security-harness=={version} --hash=sha256:{digest}\\n"' in text
+    assert text.count("python -m pip install --require-hashes -r requirements/runtime.txt") == 2
+    assert text.count('--require-hashes --no-deps -r "$requirement_file"') == 2
+    assert "--extra-index-url" not in text
+    assert text.count("expected one universal wheel") == 2
+    assert text.count("published wheel SHA-256 is missing") == 2
     assert "ash quickstart" in text
     assert "ash validate" in text
     assert "for attempt in 1 2 3 4 5" in text

@@ -32,8 +32,7 @@ vulnerable and protected local demos on the same 24-pattern corpus, validates th
 and writes `reports/quickstart/report.html`.
 Use `ash doctor` for the fuller source-checkout and optional local-endpoint diagnostics.
 
-To exercise the provider-neutral owned-workflow contour from the unreleased development
-tree, run:
+To exercise the provider-neutral owned-workflow contour shipped in v1.1.0, run:
 
 ```bash
 ash agent-host-quickstart --out reports/agent-host-quickstart

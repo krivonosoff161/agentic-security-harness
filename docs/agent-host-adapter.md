@@ -1,7 +1,7 @@
 # Agent Host Adapter SDK
 
-Status: implemented development slice; offline record/evaluate plus a built-in synthetic
-owned-workflow quickstart; not part of the published `v1.0.0` package.
+Status: shipped in `v1.1.0`; offline record/evaluate plus a built-in synthetic
+owned-workflow quickstart.
 
 The Agent Host Adapter V1 contract is the first provider-neutral integration surface for
 recording what an owned or explicitly authorized agent host declared it did. It reuses the
@@ -9,7 +9,7 @@ stable authority-free portfolio observation envelope. A separate deterministic e
 now classifies closed terminal events. An explicit Python collector API and a no-network
 reference workflow exercise the whole record/evaluate/publish path, while the development
 slice still stops before provider transport, arbitrary host execution, policy enforcement,
-or security certification.
+or security certification. Packaging this contour does not expand its authority.
 
 ## What this slice does
 
