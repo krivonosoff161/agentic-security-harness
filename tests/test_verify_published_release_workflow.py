@@ -76,14 +76,21 @@ def test_verification_workflow_runs_bounded_cross_platform_smokes() -> None:
     for version in ('python: "3.11"', 'python: "3.12"', 'python: "3.13"'):
         assert version in text
     exact_lines = {line.strip() for line in text.splitlines()}
+    assert '"testpypi": ("test.pypi.org", "test-files.pythonhosted.org"),' in text
+    assert '"pypi": ("pypi.org", "files.pythonhosted.org"),' in text
+    assert 'if parsed.scheme != "https" or parsed.hostname != file_host:' in exact_lines
+    assert "downloaded wheel digest mismatch" in text
     assert (
-        'if parsed.scheme != "https" or parsed.hostname != "test-files.pythonhosted.org":'
-        in exact_lines
+        "python -m pip install --require-hashes \\\n"
+        "            -r verification-policy/requirements/runtime.txt"
+    ) in text
+    assert (
+        'python -m pip install --require-hashes --no-deps -r "$requirement"' in text
     )
-    assert "downloaded TestPyPI wheel digest mismatch" in text
-    assert 'python -m pip install --no-deps "$wheel"' in text
+    assert 'python -m pip install "pydantic' not in text
+    assert 'python -m pip install "agentic-security-harness' not in text
     assert "--extra-index-url" not in text
-    assert '"agentic-security-harness==$VERSION"' in text
+    assert "wheel_path.as_uri()" in text
     assert "ash --help" in text
     assert "ash quickstart" in text
     assert "ash validate" in text
