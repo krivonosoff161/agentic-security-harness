@@ -171,6 +171,37 @@ def test_denied_and_approval_calls_never_execute(tmp_path: Path) -> None:
         assert engine.execution_count == 0
 
 
+def test_approval_request_is_stable_privacy_minimized_and_non_executable() -> None:
+    call = GatewayToolCallV1(
+        call_id="call:approval-private",
+        protocol="mcp",
+        tool_name="external.send",
+        arguments={"destination": "synthetic-private-destination"},
+    )
+    decision = evaluate_gateway_tool_call(call)
+    request = decision.approval_request()
+
+    assert request.status == "pending_non_executable"
+    assert request.execution_permitted is False
+    assert request.grant_endpoint_available is False
+    assert request.sha256() == decision.approval_request().sha256()
+    encoded = json.dumps(request.model_dump(mode="json"), sort_keys=True)
+    assert "approval-private" not in encoded
+    assert "external.send" not in encoded
+    assert "synthetic-private-destination" not in encoded
+
+    allowed = evaluate_gateway_tool_call(
+        GatewayToolCallV1(
+            call_id="call:allowed",
+            protocol="mcp",
+            tool_name="synthetic.lookup",
+            arguments={"key": "project-status"},
+        )
+    )
+    with pytest.raises(GatewayContractError, match="approval-required"):
+        allowed.approval_request()
+
+
 def test_audit_chain_is_privacy_minimized_and_tamper_evident(tmp_path: Path) -> None:
     secret_shaped_input = "synthetic-private-value-never-write"
     root = tmp_path / "audit"
@@ -367,7 +398,30 @@ def test_openai_compatible_safe_and_tool_decision_paths(
     )
     assert status == 409
     assert approval["error"]["code"] == "owner_approval_required"
+    assert approval["error"]["approval_status"] == "pending_non_executable"
+    assert len(approval["error"]["approval_request_sha256"]) == 64
+    assert "not-executed" not in json.dumps(approval)
     assert engine.execution_count == 1
+
+
+def test_policy_endpoint_exposes_closed_non_authorizing_snapshot(
+    running_gateway: tuple[int, GatewayEngine],
+) -> None:
+    port, engine = running_gateway
+    status, body, headers = _get(port, "/v1/gateway/policy")
+    payload = json.loads(body)
+
+    assert status == 200
+    assert payload == engine.policy_snapshot().model_dump(mode="json")
+    assert payload["policy_sha256"] == engine.policy.sha256()
+    assert payload["approval_grant_available"] is False
+    assert [rule["tool_name"] for rule in payload["rules"]] == [
+        "external.send",
+        "synthetic.lookup",
+        "synthetic.sha256",
+        "system.shell",
+    ]
+    assert headers["Cache-Control"] == "no-store"
 
 
 def test_mcp_lists_only_executable_synthetic_tools_and_blocks_unknown(
@@ -412,6 +466,19 @@ def test_mcp_lists_only_executable_synthetic_tools_and_blocks_unknown(
     assert status == 400
     assert blocked["error"]["message"] == "tool_call_denied"
     assert blocked["error"]["data"]["gatewayReason"] == "unknown_tool_denied"
+    assert engine.execution_count == 1
+
+    status, approval = _mcp_post(
+        port,
+        "tools/call",
+        {"name": "external.send", "arguments": {"destination": "not-executed"}},
+        rpc_id=4,
+    )
+    assert status == 400
+    assert approval["error"]["data"]["gatewayReason"] == "owner_approval_required"
+    assert approval["error"]["data"]["approvalStatus"] == "pending_non_executable"
+    assert len(approval["error"]["data"]["approvalRequestSha256"]) == 64
+    assert "not-executed" not in json.dumps(approval)
     assert engine.execution_count == 1
 
 
@@ -547,6 +614,8 @@ def test_dashboard_exposes_only_aggregate_safe_state(
     status, body, headers = _get(port, "/dashboard")
     assert status == 200
     assert b"Loopback synthetic development contour" in body
+    assert b"Approval requests are pending and non-executable" in body
+    assert _engine.policy.sha256().encode() in body
     assert b"tools/list" not in body
     assert headers["Cache-Control"] == "no-store"
     assert "default-src 'none'" in headers["Content-Security-Policy"]

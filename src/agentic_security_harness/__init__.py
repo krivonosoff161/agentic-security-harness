@@ -135,6 +135,7 @@ from agentic_security_harness.run_manifest import (
 from agentic_security_harness.rundb import index_runs, list_db_runs
 from agentic_security_harness.runner import HarnessRunner
 from agentic_security_harness.runtime_gateway import (
+    GatewayApprovalRequestV1,
     GatewayAuditLedger,
     GatewayAuditRecordV1,
     GatewayAuditSnapshotV1,
@@ -142,6 +143,7 @@ from agentic_security_harness.runtime_gateway import (
     GatewayContractError,
     GatewayDecisionV1,
     GatewayEngine,
+    GatewayPolicySnapshotV1,
     GatewayPolicyV1,
     GatewayToolCallV1,
     GatewayToolRuleV1,
@@ -252,6 +254,7 @@ __all__ = [
     "run_scenarios",
     "HarnessRunner",
     "GatewayAuditLedger",
+    "GatewayApprovalRequestV1",
     "GatewayAuditRecordV1",
     "GatewayAuditSnapshotV1",
     "GatewayConfigV1",
@@ -259,6 +262,7 @@ __all__ = [
     "GatewayDecisionV1",
     "GatewayEngine",
     "GatewayPolicyV1",
+    "GatewayPolicySnapshotV1",
     "GatewayToolCallV1",
     "GatewayToolRuleV1",
     "create_gateway_server",

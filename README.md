@@ -67,7 +67,8 @@ credential-free synthetic integration surface. Offline
 [provider-neutral tool-call adapters](docs/provider-tool-adapters.md) normalize retained
 OpenAI Responses, Anthropic Messages, Google Interactions, and MCP payloads through the
 same policy without SDKs or credentials. Live provider transport and a production firewall
-are still not shipped.
+are still not shipped. The gateway exposes its exact closed policy and non-executable
+approval-request digests; it intentionally has no approval-grant endpoint yet.
 
 | Target | Modeled findings | Patterns passed |
 |---|---:|---:|

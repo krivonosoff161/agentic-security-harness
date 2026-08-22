@@ -308,10 +308,16 @@ def _format_provider_response(
     decision: GatewayDecisionV1,
     result: dict[str, Any] | None,
 ) -> dict[str, Any]:
+    approval_request_sha256 = (
+        decision.approval_request().sha256()
+        if decision.disposition == "require_approval"
+        else None
+    )
     safe_result = {
         "schema_version": "AgenticSecurityHarnessGatewayProviderResult.v1",
         "disposition": decision.disposition,
         "reason_code": decision.reason_code,
+        "approval_request_sha256": approval_request_sha256,
         "result": result,
     }
     text = _canonical_json_bytes(safe_result).decode("utf-8")

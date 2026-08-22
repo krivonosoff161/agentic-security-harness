@@ -160,6 +160,59 @@ class GatewayDecisionV1(BaseModel):
             raise ValueError("only allow decisions may permit execution")
         return self
 
+    def approval_request(self) -> GatewayApprovalRequestV1:
+        """Derive a privacy-minimized request without granting execution authority."""
+
+        if self.disposition != "require_approval" or self.effect == "pure":
+            raise GatewayContractError("only approval-required decisions create requests")
+        return GatewayApprovalRequestV1(
+            call_id_sha256=self.call_id_sha256,
+            tool_name_sha256=self.tool_name_sha256,
+            arguments_sha256=self.arguments_sha256,
+            policy_sha256=self.policy_sha256,
+            effect=self.effect,
+            reason_code=self.reason_code,
+        )
+
+
+class GatewayApprovalRequestV1(BaseModel):
+    """Safe pending-approval identity; not a grant, token, or consent receipt."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["AgenticSecurityHarnessGatewayApprovalRequest.v1"] = (
+        "AgenticSecurityHarnessGatewayApprovalRequest.v1"
+    )
+    status: Literal["pending_non_executable"] = "pending_non_executable"
+    call_id_sha256: str = Field(pattern=SHA256_PATTERN)
+    tool_name_sha256: str = Field(pattern=SHA256_PATTERN)
+    arguments_sha256: str = Field(pattern=SHA256_PATTERN)
+    policy_sha256: str = Field(pattern=SHA256_PATTERN)
+    effect: Literal["external", "process", "unknown"]
+    reason_code: str = Field(pattern=SAFE_TOKEN_PATTERN)
+    execution_permitted: Literal[False] = False
+    grant_endpoint_available: Literal[False] = False
+
+    def sha256(self) -> str:
+        return _sha256_domain(
+            "ash-gateway-approval-request-v1", self.model_dump(mode="json")
+        )
+
+
+class GatewayPolicySnapshotV1(BaseModel):
+    """Dashboard-safe description of the exact active local policy."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["AgenticSecurityHarnessGatewayPolicySnapshot.v1"] = (
+        "AgenticSecurityHarnessGatewayPolicySnapshot.v1"
+    )
+    policy_id: str = Field(pattern=SAFE_TOKEN_PATTERN)
+    policy_sha256: str = Field(pattern=SHA256_PATTERN)
+    default_disposition: Literal["deny"] = "deny"
+    rules: tuple[GatewayToolRuleV1, ...]
+    approval_grant_available: Literal[False] = False
+
 
 class GatewayAuditRecordV1(BaseModel):
     """Privacy-minimized hash-chain audit record."""
@@ -608,6 +661,13 @@ class GatewayEngine:
     def execution_count(self) -> int:
         return self._executions
 
+    def policy_snapshot(self) -> GatewayPolicySnapshotV1:
+        return GatewayPolicySnapshotV1(
+            policy_id=self.policy.policy_id,
+            policy_sha256=self.policy.sha256(),
+            rules=self.policy.rules,
+        )
+
     def record_operation(
         self,
         *,
@@ -762,9 +822,15 @@ class _GatewayRequestHandler(BaseHTTPRequestHandler):
                 self.server.engine.audit.snapshot().model_dump(mode="json"),
             )
             return
+        if self.path == "/v1/gateway/policy":
+            self._write_json(
+                HTTPStatus.OK,
+                self.server.engine.policy_snapshot().model_dump(mode="json"),
+            )
+            return
         if self.path == "/dashboard" and self.server.config.dashboard_enabled:
             snapshot = self.server.engine.audit.snapshot()
-            body = _dashboard_html(snapshot)
+            body = _dashboard_html(snapshot, self.server.engine.policy_snapshot())
             self._write_bytes(HTTPStatus.OK, body, "text/html; charset=utf-8")
             return
         if self.path == "/mcp":
@@ -884,7 +950,16 @@ class _GatewayRequestHandler(BaseHTTPRequestHandler):
             self._json_error(HTTPStatus.FORBIDDEN, decision.reason_code, request_id)
             return
         if decision.disposition == "require_approval":
-            self._json_error(HTTPStatus.CONFLICT, decision.reason_code, request_id)
+            approval = decision.approval_request()
+            self._json_error(
+                HTTPStatus.CONFLICT,
+                decision.reason_code,
+                request_id,
+                data={
+                    "approval_request_sha256": approval.sha256(),
+                    "approval_status": approval.status,
+                },
+            )
             return
         self._write_json(
             HTTPStatus.OK,
@@ -1004,13 +1079,22 @@ class _GatewayRequestHandler(BaseHTTPRequestHandler):
                 return
             decision, result = self.server.engine.call_tool(call, request_id=request_id)
             if decision.disposition != "allow":
+                data = {"gatewayReason": decision.reason_code}
+                if decision.disposition == "require_approval":
+                    approval = decision.approval_request()
+                    data.update(
+                        {
+                            "approvalRequestSha256": approval.sha256(),
+                            "approvalStatus": approval.status,
+                        }
+                    )
                 self._mcp_error(
                     rpc_id,
                     -32602,
                     "tool_call_denied",
                     request_id,
                     HTTPStatus.BAD_REQUEST,
-                    data={"gatewayReason": decision.reason_code},
+                    data=data,
                 )
                 return
             self._mcp_result(
@@ -1103,10 +1187,24 @@ class _GatewayRequestHandler(BaseHTTPRequestHandler):
             },
         )
 
-    def _json_error(self, status: HTTPStatus, code: str, request_id: str) -> None:
+    def _json_error(
+        self,
+        status: HTTPStatus,
+        code: str,
+        request_id: str,
+        *,
+        data: dict[str, Any] | None = None,
+    ) -> None:
+        error: dict[str, Any] = {
+            "code": code,
+            "message": "request rejected",
+            "request_id": request_id,
+        }
+        if data:
+            error.update(data)
         self._write_json(
             status,
-            {"error": {"code": code, "message": "request rejected", "request_id": request_id}},
+            {"error": error},
         )
 
     def _write_json(self, status: HTTPStatus, payload: Mapping[str, Any]) -> None:
@@ -1203,13 +1301,17 @@ def _chat_response(request_id: str, model: str, content: str) -> dict[str, Any]:
     }
 
 
-def _dashboard_html(snapshot: GatewayAuditSnapshotV1) -> bytes:
+def _dashboard_html(
+    snapshot: GatewayAuditSnapshotV1,
+    policy: GatewayPolicySnapshotV1,
+) -> bytes:
     values = {
         "records": str(snapshot.records),
         "allow": str(snapshot.allow),
         "deny": str(snapshot.deny),
         "approval": str(snapshot.require_approval),
         "head": html.escape(snapshot.head_sha256),
+        "policy": html.escape(policy.policy_sha256),
     }
     return (
         "<!doctype html><html><head><meta charset=utf-8>"
@@ -1225,6 +1327,9 @@ def _dashboard_html(snapshot: GatewayAuditSnapshotV1) -> bytes:
         f"<tr><td>{values['records']}</td><td>{values['allow']}</td>"
         f"<td>{values['deny']}</td><td>{values['approval']}</td></tr></table>"
         f"<p>Verified audit head: <code>{values['head']}</code></p>"
+        f"<p>Active policy: <code>{values['policy']}</code></p>"
+        "<p>Approval requests are pending and non-executable; no grant endpoint is "
+        "available in this contour.</p>"
         "</body></html>"
     ).encode()
 

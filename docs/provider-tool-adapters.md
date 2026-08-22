@@ -33,6 +33,8 @@ retained provider envelope
 
 Denied and approval-required calls never reach a tool implementation. Allowed execution is
 limited to the Runtime Gateway's fixed `synthetic.lookup` and `synthetic.sha256` tools.
+Approval-required provider responses include only the stable request digest and
+`pending_non_executable` state; they do not create a grant.
 
 ## Offline example
 
