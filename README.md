@@ -180,6 +180,9 @@ is not evidence of safe tool execution.
 
 ## Benchmark and evidence documentation
 
+Start with the curated [documentation map](docs/README.md) if you are not sure which
+contract, operator guide, or research page applies to your task.
+
 The README is the front door; deeper contracts live in `docs/`:
 
 | Question | Source of truth |
