@@ -63,8 +63,11 @@ ash gateway-serve --config gateway.toml
 
 Open <http://127.0.0.1:8787/dashboard> after startup, or use the hardened Docker Compose
 profile in [Runtime Gateway development contour](docs/runtime-gateway.md). This is a
-credential-free synthetic integration surface, not yet a live provider adapter or
-production firewall.
+credential-free synthetic integration surface. Offline
+[provider-neutral tool-call adapters](docs/provider-tool-adapters.md) normalize retained
+OpenAI Responses, Anthropic Messages, Google Interactions, and MCP payloads through the
+same policy without SDKs or credentials. Live provider transport and a production firewall
+are still not shipped.
 
 | Target | Modeled findings | Patterns passed |
 |---|---:|---:|
@@ -193,6 +196,7 @@ The README is the front door; deeper contracts live in `docs/`:
 | How are changes reviewed? | [Git evidence workflow](docs/git-evidence-workflow.md) |
 | How can an external agent host record and evaluate observations? | [Agent Host Adapter SDK](docs/agent-host-adapter.md) |
 | How can I run the local policy gateway and MCP/OpenAI-compatible demo? | [Runtime Gateway development contour](docs/runtime-gateway.md) |
+| How are provider tool-call envelopes normalized without credentials? | [Provider-neutral tool-call adapters](docs/provider-tool-adapters.md) |
 
 Specialized reviewer paths:
 

@@ -78,7 +78,8 @@ A target adapter must:
 | `toy-tools` | current | Toy tool-using agent exercising the tool/authority surface (no network). |
 | `toy-multi-agent` | current | Toy coordinator/worker handoff exercising data-label handoff and capability delegation surfaces (no network). |
 | `openai-compatible` (external) | experimental | Evaluates an authorized OpenAI-compatible endpoint with synthetic prompts. Opt-in network; no tool execution. |
-| Native provider adapter | future | Provider SDK adapter (Anthropic/OpenAI Responses/Google/etc.); never a default path. |
+| Offline provider tool-envelope adapter | active product branch | Strictly normalizes retained OpenAI Responses, Anthropic Messages, Google Interactions, and MCP tool calls into one Runtime Gateway policy. No SDK, network, credential, or arbitrary executor. |
+| Native live provider adapter | future | Provider SDK/transport adapter (Anthropic/OpenAI Responses/Google/etc.); never a default path. |
 | Agent-host / tool-use adapter | future | Drives a live agent that actually calls tools; explicitly authorized only. |
 
 ## Runtime metadata to record
@@ -152,7 +153,7 @@ same portable trace structure. The trace is the stable benchmark artifact.
 ## What remains future work
 
 - A plugin/entry-point system for third-party adapters.
-- Native provider SDK adapters and agent-host / tool-use adapters.
+- Native live provider SDK adapters and agent-host / tool-use adapters.
 - A policy for publishing sanitized adapter examples without leaking private runtime data.
 
 Shipped since this contract was first written: the toy RAG, tool, and multi-agent handoff
