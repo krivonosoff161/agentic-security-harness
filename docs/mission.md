@@ -28,8 +28,9 @@ agentic systems **they own or are authorized to test**.
 ## Scope
 
 Defensive testing and education only, against **mock / demo / authorized** systems, with
-**synthetic** data and **sanitized** fixtures. The planned reference gateway is a future
-optional defense to measure against - not the product and not current shipped code.
+**synthetic** data and **sanitized** fixtures. The local reference gateway is an optional
+synthetic development product contour; real-provider protection remains future and is not
+claimed by the current code.
 
 ## Non-goals
 

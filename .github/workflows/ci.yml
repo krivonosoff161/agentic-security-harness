@@ -135,3 +135,65 @@ jobs:
           test -f agent-host-result/run_index.json
           test -f agent-host-result/agent_host_summary.json
           ash validate agent-host-result
+          ash gateway-init --out gateway.toml
+          ash gateway-check --config gateway.toml
+          test ! -e .internal/runtime-gateway
+
+  runtime-gateway-container:
+    name: Runtime Gateway container smoke
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate and build synthetic gateway image
+        run: |
+          set -euo pipefail
+          docker compose -f compose.gateway.yml config --quiet
+          docker build --file Dockerfile.gateway --tag ash-runtime-gateway:ci .
+
+      - name: Exercise loopback-only health and MCP discovery
+        run: |
+          set -euo pipefail
+          docker volume create ash-gateway-ci-audit >/dev/null
+          fixture_output="$(docker run --rm \
+            --read-only --cap-drop ALL --security-opt no-new-privileges \
+            --tmpfs /tmp:size=16m --volume ash-gateway-ci-audit:/data \
+            --entrypoint ash ash-runtime-gateway:ci \
+            gateway-fixture --config /app/gateway.toml \
+            --provider openai_responses \
+            --input /app/provider-fixtures/openai-responses.json)"
+          printf '%s' "$fixture_output" | grep --fixed-strings \
+            'allow=1 deny=0 require_approval=0' >/dev/null
+          printf '%s' "$fixture_output" | grep --fixed-strings \
+            'Provider/network/credentials: off' >/dev/null
+          docker run --detach --name ash-gateway-ci \
+            --read-only --cap-drop ALL --security-opt no-new-privileges \
+            --tmpfs /tmp:size=16m --volume ash-gateway-ci-audit:/data \
+            --publish 127.0.0.1:8787:8787 ash-runtime-gateway:ci
+          cleanup() {
+            docker rm --force ash-gateway-ci >/dev/null 2>&1 || true
+            docker volume rm ash-gateway-ci-audit >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8787/healthz >/dev/null; then
+              break
+            fi
+            if [ "$attempt" -eq 30 ]; then
+              docker logs ash-gateway-ci
+              exit 1
+            fi
+            sleep 1
+          done
+          response="$(curl --fail --silent http://127.0.0.1:8787/mcp \
+            -H 'Content-Type: application/json' \
+            -H 'Accept: application/json, text/event-stream' \
+            -H 'MCP-Protocol-Version: 2026-07-28' \
+            -H 'Mcp-Method: server/discover' \
+            --data '{"jsonrpc":"2.0","id":"ci","method":"server/discover","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientInfo":{"name":"ash-ci","version":"1.0.0"},"io.modelcontextprotocol/clientCapabilities":{}}}}')"
+          printf '%s' "$response" | grep --fixed-strings '"supportedVersions":["2026-07-28"]' >/dev/null
+          printf '%s' "$response" | grep --fixed-strings '"resultType":"complete"' >/dev/null

@@ -122,9 +122,11 @@ The next work is ordered by credibility, not by feature volume:
     the merged 26-family ontology, scenario-alias registry, authority-free
     observation/advisory contract, and shadow evaluator. Use the constrained public
     pairwise generator only for development coverage;
-    unseen-family labels stay outside the detector-development path. Keep private product
-    internals in the separate Runtime Guard repository. Do not add a proxy, executor,
-    provider adapter, IAM path, or deployment here.
+    unseen-family labels stay outside the detector-development path. Private production
+    product internals remain separate. The public Harness may carry a bounded open
+    reference gateway only when its synthetic executor, credential-free boundary, audit
+    minimization, and lack of operational authority stay explicit; provider adapters, IAM,
+    and production deployment require later independent gates.
 12. **Executable scenario adjudication:** independently review the explicit 127-unit,
     13-builder provisional ledger. Preserve source-unit kinds and migration history; do not
     treat the bounded builder list as a repository-wide total and do not use name similarity
@@ -142,12 +144,12 @@ The next work is ordered by credibility, not by feature volume:
 The current release-facing track is **Agentic Security Harness**: a public research
 benchmark with synthetic targets, traces, scorecards, validators, and sanitized evidence.
 
-The related **LLM Safety Gateway / Runtime Verifier** direction now has a separate private
-product-research repository, but it is not a shipped runtime. It would apply Harness
-evidence at organization boundaries such as LLM
-traffic, tool calls, file writes, git operations, source provenance, consent receipts, and
-privacy-preserving evidence. Keep it documented separately until it has its own design
-review, trust-domain model, and implementation boundary. See
+The related **LLM Safety Gateway / Runtime Verifier** direction has private product
+research and a public reference contour in this repository. The public contour is limited
+to deterministic synthetic tools, loopback/container development endpoints, closed policy
+decisions, and privacy-minimized local audit. Applying policy to real providers, file or
+Git writes, IAM, credentials, or organizational traffic remains a separately gated product
+track. See [runtime-gateway.md](runtime-gateway.md) and
 [project-tracks.md](project-tracks.md).
 
 ---
@@ -158,10 +160,12 @@ These are not implemented in the current benchmark release. Some may proceed as 
 separate repository or separate track before benchmark v1.0, but they stay out of the
 shipped benchmark scope until they have their own design review and release boundary:
 
-- **Reference gateway / LLM Safety Gateway** - a planned optional defense/runtime track
-  for risk-reduction replay and organizational LLM-use controls.
-- **Native provider adapters** - first-class SDK adapters (Anthropic, OpenAI Responses,
-  Google, etc.) beyond the current OpenAI-compatible path.
+- **Reference gateway / LLM Safety Gateway** - the local synthetic reference contour is
+  implemented on the active product branch; real provider/runtime protection remains future.
+- **Native provider transports** - first-class live SDK adapters (Anthropic, OpenAI
+  Responses, Google, etc.) beyond the current OpenAI-compatible path. Credential-free
+  retained tool-envelope normalization for those families is implemented on the active
+  product branch; it is not live transport.
 - **Native agent-host / tool-use collectors** - extend the implemented Agent Host V1
   record/evaluate and explicit owned-workflow API to provider SDKs and authorized live
   agents, with separate credential, network, privacy, retention, and execution gates.

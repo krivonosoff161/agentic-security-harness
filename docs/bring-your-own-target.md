@@ -1,10 +1,10 @@
 # Bring your own target
 
 > **Agentic Security Harness.** This guide explains how an authorized target adapter can
-> run the same benchmark corpus. The published v1.0.0 release ships only local synthetic
-> targets. The unreleased Agent Host V1 development contract now supports authority-free
-> offline record/replay inspection; live collectors remain future work and require explicit
-> authorization.
+> run the same benchmark corpus. The published v1.1.0 release ships local synthetic
+> targets and the Agent Host V1 authority-free offline record/evaluate workflow. The active
+> Runtime Gateway contour adds fixed synthetic tool integration only; live collectors and
+> provider transports remain future work and require explicit authorization.
 
 ## What the benchmark checks
 
