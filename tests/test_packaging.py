@@ -84,21 +84,21 @@ def test_pyproject_packaging_fields() -> None:
     assert 'requires-python = ">=3.11"' in text
 
 
-def test_v1_release_metadata_is_synchronized_with_publication() -> None:
+def test_current_release_metadata_is_synchronized_with_publication() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
     version_text = (ROOT / "src/agentic_security_harness/version.py").read_text("utf-8")
     citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-    release_notes = (ROOT / "docs/releases/v1.0.0.md").read_text(encoding="utf-8")
+    release_notes = (ROOT / "docs/releases/v1.1.0.md").read_text(encoding="utf-8")
 
     package_version = re.search(r'^__version__ = "([^"]+)"$', version_text, re.MULTILINE)
     assert package_version is not None
-    assert project["version"] == package_version.group(1) == "1.0.0"
+    assert project["version"] == package_version.group(1) == "1.1.0"
     assert 'Development Status :: 4 - Beta' in project["classifiers"]
-    assert 'version: "1.0.0"' in citation
-    assert 'date-released: "2026-08-14"' in citation
-    assert "## [1.0.0] - 2026-08-14" in changelog
-    assert "Agentic Security Harness v1.0.0" in release_notes
+    assert 'version: "1.1.0"' in citation
+    assert 'date-released: "2026-08-22"' in citation
+    assert "## [1.1.0] - 2026-08-22" in changelog
+    assert "Agentic Security Harness v1.1.0" in release_notes
     assert "not a production safety certification" in " ".join(release_notes.split())
 
 

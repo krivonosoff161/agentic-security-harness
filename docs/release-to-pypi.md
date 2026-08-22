@@ -1,7 +1,7 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The package is published as `1.0.0` on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.0.0/). This page documents the
+The package is published as `1.1.0` on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.1.0/). This page documents the
 manual, environment-gated OIDC promotion path used for that release and required for
 future releases. See the gates in [release-checklist.md](release-checklist.md).
 
@@ -81,6 +81,10 @@ The production branch of the workflow reads TestPyPI's official JSON metadata an
 exact filename/SHA-256 equality with the attested wheel and sdist before requesting a PyPI
 OIDC token. After upload it smoke-installs the exact version on Linux Python 3.11-3.13 and
 Windows Python 3.11.
+The smoke jobs install runtime dependencies from the hash-locked runtime requirements,
+derive the exact universal-wheel SHA-256 from the official package-index JSON response,
+and require that hash during a `--no-deps` package install. TestPyPI is not used as an
+extra dependency index.
 
 For `v1.0.0`, both package indexes expose wheel/sdist SHA-256 values identical to the
 attested GitHub Release subjects. The first promotion runs uploaded successfully but their

@@ -1,7 +1,8 @@
 # Release checklist
 
 Practical preflight for cutting a public research release. The stable v1.0 benchmark
-contract was released as `v1.0.0` on 2026-08-14; this checklist remains the required
+contract was released as `v1.0.0` on 2026-08-14, and the Agent Host workflow was released
+as `v1.1.0` on 2026-08-22; this checklist remains the required
 procedure for subsequent releases. The broader readiness map is
 [v1-readiness.md](v1-readiness.md).
 
@@ -57,6 +58,8 @@ Then verify by hand:
       and both package indexes have exact-repository Trusted Publishers configured.
 - [ ] The manual package promotion workflow is dispatched only at the exact successful tag,
       first to TestPyPI and then, after evidence review and separate approval, to PyPI.
+- [ ] Package-index smoke jobs install hash-locked runtime dependencies separately and
+      require the exact published universal-wheel SHA-256 with `--no-deps`.
 - [ ] If an upload succeeded but a post-upload observation failed, use the main-only,
       read-only `verify-published-release.yml` workflow; never retry or overwrite the
       immutable package version merely to change historical CI status.

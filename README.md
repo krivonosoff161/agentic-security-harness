@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/status-v1.0.0--released-brightgreen)
+![Status](https://img.shields.io/badge/status-v1.1.0--released-brightgreen)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -23,8 +23,9 @@ validate, compare, and review.
 Install the stable release from PyPI:
 
 ```bash
-python -m pip install agentic-security-harness==1.0.0
+python -m pip install agentic-security-harness==1.1.0
 ash quickstart --out reports/quickstart
+ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
 
 For source development:
@@ -41,8 +42,8 @@ ash agent-host-quickstart --out reports/agent-host-quickstart
 both demo targets, validates the generated artifacts, and renders a self-contained HTML
 report.
 
-`ash agent-host-quickstart` is the working provider-neutral integration path in the
-unreleased development tree. It runs a built-in owned synthetic workflow through the
+`ash agent-host-quickstart` is the shipped provider-neutral integration path in v1.1.0.
+It runs a built-in owned synthetic workflow through the
 instrumented collector, canonical recordings, deterministic evaluator, atomic bundle
 publication, and shared validator. It retains digest-only public evidence and makes no
 provider call.
@@ -114,9 +115,9 @@ runtime evidence.
 - Deterministic validators for artifact integrity and declared benchmark semantics.
 - Linux/Python 3.11-3.13 as the primary installed-package contour, with Windows 3.11
   compatibility coverage.
-- Reproducible wheel/sdist builds, checksums, GitHub attestations, and an exact-subject
-  CycloneDX SBOM in the public `v1.0.0` release.
-- An unreleased provider-neutral Agent Host V1 development contour for canonical,
+- Reproducible wheel/sdist builds, checksums, GitHub attestations, and exact-subject
+  CycloneDX SBOMs for public releases from `v1.0.0` onward.
+- A shipped provider-neutral Agent Host V1 contour for canonical,
   authority-free record/replay, deterministic evaluation, explicit Python instrumentation,
   and a validated 48-case no-network quickstart. The CLI does not execute arbitrary hosts
   or tools and does not authenticate its producer or certify an external system; see
@@ -223,9 +224,9 @@ a handoff file is not a sandbox, and a passing benchmark is not a production cer
 
 ## Release and package status
 
-The stable `v1.0.0` contract is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.0.0/) and as an attested
-[GitHub Release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.0.0).
+The stable `v1.1.0` package is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.1.0/) and as an attested
+[GitHub Release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.1.0).
 Future releases remain separate, auditable owner gates.
 
 - [Release checklist](docs/release-checklist.md)

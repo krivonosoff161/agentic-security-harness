@@ -7,17 +7,16 @@ trajectory-accounting, and telemetry-completeness modules; operational authority
 [`security-portfolio-roadmap.md`](security-portfolio-roadmap.md).
 
 > Last reviewed: 2026-08-22 against merged Security Portfolio projection
-> `2026.08.02-r4-trajectory-containment`, the `v1.0.0` release commit
-> `71295922b8053a188431d0f510f1e9146435c742`, and the current unreleased
-> development tree.
+> `2026.08.02-r4-trajectory-containment`, the historical `v1.0.0` release commit
+> `71295922b8053a188431d0f510f1e9146435c742`, and the `v1.1.0` release source.
 >
-> Scope: public status of `agentic-security-harness` and published release `1.0.0`.
+> Scope: public status of `agentic-security-harness` and published release `1.1.0`.
 > This page is a reviewer-facing status
 > snapshot, not a roadmap promise or publication claim.
 
 ## One-line status
 
-Agentic Security Harness is a **published v1.0.0 public research benchmark**: a working
+Agentic Security Harness is a **published v1.1.0 public research benchmark**: a working
 trace-first defensive benchmark for agentic AI boundary failures with committed
 deterministic examples, bounded local-swarm evidence, evidence-campaign metrics, and
 sanitized local-model semantic-drift / propagation probes.
@@ -41,10 +40,10 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 
 | Area | Status | Evidence |
 |---|---|---|
-| Package identity | v1.0.0 published to PyPI and GitHub Releases | The exact tag workflow built and verified reproducible wheel/sdist subjects, checksums, a CycloneDX SBOM, and GitHub/Sigstore attestations. TestPyPI and PyPI expose the same wheel/sdist SHA-256 values. |
+| Package identity | v1.1.0 published to PyPI and GitHub Releases | The exact tag workflow built and verified reproducible wheel/sdist subjects, checksums, a CycloneDX SBOM, and GitHub/Sigstore attestations. TestPyPI and PyPI expose the same wheel/sdist SHA-256 values. |
 | Local deterministic corpus | Shipped stable v1 contract | Corpus 1.0.0 freezes 24 ordered sanitized seed ids and fields in a closed committed manifest/schema; new traces bind its canonical semantic digest. |
 | Local targets | Shipped | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, `protected-toy-multi-agent`. |
-| Agent Host V1 owned-workflow contour | Implemented development slice; unreleased | Closed provider-neutral recordings, exact commitments, deterministic 24-pattern evaluation, explicit digest-only Python instrumentation, and `ash agent-host-quickstart` producing 48 atomically published protected/vulnerable cases. The built-in workflow has network off and no raw prompt/tool/credential fields. It does not dynamically load or execute an external host, authenticate a producer, certify security, or enforce policy. |
+| Agent Host V1 owned-workflow contour | Shipped in v1.1.0 | Closed provider-neutral recordings, exact commitments, deterministic 24-pattern evaluation, explicit digest-only Python instrumentation, and `ash agent-host-quickstart` producing 48 atomically published protected/vulnerable cases. The built-in workflow has network off and no raw prompt/tool/credential fields. It does not dynamically load or execute an external host, authenticate a producer, certify security, or enforce policy. |
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
 | Inter-agent handoff verifier toy topology | Shipped local slice | `handoff_integrity.py`, `toy-multi-agent`, and `protected-toy-multi-agent` model deterministic label-loss and authority-expansion handoffs. |
 | Boundary-layer variation matrices | Shipped local slice | `boundary-layer-evidence-matrix.md` and `tests/test_boundary_variation_matrices.py` tie declared handoff, authority, and memory-governance variation rows to executable deterministic checks. |
@@ -85,7 +84,7 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 | Evidence pack format | Shipped docs slice | `docs/evidence-pack-format.md` defines how future local research becomes sanitized public evidence with private/public boundaries, hashes, claim rows, tests, and validation commands. |
 | Local real-model swarm probes | Unverified maintainer declaration | Historical documentation declares two full 15-scenario runs and complete hash-field coverage. No versioned public result projection or reconciliation receipt is present, so the repository cannot verify that the runs occurred or bind the aggregates to retained bytes. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
-| Public project process | v1.0.0 released with verified provenance | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, and a tag-only release workflow bind tag/package/CHANGELOG version and rerun the repository gates. The `v1.0.0` workflow reproducibly built and smoke-installed wheel/sdist subjects, published checksums plus an exact-subject CycloneDX SBOM, created GitHub/Sigstore attestations, and independently verified repository/workflow/tag/source/builder/predicate policy. The retained `v0.15.0` tag is transparent failed-gate evidence and has no GitHub Release. |
+| Public project process | v1.1.0 released with verified provenance | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, and a tag-only release workflow bind tag/package/CHANGELOG version and rerun the repository gates. The release workflow reproducibly builds and smoke-installs wheel/sdist subjects, publishes checksums plus an exact-subject CycloneDX SBOM, creates GitHub/Sigstore attestations, and independently verifies repository/workflow/tag/source/builder/predicate policy. The retained `v0.15.0` tag is transparent failed-gate evidence and has no GitHub Release. |
 | Local CLI container | Shipped source definition; image unpublished | The root Dockerfile packages the source-layout CLI and runs the offline doctor as a non-root user. The fail-closed `.dockerignore` allowlist excludes local/private descendants and is covered by repository hygiene tests. This is not the planned gateway image, no image is published, and the source definition does not attest runtime network isolation. |
 | Runtime Guard product foundation | Shipped bounded executable specification | Metadata-only action, capability, consent, handoff, provider, budget, decision, and evidence contracts plus a pure deterministic evaluator and synthetic adversarial tests were merged through PR #162. No proxy, executor, credential broker, durable ledger, IAM integration, deployment, or production protection is shipped. |
 | Runtime Guard R5 sealed synthetic research | Terminal `FAIL`; sanitized public projection | One frozen common-control run reached `PRECOMMITTED` -> `CONSUMED` -> `COMPLETED` and failed three preregistered gates: recall lower index, counterfactual pre-effect lower index, and balanced accuracy. The public validator recomputes the aggregate statistics and receipt bindings; private cases, labels, seeds, keys, ledger, and custody remain outside Git. Independence, promotion, production protection, and operational authority are not claimed. See [r5-research-status.md](r5-research-status.md). |

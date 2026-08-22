@@ -13,8 +13,8 @@ is shippable. Built-in/local targets are local, deterministic, and synthetic: no
 no provider calls, no real secrets. The experimental `run-external --execute` path makes
 OpenAI-compatible calls only on explicit opt-in (prompt-only). The provider-neutral
 Agent Host V1 record/replay, deterministic evaluation, explicit digest-only owned-workflow
-instrumentation, and a built-in validated no-network quickstart are implemented
-development slice; native provider and live host/tool collectors remain future.
+instrumentation, and a built-in validated no-network quickstart are shipped in v1.1.0;
+native provider and live host/tool collectors remain future.
 
 ---
 
@@ -70,6 +70,9 @@ development slice; native provider and live host/tool collectors remain future.
   evidence-campaign, secret-egress, semantic-drift, and semantic-propagation artifacts
   are shipped as research slices with sanitized public summaries and private raw
   local-model calculations under `.internal/`.
+- **v1.1 Agent Host owned-workflow release:** provider-neutral canonical recording,
+  deterministic evaluation of all 24 frozen patterns, explicit privacy-minimized Python
+  instrumentation, and a built-in 48-case no-network quickstart with atomic validation.
 
 ---
 

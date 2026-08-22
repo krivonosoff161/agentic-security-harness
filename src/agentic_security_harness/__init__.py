@@ -3,7 +3,7 @@
 Pipeline: ``pattern -> target -> trace -> scorecard``. Built-in/local targets are
 deterministic and offline (no network, no provider calls). The experimental
 ``run-external --execute`` makes OpenAI-compatible calls only on explicit opt-in. The
-unreleased Agent Host V1 surface records and evaluates offline evidence and exposes an
+Agent Host V1 surface records and evaluates offline evidence and exposes an
 explicit digest-only owned-workflow collector; native provider adapters remain future.
 A ``DataEnvelope`` is a policy label, not encryption.
 """

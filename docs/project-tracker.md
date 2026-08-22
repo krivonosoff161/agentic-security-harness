@@ -15,7 +15,7 @@ Snapshot refreshed against GitHub on 2026-08-22:
 | [Post-v1 independent review](https://github.com/krivonosoff161/agentic-security-harness/milestone/7) | Non-blocking independent standards review and durable second-reviewer governance. |
 
 Completed milestones `v0.14` through `v0.17`, the v0.15.1 self-service release, and the
-[v1.0.0 release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.0.0)
+[v1.1.0 release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.1.0)
 are closed. Milestone state and
 open issues describe active work, not shipped capability.
 
@@ -37,8 +37,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.0.0` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.0.0/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.1.0` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.1.0/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are
@@ -92,6 +92,7 @@ updates are reviewed by class and exact head.
 
 | Issue | Track | Delivered focus |
 |---|---|---|
+| [PR #222 Agent Host owned workflow](https://github.com/krivonosoff161/agentic-security-harness/pull/222) | External agent integration | Merged the privacy-minimized explicit instrumentation API, built-in 48-case no-network quickstart, atomic evidence bundle, shared validation, docs, and installed-wheel coverage shipped in v1.1.0. |
 | [PR #221 Agent Host Evaluator V1](https://github.com/krivonosoff161/agentic-security-harness/pull/221) | External agent integration | Merged the deterministic offline evaluator for every frozen pattern, with fail-closed causal/terminal checks and explicit `pass`/`finding`/`inconclusive`/`adapter_error` outcomes. |
 | [PR #220 Agent Host Adapter SDK](https://github.com/krivonosoff161/agentic-security-harness/pull/220) | External agent integration | Merged the provider-neutral offline recording/inspection contract, exact commitments, fixtures, and trust boundary. Native provider collectors remain future. |
 | [#197 stable trace schema](https://github.com/krivonosoff161/agentic-security-harness/issues/197), [#198 frozen corpus manifest](https://github.com/krivonosoff161/agentic-security-harness/issues/198), and [#200 release SBOM](https://github.com/krivonosoff161/agentic-security-harness/issues/200) | v1.0 contracts / release supply chain | PR #206 integrated trace schema 1.0, corpus 1.0.0, and an exact-subject CycloneDX SBOM into `main` after the stacked PR #207 and PR #208 gates; all exact-head and post-merge checks passed. |

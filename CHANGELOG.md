@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-08-22
+
 ### Added
 - Added the provider-neutral Agent Host Adapter V1 development contract: canonical
   authority-free event recordings, per-event and whole-record commitments, an offline
@@ -23,6 +25,12 @@ All notable changes to this project are documented here. The format follows
   publishes 48 content-bound cases atomically only after deterministic rebuild and shared
   artifact validation. It loads no caller plugin, opens no network connection, reads no
   credential, and grants no operational authority.
+
+### Changed
+- Hardened TestPyPI/PyPI smoke installs: runtime dependencies remain hash-locked, the
+  published universal-wheel SHA-256 is derived from official index metadata, and the
+  package itself is installed with `--require-hashes --no-deps` rather than using
+  TestPyPI as an extra dependency index.
 
 ## [1.0.0] - 2026-08-14
 

@@ -46,7 +46,7 @@ def test_release_identity_script_accepts_current_canonical_tag(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.chdir(ROOT)
-    monkeypatch.setenv("RELEASE_TAG", "v1.0.0")
+    monkeypatch.setenv("RELEASE_TAG", "v1.1.0")
 
     exec(compile(_identity_script(), str(WORKFLOW), "exec"), {})
 
