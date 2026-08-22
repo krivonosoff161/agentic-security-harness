@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 READ_ONLY_COMMANDS = {
     "agent-host-evaluate",
     "agent-host-inspect",
+    "gateway-check",
     "validate",
     "targets",
     "scenarios",
@@ -23,6 +24,7 @@ READ_ONLY_COMMANDS = {
 }
 COMMAND_AUTHORIZES_BOUNDED_WRITES = {
     "agent-host-quickstart",
+    "gateway-init",
     "quickstart",
     "run",
     "compare",
@@ -35,7 +37,7 @@ COMMAND_AUTHORIZES_BOUNDED_WRITES = {
     "report",
     "showcase",
 }
-MODE_AUTHORIZES_BOUNDED_PRIVATE_WRITES = {"trading-stand"}
+MODE_AUTHORIZES_BOUNDED_PRIVATE_WRITES = {"gateway-serve", "trading-stand"}
 
 
 def _subcommands(parser: argparse.ArgumentParser) -> dict[str, argparse.ArgumentParser]:

@@ -24,6 +24,7 @@ the topology page is the methodology map.
 | External (OpenAI-compatible) | `run-external --base-url ... --model ... --execute` | **opt-in only** | yes (prompt-only) | stochastic possible | subset (scenario) x variants | yes | yes | yes | yes |
 | Native provider adapter | - | - | - | - | - | - | - | - | **future** |
 | Agent-host / tool-use adapter | - | - | - | - | - | - | - | - | **future** |
+| Runtime Gateway synthetic contour | `gateway-serve --config <toml>` | local listener | no | deterministic built-ins | not a corpus run | no | fixed policy paths | privacy-minimized audit chain | n/a |
 
 ## What each is good for / does not cover
 
@@ -43,6 +44,7 @@ the topology page is the methodology map.
 | Agent Host Evaluator V1 | Deterministically maps a closed terminal vocabulary over a complete causal recording to `pass`, `finding`, `inconclusive`, or `adapter_error` for all 24 corpus patterns. | Evaluates only an unattested recording contract; does not prove the action occurred, certify security, or enforce policy. |
 | Agent Host owned-workflow V1 | Explicit digest-only Python instrumentation plus a built-in 48-case no-network quickstart and atomically validated evidence bundle. | The CLI does not load or execute an arbitrary host; native provider transport and producer authentication are not shipped. |
 | Native / live agent-host collectors | (future) driving real provider SDKs or tool-executing agents. | Not shipped - do not assume it exists. |
+| Runtime Gateway synthetic contour | Exercising pre-dispatch allow/deny/approval decisions, OpenAI-compatible integration shape, a bounded stateless MCP 2026-07-28 subset, strict HTTP/header parsing, safe audit, dashboard, and container operation. | No live provider, credential broker, arbitrary tool, full MCP extension/SDK conformance, authenticated approval, production IAM, deployment, certification, or security guarantee. |
 
 ## Notes
 

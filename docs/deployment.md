@@ -2,16 +2,17 @@
 
 > **Agentic Security Harness.** **Current reality:** the local harness and the `ash` CLI run
 > a deterministic 24-pattern corpus against mock/demo targets and write reports. A source-based,
-> non-root Dockerfile packages that CLI for local use; there is no gateway server or published
-> image. The reference-gateway deployment below is design intent for later versions. Sections are
-> marked accordingly.
+> non-root Dockerfile packages that CLI. A separate source-only Docker/Compose contour now
+> runs the local synthetic Runtime Gateway; no image or production gateway is published.
+> Future production sections are marked accordingly.
 
 ## Design principle
 
 The simple path must work with **zero extra services**: a local `pip install` and the
-`ash` CLI - no server, no database, no LLM classifier. Everything runs
-offline against synthetic targets. Later features (the reference gateway server,
-PostgreSQL, Redis, RBAC, streaming, tamper-evident audit) are **additive**, not required.
+`ash` CLI - no server, database, or classifier. Everything runs offline against synthetic
+targets. The local gateway is optional and uses only the standard library, fixed synthetic
+tools, and local files. Provider routing, PostgreSQL, Redis, RBAC, streaming, and remotely
+attested audit are **additive future work**, not required.
 
 ## Harness CLI (available now)
 
@@ -29,14 +30,24 @@ patterns, writes one [trace](harness.md#failure-trace-format) per chain, derives
 [scorecard](harness.md#scorecard), and can `compare` a baseline vs a protected target.
 Usage is in the [README](../README.md) and [harness.md](harness.md).
 
-## Reference gateway server (later, planned)
+## Local Runtime Gateway (available in source)
 
-The root `Dockerfile` is a local CLI wrapper, not a gateway image. The reference gateway is design
-intent only. This repository does not currently ship a server entry point, gateway Dockerfile, or
-Compose stack. `.env.example` is a gateway sketch, not configuration required by the current
-`ash` CLI.
+The root `Dockerfile` remains a local CLI wrapper. `Dockerfile.gateway` and
+`compose.gateway.yml` run the credential-free synthetic server documented in
+[runtime-gateway.md](runtime-gateway.md):
 
-### Docker (planned)
+```bash
+docker compose -f compose.gateway.yml up --build
+```
+
+Host publication is fixed to `127.0.0.1:8787`; the root filesystem is read-only, the
+process is non-root with Linux capabilities dropped, and only the named audit volume is
+writable. The image is not published, and this source definition is not a production
+deployment claim.
+
+## Production gateway server (later, planned)
+
+### Production Docker (planned)
 
 - **Dockerfile:** multi-stage (builder installs deps into a venv; slim runtime on
   `python:3.11-slim`; 3.11 is the runtime baseline),
@@ -49,7 +60,7 @@ Compose stack. `.env.example` is a gateway sketch, not configuration required by
   - `dashboard` - optional separate service, or served by the gateway in early versions.
   - Profiles: `default` (gateway + SQLite), `prod` (gateway + Postgres + Redis + dashboard).
 
-## Environment variables
+## Future production environment variables
 
 | Var | Purpose |
 |---|---|
@@ -68,9 +79,9 @@ See [`.env.example`](../.env.example) for a planned gateway configuration sketch
 
 ## Healthcheck
 
-In the planned gateway, `GET /health` returns `200` with dependency checks; used by the
-Docker `HEALTHCHECK` and by orchestrators. See
-[api-reference.md](api-reference.md#get-health-planned).
+The local synthetic gateway exposes `GET /healthz` and `GET /readyz`; its Docker
+`HEALTHCHECK` uses `/healthz`. A future production gateway may add dependency-aware
+`GET /health` semantics described in [api-reference.md](api-reference.md).
 
 ## Quality gates
 

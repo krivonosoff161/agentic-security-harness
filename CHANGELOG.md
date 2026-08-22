@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- Added the first public Runtime Gateway development contour: a local policy-before-
+  dispatch HTTP service, bounded OpenAI-compatible and MCP endpoints, two deterministic
+  synthetic tools, keyed privacy commitments in a single-writer hash-chain audit,
+  aggregate dashboard, installed-package configuration commands, and a hardened Docker
+  Compose operator path. It has no live provider, credential broker, arbitrary executor,
+  authenticated approval service, production deployment, or operational authority.
+- Pinned the Runtime Gateway MCP subset to the stateless `2026-07-28` wire contract:
+  `server/discover`, per-request `_meta`, mirrored transport headers, Origin validation,
+  deterministic tool listing, and no legacy `initialize` or session fallback.
+
 ## [1.1.0] - 2026-08-22
 
 ### Added

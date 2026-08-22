@@ -1,6 +1,6 @@
 # Authorized testing paths
 
-> Last reviewed: 2026-07-14.
+> Last reviewed: 2026-08-22.
 >
 > Scope: how Agentic Security Harness can be used for legitimate defensive evaluation.
 > This page is not legal advice. It defines project policy and evidence expectations.
@@ -22,6 +22,7 @@ terms, acceptable-use policies, or authorization boundaries.
 | Demo synthetic lab | Built-in mock/demo/toy targets with synthetic data only. | Shipped. | Run config, traces, scorecard, validation result. |
 | Local runtime lab | A local OpenAI-compatible runtime such as Ollama, LM Studio, or vLLM. | Supported through experimental `run-external`; prompt-only, no tool execution. | `run_config.runtime`: runtime label, model id, `network_mode=local-only`, model license note, recovery guidance. |
 | Owned system assessment | Explicit application-side instrumentation around a workflow controlled by the user or organization. | Agent Host V1 provides a digest-only Python session and a built-in no-network synthetic workflow. Native provider transport and arbitrary host execution remain future. | Written scope, adapter metadata, target owner, isolation, private-data retention policy, and explicit execution authority in the owned application. |
+| Runtime Gateway synthetic integration | Local OpenAI-compatible/MCP client integration against fixed synthetic models and tools. | Active development contour; loopback-first, credential-free, and no arbitrary/live upstream. | Closed config, policy digest, aggregate audit-chain state, synthetic data only. |
 | Customer-authorized assessment | Testing a third-party system with explicit permission. | Future adapter track; current docs only. | Rules of engagement, scope, dates, contacts, allowed tests. |
 | Provider bug bounty / safe harbor | Testing a provider product only inside its published scope. | Manual process outside the harness; artifacts may be generated if allowed. | Program URL, scope, allowed test class, no out-of-scope data. |
 | Standards-aligned benchmark | Mapping harness findings to public frameworks. | Partial. | Mapping source, category, status, and a clear "not certification" note. |
@@ -71,10 +72,15 @@ cross-check status. New local-runtime runs also record `run_config.runtime` with
 `authorization_mode=local_runtime`, `prompt_only=true`, `tool_execution=false`, model
 license/policy note, and recovery guidance.
 
-The unreleased Agent Host owned-workflow API takes only canonical activities and digest
+The shipped Agent Host owned-workflow API takes only canonical activities and digest
 references. The application, not the Harness CLI, executes the owned workflow. Public
 bundles must not contain prompts, tool arguments/results, credentials, endpoints, customer
 data, exception text, or absolute paths.
+
+The Runtime Gateway development contour must use only the documented synthetic model ids
+and tool catalog. Do not send credentials, customer prompts, private code, real tokens, or
+production traffic to it. Its HMAC-keyed audit commitments minimize retained content but
+do not convert an unauthorized or privacy-sensitive input into an approved test.
 
 ## Not allowed in this project
 
@@ -102,6 +108,12 @@ For future owned-system adapters:
 
 > This run evaluated a target under a documented authorization scope. The report records
 > the adapter, target owner, network mode, and artifact validation status.
+
+For the local gateway contour:
+
+> This integration used the credential-free local Runtime Gateway and deterministic
+> synthetic tools. The result demonstrates policy/audit plumbing only; it is not evidence
+> of production protection or live-provider safety.
 
 Avoid:
 

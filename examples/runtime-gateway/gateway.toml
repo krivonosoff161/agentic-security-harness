@@ -1,0 +1,7 @@
+schema_version = "AgenticSecurityHarnessGatewayConfig.v1"
+host = "127.0.0.1"
+port = 8787
+audit_dir = "../../.internal/runtime-gateway"
+max_body_bytes = 65536
+dashboard_enabled = true
+synthetic_container_mode = false
