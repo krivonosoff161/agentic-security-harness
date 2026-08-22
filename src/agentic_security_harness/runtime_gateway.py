@@ -1433,8 +1433,7 @@ def _stat_identity(info: os.stat_result) -> tuple[int, int, int, int]:
 def _lock_file_nonblocking(handle: Any) -> None:
     handle.seek(0)
     if os.name == "nt":
-        import msvcrt
-
+        msvcrt: Any = importlib.import_module("msvcrt")
         msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
     else:
         fcntl: Any = importlib.import_module("fcntl")
@@ -1445,8 +1444,7 @@ def _unlock_file(handle: Any) -> None:
     try:
         handle.seek(0)
         if os.name == "nt":
-            import msvcrt
-
+            msvcrt: Any = importlib.import_module("msvcrt")
             msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
         else:
             fcntl: Any = importlib.import_module("fcntl")
