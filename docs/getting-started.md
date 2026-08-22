@@ -5,7 +5,7 @@ with no API keys and no network.
 
 > **What this is:** a defensive **benchmark / evaluation toolkit** that reproduces
 > agentic AI failure modes on synthetic targets and measures risk reduction.
-> **What this is not:** a sandbox, a runtime firewall, or a security certification. A
+> **What this is not:** a production sandbox, production runtime firewall, or security certification. A
 > clean result means the synthetic patterns passed - not that a real system is safe.
 
 ## 1. Install
@@ -43,6 +43,18 @@ This no-network command drives the built-in synthetic workflow through explicit
 instrumentation, 48 canonical recordings/evaluations, atomic publication, and the common
 validator. It stores digest-only public evidence and does not load an external agent,
 credential, prompt, tool payload, or plugin.
+
+To exercise the new local policy gateway with synthetic OpenAI-compatible and MCP calls:
+
+```bash
+ash gateway-init --out gateway.toml
+ash gateway-check --config gateway.toml
+ash gateway-serve --config gateway.toml
+```
+
+Open <http://127.0.0.1:8787/dashboard>. This is a credential-free development contour
+with two fixed synthetic tools, not a live provider connection or production firewall.
+See [runtime-gateway.md](runtime-gateway.md) for HTTP examples and Docker Compose.
 
 ## 2. See what is available
 
@@ -135,6 +147,8 @@ produces the same id. Manifests are validated by `ash validate` when present.
 - [connect-models.md](connect-models.md) - connector recipes per stack.
 - [agent-host-adapter.md](agent-host-adapter.md) - explicit owned-workflow integration and
   its privacy boundary.
+- [runtime-gateway.md](runtime-gateway.md) - local policy gateway, MCP/OpenAI-compatible
+  demo, safe audit, and Docker operator path.
 - [test-your-model.md](test-your-model.md) - the external path in depth.
 - [reporting-flow.md](reporting-flow.md) - what each artifact contains.
 - [threat-model.md](threat-model.md) - limitations and honest residual risk.

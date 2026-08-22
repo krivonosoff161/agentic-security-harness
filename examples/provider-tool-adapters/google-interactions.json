@@ -1,0 +1,15 @@
+{
+  "id": "interaction_synthetic",
+  "status": "completed",
+  "steps": [
+    {
+      "arguments": {
+        "key": "project-status"
+      },
+      "id": "gcall_synthetic",
+      "name": "synthetic.lookup",
+      "status": "completed",
+      "type": "function_call"
+    }
+  ]
+}

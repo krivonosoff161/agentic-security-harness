@@ -23,6 +23,14 @@ open issues describe active work, not shipped capability.
 
 No product or research issue is treated as shipped capability.
 
+The active Runtime Gateway Core task is moving the public repository from benchmark-only
+integration toward a runnable product contour. Its bounded deliverable is a local
+credential-free policy gateway, deterministic synthetic tool execution, OpenAI-compatible
+and MCP development endpoints, privacy-minimized append-only audit, dashboard, and Docker
+operator path. Real provider adapters, arbitrary external tools, authenticated approvals,
+production deployment, certification, and operational authority are not included in this
+increment and must not be inferred from the active branch.
+
 The v0.15 productization contour is complete and intentionally user-facing rather than
 another broad research expansion:
 

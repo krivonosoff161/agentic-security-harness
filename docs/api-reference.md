@@ -1,17 +1,21 @@
-# Reference gateway API
+# Reference gateway APIs
 
-> **Planned reference-gateway API - NOT implemented in the current benchmark release.**
-> This is a forward-looking design sketch, not shipped code.
+> The local synthetic development API is implemented on the active product branch and is
+> documented in [runtime-gateway.md](runtime-gateway.md). The provider proxy, auth,
+> quarantine, admin, and metrics APIs below remain forward-looking design only.
 
-> **Agentic Security Harness.** This documents the **planned reference gateway** - the
-> optional [defense component](harness.md#reference-defense-replay), not the harness. The
-> harness has **no published HTTP API** (the `ash` CLI is documented in the
-> [README](../README.md)); its core artifacts are
-> [traces](harness.md#failure-trace-format). Endpoints are annotated as planned for the
-> future reference gateway; treat them as design intent only.
+The current HTTP server supports `/healthz`, `/readyz`, `/dashboard`, an aggregate
+`/v1/gateway/audit`, a closed non-streaming `/v1/chat/completions` subset, and bounded MCP
+2026-07-28 `server/discover`, `tools/list`, and `tools/call`. It validates the required
+stateless request metadata and mirrored HTTP headers, has fixed synthetic models/tools,
+rejects credential headers, and never forwards to a provider. It is a narrow development
+subset, not full MCP SDK/extension conformance.
 
-Current repository status: there is no gateway server package, Dockerfile, database,
-provider adapter, or HTTP runtime in this release.
+There is a source Dockerfile/Compose contour and a local keyed hash-chain audit. No image
+is published, and there is no provider adapter, credential broker, production database,
+authenticated approval service, or production deployment.
+
+## Future production design (not implemented)
 
 The reference gateway exposes two surfaces: the **proxy API** (OpenAI-compatible, for apps
 and as a replay defense target) and the **admin API** (for operators).
@@ -24,7 +28,7 @@ and as a replay defense target) and the **admin API** (for operators).
 
 ---
 
-## `POST /v1/chat/completions` - OpenAI-compatible *(planned)*
+## `POST /v1/chat/completions` - future provider proxy semantics *(planned)*
 
 Accepts the standard OpenAI chat-completions body (`model`, `messages`, `tools`,
 `temperature`, ...). On the happy path it would behave like the provider and return the same

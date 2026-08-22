@@ -2,8 +2,8 @@
 
 > **Agentic Security Harness.** This threat model covers two roles: the **current harness**
 > that *probes* these risks (recording each as a [trace](harness.md#failure-trace-format))
-> and the **planned reference gateway** that may later *mitigate* them as an optional
-> defense target.
+> and the **local synthetic reference gateway** that exercises pre-dispatch policy and
+> audit plumbing as an optional development target. Production mitigation remains future.
 > The honest framing: **risk reduction, observability, and measurement - not 100%
 > protection.** The harness only tests **mock / demo / authorized** targets (see
 > [Responsible use](../SECURITY.md#responsible-use)).
@@ -37,14 +37,16 @@ malicious LLM provider. These are different trust domains.
 [ untrusted: user input, sensors (audio/image), RAG docs, tool outputs ] -> boundary 1 ->
 [ target under test: agent / tool chain / multi-agent workflow ]          -> boundary 2 ->
 [ harness control plane: runner + traces + scorecard ]                    -> boundary 3 ->
-[ future optional defense: reference gateway ]  ->  [ external: LLM provider ]
+[ local synthetic reference gateway ] -> [ fixed synthetic tools only ]
+[ future production gateway ]          -> [ authorized provider / tool boundary ]
 ```
 
 Boundary 1 is the critical one - everything to its left is hostile by default, **including
 sensor inputs**, not just text. The harness drives only **mock / demo / authorized**
-targets (boundary 2). The planned reference gateway, when implemented, would sit between
-the target and the provider - it is the future place for envelope / redaction enforcement
-and for minimizing what crosses to the provider.
+targets (boundary 2). The implemented reference gateway sits only between a local client
+and fixed synthetic tools. It proves parsing, policy-before-dispatch, and minimized audit
+plumbing. A future production gateway would sit between an authorized target and provider
+or tool boundary; that trust domain, credential path, and deployment do not exist here.
 
 ## Attacks we aim to cover (with caveats)
 
@@ -70,17 +72,19 @@ and for minimizing what crosses to the provider.
 
 ## Residual risk
 
-The current harness **measures** these risks. The planned reference gateway is one future
-place to **reduce** them, but neither role eliminates risk. Treat any gateway as one
+The current harness **measures** these risks. The local synthetic gateway exercises one
+bounded control shape; a future production gateway may reduce real risk. Neither role
+eliminates risk. Treat any gateway as one
 defense-in-depth layer. Current validation checks artifact consistency and conservative
 forbidden-marker patterns; detector precision/recall should be measured when detector
 components ship. Keep application-level authz and least-privilege tool design regardless.
 
 Two deliberate limitations to call out:
 
-- **Audit integrity:** the current release includes a local hash-chain tamper-detection
-  pattern and validates benchmark artifacts, but it does not provide cryptographic signing,
-  remote attestation, or a hardened persistent store. Those remain future work.
+- **Audit integrity:** the local gateway uses a single-writer canonical hash chain and
+  ledger-local HMAC commitments so short inputs are not retained as plain dictionary-
+  attackable hashes. It does not provide signatures, remote attestation, independent
+  monotonic storage, administrator resistance, or an enterprise retention service.
 - **No self-learning:** the harness does not adapt its own patterns or detectors at
   runtime. This is a deliberate trade - a self-mutating security tool is hard to audit.
   Feedback labels are collected for future, human-reviewed adaptive rules only.
@@ -153,8 +157,8 @@ Per-pattern OWASP LLM IDs remain verification-gated; see
 | **LLM02 Sensitive Information Disclosure** | Current: provider-boundary leakage and data-envelope patterns. Planned: PII/secret detection and `REDACT` controls. |
 | **LLM03 Supply Chain** | Out of scope at runtime; use normal dependency review for this project. |
 | **LLM04 Data & Model Poisoning** | Out of scope (training-time); the project is runtime. |
-| **LLM05 Improper Output Handling** | Current: tool-permission abuse pattern. Planned: response scanner and tool-call gating before side effects. |
-| **LLM06 Excessive Agency** | Current: tool-permission pattern and protected local control. Planned: broader policy gate on dangerous arguments. |
+| **LLM05 Improper Output Handling** | Current: tool-permission abuse pattern plus a closed local synthetic pre-dispatch tool gate. Planned: provider/output scanning and real effect isolation. |
+| **LLM06 Excessive Agency** | Current: tool-permission pattern and two fixed synthetic executors; process/external/unknown calls stop before dispatch. Planned: authenticated authority and broader real-tool policy. |
 | **LLM07 System Prompt Leakage** | Current: design stance above (do not treat it as a boundary). Planned: leakage detection as a signal. |
 | **LLM08 Vector & Embedding Weaknesses** | Partial future track: untrusted RAG content patterns; not a vector-store fix. |
 | **LLM09 Misinformation** | Out of scope (no factuality verification); the audit trail aids review. |
