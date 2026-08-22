@@ -16,12 +16,18 @@ From a source checkout:
 python -m pip install -e .
 ash gateway-init --out gateway.toml
 ash gateway-check --config gateway.toml
+ash gateway-fixture --config gateway.toml \
+  --provider openai_responses \
+  --input examples/provider-tool-adapters/openai-responses.json
 ash gateway-serve --config gateway.toml
 ```
 
 `gateway-init` works from an installed wheel as well as a source checkout. It creates one
 portable config and refuses to overwrite an existing file. The committed
 `examples/runtime-gateway/gateway.toml` is the equivalent source-tree example.
+`gateway-fixture` evaluates one bounded regular JSON fixture through the exact policy and
+private audit ledger. It prints only aggregate decisions and digests, never the payload,
+tool arguments, provider output, credential, or audit path.
 
 Then open <http://127.0.0.1:8787/dashboard> or test health:
 
