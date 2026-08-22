@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- Added the provider-neutral Agent Host Adapter V1 development contract: canonical
+  authority-free event recordings, per-event and whole-record commitments, an offline
+  static reference adapter, a content-bound schema/fixture manifest, and
+  `ash agent-host-inspect`. This slice performs no host execution, network/provider call,
+  tool execution, security verdict, or operational enforcement.
+
 ## [1.0.0] - 2026-08-14
 
 ### Changed

@@ -82,6 +82,11 @@ establish production protection. The public cross-project boundary is limited to
 merged provider-neutral ontology and authority-free interchange contract. That contract
 remains a development and conformance boundary, not production integration.
 
+The public Harness also owns the Agent Host V1 **recording contract**: an offline,
+authority-free bridge from external host event records into canonical inspection evidence.
+It does not own live host execution, provider credentials, policy enforcement, or effect
+execution; those remain separate Runtime Guard/product trust domains.
+
 Its R5 result is projected through the sanitized, validator-backed
 [R5 sealed synthetic status](r5-research-status.md). One frozen common-control run reached
 terminal scientific `FAIL`; aggregate calculations and receipt bindings are public, while

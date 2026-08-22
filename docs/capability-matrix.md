@@ -39,7 +39,8 @@ the topology page is the methodology map.
 | `toy-multi-agent` | Showing coordinator/worker handoff traces for label stripping and capability delegation drift (partial coverage). | Live agent hosts, real tools, provider handoffs, emergent multi-agent behavior. |
 | Scenario matrix | Stability across variants; stable vs variant-sensitive failures; coverage heatmap. | Stochastic behavior (variants are deterministic replay metadata). |
 | External (OpenAI-compatible) | Asking a model to judge synthetic scenarios; repeats + stochastic status. | Tool execution, agent-host behavior, or a real deployment. |
-| Native / agent-host adapters | (future) driving real provider SDKs or tool-executing agents. | Not shipped - do not assume it exists. |
+| Agent Host V1 record/replay | Canonical offline inspection of authority-free retained host observations. | Does not execute a host/tool, authenticate the producer, or produce a security verdict. |
+| Native / live agent-host collectors | (future) driving real provider SDKs or tool-executing agents. | Not shipped - do not assume it exists. |
 
 ## Notes
 

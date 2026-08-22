@@ -11,8 +11,9 @@ private product roadmap.
 Harness-first and trace-first. Versioning is feature-gated, not date-gated; each version
 is shippable. Built-in/local targets are local, deterministic, and synthetic: no network,
 no provider calls, no real secrets. The experimental `run-external --execute` path makes
-OpenAI-compatible calls only on explicit opt-in (prompt-only); native provider and
-agent-host adapters are future.
+OpenAI-compatible calls only on explicit opt-in (prompt-only). The provider-neutral
+Agent Host V1 record/replay contract is an implemented development slice; native provider
+and live host/tool collectors remain future.
 
 ---
 
@@ -157,8 +158,9 @@ shipped benchmark scope until they have their own design review and release boun
   for risk-reduction replay and organizational LLM-use controls.
 - **Native provider adapters** - first-class SDK adapters (Anthropic, OpenAI Responses,
   Google, etc.) beyond the current OpenAI-compatible path.
-- **Agent-host / tool-use adapters** - drive an authorized live agent that actually calls
-  tools, instead of prompt-only model evaluation.
+- **Agent-host / tool-use collectors** - extend the implemented offline Agent Host V1
+  record/replay contract to drive an authorized live agent that actually calls tools,
+  instead of prompt-only model evaluation.
 - **Real LLM adapters** - drive authorized live agents instead of local synthetic targets.
 - **Multimodal / audio-ASR** - sanitized, pre-recorded ASR / OCR fixtures for the
   sensor-to-agent path.

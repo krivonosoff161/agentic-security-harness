@@ -312,6 +312,20 @@ Validation is artifact-integrity only - see
   equal the package models. The Python validator additionally enforces membership,
   ordering, uniqueness, and deprecation/replacement semantics.
 
+### Agent Host recording v1 development contract
+
+- `schemas/agent-host-recording.v1.schema.json` is the closed record shape;
+  `schemas/agent-host-recording.v1.manifest.json` binds the schema, validator, offline
+  inspection CLI, fixture runner, and exact synthetic accept/reject fixtures.
+- Each recording binds one corpus-1.0.0 pattern, the exact corpus-manifest digest, one
+  ordered self-contained event graph, and one commitment per canonical observation.
+- The whole-record commitment is domain-separated from per-event commitments. Neither
+  commitment authenticates the producer or proves an action occurred.
+- The only verdict semantic is `observation_only_no_security_verdict`; operational
+  authority is always `none`.
+- `tools/agent_host_contract.py --root . --check` proves the generated contract artifacts
+  match the current implementation.
+
 ### Frozen trace v1 contract
 
 - Current writers emit only `schema_version: "1.0"`.

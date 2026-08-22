@@ -1,0 +1,57 @@
+{
+  "schema_version": "agent-host-recording-contract-manifest-v1.0",
+  "contract_id": "agent-host-recording-v1.0",
+  "owner": "agentic-security-harness",
+  "canonicalization": "utf8-json-sort-keys-compact-utc-microseconds-lf-v1",
+  "max_bytes": 1048576,
+  "max_events": 2048,
+  "commitment_domain": "agentic-security-harness/agent-host-recording/v1.0",
+  "producer_attestation": "unattested_only",
+  "verdict_semantics": "observation_only_no_security_verdict",
+  "operational_authority": "none",
+  "schema_path": "schemas/agent-host-recording.v1.schema.json",
+  "schema_sha256": "4d10949e69deeb03d10c175e5019e5273d8177f500f56f7700dfd03b7c6b52cf",
+  "validator": {
+    "path": "src/agentic_security_harness/agent_host_adapter.py",
+    "sha256": "6d8b63e0ecf20ae25b2a7837c22caf327debe5826e1e032f1ce11c1083fe4c96"
+  },
+  "cli": {
+    "path": "src/agentic_security_harness/cli.py",
+    "command": "ash agent-host-inspect",
+    "sha256": "13d813d75c8729ec1866aee445dcfc5e19c590fba673a5218632f4b290818fbd"
+  },
+  "fixture_runner": {
+    "path": "tests/test_agent_host_adapter.py",
+    "sha256": "6309105bf9a504937e38e7541e95e43d7ce47807d5cf3a1ef24a9a4fa0fe03a8"
+  },
+  "forbidden_capabilities": [
+    "dynamic_plugin_loading",
+    "host_process_execution",
+    "network_transport",
+    "provider_credentials",
+    "security_verdict_from_producer",
+    "operational_authority_grant"
+  ],
+  "fixtures": [
+    {
+      "path": "tests/fixtures/agent-host-recording-v1/valid/minimal.json",
+      "sha256": "06116135dd5bb822e74a5fd7b0942e979250c57986bdf064a7234c5ee976510a",
+      "expected": "accept"
+    },
+    {
+      "path": "tests/fixtures/agent-host-recording-v1/invalid/unknown-field.json",
+      "sha256": "ea5cbd2f7b86a9f84f87ae2d6a6edb2a33ed98e8a6e45dcd42442e56cfea55e6",
+      "expected": "reject"
+    },
+    {
+      "path": "tests/fixtures/agent-host-recording-v1/invalid/duplicate-field.json",
+      "sha256": "cd8c755fe618c9cba1cc8adb8d8898538b27491688f26910561b0130899544a7",
+      "expected": "reject"
+    },
+    {
+      "path": "tests/fixtures/agent-host-recording-v1/invalid/noncanonical.json",
+      "sha256": "8351d86030ecb07e970b248905d8ea0819ec974b2763d58acbfa197e7ac533f9",
+      "expected": "reject"
+    }
+  ]
+}

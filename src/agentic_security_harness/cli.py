@@ -4,6 +4,7 @@ Commands:
   ash run         --target {mock,...} --out <dir>
   ash compare     --baseline <target> --protected <target> --out <dir>
   ash validate    <path>
+  ash agent-host-inspect <recording.json> [--format text|json]
   ash targets
   ash scenarios [--verbose]
   ash trading-stand [--mode profile|dry-run|offline-fixture|scenario-catalog|
@@ -148,6 +149,22 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("text", "json"),
         default="text",
         help="output format (default: text)",
+    )
+
+    host_p = sub.add_parser(
+        "agent-host-inspect",
+        help="validate and inspect one authority-free Agent Host V1 recording offline",
+    )
+    host_p.add_argument(
+        "path",
+        type=Path,
+        help="canonical agent-host-recording-v1.0 JSON file",
+    )
+    host_p.add_argument(
+        "--format",
+        choices=("text", "json"),
+        default="text",
+        help="safe summary format (default: text)",
     )
 
     sub.add_parser("targets", help="list registered built-in targets")
@@ -1623,6 +1640,49 @@ def _validate(path: Path, output_format: str = "text") -> int:
     else:
         print("INTEGRITY FAILED: see errors above")
     return 0 if result.ok else 1
+
+
+def _agent_host_inspect(path: Path, output_format: str = "text") -> int:
+    """Validate one canonical Agent Host recording without executing its producer."""
+
+    from agentic_security_harness.agent_host_adapter import (
+        AgentHostContractError,
+        inspect_agent_host_recording_v1,
+        read_agent_host_recording_v1,
+    )
+
+    try:
+        recording = read_agent_host_recording_v1(path)
+        inspection = inspect_agent_host_recording_v1(recording)
+    except (AgentHostContractError, OSError, ValueError):
+        # The input is untrusted. Do not echo its path, bytes, parser detail, or any
+        # producer-controlled value to the terminal on failure.
+        print("Error: invalid Agent Host V1 recording")
+        return 1
+
+    if output_format == "json":
+        print(
+            json.dumps(
+                inspection.model_dump(mode="json"),
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    print("Agent Host recording: valid canonical V1")
+    print(f"  Pattern: {terminal_field(inspection.pattern_id)}")
+    print(f"  Events: {inspection.event_count}")
+    print(f"  Telemetry: {terminal_field(inspection.telemetry_state)}")
+    print(f"  Terminal status: {terminal_field(inspection.terminal_status)}")
+    print(f"  Capture mode: {terminal_field(inspection.capture_mode)}")
+    print(f"  Network mode: {terminal_field(inspection.network_mode)}")
+    print(f"  Tool activity observed: {str(inspection.tool_activity_observed).lower()}")
+    print(f"  Recording commitment: {inspection.recording_commitment_sha256}")
+    print("  Verdict: not produced (observation-only evidence)")
+    print("  Operational authority: none")
+    return 0
 
 
 def _targets() -> int:
@@ -4482,6 +4542,8 @@ def _main(argv: list[str] | None = None) -> int:
         return _compare(args.baseline, args.protected, args.out)
     if args.command == "validate":
         return _validate(args.path, args.format)
+    if args.command == "agent-host-inspect":
+        return _agent_host_inspect(args.path, args.format)
     if args.command == "targets":
         return _targets()
     if args.command == "scenarios":

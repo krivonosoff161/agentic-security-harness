@@ -8,6 +8,21 @@ encryption.
 """
 
 from agentic_security_harness.adapter_base import TargetAdapterBase
+from agentic_security_harness.agent_host_adapter import (
+    AgentHostAdapterV1,
+    AgentHostContractError,
+    AgentHostDescriptorV1,
+    AgentHostInspectionV1,
+    AgentHostRecordingCommitmentV1,
+    AgentHostRecordingV1,
+    StaticAgentHostAdapterV1,
+    build_agent_host_recording_v1,
+    commit_agent_host_recording_v1,
+    decode_agent_host_recording_v1,
+    encode_agent_host_recording_v1,
+    inspect_agent_host_recording_v1,
+    read_agent_host_recording_v1,
+)
 from agentic_security_harness.corpus import (
     CORPUS_MANIFEST_SCHEMA_VERSION,
     DEPRECATED_PATTERN_IDS,
@@ -133,6 +148,19 @@ __all__ = [
     "Observation",
     "Target",
     "TargetAdapterBase",
+    "AgentHostAdapterV1",
+    "AgentHostContractError",
+    "AgentHostDescriptorV1",
+    "AgentHostInspectionV1",
+    "AgentHostRecordingCommitmentV1",
+    "AgentHostRecordingV1",
+    "StaticAgentHostAdapterV1",
+    "build_agent_host_recording_v1",
+    "commit_agent_host_recording_v1",
+    "decode_agent_host_recording_v1",
+    "encode_agent_host_recording_v1",
+    "inspect_agent_host_recording_v1",
+    "read_agent_host_recording_v1",
     "TargetDescriptor",
     "TargetMetadata",
     "TraceStep",
