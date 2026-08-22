@@ -85,8 +85,9 @@ returns only bounded JSON responses and does not implement SSE or MRTR.
 - `synthetic.sha256`, which hashes one bounded in-memory string and returns only its digest.
 
 Unknown tools, process execution, external sends, malformed arguments, and additional
-fields never reach an executor. Approval-required is a terminal gateway decision in this
-contour; there is no approval bypass or consent-minting API.
+fields never reach an executor. Approval-required produces a stable, privacy-minimized
+request digest with status `pending_non_executable`; it remains a terminal gateway decision
+in this contour. There is no approval grant, bypass, or consent-minting API.
 
 Example discovery request:
 
@@ -118,7 +119,9 @@ ledger-local HMAC commitments to request/tool identities and payloads. The rando
 is a private local ledger file and is never returned by the API. Records do not retain raw
 prompts, messages, tool arguments, tool output, headers, credentials, usernames, or local
 paths. `/v1/gateway/audit` and `/dashboard` expose aggregate counts and the verified chain
-head only.
+head only. `/v1/gateway/policy` exposes the closed rule table and exact policy digest but
+cannot change policy or grant approval. The dashboard shows the same policy identity and
+explicitly labels approval requests as non-executable.
 
 The ledger detects modification and partial writes but is not a remote transparency log,
 hardware-backed attestation, or protection against an administrator deleting all local
@@ -126,6 +129,7 @@ state. Back up operational evidence according to your own retention and access p
 
 ## What comes next
 
-Later, separately reviewed increments can add provider adapters, authenticated approval
-receipts, real MCP upstream isolation, durable operator identity, policy bundles, and
-production deployment guidance. Those capabilities are not implied by this local contour.
+Later, separately reviewed increments can add authenticated approval grants, real MCP
+upstream isolation, durable operator identity, policy bundles, and production deployment
+guidance. The current approval request digest is not an authenticated approval receipt and
+does not grant execution authority.
