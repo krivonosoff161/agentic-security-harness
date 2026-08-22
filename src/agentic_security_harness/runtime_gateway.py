@@ -56,7 +56,13 @@ MCP_REQUIRED_META_KEYS = {
 }
 
 GatewayDisposition = Literal["allow", "deny", "require_approval"]
-GatewayProtocol = Literal["openai_compatible", "mcp"]
+GatewayProtocol = Literal[
+    "openai_compatible",
+    "openai_responses",
+    "anthropic_messages",
+    "google_interactions",
+    "mcp",
+]
 
 
 class GatewayContractError(ValueError):

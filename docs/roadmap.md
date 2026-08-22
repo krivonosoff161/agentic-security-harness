@@ -162,8 +162,10 @@ shipped benchmark scope until they have their own design review and release boun
 
 - **Reference gateway / LLM Safety Gateway** - the local synthetic reference contour is
   implemented on the active product branch; real provider/runtime protection remains future.
-- **Native provider adapters** - first-class SDK adapters (Anthropic, OpenAI Responses,
-  Google, etc.) beyond the current OpenAI-compatible path.
+- **Native provider transports** - first-class live SDK adapters (Anthropic, OpenAI
+  Responses, Google, etc.) beyond the current OpenAI-compatible path. Credential-free
+  retained tool-envelope normalization for those families is implemented on the active
+  product branch; it is not live transport.
 - **Native agent-host / tool-use collectors** - extend the implemented Agent Host V1
   record/evaluate and explicit owned-workflow API to provider SDKs and authorized live
   agents, with separate credential, network, privacy, retention, and execution gates.

@@ -1,0 +1,15 @@
+{
+  "id": "resp_synthetic",
+  "object": "response",
+  "output": [
+    {
+      "arguments": "{\"key\":\"project-status\"}",
+      "call_id": "call_synthetic",
+      "id": "fc_synthetic",
+      "name": "synthetic.lookup",
+      "status": "completed",
+      "type": "function_call"
+    }
+  ],
+  "status": "completed"
+}

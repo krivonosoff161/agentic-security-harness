@@ -1,0 +1,19 @@
+{
+  "id": 7,
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "_meta": {
+      "io.modelcontextprotocol/clientCapabilities": {},
+      "io.modelcontextprotocol/clientInfo": {
+        "name": "ash-synthetic-fixture",
+        "version": "1.0.0"
+      },
+      "io.modelcontextprotocol/protocolVersion": "2026-07-28"
+    },
+    "arguments": {
+      "key": "project-status"
+    },
+    "name": "synthetic.lookup"
+  }
+}

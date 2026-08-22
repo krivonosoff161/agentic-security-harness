@@ -100,6 +100,14 @@ from agentic_security_harness.protected_demo_agent import (
     ProtectedDemoAgent,
     ProtectedDemoAgentTarget,
 )
+from agentic_security_harness.provider_tool_adapters import (
+    ProviderFamily,
+    ProviderToolAdapterError,
+    ProviderToolCallV1,
+    ProviderToolExecutionV1,
+    execute_provider_tool_payload_v1,
+    normalize_provider_tool_calls_v1,
+)
 from agentic_security_harness.remediation import (
     ControlRecommendation,
     RemediationReport,
@@ -260,6 +268,12 @@ __all__ = [
     "load_gateway_config_v1",
     "serve_gateway",
     "write_gateway_example_config_v1",
+    "ProviderFamily",
+    "ProviderToolAdapterError",
+    "ProviderToolCallV1",
+    "ProviderToolExecutionV1",
+    "execute_provider_tool_payload_v1",
+    "normalize_provider_tool_calls_v1",
     "ScorecardSummary",
     "SCHEMA_VERSIONS",
     "schema_version",
