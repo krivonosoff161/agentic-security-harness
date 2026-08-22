@@ -326,6 +326,21 @@ Validation is artifact-integrity only - see
 - `tools/agent_host_contract.py --root . --check` proves the generated contract artifacts
   match the current implementation.
 
+### Agent Host evaluation v1 development contract
+
+- `schemas/agent-host-evaluation.v1.schema.json` and
+  `schemas/agent-host-evaluation-ruleset.v1.schema.json` are closed result/ruleset shapes;
+  `schemas/agent-host-evaluation-ruleset.v1.json` is the exact 24-pattern ruleset.
+- `schemas/agent-host-evaluation.v1.manifest.json` binds those artifacts, the recording
+  contract, evaluator, CLI, fixture runner, and exact accept/reject fixtures.
+- A unique final terminal event must causally cover the complete recording. The four
+  terminal activities map only to `pass`, `finding`, `inconclusive`, or `adapter_error`;
+  malformed, ambiguous, disconnected, or incomplete evidence cannot become PASS.
+- Results are `deterministic_rule_derived_unattested_observation`, limited to
+  `recording_contract_only_not_security_certification`, with authority `none`.
+- `tools/agent_host_evaluation_contract.py --root . --check` proves committed evaluator
+  artifacts match the implementation.
+
 ### Frozen trace v1 contract
 
 - Current writers emit only `schema_version: "1.0"`.

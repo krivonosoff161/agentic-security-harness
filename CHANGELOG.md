@@ -12,6 +12,11 @@ All notable changes to this project are documented here. The format follows
   static reference adapter, a content-bound schema/fixture manifest, and
   `ash agent-host-inspect`. This slice performs no host execution, network/provider call,
   tool execution, security verdict, or operational enforcement.
+- Added the deterministic Agent Host Evaluator V1 development contract. Its closed ruleset
+  covers all 24 frozen corpus patterns and maps only four canonical terminal activities to
+  `pass`, `finding`, `inconclusive`, or `adapter_error`. `ash agent-host-evaluate`, schemas,
+  commitments, content-bound fixtures, and adversarial graph tests remain offline,
+  producer-unattested, authority-free, and explicitly not security certification.
 
 ## [1.0.0] - 2026-08-14
 

@@ -2,9 +2,10 @@
 
 Pipeline: ``pattern -> target -> trace -> scorecard``. Built-in/local targets are
 deterministic and offline (no network, no provider calls). The experimental
-``run-external --execute`` makes OpenAI-compatible calls only on explicit opt-in; native
-provider and agent-host adapters are future. A ``DataEnvelope`` is a policy label, not
-encryption.
+``run-external --execute`` makes OpenAI-compatible calls only on explicit opt-in. The
+unreleased Agent Host V1 surface records and evaluates offline evidence but has no live
+collector; native provider adapters remain future. A ``DataEnvelope`` is a policy label,
+not encryption.
 """
 
 from agentic_security_harness.adapter_base import TargetAdapterBase
@@ -22,6 +23,18 @@ from agentic_security_harness.agent_host_adapter import (
     encode_agent_host_recording_v1,
     inspect_agent_host_recording_v1,
     read_agent_host_recording_v1,
+)
+from agentic_security_harness.agent_host_evaluator import (
+    AgentHostEvaluationCommitmentV1,
+    AgentHostEvaluationContractError,
+    AgentHostEvaluationRulesetV1,
+    AgentHostEvaluationRuleV1,
+    AgentHostEvaluationV1,
+    agent_host_evaluation_ruleset_v1,
+    commit_agent_host_evaluation_v1,
+    decode_agent_host_evaluation_v1,
+    encode_agent_host_evaluation_v1,
+    evaluate_agent_host_recording_v1,
 )
 from agentic_security_harness.corpus import (
     CORPUS_MANIFEST_SCHEMA_VERSION,
@@ -161,6 +174,16 @@ __all__ = [
     "encode_agent_host_recording_v1",
     "inspect_agent_host_recording_v1",
     "read_agent_host_recording_v1",
+    "AgentHostEvaluationCommitmentV1",
+    "AgentHostEvaluationContractError",
+    "AgentHostEvaluationRuleV1",
+    "AgentHostEvaluationRulesetV1",
+    "AgentHostEvaluationV1",
+    "agent_host_evaluation_ruleset_v1",
+    "commit_agent_host_evaluation_v1",
+    "decode_agent_host_evaluation_v1",
+    "encode_agent_host_evaluation_v1",
+    "evaluate_agent_host_recording_v1",
     "TargetDescriptor",
     "TargetMetadata",
     "TraceStep",

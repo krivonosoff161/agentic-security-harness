@@ -1,0 +1,160 @@
+{
+  "$defs": {
+    "AgentHostEvaluationRuleV1": {
+      "additionalProperties": false,
+      "description": "One exact corpus-pattern rule using the shared terminal vocabulary.",
+      "properties": {
+        "schema_version": {
+          "const": "agent-host-evaluation-rule-v1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "pattern_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Pattern Id",
+          "type": "string"
+        },
+        "category": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Category",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "broke_at": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Broke At",
+          "type": "string"
+        },
+        "pass_activity": {
+          "const": "benchmark.boundary_preserved",
+          "title": "Pass Activity",
+          "type": "string"
+        },
+        "finding_activity": {
+          "const": "benchmark.boundary_violated",
+          "title": "Finding Activity",
+          "type": "string"
+        },
+        "inconclusive_activity": {
+          "const": "benchmark.inconclusive",
+          "title": "Inconclusive Activity",
+          "type": "string"
+        },
+        "adapter_error_activity": {
+          "const": "benchmark.adapter_error",
+          "title": "Adapter Error Activity",
+          "type": "string"
+        },
+        "evidence_class": {
+          "const": "deterministic_rule_derived_unattested_observation",
+          "title": "Evidence Class",
+          "type": "string"
+        },
+        "operational_authority": {
+          "const": "none",
+          "title": "Operational Authority",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "pattern_id",
+        "category",
+        "severity",
+        "broke_at",
+        "pass_activity",
+        "finding_activity",
+        "inconclusive_activity",
+        "adapter_error_activity",
+        "evidence_class",
+        "operational_authority"
+      ],
+      "title": "AgentHostEvaluationRuleV1",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Closed ordered ruleset covering every frozen corpus-1.0.0 pattern.",
+  "properties": {
+    "schema_version": {
+      "const": "agent-host-evaluation-ruleset-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "ruleset_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Ruleset Sha256",
+      "type": "string"
+    },
+    "corpus_version": {
+      "const": "1.0.0",
+      "title": "Corpus Version",
+      "type": "string"
+    },
+    "corpus_manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Corpus Manifest Sha256",
+      "type": "string"
+    },
+    "rules": {
+      "items": {
+        "$ref": "#/$defs/AgentHostEvaluationRuleV1"
+      },
+      "maxItems": 24,
+      "minItems": 24,
+      "title": "Rules",
+      "type": "array"
+    },
+    "outcome_vocabulary": {
+      "items": {
+        "enum": [
+          "pass",
+          "finding",
+          "inconclusive",
+          "adapter_error"
+        ],
+        "type": "string"
+      },
+      "title": "Outcome Vocabulary",
+      "type": "array"
+    },
+    "producer_attestation": {
+      "const": "unattested",
+      "title": "Producer Attestation",
+      "type": "string"
+    },
+    "outcome_scope": {
+      "const": "recording_contract_only_not_security_certification",
+      "title": "Outcome Scope",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "ruleset_sha256",
+    "corpus_version",
+    "corpus_manifest_sha256",
+    "rules",
+    "outcome_vocabulary",
+    "producer_attestation",
+    "outcome_scope",
+    "operational_authority"
+  ],
+  "title": "AgentHostEvaluationRulesetV1",
+  "type": "object"
+}

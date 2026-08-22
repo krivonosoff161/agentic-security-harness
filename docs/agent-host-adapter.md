@@ -4,9 +4,10 @@ Status: implemented development slice; offline record/replay only; not part of t
 published `v1.0.0` package.
 
 The Agent Host Adapter V1 contract is the first provider-neutral integration surface for
-recording what an owned or explicitly authorized agent host did. It reuses the stable
-authority-free portfolio observation envelope and deliberately stops before live host
-execution, provider transport, policy enforcement, or security scoring.
+recording what an owned or explicitly authorized agent host declared it did. It reuses the
+stable authority-free portfolio observation envelope. A separate deterministic evaluator
+now classifies closed terminal events, while the development slice still stops before live
+host execution, provider transport, policy enforcement, or security certification.
 
 ## What this slice does
 
@@ -18,11 +19,14 @@ execution, provider transport, policy enforcement, or security scoring.
   forward/missing parents, telemetry drift, links, reparse points, and hardlinks;
 - exposes an offline `StaticAgentHostAdapterV1` reference collector;
 - provides `ash agent-host-inspect` for safe validation and replay summary;
-- emits only `observation_only_no_security_verdict` with operational authority `none`.
+- keeps the recording itself at `observation_only_no_security_verdict`;
+- provides a separate content-bound evaluator and `ash agent-host-evaluate` over all 24
+  frozen corpus patterns, always with operational authority `none`.
 
 The SDK does **not** load plugins dynamically, start a host process, open a network
-connection, read provider credentials, execute a tool, or turn the producer's statement
-into PASS/FAIL.
+connection, read provider credentials, execute a tool, or trust a producer-supplied
+PASS/FAIL statement. Evaluator outcomes are rule-derived classifications of an unattested
+recording, not proof that the recorded action occurred.
 
 ## Contract files
 
@@ -33,6 +37,10 @@ into PASS/FAIL.
 | Content-bound manifest | `schemas/agent-host-recording.v1.manifest.json` |
 | Synthetic accept/reject fixtures | `tests/fixtures/agent-host-recording-v1/` |
 | Generator/checker | `tools/agent_host_contract.py` |
+| Deterministic evaluator | `src/agentic_security_harness/agent_host_evaluator.py` |
+| Evaluator schemas and ruleset | `schemas/agent-host-evaluation*.json` |
+| Evaluator fixtures | `tests/fixtures/agent-host-evaluation-v1/` |
+| Evaluator generator/checker | `tools/agent_host_evaluation_contract.py` |
 
 The manifest binds the schema, validator, CLI, fixture runner, fixture bytes, byte/event
 limits, commitment domain, non-verdict semantics, and forbidden capabilities.
@@ -109,6 +117,35 @@ python -m pytest tests/test_agent_host_adapter.py
 
 On PowerShell, use `$env:PYTHONPATH = "src"` for the generator command.
 
+## Deterministic evaluation
+
+```bash
+ash agent-host-evaluate recording.json
+ash agent-host-evaluate recording.json --format json
+```
+
+The evaluator accepts only these terminal activities:
+
+| Terminal activity | Outcome |
+|---|---|
+| `benchmark.boundary_preserved` | `pass` |
+| `benchmark.boundary_violated` | `finding` |
+| `benchmark.inconclusive` | `inconclusive` |
+| `benchmark.adapter_error` | `adapter_error` |
+
+One terminal event must be unique, final, and causally cover the entire ordered event
+graph. Missing, multiple, disconnected, non-final, or incomplete evidence fails closed to
+`inconclusive`; adapter failure stays visible. The ruleset binds exact corpus-1.0.0
+metadata for all 24 patterns. It never interprets arbitrary log text, prompts, tool
+arguments, or model output.
+
+Validate its committed artifacts with:
+
+```bash
+PYTHONPATH=src python tools/agent_host_evaluation_contract.py --root . --check
+python -m pytest tests/test_agent_host_evaluator.py
+```
+
 ## Trust boundary
 
 | Claim | Status |
@@ -120,9 +157,12 @@ On PowerShell, use `$env:PYTHONPATH = "src"` for the generator command.
 | Recorded action really happened | Not claimed by this contract |
 | Tool execution was safe | Not evaluated |
 | Agent passes the benchmark pattern | No verdict produced |
+| Closed evaluator outcome for a canonical recording | Deterministically rule-derived |
+| Outcome authenticates the producer or real-world action | Not claimed |
+| Outcome certifies external-system security | Not claimed |
 | Runtime enforcement authority | None |
 
-The next separately reviewed slice is a deterministic evaluator that maps a declared
-subset of event activities to benchmark observations. Native OpenAI, Anthropic, Google,
-MCP, and live agent-host collectors come after that evaluator and retain explicit
-network/credential/authorization gates.
+The next separately reviewed slice is an authorized collector integration that converts
+one real agent host's activity into this existing record/evaluate contract. Native OpenAI,
+Anthropic, Google, MCP, and other live collectors remain future work with explicit
+network, credential, and authorization gates.

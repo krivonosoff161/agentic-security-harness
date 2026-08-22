@@ -13,6 +13,7 @@ from agentic_security_harness.cli import build_parser
 ROOT = Path(__file__).resolve().parent.parent
 
 READ_ONLY_COMMANDS = {
+    "agent-host-evaluate",
     "agent-host-inspect",
     "validate",
     "targets",

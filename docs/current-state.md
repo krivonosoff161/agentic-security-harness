@@ -6,9 +6,10 @@ trajectory-accounting, and telemetry-completeness modules; operational authority
 `none`. See
 [`security-portfolio-roadmap.md`](security-portfolio-roadmap.md).
 
-> Last reviewed: 2026-08-14 against merged Security Portfolio projection
-> `2026.08.02-r4-trajectory-containment` and the `v1.0.0` release commit
-> `71295922b8053a188431d0f510f1e9146435c742`.
+> Last reviewed: 2026-08-22 against merged Security Portfolio projection
+> `2026.08.02-r4-trajectory-containment`, the `v1.0.0` release commit
+> `71295922b8053a188431d0f510f1e9146435c742`, and the current unreleased
+> development tree.
 >
 > Scope: public status of `agentic-security-harness` and published release `1.0.0`.
 > This page is a reviewer-facing status
@@ -43,7 +44,7 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 | Package identity | v1.0.0 published to PyPI and GitHub Releases | The exact tag workflow built and verified reproducible wheel/sdist subjects, checksums, a CycloneDX SBOM, and GitHub/Sigstore attestations. TestPyPI and PyPI expose the same wheel/sdist SHA-256 values. |
 | Local deterministic corpus | Shipped stable v1 contract | Corpus 1.0.0 freezes 24 ordered sanitized seed ids and fields in a closed committed manifest/schema; new traces bind its canonical semantic digest. |
 | Local targets | Shipped | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, `protected-toy-multi-agent`. |
-| Agent Host Adapter V1 | Implemented development slice; unreleased | Closed provider-neutral record/replay model over canonical authority-free observations, exact event/record commitments, synthetic fixtures, offline reference adapter, and `ash agent-host-inspect`. It performs no host/plugin execution, provider/network call, tool execution, security verdict, or operational enforcement. |
+| Agent Host Adapter and Evaluator V1 | Implemented development slice; unreleased | Closed provider-neutral recordings, exact commitments, offline inspection, and a deterministic 24-pattern ruleset exposed by `ash agent-host-evaluate`. The evaluator requires a unique final terminal event covering the causal graph and preserves explicit inconclusive/error states. It performs no host/plugin execution, provider/network call, tool execution, producer authentication, security certification, or operational enforcement. |
 | Baseline vs protected replay | Shipped | `ash compare --baseline demo-agent --protected protected-demo-agent`. |
 | Inter-agent handoff verifier toy topology | Shipped local slice | `handoff_integrity.py`, `toy-multi-agent`, and `protected-toy-multi-agent` model deterministic label-loss and authority-expansion handoffs. |
 | Boundary-layer variation matrices | Shipped local slice | `boundary-layer-evidence-matrix.md` and `tests/test_boundary_variation_matrices.py` tie declared handoff, authority, and memory-governance variation rows to executable deterministic checks. |
@@ -154,7 +155,8 @@ records contradictory or incomplete model self-reports as `inconclusive`.
 These are roadmap items and must not be described as current capability:
 
 - native provider SDK adapters;
-- live agent-host or tool-executing collectors beyond the offline Agent Host V1 record/replay contract;
+- live agent-host or tool-executing collectors beyond the offline Agent Host V1
+  record/evaluate contract;
 - live MCP server adapter;
 - cross-provider and cross-ecosystem handoff tests beyond the local toy adapter;
 - broader recovery-path pattern family implementation beyond the shipped

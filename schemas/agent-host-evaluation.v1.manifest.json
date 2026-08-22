@@ -1,0 +1,85 @@
+{
+  "schema_version": "agent-host-evaluation-contract-manifest-v1.0",
+  "contract_id": "agent-host-evaluation-v1.0",
+  "owner": "agentic-security-harness",
+  "canonicalization": "utf8-json-sort-keys-compact-lf-v1",
+  "max_bytes": 65536,
+  "commitment_domain": "agentic-security-harness/agent-host-evaluation/v1.0",
+  "producer_attestation": "unattested_only",
+  "evidence_class": "deterministic_rule_derived_unattested_observation",
+  "outcome_scope": "recording_contract_only_not_security_certification",
+  "operational_authority": "none",
+  "outcome_vocabulary": [
+    "pass",
+    "finding",
+    "inconclusive",
+    "adapter_error"
+  ],
+  "terminal_activity_vocabulary": [
+    "benchmark.boundary_preserved",
+    "benchmark.boundary_violated",
+    "benchmark.inconclusive",
+    "benchmark.adapter_error"
+  ],
+  "evaluation_schema": {
+    "path": "schemas/agent-host-evaluation.v1.schema.json",
+    "sha256": "94f45318d5f076229addc1dc1392af9e4362668863851d75ea241fc8909e8910"
+  },
+  "ruleset_schema": {
+    "path": "schemas/agent-host-evaluation-ruleset.v1.schema.json",
+    "sha256": "1ca8d767c2333d71bbcfbe5b4a864eb1cf1ca39d5b4d4af870d8b18c8501a5a0"
+  },
+  "ruleset": {
+    "path": "schemas/agent-host-evaluation-ruleset.v1.json",
+    "sha256": "83f1db93231921c67d26286efe4e0445aa7a7e1ac08cf460680cfb4203d211cb",
+    "identity_sha256": "57354449c9796f21ee5d9112efa126c872af3714078f2851913cd2eface04388",
+    "pattern_count": 24
+  },
+  "recording_contract": {
+    "path": "schemas/agent-host-recording.v1.manifest.json",
+    "sha256": "3f87804331df52ff1326165308e1a28d7062dd9fc618fcccb16f632ba50f9ab3"
+  },
+  "validator": {
+    "path": "src/agentic_security_harness/agent_host_evaluator.py",
+    "sha256": "fea7c9fd402c539b7e325c5cee01a11e343a9b54fe9a97cd113bdcd24a9e846e"
+  },
+  "cli": {
+    "path": "src/agentic_security_harness/cli.py",
+    "command": "ash agent-host-evaluate",
+    "sha256": "86805a0b9a29eebde74490f4bc3a37d30443451f38f4d27953ab7ea3d49151c7"
+  },
+  "fixture_runner": {
+    "path": "tests/test_agent_host_evaluator.py",
+    "sha256": "61977a976dfd1247bba7a96a4e73cdc0627bca68ca59a1d864046200b8b0e3be"
+  },
+  "forbidden_capabilities": [
+    "dynamic_plugin_loading",
+    "host_process_execution",
+    "network_transport",
+    "provider_credentials",
+    "producer_security_verdict_trust",
+    "operational_authority_grant"
+  ],
+  "fixtures": [
+    {
+      "path": "tests/fixtures/agent-host-evaluation-v1/valid/pass.json",
+      "sha256": "5204916a0033c89aced333c3213af69e8d5a964d81e57c351021df2d9c782ae6",
+      "expected": "accept"
+    },
+    {
+      "path": "tests/fixtures/agent-host-evaluation-v1/invalid/unknown-field.json",
+      "sha256": "425a50c7b47c341aeee9eb1683a14a6581ed97c0d8b3e907294987151814ed45",
+      "expected": "reject"
+    },
+    {
+      "path": "tests/fixtures/agent-host-evaluation-v1/invalid/duplicate-field.json",
+      "sha256": "dff06c08421d028bb614c8f40dcf91dea1a03e2a772e43968caa8811acd7e048",
+      "expected": "reject"
+    },
+    {
+      "path": "tests/fixtures/agent-host-evaluation-v1/invalid/noncanonical.json",
+      "sha256": "dea3c46d75e73100a84be66b3acc8a23bd9e892cdacc73e2b23c9a01f5e8623b",
+      "expected": "reject"
+    }
+  ]
+}
