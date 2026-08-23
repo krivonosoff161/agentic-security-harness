@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-08-23
+
 ### Added
 - Added the first public Runtime Gateway development contour: a local policy-before-
   dispatch HTTP service, bounded OpenAI-compatible and MCP endpoints, two deterministic
@@ -16,6 +18,14 @@ All notable changes to this project are documented here. The format follows
 - Pinned the Runtime Gateway MCP subset to the stateless `2026-07-28` wire contract:
   `server/discover`, per-request `_meta`, mirrored transport headers, Origin validation,
   deterministic tool listing, and no legacy `initialize` or session fallback.
+
+### Changed
+- Added a task-oriented documentation map and aligned public capability, deployment,
+  threat-model, operator, and integration guidance with the shipped gateway contour.
+- Consolidated verified Python build/development and CodeQL action updates while
+  preserving the Windows hash lock and coupled workflow-pin invariants.
+- Hardened published-package smoke installation so the universal wheel is selected and
+  installed by its exact package-index SHA-256 without widening dependency resolution.
 
 ## [1.1.0] - 2026-08-22
 

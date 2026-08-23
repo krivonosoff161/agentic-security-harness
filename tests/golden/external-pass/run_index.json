@@ -5,7 +5,7 @@
   "config_fingerprint": "cfg_5291944b10",
   "run_kind": "external",
   "created_at": "2026-07-15T00:00:00Z",
-  "tool_version": "1.1.0",
+  "tool_version": "1.2.0",
   "target": "",
   "model": "snapshot-model",
   "scenario": "perception-boundary",
@@ -55,6 +55,6 @@
     "external_results.json": "abe7a73b72c9adebb41b41ab49fed9a1905c5ef3db7d4ab4e656a9ae815338be",
     "external_summary.json": "56b06fcc642ef84d33160aff4462f12b0855bd6aa0e14ab3df5ad3fa280de880",
     "raw_responses/ext_03c36122.txt": "f98f79c939384d0ab38fea4b6a00c7e39551e6bfc9c82ae52bd58a7a05620383",
-    "run_config.json": "834d9718e19f2cee4b9b68f9ed5fb8d09894c52cd05caf4ff61723e851481ec8"
+    "run_config.json": "cad1c7f2f8d9892ebae6be68f0e44a0e0e62d61f6f64eb3b79d42052621f5213"
   }
 }

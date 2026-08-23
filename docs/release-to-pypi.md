@@ -1,7 +1,7 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The package is published as `1.1.0` on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.1.0/). This page documents the
+The package is published as `1.2.0` on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.2.0/). This page documents the
 manual, environment-gated OIDC promotion path used for that release and required for
 future releases. See the gates in [release-checklist.md](release-checklist.md).
 

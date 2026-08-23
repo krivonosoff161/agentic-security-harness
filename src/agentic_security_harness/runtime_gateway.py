@@ -1,4 +1,4 @@
-"""Local-only Runtime Gateway development contour.
+"""Local-only Runtime Gateway synthetic contour.
 
 The gateway is deliberately useful without becoming an ambient execution surface:
 
@@ -39,6 +39,7 @@ from typing import Any, Literal, cast
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from agentic_security_harness.safe_io import is_link_or_reparse
+from agentic_security_harness.version import __version__
 
 SHA256_PATTERN = r"^[0-9a-f]{64}$"
 SAFE_TOKEN_PATTERN = r"^[a-z0-9][a-z0-9._:-]{0,127}$"
@@ -1026,7 +1027,7 @@ class _GatewayRequestHandler(BaseHTTPRequestHandler):
                     "_meta": {
                         "io.modelcontextprotocol/serverInfo": {
                             "name": "ash-runtime-gateway",
-                            "version": "1.1.0-dev",
+                            "version": __version__,
                         }
                     },
                     "instructions": "Two deterministic synthetic tools; no external effects.",
