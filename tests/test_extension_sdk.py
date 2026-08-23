@@ -48,6 +48,8 @@ def _manifest(extension_id: str = "example.telemetry-check") -> ExtensionManifes
         extension_id=extension_id,
         extension_version="1.0.0",
         component_id="agentic-security-harness",
+        implementation_sha256="1" * 64,
+        configuration_sha256="2" * 64,
         harness_api="1",
         kind="check_extension",
         capabilities=("observation.read", "finding.emit"),
@@ -207,6 +209,8 @@ def test_manifest_decoder_reader_and_cli_are_fail_closed(
     assert _main(["extension-inspect", str(path), "--format", "json"]) == 0
     output = json.loads(capsys.readouterr().out)
     assert output["extension_id"] == _manifest().extension_id
+    assert output["implementation_sha256"] == "1" * 64
+    assert output["configuration_sha256"] == "2" * 64
     assert output["code_loaded"] is False
     assert output["operational_authority"] == "none"
 
@@ -314,6 +318,10 @@ def test_manifest_rejects_authority_network_and_contract_drift() -> None:
         ExtensionManifestV1.model_validate({**values, "consumes": ()})
     with pytest.raises(ValidationError, match="Extra inputs"):
         ExtensionManifestV1.model_validate({**values, "credential": "forbidden"})
+    with pytest.raises(ValidationError):
+        ExtensionManifestV1.model_validate(
+            {**values, "implementation_sha256": "not-a-digest"}
+        )
 
 
 def test_envelope_rejects_graph_identity_and_commitment_drift() -> None:

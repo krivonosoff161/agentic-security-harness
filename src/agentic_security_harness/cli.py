@@ -1813,6 +1813,8 @@ def _extension_inspect(path: Path, output_format: str = "text") -> int:
         "extension_id": manifest.extension_id,
         "extension_version": manifest.extension_version,
         "component_id": manifest.component_id,
+        "implementation_sha256": manifest.implementation_sha256,
+        "configuration_sha256": manifest.configuration_sha256,
         "harness_api": manifest.harness_api,
         "kind": manifest.kind,
         "capabilities": manifest.capabilities,
