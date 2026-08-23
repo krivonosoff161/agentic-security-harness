@@ -27,6 +27,7 @@ from agentic_security_harness.runtime_gateway import (
     load_gateway_config_v1,
     unused_loopback_port,
 )
+from agentic_security_harness.version import __version__
 
 
 def _config(tmp_path: Path, port: int | None = None) -> GatewayConfigV1:
@@ -472,6 +473,10 @@ def test_mcp_lists_only_executable_synthetic_tools_and_blocks_unknown(
     assert status == 200
     assert discovered["result"]["supportedVersions"] == ["2026-07-28"]
     assert discovered["result"]["resultType"] == "complete"
+    assert discovered["result"]["_meta"]["io.modelcontextprotocol/serverInfo"] == {
+        "name": "ash-runtime-gateway",
+        "version": __version__,
+    }
 
     status, listed = _mcp_post(port, "tools/list")
     assert status == 200

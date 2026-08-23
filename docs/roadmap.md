@@ -73,6 +73,11 @@ native provider and live host/tool collectors remain future.
 - **v1.1 Agent Host owned-workflow release:** provider-neutral canonical recording,
   deterministic evaluation of all 24 frozen patterns, explicit privacy-minimized Python
   instrumentation, and a built-in 48-case no-network quickstart with atomic validation.
+- **v1.2 Runtime Gateway synthetic release:** closed pre-dispatch policy, deterministic
+  synthetic tools, bounded OpenAI-compatible and stateless MCP endpoints,
+  privacy-minimized hash-chain audit, dashboard, source-build Docker Compose, structured
+  approval requests, and credential-free normalization of four retained provider envelope
+  families.
 
 ---
 
@@ -161,11 +166,11 @@ separate repository or separate track before benchmark v1.0, but they stay out o
 shipped benchmark scope until they have their own design review and release boundary:
 
 - **Reference gateway / LLM Safety Gateway** - the local synthetic reference contour is
-  implemented on the active product branch; real provider/runtime protection remains future.
+  shipped in v1.2.0; real provider/runtime protection remains future.
 - **Native provider transports** - first-class live SDK adapters (Anthropic, OpenAI
   Responses, Google, etc.) beyond the current OpenAI-compatible path. Credential-free
-  retained tool-envelope normalization for those families is implemented on the active
-  product branch; it is not live transport.
+  retained tool-envelope normalization for those families is shipped in v1.2.0; it is not
+  live transport.
 - **Native agent-host / tool-use collectors** - extend the implemented Agent Host V1
   record/evaluate and explicit owned-workflow API to provider SDKs and authorized live
   agents, with separate credential, network, privacy, retention, and execution gates.

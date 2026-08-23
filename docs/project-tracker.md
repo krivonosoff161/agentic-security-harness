@@ -6,7 +6,7 @@ docs describe the current shipped state.
 
 ## Current GitHub snapshot
 
-Snapshot refreshed against GitHub on 2026-08-22:
+Snapshot refreshed against GitHub on 2026-08-23:
 
 | Milestone | Purpose |
 |---|---|
@@ -15,7 +15,7 @@ Snapshot refreshed against GitHub on 2026-08-22:
 | [Post-v1 independent review](https://github.com/krivonosoff161/agentic-security-harness/milestone/7) | Non-blocking independent standards review and durable second-reviewer governance. |
 
 Completed milestones `v0.14` through `v0.17`, the v0.15.1 self-service release, and the
-[v1.1.0 release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.1.0)
+[v1.2.0 release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.2.0)
 are closed. Milestone state and
 open issues describe active work, not shipped capability.
 
@@ -23,13 +23,13 @@ open issues describe active work, not shipped capability.
 
 No product or research issue is treated as shipped capability.
 
-The active Runtime Gateway Core task is moving the public repository from benchmark-only
-integration toward a runnable product contour. Its bounded deliverable is a local
-credential-free policy gateway, deterministic synthetic tool execution, OpenAI-compatible
-and MCP development endpoints, privacy-minimized append-only audit, dashboard, and Docker
-operator path. Real provider adapters, arbitrary external tools, authenticated approvals,
-production deployment, certification, and operational authority are not included in this
-increment and must not be inferred from the active branch.
+The Runtime Gateway Core increment is complete and shipped in v1.2.0. Its bounded
+deliverable is a local credential-free policy gateway, deterministic synthetic tool
+execution, OpenAI-compatible and stateless MCP development endpoints, privacy-minimized
+append-only audit, dashboard, retained provider-envelope normalization, and a source-build
+Docker operator path. Real provider transports, arbitrary external tools, authenticated
+approval grants, production deployment, certification, and operational authority remain
+future work and must not be inferred from this release.
 
 The v0.15 productization contour is complete and intentionally user-facing rather than
 another broad research expansion:
@@ -45,8 +45,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.1.0` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.1.0/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.2.0` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.2.0/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are
@@ -100,6 +100,10 @@ updates are reviewed by class and exact head.
 
 | Issue | Track | Delivered focus |
 |---|---|---|
+| [PRs #225-#228 Runtime Gateway product contour](https://github.com/krivonosoff161/agentic-security-harness/pull/225) | Runtime gateway / provider-neutral integration | Merged the closed policy gateway, deterministic synthetic dispatch, privacy-minimized hash-chain audit and dashboard, four credential-free retained provider-envelope adapters, structured non-executable approval requests, stateless MCP `2026-07-28` contour, hardened Docker Compose source path, and installed/container CI coverage shipped in v1.2.0. |
+| [PR #229 dependency consolidation](https://github.com/krivonosoff161/agentic-security-harness/pull/229) | Supply chain / dependency maintenance | Replaced six superseded Dependabot PRs with one reviewed update preserving coupled CodeQL pins and the conditional Windows hash lock. |
+| [PR #230 documentation map](https://github.com/krivonosoff161/agentic-security-harness/pull/230) | Documentation / operator navigation | Added a task-oriented documentation entrypoint and synchronized product, deployment, threat-model, API, and operator guidance. |
+| [PR #231 published-package smoke hardening](https://github.com/krivonosoff161/agentic-security-harness/pull/231) | Release supply chain | Bound published universal-wheel installation to the exact package-index SHA-256 without widening dependency resolution. |
 | [PR #222 Agent Host owned workflow](https://github.com/krivonosoff161/agentic-security-harness/pull/222) | External agent integration | Merged the privacy-minimized explicit instrumentation API, built-in 48-case no-network quickstart, atomic evidence bundle, shared validation, docs, and installed-wheel coverage shipped in v1.1.0. |
 | [PR #221 Agent Host Evaluator V1](https://github.com/krivonosoff161/agentic-security-harness/pull/221) | External agent integration | Merged the deterministic offline evaluator for every frozen pattern, with fail-closed causal/terminal checks and explicit `pass`/`finding`/`inconclusive`/`adapter_error` outcomes. |
 | [PR #220 Agent Host Adapter SDK](https://github.com/krivonosoff161/agentic-security-harness/pull/220) | External agent integration | Merged the provider-neutral offline recording/inspection contract, exact commitments, fixtures, and trust boundary. Native provider collectors remain future. |

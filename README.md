@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/status-v1.1.0--released-brightgreen)
+![Status](https://img.shields.io/badge/status-v1.2.0--released-brightgreen)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -23,7 +23,7 @@ validate, compare, and review.
 Install the stable release from PyPI:
 
 ```bash
-python -m pip install agentic-security-harness==1.1.0
+python -m pip install agentic-security-harness==1.2.0
 ash quickstart --out reports/quickstart
 ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
@@ -48,7 +48,7 @@ instrumented collector, canonical recordings, deterministic evaluator, atomic bu
 publication, and shared validator. It retains digest-only public evidence and makes no
 provider call.
 
-### Runtime Gateway development contour
+### Runtime Gateway synthetic contour
 
 The source tree now also contains a runnable local Runtime Gateway increment. It applies a
 closed policy before synthetic tool dispatch, exposes bounded OpenAI-compatible and MCP
@@ -62,7 +62,7 @@ ash gateway-serve --config gateway.toml
 ```
 
 Open <http://127.0.0.1:8787/dashboard> after startup, or use the hardened Docker Compose
-profile in [Runtime Gateway development contour](docs/runtime-gateway.md). This is a
+profile in [Runtime Gateway synthetic contour](docs/runtime-gateway.md). This is a
 credential-free synthetic integration surface. Offline
 [provider-neutral tool-call adapters](docs/provider-tool-adapters.md) normalize retained
 OpenAI Responses, Anthropic Messages, Google Interactions, and MCP payloads through the
@@ -144,6 +144,12 @@ runtime evidence.
   and a validated 48-case no-network quickstart. The CLI does not execute arbitrary hosts
   or tools and does not authenticate its producer or certify an external system; see
   [Agent Host Adapter SDK](docs/agent-host-adapter.md).
+- A shipped local Runtime Gateway synthetic contour with closed pre-dispatch policy,
+  bounded OpenAI-compatible and stateless MCP endpoints, deterministic synthetic tools,
+  privacy-minimized hash-chain audit, dashboard, and hardened source-build Docker Compose.
+- Credential-free retained-envelope normalization for OpenAI Responses, Anthropic
+  Messages, Google Interactions, and MCP tool calls. These adapters do not make provider
+  calls or grant tool-execution authority.
 
 The exact shipped, experimental, planned, and historical surfaces live in
 [`docs/current-state.md`](docs/current-state.md) and
@@ -199,7 +205,7 @@ The README is the front door; deeper contracts live in `docs/`:
 | How is evidence promoted? | [Evidence pack format](docs/evidence-pack-format.md) |
 | How are changes reviewed? | [Git evidence workflow](docs/git-evidence-workflow.md) |
 | How can an external agent host record and evaluate observations? | [Agent Host Adapter SDK](docs/agent-host-adapter.md) |
-| How can I run the local policy gateway and MCP/OpenAI-compatible demo? | [Runtime Gateway development contour](docs/runtime-gateway.md) |
+| How can I run the local policy gateway and MCP/OpenAI-compatible demo? | [Runtime Gateway synthetic contour](docs/runtime-gateway.md) |
 | How are provider tool-call envelopes normalized without credentials? | [Provider-neutral tool-call adapters](docs/provider-tool-adapters.md) |
 
 Specialized reviewer paths:
@@ -251,9 +257,9 @@ a handoff file is not a sandbox, and a passing benchmark is not a production cer
 
 ## Release and package status
 
-The stable `v1.1.0` package is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.1.0/) and as an attested
-[GitHub Release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.1.0).
+The stable `v1.2.0` package is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.2.0/) and as an attested
+[GitHub Release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.2.0).
 Future releases remain separate, auditable owner gates.
 
 - [Release checklist](docs/release-checklist.md)
