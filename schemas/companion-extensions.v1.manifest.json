@@ -1,0 +1,90 @@
+{
+  "code_auto_discovery": false,
+  "companion_package_imports_at_runtime": false,
+  "contract_digest_semantics": "sha256_lf_normalized_text_v1",
+  "contract_id": "harness-companion-extensions-v1.0",
+  "cross_repository_tests": {
+    "path": "tests/test_cross_repo_extension_compatibility.py",
+    "sha256": "3fe58b9cbf7e7b2f154fa167bf47dc1015efc15366222661a0fb99628e000b47"
+  },
+  "documentation": {
+    "path": "docs/companion-extensions.md",
+    "sha256": "ce74d28bb46aef540a1d9b0072faa02603012291fb371e53108597e2dc0730e5"
+  },
+  "execution_model": "explicit_in_process_not_sandboxed",
+  "extension_sdk_contract": {
+    "path": "schemas/extension-sdk.v1.manifest.json",
+    "sha256": "8fd4f6b04e305a2f757763b4c39eec40c575994607f0e0ae0dfdd835e978808e"
+  },
+  "generator": {
+    "path": "tools/companion_extension_contracts.py",
+    "sha256": "2dfc260ef0b5b33074da60210ad9ab9145877d0fb061be345597b641070bad21"
+  },
+  "harness_api": "1",
+  "implementation": {
+    "path": "src/agentic_security_harness/companion_extensions.py",
+    "sha256": "df5b93ea1499bd46ae7d0d5a6a5da02de37f29e62dfac83a3912c3ac3e82ebbe"
+  },
+  "integration_model": "explicit_normalized_digest_bound_outputs",
+  "json_schema_scope": "closed_shape_only_semantic_validation_in_python",
+  "operational_authority": "none",
+  "reviewed_sources": [
+    {
+      "commit": "f3ab9e00c71a6d62c1754657ffdfe57e8a5f4dd5",
+      "component_id": "agentic-transfer-verifier",
+      "component_manifest_sha256": "520407022dae48ba435adf0319e9b5d98a5fb51e1b813cdb7a4c9cd9d9f4b068",
+      "contract_id": "transfer-verification-report",
+      "contract_path": "src/agentic_transfer_verifier/verifier.py",
+      "contract_sha256": "7335162fcf546ac3927e8a2f2ccb35c7102eaa7d29be53d8a41389e513a70e3d",
+      "contract_version": "0.1",
+      "repository": "https://github.com/krivonosoff161/agentic-transfer-verifier"
+    },
+    {
+      "commit": "cb228ecdecd91f16daaa362a91fc0230886d41c0",
+      "component_id": "ai-agent-handoff",
+      "component_manifest_sha256": "943fee65b9859dd96612d02f686bb50642b4d1df5cdf24f68868a9dff50ae957",
+      "contract_id": "handoff-metadata",
+      "contract_path": "contracts/handoff-metadata.v1.schema.json",
+      "contract_sha256": "d1015a42c31c260049d104b581c025556cb421fcdbf63af3fbac1f7eadb55f90",
+      "contract_version": "1.0",
+      "repository": "https://github.com/krivonosoff161/ai-agent-handoff"
+    },
+    {
+      "commit": "18aa28464f092ecaebaedededf1bfd927f44ff2d",
+      "component_id": "llm-safety-playbooks",
+      "component_manifest_sha256": "badb71727255d18b5cacb87b8db4369653af0cdfe0ec45b30f6017ab43c23056",
+      "contract_id": "portfolio-observation-guidance",
+      "contract_path": "contracts/portfolio-observation-guidance.v1.json",
+      "contract_sha256": "f87253b6a1e541ba8e05a2bdc844d70a13d3324975d4f28dd525574c2041de4e",
+      "contract_version": "1.0",
+      "repository": "https://github.com/krivonosoff161/llm-safety-playbooks"
+    }
+  ],
+  "schema_version": "harness-companion-extension-contract-manifest-v1.0",
+  "schemas": [
+    {
+      "path": "schemas/companion-contract-pin.v1.schema.json",
+      "sha256": "8d16834e2e4f02fa57a1416b508aa1e48e204e733499a9c9938dd36192f72955"
+    },
+    {
+      "path": "schemas/handoff-metadata-evidence.v1.schema.json",
+      "sha256": "6fcba4354d9acc9f5e09cb91a640a587b0167781b50888c5154c219c9a760c62"
+    },
+    {
+      "path": "schemas/playbook-guidance-config.v1.schema.json",
+      "sha256": "c3d63d8aaf10f7fe7e39367467e7a4e2ad83296a39a090491d900503b0249fd9"
+    },
+    {
+      "path": "schemas/transfer-verification-evidence.v1.schema.json",
+      "sha256": "9beb5eae3bfc8b01753d00da4ebb6762379fb93482b9440cb85fbc8efaaa73fb"
+    }
+  ],
+  "unit_tests": {
+    "path": "tests/test_companion_extensions.py",
+    "sha256": "b81dc39555f9e4597d0700ffe4e7c2d23ebf6cadac9a22fc162ac9ad0c7d0878"
+  },
+  "workflow": {
+    "path": ".github/workflows/ecosystem-docs.yml",
+    "sha256": "5be6a9a6bd38d76ebd694a1aa7683f29d642bdddfc732a8e5a9ed4a22f94bc8a"
+  }
+}

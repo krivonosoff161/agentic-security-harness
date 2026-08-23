@@ -1,0 +1,70 @@
+{
+  "additionalProperties": false,
+  "description": "Exact reviewed source and contract identity for one companion adapter.",
+  "properties": {
+    "component_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,127}$",
+      "title": "Component Id",
+      "type": "string"
+    },
+    "component_manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Component Manifest Sha256",
+      "type": "string"
+    },
+    "contract_digest_semantics": {
+      "const": "sha256_lf_normalized_text_v1",
+      "title": "Contract Digest Semantics",
+      "type": "string"
+    },
+    "contract_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Contract Id",
+      "type": "string"
+    },
+    "contract_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Contract Sha256",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^[0-9A-Za-z][0-9A-Za-z.+_-]{0,63}$",
+      "title": "Contract Version",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "harness-companion-contract-pin-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_commit": {
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+      "title": "Source Commit",
+      "type": "string"
+    },
+    "verification": {
+      "const": "exact_public_git_reviewed",
+      "title": "Verification",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "component_id",
+    "source_commit",
+    "component_manifest_sha256",
+    "contract_id",
+    "contract_version",
+    "contract_sha256",
+    "contract_digest_semantics",
+    "verification",
+    "operational_authority"
+  ],
+  "title": "CompanionContractPinV1",
+  "type": "object"
+}

@@ -1,0 +1,99 @@
+{
+  "$defs": {
+    "TransferSourceFindingV1": {
+      "additionalProperties": false,
+      "description": "Sanitized structural finding from Transfer Verifier report V0.1.",
+      "properties": {
+        "code": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Code",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "severity"
+      ],
+      "title": "TransferSourceFindingV1",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Privacy-minimized binding from a Transfer report to its projected event.",
+  "properties": {
+    "event_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/TransferSourceFindingV1"
+      },
+      "maxItems": 512,
+      "title": "Findings",
+      "type": "array"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "report_status": {
+      "enum": [
+        "PASS",
+        "WARN",
+        "FAIL"
+      ],
+      "title": "Report Status",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "harness-transfer-verification-evidence-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_contract_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Contract Sha256",
+      "type": "string"
+    },
+    "source_envelope_id_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Envelope Id Sha256",
+      "type": "string"
+    },
+    "source_observation_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Observation Sha256",
+      "type": "string"
+    },
+    "source_report_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Report Sha256",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "event_id",
+    "source_envelope_id_sha256",
+    "source_report_sha256",
+    "source_observation_sha256",
+    "report_status",
+    "findings",
+    "source_contract_sha256",
+    "operational_authority"
+  ],
+  "title": "TransferVerificationEvidenceV1",
+  "type": "object"
+}
