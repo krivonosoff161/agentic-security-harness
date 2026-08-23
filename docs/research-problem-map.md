@@ -1,5 +1,8 @@
 # Active research problem map
 
+> Research-only map. Current product sequencing and component integration status are in
+> the generated [ecosystem roadmap](ecosystem-roadmap.md).
+
 > Last reviewed: 2026-08-13.
 >
 > Scope: public-facing map of defensive violation models for Agentic Security Harness.
@@ -23,12 +26,14 @@ boundary, not because a provider, model name, prompt wording, or framework chang
 
 ## Current release baseline
 
-Agentic Security Harness v0.15.1 has three explicitly separated layers of public evidence:
+Agentic Security Harness v1.2.0 has four explicitly separated public layers:
 
 1. A **24-pattern deterministic corpus** for core agentic boundary failures.
 2. **Executable specifications** whose controls and ablation outcomes are rule-derived.
 3. **Local empirical observations**, with detector-accuracy claims allowed only when
    independently reviewed ground-truth coverage is non-zero.
+4. A **bounded synthetic Runtime Gateway reference contour** for pre-dispatch policy,
+   deterministic synthetic tools, audit, dashboard, and provider-envelope normalization.
 
 The current public claim stays conservative:
 

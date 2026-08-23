@@ -70,6 +70,22 @@ same policy without SDKs or credentials. Live provider transport and a productio
 are still not shipped. The gateway exposes its exact closed policy and non-executable
 approval-request digests; it intentionally has no approval-grant endpoint yet.
 
+### Ecosystem map
+
+Harness is the released core and the public contract owner for a modular security
+ecosystem. Transfer verification, handoff safety, playbooks, routing, filtering, private
+Runtime Guard research, and the public profile keep their own source-owned component
+facts. The Harness generates only the cross-project roadmap and compatibility view:
+
+- [Ecosystem roadmap](docs/ecosystem-roadmap.md)
+- [Components and current integration status](docs/ecosystem-components.md)
+- [Documentation crosswalk](docs/documentation-map.md)
+- [`component.yaml`](component.yaml) and [`ecosystem/roadmap.yaml`](ecosystem/roadmap.yaml)
+
+Today most companion repositories are `standalone` or `contract_only`; the planned
+Extension SDK will make selected checks installable without turning the core into one
+large package.
+
 | Target | Modeled findings | Patterns passed |
 |---|---:|---:|
 | `demo-agent` | 24 | 0 |

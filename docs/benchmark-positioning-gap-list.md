@@ -1,5 +1,9 @@
 # Benchmark positioning - where we win / where we still lag
 
+> Historical gap snapshot. Distribution and agent-host/runtime capabilities listed here
+> may have shipped since this page was written. Use [Current state](current-state.md) and
+> the generated [ecosystem roadmap](ecosystem-roadmap.md) for current claims.
+
 A read-only, high-level comparison against common open evaluation/red-team toolkits, to
 position this project honestly. This is **not** a feature-by-feature claim and copies no
 content from those projects; it reflects their well-known public shape only. Nothing here
@@ -45,9 +49,11 @@ is a commitment to build - gaps that should wait are marked.
   rich viewers; we ship a single static per-run HTML page.
 - **Smaller probe count.** garak has many probes; our corpus is 24 curated boundary
   patterns - narrower but deeper on the agentic operating-environment boundary.
-- **No tool-execution / agent-host evaluation.** The external path is prompt-only.
+- **Live external tool execution remains out of scope.** Agent Host V1 and the Runtime
+  Gateway provide bounded owned-workflow and synthetic execution contours.
 - **No plugin/entry-point ecosystem** for third-party probes/adapters yet.
-- **Not packaged on PyPI;** install is from source.
+- **Distribution is no longer a gap:** v1.2.0 is published on PyPI. A public Docker image
+  and a stable Extension SDK remain future work.
 
 ## What should be next (small, methodology-safe)
 

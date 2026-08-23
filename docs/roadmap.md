@@ -1,5 +1,10 @@
 # Roadmap
 
+> The machine-readable public master roadmap is
+> [`ecosystem/roadmap.yaml`](../ecosystem/roadmap.yaml); its generated view is
+> [Ecosystem roadmap](ecosystem-roadmap.md). The detailed Harness backlog below remains a
+> component-owned planning record and cannot redefine another repository.
+
 Portfolio-wide module ownership, dependencies, evidence ceilings, and owner gates
 are defined by the generated public projection linked from
 [`security-portfolio-roadmap.md`](security-portfolio-roadmap.md). This local roadmap

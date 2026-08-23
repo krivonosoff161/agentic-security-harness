@@ -6,8 +6,10 @@ cannot prove, and what must stay experimental until the method is stronger.
 
 ## Status
 
-Current release status: **public research release**. The benchmark is usable and
-artifact-backed, but the v1.0 stable benchmark contract is not frozen yet.
+Current release status: **published v1.2.0 public defensive benchmark/toolkit**. The
+trace and corpus v1 contracts are frozen and published on PyPI and GitHub Releases. New
+capabilities remain separately versioned and do not silently redefine those stable
+contracts.
 
 The shipped benchmark core is local, deterministic, synthetic, and offline. It is useful
 for reproducing modeled agentic operating-environment boundary failures and measuring

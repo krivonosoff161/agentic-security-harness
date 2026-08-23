@@ -1,5 +1,9 @@
 # Research roadmap
 
+> Research-only backlog. Product sequencing and cross-repository status live in the
+> generated [ecosystem roadmap](ecosystem-roadmap.md). Research notes do not promote a
+> component, claim effectiveness, or grant operational authority.
+
 > Last reviewed: 2026-06-25.
 >
 > Scope: defensive-only research intake for future Agentic Security Harness patterns.

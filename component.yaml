@@ -1,0 +1,42 @@
+{
+  "schema_version": "AgenticSecurityEcosystemComponent.v1",
+  "component_id": "agentic-security-harness",
+  "display_name": "Agentic Security Harness",
+  "repository": "https://github.com/krivonosoff161/agentic-security-harness",
+  "visibility": "public",
+  "kind": "core",
+  "summary": "Published defensive benchmark and toolkit that owns the public ecosystem contracts and synthetic integration laboratory.",
+  "package": {
+    "name": "agentic-security-harness",
+    "version": "1.2.0",
+    "install": "pip install agentic-security-harness",
+    "entry_points": ["ash"]
+  },
+  "owns": {
+    "modules": ["benchmark-core", "runtime-gateway-reference", "ecosystem-contracts"],
+    "checks": ["trace-validation", "scorecards", "synthetic-runtime-policy"],
+    "collectors": ["agent-host-v1", "provider-neutral-recordings"],
+    "adapters": ["provider-tool-envelope-normalizers"],
+    "contracts": ["harness-api", "ecosystem-roadmap", "component-manifest", "portfolio-observation-v1"]
+  },
+  "consumes": ["optional extension component manifests"],
+  "contracts": [
+    {"id": "harness-api", "version": "1", "direction": "provides", "required": true},
+    {"id": "component-manifest", "version": "1", "direction": "provides", "required": true}
+  ],
+  "docs": [
+    {"path": "README.md", "role": "component-front-door"},
+    {"path": "docs/roadmap.md", "role": "generated-ecosystem-view"},
+    {"path": "docs/current-state.md", "role": "generated-current-snapshot"}
+  ],
+  "compatibility": {
+    "harness_api": ">=1,<2",
+    "python": ">=3.11,<3.14",
+    "platforms": {"supported": ["linux", "windows"], "tested": ["linux", "windows"]}
+  },
+  "integration_status": "suite_verified",
+  "evidence_refs": ["docs/current-state.md", "docs/releases/v1.2.0.md"],
+  "claims": ["published benchmark/toolkit", "synthetic Runtime Gateway reference contour"],
+  "non_claims": ["production security certification", "live-provider enforcement", "independent effectiveness validation"],
+  "authority": "none"
+}

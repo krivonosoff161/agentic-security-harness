@@ -1,5 +1,9 @@
 # Project tracks
 
+> Superseded as a cross-project authority by the generated
+> [ecosystem roadmap](ecosystem-roadmap.md). This page is retained for historical track
+> terminology and does not override current component manifests.
+
 > Last reviewed: 2026-08-22.
 >
 > Scope: how Agentic Security Harness relates to the internal LLM Safety Gateway / Runtime
