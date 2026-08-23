@@ -1,0 +1,80 @@
+{
+  "additionalProperties": false,
+  "description": "Exact machine-checkable subset of the human observation-review playbook.",
+  "properties": {
+    "allowed_human_dispositions": {
+      "items": {
+        "enum": [
+          "observe",
+          "challenge",
+          "escalate",
+          "abstain"
+        ],
+        "type": "string"
+      },
+      "title": "Allowed Human Dispositions",
+      "type": "array"
+    },
+    "forbidden_promotions": {
+      "items": {
+        "enum": [
+          "authority",
+          "capability",
+          "consent",
+          "authenticated_identity",
+          "allow_receipt",
+          "producer_attestation"
+        ],
+        "type": "string"
+      },
+      "title": "Forbidden Promotions",
+      "type": "array"
+    },
+    "human_playbook_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Human Playbook Sha256",
+      "type": "string"
+    },
+    "missing_or_invalid_metadata_disposition": {
+      "const": "abstain",
+      "title": "Missing Or Invalid Metadata Disposition",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "required_metadata": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "title": "Required Metadata",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "harness-playbook-guidance-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_guidance_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Guidance Sha256",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "source_guidance_sha256",
+    "required_metadata",
+    "missing_or_invalid_metadata_disposition",
+    "allowed_human_dispositions",
+    "forbidden_promotions",
+    "human_playbook_sha256",
+    "operational_authority"
+  ],
+  "title": "PlaybookGuidanceConfigV1",
+  "type": "object"
+}

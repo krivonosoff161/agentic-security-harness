@@ -88,6 +88,11 @@ validated observation-to-finding dataflow. It does not auto-load installed packa
 is not part of the published `1.2.0` surface; selected checks become installable only
 after their own conformance and release gates.
 
+The stacked [companion adapter candidate](docs/companion-extensions.md) now exercises
+exact Transfer Verifier reports, Handoff metadata and Playbooks guidance through that
+SDK on Linux and Windows. This closes a concrete producer-to-consumer dataflow gap; it
+does not make those repositories installable extensions or production enforcement.
+
 | Target | Modeled findings | Patterns passed |
 |---|---:|---:|
 | `demo-agent` | 24 | 0 |
@@ -226,6 +231,7 @@ The README is the front door; deeper contracts live in `docs/`:
 | How can I run the local policy gateway and MCP/OpenAI-compatible demo? | [Runtime Gateway synthetic contour](docs/runtime-gateway.md) |
 | How are provider tool-call envelopes normalized without credentials? | [Provider-neutral tool-call adapters](docs/provider-tool-adapters.md) |
 | How do optional components exchange validated observations and findings? | [Extension SDK V1](docs/extension-sdk.md) |
+| Which companion contracts already have executable cross-repository adapters? | [Companion Extension adapters](docs/companion-extensions.md) |
 
 Specialized reviewer paths:
 
