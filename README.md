@@ -82,9 +82,11 @@ facts. The Harness generates only the cross-project roadmap and compatibility vi
 - [Documentation crosswalk](docs/documentation-map.md)
 - [`component.yaml`](component.yaml) and [`ecosystem/roadmap.yaml`](ecosystem/roadmap.yaml)
 
-Today most companion repositories are `standalone` or `contract_only`; the planned
-Extension SDK will make selected checks installable without turning the core into one
-large package.
+Today most companion repositories are `standalone` or `contract_only`. The source tree
+now contains the first closed [Extension SDK V1](docs/extension-sdk.md) candidate for
+validated observation-to-finding dataflow. It does not auto-load installed packages and
+is not part of the published `1.2.0` surface; selected checks become installable only
+after their own conformance and release gates.
 
 | Target | Modeled findings | Patterns passed |
 |---|---:|---:|
@@ -223,6 +225,7 @@ The README is the front door; deeper contracts live in `docs/`:
 | How can an external agent host record and evaluate observations? | [Agent Host Adapter SDK](docs/agent-host-adapter.md) |
 | How can I run the local policy gateway and MCP/OpenAI-compatible demo? | [Runtime Gateway synthetic contour](docs/runtime-gateway.md) |
 | How are provider tool-call envelopes normalized without credentials? | [Provider-neutral tool-call adapters](docs/provider-tool-adapters.md) |
+| How do optional components exchange validated observations and findings? | [Extension SDK V1](docs/extension-sdk.md) |
 
 Specialized reviewer paths:
 

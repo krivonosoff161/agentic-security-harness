@@ -18,7 +18,7 @@
   "cli": {
     "path": "src/agentic_security_harness/cli.py",
     "command": "ash agent-host-inspect",
-    "sha256": "ddb9cea0991c14179d86ac24141e4ccee50cd50b3c04a0e6da392264a0651551"
+    "sha256": "319eae3047b460106b288c505d20945ed24c043c58e925ce4515c49bec664a1c"
   },
   "fixture_runner": {
     "path": "tests/test_agent_host_adapter.py",

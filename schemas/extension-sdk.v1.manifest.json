@@ -1,0 +1,46 @@
+{
+  "cli": {
+    "path": "src/agentic_security_harness/cli.py",
+    "sha256": "319eae3047b460106b288c505d20945ed24c043c58e925ce4515c49bec664a1c"
+  },
+  "code_auto_discovery": false,
+  "contract_id": "harness-extension-sdk-v1.0",
+  "execution_model": "explicit_in_process_not_sandboxed",
+  "generator": {
+    "path": "tools/extension_contracts.py",
+    "sha256": "12b78df94bd483f5e032f9cb20bcd95db531f9051147ede29827430bba307b1b"
+  },
+  "harness_api": "1",
+  "implementation": {
+    "path": "src/agentic_security_harness/extension_sdk.py",
+    "sha256": "5e813d7fbd6d95db622bd4c759cfc6fc18e61328d436aef9412bbfb10f434e00"
+  },
+  "operational_authority": "none",
+  "schema_version": "harness-extension-contract-manifest-v1.0",
+  "schemas": [
+    {
+      "path": "schemas/extension-envelope.v1.schema.json",
+      "sha256": "904a592312d70ea551b82c7e5beec0afe208d0aac793bbb830e9a504a005b733"
+    },
+    {
+      "path": "schemas/extension-manifest.v1.schema.json",
+      "sha256": "5d0e87e05da20344a2b2ff655d0e29552e616221934900553457c24d9db19a4b"
+    },
+    {
+      "path": "schemas/extension-pipeline-receipt.v1.schema.json",
+      "sha256": "711cf716f51f6ef37df03dc99c523edf3d7ea47c32aa5caeef7287004578c307"
+    },
+    {
+      "path": "schemas/extension-result.v1.schema.json",
+      "sha256": "72b72842ef818d4cba8a0cef4abe70cdba02fccd058b36970b53454dc76d1dc4"
+    },
+    {
+      "path": "schemas/extension-run-receipt.v1.schema.json",
+      "sha256": "626fb1a82709231d2785951e4744d9579f7f6a96424572cd4f7f8482cb7cbfc5"
+    }
+  ],
+  "tests": {
+    "path": "tests/test_extension_sdk.py",
+    "sha256": "8a86a38ef2c7fa15a8ca0b5d75f55ce7854e81b5d1df231203fc2b096bf8daac"
+  }
+}

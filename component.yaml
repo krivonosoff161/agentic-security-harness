@@ -13,21 +13,24 @@
     "entry_points": ["ash"]
   },
   "owns": {
-    "modules": ["benchmark-core", "runtime-gateway-reference", "ecosystem-contracts"],
-    "checks": ["trace-validation", "scorecards", "synthetic-runtime-policy"],
+    "modules": ["benchmark-core", "runtime-gateway-reference", "ecosystem-contracts", "extension-sdk-v1"],
+    "checks": ["trace-validation", "scorecards", "synthetic-runtime-policy", "extension-contract-conformance"],
     "collectors": ["agent-host-v1", "provider-neutral-recordings"],
     "adapters": ["provider-tool-envelope-normalizers"],
-    "contracts": ["harness-api", "ecosystem-roadmap", "component-manifest", "portfolio-observation-v1"]
+    "contracts": ["harness-api", "ecosystem-roadmap", "component-manifest", "portfolio-observation-v1", "extension-manifest-v1", "extension-finding-v1"]
   },
   "consumes": ["optional extension component manifests"],
   "contracts": [
     {"id": "harness-api", "version": "1", "direction": "provides", "required": true},
-    {"id": "component-manifest", "version": "1", "direction": "provides", "required": true}
+    {"id": "component-manifest", "version": "1", "direction": "provides", "required": true},
+    {"id": "extension-manifest", "version": "1", "direction": "provides", "required": false},
+    {"id": "extension-finding", "version": "1", "direction": "provides", "required": false}
   ],
   "docs": [
     {"path": "README.md", "role": "component-front-door"},
     {"path": "docs/roadmap.md", "role": "generated-ecosystem-view"},
-    {"path": "docs/current-state.md", "role": "generated-current-snapshot"}
+    {"path": "docs/current-state.md", "role": "generated-current-snapshot"},
+    {"path": "docs/extension-sdk.md", "role": "component-owned"}
   ],
   "compatibility": {
     "harness_api": ">=1,<2",
@@ -35,8 +38,8 @@
     "platforms": {"supported": ["linux", "windows"], "tested": ["linux", "windows"]}
   },
   "integration_status": "suite_verified",
-  "evidence_refs": ["docs/current-state.md", "docs/releases/v1.2.0.md"],
-  "claims": ["published benchmark/toolkit", "synthetic Runtime Gateway reference contour"],
-  "non_claims": ["production security certification", "live-provider enforcement", "independent effectiveness validation"],
+  "evidence_refs": ["docs/current-state.md", "docs/releases/v1.2.0.md", "schemas/extension-sdk.v1.manifest.json"],
+  "claims": ["published benchmark/toolkit", "synthetic Runtime Gateway reference contour", "source-level Extension SDK V1 candidate"],
+  "non_claims": ["production security certification", "live-provider enforcement", "independent effectiveness validation", "sandboxed or automatically trusted extension code"],
   "authority": "none"
 }

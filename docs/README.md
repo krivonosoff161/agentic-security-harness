@@ -13,6 +13,7 @@ research and contract files.
 | Interpret PASS, finding, inconclusive, and adapter error | [Benchmark semantics](benchmark-semantics.md) |
 | Build a local target adapter | [Custom adapter tutorial](custom-adapter-tutorial.md) |
 | Integrate an owned agent workflow offline | [Agent Host Adapter V1](agent-host-adapter.md) |
+| Validate an optional security component contract | [Extension SDK V1](extension-sdk.md) |
 
 ## Security and evidence
 

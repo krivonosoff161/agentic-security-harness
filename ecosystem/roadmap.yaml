@@ -25,7 +25,7 @@
     {
       "id": "extension-contract",
       "title": "Stable Extension SDK and check descriptor contract",
-      "status": "planned",
+      "status": "active",
       "depends_on": ["documentation-convergence"],
       "deliverables": ["extension manifest", "check catalog", "offline conformance kit"]
     },
