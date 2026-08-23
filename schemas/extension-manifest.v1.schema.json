@@ -53,6 +53,11 @@
       "title": "Component Id",
       "type": "string"
     },
+    "configuration_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Configuration Sha256",
+      "type": "string"
+    },
     "consumes": {
       "items": {
         "$ref": "#/$defs/ExtensionContractRefV1"
@@ -84,6 +89,11 @@
     "harness_api": {
       "const": "1",
       "title": "Harness Api",
+      "type": "string"
+    },
+    "implementation_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Implementation Sha256",
       "type": "string"
     },
     "kind": {
@@ -136,6 +146,8 @@
     "extension_id",
     "extension_version",
     "component_id",
+    "implementation_sha256",
+    "configuration_sha256",
     "harness_api",
     "kind",
     "capabilities",

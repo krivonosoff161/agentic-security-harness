@@ -11,7 +11,8 @@ the published `1.2.0` package until a later release gate says so.
 ## What the contract provides
 
 - a closed extension manifest with an exact extension id, version, component id,
-  Harness API range, capabilities, consumed contracts, and produced contracts;
+  Harness API range, implementation and configuration digests, capabilities, consumed
+  contracts, and produced contracts;
 - a closed observation envelope that reuses the existing portfolio observation event and
   commitment rather than inventing another telemetry shape;
 - a closed finding/result contract whose evidence references must resolve to events in
@@ -74,6 +75,11 @@ A malicious approved Python object still runs with the permissions of the Harnes
 process. Future installable-extension work must bind distribution identity, version,
 manifest digest, dependency provenance, operator approval, and an isolation model before
 code loading is added.
+
+The V1 implementation and configuration digests are content pins supplied by the
+extension builder and bound into every result through the manifest digest. They are not a
+signature or proof that the named package was installed; the operator/discovery layer must
+verify those pins before registering code.
 
 ## Determinism and privacy
 

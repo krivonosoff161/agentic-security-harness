@@ -88,6 +88,8 @@ class ExtensionManifestV1(BaseModel):
     extension_id: str = Field(pattern=_IDENTIFIER_PATTERN)
     extension_version: str = Field(pattern=_VERSION_PATTERN)
     component_id: str = Field(pattern=PROJECT_ID_PATTERN)
+    implementation_sha256: str = Field(pattern=SHA256_PATTERN)
+    configuration_sha256: str = Field(pattern=SHA256_PATTERN)
     harness_api: Literal["1"]
     kind: ExtensionKind
     capabilities: tuple[ExtensionCapability, ...] = Field(min_length=1, max_length=16)
