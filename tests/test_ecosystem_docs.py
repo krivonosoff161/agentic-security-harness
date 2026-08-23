@@ -103,6 +103,7 @@ def test_document_registry_covers_every_current_document() -> None:
 
     assert registered == expected
     assert len(registered) == len(entries)
+    assert [entry["path"] for entry in entries] == sorted(registered)
     assert all(entry["role"] and entry["disposition"] for entry in entries)
 
 

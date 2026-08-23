@@ -516,9 +516,9 @@ def build_document_registry() -> dict[str, object]:
         for path in (ROOT / "docs").rglob("*")
         if path.is_file() and path.suffix.lower() in {".md", ".json", ".yaml", ".yml"}
     )
+    documents = {file_path.relative_to(ROOT).as_posix() for file_path in candidates}
     entries: list[dict[str, object]] = []
-    for file_path in sorted(set(candidates)):
-        relative = file_path.relative_to(ROOT).as_posix()
+    for relative in sorted(documents):
         classification = _classify_document(relative, policy)
         entries.append(
             {
