@@ -1,0 +1,112 @@
+name: Ecosystem documentation contracts
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ecosystem-docs.yml"
+      - "component.yaml"
+      - "ecosystem/**"
+      - "docs/**"
+      - "tools/ecosystem_docs.py"
+      - "tests/test_ecosystem_docs.py"
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ecosystem-docs-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out Harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check out Transfer Verifier contract
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: krivonosoff161/agentic-transfer-verifier
+          ref: f3ab9e00c71a6d62c1754657ffdfe57e8a5f4dd5
+          path: components/transfer
+          persist-credentials: false
+
+      - name: Check out Handoff contract
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: krivonosoff161/ai-agent-handoff
+          ref: cb228ecdecd91f16daaa362a91fc0230886d41c0
+          path: components/handoff
+          persist-credentials: false
+
+      - name: Check out Playbooks contract
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: krivonosoff161/llm-safety-playbooks
+          ref: 18aa28464f092ecaebaedededf1bfd927f44ff2d
+          path: components/playbooks
+          persist-credentials: false
+
+      - name: Check out Router contract
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: krivonosoff161/llm-router
+          ref: 00f46ebcca100e9f3754edc9cd227ce78c5da260
+          path: components/router
+          persist-credentials: false
+
+      - name: Check out Filter contract
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: krivonosoff161/llm-cheap-filter
+          ref: fdadde2a5176c43f78de18d6b899a3f42b597323
+          path: components/filter
+          persist-credentials: false
+
+      - name: Check out Profile projection
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: krivonosoff161/krivonosoff161
+          ref: 07b55849cb4913d8b0b0cb77de312f3c28e61352
+          path: components/profile
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install locked test dependencies
+        run: python -m pip install --require-hashes -r requirements/dev.txt
+
+      - name: Validate generated contracts
+        run: python tools/ecosystem_docs.py check
+
+      - name: Validate exact component lock
+        run: >-
+          python tools/ecosystem_docs.py check-lock
+          --component-root .
+          --component-root components/transfer
+          --component-root components/handoff
+          --component-root components/playbooks
+          --component-root components/router
+          --component-root components/filter
+          --component-root components/profile
+
+      - name: Run documentation contract tests
+        run: >-
+          python -m pytest -q
+          tests/test_ecosystem_docs.py
+          tests/test_documentation_contract.py
+          tests/test_security_portfolio_roadmap_contract.py

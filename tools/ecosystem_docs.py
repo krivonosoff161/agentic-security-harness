@@ -10,6 +10,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
+import subprocess
 from collections.abc import Iterable
 from pathlib import Path, PurePosixPath
 from typing import Literal
@@ -216,8 +218,71 @@ class EcosystemCompatibility(ClosedModel):
     rows: list[CompatibilityRow]
 
 
+class ComponentLockEntry(ClosedModel):
+    component_id: str
+    visibility: Literal["public", "private"]
+    repository: str | None
+    source_ref: str | None
+    source_commit: str | None
+    source_tree: str | None
+    manifest_sha256: str
+    verification: Literal["exact_public_git", "sanitized_projection"]
+    projection_path: str | None
+
+    @model_validator(mode="after")
+    def semantic_contract(self) -> ComponentLockEntry:
+        if not re.fullmatch(r"[0-9a-f]{64}", self.manifest_sha256):
+            raise ValueError("manifest_sha256 must be lowercase SHA-256")
+        if self.verification == "exact_public_git":
+            if self.visibility != "public" or not (
+                self.repository
+                and self.repository.startswith("https://github.com/")
+                and self.source_ref
+                and self.source_commit
+                and self.source_tree
+            ):
+                raise ValueError("exact public Git entries require repository/ref/commit/tree")
+            if not re.fullmatch(r"[0-9a-f]{40}", self.source_commit):
+                raise ValueError("source_commit must be a full Git SHA-1")
+            if not re.fullmatch(r"[0-9a-f]{40}", self.source_tree):
+                raise ValueError("source_tree must be a full Git SHA-1")
+            if self.projection_path is not None:
+                raise ValueError("exact public Git entries cannot use a projection path")
+        else:
+            if self.visibility != "private" or any(
+                value is not None
+                for value in (
+                    self.repository,
+                    self.source_ref,
+                    self.source_commit,
+                    self.source_tree,
+                )
+            ):
+                raise ValueError("sanitized projection must not expose private Git identity")
+            if self.projection_path is None:
+                raise ValueError("sanitized projection requires a public projection path")
+            _require_relative_public_path(self.projection_path)
+        return self
+
+
+class ComponentsLock(ClosedModel):
+    schema_version: Literal["AgenticSecurityEcosystemComponentsLock.v1"]
+    digest_algorithm: Literal["sha256-canonical-json-v1"]
+    roadmap_sha256: str
+    authority: Literal["none"]
+    entries: list[ComponentLockEntry]
+
+    @model_validator(mode="after")
+    def semantic_contract(self) -> ComponentsLock:
+        if not re.fullmatch(r"[0-9a-f]{64}", self.roadmap_sha256):
+            raise ValueError("roadmap_sha256 must be lowercase SHA-256")
+        _require_unique("lock component ids", [entry.component_id for entry in self.entries])
+        return self
+
+
 SCHEMA_MODELS: dict[str, type[BaseModel]] = {
     "component-manifest.v1.schema.json": ComponentManifest,
+    "components-lock.v1.schema.json": ComponentsLock,
     "ecosystem-roadmap.v1.schema.json": EcosystemRoadmap,
     "compatibility.v1.schema.json": EcosystemCompatibility,
 }
@@ -234,6 +299,10 @@ def _reject_duplicates(pairs: list[tuple[str, object]]) -> dict[str, object]:
 
 def load_contract(path: Path) -> object:
     return json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=_reject_duplicates)
+
+
+def load_contract_bytes(content: bytes) -> object:
+    return json.loads(content.decode("utf-8"), object_pairs_hook=_reject_duplicates)
 
 
 def canonical_bytes(value: object) -> bytes:
@@ -331,6 +400,80 @@ def validate_component_set(
                     )
                 owned[key] = manifest.component_id
     return manifests
+
+
+def validate_component_lock(roots: list[Path]) -> ComponentsLock:
+    """Verify public source commits and the bounded private projection against the lock."""
+    _, roadmap, _ = validate_all()
+    lock = ComponentsLock.model_validate(load_contract(ECOSYSTEM / "components.lock.json"))
+    if lock.roadmap_sha256 != sha256(load_contract(ECOSYSTEM / "roadmap.yaml")):
+        raise ValueError("roadmap digest drift in component lock")
+    if [entry.component_id for entry in lock.entries] != roadmap.components:
+        raise ValueError("lock entries must exactly follow roadmap component order")
+
+    public_roots: dict[str, Path] = {}
+    for root in roots:
+        manifest = ComponentManifest.model_validate(load_contract(root / "component.yaml"))
+        if manifest.component_id in public_roots:
+            raise ValueError(f"duplicate component root for {manifest.component_id}")
+        public_roots[manifest.component_id] = root
+
+    for entry in lock.entries:
+        if entry.verification == "sanitized_projection":
+            assert entry.projection_path is not None
+            projection = ComponentManifest.model_validate(
+                load_contract(ROOT / entry.projection_path)
+            )
+            if projection.component_id != entry.component_id:
+                raise ValueError("sanitized projection component id drift")
+            if sha256(projection.model_dump(mode="json")) != entry.manifest_sha256:
+                raise ValueError("sanitized projection digest drift")
+            continue
+
+        source_root = public_roots.get(entry.component_id)
+        if source_root is None:
+            raise ValueError(f"missing exact public root for {entry.component_id}")
+        assert entry.source_commit is not None and entry.source_tree is not None
+        tree = subprocess.run(
+            [
+                "git",
+                "--no-optional-locks",
+                "-C",
+                str(source_root),
+                "rev-parse",
+                f"{entry.source_commit}^{{tree}}",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        if tree != entry.source_tree:
+            raise ValueError(f"source tree drift for {entry.component_id}")
+        content = subprocess.run(
+            [
+                "git",
+                "--no-optional-locks",
+                "-C",
+                str(source_root),
+                "show",
+                f"{entry.source_commit}:component.yaml",
+            ],
+            check=True,
+            capture_output=True,
+        ).stdout
+        manifest = ComponentManifest.model_validate(load_contract_bytes(content))
+        if manifest.component_id != entry.component_id:
+            raise ValueError(f"source manifest id drift for {entry.component_id}")
+        if sha256(manifest.model_dump(mode="json")) != entry.manifest_sha256:
+            raise ValueError(f"source manifest digest drift for {entry.component_id}")
+    expected_public = {
+        entry.component_id
+        for entry in lock.entries
+        if entry.verification == "exact_public_git"
+    }
+    if set(public_roots) != expected_public:
+        raise ValueError("component roots must exactly match public lock entries")
+    return lock
 
 
 def generated_schemas() -> dict[str, bytes]:
@@ -503,7 +646,9 @@ def check_generated() -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("mode", choices=("check", "generate", "check-components"))
+    parser.add_argument(
+        "mode", choices=("check", "generate", "check-components", "check-lock")
+    )
     parser.add_argument(
         "--component-root",
         action="append",
@@ -518,6 +663,10 @@ def main() -> int:
         if not args.component_root:
             parser.error("check-components requires --component-root")
         validate_component_set(args.component_root)
+    elif args.mode == "check-lock":
+        if not args.component_root:
+            parser.error("check-lock requires --component-root")
+        validate_component_lock(args.component_root)
     else:
         validate_all()
         check_generated()

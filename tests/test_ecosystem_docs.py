@@ -10,6 +10,7 @@ from tools.ecosystem_docs import (
     ROOT,
     SCHEMAS,
     ComponentManifest,
+    ComponentsLock,
     EcosystemRoadmap,
     build_document_registry,
     check_generated,
@@ -35,6 +36,7 @@ def test_generated_json_schemas_are_exact() -> None:
     assert set(expected) == {
         "compatibility.v1.schema.json",
         "component-manifest.v1.schema.json",
+        "components-lock.v1.schema.json",
         "ecosystem-roadmap.v1.schema.json",
     }
     for name, content in expected.items():
@@ -122,3 +124,67 @@ def test_machine_contracts_use_json_syntax_valid_in_yaml_1_2() -> None:
 def test_component_set_requires_every_roadmap_component() -> None:
     with pytest.raises(ValueError, match="exactly follow roadmap component order"):
         validate_component_set([ROOT])
+
+
+def test_component_lock_binds_public_git_and_bounded_private_projection() -> None:
+    payload = load_contract(ECOSYSTEM / "components.lock.json")
+    lock = ComponentsLock.model_validate(payload)
+
+    assert [entry.component_id for entry in lock.entries] == [
+        "agentic-security-harness",
+        "agentic-transfer-verifier",
+        "ai-agent-handoff",
+        "llm-safety-playbooks",
+        "llm-router",
+        "llm-cheap-filter",
+        "agentic-runtime-guard",
+        "krivonosoff161",
+    ]
+    private = lock.entries[6]
+    assert private.verification == "sanitized_projection"
+    assert private.repository is None
+    assert private.source_ref is None
+    assert private.source_commit is None
+    assert private.source_tree is None
+
+
+def test_component_lock_rejects_private_git_identity() -> None:
+    payload = load_contract(ECOSYSTEM / "components.lock.json")
+    assert isinstance(payload, dict)
+    payload["entries"][6]["source_commit"] = "0" * 40
+
+    with pytest.raises(ValidationError, match="must not expose private Git identity"):
+        ComponentsLock.model_validate(payload)
+
+
+def test_runtime_guard_public_projection_has_no_private_evidence_markers() -> None:
+    projection = ECOSYSTEM / "component-projections" / "agentic-runtime-guard.json"
+    payload = ComponentManifest.model_validate(load_contract(projection))
+    text = projection.read_text(encoding="utf-8").lower()
+
+    assert payload.repository is None
+    assert payload.docs == []
+    assert payload.evidence_refs == []
+    for marker in ("sealed", "custody", "holdout", "private path", "r5-"):
+        assert marker not in text
+
+
+def test_workflow_public_checkout_pins_match_component_lock() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "ecosystem-docs.yml").read_text(
+        encoding="utf-8"
+    )
+    lock = ComponentsLock.model_validate(
+        load_contract(ECOSYSTEM / "components.lock.json")
+    )
+
+    for entry in lock.entries:
+        if (
+            entry.verification == "exact_public_git"
+            and entry.component_id != "agentic-security-harness"
+        ):
+            assert entry.repository is not None
+            assert entry.source_commit is not None
+            assert entry.repository.removeprefix("https://github.com/") in workflow
+            assert f"ref: {entry.source_commit}" in workflow
+
+    assert "agentic-runtime-guard" not in workflow
