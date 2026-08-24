@@ -36,13 +36,21 @@ from agentic_security_harness.portfolio_contract import (
     encode_portfolio_observation_v1,
 )
 
-PLAYBOOKS_ROOT = Path("C:/tmp/llm-safety-playbooks-policy-pack-v1")
-PACK_PATH = PLAYBOOKS_ROOT / "contracts" / "policy-pack.v1.json"
 EVENT_ID = "a" * 64
 
 
+def _playbooks_root() -> Path:
+    configured = os.environ.get("ASH_POLICY_PACK_ROOT")
+    if not configured:
+        pytest.skip("exact llm-safety-playbooks checkout is not configured")
+    root = Path(configured)
+    if not root.is_dir():
+        pytest.fail("ASH_POLICY_PACK_ROOT is not a checked-out directory")
+    return root
+
+
 def _pack_bytes() -> bytes:
-    return PACK_PATH.read_bytes()
+    return (_playbooks_root() / "contracts" / "policy-pack.v1.json").read_bytes()
 
 
 def _event(event_id: str = EVENT_ID) -> CanonicalObservationEventV1:
@@ -159,7 +167,7 @@ def test_run_is_advisory_and_digest_only() -> None:
     wire = json.dumps(receipt.model_dump(mode="json"), sort_keys=True)
     assert "prompt" not in wire.lower()
     assert "response" not in wire.lower()
-    assert str(PACK_PATH) not in wire
+    assert os.environ["ASH_POLICY_PACK_ROOT"] not in wire
 
 
 def test_missing_pack_is_inconclusive_not_success() -> None:
@@ -323,6 +331,18 @@ def test_pack_payload_must_be_exact_bytes_and_expected_digest_caller_approved() 
         )
     with pytest.raises(PolicyPackExtensionError, match="reviewed pin"):
         decode_policy_pack_v1(_pack_bytes(), expected_file_sha256="0" * 64)
+
+
+def test_pack_fixture_uses_explicit_workflow_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expected = _pack_bytes()
+    isolated = tmp_path / "playbooks"
+    contract = isolated / "contracts"
+    contract.mkdir(parents=True)
+    (contract / "policy-pack.v1.json").write_bytes(expected)
+    monkeypatch.setenv("ASH_POLICY_PACK_ROOT", str(isolated))
+    assert _pack_bytes() == expected
 
 
 def test_cli_evaluates_only_explicit_local_bytes(
