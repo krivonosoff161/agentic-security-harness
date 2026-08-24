@@ -6,7 +6,7 @@
   "contract_id": "harness-receipt-auditors-v1.0",
   "cross_repository_tests": {
     "path": "tests/test_cross_repo_receipt_compatibility.py",
-    "sha256": "7e27c2fa9f846a77881f05434e47b0076dacabdae7ed549dea4ccb045d365e43"
+    "sha256": "fb2c327e501c6ebf081a551b10b7f72b59661f5350eb1d63110806b8202c6960"
   },
   "documentation": {
     "path": "docs/receipt-auditor-extensions.md",

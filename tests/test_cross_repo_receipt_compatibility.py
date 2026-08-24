@@ -8,12 +8,14 @@ from __future__ import annotations
 
 import hashlib
 import importlib
+import importlib.util
 import json
 import os
 import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from types import ModuleType
 
 import pytest
 
@@ -86,6 +88,18 @@ def _source(component_id: str) -> dict[str, object]:
     )
 
 
+def _load_exact_source_module(path: Path, name: str) -> ModuleType:
+    """Load one reviewed dependency-free source file without package side effects."""
+
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:
+        raise AssertionError(f"cannot load exact source module: {path.name}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 def _preflight(root: Path, source: dict[str, object]) -> None:
     assert _git(root, "status", "--porcelain=v1", "--untracked-files=all") == ""
     assert _git(root, "rev-parse", "HEAD") == source["commit"]
@@ -107,16 +121,17 @@ def test_exact_router_receipt_flows_through_harness_auditor() -> None:
     source = _source("llm-router")
     _preflight(root, source)
     assert not any(name == "llm_router" or name.startswith("llm_router.") for name in sys.modules)
-    sys.path.insert(0, str(root / "src"))
-
-    from llm_router.receipt import (  # noqa: PLC0415
-        InvocationAttemptV1,
-        build_invocation_receipt_v1,
-        encode_invocation_receipt_v1,
+    router_module = _load_exact_source_module(
+        root / str(source["implementation_path"]),
+        "ash_exact_router_receipt_v1",
     )
-
-    module_path = Path(sys.modules["llm_router.receipt"].__file__ or "").resolve()
-    assert module_path.is_relative_to((root / "src").resolve())
+    source_api = vars(router_module)
+    InvocationAttemptV1 = source_api["InvocationAttemptV1"]
+    build_invocation_receipt_v1 = source_api["build_invocation_receipt_v1"]
+    encode_invocation_receipt_v1 = source_api["encode_invocation_receipt_v1"]
+    module_path = Path(router_module.__file__ or "").resolve()
+    assert module_path == (root / str(source["implementation_path"])).resolve()
+    assert not any(name == "llm_router" or name.startswith("llm_router.") for name in sys.modules)
     occurred = datetime(2026, 8, 24, 2, 30, tzinfo=UTC)
     response_sha = hashlib.sha256(b"synthetic response envelope").hexdigest()
     output_sha = hashlib.sha256(b"synthetic output text").hexdigest()
