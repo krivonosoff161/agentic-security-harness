@@ -11,17 +11,22 @@ on:
       - "tools/ecosystem_docs.py"
       - "tools/extension_contracts.py"
       - "tools/extension_distribution_contracts.py"
+      - "tools/extension_lifecycle_contracts.py"
       - "tools/companion_extension_contracts.py"
       - "tools/security_intelligence_contracts.py"
       - "tools/receipt_auditor_contracts.py"
       - "tests/test_ecosystem_docs.py"
       - "src/agentic_security_harness/extension_sdk.py"
       - "src/agentic_security_harness/extension_distribution.py"
+      - "src/agentic_security_harness/extension_lifecycle.py"
+      - "src/agentic_security_harness/__init__.py"
+      - "src/agentic_security_harness/cli.py"
       - "src/agentic_security_harness/companion_extensions.py"
       - "src/agentic_security_harness/security_intelligence.py"
       - "src/agentic_security_harness/receipt_auditors.py"
       - "tests/test_extension_sdk.py"
       - "tests/test_extension_distribution.py"
+      - "tests/test_extension_lifecycle.py"
       - "tests/test_companion_extensions.py"
       - "tests/test_security_intelligence.py"
       - "tests/test_cross_repo_extension_compatibility.py"
@@ -114,6 +119,7 @@ jobs:
           python tools/ecosystem_docs.py check
           python tools/extension_contracts.py check
           python tools/extension_distribution_contracts.py check
+          python tools/extension_lifecycle_contracts.py check
           python tools/companion_extension_contracts.py check
           python tools/security_intelligence_contracts.py check
           python tools/receipt_auditor_contracts.py check
@@ -148,6 +154,7 @@ jobs:
           python -m pytest -q
           tests/test_extension_sdk.py
           tests/test_extension_distribution.py
+          tests/test_extension_lifecycle.py
           tests/test_companion_extensions.py
           tests/test_security_intelligence.py
           tests/test_cross_repo_extension_compatibility.py

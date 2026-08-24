@@ -26,6 +26,11 @@ observation and R4 companion contracts are strict and reject unknown fields.
 | `agent-host-evaluation.v1.schema.json` | Closed deterministic Agent Host V1 evaluation result. |
 | `agent-host-evaluation-ruleset.v1.schema.json` | Closed ruleset shape for all 24 frozen corpus patterns. |
 | `agent-host-evaluation-ruleset.v1.json` | Exact content-bound Agent Host V1 ruleset. |
+| `extension-distribution-inspection.v1.schema.json` | Closed metadata-only inspection of one explicitly selected installed distribution. |
+| `extension-distribution-approval.v1.schema.json` | Exact-reinspection approval receipt; no code load, signature, sandbox, or authority. |
+| `extension-disable-receipt.v1.schema.json` | Metadata-only disable declaration for one exact approval. |
+| `extension-rollback-plan.v1.schema.json` | Non-executable rollback plan from one disabled approval to one approved target. |
+| `extension-lifecycle-projection.v1.schema.json` | Deterministic state projection from explicitly supplied canonical receipts only. |
 
 The R4 companion schemas are strict (`additionalProperties: false`) shape checks only.
 Cross-field and graph semantics require the Python validator plus the positive/negative

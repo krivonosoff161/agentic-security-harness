@@ -1,0 +1,153 @@
+{
+  "$defs": {
+    "ExtensionLifecycleItemV1": {
+      "additionalProperties": false,
+      "description": "Safe state projection for one supplied approval receipt.",
+      "properties": {
+        "approval_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Approval Id",
+          "type": "string"
+        },
+        "code_loaded": {
+          "const": false,
+          "title": "Code Loaded",
+          "type": "boolean"
+        },
+        "disable_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Disable Id",
+          "type": "string"
+        },
+        "distribution_name": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Distribution Name",
+          "type": "string"
+        },
+        "distribution_version": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Distribution Version",
+          "type": "string"
+        },
+        "executable_state_observed": {
+          "const": false,
+          "title": "Executable State Observed",
+          "type": "boolean"
+        },
+        "extension_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Extension Id",
+          "type": "string"
+        },
+        "extension_version": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Extension Version",
+          "type": "string"
+        },
+        "inspection_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Inspection Id",
+          "type": "string"
+        },
+        "operational_authority": {
+          "const": "none",
+          "title": "Operational Authority",
+          "type": "string"
+        },
+        "rollback_plan_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Rollback Plan Id",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "approved_metadata_only",
+            "disabled_metadata_only",
+            "rollback_planned_non_executable"
+          ],
+          "title": "State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "approval_id",
+        "inspection_id",
+        "distribution_name",
+        "distribution_version",
+        "extension_id",
+        "extension_version",
+        "state",
+        "disable_id",
+        "rollback_plan_id",
+        "code_loaded",
+        "executable_state_observed",
+        "operational_authority"
+      ],
+      "title": "ExtensionLifecycleItemV1",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Deterministic list assembled only from explicitly supplied canonical receipts.",
+  "properties": {
+    "code_loaded": {
+      "const": false,
+      "title": "Code Loaded",
+      "type": "boolean"
+    },
+    "installed_state_discovered": {
+      "const": false,
+      "title": "Installed State Discovered",
+      "type": "boolean"
+    },
+    "item_count": {
+      "maximum": 256,
+      "minimum": 0,
+      "title": "Item Count",
+      "type": "integer"
+    },
+    "items": {
+      "items": {
+        "$ref": "#/$defs/ExtensionLifecycleItemV1"
+      },
+      "maxItems": 256,
+      "title": "Items",
+      "type": "array"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "projection_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Projection Sha256",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "harness-extension-lifecycle-projection-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source": {
+      "const": "explicit_canonical_receipts_only",
+      "title": "Source",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "projection_sha256",
+    "item_count",
+    "items",
+    "source",
+    "installed_state_discovered",
+    "code_loaded",
+    "operational_authority"
+  ],
+  "title": "ExtensionLifecycleProjectionV1",
+  "type": "object"
+}

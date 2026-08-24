@@ -21,6 +21,12 @@ Agent Host V1 record/replay, deterministic evaluation, explicit digest-only owne
 instrumentation, and a built-in validated no-network quickstart are shipped in v1.1.0;
 native provider and live host/tool collectors remain future.
 
+The unreleased Extension SDK stack now has a metadata-only operator path for explicit
+installed-distribution inspection, exact-reinspection approval, receipt-only list/disable
+and rollback planning, plus binding of an already constructed object. Automatic import,
+download, executable-state discovery, disable/rollback enforcement, operator
+authentication, sandboxing, and release remain separate future gates.
+
 ---
 
 ## Done

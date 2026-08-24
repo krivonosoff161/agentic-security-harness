@@ -1,0 +1,120 @@
+{
+  "additionalProperties": false,
+  "description": "Metadata-only instruction to stop using one exact approval.",
+  "properties": {
+    "approval_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Approval Id",
+      "type": "string"
+    },
+    "code_loaded": {
+      "const": false,
+      "title": "Code Loaded",
+      "type": "boolean"
+    },
+    "configuration_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Configuration Sha256",
+      "type": "string"
+    },
+    "disable_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Disable Id",
+      "type": "string"
+    },
+    "distribution_name": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Distribution Name",
+      "type": "string"
+    },
+    "distribution_version": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Distribution Version",
+      "type": "string"
+    },
+    "executable_state_changed": {
+      "const": false,
+      "title": "Executable State Changed",
+      "type": "boolean"
+    },
+    "extension_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Extension Id",
+      "type": "string"
+    },
+    "extension_version": {
+      "pattern": "^[0-9A-Za-z][0-9A-Za-z.+_-]{0,63}$",
+      "title": "Extension Version",
+      "type": "string"
+    },
+    "implementation_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Implementation Sha256",
+      "type": "string"
+    },
+    "inspection_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Inspection Id",
+      "type": "string"
+    },
+    "manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Manifest Sha256",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "operator_action_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Operator Action Sha256",
+      "type": "string"
+    },
+    "operator_authenticated": {
+      "const": false,
+      "title": "Operator Authenticated",
+      "type": "boolean"
+    },
+    "reason_code": {
+      "const": "operator_disabled",
+      "title": "Reason Code",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "harness-extension-distribution-disable-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "state": {
+      "const": "disabled_metadata_only",
+      "title": "State",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "disable_id",
+    "approval_id",
+    "inspection_id",
+    "distribution_name",
+    "distribution_version",
+    "extension_id",
+    "extension_version",
+    "manifest_sha256",
+    "implementation_sha256",
+    "configuration_sha256",
+    "operator_action_sha256",
+    "state",
+    "reason_code",
+    "executable_state_changed",
+    "operator_authenticated",
+    "code_loaded",
+    "operational_authority"
+  ],
+  "title": "ExtensionDisableReceiptV1",
+  "type": "object"
+}

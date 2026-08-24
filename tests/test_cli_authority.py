@@ -15,7 +15,12 @@ ROOT = Path(__file__).resolve().parent.parent
 READ_ONLY_COMMANDS = {
     "agent-host-evaluate",
     "agent-host-inspect",
+    "extension-distribution-approve",
+    "extension-distribution-inspect",
     "extension-inspect",
+    "extension-lifecycle-disable",
+    "extension-lifecycle-list",
+    "extension-lifecycle-rollback-plan",
     "gateway-check",
     "validate",
     "targets",

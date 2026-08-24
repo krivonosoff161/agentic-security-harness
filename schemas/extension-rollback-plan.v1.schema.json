@@ -1,0 +1,165 @@
+{
+  "additionalProperties": false,
+  "description": "Non-executable plan from one disabled approval to one approved target.",
+  "properties": {
+    "application_action_required": {
+      "const": "construct_and_bind_target_object",
+      "title": "Application Action Required",
+      "type": "string"
+    },
+    "automatic_download": {
+      "const": false,
+      "title": "Automatic Download",
+      "type": "boolean"
+    },
+    "automatic_import": {
+      "const": false,
+      "title": "Automatic Import",
+      "type": "boolean"
+    },
+    "code_loaded": {
+      "const": false,
+      "title": "Code Loaded",
+      "type": "boolean"
+    },
+    "current_approval_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Current Approval Id",
+      "type": "string"
+    },
+    "current_manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Current Manifest Sha256",
+      "type": "string"
+    },
+    "disable_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Disable Id",
+      "type": "string"
+    },
+    "distribution_name": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Distribution Name",
+      "type": "string"
+    },
+    "executable_state_changed": {
+      "const": false,
+      "title": "Executable State Changed",
+      "type": "boolean"
+    },
+    "extension_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Extension Id",
+      "type": "string"
+    },
+    "from_distribution_version": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "From Distribution Version",
+      "type": "string"
+    },
+    "from_extension_version": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "From Extension Version",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "operator_action_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Operator Action Sha256",
+      "type": "string"
+    },
+    "operator_authenticated": {
+      "const": false,
+      "title": "Operator Authenticated",
+      "type": "boolean"
+    },
+    "rollback_plan_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Rollback Plan Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "harness-extension-distribution-rollback-plan-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "state": {
+      "const": "rollback_planned_non_executable",
+      "title": "State",
+      "type": "string"
+    },
+    "target_approval_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Target Approval Id",
+      "type": "string"
+    },
+    "target_configuration_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Target Configuration Sha256",
+      "type": "string"
+    },
+    "target_implementation_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Target Implementation Sha256",
+      "type": "string"
+    },
+    "target_manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Target Manifest Sha256",
+      "type": "string"
+    },
+    "to_distribution_version": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "To Distribution Version",
+      "type": "string"
+    },
+    "to_extension_version": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "To Extension Version",
+      "type": "string"
+    },
+    "version_direction_verified": {
+      "const": false,
+      "title": "Version Direction Verified",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema_version",
+    "rollback_plan_id",
+    "disable_id",
+    "current_approval_id",
+    "target_approval_id",
+    "distribution_name",
+    "extension_id",
+    "from_distribution_version",
+    "to_distribution_version",
+    "from_extension_version",
+    "to_extension_version",
+    "current_manifest_sha256",
+    "target_manifest_sha256",
+    "target_implementation_sha256",
+    "target_configuration_sha256",
+    "operator_action_sha256",
+    "state",
+    "version_direction_verified",
+    "application_action_required",
+    "executable_state_changed",
+    "automatic_import",
+    "automatic_download",
+    "code_loaded",
+    "operator_authenticated",
+    "operational_authority"
+  ],
+  "title": "ExtensionRollbackPlanV1",
+  "type": "object"
+}
