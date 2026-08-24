@@ -49,6 +49,10 @@ def generated_contracts() -> dict[Path, bytes]:
         "workflow": _bound_file(ROOT / ".github" / "workflows" / "ecosystem-docs.yml"),
         "documentation": _bound_file(ROOT / "docs" / "companion-extensions.md"),
         "integration_candidate": {
+            "build_requirements_in": _bound_file(ROOT / "requirements" / "build.in"),
+            "build_requirements_lock": _bound_file(ROOT / "requirements" / "build.txt"),
+            "development_requirements_in": _bound_file(ROOT / "requirements" / "dev.in"),
+            "development_requirements_lock": _bound_file(ROOT / "requirements" / "dev.txt"),
             "workflow": _bound_file(
                 ROOT / ".github" / "workflows" / "ecosystem-integration.yml"
             ),

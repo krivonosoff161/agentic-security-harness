@@ -13,7 +13,7 @@ import json
 from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Final, Literal, NamedTuple
+from typing import Any, Final, Literal, NamedTuple, cast
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -534,7 +534,7 @@ def build_transfer_verification_evidence_v1(
         source_observation_sha256=hashlib.sha256(
             _canonical_bytes(source_observation.model_dump(mode="json"))
         ).hexdigest(),
-        report_status=status,  # type: ignore[arg-type]
+        report_status=cast(Literal["PASS", "WARN", "FAIL"], status),
         findings=tuple(sanitized),
         source_contract_sha256=source_contract_sha256,
         operational_authority="none",

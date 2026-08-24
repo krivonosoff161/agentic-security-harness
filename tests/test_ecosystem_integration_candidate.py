@@ -400,3 +400,23 @@ def test_explicit_factory_origin_rejects_import_collision(tmp_path: Path) -> Non
             _explicit_factory(cast(ExtensionDistributionInspectionV1, inspection), site)
     finally:
         sys.modules.pop("candidate_extension", None)
+
+
+def test_integration_workflow_preserves_first_party_ruff_scope() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "ecosystem-integration.yml").read_text(
+        encoding="utf-8"
+    )
+    assert any(
+        line.strip() == "python -m ruff check . --exclude components"
+        for line in workflow.splitlines()
+    )
+    assert "python -m ruff check src tests tools" not in workflow
+    tracked_first_party = _git(
+        ROOT,
+        "ls-files",
+        "--",
+        "examples/*.py",
+        "fuzz/*.py",
+    ).splitlines()
+    assert "examples/fake_openai_server.py" in tracked_first_party
+    assert any(path.startswith("fuzz/") for path in tracked_first_party)

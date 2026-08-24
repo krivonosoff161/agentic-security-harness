@@ -146,7 +146,7 @@ jobs:
       - name: Run full test and static analysis gates
         run: |
           python -m pytest -q
-          python -m ruff check .
+          python -m ruff check . --exclude components
           python -m mypy src tests tools
           python -m bandit -q -r src
 
