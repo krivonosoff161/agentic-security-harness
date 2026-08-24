@@ -36,3 +36,16 @@ jobs:
           GITLEAKS_ENABLE_COMMENTS: "false"
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
           GITLEAKS_ENABLE_SUMMARY: "false"
+
+      - name: Verify the pinned scanner binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          gitleaks_path="$(command -v gitleaks)"
+          test "$(gitleaks version)" = "8.30.1"
+          printf '%s  %s\n' \
+            '88f91962aa2f93ac6ab281d553b9e125f5197bbbce38f9f2437f7299c32e5509' \
+            "$gitleaks_path" | sha256sum --check --strict -
+
+      - name: Verify exact suppressions do not hide a fresh synthetic finding
+        run: python3 tools/check_gitleaks_regression.py --gitleaks gitleaks
