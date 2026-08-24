@@ -2,18 +2,18 @@
   "contract_id": "harness-controlled-local-adapter-v1.0",
   "documentation": {
     "path": "docs/controlled-local-adapter.md",
-    "sha256": "06810bb32cac471b33248148fb6edbf9ff15d3fbbbae010980b4e579188bf982"
+    "sha256": "f950560f95abe3bb690045ce0d6594b4ae9d68b9173cda159a776a0112b888b8"
   },
   "external_provider_calls": false,
   "gateway_policy_sha256": "373c568f6dab98b4ca8e464e1867d035715a4baa6c4981a0142c3a72f3f27705",
   "generator": {
     "path": "tools/controlled_local_adapter_contracts.py",
-    "sha256": "82a34def0e509bc3787041057f373165f3ff96d516da5b410ee81533fa3eacc4"
+    "sha256": "434b6f3f88082c7e718aa3be0af14b5939cc0c04b79866db0d9cfb2ea8eb8086"
   },
   "harness_api": "1",
   "implementation": {
     "path": "src/agentic_security_harness/controlled_local_adapter.py",
-    "sha256": "c1e06d11972bfea3adb5b79fe5cffc6a87eeb695b85ef674f5120498c4813d19"
+    "sha256": "0d92f09a6e39cd828f2ff904afdd7acce064f4ad77f117f5ce7bbede4179990d"
   },
   "json_schema_scope": "closed_shape_only_semantic_validation_in_python",
   "model_identity": "opaque_operator_selected_token_no_vendor_attestation",
@@ -22,6 +22,10 @@
   "provider_tool_adapter": {
     "path": "src/agentic_security_harness/provider_tool_adapters.py",
     "sha256": "81f794706bc468e00b5a6f68440d62df9e5aee612bc9049e77ea36733d995210"
+  },
+  "public_api": {
+    "path": "src/agentic_security_harness/__init__.py",
+    "sha256": "cb1366f9ea9ac8a965b710d9f59fe5d24bd377ee76f1bc1babdd76da7e36f048"
   },
   "receipt_retention": "digest_counters_fixed_codes_only",
   "runtime_gateway": {
@@ -36,7 +40,7 @@
     },
     {
       "path": "schemas/controlled-local-invocation-receipt.v1.schema.json",
-      "sha256": "940138b46dd90cdf5e76e4d960696f4524c855f998f0a733563df342e12d3b49"
+      "sha256": "b3e8cfe63c321ff3b5e7e36b8fb1f08146c17ad5db919e0efcf310a546be6636"
     },
     {
       "path": "schemas/controlled-local-tool-receipt.v1.schema.json",
@@ -56,7 +60,9 @@
   },
   "transport": {
     "caller_headers": false,
+    "cancellation_scope": "before_request_and_in_flight_transport_and_post_response",
     "credentials": false,
+    "deadline_scope": "monotonic_connect_send_read_and_all_retries",
     "dns": false,
     "hosts": [
       "127.0.0.1",
@@ -72,10 +78,10 @@
   },
   "unit_tests": {
     "path": "tests/test_controlled_local_adapter.py",
-    "sha256": "3af2440e2d37de59402608d5097fe400bb08e8ac25e593c7d2f63af39fccc63e"
+    "sha256": "1dea6cf867b182ba6cce582617fbeb5b794956c82cb1e52269e194d59edaf4c8"
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "8bbe2491f43814c76d78c18867e5c154f45d6e7de4c7bc85f7c4db813aad3ff5"
+    "sha256": "b24ac5d3f99efd4f62c94206b7c0b803686130a9691e82348993b3009c14f3e9"
   }
 }

@@ -23,8 +23,10 @@ The V1 transport is closed:
   environment variables;
 - redirects, authentication headers, caller headers, content encoding, transfer
   encoding, streaming, and missing/ambiguous `Content-Length` are rejected;
-- request, response, timeout, retry, nesting, array, object, and tool-call counts are
-  bounded;
+- request, response, retry, nesting, integer token, array, object, header, and tool-call
+  counts are bounded;
+- one monotonic deadline covers connect, send, every response read, and all retry
+  attempts; cancellation is polled during those phases rather than only between them;
 - response bytes must be unique-key UTF-8 canonical JSON with exact
   `Content-Type: application/json`.
 
@@ -57,6 +59,9 @@ mixed by another invocation on that instance. The supplied `GatewayEngine` and l
 remain dedicated to that adapter while it runs; unrelated direct engine use is outside the
 receipt's attribution contract. Cancellation after a response reserves any parsed call
 identities before returning, so resuming cannot accidentally execute the cancelled calls.
+The adapter revalidates the exact `GatewayEngine`, exact `GatewayAuditLedger`, and exact
+default synthetic `GatewayPolicyV1` at construction and again before each invocation;
+Pydantic `model_construct` and post-construction replacement do not widen that boundary.
 
 ## Python operator path
 
@@ -98,8 +103,8 @@ data-handling policy explicitly permits more.
 ## Receipt and privacy semantics
 
 [`schemas/controlled-local-adapter.v1.manifest.json`](../schemas/controlled-local-adapter.v1.manifest.json)
-binds the implementation, Runtime Gateway, provider normalizer, fixed policy digest,
-schemas, tests, workflow, and this document.
+binds the implementation and public API export, Runtime Gateway, provider normalizer,
+fixed policy digest, schemas, tests, workflow, and this document.
 
 The canonical invocation/tool receipt contains:
 
@@ -108,6 +113,12 @@ The canonical invocation/tool receipt contains:
 - bounded attempt/tool/audit counters and before/after audit heads;
 - fixed transport, cancellation, framing, replay, policy, and outcome reason codes;
 - `provider_authenticated=false` and `operational_authority=none`.
+
+Receipt validation enforces a terminal state machine across status, reason, attempts,
+HTTP/response presence, audit delta and head transition, contiguous tool sequence, and
+the fixed policy digest. Recomputing the outer receipt hash cannot make an impossible
+combination valid. Receipt decoding bounds JSON nesting and integer tokens before object
+construction and rejects floats and non-standard constants.
 
 It contains no prompt, response text, tool name, arguments, result, credential, header,
 endpoint, machine path, exception text, key, or approval grant. The Runtime Gateway audit

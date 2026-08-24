@@ -40,6 +40,7 @@ def generated_contracts() -> dict[Path, bytes]:
         "implementation": _bound_file(
             ROOT / "src" / "agentic_security_harness" / "controlled_local_adapter.py"
         ),
+        "public_api": _bound_file(ROOT / "src" / "agentic_security_harness" / "__init__.py"),
         "provider_tool_adapter": _bound_file(
             ROOT / "src" / "agentic_security_harness" / "provider_tool_adapters.py"
         ),
@@ -61,6 +62,8 @@ def generated_contracts() -> dict[Path, bytes]:
             "credentials": False,
             "caller_headers": False,
             "streaming": False,
+            "deadline_scope": "monotonic_connect_send_read_and_all_retries",
+            "cancellation_scope": "before_request_and_in_flight_transport_and_post_response",
             "response_content_type": "application/json",
             "response_content_length_required": True,
         },

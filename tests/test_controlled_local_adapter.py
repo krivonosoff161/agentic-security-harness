@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import socket
 import threading
@@ -15,6 +16,7 @@ import pytest
 from pydantic import ValidationError
 
 import agentic_security_harness as ash
+import agentic_security_harness.controlled_local_adapter as controlled_local_module
 from agentic_security_harness.controlled_local_adapter import (
     ControlledLocalAdapterConfigV1,
     ControlledLocalAdapterContractError,
@@ -23,7 +25,13 @@ from agentic_security_harness.controlled_local_adapter import (
     decode_controlled_local_invocation_receipt_v1,
     encode_controlled_local_invocation_receipt_v1,
 )
-from agentic_security_harness.runtime_gateway import GatewayAuditLedger, GatewayEngine
+from agentic_security_harness.runtime_gateway import (
+    GatewayAuditLedger,
+    GatewayEngine,
+    GatewayPolicyV1,
+)
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def _canonical(value: Any) -> bytes:
@@ -65,6 +73,8 @@ class _Reply:
     delay_seconds: float = 0.0
     disconnect: bool = False
     signal_event: threading.Event | None = None
+    trickle_seconds: float = 0.0
+    extra_header_value: str | None = None
 
 
 @dataclass
@@ -115,6 +125,8 @@ class _Handler(BaseHTTPRequestHandler):
                 self.send_header("Content-Encoding", reply.content_encoding)
             if reply.location is not None:
                 self.send_header("Location", reply.location)
+            if reply.extra_header_value is not None:
+                self.send_header("X-Oversized", reply.extra_header_value)
             content_length = reply.content_length
             if (
                 content_length is None
@@ -134,8 +146,14 @@ class _Handler(BaseHTTPRequestHandler):
                 self.wfile.write(f"{len(reply.body):x}\r\n".encode("ascii"))
                 self.wfile.write(reply.body + b"\r\n0\r\n\r\n")
             else:
-                self.wfile.write(reply.body)
-        except (BrokenPipeError, ConnectionResetError):
+                if reply.trickle_seconds:
+                    for byte in reply.body:
+                        self.wfile.write(bytes([byte]))
+                        self.wfile.flush()
+                        time.sleep(reply.trickle_seconds)
+                else:
+                    self.wfile.write(reply.body)
+        except (BrokenPipeError, ConnectionAbortedError, ConnectionResetError):
             return
         self.close_connection = True
 
@@ -190,6 +208,31 @@ def test_config_is_literal_loopback_and_model_ids_are_opaque(tmp_path: Path) -> 
             ControlledLocalAdapterV1(
                 ControlledLocalAdapterConfigV1(port=8080), _UnsafeEngine(audit)
             )
+
+    invalid_policy = GatewayPolicyV1.model_construct(rules=())
+    with GatewayAuditLedger(tmp_path / "policy-bypass-audit") as audit:
+        with pytest.raises(ControlledLocalAdapterContractError, match="closed default policy"):
+            ControlledLocalAdapterV1(
+                ControlledLocalAdapterConfigV1(port=8080),
+                GatewayEngine(audit, invalid_policy),
+            )
+
+    with GatewayAuditLedger(tmp_path / "audit-type-bypass") as audit:
+        invalid_audit_engine = GatewayEngine(audit)
+        invalid_audit_engine.audit = object()  # type: ignore[assignment]
+        with pytest.raises(ControlledLocalAdapterContractError, match="GatewayAuditLedger"):
+            ControlledLocalAdapterV1(
+                ControlledLocalAdapterConfigV1(port=8080), invalid_audit_engine
+            )
+
+    with GatewayAuditLedger(tmp_path / "post-init-policy-bypass") as audit:
+        mutable_engine = GatewayEngine(audit)
+        adapter = ControlledLocalAdapterV1(
+            ControlledLocalAdapterConfigV1(port=8080), mutable_engine
+        )
+        mutable_engine.policy = invalid_policy
+        with pytest.raises(ControlledLocalAdapterContractError, match="closed default policy"):
+            adapter.invoke(model_id="local-model", input_text="input", request_id="request:mutated")
 
     with _serve(_Reply(body=_response()), _Reply(body=_response())) as (port, _plan):
         with _adapter(tmp_path, port) as (adapter, _engine):
@@ -350,11 +393,11 @@ def test_concurrent_replay_dispatches_exactly_once(tmp_path: Path) -> None:
         ),
         (_Reply(body=b"{}", content_length="70000"), "response_body_oversized"),
         (_Reply(body=b"{}", truncate_by=4), "response_body_truncated"),
+        (_Reply(body=b"{}", content_length="1"), "response_body_length_mismatch"),
+        (_Reply(extra_header_value="x" * 17_000), "response_headers_oversized"),
     ],
 )
-def test_response_boundary_fails_closed(
-    tmp_path: Path, reply: _Reply, reason: str
-) -> None:
+def test_response_boundary_fails_closed(tmp_path: Path, reply: _Reply, reason: str) -> None:
     with _serve(reply) as (port, _plan):
         with _adapter(tmp_path, port) as (adapter, engine):
             outcome = adapter.invoke(
@@ -369,20 +412,27 @@ def test_response_boundary_fails_closed(
 @pytest.mark.parametrize(
     ("body", "reason"),
     [
-        (b'{"object":"response","object":"response","output":[],"status":"completed"}',
-         "response_json_invalid"),
-        (b'{"object": "response", "output": [], "status": "completed"}',
-         "response_json_noncanonical"),
-        (b"not-json", "response_json_invalid"),
         (
-            (b'{"object":"response","output":' + b"[" * 20 + b"]" * 20
-             + b',"status":"completed"}'),
+            b'{"object":"response","object":"response","output":[],"status":"completed"}',
             "response_json_invalid",
         ),
-        (_canonical({"object": "response", "output": {}, "status": "completed"}),
-         "response_tool_payload_invalid"),
-        (_canonical({"object": "response", "output": [], "status": "failed"}),
-         "response_tool_payload_invalid"),
+        (
+            b'{"object": "response", "output": [], "status": "completed"}',
+            "response_json_noncanonical",
+        ),
+        (b"not-json", "response_json_invalid"),
+        (
+            (b'{"object":"response","output":' + b"[" * 20 + b"]" * 20 + b',"status":"completed"}'),
+            "response_json_invalid",
+        ),
+        (
+            _canonical({"object": "response", "output": {}, "status": "completed"}),
+            "response_tool_payload_invalid",
+        ),
+        (
+            _canonical({"object": "response", "output": [], "status": "failed"}),
+            "response_tool_payload_invalid",
+        ),
     ],
 )
 def test_malformed_provider_responses_do_not_reach_gateway(
@@ -454,19 +504,25 @@ def test_timeout_cancellation_and_request_limit_are_closed(tmp_path: Path) -> No
     assert cancelled.receipt.reason_code == "cancelled_before_request"
     assert cancelled.receipt.network_attempts == 0
 
-    after_response_event = threading.Event()
-    with _serve(_Reply(body=_response(), signal_event=after_response_event)) as (port, _plan):
+    during_event = threading.Event()
+    with _serve(_Reply(body=_response(), delay_seconds=0.5)) as (port, _plan):
         with _adapter(tmp_path / "cancel-after", port) as (adapter, engine):
-            cancelled_after = adapter.invoke(
+            timer = threading.Timer(0.05, during_event.set)
+            timer.start()
+            started = time.monotonic()
+            cancelled_during = adapter.invoke(
                 model_id="local-model",
                 input_text="input",
                 request_id="request:cancelled-after",
-                cancel_event=after_response_event,
+                cancel_event=during_event,
             )
+            elapsed = time.monotonic() - started
+            timer.join(timeout=1)
             assert engine.execution_count == 0
-    assert cancelled_after.receipt.status == "cancelled"
-    assert cancelled_after.receipt.reason_code == "cancelled_after_response"
-    assert cancelled_after.receipt.response_observed is True
+    assert cancelled_during.receipt.status == "cancelled"
+    assert cancelled_during.receipt.reason_code == "cancelled_during_transport"
+    assert cancelled_during.receipt.response_observed is False
+    assert elapsed < 0.5
 
     with _serve() as (port, plan):
         with _adapter(tmp_path / "oversize", port, max_request_bytes=1024) as (adapter, _engine):
@@ -477,6 +533,59 @@ def test_timeout_cancellation_and_request_limit_are_closed(tmp_path: Path) -> No
                     request_id="request:oversized",
                 )
     assert plan.requests == []
+
+
+def test_total_deadline_stops_slow_trickle_response(tmp_path: Path) -> None:
+    with _serve(_Reply(body=_response(), trickle_seconds=0.03)) as (port, _plan):
+        with _adapter(tmp_path, port, timeout_milliseconds=50) as (adapter, engine):
+            started = time.monotonic()
+            outcome = adapter.invoke(
+                model_id="local-model", input_text="input", request_id="request:trickle"
+            )
+            elapsed = time.monotonic() - started
+            assert engine.execution_count == 0
+    assert outcome.receipt.reason_code == "local_timeout"
+    assert outcome.receipt.response_observed is False
+    assert elapsed < 0.5
+
+
+def test_cancelled_tool_identity_is_reserved_before_terminal_receipt(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    event = threading.Event()
+    original = controlled_local_module.normalize_provider_tool_calls_v1
+    calls = 0
+
+    def normalize_then_cancel(provider: Any, payload: Any) -> Any:
+        nonlocal calls
+        normalized = original(provider, payload)
+        calls += 1
+        if calls == 1:
+            event.set()
+        return normalized
+
+    monkeypatch.setattr(
+        controlled_local_module, "normalize_provider_tool_calls_v1", normalize_then_cancel
+    )
+    call = _call("cancelled_identity", "synthetic.lookup", {"key": "gateway-mode"})
+    with _serve(_Reply(body=_response(call)), _Reply(body=_response(call))) as (port, _plan):
+        with _adapter(tmp_path, port) as (adapter, engine):
+            first = adapter.invoke(
+                model_id="local-model",
+                input_text="one",
+                request_id="request:cancel-reserve:one",
+                cancel_event=event,
+            )
+            event.clear()
+            second = adapter.invoke(
+                model_id="local-model",
+                input_text="two",
+                request_id="request:cancel-reserve:two",
+                cancel_event=event,
+            )
+            assert engine.execution_count == 0
+    assert first.receipt.reason_code == "cancelled_after_response"
+    assert second.receipt.reason_code == "tool_call_replay_denied"
 
 
 def test_receipt_codec_rejects_tampering_unknown_fields_and_noncanonical_bytes(
@@ -500,6 +609,66 @@ def test_receipt_codec_rejects_tampering_unknown_fields_and_noncanonical_bytes(
         decode_controlled_local_invocation_receipt_v1(encoded + b"\n")
 
 
+def test_receipt_decoder_bounds_depth_integers_floats_and_constants() -> None:
+    hostile = (
+        b'{"schema_version":"AgenticSecurityHarnessControlledLocalInvocationReceipt.v1",'
+        b'"x":' + b"[" * 2_000 + b"0" + b"]" * 2_000 + b"}"
+    )
+    for payload in (hostile, b'{"x":123456789012345678901}', b'{"x":1.5}', b'{"x":NaN}'):
+        with pytest.raises(ControlledLocalAdapterContractError, match="invalid JSON"):
+            decode_controlled_local_invocation_receipt_v1(payload)
+
+
+def test_receipt_semantic_state_machine_rejects_recomputed_impossible_states(
+    tmp_path: Path,
+) -> None:
+    with _serve(_Reply(body=_response())) as (port, _plan):
+        with _adapter(tmp_path / "no-tools", port) as (adapter, _engine):
+            completed = adapter.invoke(
+                model_id="local-model", input_text="input", request_id="request:state"
+            )
+
+    def resign(payload: dict[str, Any]) -> bytes:
+        unsigned = dict(payload)
+        unsigned.pop("receipt_sha256", None)
+        payload["receipt_sha256"] = hashlib.sha256(
+            b"ash-controlled-local-invocation-receipt-v1\0" + _canonical(unsigned)
+        ).hexdigest()
+        return _canonical(payload)
+
+    base = json.loads(encode_controlled_local_invocation_receipt_v1(completed.receipt))
+    mutations = (
+        {"network_attempts": 0},
+        {"http_status": 201},
+        {"status": "error"},
+        {"reason_code": "completed_with_tool_calls"},
+        {"policy_sha256": "f" * 64},
+        {
+            "audit_records_after": base["audit_records_before"],
+            "audit_head_after_sha256": base["audit_head_before_sha256"],
+        },
+        {"response_observed": False, "response_sha256": "0" * 64},
+    )
+    for mutation in mutations:
+        payload = dict(base)
+        payload.update(mutation)
+        with pytest.raises(ControlledLocalAdapterContractError, match="closed contract"):
+            decode_controlled_local_invocation_receipt_v1(resign(payload))
+
+    call = _call("receipt_sequence", "synthetic.lookup", {"key": "gateway-mode"})
+    with _serve(_Reply(body=_response(call))) as (port, _plan):
+        with _adapter(tmp_path / "tools", port) as (adapter, _engine):
+            with_tools = adapter.invoke(
+                model_id="local-model", input_text="input", request_id="request:tools-state"
+            )
+    tool_base = json.loads(encode_controlled_local_invocation_receipt_v1(with_tools.receipt))
+    for key, value in (("sequence", 2), ("policy_sha256", "f" * 64)):
+        payload = json.loads(_canonical(tool_base))
+        payload["tools"][0][key] = value
+        with pytest.raises(ControlledLocalAdapterContractError, match="closed contract"):
+            decode_controlled_local_invocation_receipt_v1(resign(payload))
+
+
 def test_generated_schemas_are_closed() -> None:
     schemas = controlled_local_adapter_v1_json_schemas()
     assert set(schemas) == {
@@ -508,6 +677,22 @@ def test_generated_schemas_are_closed() -> None:
         "controlled-local-tool-receipt.v1.schema.json",
     }
     assert all(schema["additionalProperties"] is False for schema in schemas.values())
+
+    manifest = json.loads(
+        (ROOT / "schemas" / "controlled-local-adapter.v1.manifest.json").read_bytes()
+    )
+    public_api = ROOT / "src" / "agentic_security_harness" / "__init__.py"
+    assert manifest["public_api"] == {
+        "path": "src/agentic_security_harness/__init__.py",
+        "sha256": hashlib.sha256(public_api.read_bytes()).hexdigest(),
+    }
+    workflow = (ROOT / ".github" / "workflows" / "ecosystem-docs.yml").read_text(encoding="utf-8")
+    for dependency in (
+        "src/agentic_security_harness/__init__.py",
+        "src/agentic_security_harness/provider_tool_adapters.py",
+        "src/agentic_security_harness/runtime_gateway.py",
+    ):
+        assert f'      - "{dependency}"' in workflow
 
 
 def test_controlled_adapter_is_exported_from_installed_package_surface() -> None:
