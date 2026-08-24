@@ -1,0 +1,114 @@
+{
+  "additionalProperties": false,
+  "description": "Privacy-minimized binding between one observation event and receipt bytes.",
+  "properties": {
+    "accounting_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Accounting Sha256"
+    },
+    "audit_state": {
+      "enum": [
+        "valid_accounting",
+        "malformed"
+      ],
+      "title": "Audit State",
+      "type": "string"
+    },
+    "component_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,127}$",
+      "title": "Component Id",
+      "type": "string"
+    },
+    "event_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "evidence_class": {
+      "enum": [
+        "producer_declared",
+        "external_unreviewed"
+      ],
+      "title": "Evidence Class",
+      "type": "string"
+    },
+    "may_lower_security_decision": {
+      "const": false,
+      "title": "May Lower Security Decision",
+      "type": "boolean"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "payload_retention": {
+      "const": "caller_owned_not_emitted",
+      "title": "Payload Retention",
+      "type": "string"
+    },
+    "reason_code": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Reason Code",
+      "type": "string"
+    },
+    "receipt_id": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Receipt Id"
+    },
+    "receipt_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Receipt Sha256",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "harness-receipt-artifact-binding-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_contract_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Contract Sha256",
+      "type": "string"
+    },
+    "verdict_semantics": {
+      "const": "accounting_audit_only_no_security_verdict",
+      "title": "Verdict Semantics",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "event_id",
+    "component_id",
+    "receipt_sha256",
+    "audit_state",
+    "reason_code",
+    "source_contract_sha256",
+    "evidence_class",
+    "verdict_semantics",
+    "may_lower_security_decision",
+    "payload_retention",
+    "operational_authority"
+  ],
+  "title": "ReceiptArtifactBindingV1",
+  "type": "object"
+}
