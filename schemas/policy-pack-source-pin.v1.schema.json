@@ -1,0 +1,94 @@
+{
+  "additionalProperties": false,
+  "description": "Compiled identity for the exact reviewed playbooks source tree and artifacts.",
+  "properties": {
+    "component_id": {
+      "const": "llm-safety-playbooks",
+      "title": "Component Id",
+      "type": "string"
+    },
+    "component_manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Component Manifest Sha256",
+      "type": "string"
+    },
+    "input_schema_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Input Schema Sha256",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "output_schema_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Output Schema Sha256",
+      "type": "string"
+    },
+    "pack_file_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Pack File Sha256",
+      "type": "string"
+    },
+    "pack_manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Pack Manifest Sha256",
+      "type": "string"
+    },
+    "pack_schema_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Pack Schema Sha256",
+      "type": "string"
+    },
+    "pack_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Pack Sha256",
+      "type": "string"
+    },
+    "repository": {
+      "const": "https://github.com/krivonosoff161/llm-safety-playbooks",
+      "title": "Repository",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "harness-policy-pack-source-pin-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_commit": {
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+      "title": "Source Commit",
+      "type": "string"
+    },
+    "source_tree": {
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+      "title": "Source Tree",
+      "type": "string"
+    },
+    "verification": {
+      "const": "exact_public_git_reviewed",
+      "title": "Verification",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "component_id",
+    "repository",
+    "source_commit",
+    "source_tree",
+    "pack_file_sha256",
+    "pack_schema_sha256",
+    "pack_manifest_sha256",
+    "component_manifest_sha256",
+    "input_schema_sha256",
+    "output_schema_sha256",
+    "pack_sha256",
+    "verification",
+    "operational_authority"
+  ],
+  "title": "PolicyPackSourcePinV1",
+  "type": "object"
+}

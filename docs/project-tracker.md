@@ -35,7 +35,8 @@ The unreleased Extension SDK review stack now includes exact-source companion ad
 offline Security Intelligence, deterministic Router/Cheap Filter receipt auditors,
 verified installed-distribution metadata, an explicit metadata-only operator lifecycle,
 closed optional Corpus Pack composition that preserves the frozen 24-pattern corpus 1.0.0,
-and a controlled literal-loopback local provider/tool-host adapter.
+an exact-pinned data-only Playbooks Policy Pack extension, and a controlled
+literal-loopback local provider/tool-host adapter.
 These are source candidates, not shipped capability: receipt conformance binds accounting
 bytes and event linkage only, never a pass/allow decision, producer authenticity,
 effectiveness claim, external provider call, deployment, or enforcement authority. The

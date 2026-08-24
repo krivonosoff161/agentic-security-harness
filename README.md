@@ -129,6 +129,12 @@ model names as opaque identifiers—including Qwen and DeepSeek-style names—wi
 claims. It has no DNS, proxy, redirect, credential, external-provider, arbitrary-tool, or
 upstream-MCP path; receipts are digest-only and operational authority remains `none`.
 
+The stacked [Policy Pack extension candidate](docs/policy-pack-extension.md) independently
+parses one exact-pinned data-only Playbooks pack and evaluates caller-supplied content-free
+signals bound to canonical observations. A missing pack is inconclusive; production
+Harness does not import or execute Playbooks code, discover packages, call a network, or
+grant allow/enforcement authority.
+
 | Target | Modeled findings | Patterns passed |
 |---|---:|---:|
 | `demo-agent` | 24 | 0 |
@@ -273,6 +279,7 @@ The README is the front door; deeper contracts live in `docs/`:
 | How are weekly public security inputs reviewed without provider lock-in? | [Security Intelligence extension](docs/security-intelligence-extension.md) |
 | How can optional packages add patterns without overriding the stable corpus? | [Corpus Pack SDK V1](docs/corpus-pack-sdk.md) |
 | How can an operator connect one local model without opening arbitrary tools? | [Controlled local provider/tool-host adapter](docs/controlled-local-adapter.md) |
+| How is the reviewed Playbooks Policy Pack evaluated without importing its code? | [Policy Pack V1 extension](docs/policy-pack-extension.md) |
 
 Specialized reviewer paths:
 

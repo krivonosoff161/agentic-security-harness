@@ -1,0 +1,160 @@
+{
+  "$defs": {
+    "PolicyPackRuleEvaluationV1": {
+      "additionalProperties": false,
+      "description": "Deterministic parity projection of one source rule result.",
+      "properties": {
+        "advisory_disposition": {
+          "enum": [
+            "observe",
+            "challenge",
+            "escalate",
+            "abstain"
+          ],
+          "title": "Advisory Disposition",
+          "type": "string"
+        },
+        "matched": {
+          "title": "Matched",
+          "type": "boolean"
+        },
+        "may_authorize_effects": {
+          "const": false,
+          "title": "May Authorize Effects",
+          "type": "boolean"
+        },
+        "operational_authority": {
+          "const": "none",
+          "title": "Operational Authority",
+          "type": "string"
+        },
+        "playbook_path": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Playbook Path",
+          "type": "string"
+        },
+        "playbook_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Playbook Sha256",
+          "type": "string"
+        },
+        "reason_code": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Reason Code",
+          "type": "string"
+        },
+        "rule_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "signal": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Signal",
+          "type": "string"
+        },
+        "signal_state": {
+          "enum": [
+            "absent",
+            "present",
+            "unknown"
+          ],
+          "title": "Signal State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "signal",
+        "signal_state",
+        "matched",
+        "advisory_disposition",
+        "reason_code",
+        "playbook_path",
+        "playbook_sha256",
+        "may_authorize_effects",
+        "operational_authority"
+      ],
+      "title": "PolicyPackRuleEvaluationV1",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Self-bound authority-free result used to prove deterministic pack parity.",
+  "properties": {
+    "evaluation_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Evaluation Sha256",
+      "type": "string"
+    },
+    "event_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "may_authorize_effects": {
+      "const": false,
+      "title": "May Authorize Effects",
+      "type": "boolean"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "overall_advisory_disposition": {
+      "enum": [
+        "observe",
+        "challenge",
+        "escalate",
+        "abstain"
+      ],
+      "title": "Overall Advisory Disposition",
+      "type": "string"
+    },
+    "pack_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Pack Sha256",
+      "type": "string"
+    },
+    "results": {
+      "items": {
+        "$ref": "#/$defs/PolicyPackRuleEvaluationV1"
+      },
+      "maxItems": 7,
+      "minItems": 7,
+      "title": "Results",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "harness-policy-pack-evaluation-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "signal_binding_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Signal Binding Sha256",
+      "type": "string"
+    },
+    "verdict_semantics": {
+      "const": "advisory_only_no_allow_or_enforcement",
+      "title": "Verdict Semantics",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "evaluation_sha256",
+    "event_id",
+    "signal_binding_sha256",
+    "pack_sha256",
+    "results",
+    "overall_advisory_disposition",
+    "verdict_semantics",
+    "may_authorize_effects",
+    "operational_authority"
+  ],
+  "title": "PolicyPackEvaluationV1",
+  "type": "object"
+}

@@ -17,6 +17,7 @@ on:
       - "tools/receipt_auditor_contracts.py"
       - "tools/corpus_pack_contracts.py"
       - "tools/controlled_local_adapter_contracts.py"
+      - "tools/policy_pack_extension_contracts.py"
       - "tests/test_ecosystem_docs.py"
       - "src/agentic_security_harness/extension_sdk.py"
       - "src/agentic_security_harness/extension_distribution.py"
@@ -31,6 +32,8 @@ on:
       - "src/agentic_security_harness/__init__.py"
       - "src/agentic_security_harness/provider_tool_adapters.py"
       - "src/agentic_security_harness/runtime_gateway.py"
+      - "src/agentic_security_harness/policy_pack_extension.py"
+      - "src/agentic_security_harness/cli.py"
       - "tests/test_extension_sdk.py"
       - "tests/test_extension_distribution.py"
       - "tests/test_extension_lifecycle.py"
@@ -41,6 +44,9 @@ on:
       - "tests/test_cross_repo_receipt_compatibility.py"
       - "tests/test_corpus_packs.py"
       - "tests/test_controlled_local_adapter.py"
+      - "tests/test_policy_pack_extension.py"
+      - "tests/test_cli_authority.py"
+      - "tests/test_cross_repo_policy_pack_compatibility.py"
       - "README.md"
   push:
     branches: [main]
@@ -90,6 +96,14 @@ jobs:
           path: components/playbooks
           persist-credentials: false
 
+      - name: Check out Policy Pack V1 contract
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: krivonosoff161/llm-safety-playbooks
+          ref: dc7a695e192c43ed242d71a06290754c82596e2d
+          path: components/playbooks-policy-pack-v1
+          persist-credentials: false
+
       - name: Check out Router contract
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -134,6 +148,7 @@ jobs:
           python tools/receipt_auditor_contracts.py check
           python tools/corpus_pack_contracts.py check
           python tools/controlled_local_adapter_contracts.py check
+          python tools/policy_pack_extension_contracts.py check
 
       - name: Validate exact component lock
         run: >-
@@ -160,6 +175,7 @@ jobs:
           ASH_PLAYBOOKS_ROOT: ${{ github.workspace }}/components/playbooks
           ASH_ROUTER_ROOT: ${{ github.workspace }}/components/router
           ASH_FILTER_ROOT: ${{ github.workspace }}/components/filter
+          ASH_POLICY_PACK_ROOT: ${{ github.workspace }}/components/playbooks-policy-pack-v1
           GIT_OPTIONAL_LOCKS: "0"
         run: >-
           python -m pytest -q
@@ -173,6 +189,9 @@ jobs:
           tests/test_cross_repo_receipt_compatibility.py
           tests/test_corpus_packs.py
           tests/test_controlled_local_adapter.py
+          tests/test_policy_pack_extension.py
+          tests/test_cli_authority.py
+          tests/test_cross_repo_policy_pack_compatibility.py
 
   windows-stable-read:
     strategy:

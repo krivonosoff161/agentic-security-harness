@@ -1,0 +1,105 @@
+{
+  "cli": {
+    "path": "src/agentic_security_harness/cli.py",
+    "sha256": "ddf98902d291be010ad2a66fb52d361e31ab4482e783e842b8781002eb3992d0"
+  },
+  "cli_authority_tests": {
+    "path": "tests/test_cli_authority.py",
+    "sha256": "3aee10ae00bb7d744de5d85441876d3ef2a7a8e37a9b345cc1f683a7a51bff7b"
+  },
+  "code_auto_discovery": false,
+  "companion_code_execution": false,
+  "companion_package_imports_at_runtime": false,
+  "component_manifest": {
+    "path": "component.yaml",
+    "sha256": "4584ccfdd62b6c074eee3d934c618be84666cf477c341c2a300bac760b30bbdf"
+  },
+  "contract_id": "harness-policy-pack-extension-v1.0",
+  "credentials_supported": false,
+  "cross_repository_tests": {
+    "path": "tests/test_cross_repo_policy_pack_compatibility.py",
+    "sha256": "c4d014cab51979b400cd9fcf8cd6d0d8be81ba2fcefd4b5d3ef45611603b5eb6"
+  },
+  "documentation": {
+    "path": "docs/policy-pack-extension.md",
+    "sha256": "a43ae04d5ffbb835b5d3bd8011cb239ab86804af2dd003f05add18347feb167a"
+  },
+  "extension_sdk_contract": {
+    "path": "schemas/extension-sdk.v1.manifest.json",
+    "sha256": "27d500a7ed165d43b85d456cec906225bd70a557654697eb0794aa5bb9c06f91"
+  },
+  "generator": {
+    "path": "tools/policy_pack_extension_contracts.py",
+    "sha256": "ac5f7cc893f6b50012ac0edf66631099f3eaf7420336db04b85f2d4cd0087b1d"
+  },
+  "harness_api": "1",
+  "implementation": {
+    "path": "src/agentic_security_harness/policy_pack_extension.py",
+    "sha256": "235f98c2347d8078b70876c2bdc6c78ab2a63ac61793d9ea97a8ad1ba1f7058b"
+  },
+  "integration_model": "explicit_caller_supplied_exact_canonical_data_only_pack",
+  "may_authorize_effects": false,
+  "missing_pack_disposition": "inconclusive",
+  "network_access": false,
+  "operational_authority": "none",
+  "public_api": {
+    "path": "src/agentic_security_harness/__init__.py",
+    "sha256": "eb7aa2e995bcdc8381d6598a0c6900514ec09c46b1da19b450c7aeb0f75800f5"
+  },
+  "raw_content_included": false,
+  "reviewed_source": {
+    "component_id": "llm-safety-playbooks",
+    "component_manifest_sha256": "7c979980ce5359ce45939789cb2c17d8966c748bdb1277526685c2de89749a58",
+    "input_schema_sha256": "d6a39ad8cb1cfc9e61094fa3c92b11d66b2df3370a326f89ecb4a52c49dd3e8b",
+    "operational_authority": "none",
+    "output_schema_sha256": "b5e4d5554fb930529fd493dad903a25698c99c62c57d99934f66edda8b4f6f1c",
+    "pack_file_sha256": "1c8ca14e6ab83d92742f6fba0b0d1b1bc422ebe30163c6619e9c80f5413b8915",
+    "pack_manifest_sha256": "2c054ca23db7fd18f69180f868cc0af8a900b1a02fb75dab7d8edffe5427faa0",
+    "pack_schema_sha256": "fd99422169c4cbfbe0f80a16a39cf7557d7ef6d28669b03ae940b24b9e2172a1",
+    "pack_sha256": "44fa5aced73c6a2fc1eb3cb827955d245c887fa8d7c596e353bb2e9678119169",
+    "repository": "https://github.com/krivonosoff161/llm-safety-playbooks",
+    "schema_version": "harness-policy-pack-source-pin-v1.0",
+    "source_commit": "dc7a695e192c43ed242d71a06290754c82596e2d",
+    "source_tree": "ab88886f92dc1efdbdc10a1761c91d3fceca8622",
+    "verification": "exact_public_git_reviewed"
+  },
+  "schema_version": "harness-policy-pack-extension-contract-manifest-v1.0",
+  "schemas": [
+    {
+      "path": "schemas/policy-pack-evaluation.v1.schema.json",
+      "sha256": "6fb077ec305b0a33c7bafcede30d17deceded3bbe57fb9fb5cbd52591e1923f1"
+    },
+    {
+      "path": "schemas/policy-pack-rule-evaluation.v1.schema.json",
+      "sha256": "3b6f140661680f13f187d09e112fcb408e3a402d851685c58519d8d4c483c707"
+    },
+    {
+      "path": "schemas/policy-pack-signal-binding.v1.schema.json",
+      "sha256": "ea962b635813ef986742f4a645e0de14b0444e4b7d092cf7a08aaeef216ee481"
+    },
+    {
+      "path": "schemas/policy-pack-signals.v1.schema.json",
+      "sha256": "4ac0b313d533007bfe9ff9f158300e51cbe3d6c2afb667b709c11b8f0a4edc33"
+    },
+    {
+      "path": "schemas/policy-pack-source-pin.v1.schema.json",
+      "sha256": "8a59198f15f7e42f7f9e4261b94ef05c34dad64f39113ba38cef55f924721b2c"
+    },
+    {
+      "path": "schemas/policy-pack.v1.schema.json",
+      "sha256": "7c24f728651519b0d66ab1e3ee0dad363252a663037667b475be2e66e8c4364f"
+    }
+  ],
+  "semantic_drift_disposition": "fail_closed",
+  "signal_model": "caller_supplied_content_free_canonical_observation_binding",
+  "subprocess_access": false,
+  "unit_tests": {
+    "path": "tests/test_policy_pack_extension.py",
+    "sha256": "e8df377ac1bd0f8ff4207c029edf113762d8a1a4b0838e60c4fa53616e58e0fe"
+  },
+  "verdict_semantics": "advisory_only_no_allow_or_enforcement",
+  "workflow": {
+    "path": ".github/workflows/ecosystem-docs.yml",
+    "sha256": "46619036ed43d260b2473df1999ec232d8f325baaa3c01e1cf24accf5b46d67f"
+  }
+}

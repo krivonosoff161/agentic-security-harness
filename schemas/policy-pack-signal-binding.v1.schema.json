@@ -1,0 +1,160 @@
+{
+  "$defs": {
+    "PolicyPackSignalsV1": {
+      "additionalProperties": false,
+      "description": "Seven content-free signal states owned by the caller, not inferred from content.",
+      "properties": {
+        "generated_resource_unverified": {
+          "enum": [
+            "absent",
+            "present",
+            "unknown"
+          ],
+          "title": "Generated Resource Unverified",
+          "type": "string"
+        },
+        "git_change_control_unclear": {
+          "enum": [
+            "absent",
+            "present",
+            "unknown"
+          ],
+          "title": "Git Change Control Unclear",
+          "type": "string"
+        },
+        "handoff_verification_incomplete": {
+          "enum": [
+            "absent",
+            "present",
+            "unknown"
+          ],
+          "title": "Handoff Verification Incomplete",
+          "type": "string"
+        },
+        "observation_metadata_invalid": {
+          "enum": [
+            "absent",
+            "present",
+            "unknown"
+          ],
+          "title": "Observation Metadata Invalid",
+          "type": "string"
+        },
+        "research_authorization_unclear": {
+          "enum": [
+            "absent",
+            "present",
+            "unknown"
+          ],
+          "title": "Research Authorization Unclear",
+          "type": "string"
+        },
+        "secret_exposure_risk": {
+          "enum": [
+            "absent",
+            "present",
+            "unknown"
+          ],
+          "title": "Secret Exposure Risk",
+          "type": "string"
+        },
+        "untrusted_instructions_detected": {
+          "enum": [
+            "absent",
+            "present",
+            "unknown"
+          ],
+          "title": "Untrusted Instructions Detected",
+          "type": "string"
+        }
+      },
+      "required": [
+        "untrusted_instructions_detected",
+        "secret_exposure_risk",
+        "generated_resource_unverified",
+        "git_change_control_unclear",
+        "handoff_verification_incomplete",
+        "research_authorization_unclear",
+        "observation_metadata_invalid"
+      ],
+      "title": "PolicyPackSignalsV1",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Content-free signal receipt bound to one exact canonical observation.",
+  "properties": {
+    "binding_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Binding Sha256",
+      "type": "string"
+    },
+    "digest_is_authentication": {
+      "const": false,
+      "title": "Digest Is Authentication",
+      "type": "boolean"
+    },
+    "event_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "may_authorize_effects": {
+      "const": false,
+      "title": "May Authorize Effects",
+      "type": "boolean"
+    },
+    "observation_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Observation Sha256",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "pack_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Pack Sha256",
+      "type": "string"
+    },
+    "raw_content_included": {
+      "const": false,
+      "title": "Raw Content Included",
+      "type": "boolean"
+    },
+    "schema_version": {
+      "const": "harness-policy-pack-signal-binding-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "signals": {
+      "$ref": "#/$defs/PolicyPackSignalsV1"
+    },
+    "source_class": {
+      "enum": [
+        "synthetic_fixture",
+        "sanitized_metadata",
+        "external_adapter_receipt"
+      ],
+      "title": "Source Class",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "binding_sha256",
+    "event_id",
+    "observation_sha256",
+    "pack_sha256",
+    "source_class",
+    "signals",
+    "raw_content_included",
+    "digest_is_authentication",
+    "may_authorize_effects",
+    "operational_authority"
+  ],
+  "title": "PolicyPackSignalBindingV1",
+  "type": "object"
+}

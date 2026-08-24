@@ -4,7 +4,7 @@
   "automatic_import": false,
   "component_manifest": {
     "path": "component.yaml",
-    "sha256": "f676a550667fafc929002d31b5168898bd0fea5a06e1b904a0ca88df0071bb9e"
+    "sha256": "4584ccfdd62b6c074eee3d934c618be84666cf477c341c2a300bac760b30bbdf"
   },
   "contract_id": "harness-extension-operator-lifecycle-v1.0",
   "disable_semantics": "metadata_only_application_enforcement_required",
@@ -29,11 +29,11 @@
   "runtime_closure": [
     {
       "path": "src/agentic_security_harness/__init__.py",
-      "sha256": "4ff8caa29535b06039078088cb36933425cb7d5eb187f404134da2fbd671e075"
+      "sha256": "eb7aa2e995bcdc8381d6598a0c6900514ec09c46b1da19b450c7aeb0f75800f5"
     },
     {
       "path": "src/agentic_security_harness/cli.py",
-      "sha256": "b92e50657912239f8bb0680dcc3dbafa072775b9a7b06f53bf86b05312c67a5c"
+      "sha256": "ddf98902d291be010ad2a66fb52d361e31ab4482e783e842b8781002eb3992d0"
     },
     {
       "path": "src/agentic_security_harness/extension_distribution.py",
@@ -74,6 +74,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "03c405e643404abd7fbcbb05306a8ed9f2aad8f9aaba8d641ece9fdc854f46d4"
+    "sha256": "46619036ed43d260b2473df1999ec232d8f325baaa3c01e1cf24accf5b46d67f"
   }
 }

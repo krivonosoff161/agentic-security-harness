@@ -12,7 +12,7 @@
   },
   "extension_sdk_contract": {
     "path": "schemas/extension-sdk.v1.manifest.json",
-    "sha256": "bb69984769aaabc5d3b0312bcc8de1532361604795fe5fdb3b7d713252042a2c"
+    "sha256": "27d500a7ed165d43b85d456cec906225bd70a557654697eb0794aa5bb9c06f91"
   },
   "generator": {
     "path": "tools/corpus_pack_contracts.py",
@@ -33,7 +33,7 @@
   "runtime_closure": [
     {
       "path": "src/agentic_security_harness/__init__.py",
-      "sha256": "4ff8caa29535b06039078088cb36933425cb7d5eb187f404134da2fbd671e075"
+      "sha256": "eb7aa2e995bcdc8381d6598a0c6900514ec09c46b1da19b450c7aeb0f75800f5"
     },
     {
       "path": "src/agentic_security_harness/corpus.py",
@@ -82,6 +82,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "03c405e643404abd7fbcbb05306a8ed9f2aad8f9aaba8d641ece9fdc854f46d4"
+    "sha256": "46619036ed43d260b2473df1999ec232d8f325baaa3c01e1cf24accf5b46d67f"
   }
 }
