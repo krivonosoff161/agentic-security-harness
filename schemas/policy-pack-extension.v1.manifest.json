@@ -95,7 +95,7 @@
   "subprocess_access": false,
   "unit_tests": {
     "path": "tests/test_policy_pack_extension.py",
-    "sha256": "e8df377ac1bd0f8ff4207c029edf113762d8a1a4b0838e60c4fa53616e58e0fe"
+    "sha256": "ba51a403f1ccbbf3cd537a0520c3cd7f77197f1402979fc43745a4a2484c8de6"
   },
   "verdict_semantics": "advisory_only_no_allow_or_enforcement",
   "workflow": {
