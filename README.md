@@ -103,6 +103,12 @@ receipts from caller-supplied canonical bytes. Valid accounting remains `inconcl
 missing evidence remains `inconclusive`, and drift becomes a finding; the auditors never
 emit `pass`, import or invoke the companion packages, or lower a security decision.
 
+The stacked [Policy Pack extension candidate](docs/policy-pack-extension.md) independently
+parses one exact-pinned data-only Playbooks pack and evaluates caller-supplied content-free
+signals bound to canonical observations. A missing pack is inconclusive; production
+Harness does not import or execute Playbooks code, discover packages, call a network, or
+grant allow/enforcement authority.
+
 | Target | Modeled findings | Patterns passed |
 |---|---:|---:|
 | `demo-agent` | 24 | 0 |
@@ -243,6 +249,7 @@ The README is the front door; deeper contracts live in `docs/`:
 | How do optional components exchange validated observations and findings? | [Extension SDK V1](docs/extension-sdk.md) |
 | Which companion contracts already have executable cross-repository adapters? | [Companion Extension adapters](docs/companion-extensions.md) |
 | How are weekly public security inputs reviewed without provider lock-in? | [Security Intelligence extension](docs/security-intelligence-extension.md) |
+| How is the reviewed Playbooks Policy Pack evaluated without importing its code? | [Policy Pack V1 extension](docs/policy-pack-extension.md) |
 
 Specialized reviewer paths:
 

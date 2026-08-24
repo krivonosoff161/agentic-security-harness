@@ -1,0 +1,80 @@
+{
+  "additionalProperties": false,
+  "description": "Seven content-free signal states owned by the caller, not inferred from content.",
+  "properties": {
+    "generated_resource_unverified": {
+      "enum": [
+        "absent",
+        "present",
+        "unknown"
+      ],
+      "title": "Generated Resource Unverified",
+      "type": "string"
+    },
+    "git_change_control_unclear": {
+      "enum": [
+        "absent",
+        "present",
+        "unknown"
+      ],
+      "title": "Git Change Control Unclear",
+      "type": "string"
+    },
+    "handoff_verification_incomplete": {
+      "enum": [
+        "absent",
+        "present",
+        "unknown"
+      ],
+      "title": "Handoff Verification Incomplete",
+      "type": "string"
+    },
+    "observation_metadata_invalid": {
+      "enum": [
+        "absent",
+        "present",
+        "unknown"
+      ],
+      "title": "Observation Metadata Invalid",
+      "type": "string"
+    },
+    "research_authorization_unclear": {
+      "enum": [
+        "absent",
+        "present",
+        "unknown"
+      ],
+      "title": "Research Authorization Unclear",
+      "type": "string"
+    },
+    "secret_exposure_risk": {
+      "enum": [
+        "absent",
+        "present",
+        "unknown"
+      ],
+      "title": "Secret Exposure Risk",
+      "type": "string"
+    },
+    "untrusted_instructions_detected": {
+      "enum": [
+        "absent",
+        "present",
+        "unknown"
+      ],
+      "title": "Untrusted Instructions Detected",
+      "type": "string"
+    }
+  },
+  "required": [
+    "untrusted_instructions_detected",
+    "secret_exposure_risk",
+    "generated_resource_unverified",
+    "git_change_control_unclear",
+    "handoff_verification_incomplete",
+    "research_authorization_unclear",
+    "observation_metadata_invalid"
+  ],
+  "title": "PolicyPackSignalsV1",
+  "type": "object"
+}

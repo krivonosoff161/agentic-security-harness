@@ -16,6 +16,7 @@ READ_ONLY_COMMANDS = {
     "agent-host-evaluate",
     "agent-host-inspect",
     "extension-inspect",
+    "policy-pack-evaluate",
     "gateway-check",
     "validate",
     "targets",

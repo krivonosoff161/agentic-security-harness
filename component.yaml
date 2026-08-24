@@ -13,18 +13,21 @@
     "entry_points": ["ash"]
   },
   "owns": {
-    "modules": ["benchmark-core", "runtime-gateway-reference", "ecosystem-contracts", "extension-sdk-v1", "security-intelligence-v1", "receipt-auditors-v1"],
-    "checks": ["trace-validation", "scorecards", "synthetic-runtime-policy", "extension-contract-conformance", "security-intelligence-offline-review", "router-receipt-accounting-audit", "filter-receipt-accounting-audit"],
+    "modules": ["benchmark-core", "runtime-gateway-reference", "ecosystem-contracts", "extension-sdk-v1", "security-intelligence-v1", "receipt-auditors-v1", "policy-pack-extension-v1"],
+    "checks": ["trace-validation", "scorecards", "synthetic-runtime-policy", "extension-contract-conformance", "security-intelligence-offline-review", "router-receipt-accounting-audit", "filter-receipt-accounting-audit", "policy-pack-advisory-evaluation"],
     "collectors": ["agent-host-v1", "provider-neutral-recordings", "security-intelligence-offline-snapshots"],
-    "adapters": ["provider-tool-envelope-normalizers", "transfer-verifier-v1", "handoff-metadata-v1", "playbook-guidance-v1", "security-intelligence-review-v1", "router-receipt-auditor-v1", "filter-receipt-auditor-v1"],
-    "contracts": ["harness-api", "ecosystem-roadmap", "component-manifest", "portfolio-observation-v1", "extension-manifest-v1", "extension-finding-v1", "companion-contract-pin-v1", "security-intelligence-source-registry-v1", "security-intelligence-evidence-v1", "receipt-source-pin-v1", "receipt-artifact-binding-v1"]
+    "adapters": ["provider-tool-envelope-normalizers", "transfer-verifier-v1", "handoff-metadata-v1", "playbook-guidance-v1", "policy-pack-extension-v1", "security-intelligence-review-v1", "router-receipt-auditor-v1", "filter-receipt-auditor-v1"],
+    "contracts": ["harness-api", "ecosystem-roadmap", "component-manifest", "portfolio-observation-v1", "extension-manifest-v1", "extension-finding-v1", "companion-contract-pin-v1", "policy-pack-source-pin-v1", "policy-pack-signal-binding-v1", "policy-pack-evaluation-v1", "security-intelligence-source-registry-v1", "security-intelligence-evidence-v1", "receipt-source-pin-v1", "receipt-artifact-binding-v1"]
   },
-  "consumes": ["optional extension component manifests", "caller-supplied canonical exact-pinned Router and Cheap Filter receipt bytes"],
+  "consumes": ["optional extension component manifests", "caller-supplied canonical exact-pinned Router and Cheap Filter receipt bytes", "caller-supplied exact-pinned data-only Policy Pack V1 bytes and content-free signal bindings"],
   "contracts": [
     {"id": "harness-api", "version": "1", "direction": "provides", "required": true},
     {"id": "component-manifest", "version": "1", "direction": "provides", "required": true},
     {"id": "extension-manifest", "version": "1", "direction": "provides", "required": false},
     {"id": "extension-finding", "version": "1", "direction": "provides", "required": false},
+    {"id": "policy-pack-source-pin", "version": "1", "direction": "provides", "required": false},
+    {"id": "policy-pack-signal-binding", "version": "1", "direction": "provides", "required": false},
+    {"id": "policy-pack-evaluation", "version": "1", "direction": "provides", "required": false},
     {"id": "receipt-source-pin", "version": "1", "direction": "provides", "required": false},
     {"id": "receipt-artifact-binding", "version": "1", "direction": "provides", "required": false}
   ],
@@ -35,7 +38,8 @@
     {"path": "docs/extension-sdk.md", "role": "component-owned"},
     {"path": "docs/companion-extensions.md", "role": "component-owned"},
     {"path": "docs/security-intelligence-extension.md", "role": "component-owned"},
-    {"path": "docs/receipt-auditor-extensions.md", "role": "component-owned"}
+    {"path": "docs/receipt-auditor-extensions.md", "role": "component-owned"},
+    {"path": "docs/policy-pack-extension.md", "role": "component-owned"}
   ],
   "compatibility": {
     "harness_api": ">=1,<2",
@@ -43,8 +47,8 @@
     "platforms": {"supported": ["linux", "windows"], "tested": ["linux", "windows"]}
   },
   "integration_status": "suite_verified",
-  "evidence_refs": ["docs/current-state.md", "docs/releases/v1.2.0.md", "schemas/extension-sdk.v1.manifest.json", "schemas/companion-extensions.v1.manifest.json", "schemas/security-intelligence.v1.manifest.json", "schemas/receipt-auditors.v1.manifest.json"],
-  "claims": ["published benchmark/toolkit", "synthetic Runtime Gateway reference contour", "source-level Extension SDK V1 candidate", "exact-source companion adapter compatibility candidate", "provider-neutral offline Security Intelligence contract candidate", "deterministic exact-pinned Router and Cheap Filter receipt accounting audit candidate"],
-  "non_claims": ["production security certification", "live-provider enforcement", "independent effectiveness validation", "sandboxed or automatically trusted extension code", "live threat collection or exhaustive source coverage", "receipt authenticity or provider attestation", "permission to lower a security decision"],
+  "evidence_refs": ["docs/current-state.md", "docs/releases/v1.2.0.md", "schemas/extension-sdk.v1.manifest.json", "schemas/companion-extensions.v1.manifest.json", "schemas/security-intelligence.v1.manifest.json", "schemas/receipt-auditors.v1.manifest.json", "schemas/policy-pack-extension.v1.manifest.json"],
+  "claims": ["published benchmark/toolkit", "synthetic Runtime Gateway reference contour", "source-level Extension SDK V1 candidate", "exact-source companion adapter compatibility candidate", "provider-neutral offline Security Intelligence contract candidate", "deterministic exact-pinned Router and Cheap Filter receipt accounting audit candidate", "exact-pinned data-only Policy Pack advisory extension candidate"],
+  "non_claims": ["production security certification", "live-provider enforcement", "independent effectiveness validation", "sandboxed or automatically trusted extension code", "live threat collection or exhaustive source coverage", "receipt authenticity or provider attestation", "automatic raw-content signal inference", "permission to lower a security decision"],
   "authority": "none"
 }

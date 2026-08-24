@@ -14,7 +14,7 @@
   },
   "extension_sdk_contract": {
     "path": "schemas/extension-sdk.v1.manifest.json",
-    "sha256": "78c9063c4b9660c3859b086b545ab5c53c709697dade7325507864ad12f114d2"
+    "sha256": "d4f43d2b970fedd868e49f3df4b06391a0169773c11044ec1ca3bde49222795a"
   },
   "generator": {
     "path": "tools/receipt_auditor_contracts.py",
@@ -85,6 +85,6 @@
   "valid_accounting_disposition": "inconclusive_no_security_verdict",
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "99071eb73508081b169a1e790d4b545a64c64145a31f9cd0fbc84a366bb86336"
+    "sha256": "e693dc2198754d8fa496a3707f57c6f8a6df2f37fde5e2018c791d354c790183"
   }
 }

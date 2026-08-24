@@ -21,11 +21,11 @@
   },
   "recording_contract": {
     "path": "schemas/agent-host-recording.v1.manifest.json",
-    "sha256": "7df85afb6bcce9cce337d676128524c1484cb4bdf6c4866bccf878bb870605e9"
+    "sha256": "0d71d0589dbc6d99731d95aaa3b4a41b4dfa5fe4a8aafd9f9f3dc24810fbf28c"
   },
   "evaluation_contract": {
     "path": "schemas/agent-host-evaluation.v1.manifest.json",
-    "sha256": "2d02dc672cff24c531e3a29cdb1d68f19879361b70f46d9ec61286792c439a86"
+    "sha256": "4f3b474f4adca90daad500a9d9f0e72e0f410cd2c4ef45fc748372518f74beb1"
   },
   "producer": {
     "path": "src/agentic_security_harness/agent_host_workflow.py",
@@ -37,12 +37,12 @@
   },
   "public_api": {
     "path": "src/agentic_security_harness/__init__.py",
-    "sha256": "ad18463b3a3d524e0aa5758bac5d91589a4e17f5acebc855a128130be257b0e1"
+    "sha256": "e53c6228e53259afa6903b0d090151a179b8c0fcbeac11a07ae42f713c62496f"
   },
   "cli": {
     "path": "src/agentic_security_harness/cli.py",
     "command": "ash agent-host-quickstart",
-    "sha256": "6f6f4e79da7d9074d7423dac8acab29831325f22eba678a6825f89af9fad2c68"
+    "sha256": "80269662aa9ad5234ff4e1e520e763162b7cce16cef582fb152623b4d1b434c2"
   },
   "fixture_runner": {
     "path": "tests/test_agent_host_workflow.py",

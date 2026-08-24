@@ -8,6 +8,8 @@ Commands:
   ash agent-host-evaluate <recording.json> [--format text|json]
   ash agent-host-quickstart --out <dir>
   ash extension-inspect <manifest.json> [--format text|json]
+  ash policy-pack-evaluate --pack <pack.json> --expected-pack-sha256 <digest>
+                           --observation <event.json> --signals <binding.json>
   ash gateway-init --out <gateway.toml>
   ash gateway-check --config <gateway.toml>
   ash gateway-fixture --config <gateway.toml> --provider <family> --input <fixture.json>
@@ -215,6 +217,43 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("text", "json"),
         default="text",
         help="safe summary format (default: text)",
+    )
+
+    policy_pack_p = sub.add_parser(
+        "policy-pack-evaluate",
+        help=(
+            "evaluate one explicit local data-only Policy Pack V1 input; "
+            "missing pack is inconclusive"
+        ),
+    )
+    policy_pack_p.add_argument(
+        "--pack",
+        type=Path,
+        required=True,
+        help="explicit local canonical policy-pack bytes (no discovery or download)",
+    )
+    policy_pack_p.add_argument(
+        "--expected-pack-sha256",
+        required=True,
+        help="caller-approved lowercase SHA-256 for the reviewed pack bytes",
+    )
+    policy_pack_p.add_argument(
+        "--observation",
+        type=Path,
+        required=True,
+        help="explicit canonical content-free portfolio observation V1 file",
+    )
+    policy_pack_p.add_argument(
+        "--signals",
+        type=Path,
+        required=True,
+        help="explicit canonical content-free policy signal binding V1 file",
+    )
+    policy_pack_p.add_argument(
+        "--format",
+        choices=("text", "json"),
+        default="text",
+        help="authority-free receipt format (default: text)",
     )
 
     gateway_init_p = sub.add_parser(
@@ -1838,6 +1877,73 @@ def _extension_inspect(path: Path, output_format: str = "text") -> int:
     print(f"  Network mode: {terminal_field(manifest.network_mode)}")
     print(f"  Manifest SHA-256: {manifest_sha256}")
     print("  Code loaded: false")
+    print("  Operational authority: none")
+    return 0
+
+
+def _policy_pack_evaluate(
+    pack_path: Path,
+    expected_pack_sha256: str,
+    observation_path: Path,
+    signals_path: Path,
+    output_format: str = "text",
+) -> int:
+    """Evaluate exact local declarative bytes without discovery, network, or effects."""
+
+    from agentic_security_harness.extension_sdk import (
+        ExtensionContractError,
+        build_extension_envelope_v1,
+    )
+    from agentic_security_harness.policy_pack_extension import (
+        PolicyPackExtensionError,
+        read_local_policy_observation_v1,
+        read_local_policy_pack_bytes_v1,
+        read_local_policy_signal_binding_v1,
+        run_policy_pack_extension_v1,
+    )
+
+    try:
+        pack_bytes = read_local_policy_pack_bytes_v1(
+            pack_path,
+            expected_file_sha256=expected_pack_sha256,
+        )
+        observation = read_local_policy_observation_v1(observation_path)
+        binding = read_local_policy_signal_binding_v1(signals_path)
+        envelope = build_extension_envelope_v1(
+            source_component_id=observation.project_id,
+            source_commitment_sha256=binding.observation_sha256,
+            events=(observation,),
+        )
+        receipt = run_policy_pack_extension_v1(
+            pack_bytes=pack_bytes,
+            expected_pack_file_sha256=expected_pack_sha256,
+            bindings=(binding,),
+            envelope=envelope,
+        )
+    except (ExtensionContractError, PolicyPackExtensionError, OSError, ValueError):
+        print("Error: invalid Policy Pack V1 local input")
+        return 1
+
+    if output_format == "json":
+        print(
+            json.dumps(
+                receipt.model_dump(mode="json"),
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    findings = receipt.result.findings
+    print("Policy Pack extension: completed advisory evaluation")
+    print(f"  Pack state: {'missing' if pack_bytes is None else 'verified'}")
+    print(f"  Findings: {sum(item.outcome == 'finding' for item in findings)}")
+    print(f"  Inconclusive: {sum(item.outcome == 'inconclusive' for item in findings)}")
+    print(f"  Receipt SHA-256: {receipt.receipt_id}")
+    print("  Raw content included: false")
+    print("  Network used: false")
+    print("  Verdict: advisory only; no allow or enforcement")
     print("  Operational authority: none")
     return 0
 
@@ -4907,6 +5013,14 @@ def _main(argv: list[str] | None = None) -> int:
         return _agent_host_quickstart(args.out)
     if args.command == "extension-inspect":
         return _extension_inspect(args.path, args.format)
+    if args.command == "policy-pack-evaluate":
+        return _policy_pack_evaluate(
+            args.pack,
+            args.expected_pack_sha256,
+            args.observation,
+            args.signals,
+            args.format,
+        )
     if args.command == "gateway-init":
         return _gateway_init(args.out)
     if args.command == "gateway-check":

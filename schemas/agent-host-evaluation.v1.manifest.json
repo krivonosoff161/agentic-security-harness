@@ -37,7 +37,7 @@
   },
   "recording_contract": {
     "path": "schemas/agent-host-recording.v1.manifest.json",
-    "sha256": "7df85afb6bcce9cce337d676128524c1484cb4bdf6c4866bccf878bb870605e9"
+    "sha256": "0d71d0589dbc6d99731d95aaa3b4a41b4dfa5fe4a8aafd9f9f3dc24810fbf28c"
   },
   "validator": {
     "path": "src/agentic_security_harness/agent_host_evaluator.py",
@@ -46,7 +46,7 @@
   "cli": {
     "path": "src/agentic_security_harness/cli.py",
     "command": "ash agent-host-evaluate",
-    "sha256": "6f6f4e79da7d9074d7423dac8acab29831325f22eba678a6825f89af9fad2c68"
+    "sha256": "80269662aa9ad5234ff4e1e520e763162b7cce16cef582fb152623b4d1b434c2"
   },
   "fixture_runner": {
     "path": "tests/test_agent_host_evaluator.py",

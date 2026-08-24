@@ -32,7 +32,8 @@ approval grants, production deployment, certification, and operational authority
 future work and must not be inferred from this release.
 
 The unreleased Extension SDK review stack now includes exact-source companion adapters,
-offline Security Intelligence, and deterministic Router/Cheap Filter receipt auditors.
+offline Security Intelligence, deterministic Router/Cheap Filter receipt auditors, and
+an exact-pinned data-only Playbooks Policy Pack extension.
 These are source candidates, not shipped capability: receipt conformance binds accounting
 bytes and event linkage only, never a pass/allow decision, producer authenticity,
 effectiveness claim, provider call, deployment, or enforcement authority.
