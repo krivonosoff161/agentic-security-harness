@@ -88,6 +88,11 @@ validated observation-to-finding dataflow. It does not auto-load installed packa
 is not part of the published `1.2.0` surface; selected checks become installable only
 after their own conformance and release gates.
 
+The stacked [Corpus Pack SDK V1](docs/corpus-pack-sdk.md) candidate adds a separate,
+canonical registry for optional namespaced boundary-invariant metadata. It preserves the
+frozen corpus 1.0.0, loads no package code, and treats complete evidence as readiness for
+later rule evaluation rather than a security verdict.
+
 The stacked [companion adapter candidate](docs/companion-extensions.md) now exercises
 exact Transfer Verifier reports, Handoff metadata and Playbooks guidance through that
 SDK on Linux and Windows. This closes a concrete producer-to-consumer dataflow gap; it
@@ -259,6 +264,7 @@ The README is the front door; deeper contracts live in `docs/`:
 | How does an operator approve, list, disable, or plan rollback without automatic code loading? | [Extension Operator Lifecycle V1](docs/extension-operator-lifecycle.md) |
 | Which companion contracts already have executable cross-repository adapters? | [Companion Extension adapters](docs/companion-extensions.md) |
 | How are weekly public security inputs reviewed without provider lock-in? | [Security Intelligence extension](docs/security-intelligence-extension.md) |
+| How can optional packages add patterns without overriding the stable corpus? | [Corpus Pack SDK V1](docs/corpus-pack-sdk.md) |
 
 Specialized reviewer paths:
 

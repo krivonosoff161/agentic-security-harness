@@ -33,7 +33,9 @@ future work and must not be inferred from this release.
 
 The unreleased Extension SDK review stack now includes exact-source companion adapters,
 offline Security Intelligence, deterministic Router/Cheap Filter receipt auditors,
-verified installed-distribution metadata, and an explicit metadata-only operator lifecycle.
+verified installed-distribution metadata, an explicit metadata-only operator lifecycle,
+and a closed optional Corpus Pack SDK that composes namespaced pattern metadata without
+changing the frozen 24-pattern corpus 1.0.0.
 These are source candidates, not shipped capability: receipt conformance binds accounting
 bytes and event linkage only, never a pass/allow decision, producer authenticity,
 effectiveness claim, provider call, deployment, or enforcement authority.

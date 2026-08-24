@@ -1,0 +1,443 @@
+{
+  "$defs": {
+    "CorpusPackObservationRequirementsV1": {
+      "additionalProperties": false,
+      "description": "Evidence shape required before a pack-owned rule could be evaluated.",
+      "properties": {
+        "evidence_semantics": {
+          "const": "declared_requirements_only_not_proof_of_presence_or_security",
+          "title": "Evidence Semantics",
+          "type": "string"
+        },
+        "extension_envelope_schema_version": {
+          "const": "harness-extension-envelope-v1.0",
+          "title": "Extension Envelope Schema Version",
+          "type": "string"
+        },
+        "minimum_event_count": {
+          "maximum": 2048,
+          "minimum": 1,
+          "title": "Minimum Event Count",
+          "type": "integer"
+        },
+        "observation_schema_version": {
+          "const": "portfolio-observation-v1.0",
+          "title": "Observation Schema Version",
+          "type": "string"
+        },
+        "required_activities": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 32,
+          "minItems": 1,
+          "title": "Required Activities",
+          "type": "array"
+        },
+        "required_envelope_fields": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 16,
+          "minItems": 9,
+          "title": "Required Envelope Fields",
+          "type": "array"
+        },
+        "required_source_surfaces": {
+          "items": {
+            "enum": [
+              "user",
+              "agent",
+              "model",
+              "tool",
+              "mcp",
+              "retrieval",
+              "memory",
+              "document",
+              "app",
+              "sensor",
+              "environment",
+              "provider",
+              "audit"
+            ],
+            "type": "string"
+          },
+          "maxItems": 13,
+          "minItems": 1,
+          "title": "Required Source Surfaces",
+          "type": "array"
+        },
+        "requires_authority_envelope_ref": {
+          "title": "Requires Authority Envelope Ref",
+          "type": "boolean"
+        },
+        "requires_complete_telemetry": {
+          "const": true,
+          "title": "Requires Complete Telemetry",
+          "type": "boolean"
+        },
+        "requires_parent_link": {
+          "title": "Requires Parent Link",
+          "type": "boolean"
+        },
+        "terminal_activity": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Terminal Activity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observation_schema_version",
+        "extension_envelope_schema_version",
+        "required_envelope_fields",
+        "required_source_surfaces",
+        "required_activities",
+        "terminal_activity",
+        "minimum_event_count",
+        "requires_complete_telemetry",
+        "requires_parent_link",
+        "requires_authority_envelope_ref",
+        "evidence_semantics"
+      ],
+      "title": "CorpusPackObservationRequirementsV1",
+      "type": "object"
+    },
+    "CorpusPackPatternV1": {
+      "additionalProperties": false,
+      "description": "One namespaced boundary-invariant descriptor with no raw payload fields.",
+      "properties": {
+        "boundary_surface": {
+          "enum": [
+            "user",
+            "agent",
+            "model",
+            "tool",
+            "mcp",
+            "retrieval",
+            "memory",
+            "document",
+            "app",
+            "sensor",
+            "environment",
+            "provider",
+            "audit"
+          ],
+          "title": "Boundary Surface",
+          "type": "string"
+        },
+        "category": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Category",
+          "type": "string"
+        },
+        "control_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 32,
+          "minItems": 1,
+          "title": "Control Ids",
+          "type": "array"
+        },
+        "data_boundary_fields": {
+          "items": {
+            "enum": [
+              "allowed_purpose",
+              "allowed_recipients",
+              "can_forward",
+              "can_store",
+              "classification_mutable",
+              "classification_source",
+              "data_class",
+              "requires_confirmation",
+              "ttl_seconds"
+            ],
+            "type": "string"
+          },
+          "maxItems": 9,
+          "title": "Data Boundary Fields",
+          "type": "array"
+        },
+        "invariant_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Invariant Id",
+          "type": "string"
+        },
+        "observation_requirements": {
+          "$ref": "#/$defs/CorpusPackObservationRequirementsV1"
+        },
+        "pattern_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Pattern Id",
+          "type": "string"
+        },
+        "payload_policy": {
+          "const": "metadata_and_digests_only_no_raw_or_private_payloads",
+          "title": "Payload Policy",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "terminal_semantics": {
+          "$ref": "#/$defs/CorpusPackTerminalSemanticsV1"
+        }
+      },
+      "required": [
+        "pattern_id",
+        "invariant_id",
+        "category",
+        "severity",
+        "boundary_surface",
+        "data_boundary_fields",
+        "control_ids",
+        "observation_requirements",
+        "terminal_semantics",
+        "payload_policy"
+      ],
+      "title": "CorpusPackPatternV1",
+      "type": "object"
+    },
+    "CorpusPackSourceV1": {
+      "additionalProperties": false,
+      "description": "Unattested source identity and exact content commitments supplied by a pack.",
+      "properties": {
+        "component_id": {
+          "pattern": "^[a-z0-9][a-z0-9-]{0,127}$",
+          "title": "Component Id",
+          "type": "string"
+        },
+        "component_manifest_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Component Manifest Sha256",
+          "type": "string"
+        },
+        "distribution_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Distribution Sha256",
+          "type": "string"
+        },
+        "implementation_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Implementation Sha256",
+          "type": "string"
+        },
+        "producer_attestation": {
+          "const": "unattested",
+          "title": "Producer Attestation",
+          "type": "string"
+        },
+        "repository_id": {
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+          "title": "Repository Id",
+          "type": "string"
+        },
+        "source_commit": {
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+          "title": "Source Commit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "component_id",
+        "repository_id",
+        "source_commit",
+        "component_manifest_sha256",
+        "implementation_sha256",
+        "distribution_sha256",
+        "producer_attestation"
+      ],
+      "title": "CorpusPackSourceV1",
+      "type": "object"
+    },
+    "CorpusPackTerminalSemanticsV1": {
+      "additionalProperties": false,
+      "description": "Closed outcome meanings; a pack cannot redefine PASS or missing evidence.",
+      "properties": {
+        "contract_invalid": {
+          "const": "error",
+          "title": "Contract Invalid",
+          "type": "string"
+        },
+        "evidence_missing": {
+          "const": "inconclusive",
+          "title": "Evidence Missing",
+          "type": "string"
+        },
+        "invariant_preserved": {
+          "const": "pass",
+          "title": "Invariant Preserved",
+          "type": "string"
+        },
+        "invariant_violated": {
+          "const": "finding",
+          "title": "Invariant Violated",
+          "type": "string"
+        },
+        "may_lower_security_decision": {
+          "const": false,
+          "title": "May Lower Security Decision",
+          "type": "boolean"
+        },
+        "operational_authority": {
+          "const": "none",
+          "title": "Operational Authority",
+          "type": "string"
+        },
+        "verdict_scope": {
+          "const": "declared_pattern_only_not_security_certification",
+          "title": "Verdict Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "invariant_preserved",
+        "invariant_violated",
+        "evidence_missing",
+        "contract_invalid",
+        "verdict_scope",
+        "may_lower_security_decision",
+        "operational_authority"
+      ],
+      "title": "CorpusPackTerminalSemanticsV1",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Canonical optional pack; source identity is bound but remains unattested.",
+  "properties": {
+    "core_corpus_manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Core Corpus Manifest Sha256",
+      "type": "string"
+    },
+    "core_corpus_version": {
+      "const": "1.0.0",
+      "title": "Core Corpus Version",
+      "type": "string"
+    },
+    "execution_model": {
+      "const": "offline_metadata_only_no_code_loading_or_execution",
+      "title": "Execution Model",
+      "type": "string"
+    },
+    "harness_api": {
+      "const": "1",
+      "title": "Harness Api",
+      "type": "string"
+    },
+    "loading_model": {
+      "const": "explicit_canonical_bytes_or_fixed_manifest_path",
+      "title": "Loading Model",
+      "type": "string"
+    },
+    "network_mode": {
+      "const": "off",
+      "title": "Network Mode",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "pack_content_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Pack Content Sha256",
+      "type": "string"
+    },
+    "pack_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Pack Id",
+      "type": "string"
+    },
+    "pack_version": {
+      "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$",
+      "title": "Pack Version",
+      "type": "string"
+    },
+    "pattern_count": {
+      "maximum": 256,
+      "minimum": 1,
+      "title": "Pattern Count",
+      "type": "integer"
+    },
+    "patterns": {
+      "items": {
+        "$ref": "#/$defs/CorpusPackPatternV1"
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "title": "Patterns",
+      "type": "array"
+    },
+    "raw_data_policy": {
+      "const": "digests_only",
+      "title": "Raw Data Policy",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "harness-corpus-pack-manifest-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source": {
+      "$ref": "#/$defs/CorpusPackSourceV1"
+    },
+    "supported_platforms": {
+      "items": {
+        "enum": [
+          "linux",
+          "windows"
+        ],
+        "type": "string"
+      },
+      "maxItems": 2,
+      "minItems": 1,
+      "title": "Supported Platforms",
+      "type": "array"
+    },
+    "tested_platforms": {
+      "items": {
+        "enum": [
+          "linux",
+          "windows"
+        ],
+        "type": "string"
+      },
+      "maxItems": 2,
+      "minItems": 1,
+      "title": "Tested Platforms",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "pack_id",
+    "pack_version",
+    "harness_api",
+    "core_corpus_version",
+    "core_corpus_manifest_sha256",
+    "source",
+    "supported_platforms",
+    "tested_platforms",
+    "pattern_count",
+    "patterns",
+    "pack_content_sha256",
+    "loading_model",
+    "execution_model",
+    "network_mode",
+    "raw_data_policy",
+    "operational_authority"
+  ],
+  "title": "CorpusPackManifestV1",
+  "type": "object"
+}
