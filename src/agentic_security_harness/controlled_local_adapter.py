@@ -13,11 +13,14 @@ decisions, and an explicit lack of provider authentication or operational author
 
 from __future__ import annotations
 
+import errno
 import hashlib
-import http.client
 import json
+import re
+import select
 import socket
 import threading
+import time
 from dataclasses import dataclass
 from typing import Any, Literal
 
@@ -33,8 +36,11 @@ from agentic_security_harness.runtime_gateway import (
     SAFE_TOKEN_PATTERN,
     SHA256_PATTERN,
     ZERO_SHA256,
+    GatewayAuditLedger,
     GatewayDecisionV1,
     GatewayEngine,
+    GatewayPolicyV1,
+    default_gateway_policy_v1,
 )
 
 LOCAL_MODEL_ID_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9._:/+@-]{0,127}$"
@@ -46,6 +52,7 @@ LocalAdapterReason = Literal[
     "completed_without_tool_calls",
     "completed_with_tool_calls",
     "cancelled_before_request",
+    "cancelled_during_transport",
     "cancelled_after_response",
     "local_connect_error",
     "local_timeout",
@@ -56,9 +63,11 @@ LocalAdapterReason = Literal[
     "response_content_length_missing",
     "response_content_length_invalid",
     "response_content_length_duplicate",
+    "response_headers_oversized",
     "response_transfer_encoding_forbidden",
     "response_content_encoding_forbidden",
     "response_body_truncated",
+    "response_body_length_mismatch",
     "response_body_oversized",
     "response_json_invalid",
     "response_json_noncanonical",
@@ -174,14 +183,136 @@ class ControlledLocalInvocationReceiptV1(BaseModel):
             raise ValueError("response presence and digest disagree")
         if self.audit_records_after < self.audit_records_before:
             raise ValueError("gateway audit record count regressed")
-        if self.status == "completed" and self.http_status != 200:
-            raise ValueError("completed invocation requires HTTP 200")
-        if self.status != "completed" and self.tools:
-            raise ValueError("failed or cancelled invocation cannot contain tool receipts")
-        if self.reason_code == "completed_without_tool_calls" and self.tools:
-            raise ValueError("no-tool completion cannot contain tool receipts")
-        if self.reason_code == "completed_with_tool_calls" and not self.tools:
-            raise ValueError("tool completion requires tool receipts")
+        audit_delta = self.audit_records_after - self.audit_records_before
+        if (audit_delta == 0) != (self.audit_head_after_sha256 == self.audit_head_before_sha256):
+            raise ValueError("gateway audit count and head transition disagree")
+        if tuple(item.sequence for item in self.tools) != tuple(range(1, len(self.tools) + 1)):
+            raise ValueError("tool receipt sequence is not contiguous")
+        if any(item.policy_sha256 != self.policy_sha256 for item in self.tools):
+            raise ValueError("tool receipt policy digest drifted")
+        if self.policy_sha256 != default_gateway_policy_v1().sha256():
+            raise ValueError("invocation receipt policy digest is not the closed default")
+
+        completed_without_tools = self.reason_code == "completed_without_tool_calls"
+        completed_with_tools = self.reason_code == "completed_with_tool_calls"
+        cancelled_before = self.reason_code == "cancelled_before_request"
+        cancelled_during = self.reason_code == "cancelled_during_transport"
+        cancelled_after = self.reason_code == "cancelled_after_response"
+        transport_error = self.reason_code in {
+            "local_connect_error",
+            "local_timeout",
+            "local_protocol_error",
+            "response_headers_oversized",
+        }
+        response_status_error = self.reason_code in {
+            "redirect_forbidden",
+            "response_http_status_invalid",
+            "response_content_type_invalid",
+            "response_content_length_missing",
+            "response_content_length_invalid",
+            "response_content_length_duplicate",
+            "response_transfer_encoding_forbidden",
+            "response_content_encoding_forbidden",
+            "response_body_truncated",
+            "response_body_length_mismatch",
+            "response_body_oversized",
+        }
+        response_body_error = self.reason_code in {
+            "response_json_invalid",
+            "response_json_noncanonical",
+            "response_tool_payload_invalid",
+            "tool_call_identity_duplicate",
+            "tool_call_replay_denied",
+            "replay_capacity_exhausted",
+        }
+
+        valid = False
+        if completed_without_tools:
+            valid = (
+                self.status == "completed"
+                and self.network_attempts >= 1
+                and self.http_status == 200
+                and self.response_observed
+                and not self.tools
+                and audit_delta == 1
+            )
+        elif completed_with_tools:
+            valid = (
+                self.status == "completed"
+                and self.network_attempts >= 1
+                and self.http_status == 200
+                and self.response_observed
+                and bool(self.tools)
+                and audit_delta == 1 + len(self.tools)
+            )
+        elif cancelled_before:
+            valid = (
+                self.status == "cancelled"
+                and self.network_attempts == 0
+                and self.http_status is None
+                and not self.response_observed
+                and not self.tools
+                and audit_delta == 0
+            )
+        elif cancelled_during:
+            valid = (
+                self.status == "cancelled"
+                and self.network_attempts >= 1
+                and self.http_status is None
+                and not self.response_observed
+                and not self.tools
+                and audit_delta == 0
+            )
+        elif cancelled_after:
+            valid = (
+                self.status == "cancelled"
+                and self.network_attempts >= 1
+                and self.http_status == 200
+                and self.response_observed
+                and not self.tools
+                and audit_delta == 0
+            )
+        elif transport_error:
+            valid = (
+                self.status == "error"
+                and self.network_attempts >= 1
+                and self.http_status is None
+                and not self.response_observed
+                and not self.tools
+                and audit_delta == 0
+            )
+        elif response_status_error:
+            valid_status = self.http_status is not None and (
+                (self.reason_code == "redirect_forbidden" and 300 <= self.http_status <= 399)
+                or (
+                    self.reason_code == "response_http_status_invalid"
+                    and self.http_status != 200
+                    and not 300 <= self.http_status <= 399
+                )
+                or (
+                    self.reason_code not in {"redirect_forbidden", "response_http_status_invalid"}
+                    and self.http_status == 200
+                )
+            )
+            valid = (
+                self.status == "error"
+                and self.network_attempts >= 1
+                and valid_status
+                and not self.response_observed
+                and not self.tools
+                and audit_delta == 0
+            )
+        elif response_body_error:
+            valid = (
+                self.status == "error"
+                and self.network_attempts >= 1
+                and self.http_status == 200
+                and self.response_observed
+                and not self.tools
+                and audit_delta == 0
+            )
+        if not valid:
+            raise ValueError("controlled local invocation terminal state is incoherent")
         expected = _domain_sha256(
             "ash-controlled-local-invocation-receipt-v1", self.unsigned_payload()
         )
@@ -211,24 +342,29 @@ class _HTTPResult:
     http_status: int | None
 
 
-class _LiteralLoopbackHTTPConnection(http.client.HTTPConnection):
-    """HTTPConnection whose connect path never invokes name resolution."""
-
-    def connect(self) -> None:
-        family = socket.AF_INET if self.host == "127.0.0.1" else socket.AF_INET6
-        sock = socket.socket(family, socket.SOCK_STREAM)
-        try:
-            sock.settimeout(self.timeout)
-            address: tuple[Any, ...]
-            if family == socket.AF_INET:
-                address = (self.host, self.port)
-            else:
-                address = (self.host, self.port, 0, 0)
-            sock.connect(address)
-        except Exception:
-            sock.close()
-            raise
-        self.sock = sock
+def _validate_closed_engine(engine: GatewayEngine) -> None:
+    if type(engine) is not GatewayEngine:
+        raise ControlledLocalAdapterContractError(
+            "adapter engine must be the closed Runtime Gateway engine"
+        )
+    if type(engine.policy) is not GatewayPolicyV1:
+        raise ControlledLocalAdapterContractError(
+            "adapter policy must be the exact closed GatewayPolicyV1"
+        )
+    try:
+        checked_policy = GatewayPolicyV1.model_validate(engine.policy.model_dump(mode="python"))
+    except (AttributeError, ValueError) as exc:
+        raise ControlledLocalAdapterContractError(
+            "adapter policy violates the closed default policy"
+        ) from exc
+    if checked_policy.sha256() != default_gateway_policy_v1().sha256():
+        raise ControlledLocalAdapterContractError(
+            "adapter policy violates the closed default policy"
+        )
+    if type(engine.audit) is not GatewayAuditLedger:
+        raise ControlledLocalAdapterContractError(
+            "adapter audit must be the exact GatewayAuditLedger"
+        )
 
 
 class ControlledLocalAdapterV1:
@@ -245,10 +381,7 @@ class ControlledLocalAdapterV1:
             raise ControlledLocalAdapterContractError(
                 "adapter config violates the closed V1 runtime boundary"
             ) from exc
-        if type(engine) is not GatewayEngine:
-            raise ControlledLocalAdapterContractError(
-                "adapter engine must be the closed Runtime Gateway engine"
-            )
+        _validate_closed_engine(engine)
         self.config = checked_config
         self.engine = engine
         self._seen_tool_calls: set[str] = set()
@@ -283,6 +416,7 @@ class ControlledLocalAdapterV1:
     ) -> ControlledLocalAdapterOutcomeV1:
         """Own one adapter-local audit interval from snapshot through receipt."""
 
+        _validate_closed_engine(self.engine)
         model_sha = _model_sha256(model_id)
         request_id_sha = _request_id_sha256(request_id)
         request = _build_request(model_id, input_text)
@@ -305,7 +439,7 @@ class ControlledLocalAdapterV1:
                 http_status=None,
             )
 
-        transport = _request_local(self.config, request_bytes)
+        transport = _request_local(self.config, request_bytes, cancel_event)
         if transport.reason_code is not None:
             return self._outcome(
                 request_id_sha=request_id_sha,
@@ -314,7 +448,11 @@ class ControlledLocalAdapterV1:
                 before=before,
                 body=transport.body,
                 attempts=transport.attempts,
-                status="error",
+                status=(
+                    "cancelled"
+                    if transport.reason_code == "cancelled_during_transport"
+                    else "error"
+                ),
                 reason=transport.reason_code,
                 http_status=transport.http_status,
             )
@@ -329,19 +467,6 @@ class ControlledLocalAdapterV1:
                 attempts=transport.attempts,
                 status="error",
                 reason="local_protocol_error",
-                http_status=transport.http_status,
-            )
-
-        if cancel_event is not None and cancel_event.is_set():
-            return self._outcome(
-                request_id_sha=request_id_sha,
-                model_sha=model_sha,
-                request_sha=request_sha,
-                before=before,
-                body=body,
-                attempts=transport.attempts,
-                status="cancelled",
-                reason="cancelled_after_response",
                 http_status=transport.http_status,
             )
 
@@ -364,6 +489,18 @@ class ControlledLocalAdapterV1:
             calls = normalize_provider_tool_calls_v1("openai_responses", body)
         except ProviderToolAdapterError:
             if _is_completed_response_without_tool_calls(response):
+                if cancel_event is not None and cancel_event.is_set():
+                    return self._outcome(
+                        request_id_sha=request_id_sha,
+                        model_sha=model_sha,
+                        request_sha=request_sha,
+                        before=before,
+                        body=body,
+                        attempts=transport.attempts,
+                        status="cancelled",
+                        reason="cancelled_after_response",
+                        http_status=transport.http_status,
+                    )
                 self.engine.record_operation(
                     request_id=request_id,
                     protocol="openai_responses",
@@ -435,14 +572,6 @@ class ControlledLocalAdapterV1:
                 http_status=transport.http_status,
             )
 
-        self.engine.record_operation(
-            request_id=request_id,
-            protocol="openai_responses",
-            operation="chat_completion",
-            subject=model_id,
-            payload=response,
-            reason_code="controlled_local_response_received",
-        )
         try:
             executions = execute_provider_tool_payload_v1(
                 self.engine,
@@ -464,9 +593,16 @@ class ControlledLocalAdapterV1:
                 reason="response_tool_payload_invalid",
                 http_status=transport.http_status,
             )
+        self.engine.record_operation(
+            request_id=request_id,
+            protocol="openai_responses",
+            operation="chat_completion",
+            subject=model_id,
+            payload=response,
+            reason_code="controlled_local_response_received",
+        )
         tool_receipts = tuple(
-            _tool_receipt(index, execution)
-            for index, execution in enumerate(executions, start=1)
+            _tool_receipt(index, execution) for index, execution in enumerate(executions, start=1)
         )
         return self._outcome(
             request_id_sha=request_id_sha,
@@ -549,93 +685,224 @@ class _ResponseFailure(Exception):
         self.reason_code = reason_code
 
 
-def _request_local(config: ControlledLocalAdapterConfigV1, body: bytes) -> _HTTPResult:
+class _TransportCancelled(Exception):
+    pass
+
+
+class _TransportDeadline(Exception):
+    pass
+
+
+class _TransportProtocol(Exception):
+    pass
+
+
+_HTTP_HEADER_NAME = re.compile(rb"^[!#$%&'*+.^_`|~0-9A-Za-z-]+$")
+_MAX_HTTP_HEADER_BYTES = 16_384
+_MAX_HTTP_HEADERS = 100
+
+
+def _request_local(
+    config: ControlledLocalAdapterConfigV1,
+    body: bytes,
+    cancel_event: threading.Event | None,
+) -> _HTTPResult:
+    """Use one direct nonblocking socket under a total invocation deadline."""
+
+    deadline = time.monotonic() + config.timeout_milliseconds / 1_000
     attempts = 0
     for attempt in range(config.max_retries + 1):
         attempts = attempt + 1
-        connection = _LiteralLoopbackHTTPConnection(
-            config.host,
-            config.port,
-            timeout=config.timeout_milliseconds / 1_000,
-        )
         try:
-            connection.request(
-                "POST",
-                config.path,
-                body=body,
-                headers={
-                    "Accept": "application/json",
-                    "Connection": "close",
-                    "Content-Type": "application/json",
-                },
-            )
-            response = connection.getresponse()
-            headers = response.getheaders()
-            status = response.status
-            if 300 <= status <= 399:
-                return _HTTPResult(None, attempts, "redirect_forbidden", status)
-            if status != 200:
-                return _HTTPResult(None, attempts, "response_http_status_invalid", status)
-            content_types = [
-                value for name, value in headers if name.casefold() == "content-type"
-            ]
-            if len(content_types) != 1 or content_types[0].casefold() != "application/json":
-                return _HTTPResult(None, attempts, "response_content_type_invalid", status)
-            if any(name.casefold() == "transfer-encoding" for name, _ in headers):
-                return _HTTPResult(
-                    None, attempts, "response_transfer_encoding_forbidden", status
-                )
-            if any(name.casefold() == "content-encoding" for name, _ in headers):
-                return _HTTPResult(
-                    None, attempts, "response_content_encoding_forbidden", status
-                )
-            lengths = [value for name, value in headers if name.casefold() == "content-length"]
-            if not lengths:
-                return _HTTPResult(None, attempts, "response_content_length_missing", status)
-            if len(lengths) != 1:
-                return _HTTPResult(None, attempts, "response_content_length_duplicate", status)
-            encoded_length = lengths[0]
-            if (
-                not encoded_length.isascii()
-                or not encoded_length.isdecimal()
-                or (len(encoded_length) > 1 and encoded_length.startswith("0"))
-            ):
-                return _HTTPResult(None, attempts, "response_content_length_invalid", status)
-            length = int(encoded_length, 10)
-            if length < 1:
-                return _HTTPResult(None, attempts, "response_content_length_invalid", status)
-            if length > config.max_response_bytes:
-                return _HTTPResult(None, attempts, "response_body_oversized", status)
-            try:
-                payload = response.read(length + 1)
-            except http.client.IncompleteRead as exc:
-                partial = bytes(exc.partial)
-                retained = partial if 0 < len(partial) <= config.max_response_bytes else None
-                return _HTTPResult(retained, attempts, "response_body_truncated", status)
-            if len(payload) != length:
-                return _HTTPResult(
-                    payload or None, attempts, "response_body_truncated", status
-                )
-            if len(payload) > config.max_response_bytes:
-                return _HTTPResult(None, attempts, "response_body_oversized", status)
-            return _HTTPResult(payload, attempts, None, status)
-        except TimeoutError:
-            if attempt == config.max_retries:
-                return _HTTPResult(None, attempts, "local_timeout", None)
-        except (ConnectionRefusedError, ConnectionResetError, http.client.RemoteDisconnected):
+            return _request_local_once(config, body, cancel_event, deadline, attempts)
+        except _TransportCancelled:
+            return _HTTPResult(None, attempts, "cancelled_during_transport", None)
+        except _TransportDeadline:
+            return _HTTPResult(None, attempts, "local_timeout", None)
+        except (ConnectionRefusedError, ConnectionResetError, BrokenPipeError):
             if attempt == config.max_retries:
                 return _HTTPResult(None, attempts, "local_connect_error", None)
-        except (http.client.HTTPException, OSError):
+        except (_TransportProtocol, OSError):
             if attempt == config.max_retries:
                 return _HTTPResult(None, attempts, "local_protocol_error", None)
-        finally:
-            connection.close()
     raise AssertionError("bounded retry loop did not terminate")
+
+
+def _request_local_once(
+    config: ControlledLocalAdapterConfigV1,
+    body: bytes,
+    cancel_event: threading.Event | None,
+    deadline: float,
+    attempts: int,
+) -> _HTTPResult:
+    family = socket.AF_INET if config.host == "127.0.0.1" else socket.AF_INET6
+    address: tuple[Any, ...] = (
+        (config.host, config.port) if family == socket.AF_INET else (config.host, config.port, 0, 0)
+    )
+    host_header = (
+        f"{config.host}:{config.port}"
+        if family == socket.AF_INET
+        else f"[{config.host}]:{config.port}"
+    )
+    request = (
+        f"POST {config.path} HTTP/1.1\r\n"
+        f"Host: {host_header}\r\n"
+        "Accept: application/json\r\n"
+        "Connection: close\r\n"
+        f"Content-Length: {len(body)}\r\n"
+        "Content-Type: application/json\r\n\r\n"
+    ).encode("ascii") + body
+
+    sock = socket.socket(family, socket.SOCK_STREAM)
+    sock.setblocking(False)
+    try:
+        _check_transport(cancel_event, deadline)
+        connect_result = sock.connect_ex(address)
+        in_progress = {
+            0,
+            errno.EINPROGRESS,
+            errno.EWOULDBLOCK,
+            errno.EALREADY,
+            getattr(errno, "WSAEWOULDBLOCK", 10035),
+        }
+        if connect_result not in in_progress:
+            raise ConnectionRefusedError(connect_result, "literal loopback connect failed")
+        if connect_result != 0:
+            _wait_socket(sock, write=True, cancel_event=cancel_event, deadline=deadline)
+            socket_error = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+            if socket_error:
+                raise ConnectionRefusedError(socket_error, "literal loopback connect failed")
+
+        sent = 0
+        while sent < len(request):
+            _wait_socket(sock, write=True, cancel_event=cancel_event, deadline=deadline)
+            written = sock.send(request[sent:])
+            if written <= 0:
+                raise BrokenPipeError("local endpoint closed while request was sent")
+            sent += written
+
+        received = bytearray()
+        header_end = -1
+        while header_end < 0:
+            _wait_socket(sock, write=False, cancel_event=cancel_event, deadline=deadline)
+            chunk = sock.recv(4096)
+            if not chunk:
+                raise ConnectionResetError("local endpoint closed before response headers")
+            received.extend(chunk)
+            header_end = received.find(b"\r\n\r\n")
+            if header_end < 0 and len(received) > _MAX_HTTP_HEADER_BYTES:
+                return _HTTPResult(None, attempts, "response_headers_oversized", None)
+            if header_end > _MAX_HTTP_HEADER_BYTES:
+                return _HTTPResult(None, attempts, "response_headers_oversized", None)
+
+        header_block = bytes(received[:header_end])
+        initial_body = bytes(received[header_end + 4 :])
+        status, headers = _parse_http_headers(header_block)
+        if 300 <= status <= 399:
+            return _HTTPResult(None, attempts, "redirect_forbidden", status)
+        if status != 200:
+            return _HTTPResult(None, attempts, "response_http_status_invalid", status)
+        content_types = [value for name, value in headers if name == "content-type"]
+        if len(content_types) != 1 or content_types[0].casefold() != "application/json":
+            return _HTTPResult(None, attempts, "response_content_type_invalid", status)
+        if any(name == "transfer-encoding" for name, _ in headers):
+            return _HTTPResult(None, attempts, "response_transfer_encoding_forbidden", status)
+        if any(name == "content-encoding" for name, _ in headers):
+            return _HTTPResult(None, attempts, "response_content_encoding_forbidden", status)
+        lengths = [value for name, value in headers if name == "content-length"]
+        if not lengths:
+            return _HTTPResult(None, attempts, "response_content_length_missing", status)
+        if len(lengths) != 1:
+            return _HTTPResult(None, attempts, "response_content_length_duplicate", status)
+        encoded_length = lengths[0]
+        if (
+            not encoded_length.isascii()
+            or not encoded_length.isdecimal()
+            or (len(encoded_length) > 1 and encoded_length.startswith("0"))
+        ):
+            return _HTTPResult(None, attempts, "response_content_length_invalid", status)
+        length = int(encoded_length, 10)
+        if length < 1:
+            return _HTTPResult(None, attempts, "response_content_length_invalid", status)
+        if length > config.max_response_bytes:
+            return _HTTPResult(None, attempts, "response_body_oversized", status)
+
+        payload = bytearray(initial_body)
+        while len(payload) < length:
+            _wait_socket(sock, write=False, cancel_event=cancel_event, deadline=deadline)
+            chunk = sock.recv(min(4096, length + 1 - len(payload)))
+            if not chunk:
+                return _HTTPResult(None, attempts, "response_body_truncated", status)
+            payload.extend(chunk)
+        if len(payload) > length:
+            return _HTTPResult(None, attempts, "response_body_length_mismatch", status)
+        return _HTTPResult(bytes(payload), attempts, None, status)
+    finally:
+        sock.close()
+
+
+def _wait_socket(
+    sock: socket.socket,
+    *,
+    write: bool,
+    cancel_event: threading.Event | None,
+    deadline: float,
+) -> None:
+    while True:
+        _check_transport(cancel_event, deadline)
+        remaining = deadline - time.monotonic()
+        timeout = min(remaining, 0.025)
+        readable, writable, exceptional = select.select(
+            [] if write else [sock], [sock] if write else [], [sock], timeout
+        )
+        if exceptional:
+            raise _TransportProtocol("local socket entered an exceptional state")
+        if readable or writable:
+            _check_transport(cancel_event, deadline)
+            return
+
+
+def _check_transport(cancel_event: threading.Event | None, deadline: float) -> None:
+    if cancel_event is not None and cancel_event.is_set():
+        raise _TransportCancelled
+    if time.monotonic() >= deadline:
+        raise _TransportDeadline
+
+
+def _parse_http_headers(header_block: bytes) -> tuple[int, tuple[tuple[str, str], ...]]:
+    lines = header_block.split(b"\r\n")
+    if not lines or len(lines) - 1 > _MAX_HTTP_HEADERS:
+        raise _TransportProtocol("invalid local response header count")
+    status_match = re.fullmatch(rb"HTTP/1\.[01] ([1-5][0-9]{2})(?: [\x20-\x7e]*)?", lines[0])
+    if status_match is None:
+        raise _TransportProtocol("invalid local response status line")
+    headers: list[tuple[str, str]] = []
+    for line in lines[1:]:
+        if not line or line[:1] in {b" ", b"\t"} or b":" not in line:
+            raise _TransportProtocol("invalid local response header")
+        raw_name, raw_value = line.split(b":", 1)
+        if _HTTP_HEADER_NAME.fullmatch(raw_name) is None:
+            raise _TransportProtocol("invalid local response header name")
+        value = raw_value.strip(b" \t")
+        if any(byte < 0x20 and byte != 0x09 or byte == 0x7F for byte in value):
+            raise _TransportProtocol("invalid local response header value")
+        try:
+            headers.append((raw_name.decode("ascii").casefold(), value.decode("ascii")))
+        except UnicodeDecodeError as exc:
+            raise _TransportProtocol("non-ASCII local response header") from exc
+    return int(status_match.group(1), 10), tuple(headers)
 
 
 def _decode_canonical_response(body: bytes) -> dict[str, Any]:
     try:
-        value = json.loads(body, object_pairs_hook=_unique_object)
+        _validate_json_lexical_bounds(body, max_depth=12)
+        value = json.loads(
+            body,
+            object_pairs_hook=_unique_object,
+            parse_int=_bounded_json_int,
+            parse_float=_bounded_json_float,
+            parse_constant=_reject_json_constant,
+        )
     except (UnicodeDecodeError, json.JSONDecodeError, ValueError, RecursionError) as exc:
         raise _ResponseFailure("response_json_invalid") from exc
     if type(value) is not dict:
@@ -704,9 +971,7 @@ def _extract_synthetic_result(
     }:
         raise ControlledLocalAdapterContractError("provider tool result shape drifted")
     expected_approval = (
-        decision.approval_request().sha256()
-        if decision.disposition == "require_approval"
-        else None
+        decision.approval_request().sha256() if decision.disposition == "require_approval" else None
     )
     if (
         safe["schema_version"] != "AgenticSecurityHarnessGatewayProviderResult.v1"
@@ -769,8 +1034,6 @@ def _build_request(model_id: str, input_text: str) -> dict[str, Any]:
 def _model_sha256(value: str) -> str:
     if not isinstance(value, str):
         raise ControlledLocalAdapterContractError("local model id must be text")
-    import re
-
     if re.fullmatch(LOCAL_MODEL_ID_PATTERN, value) is None:
         raise ControlledLocalAdapterContractError(
             "local model id violates the opaque-token contract"
@@ -796,8 +1059,15 @@ def decode_controlled_local_invocation_receipt_v1(
     if not payload or len(payload) > 65_536:
         raise ControlledLocalAdapterContractError("controlled local receipt is empty or oversized")
     try:
-        value = json.loads(payload, object_pairs_hook=_unique_object)
-    except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        _validate_json_lexical_bounds(payload, max_depth=12)
+        value = json.loads(
+            payload,
+            object_pairs_hook=_unique_object,
+            parse_int=_bounded_json_int,
+            parse_float=_reject_json_float,
+            parse_constant=_reject_json_constant,
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError, RecursionError) as exc:
         raise ControlledLocalAdapterContractError(
             "controlled local receipt is invalid JSON"
         ) from exc
@@ -825,8 +1095,7 @@ def controlled_local_adapter_v1_json_schemas() -> dict[str, dict[str, Any]]:
         schema = model.model_json_schema()
         schema["$schema"] = "https://json-schema.org/draft/2020-12/schema"
         schema["$id"] = (
-            "https://github.com/krivonosoff161/agentic-security-harness/blob/main/schemas/"
-            + name
+            "https://github.com/krivonosoff161/agentic-security-harness/blob/main/schemas/" + name
         )
         schema["additionalProperties"] = False
         schemas[name] = schema
@@ -840,6 +1109,59 @@ def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
             raise ValueError("duplicate JSON key")
         result[key] = value
     return result
+
+
+def _validate_json_lexical_bounds(payload: bytes, *, max_depth: int) -> None:
+    """Reject pathological nesting before the recursive JSON decoder is entered."""
+
+    depth = 0
+    in_string = False
+    escaped = False
+    for byte in payload:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif byte == 0x5C:
+                escaped = True
+            elif byte == 0x22:
+                in_string = False
+            continue
+        if byte == 0x22:
+            in_string = True
+        elif byte in {0x5B, 0x7B}:
+            depth += 1
+            if depth > max_depth:
+                raise ValueError("JSON nesting exceeds the lexical limit")
+        elif byte in {0x5D, 0x7D}:
+            depth -= 1
+            if depth < 0:
+                raise ValueError("JSON nesting is unbalanced")
+    if depth != 0 or in_string or escaped:
+        raise ValueError("JSON structure is incomplete")
+
+
+def _bounded_json_int(token: str) -> int:
+    digits = token[1:] if token.startswith("-") else token
+    if len(digits) > 20:
+        raise ValueError("JSON integer exceeds the lexical limit")
+    return int(token, 10)
+
+
+def _bounded_json_float(token: str) -> float:
+    if len(token) > 64:
+        raise ValueError("JSON float exceeds the lexical limit")
+    value = float(token)
+    if value != value or value in {float("inf"), float("-inf")}:
+        raise ValueError("JSON float is non-finite")
+    return value
+
+
+def _reject_json_float(_token: str) -> float:
+    raise ValueError("JSON floats are outside the receipt contract")
+
+
+def _reject_json_constant(_token: str) -> None:
+    raise ValueError("JSON constants are outside the closed contract")
 
 
 def _validate_json_value(value: Any, *, depth: int) -> None:
