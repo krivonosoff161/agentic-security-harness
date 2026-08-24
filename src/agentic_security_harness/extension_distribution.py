@@ -693,51 +693,321 @@ def _parse_record(
 
 def _stable_read(root: Path, relative_path: str, limit: int) -> bytes:
     path = root.joinpath(*PurePosixPath(relative_path).parts)
+    if os.name == "nt":
+        return _stable_read_windows(root, path, limit)
+    return _stable_read_posix(root, path, limit)
+
+
+def _stable_read_posix(root: Path, path: Path, limit: int) -> bytes:
     _require_no_link_components(path, stop=root)
     try:
         before = path.lstat()
     except OSError as exc:
         raise ExtensionDistributionError("distribution file metadata is unavailable") from exc
-    if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1:
-        raise ExtensionDistributionError("distribution files must be regular single-link files")
-    if before.st_size < 0 or before.st_size > limit:
-        raise ExtensionDistributionError("distribution file size is outside V1")
+    _validate_distribution_file_state(before, limit)
     flags = os.O_RDONLY | int(getattr(os, "O_BINARY", 0))
     flags |= int(getattr(os, "O_NOFOLLOW", 0))
-    descriptor: int | None = None
+    first_descriptor: int | None = None
+    second_descriptor: int | None = None
     try:
-        descriptor = os.open(path, flags)
-        opened = os.fstat(descriptor)
-        if _file_identity(opened) != _file_identity(before):
+        first_descriptor = os.open(path, flags)
+        first_opened = os.fstat(first_descriptor)
+        _validate_distribution_file_state(first_opened, limit)
+        if _descriptor_identity(first_opened) != _path_identity(before):
             raise ExtensionDistributionError("distribution file changed before it was read")
-        if not stat.S_ISREG(opened.st_mode) or opened.st_nlink != 1:
-            raise ExtensionDistributionError(
-                "distribution files must remain regular single-link files"
-            )
-        first = _read_descriptor_contents(descriptor, limit)
-        between = os.fstat(descriptor)
-        if _file_identity(between) != _file_identity(opened):
+        first = _read_descriptor_contents(first_descriptor, limit)
+        first_between = os.fstat(first_descriptor)
+        if _descriptor_identity(first_between) != _descriptor_identity(first_opened):
             raise ExtensionDistributionError("distribution file changed while it was read")
-        os.lseek(descriptor, 0, os.SEEK_SET)
-        second = _read_descriptor_contents(descriptor, limit)
-        closed = os.fstat(descriptor)
-        if _file_identity(closed) != _file_identity(opened) or first != second:
+        os.lseek(first_descriptor, 0, os.SEEK_SET)
+        first_repeat = _read_descriptor_contents(first_descriptor, limit)
+        first_closed = os.fstat(first_descriptor)
+        if (
+            _descriptor_identity(first_closed) != _descriptor_identity(first_opened)
+            or first != first_repeat
+        ):
             raise ExtensionDistributionError("distribution file changed while it was read")
+
+        _require_no_link_components(path, stop=root)
+        second_descriptor = os.open(path, flags)
+        second_opened = os.fstat(second_descriptor)
+        _validate_distribution_file_state(second_opened, limit)
+        if _descriptor_identity(second_opened) != _descriptor_identity(first_opened):
+            raise ExtensionDistributionError("distribution file changed between stable reads")
+        second = _read_descriptor_contents(second_descriptor, limit)
+        second_closed = os.fstat(second_descriptor)
+        if (
+            _descriptor_identity(second_closed) != _descriptor_identity(second_opened)
+            or first != second
+        ):
+            raise ExtensionDistributionError("distribution file changed between stable reads")
     except ExtensionDistributionError:
         raise
     except OSError as exc:
         raise ExtensionDistributionError("distribution file is unreadable") from exc
     finally:
-        if descriptor is not None:
-            os.close(descriptor)
+        if second_descriptor is not None:
+            os.close(second_descriptor)
+        if first_descriptor is not None:
+            os.close(first_descriptor)
     _require_no_link_components(path, stop=root)
     try:
         after = path.lstat()
     except OSError as exc:
         raise ExtensionDistributionError("distribution file metadata is unavailable") from exc
-    if _file_identity(after) != _file_identity(before):
+    _validate_distribution_file_state(after, limit)
+    if _path_identity(after) != _path_identity(before):
         raise ExtensionDistributionError("distribution file changed while it was read")
     return first
+
+
+def _stable_read_windows(root: Path, path: Path, limit: int) -> bytes:
+    _require_no_link_components(path, stop=root)
+    try:
+        before = path.lstat()
+    except OSError as exc:
+        raise ExtensionDistributionError("distribution file metadata is unavailable") from exc
+    _validate_distribution_file_state(before, limit)
+    guard_descriptors: tuple[
+        tuple[int, tuple[int, int, int, int, int, int, int]], ...
+    ] = ()
+    first_descriptor: int | None = None
+    second_descriptor: int | None = None
+    final_descriptor: int | None = None
+    try:
+        guard_descriptors = _open_windows_ancestor_guards(root, path)
+        first_descriptor = _open_windows_distribution_descriptor(path)
+        first_opened = os.fstat(first_descriptor)
+        _validate_distribution_file_state(first_opened, limit)
+        first_native = _windows_descriptor_identity(first_descriptor, limit)
+        first = _read_descriptor_contents(first_descriptor, limit)
+        first_between = os.fstat(first_descriptor)
+        if _descriptor_identity(first_between) != _descriptor_identity(first_opened):
+            raise ExtensionDistributionError("distribution file changed while it was read")
+        os.lseek(first_descriptor, 0, os.SEEK_SET)
+        first_repeat = _read_descriptor_contents(first_descriptor, limit)
+        first_closed = os.fstat(first_descriptor)
+        if (
+            _descriptor_identity(first_closed) != _descriptor_identity(first_opened)
+            or _windows_descriptor_identity(first_descriptor, limit) != first_native
+            or first != first_repeat
+        ):
+            raise ExtensionDistributionError("distribution file changed while it was read")
+
+        _require_no_link_components(path, stop=root)
+        second_descriptor = _open_windows_distribution_descriptor(path)
+        second_opened = os.fstat(second_descriptor)
+        _validate_distribution_file_state(second_opened, limit)
+        second_native = _windows_descriptor_identity(second_descriptor, limit)
+        if second_native != first_native:
+            raise ExtensionDistributionError("distribution file changed between stable reads")
+        second = _read_descriptor_contents(second_descriptor, limit)
+        second_closed = os.fstat(second_descriptor)
+        if (
+            _descriptor_identity(second_closed) != _descriptor_identity(second_opened)
+            or _windows_descriptor_identity(second_descriptor, limit) != second_native
+            or first != second
+        ):
+            raise ExtensionDistributionError("distribution file changed between stable reads")
+
+        _require_no_link_components(path, stop=root)
+        final_descriptor = _open_windows_distribution_descriptor(path)
+        final_opened = os.fstat(final_descriptor)
+        _validate_distribution_file_state(final_opened, limit)
+        final_native = _windows_descriptor_identity(final_descriptor, limit)
+        if final_native != first_native:
+            raise ExtensionDistributionError("distribution file changed before final validation")
+        final = _read_descriptor_contents(final_descriptor, limit)
+        if (
+            _windows_descriptor_identity(final_descriptor, limit) != final_native
+            or first != final
+        ):
+            raise ExtensionDistributionError("distribution file changed before final validation")
+        for descriptor, opened_identity in guard_descriptors:
+            if _windows_directory_identity(descriptor) != opened_identity:
+                raise ExtensionDistributionError(
+                    "distribution path directory changed while it was read"
+                )
+        _require_no_link_components(path, stop=root)
+        try:
+            after = path.lstat()
+        except OSError as exc:
+            raise ExtensionDistributionError(
+                "distribution file metadata is unavailable"
+            ) from exc
+        _validate_distribution_file_state(after, limit)
+        if _path_identity(after) != _path_identity(before):
+            raise ExtensionDistributionError("distribution file changed while it was read")
+        return first
+    except ExtensionDistributionError:
+        raise
+    except OSError as exc:
+        raise ExtensionDistributionError("distribution file is unreadable") from exc
+    finally:
+        if final_descriptor is not None:
+            os.close(final_descriptor)
+        if second_descriptor is not None:
+            os.close(second_descriptor)
+        if first_descriptor is not None:
+            os.close(first_descriptor)
+        for descriptor, _identity in reversed(guard_descriptors):
+            os.close(descriptor)
+
+
+def _open_windows_ancestor_guards(
+    root: Path, path: Path
+) -> tuple[tuple[int, tuple[int, int, int, int, int, int, int]], ...]:
+    try:
+        relative_parent = path.parent.relative_to(root)
+    except ValueError as exc:
+        raise ExtensionDistributionError("distribution path escapes its search root") from exc
+    candidates = [root]
+    current = root
+    for part in relative_parent.parts:
+        current = current / part
+        candidates.append(current)
+    descriptors: list[tuple[int, tuple[int, int, int, int, int, int, int]]] = []
+    try:
+        for candidate in candidates:
+            descriptor = _open_windows_directory_descriptor(candidate)
+            try:
+                identity = _windows_directory_identity(descriptor)
+            except (ExtensionDistributionError, OSError):
+                os.close(descriptor)
+                raise
+            descriptors.append((descriptor, identity))
+    except (ExtensionDistributionError, OSError):
+        for descriptor, _identity in reversed(descriptors):
+            os.close(descriptor)
+        raise
+    return tuple(descriptors)
+
+
+def _open_windows_distribution_descriptor(path: Path) -> int:
+    return _open_windows_native_descriptor(path, directory=False)
+
+
+def _open_windows_directory_descriptor(path: Path) -> int:
+    return _open_windows_native_descriptor(path, directory=True)
+
+
+def _open_windows_native_descriptor(path: Path, *, directory: bool) -> int:
+    import ctypes
+    import msvcrt
+    from ctypes import wintypes
+
+    create_file = ctypes.WinDLL("kernel32", use_last_error=True).CreateFileW
+    create_file.argtypes = (
+        wintypes.LPCWSTR,
+        wintypes.DWORD,
+        wintypes.DWORD,
+        wintypes.LPVOID,
+        wintypes.DWORD,
+        wintypes.DWORD,
+        wintypes.HANDLE,
+    )
+    create_file.restype = wintypes.HANDLE
+    handle = create_file(
+        str(path),
+        0x00000080 if directory else 0x80000000,  # FILE_READ_ATTRIBUTES / GENERIC_READ
+        0x00000001,  # FILE_SHARE_READ; deny concurrent write/delete/rename
+        None,
+        3,  # OPEN_EXISTING
+        0x00200000 | (0x02000000 if directory else 0),
+        # FILE_FLAG_OPEN_REPARSE_POINT | optional FILE_FLAG_BACKUP_SEMANTICS
+        None,
+    )
+    invalid_handle = ctypes.c_void_p(-1).value
+    if handle == invalid_handle:
+        raise OSError(ctypes.get_last_error(), "CreateFileW failed")
+    try:
+        return msvcrt.open_osfhandle(int(handle), os.O_RDONLY | int(getattr(os, "O_BINARY", 0)))
+    except (OSError, OverflowError):
+        close_handle = ctypes.WinDLL("kernel32", use_last_error=True).CloseHandle
+        close_handle.argtypes = (wintypes.HANDLE,)
+        close_handle.restype = wintypes.BOOL
+        close_handle(handle)
+        raise
+
+
+def _windows_descriptor_identity(
+    descriptor: int, limit: int
+) -> tuple[int, int, int, int, int, int, int]:
+    information = _windows_descriptor_information(descriptor)
+    attributes = information[2]
+    link_count = information[3]
+    size = information[4]
+    if attributes & (0x00000010 | 0x00000400):
+        raise ExtensionDistributionError(
+            "distribution files must be regular non-reparse files"
+        )
+    if link_count != 1:
+        raise ExtensionDistributionError("distribution files must be regular single-link files")
+    if size < 0 or size > limit:
+        raise ExtensionDistributionError("distribution file size is outside V1")
+    return information
+
+
+def _windows_directory_identity(
+    descriptor: int,
+) -> tuple[int, int, int, int, int, int, int]:
+    information = _windows_descriptor_information(descriptor)
+    attributes = information[2]
+    if not attributes & 0x00000010 or attributes & 0x00000400:
+        raise ExtensionDistributionError(
+            "distribution path directories must be non-reparse directories"
+        )
+    return information
+
+
+def _windows_descriptor_information(
+    descriptor: int,
+) -> tuple[int, int, int, int, int, int, int]:
+    import ctypes
+    import msvcrt
+    from ctypes import wintypes
+
+    class _FileTime(ctypes.Structure):
+        _fields_ = (("low", wintypes.DWORD), ("high", wintypes.DWORD))
+
+    class _FileInformation(ctypes.Structure):
+        _fields_ = (
+            ("attributes", wintypes.DWORD),
+            ("creation_time", _FileTime),
+            ("last_access_time", _FileTime),
+            ("last_write_time", _FileTime),
+            ("volume_serial", wintypes.DWORD),
+            ("size_high", wintypes.DWORD),
+            ("size_low", wintypes.DWORD),
+            ("link_count", wintypes.DWORD),
+            ("file_index_high", wintypes.DWORD),
+            ("file_index_low", wintypes.DWORD),
+        )
+
+    get_information = ctypes.WinDLL(
+        "kernel32", use_last_error=True
+    ).GetFileInformationByHandle
+    get_information.argtypes = (wintypes.HANDLE, ctypes.POINTER(_FileInformation))
+    get_information.restype = wintypes.BOOL
+    information = _FileInformation()
+    handle = msvcrt.get_osfhandle(descriptor)
+    if not get_information(wintypes.HANDLE(handle), ctypes.byref(information)):
+        raise OSError(ctypes.get_last_error(), "GetFileInformationByHandle failed")
+    size = (information.size_high << 32) | information.size_low
+    file_index = (information.file_index_high << 32) | information.file_index_low
+    creation_time = (information.creation_time.high << 32) | information.creation_time.low
+    last_write_time = (
+        information.last_write_time.high << 32
+    ) | information.last_write_time.low
+    return (
+        information.volume_serial,
+        file_index,
+        information.attributes,
+        information.link_count,
+        size,
+        creation_time,
+        last_write_time,
+    )
 
 
 def _read_descriptor_contents(descriptor: int, limit: int) -> bytes:
@@ -755,7 +1025,24 @@ def _read_descriptor_contents(descriptor: int, limit: int) -> bytes:
     return payload
 
 
-def _file_identity(info: os.stat_result) -> tuple[int, int, int, int, int, int, int]:
+def _validate_distribution_file_state(info: os.stat_result, limit: int) -> None:
+    if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
+        raise ExtensionDistributionError("distribution files must be regular single-link files")
+    if info.st_size < 0 or info.st_size > limit:
+        raise ExtensionDistributionError("distribution file size is outside V1")
+
+
+def _descriptor_identity(info: os.stat_result) -> tuple[int, int, int, int, int, int, int]:
+    return _portable_file_identity(info)
+
+
+def _path_identity(info: os.stat_result) -> tuple[int, int, int, int, int, int, int]:
+    return _portable_file_identity(info)
+
+
+def _portable_file_identity(
+    info: os.stat_result,
+) -> tuple[int, int, int, int, int, int, int]:
     return (
         info.st_dev,
         info.st_ino,

@@ -373,11 +373,254 @@ def test_stable_read_rejects_transient_same_identity_bytes(
     reads = iter((transient, b"", baseline, b""))
     monkeypatch.setattr(module.os, "read", lambda _descriptor, _size: next(reads))
     monkeypatch.setattr(
-        module, "_file_identity", lambda _info: (1, 1, 1, 1, 1, 1, 1)
+        module, "_descriptor_identity", lambda _info: (1, 1, 1, 1, 1, 1, 1)
     )
 
     with pytest.raises(ExtensionDistributionError, match="changed while it was read"):
         module._stable_read(tmp_path, path.name, len(baseline))
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX identity binding regression")
+def test_posix_stable_read_retains_path_descriptor_identity_binding(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import agentic_security_harness.extension_distribution as module
+
+    payload = b"portable-windows-stat"
+    path = tmp_path / "sample.bin"
+    path.write_bytes(payload)
+    monkeypatch.setattr(
+        module, "_path_identity", lambda _info: (1, 1, 1, 1, 1, 1, 1)
+    )
+    monkeypatch.setattr(
+        module, "_descriptor_identity", lambda _info: (2, 2, 2, 2, 2, 2, 2)
+    )
+
+    with pytest.raises(ExtensionDistributionError, match="changed before"):
+        module._stable_read(tmp_path, path.name, len(payload))
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows native reader regression")
+def test_windows_native_stable_read_accepts_unchanged_file(tmp_path: Path) -> None:
+    import agentic_security_harness.extension_distribution as module
+
+    payload = b"portable-windows-stat"
+    path = tmp_path / "sample.bin"
+    path.write_bytes(payload)
+
+    assert module._stable_read(tmp_path, path.name, len(payload)) == payload
+
+
+def test_stable_read_rejects_target_swap_between_descriptor_opens(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import agentic_security_harness.extension_distribution as module
+
+    baseline = b"approved-content"
+    replacement = b"attacker-content"
+    assert len(replacement) == len(baseline)
+    path = tmp_path / "sample.bin"
+    alternate = tmp_path / "alternate.bin"
+    path.write_bytes(baseline)
+    alternate.write_bytes(replacement)
+    real_open = (
+        module._open_windows_distribution_descriptor
+        if os.name == "nt"
+        else module.os.open
+    )
+    calls = 0
+
+    def _open_with_swapped_second_target(candidate: Path, *args: int) -> int:
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            return real_open(alternate, *args)
+        return real_open(candidate, *args)
+
+    if os.name == "nt":
+        monkeypatch.setattr(
+            module, "_open_windows_distribution_descriptor", _open_with_swapped_second_target
+        )
+    else:
+        monkeypatch.setattr(module.os, "open", _open_with_swapped_second_target)
+    with pytest.raises(ExtensionDistributionError, match="between stable reads"):
+        module._stable_read(tmp_path, path.name, len(baseline))
+
+
+def test_stable_read_rejects_pre_open_path_swap(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import agentic_security_harness.extension_distribution as module
+
+    baseline = b"approved-content"
+    replacement = b"attacker-content"
+    assert len(replacement) == len(baseline)
+    path = tmp_path / "sample.bin"
+    saved = tmp_path / "saved.bin"
+    alternate = tmp_path / "alternate.bin"
+    path.write_bytes(baseline)
+    alternate.write_bytes(replacement)
+    real_open = (
+        module._open_windows_distribution_descriptor
+        if os.name == "nt"
+        else module.os.open
+    )
+    swapped = False
+
+    def _open_after_swap(candidate: Path, *args: int) -> int:
+        nonlocal swapped
+        if not swapped:
+            os.replace(path, saved)
+            os.replace(alternate, path)
+            swapped = True
+        return real_open(candidate, *args)
+
+    if os.name == "nt":
+        monkeypatch.setattr(module, "_open_windows_distribution_descriptor", _open_after_swap)
+        expected = "changed while"
+    else:
+        monkeypatch.setattr(module.os, "open", _open_after_swap)
+        expected = "changed before"
+    with pytest.raises(ExtensionDistributionError, match=expected):
+        module._stable_read(tmp_path, path.name, len(baseline))
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows close-order ABA regression")
+def test_windows_native_reader_validates_before_unlocking_first_handle(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import agentic_security_harness.extension_distribution as module
+
+    baseline = b"approved-content"
+    replacement = b"attacker-content"
+    assert len(replacement) == len(baseline)
+    path = tmp_path / "sample.bin"
+    saved = tmp_path / "saved.bin"
+    displaced = tmp_path / "displaced.bin"
+    alternate = tmp_path / "alternate.bin"
+    path.write_bytes(baseline)
+    alternate.write_bytes(replacement)
+    real_open = module._open_windows_distribution_descriptor
+    real_close = module.os.close
+    target_descriptors: list[int] = []
+    denied_while_first_locked: list[int] = []
+    restored_after_first_close = False
+
+    def _open_after_swap(candidate: Path) -> int:
+        if not target_descriptors:
+            os.replace(path, saved)
+            os.replace(alternate, path)
+        descriptor = real_open(candidate)
+        target_descriptors.append(descriptor)
+        return descriptor
+
+    def _close_with_restore(descriptor: int) -> None:
+        nonlocal restored_after_first_close
+        real_close(descriptor)
+        if descriptor in target_descriptors[1:]:
+            try:
+                os.replace(path, displaced)
+            except OSError:
+                denied_while_first_locked.append(descriptor)
+        elif target_descriptors and descriptor == target_descriptors[0]:
+            os.replace(path, displaced)
+            os.replace(saved, path)
+            restored_after_first_close = True
+
+    monkeypatch.setattr(module, "_open_windows_ancestor_guards", lambda _root, _path: ())
+    monkeypatch.setattr(module, "_open_windows_distribution_descriptor", _open_after_swap)
+    monkeypatch.setattr(module.os, "close", _close_with_restore)
+
+    with pytest.raises(ExtensionDistributionError, match="changed while"):
+        module._stable_read(tmp_path, path.name, len(baseline))
+
+    assert len(target_descriptors) == 3
+    assert len(denied_while_first_locked) == 2
+    assert restored_after_first_close is True
+    assert path.read_bytes() == baseline
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows share-mode regression")
+def test_windows_native_reader_denies_mutation_while_handle_is_open(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import agentic_security_harness.extension_distribution as module
+
+    payload = b"approved-content"
+    path = tmp_path / "sample.bin"
+    replacement = tmp_path / "replacement.bin"
+    path.write_bytes(payload)
+    replacement.write_bytes(b"attacker-content")
+    real_read = module._read_descriptor_contents
+    checked = False
+
+    def _read_while_attacking(descriptor: int, limit: int) -> bytes:
+        nonlocal checked
+        if not checked:
+            checked = True
+            for action in (
+                lambda: path.write_bytes(b"attacker-content"),
+                path.unlink,
+                lambda: os.replace(replacement, path),
+            ):
+                with pytest.raises(OSError):
+                    action()
+        return real_read(descriptor, limit)
+
+    monkeypatch.setattr(module, "_read_descriptor_contents", _read_while_attacking)
+    assert module._stable_read(tmp_path, path.name, len(payload)) == payload
+    assert checked is True
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows ancestor-lock regression")
+def test_windows_native_reader_denies_ancestor_rename_while_open(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import agentic_security_harness.extension_distribution as module
+
+    root = tmp_path / "root"
+    parent = root / "parent"
+    parent.mkdir(parents=True)
+    path = parent / "sample.bin"
+    path.write_bytes(b"approved-content")
+    moved = root / "moved"
+    real_read = module._read_descriptor_contents
+    checked = False
+
+    def _read_while_attacking(descriptor: int, limit: int) -> bytes:
+        nonlocal checked
+        if not checked:
+            checked = True
+            with pytest.raises(OSError):
+                os.replace(parent, moved)
+        return real_read(descriptor, limit)
+
+    monkeypatch.setattr(module, "_read_descriptor_contents", _read_while_attacking)
+    assert module._stable_read(root, "parent/sample.bin", len(b"approved-content")) == (
+        b"approved-content"
+    )
+    assert checked is True
+
+
+def test_stable_read_rejects_reparse_signal_and_oversize(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import agentic_security_harness.extension_distribution as module
+
+    path = tmp_path / "sample.bin"
+    path.write_bytes(b"12345")
+    real_link_check = module.is_link_or_reparse
+    monkeypatch.setattr(
+        module,
+        "is_link_or_reparse",
+        lambda candidate: candidate == path or real_link_check(candidate),
+    )
+    with pytest.raises(ExtensionDistributionError, match="link or reparse"):
+        module._stable_read(tmp_path, path.name, 5)
+
+    monkeypatch.setattr(module, "is_link_or_reparse", real_link_check)
+    with pytest.raises(ExtensionDistributionError, match="size is outside"):
+        module._stable_read(tmp_path, path.name, 4)
 
 
 @pytest.mark.parametrize("size", ("9" * 5_000, "\u0661"))
