@@ -32,16 +32,16 @@
     {
       "id": "installable-extensions",
       "title": "Installable optional security components",
-      "status": "planned",
+      "status": "active",
       "depends_on": ["extension-contract"],
       "deliverables": ["package entry points", "compatibility matrix", "cross-platform suite verification"]
     },
     {
       "id": "threat-watch",
       "title": "Provider-neutral weekly public security watch extension",
-      "status": "planned",
+      "status": "active",
       "depends_on": ["extension-contract"],
-      "deliverables": ["source registry", "collector contract", "model-neutral synthesis profile", "advisory-only output"]
+      "deliverables": ["digest-bound public source registry", "offline snapshot review contract", "model-neutral synthesis profile", "external-unreviewed advisory output"]
     },
     {
       "id": "ecosystem-release-gates",

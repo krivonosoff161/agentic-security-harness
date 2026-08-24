@@ -39,6 +39,7 @@
           "policy.evaluate",
           "observation.transform",
           "intelligence.collect",
+          "intelligence.review",
           "report.enrich"
         ],
         "type": "string"
@@ -70,6 +71,16 @@
     "deterministic": {
       "title": "Deterministic",
       "type": "boolean"
+    },
+    "evidence_provenance": {
+      "enum": [
+        "deterministic_rule",
+        "heuristic_unreviewed",
+        "producer_declared",
+        "external_unreviewed"
+      ],
+      "title": "Evidence Provenance",
+      "type": "string"
     },
     "execution_model": {
       "const": "in_process_operator_approved_not_sandboxed",
@@ -154,6 +165,7 @@
     "consumes",
     "produces",
     "deterministic",
+    "evidence_provenance",
     "network_mode",
     "raw_data_policy",
     "execution_model",

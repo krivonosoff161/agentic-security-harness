@@ -1,0 +1,57 @@
+{
+  "collection_mode": "offline_snapshot_only",
+  "contract_id": "harness-security-intelligence-v1.0",
+  "documentation": {
+    "path": "docs/security-intelligence-extension.md",
+    "sha256": "7a551f73979cc4d02a42fc5e86395f54034f6561a069efa0224d702d3a12925f"
+  },
+  "evidence_provenance": "external_unreviewed",
+  "extension_sdk_contract": {
+    "path": "schemas/extension-sdk.v1.manifest.json",
+    "sha256": "78c9063c4b9660c3859b086b545ab5c53c709697dade7325507864ad12f114d2"
+  },
+  "generator": {
+    "path": "tools/security_intelligence_contracts.py",
+    "sha256": "a966b94fcae3c9bd53b244ae1ff01669f631a26b2776017da26393d1ff4c6a5b"
+  },
+  "harness_api": "1",
+  "implementation": {
+    "path": "src/agentic_security_harness/security_intelligence.py",
+    "sha256": "770bb722e11947caf99265a59d692068385ad991d4717803e759d9521132758f"
+  },
+  "json_schema_scope": "closed_shape_only_semantic_validation_in_python",
+  "model_interface": "provider_neutral_optional_outside_core",
+  "operational_authority": "none",
+  "raw_content_retained": false,
+  "schema_version": "harness-security-intelligence-contract-manifest-v1.0",
+  "schemas": [
+    {
+      "path": "schemas/security-intelligence-bundle.v1.schema.json",
+      "sha256": "a87156b6b6860811c7ce59e4663d397b8043008a3ff175a1edba5b7c1d100969"
+    },
+    {
+      "path": "schemas/security-intelligence-evidence.v1.schema.json",
+      "sha256": "a1f17fc4e313df2033d9b173a376bf7f399e08cefe69b3c9b7be6d25cd35aa8a"
+    },
+    {
+      "path": "schemas/security-intelligence-source-registry.v1.schema.json",
+      "sha256": "c2932ce83f0a2199ff20ea7f4cb59b2c29c76840db3faf85af8164d89751f4b4"
+    },
+    {
+      "path": "schemas/security-intelligence-synthesis-profile.v1.schema.json",
+      "sha256": "d05db63b37c1d18b4ca06616e0d72459967a5fa1310b4625397ea2bd0e43b831"
+    }
+  ],
+  "source_registry": {
+    "path": "ecosystem/security-intelligence-sources.v1.json",
+    "sha256": "c072e8586facc4887d76e8675e5c97930d73d4f9771a1526d8e9351bc15c808a"
+  },
+  "unit_tests": {
+    "path": "tests/test_security_intelligence.py",
+    "sha256": "de25fcd1921f6d6ca8ab0ebbc6159a8ed1662cb23bbde359e4f1bc2f512d5807"
+  },
+  "workflow": {
+    "path": ".github/workflows/ecosystem-docs.yml",
+    "sha256": "391f756a77be8db7b45ed99f966ecbf68f2689264122411e7ae9f47d3f0392c5"
+  }
+}

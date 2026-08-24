@@ -13,11 +13,11 @@
     "entry_points": ["ash"]
   },
   "owns": {
-    "modules": ["benchmark-core", "runtime-gateway-reference", "ecosystem-contracts", "extension-sdk-v1"],
-    "checks": ["trace-validation", "scorecards", "synthetic-runtime-policy", "extension-contract-conformance"],
-    "collectors": ["agent-host-v1", "provider-neutral-recordings"],
-    "adapters": ["provider-tool-envelope-normalizers", "transfer-verifier-v1", "handoff-metadata-v1", "playbook-guidance-v1"],
-    "contracts": ["harness-api", "ecosystem-roadmap", "component-manifest", "portfolio-observation-v1", "extension-manifest-v1", "extension-finding-v1", "companion-contract-pin-v1"]
+    "modules": ["benchmark-core", "runtime-gateway-reference", "ecosystem-contracts", "extension-sdk-v1", "security-intelligence-v1"],
+    "checks": ["trace-validation", "scorecards", "synthetic-runtime-policy", "extension-contract-conformance", "security-intelligence-offline-review"],
+    "collectors": ["agent-host-v1", "provider-neutral-recordings", "security-intelligence-offline-snapshots"],
+    "adapters": ["provider-tool-envelope-normalizers", "transfer-verifier-v1", "handoff-metadata-v1", "playbook-guidance-v1", "security-intelligence-review-v1"],
+    "contracts": ["harness-api", "ecosystem-roadmap", "component-manifest", "portfolio-observation-v1", "extension-manifest-v1", "extension-finding-v1", "companion-contract-pin-v1", "security-intelligence-source-registry-v1", "security-intelligence-evidence-v1"]
   },
   "consumes": ["optional extension component manifests"],
   "contracts": [
@@ -31,7 +31,8 @@
     {"path": "docs/roadmap.md", "role": "generated-ecosystem-view"},
     {"path": "docs/current-state.md", "role": "generated-current-snapshot"},
     {"path": "docs/extension-sdk.md", "role": "component-owned"},
-    {"path": "docs/companion-extensions.md", "role": "component-owned"}
+    {"path": "docs/companion-extensions.md", "role": "component-owned"},
+    {"path": "docs/security-intelligence-extension.md", "role": "component-owned"}
   ],
   "compatibility": {
     "harness_api": ">=1,<2",
@@ -39,8 +40,8 @@
     "platforms": {"supported": ["linux", "windows"], "tested": ["linux", "windows"]}
   },
   "integration_status": "suite_verified",
-  "evidence_refs": ["docs/current-state.md", "docs/releases/v1.2.0.md", "schemas/extension-sdk.v1.manifest.json", "schemas/companion-extensions.v1.manifest.json"],
-  "claims": ["published benchmark/toolkit", "synthetic Runtime Gateway reference contour", "source-level Extension SDK V1 candidate", "exact-source companion adapter compatibility candidate"],
-  "non_claims": ["production security certification", "live-provider enforcement", "independent effectiveness validation", "sandboxed or automatically trusted extension code"],
+  "evidence_refs": ["docs/current-state.md", "docs/releases/v1.2.0.md", "schemas/extension-sdk.v1.manifest.json", "schemas/companion-extensions.v1.manifest.json", "schemas/security-intelligence.v1.manifest.json"],
+  "claims": ["published benchmark/toolkit", "synthetic Runtime Gateway reference contour", "source-level Extension SDK V1 candidate", "exact-source companion adapter compatibility candidate", "provider-neutral offline Security Intelligence contract candidate"],
+  "non_claims": ["production security certification", "live-provider enforcement", "independent effectiveness validation", "sandboxed or automatically trusted extension code", "live threat collection or exhaustive source coverage"],
   "authority": "none"
 }

@@ -695,6 +695,7 @@ def _manifest(
             ),
         ),
         deterministic=True,
+        evidence_provenance="producer_declared",
         network_mode="off",
         raw_data_policy="digests_only",
         execution_model="in_process_operator_approved_not_sandboxed",

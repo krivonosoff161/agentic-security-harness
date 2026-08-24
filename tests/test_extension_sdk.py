@@ -64,6 +64,7 @@ def _manifest(extension_id: str = "example.telemetry-check") -> ExtensionManifes
             ),
         ),
         deterministic=True,
+        evidence_provenance="deterministic_rule",
         network_mode="off",
         raw_data_policy="digests_only",
         execution_model="in_process_operator_approved_not_sandboxed",

@@ -93,6 +93,10 @@ exact Transfer Verifier reports, Handoff metadata and Playbooks guidance through
 SDK on Linux and Windows. This closes a concrete producer-to-consumer dataflow gap; it
 does not make those repositories installable extensions or production enforcement.
 
+The stacked [Security Intelligence candidate](docs/security-intelligence-extension.md)
+adds a provider-neutral offline weekly public-source review contract with digest-only
+evidence, explicit coverage gaps, and no live fetching or model authority.
+
 | Target | Modeled findings | Patterns passed |
 |---|---:|---:|
 | `demo-agent` | 24 | 0 |
@@ -232,6 +236,7 @@ The README is the front door; deeper contracts live in `docs/`:
 | How are provider tool-call envelopes normalized without credentials? | [Provider-neutral tool-call adapters](docs/provider-tool-adapters.md) |
 | How do optional components exchange validated observations and findings? | [Extension SDK V1](docs/extension-sdk.md) |
 | Which companion contracts already have executable cross-repository adapters? | [Companion Extension adapters](docs/companion-extensions.md) |
+| How are weekly public security inputs reviewed without provider lock-in? | [Security Intelligence extension](docs/security-intelligence-extension.md) |
 
 Specialized reviewer paths:
 
