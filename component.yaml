@@ -49,7 +49,8 @@
     {"path": "docs/receipt-auditor-extensions.md", "role": "component-owned"},
     {"path": "docs/corpus-pack-sdk.md", "role": "component-owned"},
     {"path": "docs/controlled-local-adapter.md", "role": "component-owned"},
-    {"path": "docs/policy-pack-extension.md", "role": "component-owned"}
+    {"path": "docs/policy-pack-extension.md", "role": "component-owned"},
+    {"path": "docs/ecosystem-integration-candidate.md", "role": "component-owned"}
   ],
   "compatibility": {
     "harness_api": ">=1,<2",
@@ -57,8 +58,8 @@
     "platforms": {"supported": ["linux", "windows"], "tested": ["linux", "windows"]}
   },
   "integration_status": "suite_verified",
-  "evidence_refs": ["docs/current-state.md", "docs/releases/v1.2.0.md", "schemas/extension-sdk.v1.manifest.json", "schemas/extension-distribution.v1.manifest.json", "schemas/extension-lifecycle.v1.manifest.json", "schemas/companion-extensions.v1.manifest.json", "schemas/security-intelligence.v1.manifest.json", "schemas/receipt-auditors.v1.manifest.json", "schemas/corpus-pack-sdk.v1.manifest.json", "schemas/controlled-local-adapter.v1.manifest.json", "schemas/policy-pack-extension.v1.manifest.json"],
-  "claims": ["published benchmark/toolkit", "synthetic Runtime Gateway reference contour", "source-level Extension SDK V1 candidate", "explicit installed-distribution RECORD and manifest verification candidate", "metadata-only explicit extension operator lifecycle candidate", "exact-source companion adapter compatibility candidate", "provider-neutral offline Security Intelligence contract candidate", "deterministic exact-pinned Router and Cheap Filter receipt accounting audit candidate", "deterministic optional Corpus Pack SDK V1 candidate", "literal-loopback controlled local provider and synthetic tool-host adapter candidate", "exact-pinned data-only Policy Pack advisory extension candidate"],
+  "evidence_refs": ["docs/current-state.md", "docs/releases/v1.2.0.md", "docs/ecosystem-integration-candidate.md", "schemas/extension-sdk.v1.manifest.json", "schemas/extension-distribution.v1.manifest.json", "schemas/extension-lifecycle.v1.manifest.json", "schemas/companion-extensions.v1.manifest.json", "schemas/security-intelligence.v1.manifest.json", "schemas/receipt-auditors.v1.manifest.json", "schemas/corpus-pack-sdk.v1.manifest.json", "schemas/controlled-local-adapter.v1.manifest.json", "schemas/policy-pack-extension.v1.manifest.json"],
+  "claims": ["published benchmark/toolkit", "synthetic Runtime Gateway reference contour", "source-level Extension SDK V1 candidate", "explicit installed-distribution RECORD and manifest verification candidate", "metadata-only explicit extension operator lifecycle candidate", "exact-source companion adapter compatibility candidate", "cross-platform exact-source Transfer and Handoff extension lifecycle integration candidate", "provider-neutral offline Security Intelligence contract candidate", "deterministic exact-pinned Router and Cheap Filter receipt accounting audit candidate", "deterministic optional Corpus Pack SDK V1 candidate", "literal-loopback controlled local provider and synthetic tool-host adapter candidate", "exact-pinned data-only Policy Pack advisory extension candidate"],
   "non_claims": ["production security certification", "live-provider enforcement", "independent effectiveness validation", "sandboxed automatically trusted or automatically loaded extension code", "automatic extension disable or rollback enforcement", "extension code origin attestation operator authentication or signature verification", "live threat collection or exhaustive source coverage", "receipt authenticity or provider attestation", "permission to lower a security decision", "automatic package discovery or corpus-pack code execution", "third-party corpus-pack authenticity or review quality", "local provider authentication", "arbitrary tool or upstream MCP execution", "automatic raw-content signal inference"],
   "authority": "none"
 }

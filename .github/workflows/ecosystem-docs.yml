@@ -76,7 +76,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/agentic-transfer-verifier
-          ref: f3ab9e00c71a6d62c1754657ffdfe57e8a5f4dd5
+          ref: eeb8d05de0531fd79d49de8281e700558ef58707
           path: components/transfer
           persist-credentials: false
 
@@ -84,7 +84,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/ai-agent-handoff
-          ref: cb228ecdecd91f16daaa362a91fc0230886d41c0
+          ref: d91c04e9c377c4cc1a8a098885999ca79be3bb95
           path: components/handoff
           persist-credentials: false
 
@@ -92,7 +92,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/llm-safety-playbooks
-          ref: 18aa28464f092ecaebaedededf1bfd927f44ff2d
+          ref: dc7a695e192c43ed242d71a06290754c82596e2d
           path: components/playbooks
           persist-credentials: false
 

@@ -604,6 +604,13 @@ def test_companion_schemas_and_manifest_are_closed_and_content_bound() -> None:
         "closed_shape_only_semantic_validation_in_python"
     )
     assert manifest["reviewed_sources"] == list(reviewed_companion_sources_v1())
+    integration_candidate = manifest["integration_candidate"]
+    assert set(integration_candidate) == {
+        "compatibility",
+        "documentation",
+        "test",
+        "workflow",
+    }
     for binding in manifest["schemas"] + [
         manifest["implementation"],
         manifest["extension_sdk_contract"],
@@ -612,6 +619,7 @@ def test_companion_schemas_and_manifest_are_closed_and_content_bound() -> None:
         manifest["cross_repository_tests"],
         manifest["workflow"],
         manifest["documentation"],
+        *integration_candidate.values(),
     ]:
         assert hashlib.sha256((ROOT / binding["path"]).read_bytes()).hexdigest() == binding[
             "sha256"

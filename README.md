@@ -327,6 +327,9 @@ llm-safety-playbooks -> ai-agent-handoff -> agentic-transfer-verifier -> agentic
 
 The repositories are related but not interchangeable. A playbook is not a runtime control,
 a handoff file is not a sandbox, and a passing benchmark is not a production certificate.
+The review-only [ecosystem integration candidate](docs/ecosystem-integration-candidate.md)
+builds the optional Transfer and Handoff extension wheels and exercises their explicit
+approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install them.
 
 ## Release and package status
 

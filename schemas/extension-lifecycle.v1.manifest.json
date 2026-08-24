@@ -4,7 +4,7 @@
   "automatic_import": false,
   "component_manifest": {
     "path": "component.yaml",
-    "sha256": "4584ccfdd62b6c074eee3d934c618be84666cf477c341c2a300bac760b30bbdf"
+    "sha256": "c71c861008b6470ff06e0c389e40b23c9b4c447e9356032b11ac9847d02d2ceb"
   },
   "contract_id": "harness-extension-operator-lifecycle-v1.0",
   "disable_semantics": "metadata_only_application_enforcement_required",
@@ -74,6 +74,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "46619036ed43d260b2473df1999ec232d8f325baaa3c01e1cf24accf5b46d67f"
+    "sha256": "9a95a7f0875c2473727952b0051e9e93e26a8bf4eb9434b820c4f01b4218c5d5"
   }
 }

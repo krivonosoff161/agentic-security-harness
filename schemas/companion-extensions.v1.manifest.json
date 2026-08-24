@@ -18,21 +18,39 @@
   },
   "generator": {
     "path": "tools/companion_extension_contracts.py",
-    "sha256": "2dfc260ef0b5b33074da60210ad9ab9145877d0fb061be345597b641070bad21"
+    "sha256": "5b8a932e80b15c291d42e11a218219ff71a4fd4b1ed6bafd0ef03a643aac1dc2"
   },
   "harness_api": "1",
   "implementation": {
     "path": "src/agentic_security_harness/companion_extensions.py",
-    "sha256": "afa492a2aec62d3e1d8f1b21138539cd383c720c4db7b91e00778cde758fd284"
+    "sha256": "89a4877076759ceb39fa4c81966fc12a4cf343ccd1a650f612a107c0414ccdb4"
+  },
+  "integration_candidate": {
+    "compatibility": {
+      "path": "ecosystem/compatibility.json",
+      "sha256": "092f2b4dae197baeb2f201c553dd0e99ac5d493bfff16e922d8fb0d1bd389e5f"
+    },
+    "documentation": {
+      "path": "docs/ecosystem-integration-candidate.md",
+      "sha256": "e62a5370e7bbd3575ce967888ff073c1589d3dcdd3d0c5466515f82bc7103ec8"
+    },
+    "test": {
+      "path": "tests/test_ecosystem_integration_candidate.py",
+      "sha256": "90253d36a27edfbd5e9d3853021872df61a6c2a7609845b346c21bf47e9fd49d"
+    },
+    "workflow": {
+      "path": ".github/workflows/ecosystem-integration.yml",
+      "sha256": "42811cf2167e928f35a2a51bd495c51aa385989a2f13a2356759f5b80903045d"
+    }
   },
   "integration_model": "explicit_normalized_digest_bound_outputs",
   "json_schema_scope": "closed_shape_only_semantic_validation_in_python",
   "operational_authority": "none",
   "reviewed_sources": [
     {
-      "commit": "f3ab9e00c71a6d62c1754657ffdfe57e8a5f4dd5",
+      "commit": "eeb8d05de0531fd79d49de8281e700558ef58707",
       "component_id": "agentic-transfer-verifier",
-      "component_manifest_sha256": "520407022dae48ba435adf0319e9b5d98a5fb51e1b813cdb7a4c9cd9d9f4b068",
+      "component_manifest_sha256": "c71d011af801c7ab21be19d99914eb67076d3f35dd3896d48f47789d52442473",
       "contract_id": "transfer-verification-report",
       "contract_path": "src/agentic_transfer_verifier/verifier.py",
       "contract_sha256": "7335162fcf546ac3927e8a2f2ccb35c7102eaa7d29be53d8a41389e513a70e3d",
@@ -40,9 +58,9 @@
       "repository": "https://github.com/krivonosoff161/agentic-transfer-verifier"
     },
     {
-      "commit": "cb228ecdecd91f16daaa362a91fc0230886d41c0",
+      "commit": "d91c04e9c377c4cc1a8a098885999ca79be3bb95",
       "component_id": "ai-agent-handoff",
-      "component_manifest_sha256": "943fee65b9859dd96612d02f686bb50642b4d1df5cdf24f68868a9dff50ae957",
+      "component_manifest_sha256": "7d6aad48e90cb322f3f2a3176208f7ef9095bf3d7e65a662c8cc2df52296ea15",
       "contract_id": "handoff-metadata",
       "contract_path": "contracts/handoff-metadata.v1.schema.json",
       "contract_sha256": "d1015a42c31c260049d104b581c025556cb421fcdbf63af3fbac1f7eadb55f90",
@@ -50,9 +68,9 @@
       "repository": "https://github.com/krivonosoff161/ai-agent-handoff"
     },
     {
-      "commit": "18aa28464f092ecaebaedededf1bfd927f44ff2d",
+      "commit": "dc7a695e192c43ed242d71a06290754c82596e2d",
       "component_id": "llm-safety-playbooks",
-      "component_manifest_sha256": "badb71727255d18b5cacb87b8db4369653af0cdfe0ec45b30f6017ab43c23056",
+      "component_manifest_sha256": "b60f7332d153c356a864561166ca94fd9107db35b71c88daf692102286222fc7",
       "contract_id": "portfolio-observation-guidance",
       "contract_path": "contracts/portfolio-observation-guidance.v1.json",
       "contract_sha256": "f87253b6a1e541ba8e05a2bdc844d70a13d3324975d4f28dd525574c2041de4e",
@@ -81,10 +99,10 @@
   ],
   "unit_tests": {
     "path": "tests/test_companion_extensions.py",
-    "sha256": "b81dc39555f9e4597d0700ffe4e7c2d23ebf6cadac9a22fc162ac9ad0c7d0878"
+    "sha256": "e0bd071dcdc3010a51f0d981c1eb7c55515300e4739f6f1ab6f6be145eb2b7a5"
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "46619036ed43d260b2473df1999ec232d8f325baaa3c01e1cf24accf5b46d67f"
+    "sha256": "9a95a7f0875c2473727952b0051e9e93e26a8bf4eb9434b820c4f01b4218c5d5"
   }
 }

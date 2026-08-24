@@ -9,6 +9,7 @@ from tools.ecosystem_docs import (
     ECOSYSTEM,
     ROOT,
     SCHEMAS,
+    CompatibilityRow,
     ComponentManifest,
     ComponentsLock,
     EcosystemRoadmap,
@@ -17,6 +18,7 @@ from tools.ecosystem_docs import (
     generated_schemas,
     load_contract,
     validate_all,
+    validate_component_compatibility,
     validate_component_set,
 )
 
@@ -65,6 +67,139 @@ def test_private_component_cannot_publish_repository_location() -> None:
 
     with pytest.raises(ValidationError, match="must not enter the public manifest"):
         ComponentManifest.model_validate(payload)
+
+
+def _candidate_component_payload() -> dict[str, object]:
+    payload = copy.deepcopy(load_contract(ROOT / "component.yaml"))
+    assert isinstance(payload, dict)
+    payload["kind"] = "check_extension"
+    payload["integration_status"] = "extension_candidate"
+    compatibility = payload["compatibility"]
+    assert isinstance(compatibility, dict)
+    compatibility["harness_api"] = "1"
+    return payload
+
+
+def _candidate_row_payload(component: ComponentManifest) -> dict[str, object]:
+    return {
+        "component_id": component.component_id,
+        "integration_status": "extension_candidate",
+        "harness_api": component.compatibility.harness_api,
+        "python": component.compatibility.python,
+        "extension_python": ">=3.11,<3.14",
+        "supported_platforms": component.compatibility.platforms.supported,
+        "tested_platforms": component.compatibility.platforms.tested,
+        "evidence": ["docs/ecosystem-integration-candidate.md"],
+    }
+
+
+def test_extension_candidate_semantics_accept_closed_public_candidate() -> None:
+    component = ComponentManifest.model_validate(_candidate_component_payload())
+    row = CompatibilityRow.model_validate(_candidate_row_payload(component))
+
+    validate_component_compatibility(component, row)
+    assert row.extension_python == ">=3.11,<3.14"
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("kind", "core", "kind check_extension"),
+        ("evidence_refs", [], "require public evidence"),
+    ],
+)
+def test_extension_candidate_rejects_wrong_kind_or_missing_evidence(
+    field: str, value: object, message: str
+) -> None:
+    payload = _candidate_component_payload()
+    payload[field] = value
+
+    with pytest.raises(ValidationError, match=message):
+        ComponentManifest.model_validate(payload)
+
+
+@pytest.mark.parametrize("harness_api", ["not-yet-declared", "", "2", "arbitrary"])
+def test_extension_candidate_rejects_nonexact_harness_api(harness_api: str) -> None:
+    payload = _candidate_component_payload()
+    compatibility = payload["compatibility"]
+    assert isinstance(compatibility, dict)
+    compatibility["harness_api"] = harness_api
+
+    with pytest.raises(ValidationError, match="exact Harness API"):
+        ComponentManifest.model_validate(payload)
+
+
+def test_extension_candidate_rejects_private_visibility() -> None:
+    payload = _candidate_component_payload()
+    payload["visibility"] = "private"
+    payload["repository"] = None
+
+    with pytest.raises(ValidationError, match="must be public"):
+        ComponentManifest.model_validate(payload)
+
+
+def test_extension_candidate_rejects_unknown_status() -> None:
+    payload = _candidate_component_payload()
+    payload["integration_status"] = "future_extension_state"
+
+    with pytest.raises(ValidationError, match="Input should be"):
+        ComponentManifest.model_validate(payload)
+
+
+def test_candidate_row_requires_extension_runtime_and_evidence() -> None:
+    component = ComponentManifest.model_validate(_candidate_component_payload())
+    missing_runtime = _candidate_row_payload(component)
+    del missing_runtime["extension_python"]
+    with pytest.raises(ValidationError, match="extension Python range"):
+        CompatibilityRow.model_validate(missing_runtime)
+
+    missing_evidence = _candidate_row_payload(component)
+    missing_evidence["evidence"] = []
+    with pytest.raises(ValidationError, match="public evidence"):
+        CompatibilityRow.model_validate(missing_evidence)
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("extension_python", ">=3.11", "exact extension Python range"),
+        ("harness_api", "arbitrary", "exact Harness API"),
+    ],
+)
+def test_candidate_row_rejects_nonexact_runtime_contract(
+    field: str, value: str, message: str
+) -> None:
+    component = ComponentManifest.model_validate(_candidate_component_payload())
+    payload = _candidate_row_payload(component)
+    payload[field] = value
+
+    with pytest.raises(ValidationError, match=message):
+        CompatibilityRow.model_validate(payload)
+
+
+@pytest.mark.parametrize(
+    ("updates", "message"),
+    [
+        (
+            {"integration_status": "standalone", "extension_python": None},
+            "integration status drift",
+        ),
+        ({"python": ">=0"}, "Python compatibility drift"),
+        (
+            {"supported_platforms": ["linux"], "tested_platforms": ["linux"]},
+            "supported platform drift",
+        ),
+    ],
+)
+def test_component_compatibility_rejects_status_platform_or_python_drift(
+    updates: dict[str, object], message: str
+) -> None:
+    component = ComponentManifest.model_validate(_candidate_component_payload())
+    row = CompatibilityRow.model_validate(_candidate_row_payload(component))
+    drifted = row.model_copy(update=updates)
+
+    with pytest.raises(ValueError, match=message):
+        validate_component_compatibility(component, drifted)
 
 
 def test_roadmap_rejects_dependency_cycles() -> None:
