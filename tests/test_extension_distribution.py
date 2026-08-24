@@ -375,6 +375,7 @@ def test_stable_read_rejects_transient_same_identity_bytes(
     monkeypatch.setattr(
         module, "_descriptor_identity", lambda _info: (1, 1, 1, 1, 1, 1, 1)
     )
+    monkeypatch.setattr(module, "_path_identity", lambda _info: (1, 1, 1, 1, 1, 1, 1))
 
     with pytest.raises(ExtensionDistributionError, match="changed while it was read"):
         module._stable_read(tmp_path, path.name, len(baseline))

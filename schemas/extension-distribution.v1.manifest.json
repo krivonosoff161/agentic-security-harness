@@ -52,7 +52,7 @@
   "signature_verified": false,
   "tests": {
     "path": "tests/test_extension_distribution.py",
-    "sha256": "46921154358b8c730c801f3729ebedb806fc0f0d2c590060f64068392c8b6f09"
+    "sha256": "227b2ff59d323d18039b15aedd9ca63a978b09a7963643fc22bb8396b4b5e36c"
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
