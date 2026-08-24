@@ -410,7 +410,12 @@ def test_integration_workflow_preserves_first_party_ruff_scope() -> None:
         line.strip() == "python -m ruff check . --exclude components"
         for line in workflow.splitlines()
     )
+    assert any(
+        line.strip() == "python -m bandit -q -ll -r src"
+        for line in workflow.splitlines()
+    )
     assert "python -m ruff check src tests tools" not in workflow
+    assert "python -m bandit -q -r src" not in workflow
     tracked_first_party = _git(
         ROOT,
         "ls-files",

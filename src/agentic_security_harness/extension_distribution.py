@@ -896,7 +896,10 @@ def _open_windows_native_descriptor(path: Path, *, directory: bool) -> int:
     import msvcrt
     from ctypes import wintypes
 
-    create_file = ctypes.WinDLL("kernel32", use_last_error=True).CreateFileW
+    win_dll = cast(Any, vars(ctypes)["WinDLL"])
+    get_last_error = cast(Any, vars(ctypes)["get_last_error"])
+    open_osfhandle = cast(Any, vars(msvcrt)["open_osfhandle"])
+    create_file = win_dll("kernel32", use_last_error=True).CreateFileW
     create_file.argtypes = (
         wintypes.LPCWSTR,
         wintypes.DWORD,
@@ -919,11 +922,11 @@ def _open_windows_native_descriptor(path: Path, *, directory: bool) -> int:
     )
     invalid_handle = ctypes.c_void_p(-1).value
     if handle == invalid_handle:
-        raise OSError(ctypes.get_last_error(), "CreateFileW failed")
+        raise OSError(get_last_error(), "CreateFileW failed")
     try:
-        return msvcrt.open_osfhandle(int(handle), os.O_RDONLY | int(getattr(os, "O_BINARY", 0)))
+        return open_osfhandle(int(handle), os.O_RDONLY | int(getattr(os, "O_BINARY", 0)))
     except (OSError, OverflowError):
-        close_handle = ctypes.WinDLL("kernel32", use_last_error=True).CloseHandle
+        close_handle = win_dll("kernel32", use_last_error=True).CloseHandle
         close_handle.argtypes = (wintypes.HANDLE,)
         close_handle.restype = wintypes.BOOL
         close_handle(handle)
@@ -967,6 +970,10 @@ def _windows_descriptor_information(
     import msvcrt
     from ctypes import wintypes
 
+    win_dll = cast(Any, vars(ctypes)["WinDLL"])
+    get_last_error = cast(Any, vars(ctypes)["get_last_error"])
+    get_osfhandle = cast(Any, vars(msvcrt)["get_osfhandle"])
+
     class _FileTime(ctypes.Structure):
         _fields_ = (("low", wintypes.DWORD), ("high", wintypes.DWORD))
 
@@ -984,15 +991,13 @@ def _windows_descriptor_information(
             ("file_index_low", wintypes.DWORD),
         )
 
-    get_information = ctypes.WinDLL(
-        "kernel32", use_last_error=True
-    ).GetFileInformationByHandle
+    get_information = win_dll("kernel32", use_last_error=True).GetFileInformationByHandle
     get_information.argtypes = (wintypes.HANDLE, ctypes.POINTER(_FileInformation))
     get_information.restype = wintypes.BOOL
     information = _FileInformation()
-    handle = msvcrt.get_osfhandle(descriptor)
+    handle = get_osfhandle(descriptor)
     if not get_information(wintypes.HANDLE(handle), ctypes.byref(information)):
-        raise OSError(ctypes.get_last_error(), "GetFileInformationByHandle failed")
+        raise OSError(get_last_error(), "GetFileInformationByHandle failed")
     size = (information.size_high << 32) | information.size_low
     file_index = (information.file_index_high << 32) | information.file_index_low
     creation_time = (information.creation_time.high << 32) | information.creation_time.low
