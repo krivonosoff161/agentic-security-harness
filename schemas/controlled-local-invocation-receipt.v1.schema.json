@@ -1,0 +1,281 @@
+{
+  "$defs": {
+    "ControlledLocalToolReceiptV1": {
+      "additionalProperties": false,
+      "description": "Digest-only record of one gateway policy decision and synthetic dispatch.",
+      "properties": {
+        "arguments_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Arguments Sha256",
+          "type": "string"
+        },
+        "call_id_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Call Id Sha256",
+          "type": "string"
+        },
+        "correlation_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Correlation Sha256",
+          "type": "string"
+        },
+        "disposition": {
+          "enum": [
+            "allow",
+            "deny",
+            "require_approval"
+          ],
+          "title": "Disposition",
+          "type": "string"
+        },
+        "effect": {
+          "enum": [
+            "pure",
+            "external",
+            "process",
+            "unknown"
+          ],
+          "title": "Effect",
+          "type": "string"
+        },
+        "execution_permitted": {
+          "title": "Execution Permitted",
+          "type": "boolean"
+        },
+        "policy_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Policy Sha256",
+          "type": "string"
+        },
+        "reason_code": {
+          "pattern": "^[a-z0-9][a-z0-9._:-]{0,127}$",
+          "title": "Reason Code",
+          "type": "string"
+        },
+        "result_observed": {
+          "title": "Result Observed",
+          "type": "boolean"
+        },
+        "result_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Result Sha256",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "AgenticSecurityHarnessControlledLocalToolReceipt.v1",
+          "default": "AgenticSecurityHarnessControlledLocalToolReceipt.v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "sequence": {
+          "maximum": 8,
+          "minimum": 1,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "tool_name_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Tool Name Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sequence",
+        "correlation_sha256",
+        "call_id_sha256",
+        "tool_name_sha256",
+        "arguments_sha256",
+        "policy_sha256",
+        "disposition",
+        "reason_code",
+        "effect",
+        "execution_permitted",
+        "result_observed",
+        "result_sha256"
+      ],
+      "title": "ControlledLocalToolReceiptV1",
+      "type": "object"
+    }
+  },
+  "$id": "https://github.com/krivonosoff161/agentic-security-harness/blob/main/schemas/controlled-local-invocation-receipt.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Closed privacy-minimized receipt for one bounded local invocation.",
+  "properties": {
+    "audit_head_after_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Audit Head After Sha256",
+      "type": "string"
+    },
+    "audit_head_before_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Audit Head Before Sha256",
+      "type": "string"
+    },
+    "audit_records_after": {
+      "minimum": 0,
+      "title": "Audit Records After",
+      "type": "integer"
+    },
+    "audit_records_before": {
+      "minimum": 0,
+      "title": "Audit Records Before",
+      "type": "integer"
+    },
+    "config_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Config Sha256",
+      "type": "string"
+    },
+    "endpoint_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Endpoint Sha256",
+      "type": "string"
+    },
+    "http_status": {
+      "anyOf": [
+        {
+          "maximum": 599,
+          "minimum": 100,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Http Status"
+    },
+    "model_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Model Sha256",
+      "type": "string"
+    },
+    "network_attempts": {
+      "maximum": 3,
+      "minimum": 0,
+      "title": "Network Attempts",
+      "type": "integer"
+    },
+    "network_scope": {
+      "const": "literal_loopback_http",
+      "default": "literal_loopback_http",
+      "title": "Network Scope",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "default": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "policy_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Policy Sha256",
+      "type": "string"
+    },
+    "provider_authenticated": {
+      "const": false,
+      "default": false,
+      "title": "Provider Authenticated",
+      "type": "boolean"
+    },
+    "reason_code": {
+      "enum": [
+        "completed_without_tool_calls",
+        "completed_with_tool_calls",
+        "cancelled_before_request",
+        "cancelled_after_response",
+        "local_connect_error",
+        "local_timeout",
+        "local_protocol_error",
+        "redirect_forbidden",
+        "response_http_status_invalid",
+        "response_content_type_invalid",
+        "response_content_length_missing",
+        "response_content_length_invalid",
+        "response_content_length_duplicate",
+        "response_transfer_encoding_forbidden",
+        "response_content_encoding_forbidden",
+        "response_body_truncated",
+        "response_body_oversized",
+        "response_json_invalid",
+        "response_json_noncanonical",
+        "response_tool_payload_invalid",
+        "tool_call_identity_duplicate",
+        "tool_call_replay_denied",
+        "replay_capacity_exhausted"
+      ],
+      "title": "Reason Code",
+      "type": "string"
+    },
+    "receipt_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Receipt Sha256",
+      "type": "string"
+    },
+    "request_id_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Request Id Sha256",
+      "type": "string"
+    },
+    "request_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Request Sha256",
+      "type": "string"
+    },
+    "response_observed": {
+      "title": "Response Observed",
+      "type": "boolean"
+    },
+    "response_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Response Sha256",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "AgenticSecurityHarnessControlledLocalInvocationReceipt.v1",
+      "default": "AgenticSecurityHarnessControlledLocalInvocationReceipt.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "error",
+        "cancelled"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "tools": {
+      "items": {
+        "$ref": "#/$defs/ControlledLocalToolReceiptV1"
+      },
+      "maxItems": 8,
+      "title": "Tools",
+      "type": "array"
+    }
+  },
+  "required": [
+    "request_id_sha256",
+    "endpoint_sha256",
+    "config_sha256",
+    "policy_sha256",
+    "model_sha256",
+    "request_sha256",
+    "response_observed",
+    "response_sha256",
+    "network_attempts",
+    "status",
+    "reason_code",
+    "tools",
+    "audit_records_before",
+    "audit_records_after",
+    "audit_head_before_sha256",
+    "audit_head_after_sha256",
+    "receipt_sha256"
+  ],
+  "title": "ControlledLocalInvocationReceiptV1",
+  "type": "object"
+}

@@ -52,6 +52,17 @@ from agentic_security_harness.agent_host_workflow import (
     validate_agent_host_bundle_v1,
     write_agent_host_quickstart_v1,
 )
+from agentic_security_harness.controlled_local_adapter import (
+    ControlledLocalAdapterConfigV1,
+    ControlledLocalAdapterContractError,
+    ControlledLocalAdapterOutcomeV1,
+    ControlledLocalAdapterV1,
+    ControlledLocalInvocationReceiptV1,
+    ControlledLocalToolReceiptV1,
+    controlled_local_adapter_v1_json_schemas,
+    decode_controlled_local_invocation_receipt_v1,
+    encode_controlled_local_invocation_receipt_v1,
+)
 from agentic_security_harness.corpus import (
     CORPUS_MANIFEST_SCHEMA_VERSION,
     DEPRECATED_PATTERN_IDS,
@@ -301,6 +312,15 @@ __all__ = [
     "run_owned_agent_workflow_v1",
     "validate_agent_host_bundle_v1",
     "write_agent_host_quickstart_v1",
+    "ControlledLocalAdapterConfigV1",
+    "ControlledLocalAdapterContractError",
+    "ControlledLocalAdapterOutcomeV1",
+    "ControlledLocalAdapterV1",
+    "ControlledLocalInvocationReceiptV1",
+    "ControlledLocalToolReceiptV1",
+    "controlled_local_adapter_v1_json_schemas",
+    "decode_controlled_local_invocation_receipt_v1",
+    "encode_controlled_local_invocation_receipt_v1",
     "TargetDescriptor",
     "TargetMetadata",
     "TraceStep",
