@@ -103,6 +103,13 @@ receipts from caller-supplied canonical bytes. Valid accounting remains `inconcl
 missing evidence remains `inconclusive`, and drift becomes a finding; the auditors never
 emit `pass`, import or invoke the companion packages, or lower a security decision.
 
+The following [Extension Distribution Discovery V1 candidate](docs/extension-distribution-discovery.md)
+inspects one explicitly named local distribution without importing it. It verifies its
+`RECORD`, closed entry point, canonical manifest, implementation bytes and caller-supplied
+configuration digest, then requires exact reinspection before issuing an authority-free
+approval receipt. Harness still does not load package code: the operator supplies an
+already constructed object, and the binder checks it against the approved manifest pins.
+
 | Target | Modeled findings | Patterns passed |
 |---|---:|---:|
 | `demo-agent` | 24 | 0 |
@@ -241,6 +248,7 @@ The README is the front door; deeper contracts live in `docs/`:
 | How can I run the local policy gateway and MCP/OpenAI-compatible demo? | [Runtime Gateway synthetic contour](docs/runtime-gateway.md) |
 | How are provider tool-call envelopes normalized without credentials? | [Provider-neutral tool-call adapters](docs/provider-tool-adapters.md) |
 | How do optional components exchange validated observations and findings? | [Extension SDK V1](docs/extension-sdk.md) |
+| How is an installed extension distribution verified before explicit registration? | [Extension Distribution Discovery V1](docs/extension-distribution-discovery.md) |
 | Which companion contracts already have executable cross-repository adapters? | [Companion Extension adapters](docs/companion-extensions.md) |
 | How are weekly public security inputs reviewed without provider lock-in? | [Security Intelligence extension](docs/security-intelligence-extension.md) |
 

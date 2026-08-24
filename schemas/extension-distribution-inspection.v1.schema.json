@@ -1,0 +1,245 @@
+{
+  "$defs": {
+    "DistributionFileBindingV1": {
+      "additionalProperties": false,
+      "description": "One verified non-RECORD file owned by the selected distribution.",
+      "properties": {
+        "path": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "implementation",
+            "manifest",
+            "metadata",
+            "entry_points",
+            "wheel_metadata",
+            "distribution_support"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size": {
+          "maximum": 8388608,
+          "minimum": 0,
+          "title": "Size",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "size",
+        "role"
+      ],
+      "title": "DistributionFileBindingV1",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Canonical, metadata-only receipt for one explicitly selected distribution.",
+  "properties": {
+    "code_loaded": {
+      "const": false,
+      "title": "Code Loaded",
+      "type": "boolean"
+    },
+    "configuration_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Configuration Sha256",
+      "type": "string"
+    },
+    "distribution_name": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Distribution Name",
+      "type": "string"
+    },
+    "distribution_version": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Distribution Version",
+      "type": "string"
+    },
+    "entry_point_group": {
+      "const": "agentic_security_harness.extensions.v1",
+      "title": "Entry Point Group",
+      "type": "string"
+    },
+    "entry_point_name": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Entry Point Name",
+      "type": "string"
+    },
+    "entry_point_value": {
+      "maxLength": 257,
+      "minLength": 3,
+      "title": "Entry Point Value",
+      "type": "string"
+    },
+    "entry_points_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Entry Points Sha256",
+      "type": "string"
+    },
+    "extension_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Extension Id",
+      "type": "string"
+    },
+    "extension_version": {
+      "pattern": "^[0-9A-Za-z][0-9A-Za-z.+_-]{0,63}$",
+      "title": "Extension Version",
+      "type": "string"
+    },
+    "factory_attribute": {
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,127}$",
+      "title": "Factory Attribute",
+      "type": "string"
+    },
+    "file_count": {
+      "maximum": 4096,
+      "minimum": 5,
+      "title": "File Count",
+      "type": "integer"
+    },
+    "files": {
+      "items": {
+        "$ref": "#/$defs/DistributionFileBindingV1"
+      },
+      "maxItems": 4095,
+      "minItems": 4,
+      "title": "Files",
+      "type": "array"
+    },
+    "files_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Files Sha256",
+      "type": "string"
+    },
+    "harness_api": {
+      "const": "1",
+      "title": "Harness Api",
+      "type": "string"
+    },
+    "implementation_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Implementation Sha256",
+      "type": "string"
+    },
+    "inspection_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Inspection Id",
+      "type": "string"
+    },
+    "manifest_path": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Manifest Path",
+      "type": "string"
+    },
+    "manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Manifest Sha256",
+      "type": "string"
+    },
+    "metadata_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Metadata Sha256",
+      "type": "string"
+    },
+    "module_name": {
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,127}$",
+      "title": "Module Name",
+      "type": "string"
+    },
+    "module_path": {
+      "maxLength": 132,
+      "minLength": 4,
+      "title": "Module Path",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "record_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Record Sha256",
+      "type": "string"
+    },
+    "record_verified": {
+      "const": true,
+      "title": "Record Verified",
+      "type": "boolean"
+    },
+    "requires_python": {
+      "const": ">=3.11,<3.14",
+      "title": "Requires Python",
+      "type": "string"
+    },
+    "sandboxed": {
+      "const": false,
+      "title": "Sandboxed",
+      "type": "boolean"
+    },
+    "schema_version": {
+      "const": "harness-extension-distribution-inspection-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "signature_verified": {
+      "const": false,
+      "title": "Signature Verified",
+      "type": "boolean"
+    },
+    "wheel_tag": {
+      "const": "py3-none-any",
+      "title": "Wheel Tag",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "inspection_id",
+    "distribution_name",
+    "distribution_version",
+    "requires_python",
+    "wheel_tag",
+    "metadata_sha256",
+    "entry_points_sha256",
+    "record_sha256",
+    "files_sha256",
+    "file_count",
+    "files",
+    "entry_point_group",
+    "entry_point_name",
+    "entry_point_value",
+    "module_name",
+    "module_path",
+    "factory_attribute",
+    "manifest_path",
+    "manifest_sha256",
+    "implementation_sha256",
+    "configuration_sha256",
+    "extension_id",
+    "extension_version",
+    "harness_api",
+    "code_loaded",
+    "record_verified",
+    "signature_verified",
+    "sandboxed",
+    "operational_authority"
+  ],
+  "title": "ExtensionDistributionInspectionV1",
+  "type": "object"
+}
