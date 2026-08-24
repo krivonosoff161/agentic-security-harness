@@ -26,6 +26,10 @@ observation and R4 companion contracts are strict and reject unknown fields.
 | `agent-host-evaluation.v1.schema.json` | Closed deterministic Agent Host V1 evaluation result. |
 | `agent-host-evaluation-ruleset.v1.schema.json` | Closed ruleset shape for all 24 frozen corpus patterns. |
 | `agent-host-evaluation-ruleset.v1.json` | Exact content-bound Agent Host V1 ruleset. |
+| `controlled-local-adapter-config.v1.schema.json` | Closed literal-loopback transport limits for the controlled local adapter. |
+| `controlled-local-tool-receipt.v1.schema.json` | Digest-only Runtime Gateway policy/tool decision receipt. |
+| `controlled-local-invocation-receipt.v1.schema.json` | Digest-only local invocation, response and audit binding. |
+| `controlled-local-adapter.v1.manifest.json` | Content-bound implementation, policy, schema, test, workflow and documentation contract. |
 
 The R4 companion schemas are strict (`additionalProperties: false`) shape checks only.
 Cross-field and graph semantics require the Python validator plus the positive/negative
@@ -46,6 +50,13 @@ Regenerate or verify the corpus projection and shape schema with:
 ```powershell
 $env:PYTHONPATH = "src"
 python tools/corpus_contract.py --root . --check
+```
+
+Generate or verify the controlled local adapter bundle with:
+
+```powershell
+$env:PYTHONPATH = "src"
+python tools/controlled_local_adapter_contracts.py check
 ```
 
 The trace v1 schema is closed at every typed object boundary. Historical trace schema

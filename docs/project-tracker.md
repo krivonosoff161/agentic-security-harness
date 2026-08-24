@@ -32,10 +32,14 @@ approval grants, production deployment, certification, and operational authority
 future work and must not be inferred from this release.
 
 The unreleased Extension SDK review stack now includes exact-source companion adapters,
-offline Security Intelligence, and deterministic Router/Cheap Filter receipt auditors.
+offline Security Intelligence, deterministic Router/Cheap Filter receipt auditors, and a
+controlled literal-loopback local provider/tool-host adapter.
 These are source candidates, not shipped capability: receipt conformance binds accounting
 bytes and event linkage only, never a pass/allow decision, producer authenticity,
-effectiveness claim, provider call, deployment, or enforcement authority.
+effectiveness claim, external provider call, deployment, or enforcement authority. The
+local adapter neither authenticates the local process nor exposes arbitrary tools; it
+keeps the Runtime Gateway's two deterministic synthetic executors and authority-free
+policy boundary.
 
 The v0.15 productization contour is complete and intentionally user-facing rather than
 another broad research expansion:

@@ -103,6 +103,13 @@ receipts from caller-supplied canonical bytes. Valid accounting remains `inconcl
 missing evidence remains `inconclusive`, and drift becomes a finding; the auditors never
 emit `pass`, import or invoke the companion packages, or lower a security decision.
 
+Above that stack, the [controlled local adapter candidate](docs/controlled-local-adapter.md)
+connects only to an operator-started literal-loopback `/v1/responses` endpoint and passes
+canonical tool calls through the existing closed Runtime Gateway policy. It supports local
+model names as opaque identifiers—including Qwen and DeepSeek-style names—without vendor
+claims. It has no DNS, proxy, redirect, credential, external-provider, arbitrary-tool, or
+upstream-MCP path; receipts are digest-only and operational authority remains `none`.
+
 | Target | Modeled findings | Patterns passed |
 |---|---:|---:|
 | `demo-agent` | 24 | 0 |
@@ -243,6 +250,7 @@ The README is the front door; deeper contracts live in `docs/`:
 | How do optional components exchange validated observations and findings? | [Extension SDK V1](docs/extension-sdk.md) |
 | Which companion contracts already have executable cross-repository adapters? | [Companion Extension adapters](docs/companion-extensions.md) |
 | How are weekly public security inputs reviewed without provider lock-in? | [Security Intelligence extension](docs/security-intelligence-extension.md) |
+| How can an operator connect one local model without opening arbitrary tools? | [Controlled local provider/tool-host adapter](docs/controlled-local-adapter.md) |
 
 Specialized reviewer paths:
 

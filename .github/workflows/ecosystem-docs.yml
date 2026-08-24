@@ -13,17 +13,20 @@ on:
       - "tools/companion_extension_contracts.py"
       - "tools/security_intelligence_contracts.py"
       - "tools/receipt_auditor_contracts.py"
+      - "tools/controlled_local_adapter_contracts.py"
       - "tests/test_ecosystem_docs.py"
       - "src/agentic_security_harness/extension_sdk.py"
       - "src/agentic_security_harness/companion_extensions.py"
       - "src/agentic_security_harness/security_intelligence.py"
       - "src/agentic_security_harness/receipt_auditors.py"
+      - "src/agentic_security_harness/controlled_local_adapter.py"
       - "tests/test_extension_sdk.py"
       - "tests/test_companion_extensions.py"
       - "tests/test_security_intelligence.py"
       - "tests/test_cross_repo_extension_compatibility.py"
       - "tests/test_receipt_auditors.py"
       - "tests/test_cross_repo_receipt_compatibility.py"
+      - "tests/test_controlled_local_adapter.py"
       - "README.md"
   push:
     branches: [main]
@@ -113,6 +116,7 @@ jobs:
           python tools/companion_extension_contracts.py check
           python tools/security_intelligence_contracts.py check
           python tools/receipt_auditor_contracts.py check
+          python tools/controlled_local_adapter_contracts.py check
 
       - name: Validate exact component lock
         run: >-
@@ -148,3 +152,4 @@ jobs:
           tests/test_cross_repo_extension_compatibility.py
           tests/test_receipt_auditors.py
           tests/test_cross_repo_receipt_compatibility.py
+          tests/test_controlled_local_adapter.py

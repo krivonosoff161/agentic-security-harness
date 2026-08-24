@@ -34,7 +34,7 @@
       "title": "Installable optional security components",
       "status": "active",
       "depends_on": ["extension-contract"],
-      "deliverables": ["package entry points", "compatibility matrix", "cross-platform suite verification"]
+      "deliverables": ["package entry points", "compatibility matrix", "cross-platform suite verification", "controlled literal-loopback local provider and synthetic tool-host adapter"]
     },
     {
       "id": "threat-watch",

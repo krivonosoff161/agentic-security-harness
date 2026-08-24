@@ -19,7 +19,9 @@ no provider calls, no real secrets. The experimental `run-external --execute` pa
 OpenAI-compatible calls only on explicit opt-in (prompt-only). The provider-neutral
 Agent Host V1 record/replay, deterministic evaluation, explicit digest-only owned-workflow
 instrumentation, and a built-in validated no-network quickstart are shipped in v1.1.0;
-native provider and live host/tool collectors remain future.
+native external-provider and live arbitrary host/tool collectors remain future. A
+literal-loopback local `/v1/responses` client with synthetic-only gateway dispatch is an
+unreleased stacked candidate, not part of the shipped surface.
 
 ---
 
@@ -179,7 +181,10 @@ shipped benchmark scope until they have their own design review and release boun
 - **Native agent-host / tool-use collectors** - extend the implemented Agent Host V1
   record/evaluate and explicit owned-workflow API to provider SDKs and authorized live
   agents, with separate credential, network, privacy, retention, and execution gates.
-- **Real LLM adapters** - drive authorized live agents instead of local synthetic targets.
+- **Real external-provider and arbitrary-tool adapters** - the source candidate has one
+  unauthenticated operator-started literal-loopback response transport and two deterministic
+  synthetic tools only; credentials, remote providers, native SDKs, arbitrary tools, and
+  production enforcement remain future gates.
 - **Multimodal / audio-ASR** - sanitized, pre-recorded ASR / OCR fixtures for the
   sensor-to-agent path.
 - **Web report viewer / dashboard** - an interactive viewer over run manifests. The

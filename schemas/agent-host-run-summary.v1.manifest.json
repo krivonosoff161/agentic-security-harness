@@ -37,7 +37,7 @@
   },
   "public_api": {
     "path": "src/agentic_security_harness/__init__.py",
-    "sha256": "ad18463b3a3d524e0aa5758bac5d91589a4e17f5acebc855a128130be257b0e1"
+    "sha256": "cb1366f9ea9ac8a965b710d9f59fe5d24bd377ee76f1bc1babdd76da7e36f048"
   },
   "cli": {
     "path": "src/agentic_security_harness/cli.py",
