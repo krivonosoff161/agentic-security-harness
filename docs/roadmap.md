@@ -146,6 +146,10 @@ The next work is ordered by credibility, not by feature volume:
     raw cases/labels/seeds, keys, ledger, or custody data. The terminal `FAIL` closes this
     frozen candidate's one-burn contour; any new scientific candidate requires a separate
     preregistration and owner gate rather than a rerun.
+14. **Optional corpus packs:** review the Corpus Pack SDK V1 source candidate for closed
+    canonical manifests, core-id preservation, deterministic composition and Extension SDK
+    evidence readiness. Optional pack code discovery, execution, authenticity and release
+    remain separate future gates.
 
 ---
 

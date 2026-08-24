@@ -49,11 +49,18 @@
       "status": "planned",
       "depends_on": ["installable-extensions", "threat-watch"],
       "deliverables": ["cross-repository lock", "independent reviewer evidence", "release compatibility report"]
+    },
+    {
+      "id": "optional-corpus-packs",
+      "title": "Deterministic optional corpus packs without core corpus mutation",
+      "status": "active",
+      "depends_on": ["extension-contract"],
+      "deliverables": ["closed corpus-pack manifest", "offline loader and composer", "Extension SDK evidence requirements", "cross-platform adversarial verification"]
     }
   ],
   "documentation": {
     "roles": ["canonical", "component-owned", "generated", "current-snapshot", "research", "historical", "superseded"],
     "generated_outputs": ["docs/ecosystem-roadmap.md", "docs/ecosystem-components.md", "docs/documentation-map.md", "ecosystem/document-registry.json"]
   },
-  "non_claims": ["all components are installable extensions today", "private research is public", "roadmap status grants operational authority", "synthetic validation proves production effectiveness"]
+  "non_claims": ["all components are installable extensions today", "private research is public", "roadmap status grants operational authority", "synthetic validation proves production effectiveness", "optional corpus packs are automatically discovered, executed, authenticated or independently reviewed"]
 }

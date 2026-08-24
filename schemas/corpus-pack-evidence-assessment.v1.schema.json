@@ -1,0 +1,76 @@
+{
+  "additionalProperties": false,
+  "description": "Evidence-readiness result; it never evaluates the security invariant itself.",
+  "properties": {
+    "assessment_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Assessment Id",
+      "type": "string"
+    },
+    "envelope_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Envelope Id",
+      "type": "string"
+    },
+    "evidence_state": {
+      "enum": [
+        "ready_for_rule_evaluation",
+        "incomplete"
+      ],
+      "title": "Evidence State",
+      "type": "string"
+    },
+    "missing_requirement_codes": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 50,
+      "title": "Missing Requirement Codes",
+      "type": "array"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "pattern_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Pattern Id",
+      "type": "string"
+    },
+    "requirements_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Requirements Sha256",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "harness-corpus-pack-evidence-assessment-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "terminal_disposition": {
+      "const": "inconclusive",
+      "title": "Terminal Disposition",
+      "type": "string"
+    },
+    "verdict_semantics": {
+      "const": "evidence_readiness_only_no_security_verdict",
+      "title": "Verdict Semantics",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "assessment_id",
+    "pattern_id",
+    "envelope_id",
+    "requirements_sha256",
+    "evidence_state",
+    "missing_requirement_codes",
+    "terminal_disposition",
+    "verdict_semantics",
+    "operational_authority"
+  ],
+  "title": "CorpusPackEvidenceAssessmentV1",
+  "type": "object"
+}

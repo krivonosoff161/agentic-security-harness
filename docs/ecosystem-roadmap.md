@@ -15,6 +15,7 @@ Authority: `none`
 | `installable-extensions` | **active** | `extension-contract` | package entry points; compatibility matrix; cross-platform suite verification |
 | `threat-watch` | **active** | `extension-contract` | digest-bound public source registry; offline snapshot review contract; model-neutral synthesis profile; external-unreviewed advisory output |
 | `ecosystem-release-gates` | **planned** | `installable-extensions`, `threat-watch` | cross-repository lock; independent reviewer evidence; release compatibility report |
+| `optional-corpus-packs` | **active** | `extension-contract` | closed corpus-pack manifest; offline loader and composer; Extension SDK evidence requirements; cross-platform adversarial verification |
 
 ## Explicit non-claims
 
@@ -22,3 +23,4 @@ Authority: `none`
 - private research is public
 - roadmap status grants operational authority
 - synthetic validation proves production effectiveness
+- optional corpus packs are automatically discovered, executed, authenticated or independently reviewed

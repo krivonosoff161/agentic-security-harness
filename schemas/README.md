@@ -13,6 +13,10 @@ observation and R4 companion contracts are strict and reject unknown fields.
 | `trace.schema.json` | Frozen schema 1.0 for one item inside `traces.json`; closed typed fields with `reproducibility` as the explicit extension map. |
 | `corpus-manifest.v1.json` | Exact corpus 1.0.0 projection with 24 ordered pattern contracts. |
 | `corpus-manifest.v1.schema.json` | Closed portable shape schema for the corpus manifest. |
+| `corpus-pack-manifest.v1.schema.json` | Closed optional Corpus Pack SDK V1 manifest. |
+| `corpus-composition.v1.schema.json` | Deterministic core-plus-optional identity registry. |
+| `corpus-pack-evidence-assessment.v1.schema.json` | Authority-free Extension SDK evidence-readiness assessment. |
+| `corpus-pack-sdk.v1.manifest.json` | Digest-bound SDK implementation, schemas, fixture, tests and workflow. |
 | `scorecard.schema.json` | `scorecard.json`. |
 | `remediation.schema.json` | `remediation.json`. |
 | `run-manifest.schema.json` | `run_index.json`. |

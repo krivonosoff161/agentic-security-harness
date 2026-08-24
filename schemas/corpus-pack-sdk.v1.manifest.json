@@ -1,0 +1,87 @@
+{
+  "code_auto_discovery": false,
+  "composition_model": "deterministic_registry_only_core_preserved",
+  "contract_id": "harness-corpus-pack-sdk-v1.0",
+  "core_corpus": {
+    "path": "schemas/corpus-manifest.v1.json",
+    "sha256": "786f13f9e27bb7f12cda0ae2f9e1f12d15e5663985b6f0bcc1e9060abef4cbe6"
+  },
+  "documentation": {
+    "path": "docs/corpus-pack-sdk.md",
+    "sha256": "089fbde9a9de0c71ae1d25b961737547ac9b7d99b1a6d5e4233daa1b42ff9f82"
+  },
+  "extension_sdk_contract": {
+    "path": "schemas/extension-sdk.v1.manifest.json",
+    "sha256": "78c9063c4b9660c3859b086b545ab5c53c709697dade7325507864ad12f114d2"
+  },
+  "generator": {
+    "path": "tools/corpus_pack_contracts.py",
+    "sha256": "bf7979564f8ec3d701faa073939c6ea78d45464f8f69103ea31fb93fba9d2ab6"
+  },
+  "harness_api": "1",
+  "implementation": {
+    "path": "src/agentic_security_harness/corpus_packs.py",
+    "sha256": "7444d7972bb73fe0ea628031b75c6d4967a65b37c72b8b950ed0a04500a57b46"
+  },
+  "loading_model": "explicit_canonical_bytes_or_fixed_manifest_path",
+  "may_lower_security_decision": false,
+  "network_access": false,
+  "observation_contract": "harness-extension-envelope-v1.0",
+  "operational_authority": "none",
+  "package_code_loading": false,
+  "raw_or_private_payload_fields": false,
+  "runtime_closure": [
+    {
+      "path": "src/agentic_security_harness/__init__.py",
+      "sha256": "dd9bdec6fdb2234e52a92e4a857637adba1526b4a3ef378634094f5af18f99e2"
+    },
+    {
+      "path": "src/agentic_security_harness/corpus.py",
+      "sha256": "350503187cf675b938c187c91971ef63c63a7f1cf49752c8ebc67c03f1a6d049"
+    },
+    {
+      "path": "src/agentic_security_harness/extension_sdk.py",
+      "sha256": "6135b948564bc5c563a7990160537151453c5b1b03e21f21fe5fea9699d3e7cb"
+    },
+    {
+      "path": "src/agentic_security_harness/models.py",
+      "sha256": "b05e0abd1c2ba8dedfbe3438e83607b5402226c15669dfa7b2a98c4ab604becd"
+    },
+    {
+      "path": "src/agentic_security_harness/portfolio_contract.py",
+      "sha256": "d4af2870e5545abc6d8a5d7861cc5e0f083b7cd3d3ba21c9f0079a3f2d4da0c9"
+    },
+    {
+      "path": "src/agentic_security_harness/safe_io.py",
+      "sha256": "98f2c61a8bb30b0a30729b45085c255bb7d5c1d391111fb140008187fef4d07e"
+    }
+  ],
+  "schema_version": "harness-corpus-pack-contract-manifest-v1.0",
+  "schemas": [
+    {
+      "path": "schemas/corpus-composition.v1.schema.json",
+      "sha256": "a923dfb7458813db1535ad0046534755f77d0a89d88f984ee2d19f3c71c8124e"
+    },
+    {
+      "path": "schemas/corpus-pack-evidence-assessment.v1.schema.json",
+      "sha256": "53fedd0b7a87f3361bc86fb49bea6d91b25d02f99a448e53ae9e8087c0f13b09"
+    },
+    {
+      "path": "schemas/corpus-pack-manifest.v1.schema.json",
+      "sha256": "29257ccb4fd26e8b9a5d4da4c513538f91228b501ee05f66503d04ca3363b526"
+    }
+  ],
+  "synthetic_fixture": {
+    "path": "examples/corpus-packs/example-boundary-pack/corpus-pack.v1.json",
+    "producer_attestation": "unattested",
+    "sha256": "f07095a8064efd53ac78a87103e857250b730b515c9471c22babe782f8882727"
+  },
+  "tests": {
+    "path": "tests/test_corpus_packs.py",
+    "sha256": "c435c3f1996d0b6cf854252c29f6aad3982f19bfaeaf4ab942af9413fa431cf3"
+  },
+  "workflow": {
+    "path": ".github/workflows/ecosystem-docs.yml",
+    "sha256": "ec5969857946bcd772468e2b664532fafeaea6d1f94502ed7a23df68cc02f2c1"
+  }
+}

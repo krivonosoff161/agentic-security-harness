@@ -1,0 +1,240 @@
+{
+  "$defs": {
+    "ComposedCorpusPatternRefV1": {
+      "additionalProperties": false,
+      "description": "Identity-only reference; it carries no executable rule or raw scenario.",
+      "properties": {
+        "pattern_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Pattern Id",
+          "type": "string"
+        },
+        "pattern_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Pattern Sha256",
+          "type": "string"
+        },
+        "source_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "core",
+            "optional_pack"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_version": {
+          "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$",
+          "title": "Source Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pattern_id",
+        "source_kind",
+        "source_id",
+        "source_version",
+        "pattern_sha256"
+      ],
+      "title": "ComposedCorpusPatternRefV1",
+      "type": "object"
+    },
+    "CorpusPackCommitmentV1": {
+      "additionalProperties": false,
+      "description": "Digest-bound source summary used by a deterministic composition.",
+      "properties": {
+        "component_manifest_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Component Manifest Sha256",
+          "type": "string"
+        },
+        "distribution_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Distribution Sha256",
+          "type": "string"
+        },
+        "implementation_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Implementation Sha256",
+          "type": "string"
+        },
+        "manifest_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Manifest Sha256",
+          "type": "string"
+        },
+        "operational_authority": {
+          "const": "none",
+          "title": "Operational Authority",
+          "type": "string"
+        },
+        "pack_content_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Pack Content Sha256",
+          "type": "string"
+        },
+        "pack_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Pack Id",
+          "type": "string"
+        },
+        "pack_version": {
+          "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$",
+          "title": "Pack Version",
+          "type": "string"
+        },
+        "pattern_count": {
+          "maximum": 256,
+          "minimum": 1,
+          "title": "Pattern Count",
+          "type": "integer"
+        },
+        "pattern_refs_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Pattern Refs Sha256",
+          "type": "string"
+        },
+        "producer_attestation": {
+          "const": "unattested",
+          "title": "Producer Attestation",
+          "type": "string"
+        },
+        "source_commit": {
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+          "title": "Source Commit",
+          "type": "string"
+        },
+        "source_component_id": {
+          "pattern": "^[a-z0-9][a-z0-9-]{0,127}$",
+          "title": "Source Component Id",
+          "type": "string"
+        },
+        "source_repository_id": {
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+          "title": "Source Repository Id",
+          "type": "string"
+        },
+        "supported_platforms": {
+          "items": {
+            "enum": [
+              "linux",
+              "windows"
+            ],
+            "type": "string"
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "title": "Supported Platforms",
+          "type": "array"
+        },
+        "tested_platforms": {
+          "items": {
+            "enum": [
+              "linux",
+              "windows"
+            ],
+            "type": "string"
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "title": "Tested Platforms",
+          "type": "array"
+        }
+      },
+      "required": [
+        "pack_id",
+        "pack_version",
+        "source_component_id",
+        "source_repository_id",
+        "source_commit",
+        "component_manifest_sha256",
+        "implementation_sha256",
+        "distribution_sha256",
+        "pack_content_sha256",
+        "manifest_sha256",
+        "pattern_count",
+        "pattern_refs_sha256",
+        "supported_platforms",
+        "tested_platforms",
+        "producer_attestation",
+        "operational_authority"
+      ],
+      "title": "CorpusPackCommitmentV1",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Deterministic registry composition that leaves the core corpus untouched.",
+  "properties": {
+    "composition_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Composition Id",
+      "type": "string"
+    },
+    "core_corpus_manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Core Corpus Manifest Sha256",
+      "type": "string"
+    },
+    "core_corpus_version": {
+      "const": "1.0.0",
+      "title": "Core Corpus Version",
+      "type": "string"
+    },
+    "core_pattern_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Core Pattern Ids",
+      "type": "array"
+    },
+    "execution_semantics": {
+      "const": "registry_only_no_pattern_execution",
+      "title": "Execution Semantics",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "pack_commitments": {
+      "items": {
+        "$ref": "#/$defs/CorpusPackCommitmentV1"
+      },
+      "maxItems": 64,
+      "title": "Pack Commitments",
+      "type": "array"
+    },
+    "patterns": {
+      "items": {
+        "$ref": "#/$defs/ComposedCorpusPatternRefV1"
+      },
+      "maxItems": 2072,
+      "title": "Patterns",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "harness-corpus-composition-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "composition_id",
+    "core_corpus_version",
+    "core_corpus_manifest_sha256",
+    "core_pattern_ids",
+    "pack_commitments",
+    "patterns",
+    "execution_semantics",
+    "operational_authority"
+  ],
+  "title": "ComposedCorpusV1",
+  "type": "object"
+}
