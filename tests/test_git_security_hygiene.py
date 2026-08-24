@@ -65,8 +65,14 @@ def test_gitleaks_allowlist_contains_only_exact_historical_fingerprints() -> Non
         "73054aeef732e49ec30c0398db5ae36f4be7b192:tests/test_local_suite.py:generic-api-key:156",
         "7ab3f1040a863a0754a2d03b3b8362d6e3565d92:examples/r5-sealed-synthetic-sanitized/terminal-envelope.json:generic-api-key:1",
         "7ab3f1040a863a0754a2d03b3b8362d6e3565d92:docs/r5-research-status.md:generic-api-key:54",
+        "8efc46e466b5a92e8a6a0ea4e9f953cd5e4f96f4:examples/r5-sealed-synthetic-sanitized/terminal-envelope.json:generic-api-key:1",
+        "8efc46e466b5a92e8a6a0ea4e9f953cd5e4f96f4:docs/r5-research-status.md:generic-api-key:54",
     }
     assert all(re.fullmatch(r"[0-9a-f]{40}:[^:*]+:generic-api-key:\d+", line) for line in lines)
+    fresh_fingerprint = (
+        "f" * 40 + ":tests/fixtures/fresh-synthetic.txt:generic-api-key:1"
+    )
+    assert fresh_fingerprint not in lines
 
 
 def test_secret_scan_is_pinned_and_does_not_publish_findings() -> None:
@@ -80,6 +86,15 @@ def test_secret_scan_is_pinned_and_does_not_publish_findings() -> None:
     assert 'GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"' in workflow
     assert 'GITLEAKS_ENABLE_SUMMARY: "false"' in workflow
     assert "persist-credentials: false" in workflow
+    assert 'test "$(gitleaks version)" = "8.30.1"' in workflow
+    assert (
+        "88f91962aa2f93ac6ab281d553b9e125f5197bbbce38f9f2437f7299c32e5509"
+        in workflow
+    )
+    assert "sha256sum --check --strict" in workflow
+    assert (
+        "python3 tools/check_gitleaks_regression.py --gitleaks gitleaks" in workflow
+    )
 
 
 def test_portfolio_contract_and_model_assistance_are_visible() -> None:
