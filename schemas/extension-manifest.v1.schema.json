@@ -1,0 +1,164 @@
+{
+  "$defs": {
+    "ExtensionContractRefV1": {
+      "additionalProperties": false,
+      "description": "One exact data contract consumed or produced by an extension.",
+      "properties": {
+        "contract_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Contract Id",
+          "type": "string"
+        },
+        "required": {
+          "title": "Required",
+          "type": "boolean"
+        },
+        "version": {
+          "pattern": "^[0-9A-Za-z][0-9A-Za-z.+_-]{0,63}$",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contract_id",
+        "version",
+        "required"
+      ],
+      "title": "ExtensionContractRefV1",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Closed metadata for explicitly registered, non-sandboxed extension code.",
+  "properties": {
+    "capabilities": {
+      "items": {
+        "enum": [
+          "observation.read",
+          "finding.emit",
+          "policy.evaluate",
+          "observation.transform",
+          "intelligence.collect",
+          "report.enrich"
+        ],
+        "type": "string"
+      },
+      "maxItems": 16,
+      "minItems": 1,
+      "title": "Capabilities",
+      "type": "array"
+    },
+    "component_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,127}$",
+      "title": "Component Id",
+      "type": "string"
+    },
+    "configuration_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Configuration Sha256",
+      "type": "string"
+    },
+    "consumes": {
+      "items": {
+        "$ref": "#/$defs/ExtensionContractRefV1"
+      },
+      "maxItems": 32,
+      "minItems": 1,
+      "title": "Consumes",
+      "type": "array"
+    },
+    "deterministic": {
+      "title": "Deterministic",
+      "type": "boolean"
+    },
+    "execution_model": {
+      "const": "in_process_operator_approved_not_sandboxed",
+      "title": "Execution Model",
+      "type": "string"
+    },
+    "extension_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Extension Id",
+      "type": "string"
+    },
+    "extension_version": {
+      "pattern": "^[0-9A-Za-z][0-9A-Za-z.+_-]{0,63}$",
+      "title": "Extension Version",
+      "type": "string"
+    },
+    "harness_api": {
+      "const": "1",
+      "title": "Harness Api",
+      "type": "string"
+    },
+    "implementation_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Implementation Sha256",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "check_extension",
+        "declarative_pack",
+        "support_adapter",
+        "collector",
+        "reporter"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "network_mode": {
+      "enum": [
+        "off",
+        "local_only",
+        "authorized_external"
+      ],
+      "title": "Network Mode",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "produces": {
+      "items": {
+        "$ref": "#/$defs/ExtensionContractRefV1"
+      },
+      "maxItems": 32,
+      "minItems": 1,
+      "title": "Produces",
+      "type": "array"
+    },
+    "raw_data_policy": {
+      "const": "digests_only",
+      "title": "Raw Data Policy",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "harness-extension-manifest-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "extension_id",
+    "extension_version",
+    "component_id",
+    "implementation_sha256",
+    "configuration_sha256",
+    "harness_api",
+    "kind",
+    "capabilities",
+    "consumes",
+    "produces",
+    "deterministic",
+    "network_mode",
+    "raw_data_policy",
+    "execution_model",
+    "operational_authority"
+  ],
+  "title": "ExtensionManifestV1",
+  "type": "object"
+}

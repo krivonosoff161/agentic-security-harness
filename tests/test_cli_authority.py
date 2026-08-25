@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 READ_ONLY_COMMANDS = {
     "agent-host-evaluate",
     "agent-host-inspect",
+    "extension-inspect",
     "gateway-check",
     "validate",
     "targets",

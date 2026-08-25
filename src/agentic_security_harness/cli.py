@@ -7,6 +7,7 @@ Commands:
   ash agent-host-inspect <recording.json> [--format text|json]
   ash agent-host-evaluate <recording.json> [--format text|json]
   ash agent-host-quickstart --out <dir>
+  ash extension-inspect <manifest.json> [--format text|json]
   ash gateway-init --out <gateway.toml>
   ash gateway-check --config <gateway.toml>
   ash gateway-fixture --config <gateway.toml> --provider <family> --input <fixture.json>
@@ -198,6 +199,22 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("reports/agent-host-quickstart"),
         help="new public output directory (default: reports/agent-host-quickstart)",
+    )
+
+    extension_p = sub.add_parser(
+        "extension-inspect",
+        help="validate and inspect one closed Extension SDK V1 manifest without loading code",
+    )
+    extension_p.add_argument(
+        "path",
+        type=Path,
+        help="canonical harness-extension-manifest-v1.0 JSON file",
+    )
+    extension_p.add_argument(
+        "--format",
+        choices=("text", "json"),
+        default="text",
+        help="safe summary format (default: text)",
     )
 
     gateway_init_p = sub.add_parser(
@@ -1771,6 +1788,56 @@ def _agent_host_inspect(path: Path, output_format: str = "text") -> int:
     print(f"  Tool activity observed: {str(inspection.tool_activity_observed).lower()}")
     print(f"  Recording commitment: {inspection.recording_commitment_sha256}")
     print("  Verdict: not produced (observation-only evidence)")
+    print("  Operational authority: none")
+    return 0
+
+
+def _extension_inspect(path: Path, output_format: str = "text") -> int:
+    """Inspect a closed manifest without importing or executing extension code."""
+
+    from agentic_security_harness.extension_sdk import (
+        ExtensionContractError,
+        extension_manifest_sha256,
+        read_extension_manifest_v1,
+    )
+
+    try:
+        manifest = read_extension_manifest_v1(path)
+        manifest_sha256 = extension_manifest_sha256(manifest)
+    except (ExtensionContractError, OSError, ValueError):
+        print("Error: invalid Extension SDK V1 manifest")
+        return 1
+
+    summary = {
+        "schema_version": "harness-extension-inspection-v1.0",
+        "extension_id": manifest.extension_id,
+        "extension_version": manifest.extension_version,
+        "component_id": manifest.component_id,
+        "implementation_sha256": manifest.implementation_sha256,
+        "configuration_sha256": manifest.configuration_sha256,
+        "harness_api": manifest.harness_api,
+        "kind": manifest.kind,
+        "capabilities": manifest.capabilities,
+        "deterministic": manifest.deterministic,
+        "network_mode": manifest.network_mode,
+        "manifest_sha256": manifest_sha256,
+        "code_loaded": False,
+        "execution_model": manifest.execution_model,
+        "operational_authority": "none",
+    }
+    if output_format == "json":
+        print(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True))
+        return 0
+
+    print("Extension manifest: valid canonical V1")
+    print(f"  Extension: {terminal_field(manifest.extension_id)}")
+    print(f"  Version: {terminal_field(manifest.extension_version)}")
+    print(f"  Component: {terminal_field(manifest.component_id)}")
+    print(f"  Kind: {terminal_field(manifest.kind)}")
+    print(f"  Capabilities: {len(manifest.capabilities)}")
+    print(f"  Network mode: {terminal_field(manifest.network_mode)}")
+    print(f"  Manifest SHA-256: {manifest_sha256}")
+    print("  Code loaded: false")
     print("  Operational authority: none")
     return 0
 
@@ -4838,6 +4905,8 @@ def _main(argv: list[str] | None = None) -> int:
         return _agent_host_evaluate(args.path, args.format)
     if args.command == "agent-host-quickstart":
         return _agent_host_quickstart(args.out)
+    if args.command == "extension-inspect":
+        return _extension_inspect(args.path, args.format)
     if args.command == "gateway-init":
         return _gateway_init(args.out)
     if args.command == "gateway-check":
