@@ -8,6 +8,14 @@ Commands:
   ash agent-host-evaluate <recording.json> [--format text|json]
   ash agent-host-quickstart --out <dir>
   ash extension-inspect <manifest.json> [--format text|json]
+  ash extension-distribution-inspect --distribution-name NAME --extension-id ID
+      --search-path PATH --configuration FILE [--format text|json]
+  ash extension-distribution-approve --inspection FILE --inspection-id SHA256
+      --search-path PATH --configuration FILE [--format text|json]
+  ash extension-lifecycle-disable --approval FILE --operator-action-id ID
+  ash extension-lifecycle-rollback-plan --current-approval FILE --disable FILE
+      --target-approval FILE --operator-action-id ID
+  ash extension-lifecycle-list [--approval FILE] [--disable FILE] [--rollback-plan FILE]
   ash gateway-init --out <gateway.toml>
   ash gateway-check --config <gateway.toml>
   ash gateway-fixture --config <gateway.toml> --provider <family> --input <fixture.json>
@@ -216,6 +224,75 @@ def build_parser() -> argparse.ArgumentParser:
         default="text",
         help="safe summary format (default: text)",
     )
+
+    distribution_inspect_p = sub.add_parser(
+        "extension-distribution-inspect",
+        help="inspect one explicit installed extension distribution without loading code",
+    )
+    distribution_inspect_p.add_argument("--distribution-name", required=True)
+    distribution_inspect_p.add_argument("--extension-id", required=True)
+    distribution_inspect_p.add_argument(
+        "--search-path",
+        type=Path,
+        action="append",
+        required=True,
+        help="absolute installed-distribution search root; repeat for an explicit set",
+    )
+    distribution_inspect_p.add_argument(
+        "--configuration", type=Path, required=True, help="bounded local configuration file"
+    )
+    distribution_inspect_p.add_argument("--configuration-sha256", required=True)
+    distribution_inspect_p.add_argument("--format", choices=("text", "json"), default="text")
+
+    distribution_approve_p = sub.add_parser(
+        "extension-distribution-approve",
+        help="reinspect exact distribution bytes and issue a no-code-load approval receipt",
+    )
+    distribution_approve_p.add_argument("--inspection", type=Path, required=True)
+    distribution_approve_p.add_argument("--inspection-sha256", required=True)
+    distribution_approve_p.add_argument("--inspection-id", required=True)
+    distribution_approve_p.add_argument(
+        "--search-path", type=Path, action="append", required=True
+    )
+    distribution_approve_p.add_argument("--configuration", type=Path, required=True)
+    distribution_approve_p.add_argument("--configuration-sha256", required=True)
+    distribution_approve_p.add_argument("--format", choices=("text", "json"), default="text")
+
+    lifecycle_disable_p = sub.add_parser(
+        "extension-lifecycle-disable",
+        help="issue a metadata-only disable receipt for one exact approval",
+    )
+    lifecycle_disable_p.add_argument("--approval", type=Path, required=True)
+    lifecycle_disable_p.add_argument("--approval-sha256", required=True)
+    lifecycle_disable_p.add_argument("--operator-action-id", required=True)
+    lifecycle_disable_p.add_argument("--format", choices=("text", "json"), default="text")
+
+    lifecycle_rollback_p = sub.add_parser(
+        "extension-lifecycle-rollback-plan",
+        help="issue a non-executable rollback plan between exact approval receipts",
+    )
+    lifecycle_rollback_p.add_argument("--current-approval", type=Path, required=True)
+    lifecycle_rollback_p.add_argument("--current-approval-sha256", required=True)
+    lifecycle_rollback_p.add_argument("--disable", type=Path, required=True)
+    lifecycle_rollback_p.add_argument("--disable-sha256", required=True)
+    lifecycle_rollback_p.add_argument("--target-approval", type=Path, required=True)
+    lifecycle_rollback_p.add_argument("--target-approval-sha256", required=True)
+    lifecycle_rollback_p.add_argument("--known-disable", type=Path, action="append", default=[])
+    lifecycle_rollback_p.add_argument("--known-disable-sha256", action="append", default=[])
+    lifecycle_rollback_p.add_argument("--operator-action-id", required=True)
+    lifecycle_rollback_p.add_argument("--format", choices=("text", "json"), default="text")
+
+    lifecycle_list_p = sub.add_parser(
+        "extension-lifecycle-list",
+        help="project lifecycle state only from explicitly supplied canonical receipts",
+    )
+    lifecycle_list_p.add_argument("--approval", type=Path, action="append", default=[])
+    lifecycle_list_p.add_argument("--approval-sha256", action="append", default=[])
+    lifecycle_list_p.add_argument("--disable", type=Path, action="append", default=[])
+    lifecycle_list_p.add_argument("--disable-sha256", action="append", default=[])
+    lifecycle_list_p.add_argument("--rollback-plan", type=Path, action="append", default=[])
+    lifecycle_list_p.add_argument("--rollback-plan-sha256", action="append", default=[])
+    lifecycle_list_p.add_argument("--format", choices=("text", "json"), default="text")
 
     gateway_init_p = sub.add_parser(
         "gateway-init",
@@ -1837,6 +1914,254 @@ def _extension_inspect(path: Path, output_format: str = "text") -> int:
     print(f"  Capabilities: {len(manifest.capabilities)}")
     print(f"  Network mode: {terminal_field(manifest.network_mode)}")
     print(f"  Manifest SHA-256: {manifest_sha256}")
+    print("  Code loaded: false")
+    print("  Operational authority: none")
+    return 0
+
+
+def _extension_distribution_inspect(
+    distribution_name: str,
+    extension_id: str,
+    search_paths: list[Path],
+    configuration_path: Path,
+    configuration_sha256: str,
+    output_format: str,
+) -> int:
+    from agentic_security_harness.extension_distribution import (
+        ExtensionDistributionError,
+        encode_extension_distribution_inspection_v1,
+        inspect_extension_distribution_v1,
+    )
+    from agentic_security_harness.extension_lifecycle import (
+        read_extension_configuration_file_v1,
+    )
+
+    try:
+        configuration = read_extension_configuration_file_v1(
+            configuration_path, expected_sha256=configuration_sha256
+        )
+        receipt = inspect_extension_distribution_v1(
+            distribution_name=distribution_name,
+            extension_id=extension_id,
+            search_paths=tuple(search_paths),
+            configuration_bytes=configuration,
+        )
+    except (ExtensionDistributionError, OSError, TypeError, ValueError):
+        print("Error: extension distribution inspection failed")
+        return 1
+    if output_format == "json":
+        sys.stdout.write(encode_extension_distribution_inspection_v1(receipt).decode("utf-8"))
+        return 0
+    print("Extension distribution: verified metadata-only V1")
+    print(f"  Distribution: {terminal_field(receipt.distribution_name)}")
+    print(f"  Version: {terminal_field(receipt.distribution_version)}")
+    print(f"  Extension: {terminal_field(receipt.extension_id)}")
+    print(f"  Inspection id: {receipt.inspection_id}")
+    print("  Code loaded: false")
+    print("  Signature verified: false")
+    print("  Operational authority: none")
+    return 0
+
+
+def _extension_distribution_approve(
+    inspection_path: Path,
+    inspection_sha256: str,
+    inspection_id: str,
+    search_paths: list[Path],
+    configuration_path: Path,
+    configuration_sha256: str,
+    output_format: str,
+) -> int:
+    from agentic_security_harness.extension_distribution import (
+        ExtensionDistributionError,
+        approve_extension_distribution_v1,
+        encode_extension_distribution_approval_v1,
+    )
+    from agentic_security_harness.extension_lifecycle import (
+        read_extension_configuration_file_v1,
+        read_extension_inspection_file_v1,
+    )
+
+    try:
+        inspection = read_extension_inspection_file_v1(
+            inspection_path, expected_sha256=inspection_sha256
+        )
+        configuration = read_extension_configuration_file_v1(
+            configuration_path, expected_sha256=configuration_sha256
+        )
+        receipt = approve_extension_distribution_v1(
+            approved_inspection=inspection,
+            approved_inspection_id=inspection_id,
+            search_paths=tuple(search_paths),
+            configuration_bytes=configuration,
+        )
+    except (ExtensionDistributionError, OSError, TypeError, ValueError):
+        print("Error: extension distribution approval failed")
+        return 1
+    if output_format == "json":
+        sys.stdout.write(encode_extension_distribution_approval_v1(receipt).decode("utf-8"))
+        return 0
+    print("Extension distribution: exact reinspection approved")
+    print(f"  Extension: {terminal_field(receipt.extension_id)}")
+    print(f"  Version: {terminal_field(receipt.extension_version)}")
+    print(f"  Approval id: {receipt.approval_id}")
+    print("  Code loaded: false")
+    print("  Operator authenticated: false")
+    print("  Operational authority: none")
+    return 0
+
+
+def _extension_lifecycle_disable(
+    approval_path: Path,
+    approval_sha256: str,
+    operator_action_id: str,
+    output_format: str,
+) -> int:
+    from agentic_security_harness.extension_lifecycle import (
+        ExtensionLifecycleError,
+        disable_extension_approval_v1,
+        encode_extension_disable_receipt_v1,
+        read_extension_approval_file_v1,
+    )
+
+    try:
+        approval = read_extension_approval_file_v1(
+            approval_path, expected_sha256=approval_sha256
+        )
+        receipt = disable_extension_approval_v1(
+            approval, operator_action_id=operator_action_id
+        )
+    except (ExtensionLifecycleError, OSError, TypeError, ValueError):
+        print("Error: extension lifecycle disable receipt failed")
+        return 1
+    if output_format == "json":
+        sys.stdout.write(encode_extension_disable_receipt_v1(receipt).decode("utf-8"))
+        return 0
+    print("Extension lifecycle: disabled metadata-only")
+    print(f"  Extension: {terminal_field(receipt.extension_id)}")
+    print(f"  Disable id: {receipt.disable_id}")
+    print("  Executable state changed: false")
+    print("  Operator authenticated: false")
+    print("  Operational authority: none")
+    return 0
+
+
+def _extension_lifecycle_rollback_plan(
+    current_approval_path: Path,
+    current_approval_sha256: str,
+    disable_path: Path,
+    disable_sha256: str,
+    target_approval_path: Path,
+    target_approval_sha256: str,
+    known_disable_paths: list[Path],
+    known_disable_sha256s: list[str],
+    operator_action_id: str,
+    output_format: str,
+) -> int:
+    from agentic_security_harness.extension_lifecycle import (
+        ExtensionLifecycleError,
+        encode_extension_rollback_plan_v1,
+        plan_extension_rollback_v1,
+        read_extension_approval_file_v1,
+        read_extension_disable_file_v1,
+    )
+
+    try:
+        if len(known_disable_paths) != len(known_disable_sha256s):
+            raise ExtensionLifecycleError("known disable path and digest counts differ")
+        current = read_extension_approval_file_v1(
+            current_approval_path, expected_sha256=current_approval_sha256
+        )
+        disabled = read_extension_disable_file_v1(
+            disable_path, expected_sha256=disable_sha256
+        )
+        target = read_extension_approval_file_v1(
+            target_approval_path, expected_sha256=target_approval_sha256
+        )
+        known_disables = tuple(
+            read_extension_disable_file_v1(path, expected_sha256=expected)
+            for path, expected in zip(known_disable_paths, known_disable_sha256s, strict=True)
+        )
+        plan = plan_extension_rollback_v1(
+            current_approval=current,
+            disable_receipt=disabled,
+            target_approval=target,
+            known_disable_receipts=known_disables,
+            operator_action_id=operator_action_id,
+        )
+    except (ExtensionLifecycleError, OSError, TypeError, ValueError):
+        print("Error: extension lifecycle rollback plan failed")
+        return 1
+    if output_format == "json":
+        sys.stdout.write(encode_extension_rollback_plan_v1(plan).decode("utf-8"))
+        return 0
+    print("Extension lifecycle: rollback planned, non-executable")
+    print(f"  Extension: {terminal_field(plan.extension_id)}")
+    print(f"  From: {terminal_field(plan.from_extension_version)}")
+    print(f"  To: {terminal_field(plan.to_extension_version)}")
+    print(f"  Rollback plan id: {plan.rollback_plan_id}")
+    print("  Version direction verified: false")
+    print("  Executable state changed: false")
+    print("  Operational authority: none")
+    return 0
+
+
+def _extension_lifecycle_list(
+    approval_paths: list[Path],
+    approval_sha256s: list[str],
+    disable_paths: list[Path],
+    disable_sha256s: list[str],
+    rollback_plan_paths: list[Path],
+    rollback_plan_sha256s: list[str],
+    output_format: str,
+) -> int:
+    from agentic_security_harness.extension_lifecycle import (
+        ExtensionLifecycleError,
+        encode_extension_lifecycle_projection_v1,
+        project_extension_lifecycle_v1,
+        read_extension_approval_file_v1,
+        read_extension_disable_file_v1,
+        read_extension_rollback_plan_file_v1,
+    )
+
+    try:
+        if (
+            len(approval_paths) != len(approval_sha256s)
+            or len(disable_paths) != len(disable_sha256s)
+            or len(rollback_plan_paths) != len(rollback_plan_sha256s)
+        ):
+            raise ExtensionLifecycleError("lifecycle path and digest counts differ")
+        projection = project_extension_lifecycle_v1(
+            approvals=tuple(
+                read_extension_approval_file_v1(path, expected_sha256=expected)
+                for path, expected in zip(approval_paths, approval_sha256s, strict=True)
+            ),
+            disable_receipts=tuple(
+                read_extension_disable_file_v1(path, expected_sha256=expected)
+                for path, expected in zip(disable_paths, disable_sha256s, strict=True)
+            ),
+            rollback_plans=tuple(
+                read_extension_rollback_plan_file_v1(path, expected_sha256=expected)
+                for path, expected in zip(
+                    rollback_plan_paths, rollback_plan_sha256s, strict=True
+                )
+            ),
+        )
+    except (ExtensionLifecycleError, OSError, TypeError, ValueError):
+        print("Error: extension lifecycle projection failed")
+        return 1
+    if output_format == "json":
+        sys.stdout.write(encode_extension_lifecycle_projection_v1(projection).decode("utf-8"))
+        return 0
+    print("Extension lifecycle: explicit receipt projection")
+    print(f"  Items: {projection.item_count}")
+    for item in projection.items:
+        print(
+            "  "
+            f"{terminal_field(item.extension_id)} "
+            f"{terminal_field(item.extension_version)}: {terminal_field(item.state)}"
+        )
+    print("  Installed state discovered: false")
     print("  Code loaded: false")
     print("  Operational authority: none")
     return 0
@@ -4907,6 +5232,52 @@ def _main(argv: list[str] | None = None) -> int:
         return _agent_host_quickstart(args.out)
     if args.command == "extension-inspect":
         return _extension_inspect(args.path, args.format)
+    if args.command == "extension-distribution-inspect":
+        return _extension_distribution_inspect(
+            args.distribution_name,
+            args.extension_id,
+            args.search_path,
+            args.configuration,
+            args.configuration_sha256,
+            args.format,
+        )
+    if args.command == "extension-distribution-approve":
+        return _extension_distribution_approve(
+            args.inspection,
+            args.inspection_sha256,
+            args.inspection_id,
+            args.search_path,
+            args.configuration,
+            args.configuration_sha256,
+            args.format,
+        )
+    if args.command == "extension-lifecycle-disable":
+        return _extension_lifecycle_disable(
+            args.approval, args.approval_sha256, args.operator_action_id, args.format
+        )
+    if args.command == "extension-lifecycle-rollback-plan":
+        return _extension_lifecycle_rollback_plan(
+            args.current_approval,
+            args.current_approval_sha256,
+            args.disable,
+            args.disable_sha256,
+            args.target_approval,
+            args.target_approval_sha256,
+            args.known_disable,
+            args.known_disable_sha256,
+            args.operator_action_id,
+            args.format,
+        )
+    if args.command == "extension-lifecycle-list":
+        return _extension_lifecycle_list(
+            args.approval,
+            args.approval_sha256,
+            args.disable,
+            args.disable_sha256,
+            args.rollback_plan,
+            args.rollback_plan_sha256,
+            args.format,
+        )
     if args.command == "gateway-init":
         return _gateway_init(args.out)
     if args.command == "gateway-check":

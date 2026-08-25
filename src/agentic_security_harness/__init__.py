@@ -69,6 +69,25 @@ from agentic_security_harness.corpus import (
 from agentic_security_harness.demo_adapter import DemoAgentTarget, run_scenarios
 from agentic_security_harness.demo_agent import DemoAgent
 from agentic_security_harness.doctor import DoctorReport, run_doctor
+from agentic_security_harness.extension_distribution import (
+    ExtensionDistributionApprovalV1,
+    ExtensionDistributionError,
+    ExtensionDistributionInspectionV1,
+    OperatorApprovedExtensionV1,
+    approve_extension_distribution_v1,
+    bind_operator_approved_extension_v1,
+    inspect_extension_distribution_v1,
+)
+from agentic_security_harness.extension_lifecycle import (
+    ExtensionDisableReceiptV1,
+    ExtensionLifecycleError,
+    ExtensionLifecycleProjectionV1,
+    ExtensionRollbackPlanV1,
+    bind_active_operator_extension_v1,
+    disable_extension_approval_v1,
+    plan_extension_rollback_v1,
+    project_extension_lifecycle_v1,
+)
 from agentic_security_harness.html_report import render_report, write_html_report
 from agentic_security_harness.local_swarm import (
     LocalSwarmSummary,
@@ -194,6 +213,21 @@ from agentic_security_harness.version import __version__
 
 __all__ = [
     "__version__",
+    "ExtensionDistributionApprovalV1",
+    "ExtensionDistributionError",
+    "ExtensionDistributionInspectionV1",
+    "OperatorApprovedExtensionV1",
+    "approve_extension_distribution_v1",
+    "bind_operator_approved_extension_v1",
+    "inspect_extension_distribution_v1",
+    "ExtensionDisableReceiptV1",
+    "ExtensionLifecycleError",
+    "ExtensionLifecycleProjectionV1",
+    "ExtensionRollbackPlanV1",
+    "bind_active_operator_extension_v1",
+    "disable_extension_approval_v1",
+    "plan_extension_rollback_v1",
+    "project_extension_lifecycle_v1",
     "DataEnvelope",
     "CapabilityToken",
     "CapabilityCheckResult",

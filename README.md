@@ -110,6 +110,13 @@ configuration digest, then requires exact reinspection before issuing an authori
 approval receipt. Harness still does not load package code: the operator supplies an
 already constructed object, and the binder checks it against the approved manifest pins.
 
+The stacked [Extension Operator Lifecycle V1 candidate](docs/extension-operator-lifecycle.md)
+exposes that metadata-only inspection and exact-reinspection approval through safe CLI
+commands, adds canonical disable and non-executable rollback-plan receipts, and lists only
+explicitly supplied receipt state. It never imports, downloads, starts, stops, or rolls
+back extension code; the embedding application must construct and bind an object and
+enforce any accepted disable artifact.
+
 | Target | Modeled findings | Patterns passed |
 |---|---:|---:|
 | `demo-agent` | 24 | 0 |
@@ -249,6 +256,7 @@ The README is the front door; deeper contracts live in `docs/`:
 | How are provider tool-call envelopes normalized without credentials? | [Provider-neutral tool-call adapters](docs/provider-tool-adapters.md) |
 | How do optional components exchange validated observations and findings? | [Extension SDK V1](docs/extension-sdk.md) |
 | How is an installed extension distribution verified before explicit registration? | [Extension Distribution Discovery V1](docs/extension-distribution-discovery.md) |
+| How does an operator approve, list, disable, or plan rollback without automatic code loading? | [Extension Operator Lifecycle V1](docs/extension-operator-lifecycle.md) |
 | Which companion contracts already have executable cross-repository adapters? | [Companion Extension adapters](docs/companion-extensions.md) |
 | How are weekly public security inputs reviewed without provider lock-in? | [Security Intelligence extension](docs/security-intelligence-extension.md) |
 

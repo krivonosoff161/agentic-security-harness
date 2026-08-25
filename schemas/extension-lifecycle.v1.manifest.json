@@ -1,0 +1,79 @@
+{
+  "approval_semantics": "exact_reinspection_no_code_load",
+  "automatic_download": false,
+  "automatic_import": false,
+  "component_manifest": {
+    "path": "component.yaml",
+    "sha256": "114b8d4e85b3d13fbc3b31ce803e5af8df272449447ca8e2edac256fb292ddcd"
+  },
+  "contract_id": "harness-extension-operator-lifecycle-v1.0",
+  "disable_semantics": "metadata_only_application_enforcement_required",
+  "documentation": {
+    "path": "docs/extension-operator-lifecycle.md",
+    "sha256": "86f413d23e02e78042b11e01f9c964df7fa4ce3ea334109f5cff067423c32237"
+  },
+  "generator": {
+    "path": "tools/extension_lifecycle_contracts.py",
+    "sha256": "fa29d32a93195e978afc167188ce449fd781b7b8f2e8e4c442368dafbcc89091"
+  },
+  "harness_api": "1",
+  "implementation": {
+    "path": "src/agentic_security_harness/extension_lifecycle.py",
+    "sha256": "22b0a23599ee3b48cb1d36f63f38ff1da0366cf79aa70403e02e7c487d7f9b59"
+  },
+  "inspection_semantics": "explicit_installed_distribution_metadata_only",
+  "installed_state_discovery": false,
+  "operational_authority": "none",
+  "operator_authenticated": false,
+  "rollback_semantics": "plan_only_construct_and_bind_target_required",
+  "runtime_closure": [
+    {
+      "path": "src/agentic_security_harness/__init__.py",
+      "sha256": "ed61b0326d0bec05915907b3c3405d568525995a3a3095d396e12b4f11c67b15"
+    },
+    {
+      "path": "src/agentic_security_harness/cli.py",
+      "sha256": "b92e50657912239f8bb0680dcc3dbafa072775b9a7b06f53bf86b05312c67a5c"
+    },
+    {
+      "path": "src/agentic_security_harness/extension_distribution.py",
+      "sha256": "51a75618b2ea6c9d696be9e7a4f59766e1918be011c0058fcf21d9a3bc005802"
+    },
+    {
+      "path": "src/agentic_security_harness/extension_sdk.py",
+      "sha256": "6135b948564bc5c563a7990160537151453c5b1b03e21f21fe5fea9699d3e7cb"
+    },
+    {
+      "path": "src/agentic_security_harness/portfolio_contract.py",
+      "sha256": "d4af2870e5545abc6d8a5d7861cc5e0f083b7cd3d3ba21c9f0079a3f2d4da0c9"
+    },
+    {
+      "path": "src/agentic_security_harness/safe_io.py",
+      "sha256": "98f2c61a8bb30b0a30729b45085c255bb7d5c1d391111fb140008187fef4d07e"
+    }
+  ],
+  "sandboxed": false,
+  "schema_version": "harness-extension-lifecycle-contract-manifest-v1.0",
+  "schemas": [
+    {
+      "path": "schemas/extension-disable-receipt.v1.schema.json",
+      "sha256": "031b96c38799da32af31c72628d43bc4f92bed9b428a76d19b35e8881e7348ca"
+    },
+    {
+      "path": "schemas/extension-lifecycle-projection.v1.schema.json",
+      "sha256": "5408be5cc0790e89622bde47641d526dad6c82d4cdeae2e77d789cb690c67665"
+    },
+    {
+      "path": "schemas/extension-rollback-plan.v1.schema.json",
+      "sha256": "bdfb7a5b9f096b6b4323b0a6db8863bf62de87eeccab2fd1634f078a5ccd8976"
+    }
+  ],
+  "tests": {
+    "path": "tests/test_extension_lifecycle.py",
+    "sha256": "cf74ca191cc01352cbe1885a95135da1751b9a153f5d2d6803db2a79c547a71f"
+  },
+  "workflow": {
+    "path": ".github/workflows/ecosystem-docs.yml",
+    "sha256": "aaf3d88c86d4b9d1885e7eecfeb17489e06563d31735cd9797400761c573ed96"
+  }
+}
