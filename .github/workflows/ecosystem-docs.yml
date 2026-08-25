@@ -7,8 +7,17 @@ on:
       - "component.yaml"
       - "ecosystem/**"
       - "docs/**"
+      - "schemas/**"
       - "tools/ecosystem_docs.py"
+      - "tools/extension_contracts.py"
+      - "tools/companion_extension_contracts.py"
       - "tests/test_ecosystem_docs.py"
+      - "src/agentic_security_harness/extension_sdk.py"
+      - "src/agentic_security_harness/companion_extensions.py"
+      - "tests/test_extension_sdk.py"
+      - "tests/test_companion_extensions.py"
+      - "tests/test_cross_repo_extension_compatibility.py"
+      - "README.md"
   push:
     branches: [main]
 
@@ -91,7 +100,10 @@ jobs:
         run: python -m pip install --require-hashes -r requirements/dev.txt
 
       - name: Validate generated contracts
-        run: python tools/ecosystem_docs.py check
+        run: |
+          python tools/ecosystem_docs.py check
+          python tools/extension_contracts.py check
+          python tools/companion_extension_contracts.py check
 
       - name: Validate exact component lock
         run: >-
@@ -110,3 +122,15 @@ jobs:
           tests/test_ecosystem_docs.py
           tests/test_documentation_contract.py
           tests/test_security_portfolio_roadmap_contract.py
+
+      - name: Run exact companion Extension SDK compatibility
+        env:
+          ASH_TRANSFER_ROOT: ${{ github.workspace }}/components/transfer
+          ASH_HANDOFF_ROOT: ${{ github.workspace }}/components/handoff
+          ASH_PLAYBOOKS_ROOT: ${{ github.workspace }}/components/playbooks
+          GIT_OPTIONAL_LOCKS: "0"
+        run: >-
+          python -m pytest -q
+          tests/test_extension_sdk.py
+          tests/test_companion_extensions.py
+          tests/test_cross_repo_extension_compatibility.py

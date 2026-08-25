@@ -27,7 +27,7 @@
       "title": "Stable Extension SDK and check descriptor contract",
       "status": "active",
       "depends_on": ["documentation-convergence"],
-      "deliverables": ["extension manifest", "check catalog", "offline conformance kit"]
+      "deliverables": ["extension manifest", "check catalog", "offline conformance kit", "digest-bound companion adapters"]
     },
     {
       "id": "installable-extensions",

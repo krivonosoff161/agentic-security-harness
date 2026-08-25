@@ -1,0 +1,88 @@
+{
+  "additionalProperties": false,
+  "description": "Canonical handoff metadata only; raw task/session bytes never cross this boundary.",
+  "properties": {
+    "artifact_kind": {
+      "enum": [
+        "task",
+        "session"
+      ],
+      "title": "Artifact Kind",
+      "type": "string"
+    },
+    "artifact_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Artifact Sha256",
+      "type": "string"
+    },
+    "created_at": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Created At",
+      "type": "string"
+    },
+    "event_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "metadata_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Metadata Sha256",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "parent_artifact_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Artifact Sha256"
+    },
+    "producer_id_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Producer Id Hash",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "harness-handoff-metadata-evidence-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "sequence": {
+      "maximum": 1000000000,
+      "minimum": 0,
+      "title": "Sequence",
+      "type": "integer"
+    },
+    "source_contract_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Contract Sha256",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "event_id",
+    "metadata_sha256",
+    "artifact_kind",
+    "artifact_sha256",
+    "sequence",
+    "created_at",
+    "producer_id_hash",
+    "source_contract_sha256",
+    "operational_authority"
+  ],
+  "title": "HandoffMetadataEvidenceV1",
+  "type": "object"
+}
