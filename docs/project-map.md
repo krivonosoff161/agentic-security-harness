@@ -1,5 +1,10 @@
 # Project map
 
+> Cross-repository product navigation is generated from
+> [`ecosystem/roadmap.yaml`](../ecosystem/roadmap.yaml) and component manifests. Start with
+> [Ecosystem components](ecosystem-components.md). The detail below is retained as
+> repository-local context, not a second roadmap authority.
+
 > **Agentic Security Harness.** This guide is for maintainers, reviewers, and non-code
 > researchers who need to understand the project without reading every source file.
 

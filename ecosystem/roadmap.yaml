@@ -1,0 +1,59 @@
+{
+  "schema_version": "AgenticSecurityEcosystemRoadmap.v1",
+  "roadmap_id": "agentic-security-ecosystem",
+  "version": "2026.08.23-doc-convergence",
+  "canonical_repository": "https://github.com/krivonosoff161/agentic-security-harness",
+  "authority": "none",
+  "components": [
+    "agentic-security-harness",
+    "agentic-transfer-verifier",
+    "ai-agent-handoff",
+    "llm-safety-playbooks",
+    "llm-router",
+    "llm-cheap-filter",
+    "agentic-runtime-guard",
+    "krivonosoff161"
+  ],
+  "phases": [
+    {
+      "id": "documentation-convergence",
+      "title": "One public documentation authority and source-owned component manifests",
+      "status": "active",
+      "depends_on": [],
+      "deliverables": ["component manifests", "document crosswalk", "generated public projections", "drift and link checks"]
+    },
+    {
+      "id": "extension-contract",
+      "title": "Stable Extension SDK and check descriptor contract",
+      "status": "planned",
+      "depends_on": ["documentation-convergence"],
+      "deliverables": ["extension manifest", "check catalog", "offline conformance kit"]
+    },
+    {
+      "id": "installable-extensions",
+      "title": "Installable optional security components",
+      "status": "planned",
+      "depends_on": ["extension-contract"],
+      "deliverables": ["package entry points", "compatibility matrix", "cross-platform suite verification"]
+    },
+    {
+      "id": "threat-watch",
+      "title": "Provider-neutral weekly public security watch extension",
+      "status": "planned",
+      "depends_on": ["extension-contract"],
+      "deliverables": ["source registry", "collector contract", "model-neutral synthesis profile", "advisory-only output"]
+    },
+    {
+      "id": "ecosystem-release-gates",
+      "title": "Independent release and compatibility gates",
+      "status": "planned",
+      "depends_on": ["installable-extensions", "threat-watch"],
+      "deliverables": ["cross-repository lock", "independent reviewer evidence", "release compatibility report"]
+    }
+  ],
+  "documentation": {
+    "roles": ["canonical", "component-owned", "generated", "current-snapshot", "research", "historical", "superseded"],
+    "generated_outputs": ["docs/ecosystem-roadmap.md", "docs/ecosystem-components.md", "docs/documentation-map.md", "ecosystem/document-registry.json"]
+  },
+  "non_claims": ["all components are installable extensions today", "private research is public", "roadmap status grants operational authority", "synthetic validation proves production effectiveness"]
+}

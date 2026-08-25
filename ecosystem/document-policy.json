@@ -1,0 +1,28 @@
+{
+  "schema_version": "AgenticSecurityDocumentPolicy.v1",
+  "exact": {
+    "README.md": {"role": "component-owned", "disposition": "keep", "replacement": null},
+    "docs/README.md": {"role": "generated", "disposition": "generate", "replacement": "ecosystem/document-registry.json"},
+    "docs/current-state.md": {"role": "current-snapshot", "disposition": "generate", "replacement": "ecosystem/roadmap.yaml"},
+    "docs/project-map.md": {"role": "generated", "disposition": "generate", "replacement": "docs/ecosystem-components.md"},
+    "docs/project-tracks.md": {"role": "superseded", "disposition": "redirect", "replacement": "docs/ecosystem-roadmap.md"},
+    "docs/project-tracker.md": {"role": "current-snapshot", "disposition": "generate", "replacement": "ecosystem/roadmap.yaml"},
+    "docs/roadmap.md": {"role": "generated", "disposition": "generate", "replacement": "ecosystem/roadmap.yaml"},
+    "docs/security-portfolio-roadmap.md": {"role": "historical", "disposition": "preserve", "replacement": "docs/ecosystem-roadmap.md"},
+    "docs/security-portfolio-roadmap-public.yaml": {"role": "historical", "disposition": "preserve", "replacement": "ecosystem/roadmap.yaml"},
+    "docs/security-portfolio-roadmap-contract.json": {"role": "historical", "disposition": "preserve", "replacement": "ecosystem/schemas/ecosystem-roadmap.v1.schema.json"},
+    "docs/benchmark-protocol.md": {"role": "canonical", "disposition": "keep", "replacement": null},
+    "docs/architecture.md": {"role": "component-owned", "disposition": "keep", "replacement": null},
+    "docs/research-roadmap.md": {"role": "superseded", "disposition": "redirect", "replacement": "docs/ecosystem-roadmap.md"},
+    "docs/research-problem-map.md": {"role": "superseded", "disposition": "redirect", "replacement": "docs/ecosystem-roadmap.md"},
+    "docs/benchmark-positioning-gap-list.md": {"role": "historical", "disposition": "preserve", "replacement": "docs/current-state.md"},
+    "docs/independent-benchmark-gap-list.md": {"role": "historical", "disposition": "preserve", "replacement": "docs/current-state.md"}
+  },
+  "prefixes": [
+    {"prefix": "docs/releases/", "role": "historical", "disposition": "preserve"},
+    {"prefix": "docs/showcase/", "role": "generated", "disposition": "keep"},
+    {"prefix": "docs/learning/", "role": "component-owned", "disposition": "keep"}
+  ],
+  "research_markers": ["campaign", "research", "r4-", "r5-", "experiment", "evidence"],
+  "default": {"role": "component-owned", "disposition": "keep"}
+}

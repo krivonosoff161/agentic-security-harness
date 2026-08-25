@@ -1,5 +1,9 @@
 # Independent-benchmark gap list
 
+> Historical gap snapshot. Use [Current state](current-state.md) and the generated
+> [ecosystem roadmap](ecosystem-roadmap.md) for current status. Completed distribution
+> items remain below as history rather than being silently deleted.
+
 Honest list of what is still missing for this to feel like a fully self-serve, independent
 benchmark module. **Nothing here is implemented by listing it** - these are future-work
 notes captured during the v0.12.1 UX-hardening pass so they are not lost. Items must not
@@ -40,10 +44,10 @@ be confused with the stable technical contract (see
 
 ## Distribution
 
-- PyPI publishing and a pinned, reproducible install. **Release gate prepared, not yet
-  executed.** The manual OIDC workflow reuses exact attested tag artifacts; package-index
-  environments and publication evidence remain external gates.
-- An optional container/devcontainer for a zero-setup try. **Future, docs-only for now.**
+- PyPI publishing and a pinned, reproducible install. **Completed:** v1.2.0 is published
+  with exact wheel/sdist checksums, SBOM, attestations, and post-index installation checks.
+- A source-build Docker/Compose synthetic Runtime Gateway contour is shipped. Publishing
+  an official public image remains future work.
 
 ## Explicitly out of scope until methodology stabilizes
 

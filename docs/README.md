@@ -20,8 +20,8 @@ research and contract files.
 |---|---|
 | Review trust boundaries and abuse cases | [Threat model](threat-model.md) |
 | Understand the stable target boundary | [Target adapter contract](adapter-contract.md) |
-| Inspect evidence limitations and status | [Evidence status](evidence-status.md) |
-| Review schema compatibility | [Schema version policy](schema-version-policy.md) |
+| Inspect evidence limitations and status | [Evidence classes](evidence-classes.md) |
+| Review schema compatibility | [Artifact schemas](artifact-schemas.md) |
 | Validate standards mappings and caveats | [Standards mapping](standards-mapping.md) |
 
 ## Operators and maintainers
@@ -31,7 +31,7 @@ research and contract files.
 | See product and research sequencing | [Roadmap](roadmap.md) |
 | Follow repository-specific agent safety rules | [Agent operating guide](agent-operating-guide.md) |
 | Prepare or verify package publication | [Release to PyPI](release-to-pypi.md) |
-| Review project governance | [Governance](governance.md) |
+| Review project governance | [Governance](../GOVERNANCE.md) |
 | Report a vulnerability | [Security policy](../SECURITY.md) |
 
 ## Research archive

@@ -1,0 +1,35 @@
+{
+  "schema_version": "AgenticSecurityEcosystemComponent.v1",
+  "component_id": "agentic-runtime-guard",
+  "display_name": "Agentic Runtime Guard",
+  "repository": null,
+  "visibility": "private",
+  "kind": "research_upstream",
+  "summary": "Private defensive research upstream represented publicly only by this bounded sanitized relationship record.",
+  "package": {
+    "name": null,
+    "version": null,
+    "install": null,
+    "entry_points": []
+  },
+  "owns": {
+    "modules": ["private-defensive-research-upstream"],
+    "checks": [],
+    "collectors": [],
+    "adapters": [],
+    "contracts": []
+  },
+  "consumes": ["explicitly pinned public ecosystem contracts through a sanitized boundary"],
+  "contracts": [],
+  "docs": [],
+  "compatibility": {
+    "harness_api": "private-sanitized-boundary",
+    "python": ">=3.11",
+    "platforms": {"supported": ["windows"], "tested": ["windows"]}
+  },
+  "integration_status": "contract_only",
+  "evidence_refs": [],
+  "claims": ["private defensive research upstream relationship"],
+  "non_claims": ["public installability", "public repository disclosure", "public evidence disclosure", "production effectiveness", "independent validation", "operational authority"],
+  "authority": "none"
+}

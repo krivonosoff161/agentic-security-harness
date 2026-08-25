@@ -24,15 +24,15 @@ each run as a **portable trace**, and derives a **scorecard**. The gateway is on
 | **Validation layer** | Validates committed benchmark artifacts and corpus consistency (`ash validate`). | `validation.py` |
 | **CLI** | `ash run` / `ash compare` / `ash validate` (run patterns, write traces and scorecards, validate artifacts). | `cli.py` |
 | **Committed examples** | Reproducible report artifacts checked into the repo for replay and inspection. | `examples/` |
+| **Runtime Gateway reference contour** | Applies a closed pre-dispatch policy to bounded OpenAI-compatible and MCP synthetic requests, dispatches only deterministic synthetic tools, and records a privacy-minimized local audit chain. It is not a production firewall or live-provider transport. | `runtime_gateway.py`, `gateway_server.py` |
 
-### Planned (future, not current)
+### Not implemented in the current release
 
 | Component | Responsibility | Status |
 |---|---|---|
 | **MCP / tool-permission adapter** | Static analysis of an agent's tools/permissions and live MCP tool schemas -> the tools/permissions layer of the attack graph. Current coverage is a local mock schema record only. | planned |
 | **Real LLM adapter** | Drive a live LLM agent target (vs. the current local synthetic adapters). | planned |
 | **Multimodal adapter** | Voice / image target via sanitized media fixtures. Current coverage is synthetic OCR / ASR / HTML transcripts only; no live audio/image processing. | planned |
-| **Reference gateway** | OpenAI-compatible proxy = optional **defense target** + reference defense implementation (normalizer, scanners, policy, quarantine, audit). | planned |
 | **Trace store / integrity** | Persistent trace storage with stronger integrity hardening. Current coverage includes a local hash-chain tamper-detection pattern only. | planned |
 
 Note on data-boundary checks: the current local checks that verify the
@@ -87,34 +87,27 @@ For future adapters, the stable contract is documented in
 [adapter-contract.md](adapter-contract.md). Report expectations are documented in
 [reporting.md](reporting.md).
 
-## Reference gateway (optional defense target)
+## Runtime Gateway reference contour
 
-> Planned - not implemented in the current benchmark release. This section describes the
-> intended design of the optional reference gateway.
-
-When a target is put behind the reference gateway, the gateway inspects requests/responses
-and emits one of five decisions - `ALLOW / WARN / REDACT / QUARANTINE / BLOCK` - with
-fixed precedence `BLOCK > QUARANTINE > REDACT > WARN > ALLOW`.
+The v1.2.0 Runtime Gateway is an implemented, local synthetic defense target. It accepts a
+closed non-streaming OpenAI-compatible subset and a stateless MCP subset, normalizes
+credential-free retained provider tool envelopes, applies policy before dispatch, and
+allows only bounded deterministic synthetic tools. A request is allowed, blocked, or
+stopped as approval-required; the current contour has no API that grants approval.
 
 ```
- client/app -> gateway -> normalizer -> [deterministic scanner | PII/secrets | classifier]
-                                              |
-                                          policy engine
-                            +----------+------+----+----------+---------+
-                          BLOCK    QUARANTINE     REDACT     WARN      ALLOW
-                            |      202+id(async)    |          |         |
-                          error   (no held conn)  rewrite   annotate  forward -> provider
-                                                                          |
-                                                              response scanner -> client
+ synthetic client -> closed transport -> normalizer -> policy
+                                                   |-> block
+                                                   |-> approval-required (non-executable)
+                                                   `-> bounded synthetic executor -> local audit chain
 ```
 
-- **Quarantine is async:** on `QUARANTINE` the gateway returns `202` + `quarantine_id`
-  immediately (no held connection); the client polls or re-submits after approve/reject.
-- **Classifier** (optional LLM threat classifier) and **declarative policy** are later
-  milestones; the planned gateway's deterministic checks are derived from the same seed
-  patterns (`patterns.py`).
-- **Credentials:** provider credentials are never exposed to clients; they are used only
-  for upstream provider calls and are not returned across the client boundary.
+- **No live providers:** OpenAI, Anthropic, Google, remote MCP, arbitrary executors, and
+  credentials remain outside this contour.
+- **No hidden enforcement claim:** the gateway is a reproducible reference integration
+  surface, not a production security boundary.
+- **Detailed contract:** see [runtime-gateway.md](runtime-gateway.md) for transports,
+  policy, audit, Docker, dashboard, and exact limitations.
 
 ## Trust boundaries
 

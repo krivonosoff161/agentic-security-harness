@@ -1,0 +1,16 @@
+{
+  "schema_version": "AgenticSecurityEcosystemCompatibility.v1",
+  "core_component": "agentic-security-harness",
+  "core_version": "1.2.0",
+  "harness_api": "1",
+  "rows": [
+    {"component_id": "agentic-security-harness", "integration_status": "suite_verified", "harness_api": ">=1,<2", "python": ">=3.11,<3.14", "supported_platforms": ["linux", "windows"], "tested_platforms": ["linux", "windows"], "evidence": ["docs/current-state.md"]},
+    {"component_id": "agentic-transfer-verifier", "integration_status": "contract_only", "harness_api": "not-yet-declared", "python": ">=3.11", "supported_platforms": ["linux", "windows"], "tested_platforms": ["linux"], "evidence": ["component.yaml"]},
+    {"component_id": "ai-agent-handoff", "integration_status": "contract_only", "harness_api": "not-yet-declared", "python": ">=3.11", "supported_platforms": ["linux", "windows"], "tested_platforms": ["linux"], "evidence": ["component.yaml"]},
+    {"component_id": "llm-safety-playbooks", "integration_status": "standalone", "harness_api": "not-applicable", "python": "not-applicable", "supported_platforms": ["linux", "windows"], "tested_platforms": ["linux"], "evidence": ["component.yaml"]},
+    {"component_id": "llm-router", "integration_status": "standalone", "harness_api": "not-yet-declared", "python": ">=3.9", "supported_platforms": ["linux", "windows"], "tested_platforms": ["linux"], "evidence": ["component.yaml"]},
+    {"component_id": "llm-cheap-filter", "integration_status": "standalone", "harness_api": "not-yet-declared", "python": ">=3.9", "supported_platforms": ["linux", "windows"], "tested_platforms": ["linux", "windows"], "evidence": ["component.yaml"]},
+    {"component_id": "agentic-runtime-guard", "integration_status": "contract_only", "harness_api": "private-sanitized-boundary", "python": ">=3.11", "supported_platforms": ["windows"], "tested_platforms": ["windows"], "evidence": ["sanitized component projection only"]},
+    {"component_id": "krivonosoff161", "integration_status": "standalone", "harness_api": "not-applicable", "python": "not-applicable", "supported_platforms": ["web"], "tested_platforms": ["web"], "evidence": ["generated profile projection"]}
+  ]
+}

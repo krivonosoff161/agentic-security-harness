@@ -1,10 +1,10 @@
 # Current state
 
-Portfolio contract pin: `2026.08.02-r4-trajectory-containment`. Harness owns the public
-canonical-envelope, synthetic regression/falsification, typed-outcome, MCP redaction,
-trajectory-accounting, and telemetry-completeness modules; operational authority remains
-`none`. See
-[`security-portfolio-roadmap.md`](security-portfolio-roadmap.md).
+The public cross-project source of truth is now
+[`ecosystem/roadmap.yaml`](../ecosystem/roadmap.yaml), with source-owned facts in each
+repository's `component.yaml`. The older `2026.08.02-r4-trajectory-containment` Security
+Portfolio projection remains preserved as historical research evidence; it is not the
+current ecosystem product roadmap. Operational authority remains `none`.
 
 > Last reviewed: 2026-08-23 against merged Security Portfolio projection
 > `2026.08.02-r4-trajectory-containment`, the historical `v1.0.0` release commit

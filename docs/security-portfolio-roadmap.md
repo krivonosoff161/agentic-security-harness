@@ -1,5 +1,10 @@
 # Security Portfolio roadmap contract
 
+> Historical R4 research projection, preserved without rewriting its evidence semantics.
+> Current public product sequencing lives in [`ecosystem/roadmap.yaml`](../ecosystem/roadmap.yaml)
+> and the generated [ecosystem roadmap](ecosystem-roadmap.md). This page grants no
+> authority and must not be used as current cross-repository product status.
+
 Agentic Security Harness owns six public portfolio modules:
 
 - `M02-canonical-envelope`: provider-neutral development contract and scenario identity;
@@ -14,9 +19,10 @@ development/synthetic contours, not independently or in production.
 
 The vendored [`security-portfolio-roadmap-public.yaml`](security-portfolio-roadmap-public.yaml)
 is the digest-bound portfolio-wide sanitized projection. The profile copy is a publication
-location, not digest authority. The private Runtime Guard repository remains the canonical
-source for private production research. This repository owns the six portfolio modules
-above and a separate open synthetic gateway reference contour; that contour does not
+location, not digest authority. The private Runtime Guard repository remains the source
+for its private research evidence, not the owner of the public ecosystem product roadmap.
+This repository owns the six historical projection modules above and a separate open
+synthetic gateway reference contour; that contour does not
 change portfolio digests or promote phase, evidence class, independence, authority,
 production enforcement, release, or effectiveness claims.
 
