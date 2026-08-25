@@ -99,13 +99,15 @@ contract-only until each one has a source-owned adapter, synthetic conformance t
 an exact compatibility row. Adding a README link or a manifest alone does not make a
 component installable.
 
-The next reviewed slices are:
+The reviewed slices are:
 
 1. Harness-owned adapters for transfer verification, handoff checks, and declarative
-   playbooks using this exact envelope;
+   playbooks using this exact envelope (implemented in the current stacked candidate);
 2. a pinned, operator-approved distribution discovery layer with no implicit code load;
 3. Linux and Windows cross-repository compatibility fixtures;
-4. provider-neutral security-intelligence collectors whose outputs remain advisory-only.
+4. a provider-neutral offline Security Intelligence reviewer whose external evidence
+   remains `external_unreviewed` and advisory-only (implemented in the current stacked
+   candidate). Live collection remains a separate future gate.
 
 Passing these synthetic tests does not establish independent detector effectiveness or
 production safety.

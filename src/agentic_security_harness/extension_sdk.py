@@ -53,6 +53,7 @@ ExtensionCapability = Literal[
     "policy.evaluate",
     "observation.transform",
     "intelligence.collect",
+    "intelligence.review",
     "report.enrich",
 ]
 ExtensionOutcome = Literal["pass", "finding", "inconclusive", "error"]
@@ -96,6 +97,7 @@ class ExtensionManifestV1(BaseModel):
     consumes: tuple[ExtensionContractRefV1, ...] = Field(min_length=1, max_length=32)
     produces: tuple[ExtensionContractRefV1, ...] = Field(min_length=1, max_length=32)
     deterministic: bool
+    evidence_provenance: ExtensionEvidenceClass
     network_mode: Literal["off", "local_only", "authorized_external"]
     raw_data_policy: Literal["digests_only"]
     execution_model: Literal["in_process_operator_approved_not_sandboxed"]
@@ -125,6 +127,8 @@ class ExtensionManifestV1(BaseModel):
             raise ValueError("V1 extensions must produce extension-finding 1.0")
         if self.deterministic and self.network_mode != "off":
             raise ValueError("deterministic extensions must keep network_mode off")
+        if self.evidence_provenance == "deterministic_rule" and not self.deterministic:
+            raise ValueError("deterministic-rule evidence requires deterministic execution")
         return self
 
 
@@ -530,9 +534,7 @@ def _build_result(
         input_envelope_id=envelope.envelope_id,
         input_envelope_sha256=input_sha256,
         findings=findings,
-        evidence_class=(
-            "deterministic_rule" if manifest.deterministic else "heuristic_unreviewed"
-        ),
+        evidence_class=manifest.evidence_provenance,
         verdict_semantics="advisory_only_no_operational_effect",
         operational_authority="none",
     )

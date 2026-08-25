@@ -14,7 +14,7 @@
   "execution_model": "explicit_in_process_not_sandboxed",
   "extension_sdk_contract": {
     "path": "schemas/extension-sdk.v1.manifest.json",
-    "sha256": "8fd4f6b04e305a2f757763b4c39eec40c575994607f0e0ae0dfdd835e978808e"
+    "sha256": "78c9063c4b9660c3859b086b545ab5c53c709697dade7325507864ad12f114d2"
   },
   "generator": {
     "path": "tools/companion_extension_contracts.py",
@@ -23,7 +23,7 @@
   "harness_api": "1",
   "implementation": {
     "path": "src/agentic_security_harness/companion_extensions.py",
-    "sha256": "2b30bf2d072b86315b67eed8cdcc71fa6338353fe5105faf35986434e01ab83c"
+    "sha256": "55f44fb54ee7ad9f0f8479cd5aca615e8607917ac57da2d1b773cbd138f18869"
   },
   "integration_model": "explicit_normalized_digest_bound_outputs",
   "json_schema_scope": "closed_shape_only_semantic_validation_in_python",
@@ -85,6 +85,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "5be6a9a6bd38d76ebd694a1aa7683f29d642bdddfc732a8e5a9ed4a22f94bc8a"
+    "sha256": "391f756a77be8db7b45ed99f966ecbf68f2689264122411e7ae9f47d3f0392c5"
   }
 }

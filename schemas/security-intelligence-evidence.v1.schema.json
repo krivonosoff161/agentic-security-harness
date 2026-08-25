@@ -1,0 +1,173 @@
+{
+  "additionalProperties": false,
+  "description": "Digest-only public-source observation bound to one canonical event.",
+  "properties": {
+    "claim_class": {
+      "anyOf": [
+        {
+          "enum": [
+            "observed_publication",
+            "source_assertion",
+            "calculation",
+            "inference",
+            "hypothesis",
+            "model_proposal"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Claim Class"
+    },
+    "claim_group_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Claim Group Sha256"
+    },
+    "collection_state": {
+      "enum": [
+        "collected",
+        "no_update",
+        "unavailable",
+        "malformed",
+        "out_of_window"
+      ],
+      "title": "Collection State",
+      "type": "string"
+    },
+    "content_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Content Sha256"
+    },
+    "event_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "item_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Item Id",
+      "type": "string"
+    },
+    "locator_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Locator Sha256"
+    },
+    "observed_at": {
+      "format": "date-time",
+      "title": "Observed At",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "published_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Published At"
+    },
+    "raw_content_retained": {
+      "const": false,
+      "title": "Raw Content Retained",
+      "type": "boolean"
+    },
+    "registry_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Registry Sha256",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "harness-security-intelligence-evidence-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Source Id",
+      "type": "string"
+    },
+    "source_observation_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Observation Sha256",
+      "type": "string"
+    },
+    "summary_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Summary Sha256"
+    },
+    "window_end": {
+      "format": "date-time",
+      "title": "Window End",
+      "type": "string"
+    },
+    "window_start": {
+      "format": "date-time",
+      "title": "Window Start",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "item_id",
+    "event_id",
+    "source_observation_sha256",
+    "registry_sha256",
+    "source_id",
+    "published_at",
+    "observed_at",
+    "window_start",
+    "window_end",
+    "claim_class",
+    "collection_state",
+    "raw_content_retained",
+    "operational_authority"
+  ],
+  "title": "SecurityIntelligenceEvidenceV1",
+  "type": "object"
+}

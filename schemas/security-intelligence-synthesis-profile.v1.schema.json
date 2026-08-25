@@ -1,0 +1,82 @@
+{
+  "additionalProperties": false,
+  "description": "Provider-neutral shape for optional synthesis outside the core extension.",
+  "properties": {
+    "independence": {
+      "const": "not_claimed",
+      "title": "Independence",
+      "type": "string"
+    },
+    "language": {
+      "enum": [
+        "en",
+        "ru"
+      ],
+      "title": "Language",
+      "type": "string"
+    },
+    "max_follow_up_tasks": {
+      "const": 5,
+      "title": "Max Follow Up Tasks",
+      "type": "integer"
+    },
+    "model_execution": {
+      "const": "outside_core_not_invoked",
+      "title": "Model Execution",
+      "type": "string"
+    },
+    "model_interface": {
+      "const": "provider_neutral_optional",
+      "title": "Model Interface",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "output_retention": {
+      "const": "statement_digests_only_in_core",
+      "title": "Output Retention",
+      "type": "string"
+    },
+    "profile_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Profile Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "harness-security-intelligence-synthesis-profile-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "sections": {
+      "items": {
+        "enum": [
+          "verified_facts",
+          "inferences",
+          "hypotheses",
+          "coverage_gaps",
+          "safe_follow_up_tasks"
+        ],
+        "type": "string"
+      },
+      "title": "Sections",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "profile_id",
+    "language",
+    "sections",
+    "max_follow_up_tasks",
+    "model_interface",
+    "model_execution",
+    "output_retention",
+    "independence",
+    "operational_authority"
+  ],
+  "title": "SecurityIntelligenceSynthesisProfileV1",
+  "type": "object"
+}

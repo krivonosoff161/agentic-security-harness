@@ -13,7 +13,7 @@
   "harness_api": "1",
   "implementation": {
     "path": "src/agentic_security_harness/extension_sdk.py",
-    "sha256": "c4a55193dc41a21472fd139f9ae2fc21ebc0fb7a93dffeac6ecf576abf6ae53d"
+    "sha256": "6135b948564bc5c563a7990160537151453c5b1b03e21f21fe5fea9699d3e7cb"
   },
   "operational_authority": "none",
   "schema_version": "harness-extension-contract-manifest-v1.0",
@@ -24,7 +24,7 @@
     },
     {
       "path": "schemas/extension-manifest.v1.schema.json",
-      "sha256": "85006ab67fb4fe613a3e302a8a57d8083c914f16c8e221b68f8952ca7a21cfdb"
+      "sha256": "c79cd617d342b25c2e315ecce4d1d5851610a90cda497f57320531e811b93b4b"
     },
     {
       "path": "schemas/extension-pipeline-receipt.v1.schema.json",
@@ -41,6 +41,6 @@
   ],
   "tests": {
     "path": "tests/test_extension_sdk.py",
-    "sha256": "ac7364d50aeab462b2d353c565d20b8badd07a2b01d056f5a0f1bde4aeb1b779"
+    "sha256": "29154583a85d9e6e9ecd1213249e1a25c8fe19cdc092a2f12ec352a8433db075"
   }
 }

@@ -1,0 +1,133 @@
+{
+  "$defs": {
+    "SecurityIntelligenceSourceV1": {
+      "additionalProperties": false,
+      "description": "One public source identity; this is metadata, not a network instruction.",
+      "properties": {
+        "canonical_https_origin": {
+          "maxLength": 512,
+          "minLength": 9,
+          "title": "Canonical Https Origin",
+          "type": "string"
+        },
+        "collection_mode": {
+          "const": "offline_snapshot_only",
+          "title": "Collection Mode",
+          "type": "string"
+        },
+        "credentials_required": {
+          "const": false,
+          "title": "Credentials Required",
+          "type": "boolean"
+        },
+        "metadata_policy": {
+          "const": "public_metadata_and_digests_only",
+          "title": "Metadata Policy",
+          "type": "string"
+        },
+        "operational_authority": {
+          "const": "none",
+          "title": "Operational Authority",
+          "type": "string"
+        },
+        "source_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "standards_body",
+            "government_advisory",
+            "upstream_project",
+            "vendor_advisory",
+            "incident_owner_statement",
+            "peer_reviewed_primary_research",
+            "secondary_discovery"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "topics": {
+          "items": {
+            "enum": [
+              "agentic_ai",
+              "llm_security",
+              "mcp",
+              "prompt_injection",
+              "runtime_boundary",
+              "software_supply_chain",
+              "standards",
+              "vulnerability_advisory"
+            ],
+            "type": "string"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Topics",
+          "type": "array"
+        }
+      },
+      "required": [
+        "source_id",
+        "source_kind",
+        "canonical_https_origin",
+        "topics",
+        "collection_mode",
+        "metadata_policy",
+        "credentials_required",
+        "operational_authority"
+      ],
+      "title": "SecurityIntelligenceSourceV1",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Content-bound allowlist for offline public-source metadata.",
+  "properties": {
+    "network_mode": {
+      "const": "off",
+      "title": "Network Mode",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "registry_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Registry Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "harness-security-intelligence-source-registry-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_policy": {
+      "const": "public_primary_sources_preferred_secondary_discovery_not_evidence",
+      "title": "Source Policy",
+      "type": "string"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/SecurityIntelligenceSourceV1"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "title": "Sources",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "registry_id",
+    "sources",
+    "source_policy",
+    "network_mode",
+    "operational_authority"
+  ],
+  "title": "SecurityIntelligenceSourceRegistryV1",
+  "type": "object"
+}
