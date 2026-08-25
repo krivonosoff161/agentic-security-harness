@@ -97,6 +97,12 @@ The stacked [Security Intelligence candidate](docs/security-intelligence-extensi
 adds a provider-neutral offline weekly public-source review contract with digest-only
 evidence, explicit coverage gaps, and no live fetching or model authority.
 
+The next stacked [receipt auditor candidate](docs/receipt-auditor-extensions.md)
+independently checks exact-pinned Router invocation and Cheap Filter triage accounting
+receipts from caller-supplied canonical bytes. Valid accounting remains `inconclusive`,
+missing evidence remains `inconclusive`, and drift becomes a finding; the auditors never
+emit `pass`, import or invoke the companion packages, or lower a security decision.
+
 | Target | Modeled findings | Patterns passed |
 |---|---:|---:|
 | `demo-agent` | 24 | 0 |

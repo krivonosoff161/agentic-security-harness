@@ -1,0 +1,95 @@
+{
+  "additionalProperties": false,
+  "description": "Exact producer commit/tree and contract/manifest hashes.",
+  "properties": {
+    "component_id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,127}$",
+      "title": "Component Id",
+      "type": "string"
+    },
+    "component_manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Component Manifest Sha256",
+      "type": "string"
+    },
+    "contract_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Contract Id",
+      "type": "string"
+    },
+    "contract_manifest_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Contract Manifest Sha256"
+    },
+    "contract_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Contract Sha256",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^[0-9A-Za-z][0-9A-Za-z.+_-]{0,63}$",
+      "title": "Contract Version",
+      "type": "string"
+    },
+    "digest_semantics": {
+      "const": "sha256_lf_normalized_text_v1",
+      "title": "Digest Semantics",
+      "type": "string"
+    },
+    "implementation_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Implementation Sha256",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "harness-receipt-source-pin-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_commit": {
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+      "title": "Source Commit",
+      "type": "string"
+    },
+    "source_tree": {
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+      "title": "Source Tree",
+      "type": "string"
+    },
+    "verification": {
+      "const": "exact_public_git_reviewed",
+      "title": "Verification",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "component_id",
+    "source_commit",
+    "source_tree",
+    "component_manifest_sha256",
+    "contract_id",
+    "contract_version",
+    "contract_sha256",
+    "implementation_sha256",
+    "digest_semantics",
+    "verification",
+    "operational_authority"
+  ],
+  "title": "ReceiptSourcePinV1",
+  "type": "object"
+}
