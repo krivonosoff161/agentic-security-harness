@@ -23,7 +23,7 @@
   "harness_api": "1",
   "implementation": {
     "path": "src/agentic_security_harness/companion_extensions.py",
-    "sha256": "afa492a2aec62d3e1d8f1b21138539cd383c720c4db7b91e00778cde758fd284"
+    "sha256": "55f44fb54ee7ad9f0f8479cd5aca615e8607917ac57da2d1b773cbd138f18869"
   },
   "integration_model": "explicit_normalized_digest_bound_outputs",
   "json_schema_scope": "closed_shape_only_semantic_validation_in_python",
