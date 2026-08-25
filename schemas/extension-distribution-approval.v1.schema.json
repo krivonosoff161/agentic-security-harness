@@ -1,0 +1,121 @@
+{
+  "additionalProperties": false,
+  "description": "Exact operator approval of one unchanged metadata-only inspection.",
+  "properties": {
+    "approval_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Approval Id",
+      "type": "string"
+    },
+    "approval_semantics": {
+      "const": "explicit_exact_reinspection_no_code_load",
+      "title": "Approval Semantics",
+      "type": "string"
+    },
+    "code_loaded": {
+      "const": false,
+      "title": "Code Loaded",
+      "type": "boolean"
+    },
+    "configuration_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Configuration Sha256",
+      "type": "string"
+    },
+    "distribution_name": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Distribution Name",
+      "type": "string"
+    },
+    "distribution_version": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Distribution Version",
+      "type": "string"
+    },
+    "entry_point_value": {
+      "maxLength": 257,
+      "minLength": 3,
+      "title": "Entry Point Value",
+      "type": "string"
+    },
+    "extension_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Extension Id",
+      "type": "string"
+    },
+    "extension_version": {
+      "pattern": "^[0-9A-Za-z][0-9A-Za-z.+_-]{0,63}$",
+      "title": "Extension Version",
+      "type": "string"
+    },
+    "files_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Files Sha256",
+      "type": "string"
+    },
+    "implementation_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Implementation Sha256",
+      "type": "string"
+    },
+    "inspection_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Inspection Id",
+      "type": "string"
+    },
+    "manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Manifest Sha256",
+      "type": "string"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "record_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Record Sha256",
+      "type": "string"
+    },
+    "sandboxed": {
+      "const": false,
+      "title": "Sandboxed",
+      "type": "boolean"
+    },
+    "schema_version": {
+      "const": "harness-extension-distribution-approval-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "signature_verified": {
+      "const": false,
+      "title": "Signature Verified",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema_version",
+    "approval_id",
+    "inspection_id",
+    "distribution_name",
+    "distribution_version",
+    "extension_id",
+    "extension_version",
+    "entry_point_value",
+    "record_sha256",
+    "files_sha256",
+    "manifest_sha256",
+    "implementation_sha256",
+    "configuration_sha256",
+    "approval_semantics",
+    "code_loaded",
+    "signature_verified",
+    "sandboxed",
+    "operational_authority"
+  ],
+  "title": "ExtensionDistributionApprovalV1",
+  "type": "object"
+}

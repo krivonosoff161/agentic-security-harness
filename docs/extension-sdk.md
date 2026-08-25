@@ -72,14 +72,16 @@ V1 intentionally has no:
 - credential, secret, deployment, release, enforcement, or tool-execution authority.
 
 A malicious approved Python object still runs with the permissions of the Harness
-process. Future installable-extension work must bind distribution identity, version,
-manifest digest, dependency provenance, operator approval, and an isolation model before
-code loading is added.
+process. The stacked [Extension Distribution Discovery V1](extension-distribution-discovery.md)
+candidate closes the first metadata gap by verifying one explicitly selected installed
+distribution and issuing a no-code-load approval receipt. It still does not load code,
+prove signer identity, verify dependency provenance, or isolate the object.
 
 The V1 implementation and configuration digests are content pins supplied by the
 extension builder and bound into every result through the manifest digest. They are not a
-signature or proof that the named package was installed; the operator/discovery layer must
-verify those pins before registering code.
+signature by themselves. The distribution discovery candidate verifies those pins against
+installed `RECORD` bytes before registration, while deliberately leaving code construction
+to the operator.
 
 ## Determinism and privacy
 
