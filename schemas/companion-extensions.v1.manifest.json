@@ -36,7 +36,7 @@
     },
     "compatibility": {
       "path": "ecosystem/compatibility.json",
-      "sha256": "092f2b4dae197baeb2f201c553dd0e99ac5d493bfff16e922d8fb0d1bd389e5f"
+      "sha256": "f35c3f3f1b639d6a089e93fbec07ec4671115dffb68c10e46a22eb439a610159"
     },
     "development_requirements_in": {
       "path": "requirements/dev.in",
@@ -56,7 +56,7 @@
     },
     "workflow": {
       "path": ".github/workflows/ecosystem-integration.yml",
-      "sha256": "1261e8fcb396f7ad2966219bcb03a29049c68284acaf18997f7b07523ee80f79"
+      "sha256": "d4fce484ae8c45b1f818fe2ed502931bba43b8dd31c60b2deb14524c1c2b54e5"
     }
   },
   "integration_model": "explicit_normalized_digest_bound_outputs",

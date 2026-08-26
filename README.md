@@ -336,7 +336,10 @@ approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install the
 The stable `v1.2.0` package is published on
 [PyPI](https://pypi.org/project/agentic-security-harness/1.2.0/) and as an attested
 [GitHub Release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.2.0).
-Future releases remain separate, auditable owner gates.
+The source tree is prepared as a **source-only `v1.3.0` release candidate** containing
+the integrated ecosystem contracts above. It is not a tag, GitHub Release, TestPyPI/PyPI
+publication, deployment, or production-enforcement claim. Those remain separate,
+auditable owner gates.
 
 - [Release checklist](docs/release-checklist.md)
 - [PyPI release process](docs/release-to-pypi.md)

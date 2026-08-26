@@ -2,8 +2,10 @@
 
 Practical preflight for cutting a public research release. The stable v1.0 benchmark
 contract was released as `v1.0.0` on 2026-08-14, and the Agent Host workflow was released
-as `v1.1.0` on 2026-08-22. The Runtime Gateway synthetic contour is prepared for
-`v1.2.0` on 2026-08-23; this checklist remains the required
+as `v1.1.0` on 2026-08-22. The Runtime Gateway synthetic contour was released as
+`v1.2.0` on 2026-08-23. The integrated ecosystem stack is prepared as a source-only
+`v1.3.0` candidate on 2026-08-26; tag and publication remain separate owner gates. This
+checklist remains the required
 procedure for subsequent releases. The broader readiness map is
 [v1-readiness.md](v1-readiness.md).
 
