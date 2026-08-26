@@ -8,7 +8,7 @@ companions automatically, and grants no execution or deployment authority.
 
 | Surface | Source head | Source tree | Role in this gate |
 |---|---|---|---|
-| Harness baseline | `6354635c6411830de95dd3b68c962eb887cb5edb` | `e9609592fe4fd3f7ab89c0bdf48ed68fb0178516` | ancestor containing the Extension SDK, distribution, and lifecycle contracts |
+| Harness merged baseline | `e49a9d81334177dffa1786d132344ba8e51902e1` | `673afdbdf4ab3af7ff975b66610f771ff74aace9` | stable `main` anchor containing the squash-merged ecosystem candidate and profile convergence |
 | Transfer extension | `240f3081b6614439e03d61479114e330fe7c3d52` | `8e2e3319776a48fb96e04a2cd34ed83bb5d3d191` | nested no-dependency Harness extension plus `agentic-transfer-verifier` runtime wheel |
 | Handoff extension | `f4e51e0603497f63c62453fc4030319fdfc5ac04` | `78311595f72469748469a1dfd4dc4a286244159f` | nested no-dependency Harness extension plus `ai-agent-handoff` runtime wheel |
 | Policy Pack | `5a6519df5a54c103cd4b5ca14b479867c549d7d3` | `ab88886f92dc1efdbdc10a1761c91d3fceca8622` | exact data-only policy pack source |
@@ -17,20 +17,23 @@ companions automatically, and grants no execution or deployment authority.
 | Public profile projection | `ccb34ef951f434db8220b75bdf1129c3d0f97fda` | `b2c08e6aebd042d8fdfa3cf16dd42fd2b59355a0` | merged documentation projection only |
 
 The final candidate descends from Harness `main` commit
-`5e82e80c9cb96233d23e84e0318b374a6b8f6b01` and binds each companion repository's
+`e49a9d81334177dffa1786d132344ba8e51902e1` and binds each companion repository's
 merged `main` commit shown above. The central lock uses `refs/heads/main` for every
 public source; it does not rely on former task branches.
 
-The Transfer source-owned manifest names Harness `6354635c...` as its tested ancestor
+The Transfer source-owned manifest names Harness `6354635c...` as its historical tested
 baseline. The Handoff source-owned manifest independently names Harness `285d05ad...` as
-its tested ancestor baseline. These values remain historical compatibility anchors; they
-are not renamed or represented as the current Harness integration head. The central
-integration workflow proves forward compatibility by running both exact source
-extensions against the current PR checkout.
+its historical tested baseline. Those commits belonged to pre-squash task histories and
+are not represented as ancestors of stable `main`. The central gate instead verifies the
+exact merged Harness commit and tree above as an ancestor of the current checkout, then
+proves forward compatibility by building and running both exact source extensions against
+that current checkout on Ubuntu and Windows.
 
-This asymmetry is deliberate. Companion repositories can bind a stable ancestor while
-the central Harness lock binds their later exact source heads. Requiring every repository
-to name the final Harness head would create an impossible mutual-head fixed point.
+This asymmetry is deliberate. Companion repositories retain their exact historical test
+identity while the central Harness lock binds their later merged source heads. Requiring
+every repository to name the final Harness head would create an impossible mutual-head
+fixed point. Requiring pre-squash commits to remain ancestors after a squash merge would
+also make the gate depend on former task-branch history rather than the stable merged tree.
 
 ## Executable gate
 

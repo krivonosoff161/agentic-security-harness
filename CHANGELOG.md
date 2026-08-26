@@ -6,6 +6,35 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-08-26
+
+### Added
+- Added the closed Extension SDK V1, explicit installed-distribution inspection and
+  approval receipts, and metadata-only operator lifecycle commands. These surfaces do
+  not discover, import, download, authenticate, sandbox, start, stop, disable, or roll
+  back extension code automatically.
+- Added exact-source companion adapters for Transfer Verifier, Handoff, and the data-only
+  Playbooks Policy Pack, plus deterministic Router and Cheap Filter receipt auditors.
+  Valid or incomplete companion evidence remains advisory and never grants permission to
+  lower a security decision.
+- Added the authority-free Corpus Pack SDK V1, offline Security Intelligence review
+  contracts, and a controlled literal-loopback local-response adapter whose tool path is
+  limited to the Runtime Gateway's deterministic synthetic tools.
+- Added the canonical public ecosystem roadmap, component manifests, compatibility and
+  document registries, exact-source integration lock, generated projections, and Linux /
+  Windows integration workflow.
+
+### Changed
+- Expanded package, schema, documentation, and installed-wheel verification to cover the
+  integrated ecosystem contracts while preserving the stable trace 1.0 and corpus 1.0.0
+  identities.
+- Bound the public profile projection and all companion integration inputs to their exact
+  merged `main` commits rather than former task branches.
+
+### Fixed
+- Made explicit distribution inspection stable across Windows file-sharing semantics and
+  retained the Gitleaks gate with only exact synthetic public fingerprints suppressed.
+
 ## [1.2.0] - 2026-08-23
 
 ### Added

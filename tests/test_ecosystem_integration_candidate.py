@@ -41,6 +41,8 @@ HANDOFF_HEAD = "f4e51e0603497f63c62453fc4030319fdfc5ac04"
 HANDOFF_TREE = "78311595f72469748469a1dfd4dc4a286244159f"
 TRANSFER_HARNESS_BASELINE = "6354635c6411830de95dd3b68c962eb887cb5edb"
 HANDOFF_HARNESS_BASELINE = "285d05ad64239dd55271e5c534041b235db0e243"
+MERGED_HARNESS_HEAD = "e49a9d81334177dffa1786d132344ba8e51902e1"
+MERGED_HARNESS_TREE = "673afdbdf4ab3af7ff975b66610f771ff74aace9"
 ROOT = Path(__file__).resolve().parents[1]
 COMPANION_MODULE_PREFIXES = (
     "agentic_transfer_verifier",
@@ -300,6 +302,10 @@ def test_exact_source_wheels_complete_explicit_forward_compatibility_lifecycle(
 ) -> None:
     transfer = _source_root("ASH_TRANSFER_ROOT")
     handoff = _source_root("ASH_HANDOFF_ROOT")
+    assert _git(ROOT, "show", "-s", "--format=%T", MERGED_HARNESS_HEAD) == (
+        MERGED_HARNESS_TREE
+    )
+    assert _git(ROOT, "merge-base", "--is-ancestor", MERGED_HARNESS_HEAD, "HEAD") == ""
     _assert_source(transfer, head=TRANSFER_HEAD, tree=TRANSFER_TREE)
     _assert_source(handoff, head=HANDOFF_HEAD, tree=HANDOFF_TREE)
     transfer_contract = json.loads(
@@ -314,8 +320,6 @@ def test_exact_source_wheels_complete_explicit_forward_compatibility_lifecycle(
     )
     assert transfer_contract["harness_source"]["commit"] == TRANSFER_HARNESS_BASELINE
     assert handoff_contract["harness_reference"]["head"] == HANDOFF_HARNESS_BASELINE
-    assert _git(ROOT, "merge-base", "--is-ancestor", TRANSFER_HARNESS_BASELINE, "HEAD") == ""
-    assert _git(ROOT, "merge-base", "--is-ancestor", HANDOFF_HARNESS_BASELINE, "HEAD") == ""
     saved_companion_modules = _take_companion_modules()
     transfer_snapshot = _git_source_snapshot(transfer, tmp_path / "transfer-source")
     handoff_snapshot = _git_source_snapshot(handoff, tmp_path / "handoff-source")

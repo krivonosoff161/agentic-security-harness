@@ -5,6 +5,10 @@ The package is published as `1.2.0` on
 manual, environment-gated OIDC promotion path used for that release and required for
 future releases. See the gates in [release-checklist.md](release-checklist.md).
 
+The repository source metadata is prepared for a source-only `1.3.0` candidate. That
+version is not published merely because these files exist; tag, attested release build,
+TestPyPI review, and PyPI promotion remain separate exact-head owner gates.
+
 ## Packaging facts (current)
 
 - `pyproject.toml`: name `agentic-security-harness`, Apache-2.0, `requires-python >=3.11`,

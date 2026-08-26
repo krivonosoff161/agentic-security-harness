@@ -1,5 +1,14 @@
 # Project tracker
 
+## v1.3.0 source-only release candidate
+
+The exact merged Harness `main` head
+`e49a9d81334177dffa1786d132344ba8e51902e1` is the source baseline for the
+`v1.3.0` candidate. The candidate aligns package, CFF, changelog, release-note,
+component and compatibility identities and reruns the complete repository and package
+gate. It does not create a tag, GitHub Release, package-index upload, deployment, or
+enforcement authority; those remain separate owner decisions after exact-head review.
+
 This page explains how public project work is tracked. It is intentionally small:
 GitHub Issues and milestones are the source of truth for work in progress; repository
 docs describe the current shipped state.

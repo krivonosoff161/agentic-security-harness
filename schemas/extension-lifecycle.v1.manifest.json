@@ -4,7 +4,7 @@
   "automatic_import": false,
   "component_manifest": {
     "path": "component.yaml",
-    "sha256": "c71c861008b6470ff06e0c389e40b23c9b4c447e9356032b11ac9847d02d2ceb"
+    "sha256": "ab4afc4e28b4b79978aad50284cf5e92a57d2ed59c08a69553b00016452fc28c"
   },
   "contract_id": "harness-extension-operator-lifecycle-v1.0",
   "disable_semantics": "metadata_only_application_enforcement_required",
