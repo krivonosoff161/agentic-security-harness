@@ -48,7 +48,7 @@
     },
     "documentation": {
       "path": "docs/ecosystem-integration-candidate.md",
-      "sha256": "b9b548a5f8a40ebf0fe34dc45e33fb57d12a8783c1ba0508c02d5689760eed3f"
+      "sha256": "7ad224e9656cc1e758940809885a51d61640771be242e69812946890262fa5c2"
     },
     "test": {
       "path": "tests/test_ecosystem_integration_candidate.py",
@@ -56,7 +56,7 @@
     },
     "workflow": {
       "path": ".github/workflows/ecosystem-integration.yml",
-      "sha256": "ea540ff1462a6a302bd2f32f58f721f37ee871277cb93f8278f8c4dc1e7ee82f"
+      "sha256": "1261e8fcb396f7ad2966219bcb03a29049c68284acaf18997f7b07523ee80f79"
     }
   },
   "integration_model": "explicit_normalized_digest_bound_outputs",
@@ -119,6 +119,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "d4b27f9caa105e494b81c4cf62a6f6a9b6673e85ab1fc08e063b9bd85e4ed07f"
+    "sha256": "80f90202cd1ec23050464e01c56ac1daa61fc89fdc5eac096818f37edb84d385"
   }
 }

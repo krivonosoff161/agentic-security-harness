@@ -14,12 +14,12 @@ companions automatically, and grants no execution or deployment authority.
 | Policy Pack | `5a6519df5a54c103cd4b5ca14b479867c549d7d3` | `ab88886f92dc1efdbdc10a1761c91d3fceca8622` | exact data-only policy pack source |
 | Router receipts | `790a101ba82fa34203219d7963978a20b55cf504` | `05fa373b1b16b276e44a9d39942127af729e7d23` | exact receipt producer contract |
 | Cheap Filter receipts | `8dd1ffb8a453f62c9dd4b4a518754a23bd1651b6` | `d42f7f47a85a80cfe435a890c6ddd695085943b4` | exact receipt producer contract |
-| Public profile projection | `07b55849cb4913d8b0b0cb77de312f3c28e61352` | `ab97172cf9de53262f2e24509a640751fa0ee063` | documentation projection only |
+| Public profile projection | `ccb34ef951f434db8220b75bdf1129c3d0f97fda` | `b2c08e6aebd042d8fdfa3cf16dd42fd2b59355a0` | merged documentation projection only |
 
 The final candidate descends from Harness `main` commit
-`e8ada371301501200c214d24c6f67a9248a288f9` and binds each companion repository's
-merged `main` commit shown above. The central lock uses `refs/heads/main` for those five
-companions; it does not rely on their former task branches.
+`5e82e80c9cb96233d23e84e0318b374a6b8f6b01` and binds each companion repository's
+merged `main` commit shown above. The central lock uses `refs/heads/main` for every
+public source; it does not rely on former task branches.
 
 The Transfer source-owned manifest names Harness `6354635c...` as its tested ancestor
 baseline. The Handoff source-owned manifest independently names Harness `285d05ad...` as

@@ -80,7 +80,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/krivonosoff161
-          ref: 07b55849cb4913d8b0b0cb77de312f3c28e61352
+          ref: ccb34ef951f434db8220b75bdf1129c3d0f97fda
           path: components/profile
           persist-credentials: false
 
