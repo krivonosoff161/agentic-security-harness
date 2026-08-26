@@ -297,18 +297,15 @@ def _inspect_approve_construct_bind_run(
     assert receipt.operational_authority == "none"
 
 
-def test_merged_harness_lineage_anchor_is_stable() -> None:
-    assert _git(ROOT, "show", "-s", "--format=%T", MERGED_HARNESS_HEAD) == (
-        MERGED_HARNESS_TREE
-    )
-    assert _git(ROOT, "merge-base", "--is-ancestor", MERGED_HARNESS_HEAD, "HEAD") == ""
-
-
 def test_exact_source_wheels_complete_explicit_forward_compatibility_lifecycle(
     tmp_path: Path,
 ) -> None:
     transfer = _source_root("ASH_TRANSFER_ROOT")
     handoff = _source_root("ASH_HANDOFF_ROOT")
+    assert _git(ROOT, "show", "-s", "--format=%T", MERGED_HARNESS_HEAD) == (
+        MERGED_HARNESS_TREE
+    )
+    assert _git(ROOT, "merge-base", "--is-ancestor", MERGED_HARNESS_HEAD, "HEAD") == ""
     _assert_source(transfer, head=TRANSFER_HEAD, tree=TRANSFER_TREE)
     _assert_source(handoff, head=HANDOFF_HEAD, tree=HANDOFF_TREE)
     transfer_contract = json.loads(
