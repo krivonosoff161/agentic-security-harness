@@ -48,7 +48,7 @@
     },
     "documentation": {
       "path": "docs/ecosystem-integration-candidate.md",
-      "sha256": "355c7f6f307e62d29a02af25fb6d6a64ade2a855107bcb942ef69170ff0d92b9"
+      "sha256": "b9b548a5f8a40ebf0fe34dc45e33fb57d12a8783c1ba0508c02d5689760eed3f"
     },
     "test": {
       "path": "tests/test_ecosystem_integration_candidate.py",

@@ -16,6 +16,11 @@ companions automatically, and grants no execution or deployment authority.
 | Cheap Filter receipts | `8dd1ffb8a453f62c9dd4b4a518754a23bd1651b6` | `d42f7f47a85a80cfe435a890c6ddd695085943b4` | exact receipt producer contract |
 | Public profile projection | `07b55849cb4913d8b0b0cb77de312f3c28e61352` | `ab97172cf9de53262f2e24509a640751fa0ee063` | documentation projection only |
 
+The final candidate descends from Harness `main` commit
+`e8ada371301501200c214d24c6f67a9248a288f9` and binds each companion repository's
+merged `main` commit shown above. The central lock uses `refs/heads/main` for those five
+companions; it does not rely on their former task branches.
+
 The Transfer source-owned manifest names Harness `6354635c...` as its tested ancestor
 baseline. The Handoff source-owned manifest independently names Harness `285d05ad...` as
 its tested ancestor baseline. These values remain historical compatibility anchors; they
