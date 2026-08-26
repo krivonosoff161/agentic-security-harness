@@ -437,7 +437,9 @@ def test_integration_workflow_installs_only_the_built_local_wheel() -> None:
     )
     assert any(
         line.strip()
-        == "python -m pip install --no-index --no-deps --force-reinstall dist/*.whl"
+        == "python -m pip install --no-index --no-deps --force-reinstall "
+        "dist/agentic_security_harness-1.3.0-py3-none-any.whl"
         for line in workflow.splitlines()
     )
     assert "--find-links dist agentic-security-harness==" not in workflow
+    assert "dist/*.whl" not in workflow
