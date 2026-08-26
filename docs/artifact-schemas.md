@@ -287,6 +287,14 @@ Validation is artifact-integrity only - see
 
 ## Compatibility policy
 
+This section governs runtime evidence artifacts read or written by `ash` and registered
+in `KNOWN_SCHEMA_VERSIONS`. The review-only, not-yet-published coordination contracts in
+`component.yaml` and `ecosystem/` currently bind exact generated-schema, source-commit,
+tree, and canonical-manifest digests. Pre-publication corrections make no compatibility
+promise to earlier PR snapshots and old readers fail closed. Before their first stable
+publication they must adopt the same `MAJOR.MINOR` lifecycle. See
+[ecosystem-integration-candidate.md](ecosystem-integration-candidate.md).
+
 - `schema_version` is `MAJOR.MINOR`, independent per artifact kind.
 - **Backwards-compatible change** (a new optional field, a widened enum that old readers
   can ignore): bump the **minor** version and widen `KNOWN_SCHEMA_VERSIONS` so the tool

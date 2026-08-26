@@ -1,0 +1,157 @@
+name: Ecosystem integration candidate
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ecosystem-integration.yml"
+      - "component.yaml"
+      - "ecosystem/**"
+      - "schemas/**"
+      - "src/**"
+      - "tests/**"
+      - "tools/**"
+      - "docs/**"
+      - "requirements/**"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ecosystem-integration-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  exact-source-matrix:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out Harness candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check out exact Transfer extension source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: krivonosoff161/agentic-transfer-verifier
+          ref: 240f3081b6614439e03d61479114e330fe7c3d52
+          path: components/transfer
+          persist-credentials: false
+
+      - name: Check out exact Handoff extension source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: krivonosoff161/ai-agent-handoff
+          ref: f4e51e0603497f63c62453fc4030319fdfc5ac04
+          path: components/handoff
+          persist-credentials: false
+
+      - name: Check out exact Policy Pack source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: krivonosoff161/llm-safety-playbooks
+          ref: 5a6519df5a54c103cd4b5ca14b479867c549d7d3
+          path: components/playbooks
+          persist-credentials: false
+
+      - name: Check out exact Router source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: krivonosoff161/llm-router
+          ref: 790a101ba82fa34203219d7963978a20b55cf504
+          path: components/router
+          persist-credentials: false
+
+      - name: Check out exact Cheap Filter source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: krivonosoff161/llm-cheap-filter
+          ref: 8dd1ffb8a453f62c9dd4b4a518754a23bd1651b6
+          path: components/filter
+          persist-credentials: false
+
+      - name: Check out exact profile projection
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: krivonosoff161/krivonosoff161
+          ref: 07b55849cb4913d8b0b0cb77de312f3c28e61352
+          path: components/profile
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install locked development and build dependencies
+        run: |
+          python -m pip install --require-hashes -r requirements/dev.txt
+          python -m pip install --require-hashes -r requirements/build.txt
+
+      - name: Validate generated schemas manifests and documentation
+        run: |
+          python tools/ecosystem_docs.py check
+          python tools/extension_contracts.py check
+          python tools/extension_distribution_contracts.py check
+          python tools/extension_lifecycle_contracts.py check
+          python tools/companion_extension_contracts.py check
+          python tools/security_intelligence_contracts.py check
+          python tools/receipt_auditor_contracts.py check
+          python tools/corpus_pack_contracts.py check
+          python tools/controlled_local_adapter_contracts.py check
+          python tools/policy_pack_extension_contracts.py check
+
+      - name: Validate exact central component lock
+        run: >-
+          python tools/ecosystem_docs.py check-lock
+          --component-root .
+          --component-root components/transfer
+          --component-root components/handoff
+          --component-root components/playbooks
+          --component-root components/router
+          --component-root components/filter
+          --component-root components/profile
+
+      - name: Build install and run exact extension lifecycle plus product contours
+        env:
+          ASH_TRANSFER_ROOT: ${{ github.workspace }}/components/transfer
+          ASH_HANDOFF_ROOT: ${{ github.workspace }}/components/handoff
+          ASH_PLAYBOOKS_ROOT: ${{ github.workspace }}/components/playbooks
+          ASH_POLICY_PACK_ROOT: ${{ github.workspace }}/components/playbooks
+          ASH_ROUTER_ROOT: ${{ github.workspace }}/components/router
+          ASH_FILTER_ROOT: ${{ github.workspace }}/components/filter
+          GIT_OPTIONAL_LOCKS: "0"
+        run: >-
+          python -m pytest -q
+          tests/test_ecosystem_integration_candidate.py
+          tests/test_companion_extensions.py
+          tests/test_cross_repo_extension_compatibility.py
+          tests/test_receipt_auditors.py
+          tests/test_cross_repo_receipt_compatibility.py
+          tests/test_corpus_packs.py
+          tests/test_policy_pack_extension.py
+          tests/test_cross_repo_policy_pack_compatibility.py
+          tests/test_controlled_local_adapter.py
+          tests/test_ecosystem_docs.py
+          tests/test_documentation_contract.py
+          tests/test_security_portfolio_roadmap_contract.py
+
+      - name: Run full test and static analysis gates
+        run: |
+          python -m pytest -q
+          python -m ruff check . --exclude components
+          python -m mypy src tests tools
+          python -m bandit -q -ll -r src
+
+      - name: Build and smoke the Harness package
+        run: |
+          python -m build --no-isolation --wheel --outdir dist
+          python -m pip install --no-index --no-deps --force-reinstall --find-links dist agentic-security-harness==1.2.0
+          ash --help

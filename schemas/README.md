@@ -13,6 +13,10 @@ observation and R4 companion contracts are strict and reject unknown fields.
 | `trace.schema.json` | Frozen schema 1.0 for one item inside `traces.json`; closed typed fields with `reproducibility` as the explicit extension map. |
 | `corpus-manifest.v1.json` | Exact corpus 1.0.0 projection with 24 ordered pattern contracts. |
 | `corpus-manifest.v1.schema.json` | Closed portable shape schema for the corpus manifest. |
+| `corpus-pack-manifest.v1.schema.json` | Closed optional Corpus Pack SDK V1 manifest. |
+| `corpus-composition.v1.schema.json` | Deterministic core-plus-optional identity registry. |
+| `corpus-pack-evidence-assessment.v1.schema.json` | Authority-free Extension SDK evidence-readiness assessment. |
+| `corpus-pack-sdk.v1.manifest.json` | Digest-bound SDK implementation, schemas, fixture, tests and workflow. |
 | `scorecard.schema.json` | `scorecard.json`. |
 | `remediation.schema.json` | `remediation.json`. |
 | `run-manifest.schema.json` | `run_index.json`. |
@@ -31,6 +35,10 @@ observation and R4 companion contracts are strict and reject unknown fields.
 | `extension-disable-receipt.v1.schema.json` | Metadata-only disable declaration for one exact approval. |
 | `extension-rollback-plan.v1.schema.json` | Non-executable rollback plan from one disabled approval to one approved target. |
 | `extension-lifecycle-projection.v1.schema.json` | Deterministic state projection from explicitly supplied canonical receipts only. |
+| `controlled-local-adapter-config.v1.schema.json` | Closed literal-loopback transport limits for the controlled local adapter. |
+| `controlled-local-tool-receipt.v1.schema.json` | Digest-only Runtime Gateway policy/tool decision receipt. |
+| `controlled-local-invocation-receipt.v1.schema.json` | Digest-only local invocation, response and audit binding. |
+| `controlled-local-adapter.v1.manifest.json` | Content-bound implementation, policy, schema, test, workflow and documentation contract. |
 
 The R4 companion schemas are strict (`additionalProperties: false`) shape checks only.
 Cross-field and graph semantics require the Python validator plus the positive/negative
@@ -51,6 +59,13 @@ Regenerate or verify the corpus projection and shape schema with:
 ```powershell
 $env:PYTHONPATH = "src"
 python tools/corpus_contract.py --root . --check
+```
+
+Generate or verify the controlled local adapter bundle with:
+
+```powershell
+$env:PYTHONPATH = "src"
+python tools/controlled_local_adapter_contracts.py check
 ```
 
 The trace v1 schema is closed at every typed object boundary. Historical trace schema

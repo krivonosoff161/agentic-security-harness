@@ -21,6 +21,10 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 ROOT = Path(__file__).resolve().parents[1]
 ECOSYSTEM = ROOT / "ecosystem"
 SCHEMAS = ECOSYSTEM / "schemas"
+EXTENSION_CANDIDATE_HARNESS_APIS = frozenset(
+    {"1", "1 (candidate; future package boundary >=1.3,<2)"}
+)
+EXTENSION_CANDIDATE_PYTHON = ">=3.11,<3.14"
 
 Role = Literal[
     "canonical",
@@ -106,7 +110,11 @@ class ComponentManifest(ClosedModel):
     docs: list[DocumentRef]
     compatibility: CompatibilitySpec
     integration_status: Literal[
-        "standalone", "contract_only", "installable_extension", "suite_verified"
+        "standalone",
+        "contract_only",
+        "extension_candidate",
+        "installable_extension",
+        "suite_verified",
     ]
     evidence_refs: list[str]
     claims: list[str]
@@ -127,6 +135,17 @@ class ComponentManifest(ClosedModel):
             raise ValueError("private repository locations must not enter the public manifest")
         if not self.non_claims:
             raise ValueError("each component must state at least one non-claim")
+        if self.integration_status == "extension_candidate":
+            if self.visibility != "public":
+                raise ValueError("extension candidates must be public")
+            if self.kind != "check_extension":
+                raise ValueError("extension candidates must use kind check_extension")
+            if self.compatibility.harness_api not in EXTENSION_CANDIDATE_HARNESS_APIS:
+                raise ValueError("extension candidates require an exact Harness API")
+            if not self.compatibility.platforms.tested:
+                raise ValueError("extension candidates require a tested platform")
+            if not self.evidence_refs:
+                raise ValueError("extension candidates require public evidence")
         return self
 
 
@@ -193,10 +212,15 @@ class EcosystemRoadmap(ClosedModel):
 class CompatibilityRow(ClosedModel):
     component_id: str
     integration_status: Literal[
-        "standalone", "contract_only", "installable_extension", "suite_verified"
+        "standalone",
+        "contract_only",
+        "extension_candidate",
+        "installable_extension",
+        "suite_verified",
     ]
     harness_api: str
     python: str
+    extension_python: str | None = None
     supported_platforms: list[Literal["linux", "windows", "macos", "web"]]
     tested_platforms: list[Literal["linux", "windows", "macos", "web"]]
     evidence: list[str]
@@ -205,6 +229,17 @@ class CompatibilityRow(ClosedModel):
     def semantic_contract(self) -> CompatibilityRow:
         if not set(self.tested_platforms) <= set(self.supported_platforms):
             raise ValueError("tested platforms must be a subset of supported platforms")
+        if self.integration_status == "extension_candidate":
+            if self.extension_python != EXTENSION_CANDIDATE_PYTHON:
+                raise ValueError("extension candidates require the exact extension Python range")
+            if self.harness_api not in EXTENSION_CANDIDATE_HARNESS_APIS:
+                raise ValueError("extension candidates require an exact Harness API")
+            if not self.tested_platforms:
+                raise ValueError("extension candidates require a tested platform")
+            if not self.evidence:
+                raise ValueError("extension candidates require public evidence")
+        elif self.extension_python is not None:
+            raise ValueError("extension Python range is only for extension candidates")
         for path in self.evidence:
             _require_relative_public_path(path)
         return self
@@ -379,16 +414,7 @@ def validate_component_set(
     owned: dict[tuple[str, str], str] = {}
     for manifest in manifests:
         row = rows[manifest.component_id]
-        if manifest.integration_status != row.integration_status:
-            raise ValueError(f"integration status drift for {manifest.component_id}")
-        if manifest.compatibility.harness_api != row.harness_api:
-            raise ValueError(f"Harness API drift for {manifest.component_id}")
-        if manifest.compatibility.python != row.python:
-            raise ValueError(f"Python compatibility drift for {manifest.component_id}")
-        if manifest.compatibility.platforms.supported != row.supported_platforms:
-            raise ValueError(f"supported platform drift for {manifest.component_id}")
-        if manifest.compatibility.platforms.tested != row.tested_platforms:
-            raise ValueError(f"tested platform drift for {manifest.component_id}")
+        validate_component_compatibility(manifest, row)
         for category in ("modules", "checks", "collectors", "contracts"):
             for item in getattr(manifest.owns, category):
                 key = (category, item)
@@ -400,6 +426,23 @@ def validate_component_set(
                     )
                 owned[key] = manifest.component_id
     return manifests
+
+
+def validate_component_compatibility(
+    manifest: ComponentManifest, row: CompatibilityRow
+) -> None:
+    """Fail closed when a source manifest drifts from its central compatibility row."""
+
+    if manifest.integration_status != row.integration_status:
+        raise ValueError(f"integration status drift for {manifest.component_id}")
+    if manifest.compatibility.harness_api != row.harness_api:
+        raise ValueError(f"Harness API drift for {manifest.component_id}")
+    if manifest.compatibility.python != row.python:
+        raise ValueError(f"Python compatibility drift for {manifest.component_id}")
+    if manifest.compatibility.platforms.supported != row.supported_platforms:
+        raise ValueError(f"supported platform drift for {manifest.component_id}")
+    if manifest.compatibility.platforms.tested != row.tested_platforms:
+        raise ValueError(f"tested platform drift for {manifest.component_id}")
 
 
 def validate_component_lock(roots: list[Path]) -> ComponentsLock:
@@ -566,21 +609,27 @@ def _render_components(compatibility: EcosystemCompatibility) -> str:
         "",
         "> Generated from `ecosystem/compatibility.json` and the ordered component list.",
         "",
-        "| Component | Integration | Harness API | Supported | Tested |",
-        "|---|---|---|---|---|",
+        "| Component | Integration | Harness API | Source package Python | "
+        "Extension Python | Supported | Tested |",
+        "|---|---|---|---|---|---|---|",
     ]
     for row in compatibility.rows:
         supported = ", ".join(row.supported_platforms) or "none"
         tested = ", ".join(row.tested_platforms) or "not yet recorded"
         lines.append(
             f"| `{row.component_id}` | `{row.integration_status}` | "
-            f"`{row.harness_api}` | {supported} | {tested} |"
+            f"`{row.harness_api}` | `{row.python}` | "
+            f"`{row.extension_python or 'not applicable'}` | {supported} | {tested} |"
         )
     lines.extend(
         [
             "",
             "`contract_only` and `standalone` are honest current states. They do not mean",
             "the component is already installable through the Harness Extension API.",
+            "`extension_candidate` identifies an exact review-only source extension tested",
+            "by Harness; it is not a released dependency and grants no execution authority.",
+            "For that state, source-package Python preserves the base package declaration",
+            "and extension Python records the separately tested nested runtime range.",
         ]
     )
     return "\n".join(lines) + "\n"

@@ -1,0 +1,87 @@
+{
+  "contract_id": "harness-controlled-local-adapter-v1.0",
+  "documentation": {
+    "path": "docs/controlled-local-adapter.md",
+    "sha256": "f950560f95abe3bb690045ce0d6594b4ae9d68b9173cda159a776a0112b888b8"
+  },
+  "external_provider_calls": false,
+  "gateway_policy_sha256": "373c568f6dab98b4ca8e464e1867d035715a4baa6c4981a0142c3a72f3f27705",
+  "generator": {
+    "path": "tools/controlled_local_adapter_contracts.py",
+    "sha256": "434b6f3f88082c7e718aa3be0af14b5939cc0c04b79866db0d9cfb2ea8eb8086"
+  },
+  "harness_api": "1",
+  "implementation": {
+    "path": "src/agentic_security_harness/controlled_local_adapter.py",
+    "sha256": "0d92f09a6e39cd828f2ff904afdd7acce064f4ad77f117f5ce7bbede4179990d"
+  },
+  "json_schema_scope": "closed_shape_only_semantic_validation_in_python",
+  "model_identity": "opaque_operator_selected_token_no_vendor_attestation",
+  "operational_authority": "none",
+  "provider_authenticated": false,
+  "provider_tool_adapter": {
+    "path": "src/agentic_security_harness/provider_tool_adapters.py",
+    "sha256": "81f794706bc468e00b5a6f68440d62df9e5aee612bc9049e77ea36733d995210"
+  },
+  "public_api": {
+    "path": "src/agentic_security_harness/__init__.py",
+    "sha256": "eb7aa2e995bcdc8381d6598a0c6900514ec09c46b1da19b450c7aeb0f75800f5"
+  },
+  "receipt_retention": "digest_counters_fixed_codes_only",
+  "runtime_gateway": {
+    "path": "src/agentic_security_harness/runtime_gateway.py",
+    "sha256": "9bca546b9cbefb1859d4c02eb29ca7ae37c46d4e56b2d746dd5dca169bda9db6"
+  },
+  "schema_version": "harness-controlled-local-adapter-contract-manifest-v1.0",
+  "schemas": [
+    {
+      "path": "schemas/controlled-local-adapter-config.v1.schema.json",
+      "sha256": "a5d86f8197eed334a793a6c65cbe99d9e5ccfd79ec5cc32653475709f5774cb8"
+    },
+    {
+      "path": "schemas/controlled-local-invocation-receipt.v1.schema.json",
+      "sha256": "b3e8cfe63c321ff3b5e7e36b8fb1f08146c17ad5db919e0efcf310a546be6636"
+    },
+    {
+      "path": "schemas/controlled-local-tool-receipt.v1.schema.json",
+      "sha256": "f3f247cced399431e5b78d8485d30e7afbf3f29dd0116f6b0ac4a9d6aa77c69a"
+    }
+  ],
+  "tool_host": {
+    "arbitrary_tools": false,
+    "executors": [
+      "synthetic.lookup",
+      "synthetic.sha256"
+    ],
+    "normalizer": "provider_tool_adapters.openai_responses",
+    "policy_before_dispatch": true,
+    "replay_guard": "in_memory_digest_reservation_fail_closed_at_4096",
+    "upstream_mcp": false
+  },
+  "transport": {
+    "caller_headers": false,
+    "cancellation_scope": "before_request_and_in_flight_transport_and_post_response",
+    "credentials": false,
+    "deadline_scope": "monotonic_connect_send_read_and_all_retries",
+    "dns": false,
+    "hosts": [
+      "127.0.0.1",
+      "::1"
+    ],
+    "path": "/v1/responses",
+    "proxy_environment": false,
+    "redirects": false,
+    "response_content_length_required": true,
+    "response_content_type": "application/json",
+    "scheme": "http",
+    "streaming": false
+  },
+  "unit_tests": {
+    "path": "tests/test_controlled_local_adapter.py",
+    "sha256": "1dea6cf867b182ba6cce582617fbeb5b794956c82cb1e52269e194d59edaf4c8"
+  },
+  "workflow": {
+    "path": ".github/workflows/ecosystem-docs.yml",
+    "sha256": "d4b27f9caa105e494b81c4cf62a6f6a9b6673e85ab1fc08e063b9bd85e4ed07f"
+  }
+}

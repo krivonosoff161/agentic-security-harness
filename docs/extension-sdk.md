@@ -96,10 +96,11 @@ tool payloads.
 
 ## Current and next integration state
 
-The SDK is the core contract slice. Companion repositories remain standalone or
-contract-only until each one has a source-owned adapter, synthetic conformance tests, and
-an exact compatibility row. Adding a README link or a manifest alone does not make a
-component installable.
+The SDK is the core contract slice. Transfer Verifier and AI Agent Handoff now expose
+exact-pinned, review-only `extension_candidate` source trees; other companions remain in
+their source-owned state until they have an adapter, synthetic conformance tests, and an
+exact compatibility row. The candidate label does not make a component released,
+auto-installed, authenticated, sandboxed, or trusted.
 
 The reviewed slices are:
 
@@ -113,3 +114,10 @@ The reviewed slices are:
 
 Passing these synthetic tests does not establish independent detector effectiveness or
 production safety.
+
+The exact source DAG and forward-compatibility test are recorded in
+[ecosystem-integration-candidate.md](ecosystem-integration-candidate.md). Transfer binds
+the Harness `6354635c...` ancestor baseline and Handoff binds the older `285d05ad...`
+ancestor baseline; the central Ubuntu/Windows E2E gate tests those sources against the
+current Harness candidate without pretending that companion and Harness heads can
+mutually pin one another.

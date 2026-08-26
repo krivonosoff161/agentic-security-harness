@@ -22,7 +22,7 @@
   "runtime_closure": [
     {
       "path": "src/agentic_security_harness/__init__.py",
-      "sha256": "ed61b0326d0bec05915907b3c3405d568525995a3a3095d396e12b4f11c67b15"
+      "sha256": "eb7aa2e995bcdc8381d6598a0c6900514ec09c46b1da19b450c7aeb0f75800f5"
     },
     {
       "path": "src/agentic_security_harness/extension_sdk.py",
@@ -56,6 +56,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "86a9a832acde71b5d521771c9c5c4c110653c2f80c13b85f02e160041ee6c5d9"
+    "sha256": "d4b27f9caa105e494b81c4cf62a6f6a9b6673e85ab1fc08e063b9bd85e4ed07f"
   }
 }

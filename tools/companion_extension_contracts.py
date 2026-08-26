@@ -48,6 +48,22 @@ def generated_contracts() -> dict[Path, bytes]:
         ),
         "workflow": _bound_file(ROOT / ".github" / "workflows" / "ecosystem-docs.yml"),
         "documentation": _bound_file(ROOT / "docs" / "companion-extensions.md"),
+        "integration_candidate": {
+            "build_requirements_in": _bound_file(ROOT / "requirements" / "build.in"),
+            "build_requirements_lock": _bound_file(ROOT / "requirements" / "build.txt"),
+            "development_requirements_in": _bound_file(ROOT / "requirements" / "dev.in"),
+            "development_requirements_lock": _bound_file(ROOT / "requirements" / "dev.txt"),
+            "workflow": _bound_file(
+                ROOT / ".github" / "workflows" / "ecosystem-integration.yml"
+            ),
+            "test": _bound_file(
+                ROOT / "tests" / "test_ecosystem_integration_candidate.py"
+            ),
+            "documentation": _bound_file(
+                ROOT / "docs" / "ecosystem-integration-candidate.md"
+            ),
+            "compatibility": _bound_file(ROOT / "ecosystem" / "compatibility.json"),
+        },
         "reviewed_sources": list(reviewed_companion_sources_v1()),
         "contract_digest_semantics": "sha256_lf_normalized_text_v1",
         "json_schema_scope": "closed_shape_only_semantic_validation_in_python",

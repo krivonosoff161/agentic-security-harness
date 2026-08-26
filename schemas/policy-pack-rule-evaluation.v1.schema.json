@@ -1,0 +1,79 @@
+{
+  "additionalProperties": false,
+  "description": "Deterministic parity projection of one source rule result.",
+  "properties": {
+    "advisory_disposition": {
+      "enum": [
+        "observe",
+        "challenge",
+        "escalate",
+        "abstain"
+      ],
+      "title": "Advisory Disposition",
+      "type": "string"
+    },
+    "matched": {
+      "title": "Matched",
+      "type": "boolean"
+    },
+    "may_authorize_effects": {
+      "const": false,
+      "title": "May Authorize Effects",
+      "type": "boolean"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "playbook_path": {
+      "maxLength": 256,
+      "minLength": 1,
+      "title": "Playbook Path",
+      "type": "string"
+    },
+    "playbook_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Playbook Sha256",
+      "type": "string"
+    },
+    "reason_code": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Reason Code",
+      "type": "string"
+    },
+    "rule_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Rule Id",
+      "type": "string"
+    },
+    "signal": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "title": "Signal",
+      "type": "string"
+    },
+    "signal_state": {
+      "enum": [
+        "absent",
+        "present",
+        "unknown"
+      ],
+      "title": "Signal State",
+      "type": "string"
+    }
+  },
+  "required": [
+    "rule_id",
+    "signal",
+    "signal_state",
+    "matched",
+    "advisory_disposition",
+    "reason_code",
+    "playbook_path",
+    "playbook_sha256",
+    "may_authorize_effects",
+    "operational_authority"
+  ],
+  "title": "PolicyPackRuleEvaluationV1",
+  "type": "object"
+}

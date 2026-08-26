@@ -33,10 +33,16 @@ future work and must not be inferred from this release.
 
 The unreleased Extension SDK review stack now includes exact-source companion adapters,
 offline Security Intelligence, deterministic Router/Cheap Filter receipt auditors,
-verified installed-distribution metadata, and an explicit metadata-only operator lifecycle.
+verified installed-distribution metadata, an explicit metadata-only operator lifecycle,
+closed optional Corpus Pack composition that preserves the frozen 24-pattern corpus 1.0.0,
+an exact-pinned data-only Playbooks Policy Pack extension, and a controlled
+literal-loopback local provider/tool-host adapter.
 These are source candidates, not shipped capability: receipt conformance binds accounting
 bytes and event linkage only, never a pass/allow decision, producer authenticity,
-effectiveness claim, provider call, deployment, or enforcement authority.
+effectiveness claim, external provider call, deployment, or enforcement authority. The
+local adapter neither authenticates the local process nor exposes arbitrary tools; it
+keeps the Runtime Gateway's two deterministic synthetic executors and authority-free
+policy boundary.
 Lifecycle approval, disable, list, and rollback-plan artifacts do not authenticate an
 operator, discover running state, load code, or prove an executable-state transition.
 

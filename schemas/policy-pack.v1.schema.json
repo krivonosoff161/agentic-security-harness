@@ -1,0 +1,159 @@
+{
+  "$defs": {
+    "PolicyPackRuleV1": {
+      "additionalProperties": false,
+      "description": "One exact advisory rule retained as data, never executable playbook text.",
+      "properties": {
+        "absent_disposition": {
+          "const": "observe",
+          "title": "Absent Disposition",
+          "type": "string"
+        },
+        "may_authorize_effects": {
+          "const": false,
+          "title": "May Authorize Effects",
+          "type": "boolean"
+        },
+        "operational_authority": {
+          "const": "none",
+          "title": "Operational Authority",
+          "type": "string"
+        },
+        "playbook_path": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Playbook Path",
+          "type": "string"
+        },
+        "playbook_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Playbook Sha256",
+          "type": "string"
+        },
+        "present_disposition": {
+          "enum": [
+            "observe",
+            "challenge",
+            "escalate",
+            "abstain"
+          ],
+          "title": "Present Disposition",
+          "type": "string"
+        },
+        "rule_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "signal": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "title": "Signal",
+          "type": "string"
+        },
+        "unknown_disposition": {
+          "enum": [
+            "observe",
+            "challenge",
+            "escalate",
+            "abstain"
+          ],
+          "title": "Unknown Disposition",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "signal",
+        "playbook_path",
+        "playbook_sha256",
+        "absent_disposition",
+        "present_disposition",
+        "unknown_disposition",
+        "may_authorize_effects",
+        "operational_authority"
+      ],
+      "title": "PolicyPackRuleV1",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Closed semantic model of the exact reviewed canonical policy pack.",
+  "properties": {
+    "allowed_dispositions": {
+      "items": {
+        "enum": [
+          "observe",
+          "challenge",
+          "escalate",
+          "abstain"
+        ],
+        "type": "string"
+      },
+      "title": "Allowed Dispositions",
+      "type": "array"
+    },
+    "may_authorize_effects": {
+      "const": false,
+      "title": "May Authorize Effects",
+      "type": "boolean"
+    },
+    "operational_authority": {
+      "const": "none",
+      "title": "Operational Authority",
+      "type": "string"
+    },
+    "pack_id": {
+      "const": "llm-safety-playbooks-core",
+      "title": "Pack Id",
+      "type": "string"
+    },
+    "pack_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Pack Sha256",
+      "type": "string"
+    },
+    "playbook_digest_semantics": {
+      "const": "sha256_lf_normalized_text_v1",
+      "title": "Playbook Digest Semantics",
+      "type": "string"
+    },
+    "policy_mode": {
+      "const": "deterministic_offline_advisory_only",
+      "title": "Policy Mode",
+      "type": "string"
+    },
+    "rules": {
+      "items": {
+        "$ref": "#/$defs/PolicyPackRuleV1"
+      },
+      "maxItems": 7,
+      "minItems": 7,
+      "title": "Rules",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "llm-safety-policy-pack-v1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "verdict_semantics": {
+      "const": "advisory_only_no_allow_or_enforcement",
+      "title": "Verdict Semantics",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "pack_id",
+    "pack_sha256",
+    "policy_mode",
+    "playbook_digest_semantics",
+    "rules",
+    "allowed_dispositions",
+    "verdict_semantics",
+    "may_authorize_effects",
+    "operational_authority"
+  ],
+  "title": "PolicyPackV1",
+  "type": "object"
+}

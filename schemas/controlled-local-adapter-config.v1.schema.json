@@ -1,0 +1,68 @@
+{
+  "$id": "https://github.com/krivonosoff161/agentic-security-harness/blob/main/schemas/controlled-local-adapter-config.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Immutable transport limits for one operator-selected local endpoint.",
+  "properties": {
+    "host": {
+      "default": "127.0.0.1",
+      "enum": [
+        "127.0.0.1",
+        "::1"
+      ],
+      "title": "Host",
+      "type": "string"
+    },
+    "max_request_bytes": {
+      "default": 65536,
+      "maximum": 65536,
+      "minimum": 1024,
+      "title": "Max Request Bytes",
+      "type": "integer"
+    },
+    "max_response_bytes": {
+      "default": 65536,
+      "maximum": 65536,
+      "minimum": 1024,
+      "title": "Max Response Bytes",
+      "type": "integer"
+    },
+    "max_retries": {
+      "default": 0,
+      "maximum": 2,
+      "minimum": 0,
+      "title": "Max Retries",
+      "type": "integer"
+    },
+    "path": {
+      "const": "/v1/responses",
+      "default": "/v1/responses",
+      "title": "Path",
+      "type": "string"
+    },
+    "port": {
+      "maximum": 65535,
+      "minimum": 1,
+      "title": "Port",
+      "type": "integer"
+    },
+    "schema_version": {
+      "const": "AgenticSecurityHarnessControlledLocalAdapterConfig.v1",
+      "default": "AgenticSecurityHarnessControlledLocalAdapterConfig.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "timeout_milliseconds": {
+      "default": 2000,
+      "maximum": 30000,
+      "minimum": 50,
+      "title": "Timeout Milliseconds",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "port"
+  ],
+  "title": "ControlledLocalAdapterConfigV1",
+  "type": "object"
+}

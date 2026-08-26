@@ -8,7 +8,7 @@
   "evidence_provenance": "external_unreviewed",
   "extension_sdk_contract": {
     "path": "schemas/extension-sdk.v1.manifest.json",
-    "sha256": "bb69984769aaabc5d3b0312bcc8de1532361604795fe5fdb3b7d713252042a2c"
+    "sha256": "27d500a7ed165d43b85d456cec906225bd70a557654697eb0794aa5bb9c06f91"
   },
   "generator": {
     "path": "tools/security_intelligence_contracts.py",
@@ -52,6 +52,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "86a9a832acde71b5d521771c9c5c4c110653c2f80c13b85f02e160041ee6c5d9"
+    "sha256": "d4b27f9caa105e494b81c4cf62a6f6a9b6673e85ab1fc08e063b9bd85e4ed07f"
   }
 }

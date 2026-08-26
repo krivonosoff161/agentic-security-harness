@@ -1,0 +1,98 @@
+{
+  "$id": "https://github.com/krivonosoff161/agentic-security-harness/blob/main/schemas/controlled-local-tool-receipt.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Digest-only record of one gateway policy decision and synthetic dispatch.",
+  "properties": {
+    "arguments_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Arguments Sha256",
+      "type": "string"
+    },
+    "call_id_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Call Id Sha256",
+      "type": "string"
+    },
+    "correlation_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Correlation Sha256",
+      "type": "string"
+    },
+    "disposition": {
+      "enum": [
+        "allow",
+        "deny",
+        "require_approval"
+      ],
+      "title": "Disposition",
+      "type": "string"
+    },
+    "effect": {
+      "enum": [
+        "pure",
+        "external",
+        "process",
+        "unknown"
+      ],
+      "title": "Effect",
+      "type": "string"
+    },
+    "execution_permitted": {
+      "title": "Execution Permitted",
+      "type": "boolean"
+    },
+    "policy_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Policy Sha256",
+      "type": "string"
+    },
+    "reason_code": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{0,127}$",
+      "title": "Reason Code",
+      "type": "string"
+    },
+    "result_observed": {
+      "title": "Result Observed",
+      "type": "boolean"
+    },
+    "result_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Result Sha256",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "AgenticSecurityHarnessControlledLocalToolReceipt.v1",
+      "default": "AgenticSecurityHarnessControlledLocalToolReceipt.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "sequence": {
+      "maximum": 8,
+      "minimum": 1,
+      "title": "Sequence",
+      "type": "integer"
+    },
+    "tool_name_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Tool Name Sha256",
+      "type": "string"
+    }
+  },
+  "required": [
+    "sequence",
+    "correlation_sha256",
+    "call_id_sha256",
+    "tool_name_sha256",
+    "arguments_sha256",
+    "policy_sha256",
+    "disposition",
+    "reason_code",
+    "effect",
+    "execution_permitted",
+    "result_observed",
+    "result_sha256"
+  ],
+  "title": "ControlledLocalToolReceiptV1",
+  "type": "object"
+}

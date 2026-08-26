@@ -15,6 +15,9 @@ on:
       - "tools/companion_extension_contracts.py"
       - "tools/security_intelligence_contracts.py"
       - "tools/receipt_auditor_contracts.py"
+      - "tools/corpus_pack_contracts.py"
+      - "tools/controlled_local_adapter_contracts.py"
+      - "tools/policy_pack_extension_contracts.py"
       - "tests/test_ecosystem_docs.py"
       - "src/agentic_security_harness/extension_sdk.py"
       - "src/agentic_security_harness/extension_distribution.py"
@@ -24,6 +27,13 @@ on:
       - "src/agentic_security_harness/companion_extensions.py"
       - "src/agentic_security_harness/security_intelligence.py"
       - "src/agentic_security_harness/receipt_auditors.py"
+      - "src/agentic_security_harness/corpus_packs.py"
+      - "src/agentic_security_harness/controlled_local_adapter.py"
+      - "src/agentic_security_harness/__init__.py"
+      - "src/agentic_security_harness/provider_tool_adapters.py"
+      - "src/agentic_security_harness/runtime_gateway.py"
+      - "src/agentic_security_harness/policy_pack_extension.py"
+      - "src/agentic_security_harness/cli.py"
       - "tests/test_extension_sdk.py"
       - "tests/test_extension_distribution.py"
       - "tests/test_extension_lifecycle.py"
@@ -32,6 +42,11 @@ on:
       - "tests/test_cross_repo_extension_compatibility.py"
       - "tests/test_receipt_auditors.py"
       - "tests/test_cross_repo_receipt_compatibility.py"
+      - "tests/test_corpus_packs.py"
+      - "tests/test_controlled_local_adapter.py"
+      - "tests/test_policy_pack_extension.py"
+      - "tests/test_cli_authority.py"
+      - "tests/test_cross_repo_policy_pack_compatibility.py"
       - "README.md"
   push:
     branches: [main]
@@ -61,7 +76,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/agentic-transfer-verifier
-          ref: f3ab9e00c71a6d62c1754657ffdfe57e8a5f4dd5
+          ref: 240f3081b6614439e03d61479114e330fe7c3d52
           path: components/transfer
           persist-credentials: false
 
@@ -69,7 +84,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/ai-agent-handoff
-          ref: cb228ecdecd91f16daaa362a91fc0230886d41c0
+          ref: f4e51e0603497f63c62453fc4030319fdfc5ac04
           path: components/handoff
           persist-credentials: false
 
@@ -77,15 +92,23 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/llm-safety-playbooks
-          ref: 18aa28464f092ecaebaedededf1bfd927f44ff2d
+          ref: 5a6519df5a54c103cd4b5ca14b479867c549d7d3
           path: components/playbooks
+          persist-credentials: false
+
+      - name: Check out Policy Pack V1 contract
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: krivonosoff161/llm-safety-playbooks
+          ref: 5a6519df5a54c103cd4b5ca14b479867c549d7d3
+          path: components/playbooks-policy-pack-v1
           persist-credentials: false
 
       - name: Check out Router contract
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/llm-router
-          ref: 31d4cb7b6e7f29ccefe55a569efba02d9b97b205
+          ref: 790a101ba82fa34203219d7963978a20b55cf504
           path: components/router
           persist-credentials: false
 
@@ -93,7 +116,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/llm-cheap-filter
-          ref: 02b15b977b3ac9ebad119a9183ebd326a51050de
+          ref: 8dd1ffb8a453f62c9dd4b4a518754a23bd1651b6
           path: components/filter
           persist-credentials: false
 
@@ -123,6 +146,9 @@ jobs:
           python tools/companion_extension_contracts.py check
           python tools/security_intelligence_contracts.py check
           python tools/receipt_auditor_contracts.py check
+          python tools/corpus_pack_contracts.py check
+          python tools/controlled_local_adapter_contracts.py check
+          python tools/policy_pack_extension_contracts.py check
 
       - name: Validate exact component lock
         run: >-
@@ -149,6 +175,7 @@ jobs:
           ASH_PLAYBOOKS_ROOT: ${{ github.workspace }}/components/playbooks
           ASH_ROUTER_ROOT: ${{ github.workspace }}/components/router
           ASH_FILTER_ROOT: ${{ github.workspace }}/components/filter
+          ASH_POLICY_PACK_ROOT: ${{ github.workspace }}/components/playbooks-policy-pack-v1
           GIT_OPTIONAL_LOCKS: "0"
         run: >-
           python -m pytest -q
@@ -160,6 +187,11 @@ jobs:
           tests/test_cross_repo_extension_compatibility.py
           tests/test_receipt_auditors.py
           tests/test_cross_repo_receipt_compatibility.py
+          tests/test_corpus_packs.py
+          tests/test_controlled_local_adapter.py
+          tests/test_policy_pack_extension.py
+          tests/test_cli_authority.py
+          tests/test_cross_repo_policy_pack_compatibility.py
 
   windows-stable-read:
     strategy:

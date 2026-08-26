@@ -21,6 +21,7 @@ READ_ONLY_COMMANDS = {
     "extension-lifecycle-disable",
     "extension-lifecycle-list",
     "extension-lifecycle-rollback-plan",
+    "policy-pack-evaluate",
     "gateway-check",
     "validate",
     "targets",

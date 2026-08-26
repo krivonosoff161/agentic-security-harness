@@ -88,6 +88,11 @@ validated observation-to-finding dataflow. It does not auto-load installed packa
 is not part of the published `1.2.0` surface; selected checks become installable only
 after their own conformance and release gates.
 
+The stacked [Corpus Pack SDK V1](docs/corpus-pack-sdk.md) candidate adds a separate,
+canonical registry for optional namespaced boundary-invariant metadata. It preserves the
+frozen corpus 1.0.0, loads no package code, and treats complete evidence as readiness for
+later rule evaluation rather than a security verdict.
+
 The stacked [companion adapter candidate](docs/companion-extensions.md) now exercises
 exact Transfer Verifier reports, Handoff metadata and Playbooks guidance through that
 SDK on Linux and Windows. This closes a concrete producer-to-consumer dataflow gap; it
@@ -116,6 +121,19 @@ commands, adds canonical disable and non-executable rollback-plan receipts, and 
 explicitly supplied receipt state. It never imports, downloads, starts, stops, or rolls
 back extension code; the embedding application must construct and bind an object and
 enforce any accepted disable artifact.
+
+Above that stack, the [controlled local adapter candidate](docs/controlled-local-adapter.md)
+connects only to an operator-started literal-loopback `/v1/responses` endpoint and passes
+canonical tool calls through the existing closed Runtime Gateway policy. It supports local
+model names as opaque identifiers—including Qwen and DeepSeek-style names—without vendor
+claims. It has no DNS, proxy, redirect, credential, external-provider, arbitrary-tool, or
+upstream-MCP path; receipts are digest-only and operational authority remains `none`.
+
+The stacked [Policy Pack extension candidate](docs/policy-pack-extension.md) independently
+parses one exact-pinned data-only Playbooks pack and evaluates caller-supplied content-free
+signals bound to canonical observations. A missing pack is inconclusive; production
+Harness does not import or execute Playbooks code, discover packages, call a network, or
+grant allow/enforcement authority.
 
 | Target | Modeled findings | Patterns passed |
 |---|---:|---:|
@@ -259,6 +277,9 @@ The README is the front door; deeper contracts live in `docs/`:
 | How does an operator approve, list, disable, or plan rollback without automatic code loading? | [Extension Operator Lifecycle V1](docs/extension-operator-lifecycle.md) |
 | Which companion contracts already have executable cross-repository adapters? | [Companion Extension adapters](docs/companion-extensions.md) |
 | How are weekly public security inputs reviewed without provider lock-in? | [Security Intelligence extension](docs/security-intelligence-extension.md) |
+| How can optional packages add patterns without overriding the stable corpus? | [Corpus Pack SDK V1](docs/corpus-pack-sdk.md) |
+| How can an operator connect one local model without opening arbitrary tools? | [Controlled local provider/tool-host adapter](docs/controlled-local-adapter.md) |
+| How is the reviewed Playbooks Policy Pack evaluated without importing its code? | [Policy Pack V1 extension](docs/policy-pack-extension.md) |
 
 Specialized reviewer paths:
 
@@ -306,6 +327,9 @@ llm-safety-playbooks -> ai-agent-handoff -> agentic-transfer-verifier -> agentic
 
 The repositories are related but not interchangeable. A playbook is not a runtime control,
 a handoff file is not a sandbox, and a passing benchmark is not a production certificate.
+The review-only [ecosystem integration candidate](docs/ecosystem-integration-candidate.md)
+builds the optional Transfer and Handoff extension wheels and exercises their explicit
+approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install them.
 
 ## Release and package status
 
