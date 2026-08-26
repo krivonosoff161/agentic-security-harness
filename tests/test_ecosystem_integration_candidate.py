@@ -429,3 +429,17 @@ def test_integration_workflow_preserves_first_party_ruff_scope() -> None:
     ).splitlines()
     assert "examples/fake_openai_server.py" in tracked_first_party
     assert any(path.startswith("fuzz/") for path in tracked_first_party)
+
+
+def test_integration_workflow_installs_only_the_built_local_wheel() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "ecosystem-integration.yml").read_text(
+        encoding="utf-8"
+    )
+    assert any(
+        line.strip()
+        == "python -m pip install --no-index --no-deps --force-reinstall "
+        "dist/agentic_security_harness-1.3.0-py3-none-any.whl"
+        for line in workflow.splitlines()
+    )
+    assert "--find-links dist agentic-security-harness==" not in workflow
+    assert "dist/*.whl" not in workflow

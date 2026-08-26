@@ -52,11 +52,11 @@
     },
     "test": {
       "path": "tests/test_ecosystem_integration_candidate.py",
-      "sha256": "a0993180847e045b3adbceaec8f91032d21c2ca3f0d912feb8aad36bc098be2d"
+      "sha256": "c69f6ae765f844715b9a91111068afa107cccf7f019ce61f3cea05a9c9319768"
     },
     "workflow": {
       "path": ".github/workflows/ecosystem-integration.yml",
-      "sha256": "d4fce484ae8c45b1f818fe2ed502931bba43b8dd31c60b2deb14524c1c2b54e5"
+      "sha256": "92bb92a0b6ec309f1f765eb0576161625f2f7730801fe4aa23e487509e25e8bb"
     }
   },
   "integration_model": "explicit_normalized_digest_bound_outputs",
