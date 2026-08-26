@@ -85,6 +85,6 @@
   "valid_accounting_disposition": "inconclusive_no_security_verdict",
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "aaf3d88c86d4b9d1885e7eecfeb17489e06563d31735cd9797400761c573ed96"
+    "sha256": "86a9a832acde71b5d521771c9c5c4c110653c2f80c13b85f02e160041ee6c5d9"
   }
 }

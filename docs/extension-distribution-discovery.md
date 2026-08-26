@@ -50,9 +50,18 @@ The inspection receipt contains portable relative paths and SHA-256 bindings for
 Unknown or duplicate RECORD paths, non-SHA-256 rows, size drift, metadata-directory extras,
 files outside the one source module plus `.dist-info`, entry-point extras, duplicate matching
 distributions, path links/reparse points and post-inspection drift are rejected. Files are
-opened without following links where the platform supports it, matched to the inspected
-descriptor, and read twice through that descriptor before their RECORD digest is checked. Inspection
-and approval receipts use closed schemas and content-derived identities.
+opened without following links where the platform supports it. Pre/post path metadata is
+compared with path metadata, while two independently opened descriptors must have the same
+descriptor identity and exact repeated bytes. POSIX keeps the path-stat-to-descriptor-stat
+identity binding and `O_NOFOLLOW`. Windows uses native `CreateFileW` with
+`FILE_FLAG_OPEN_REPARSE_POINT` and read sharing only for the target and every directory
+from the selected root to its parent. Write, delete and rename access is denied while those
+handles are open. A final same-path native handle must match the locked first handle's file
+id, attributes and bytes, and directory identities plus path topology are rechecked before
+any guard is released. This avoids comparing incompatible Windows path-stat and handle-stat
+device/inode representations without dropping the regular, single-link, size, reparse,
+stable-content or RECORD digest checks. Inspection and approval receipts use closed schemas
+and content-derived identities.
 
 The generated contract manifest binds the implementation and its public API, Extension
 SDK, portfolio-contract and safe-I/O runtime closure, together with tests, documentation
@@ -102,5 +111,6 @@ download, update, rollback, network, provider, tool, deployment, enforcement or 
 authority in V1.
 
 Synthetic tests create local wheel archives, extract them into isolated roots, and exercise
-success, drift, collision, extra-file, unsafe-entry-point, hard-link, canonical-receipt and
-manifest/configuration mismatch paths on Linux and Windows.
+success, drift, collision, extra-file, unsafe-entry-point, hard-link, reparse, oversize,
+descriptor-target swap, canonical-receipt and manifest/configuration mismatch paths. A
+dedicated Windows matrix runs the distribution suite on Python 3.11, 3.12 and 3.13.

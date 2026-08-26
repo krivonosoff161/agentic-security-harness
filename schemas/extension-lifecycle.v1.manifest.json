@@ -37,7 +37,7 @@
     },
     {
       "path": "src/agentic_security_harness/extension_distribution.py",
-      "sha256": "51a75618b2ea6c9d696be9e7a4f59766e1918be011c0058fcf21d9a3bc005802"
+      "sha256": "e8bf5c2792e271c7363a7b51ce4f0450472649d1216099aea79a19915339a6e6"
     },
     {
       "path": "src/agentic_security_harness/extension_sdk.py",
@@ -74,6 +74,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "aaf3d88c86d4b9d1885e7eecfeb17489e06563d31735cd9797400761c573ed96"
+    "sha256": "86a9a832acde71b5d521771c9c5c4c110653c2f80c13b85f02e160041ee6c5d9"
   }
 }
