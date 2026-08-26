@@ -80,7 +80,7 @@ REVIEWED_COMPANION_SOURCES_V1: Final = (
     ReviewedCompanionSourceV1(
         component_id="agentic-transfer-verifier",
         repository="https://github.com/krivonosoff161/agentic-transfer-verifier",
-        commit="eeb8d05de0531fd79d49de8281e700558ef58707",
+        commit="240f3081b6614439e03d61479114e330fe7c3d52",
         component_manifest_sha256=(
             "c71d011af801c7ab21be19d99914eb67076d3f35dd3896d48f47789d52442473"
         ),
@@ -94,7 +94,7 @@ REVIEWED_COMPANION_SOURCES_V1: Final = (
     ReviewedCompanionSourceV1(
         component_id="ai-agent-handoff",
         repository="https://github.com/krivonosoff161/ai-agent-handoff",
-        commit="d91c04e9c377c4cc1a8a098885999ca79be3bb95",
+        commit="f4e51e0603497f63c62453fc4030319fdfc5ac04",
         component_manifest_sha256=(
             "7d6aad48e90cb322f3f2a3176208f7ef9095bf3d7e65a662c8cc2df52296ea15"
         ),
@@ -108,7 +108,7 @@ REVIEWED_COMPANION_SOURCES_V1: Final = (
     ReviewedCompanionSourceV1(
         component_id="llm-safety-playbooks",
         repository="https://github.com/krivonosoff161/llm-safety-playbooks",
-        commit="dc7a695e192c43ed242d71a06290754c82596e2d",
+        commit="5a6519df5a54c103cd4b5ca14b479867c549d7d3",
         component_manifest_sha256=(
             "b60f7332d153c356a864561166ca94fd9107db35b71c88daf692102286222fc7"
         ),

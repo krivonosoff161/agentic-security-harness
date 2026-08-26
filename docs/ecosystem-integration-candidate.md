@@ -9,11 +9,11 @@ companions automatically, and grants no execution or deployment authority.
 | Surface | Source head | Source tree | Role in this gate |
 |---|---|---|---|
 | Harness baseline | `6354635c6411830de95dd3b68c962eb887cb5edb` | `e9609592fe4fd3f7ab89c0bdf48ed68fb0178516` | ancestor containing the Extension SDK, distribution, and lifecycle contracts |
-| Transfer extension | `eeb8d05de0531fd79d49de8281e700558ef58707` | `c00e56020f881f33612416b02d58a7b762b3f711` | nested no-dependency Harness extension plus `agentic-transfer-verifier` runtime wheel |
-| Handoff extension | `d91c04e9c377c4cc1a8a098885999ca79be3bb95` | `6b2f6c6d7ffb800eab10f4a15d6775c9d22e0d89` | nested no-dependency Harness extension plus `ai-agent-handoff` runtime wheel |
-| Policy Pack | `dc7a695e192c43ed242d71a06290754c82596e2d` | `ab88886f92dc1efdbdc10a1761c91d3fceca8622` | exact data-only policy pack source |
-| Router receipts | `31d4cb7b6e7f29ccefe55a569efba02d9b97b205` | `cd81236df83ab524e8fd8c4f78d337a2dc80251c` | exact receipt producer contract |
-| Cheap Filter receipts | `02b15b977b3ac9ebad119a9183ebd326a51050de` | `d42f7f47a85a80cfe435a890c6ddd695085943b4` | exact receipt producer contract |
+| Transfer extension | `240f3081b6614439e03d61479114e330fe7c3d52` | `8e2e3319776a48fb96e04a2cd34ed83bb5d3d191` | nested no-dependency Harness extension plus `agentic-transfer-verifier` runtime wheel |
+| Handoff extension | `f4e51e0603497f63c62453fc4030319fdfc5ac04` | `78311595f72469748469a1dfd4dc4a286244159f` | nested no-dependency Harness extension plus `ai-agent-handoff` runtime wheel |
+| Policy Pack | `5a6519df5a54c103cd4b5ca14b479867c549d7d3` | `ab88886f92dc1efdbdc10a1761c91d3fceca8622` | exact data-only policy pack source |
+| Router receipts | `790a101ba82fa34203219d7963978a20b55cf504` | `05fa373b1b16b276e44a9d39942127af729e7d23` | exact receipt producer contract |
+| Cheap Filter receipts | `8dd1ffb8a453f62c9dd4b4a518754a23bd1651b6` | `d42f7f47a85a80cfe435a890c6ddd695085943b4` | exact receipt producer contract |
 | Public profile projection | `07b55849cb4913d8b0b0cb77de312f3c28e61352` | `ab97172cf9de53262f2e24509a640751fa0ee063` | documentation projection only |
 
 The Transfer source-owned manifest names Harness `6354635c...` as its tested ancestor

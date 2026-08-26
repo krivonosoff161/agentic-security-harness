@@ -136,7 +136,7 @@ def _event(payload: bytes, *, event_id: str = SHA_A) -> CanonicalObservationEven
         event_id=event_id,
         project_id="llm-router",
         repository_id="krivonosoff161/llm-router",
-        repository_sha="31d4cb7b6e7f29ccefe55a569efba02d9b97b205",
+        repository_sha="790a101ba82fa34203219d7963978a20b55cf504",
         occurred_at=datetime.fromisoformat(OCCURRED_AT.replace("Z", "+00:00")),
         producer_id_hash=SHA_B,
         producer_attestation="unattested",
@@ -186,7 +186,7 @@ def _filter_event(payload: bytes) -> CanonicalObservationEventV1:
         event_id=SHA_C,
         project_id="llm-cheap-filter",
         repository_id="krivonosoff161/llm-cheap-filter",
-        repository_sha="02b15b977b3ac9ebad119a9183ebd326a51050de",
+        repository_sha="8dd1ffb8a453f62c9dd4b4a518754a23bd1651b6",
         occurred_at=datetime(2026, 8, 24, 2, 30, tzinfo=UTC),
         producer_id_hash=SHA_B,
         producer_attestation="unattested",
@@ -418,13 +418,13 @@ def test_receipt_replay_is_rejected_before_extension_execution() -> None:
 def test_source_pin_and_generated_schemas_are_closed() -> None:
     sources = {item["component_id"]: item for item in reviewed_receipt_sources_v1()}
     router = sources["llm-router"]
-    assert router["commit"] == "31d4cb7b6e7f29ccefe55a569efba02d9b97b205"
-    assert router["tree"] == "cd81236df83ab524e8fd8c4f78d337a2dc80251c"
+    assert router["commit"] == "790a101ba82fa34203219d7963978a20b55cf504"
+    assert router["tree"] == "05fa373b1b16b276e44a9d39942127af729e7d23"
     assert router["component_manifest_sha256"] == (
         "701a8a4b5169fd7c6b5c2ce557cf76ca4a36fff1d7c4bb182edf5bb606b3c317"
     )
     filter_source = sources["llm-cheap-filter"]
-    assert filter_source["commit"] == "02b15b977b3ac9ebad119a9183ebd326a51050de"
+    assert filter_source["commit"] == "8dd1ffb8a453f62c9dd4b4a518754a23bd1651b6"
     assert filter_source["tree"] == "d42f7f47a85a80cfe435a890c6ddd695085943b4"
     assert filter_source["component_manifest_sha256"] == (
         "64c44eebde9d51eb48e3277864fb3ee5b3dc2efef38000648c14af1dd6a4d13f"

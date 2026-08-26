@@ -81,8 +81,8 @@ REVIEWED_RECEIPT_SOURCES_V1: Final = (
     ReviewedReceiptSourceV1(
         component_id="llm-router",
         repository="https://github.com/krivonosoff161/llm-router",
-        commit="31d4cb7b6e7f29ccefe55a569efba02d9b97b205",
-        tree="cd81236df83ab524e8fd8c4f78d337a2dc80251c",
+        commit="790a101ba82fa34203219d7963978a20b55cf504",
+        tree="05fa373b1b16b276e44a9d39942127af729e7d23",
         component_manifest_sha256=(
             "701a8a4b5169fd7c6b5c2ce557cf76ca4a36fff1d7c4bb182edf5bb606b3c317"
         ),
@@ -99,7 +99,7 @@ REVIEWED_RECEIPT_SOURCES_V1: Final = (
     ReviewedReceiptSourceV1(
         component_id="llm-cheap-filter",
         repository="https://github.com/krivonosoff161/llm-cheap-filter",
-        commit="02b15b977b3ac9ebad119a9183ebd326a51050de",
+        commit="8dd1ffb8a453f62c9dd4b4a518754a23bd1651b6",
         tree="d42f7f47a85a80cfe435a890c6ddd695085943b4",
         component_manifest_sha256=(
             "64c44eebde9d51eb48e3277864fb3ee5b3dc2efef38000648c14af1dd6a4d13f"

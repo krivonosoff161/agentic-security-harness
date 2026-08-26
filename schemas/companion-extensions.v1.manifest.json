@@ -23,7 +23,7 @@
   "harness_api": "1",
   "implementation": {
     "path": "src/agentic_security_harness/companion_extensions.py",
-    "sha256": "35871bab0b09cd83ba93e2f517e36c4a8f02ba87d0699d7ef7d72605df9ccf38"
+    "sha256": "0b764813ea617eb493d9ff2b5b34509e300a678471ad454fbf5b76504ca2a614"
   },
   "integration_candidate": {
     "build_requirements_in": {
@@ -48,15 +48,15 @@
     },
     "documentation": {
       "path": "docs/ecosystem-integration-candidate.md",
-      "sha256": "e62a5370e7bbd3575ce967888ff073c1589d3dcdd3d0c5466515f82bc7103ec8"
+      "sha256": "355c7f6f307e62d29a02af25fb6d6a64ade2a855107bcb942ef69170ff0d92b9"
     },
     "test": {
       "path": "tests/test_ecosystem_integration_candidate.py",
-      "sha256": "c484fb2d2f2e9abf2c504748c55275167d70e874580b0efa1716504896b112a1"
+      "sha256": "345a973a5f0627f23cba81beb5a6e595671661e5cb9bb74c273be74089527d1f"
     },
     "workflow": {
       "path": ".github/workflows/ecosystem-integration.yml",
-      "sha256": "487fc4104e363138ca73604a99db110b01a9a83948b14eb37764220c139cc5a1"
+      "sha256": "ea540ff1462a6a302bd2f32f58f721f37ee871277cb93f8278f8c4dc1e7ee82f"
     }
   },
   "integration_model": "explicit_normalized_digest_bound_outputs",
@@ -64,7 +64,7 @@
   "operational_authority": "none",
   "reviewed_sources": [
     {
-      "commit": "eeb8d05de0531fd79d49de8281e700558ef58707",
+      "commit": "240f3081b6614439e03d61479114e330fe7c3d52",
       "component_id": "agentic-transfer-verifier",
       "component_manifest_sha256": "c71d011af801c7ab21be19d99914eb67076d3f35dd3896d48f47789d52442473",
       "contract_id": "transfer-verification-report",
@@ -74,7 +74,7 @@
       "repository": "https://github.com/krivonosoff161/agentic-transfer-verifier"
     },
     {
-      "commit": "d91c04e9c377c4cc1a8a098885999ca79be3bb95",
+      "commit": "f4e51e0603497f63c62453fc4030319fdfc5ac04",
       "component_id": "ai-agent-handoff",
       "component_manifest_sha256": "7d6aad48e90cb322f3f2a3176208f7ef9095bf3d7e65a662c8cc2df52296ea15",
       "contract_id": "handoff-metadata",
@@ -84,7 +84,7 @@
       "repository": "https://github.com/krivonosoff161/ai-agent-handoff"
     },
     {
-      "commit": "dc7a695e192c43ed242d71a06290754c82596e2d",
+      "commit": "5a6519df5a54c103cd4b5ca14b479867c549d7d3",
       "component_id": "llm-safety-playbooks",
       "component_manifest_sha256": "b60f7332d153c356a864561166ca94fd9107db35b71c88daf692102286222fc7",
       "contract_id": "portfolio-observation-guidance",
@@ -119,6 +119,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "9a95a7f0875c2473727952b0051e9e93e26a8bf4eb9434b820c4f01b4218c5d5"
+    "sha256": "d4b27f9caa105e494b81c4cf62a6f6a9b6673e85ab1fc08e063b9bd85e4ed07f"
   }
 }
