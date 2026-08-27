@@ -29,11 +29,11 @@ and rollback planning, plus binding of an already constructed object. Automatic 
 download, executable-state discovery, disable/rollback enforcement, operator
 authentication, sandboxing, and release remain separate future gates.
 
-The integrated stack is prepared as a source-only `v1.3.0` release candidate. Its
-remaining release sequence is exact-head review and full CI, followed only under separate
-owner authority by tag-bound reproducible build/provenance, TestPyPI review, PyPI
-promotion, and published-release verification. Candidate preparation does not imply any
-of those external state changes.
+The integrated stack is finalized as the `v1.3.0` release source. Its remaining release
+sequence is exact-head review and full CI, followed only under explicit owner authority
+by tag-bound reproducible build/provenance, TestPyPI review, PyPI promotion, and
+published-release verification. Release-source preparation does not imply any of those
+external state changes.
 
 ---
 

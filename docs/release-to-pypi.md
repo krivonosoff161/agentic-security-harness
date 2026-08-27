@@ -5,8 +5,8 @@ The package is published as `1.2.0` on
 manual, environment-gated OIDC promotion path used for that release and required for
 future releases. See the gates in [release-checklist.md](release-checklist.md).
 
-The repository source metadata is prepared for a source-only `1.3.0` candidate. That
-version is not published merely because these files exist; tag, attested release build,
+The repository source metadata is finalized for the `1.3.0` release source. That version
+is not published merely because these files exist; tag, attested release build,
 TestPyPI review, and PyPI promotion remain separate exact-head owner gates.
 
 ## Packaging facts (current)
