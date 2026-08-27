@@ -6,8 +6,8 @@ repository's `component.yaml`. The older `2026.08.02-r4-trajectory-containment` 
 Portfolio projection remains preserved as historical research evidence; it is not the
 current ecosystem product roadmap. Operational authority remains `none`.
 
-> Last reviewed: 2026-08-26 against exact merged Harness `main`
-> `e49a9d81334177dffa1786d132344ba8e51902e1`, merged Security Portfolio projection
+> Last reviewed: 2026-08-27 against exact merged Harness `main`
+> `1f5709b454364c8fb5f1bb91a92c1af3f590a8cb`, merged Security Portfolio projection
 > `2026.08.02-r4-trajectory-containment`, the historical `v1.0.0` release commit
 > `71295922b8053a188431d0f510f1e9146435c742`, and the `v1.2.0` release source.
 >

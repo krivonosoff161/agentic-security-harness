@@ -1,10 +1,10 @@
 # Project tracker
 
-## v1.3.0 source-only release candidate
+## v1.3.0 exact release source
 
 The exact merged Harness `main` head
-`e49a9d81334177dffa1786d132344ba8e51902e1` is the source baseline for the
-`v1.3.0` candidate. The candidate aligns package, CFF, changelog, release-note,
+`1f5709b454364c8fb5f1bb91a92c1af3f590a8cb` is the post-maintenance baseline for the
+`v1.3.0` release source. The release source aligns package, CFF, changelog, release-note,
 component and compatibility identities and reruns the complete repository and package
 gate. It does not create a tag, GitHub Release, package-index upload, deployment, or
 enforcement authority; those remain separate owner decisions after exact-head review.
@@ -15,7 +15,7 @@ docs describe the current shipped state.
 
 ## Current GitHub snapshot
 
-Snapshot refreshed against GitHub on 2026-08-23:
+Snapshot refreshed against GitHub on 2026-08-27:
 
 | Milestone | Purpose |
 |---|---|
