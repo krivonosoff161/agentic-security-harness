@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- Consolidated the pending CodeQL `4.37.8`, Ruff `0.16.4`, and Bandit `1.9.4`
+  maintenance into one coupled update, retained exact Windows `colorama` hashes in
+  both build and development locks, and regenerated the content-bound companion
+  manifest. This prevents partial action-version mismatches and Windows
+  `--require-hashes` failures.
+
 ## [1.3.0] - 2026-08-26
 
 ### Added
