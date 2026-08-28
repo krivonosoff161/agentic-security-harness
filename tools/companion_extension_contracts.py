@@ -59,6 +59,9 @@ def generated_contracts() -> dict[Path, bytes]:
             "test": _bound_file(
                 ROOT / "tests" / "test_ecosystem_integration_candidate.py"
             ),
+            "wheelhouse_smoke": _bound_file(
+                ROOT / "tools" / "optional_wheelhouse_smoke.py"
+            ),
             "documentation": _bound_file(
                 ROOT / "docs" / "ecosystem-integration-candidate.md"
             ),

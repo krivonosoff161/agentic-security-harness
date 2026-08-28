@@ -52,6 +52,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "80f90202cd1ec23050464e01c56ac1daa61fc89fdc5eac096818f37edb84d385"
+    "sha256": "39721900ed668b3bc505dbb77db18eaa9029ece0bbbc4f95be9c3e58b3242684"
   }
 }

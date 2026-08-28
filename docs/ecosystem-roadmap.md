@@ -3,7 +3,7 @@
 > Generated from `ecosystem/roadmap.yaml`; edit the machine contract, not this file.
 > Roadmap entries grant no operational authority.
 
-Version: `2026.08.23-doc-convergence`  
+Version: `2026.08.28-installable-modules`
 Authority: `none`
 
 ## Ordered phases
@@ -14,12 +14,13 @@ Authority: `none`
 | `extension-contract` | **active** | `documentation-convergence` | extension manifest; check catalog; offline conformance kit; digest-bound companion adapters |
 | `installable-extensions` | **active** | `extension-contract` | package entry points; compatibility matrix; cross-platform suite verification; controlled literal-loopback local provider and synthetic tool-host adapter |
 | `threat-watch` | **active** | `extension-contract` | digest-bound public source registry; offline snapshot review contract; model-neutral synthesis profile; external-unreviewed advisory output |
-| `ecosystem-release-gates` | **planned** | `installable-extensions`, `threat-watch` | cross-repository lock; independent reviewer evidence; release compatibility report |
+| `ecosystem-release-gates` | **active** | `installable-extensions`, `threat-watch` | cross-repository lock; closed optional dependency groups; exact local wheelhouse gate; independent reviewer evidence; release compatibility report |
 | `optional-corpus-packs` | **active** | `extension-contract` | closed corpus-pack manifest; offline loader and composer; Extension SDK evidence requirements; cross-platform adversarial verification |
 
 ## Explicit non-claims
 
-- all components are installable extensions today
+- optional companion packages are already published
+- installation automatically activates extension code
 - private research is public
 - roadmap status grants operational authority
 - synthetic validation proves production effectiveness

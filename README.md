@@ -88,6 +88,26 @@ validated observation-to-finding dataflow. It does not auto-load installed packa
 companion repositories remain optional and require their own conformance and release
 gates before an operator installs or binds them.
 
+The current source candidate defines closed optional-dependency groups for the first
+installable module set:
+
+| Extra | Exact companion distributions | Automatic activation |
+|---|---|---|
+| `transfer` | `agentic-transfer-verifier==0.2.0`, extension `==1.0.0` | no |
+| `handoff` | `ai-agent-handoff==0.3.0`, extension `==1.0.0` | no |
+| `playbooks` | `llm-safety-playbooks==0.1.0` data-only wheel | no |
+| `router` | `agentic-llm-router==0.2.0` | no |
+| `filter` | `llm-cheap-filter==0.2.0` | no |
+| `all` | the exact union of the five rows | no |
+
+The generic PyPI coordinate `llm-router` is intentionally absent because it belongs to
+another project. CI builds all eight exact wheels from pinned Git SHAs and installs the
+closed local wheelhouse without loading either extension entry point. After companion and
+Harness publication pass their separate release gates, the intended user commands are
+`pip install "agentic-security-harness[router]"` or
+`pip install "agentic-security-harness[all]"`. The published v1.3.0 metadata does not yet
+contain these extras.
+
 The published [Corpus Pack SDK V1](docs/corpus-pack-sdk.md) adds a separate,
 canonical registry for optional namespaced boundary-invariant metadata. It preserves the
 frozen corpus 1.0.0, loads no package code, and treats complete evidence as readiness for

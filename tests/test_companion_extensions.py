@@ -613,6 +613,7 @@ def test_companion_schemas_and_manifest_are_closed_and_content_bound() -> None:
         "development_requirements_lock",
         "documentation",
         "test",
+        "wheelhouse_smoke",
         "workflow",
     }
     for binding in manifest["schemas"] + [

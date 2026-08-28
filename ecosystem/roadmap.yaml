@@ -1,7 +1,7 @@
 {
   "schema_version": "AgenticSecurityEcosystemRoadmap.v1",
   "roadmap_id": "agentic-security-ecosystem",
-  "version": "2026.08.23-doc-convergence",
+  "version": "2026.08.28-installable-modules",
   "canonical_repository": "https://github.com/krivonosoff161/agentic-security-harness",
   "authority": "none",
   "components": [
@@ -46,9 +46,9 @@
     {
       "id": "ecosystem-release-gates",
       "title": "Independent release and compatibility gates",
-      "status": "planned",
+      "status": "active",
       "depends_on": ["installable-extensions", "threat-watch"],
-      "deliverables": ["cross-repository lock", "independent reviewer evidence", "release compatibility report"]
+      "deliverables": ["cross-repository lock", "closed optional dependency groups", "exact local wheelhouse gate", "independent reviewer evidence", "release compatibility report"]
     },
     {
       "id": "optional-corpus-packs",
@@ -62,5 +62,5 @@
     "roles": ["canonical", "component-owned", "generated", "current-snapshot", "research", "historical", "superseded"],
     "generated_outputs": ["docs/ecosystem-roadmap.md", "docs/ecosystem-components.md", "docs/documentation-map.md", "ecosystem/document-registry.json"]
   },
-  "non_claims": ["all components are installable extensions today", "private research is public", "roadmap status grants operational authority", "synthetic validation proves production effectiveness", "optional corpus packs are automatically discovered, executed, authenticated or independently reviewed"]
+  "non_claims": ["optional companion packages are already published", "installation automatically activates extension code", "private research is public", "roadmap status grants operational authority", "synthetic validation proves production effectiveness", "optional corpus packs are automatically discovered, executed, authenticated or independently reviewed"]
 }

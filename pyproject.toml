@@ -42,6 +42,32 @@ Issues = "https://github.com/krivonosoff161/agentic-security-harness/issues"
 Changelog = "https://github.com/krivonosoff161/agentic-security-harness/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
+transfer = [
+    "agentic-transfer-verifier==0.2.0",
+    "agentic-transfer-verifier-harness-extension==1.0.0",
+]
+handoff = [
+    "ai-agent-handoff==0.3.0",
+    "ai-agent-handoff-harness-extension==1.0.0",
+]
+playbooks = [
+    "llm-safety-playbooks==0.1.0",
+]
+router = [
+    "agentic-llm-router==0.2.0",
+]
+filter = [
+    "llm-cheap-filter==0.2.0",
+]
+all = [
+    "agentic-transfer-verifier==0.2.0",
+    "agentic-transfer-verifier-harness-extension==1.0.0",
+    "ai-agent-handoff==0.3.0",
+    "ai-agent-handoff-harness-extension==1.0.0",
+    "llm-safety-playbooks==0.1.0",
+    "agentic-llm-router==0.2.0",
+    "llm-cheap-filter==0.2.0",
+]
 dev = [
     "pytest>=8",
     "ruff>=0.5",
