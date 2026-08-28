@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/status-v1.2.0--released-brightgreen)
+![Status](https://img.shields.io/badge/status-v1.3.0--released-brightgreen)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -23,7 +23,7 @@ validate, compare, and review.
 Install the stable release from PyPI:
 
 ```bash
-python -m pip install agentic-security-harness==1.2.0
+python -m pip install agentic-security-harness==1.3.0
 ash quickstart --out reports/quickstart
 ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
@@ -82,54 +82,54 @@ facts. The Harness generates only the cross-project roadmap and compatibility vi
 - [Documentation crosswalk](docs/documentation-map.md)
 - [`component.yaml`](component.yaml) and [`ecosystem/roadmap.yaml`](ecosystem/roadmap.yaml)
 
-Today most companion repositories are `standalone` or `contract_only`. The source tree
-now contains the first closed [Extension SDK V1](docs/extension-sdk.md) candidate for
-validated observation-to-finding dataflow. It does not auto-load installed packages and
-is not part of the published `1.2.0` surface; selected checks become installable only
-after their own conformance and release gates.
+Today most companion repositories are `standalone` or `contract_only`. Published core
+release `v1.3.0` contains the first closed [Extension SDK V1](docs/extension-sdk.md) for
+validated observation-to-finding dataflow. It does not auto-load installed packages;
+companion repositories remain optional and require their own conformance and release
+gates before an operator installs or binds them.
 
-The stacked [Corpus Pack SDK V1](docs/corpus-pack-sdk.md) candidate adds a separate,
+The published [Corpus Pack SDK V1](docs/corpus-pack-sdk.md) adds a separate,
 canonical registry for optional namespaced boundary-invariant metadata. It preserves the
 frozen corpus 1.0.0, loads no package code, and treats complete evidence as readiness for
 later rule evaluation rather than a security verdict.
 
-The stacked [companion adapter candidate](docs/companion-extensions.md) now exercises
+The published v1.3.0 [companion adapter contracts](docs/companion-extensions.md) exercise
 exact Transfer Verifier reports, Handoff metadata and Playbooks guidance through that
 SDK on Linux and Windows. This closes a concrete producer-to-consumer dataflow gap; it
 does not make those repositories installable extensions or production enforcement.
 
-The stacked [Security Intelligence candidate](docs/security-intelligence-extension.md)
+The published v1.3.0 [Security Intelligence contour](docs/security-intelligence-extension.md)
 adds a provider-neutral offline weekly public-source review contract with digest-only
 evidence, explicit coverage gaps, and no live fetching or model authority.
 
-The next stacked [receipt auditor candidate](docs/receipt-auditor-extensions.md)
+The published v1.3.0 [receipt auditors](docs/receipt-auditor-extensions.md)
 independently checks exact-pinned Router invocation and Cheap Filter triage accounting
 receipts from caller-supplied canonical bytes. Valid accounting remains `inconclusive`,
 missing evidence remains `inconclusive`, and drift becomes a finding; the auditors never
 emit `pass`, import or invoke the companion packages, or lower a security decision.
 
-The following [Extension Distribution Discovery V1 candidate](docs/extension-distribution-discovery.md)
+The published [Extension Distribution Discovery V1](docs/extension-distribution-discovery.md)
 inspects one explicitly named local distribution without importing it. It verifies its
 `RECORD`, closed entry point, canonical manifest, implementation bytes and caller-supplied
 configuration digest, then requires exact reinspection before issuing an authority-free
 approval receipt. Harness still does not load package code: the operator supplies an
 already constructed object, and the binder checks it against the approved manifest pins.
 
-The stacked [Extension Operator Lifecycle V1 candidate](docs/extension-operator-lifecycle.md)
+The published [Extension Operator Lifecycle V1](docs/extension-operator-lifecycle.md)
 exposes that metadata-only inspection and exact-reinspection approval through safe CLI
 commands, adds canonical disable and non-executable rollback-plan receipts, and lists only
 explicitly supplied receipt state. It never imports, downloads, starts, stops, or rolls
 back extension code; the embedding application must construct and bind an object and
 enforce any accepted disable artifact.
 
-Above that stack, the [controlled local adapter candidate](docs/controlled-local-adapter.md)
+The published [controlled local adapter](docs/controlled-local-adapter.md)
 connects only to an operator-started literal-loopback `/v1/responses` endpoint and passes
 canonical tool calls through the existing closed Runtime Gateway policy. It supports local
 model names as opaque identifiers—including Qwen and DeepSeek-style names—without vendor
 claims. It has no DNS, proxy, redirect, credential, external-provider, arbitrary-tool, or
 upstream-MCP path; receipts are digest-only and operational authority remains `none`.
 
-The stacked [Policy Pack extension candidate](docs/policy-pack-extension.md) independently
+The published [Policy Pack extension](docs/policy-pack-extension.md) independently
 parses one exact-pinned data-only Playbooks pack and evaluates caller-supplied content-free
 signals bound to canonical observations. A missing pack is inconclusive; production
 Harness does not import or execute Playbooks code, discover packages, call a network, or
@@ -333,13 +333,14 @@ approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install the
 
 ## Release and package status
 
-The stable `v1.2.0` package is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.2.0/) and as an attested
-[GitHub Release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.2.0).
-The source tree is prepared as a **source-only `v1.3.0` release candidate** containing
-the integrated ecosystem contracts above. It is not a tag, GitHub Release, TestPyPI/PyPI
-publication, deployment, or production-enforcement claim. Those remain separate,
-auditable owner gates.
+The stable `v1.3.0` package is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.3.0/) and as an attested
+[GitHub Release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.3.0).
+The exact wheel and sdist subjects were promoted through TestPyPI and PyPI with matching
+SHA-256 values, then clean-installed and validated on Linux/Python 3.11-3.13 and
+Windows/Python 3.11. Publication makes the bounded core modules above installable; it is
+not a production deployment, enforcement claim, companion-repository bundle, or security
+certification.
 
 - [Release checklist](docs/release-checklist.md)
 - [PyPI release process](docs/release-to-pypi.md)
