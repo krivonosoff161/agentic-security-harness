@@ -23,7 +23,7 @@
   "harness_api": "1",
   "implementation": {
     "path": "src/agentic_security_harness/companion_extensions.py",
-    "sha256": "0b764813ea617eb493d9ff2b5b34509e300a678471ad454fbf5b76504ca2a614"
+    "sha256": "ad5e1761be189dc06e710edf4f10f5614fd4e9aa0808d7836d828819c3d5832e"
   },
   "integration_candidate": {
     "build_requirements_in": {
@@ -68,9 +68,9 @@
   "operational_authority": "none",
   "reviewed_sources": [
     {
-      "commit": "240f3081b6614439e03d61479114e330fe7c3d52",
+      "commit": "02a9f963f71804f18077ae560ac00f82ec55602d",
       "component_id": "agentic-transfer-verifier",
-      "component_manifest_sha256": "c71d011af801c7ab21be19d99914eb67076d3f35dd3896d48f47789d52442473",
+      "component_manifest_sha256": "184fd2fe84b2096ed5a3083a808be372a71999d3ce7a8f5a0cd46deca796c88d",
       "contract_id": "transfer-verification-report",
       "contract_path": "src/agentic_transfer_verifier/verifier.py",
       "contract_sha256": "7335162fcf546ac3927e8a2f2ccb35c7102eaa7d29be53d8a41389e513a70e3d",
@@ -78,9 +78,9 @@
       "repository": "https://github.com/krivonosoff161/agentic-transfer-verifier"
     },
     {
-      "commit": "f4e51e0603497f63c62453fc4030319fdfc5ac04",
+      "commit": "ae60003c4a681f6de11416d935e865f1c1c56557",
       "component_id": "ai-agent-handoff",
-      "component_manifest_sha256": "7d6aad48e90cb322f3f2a3176208f7ef9095bf3d7e65a662c8cc2df52296ea15",
+      "component_manifest_sha256": "34b4ac1e36b7e0481e3a0829bd277a7eee5b0a1b7ada5e5c6555a41f585d1e33",
       "contract_id": "handoff-metadata",
       "contract_path": "contracts/handoff-metadata.v1.schema.json",
       "contract_sha256": "d1015a42c31c260049d104b581c025556cb421fcdbf63af3fbac1f7eadb55f90",
@@ -88,9 +88,9 @@
       "repository": "https://github.com/krivonosoff161/ai-agent-handoff"
     },
     {
-      "commit": "5a6519df5a54c103cd4b5ca14b479867c549d7d3",
+      "commit": "3e6795a4671cc6417bc04aad17163238a8b01ddc",
       "component_id": "llm-safety-playbooks",
-      "component_manifest_sha256": "b60f7332d153c356a864561166ca94fd9107db35b71c88daf692102286222fc7",
+      "component_manifest_sha256": "5250e374bdbe97727db271fb0ae1061ed975feedca7dcfe7c81aa952f7d24f18",
       "contract_id": "portfolio-observation-guidance",
       "contract_path": "contracts/portfolio-observation-guidance.v1.json",
       "contract_sha256": "f87253b6a1e541ba8e05a2bdc844d70a13d3324975d4f28dd525574c2041de4e",

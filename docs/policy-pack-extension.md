@@ -20,8 +20,8 @@ explicit pack bytes + digest ────┘      -> ExtensionFindingV1
 ## Source and trust boundary
 
 The reviewed upstream source is fixed to commit
-`5a6519df5a54c103cd4b5ca14b479867c549d7d3`, tree
-`ab88886f92dc1efdbdc10a1761c91d3fceca8622`. The generated Harness manifest binds the
+`3e6795a4671cc6417bc04aad17163238a8b01ddc`, tree
+`c5e34452e978193877fef660e417e4f376904a34`. The generated Harness manifest binds the
 exact pack, pack schema, pack manifest, component manifest, input schema and output
 schema digests. Cross-repository CI checks those bytes and the exact Git identity on
 Linux and Windows.

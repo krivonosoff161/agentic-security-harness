@@ -136,7 +136,7 @@ def _event(payload: bytes, *, event_id: str = SHA_A) -> CanonicalObservationEven
         event_id=event_id,
         project_id="llm-router",
         repository_id="krivonosoff161/llm-router",
-        repository_sha="790a101ba82fa34203219d7963978a20b55cf504",
+        repository_sha="463f8472b50e4b20c01366b3f5355a2e8f6cdac2",
         occurred_at=datetime.fromisoformat(OCCURRED_AT.replace("Z", "+00:00")),
         producer_id_hash=SHA_B,
         producer_attestation="unattested",
@@ -186,7 +186,7 @@ def _filter_event(payload: bytes) -> CanonicalObservationEventV1:
         event_id=SHA_C,
         project_id="llm-cheap-filter",
         repository_id="krivonosoff161/llm-cheap-filter",
-        repository_sha="8dd1ffb8a453f62c9dd4b4a518754a23bd1651b6",
+        repository_sha="cf8161cecf82276162cedb9f46cc454fe6c08d32",
         occurred_at=datetime(2026, 8, 24, 2, 30, tzinfo=UTC),
         producer_id_hash=SHA_B,
         producer_attestation="unattested",
@@ -418,16 +418,16 @@ def test_receipt_replay_is_rejected_before_extension_execution() -> None:
 def test_source_pin_and_generated_schemas_are_closed() -> None:
     sources = {item["component_id"]: item for item in reviewed_receipt_sources_v1()}
     router = sources["llm-router"]
-    assert router["commit"] == "790a101ba82fa34203219d7963978a20b55cf504"
-    assert router["tree"] == "05fa373b1b16b276e44a9d39942127af729e7d23"
+    assert router["commit"] == "463f8472b50e4b20c01366b3f5355a2e8f6cdac2"
+    assert router["tree"] == "641f3fa10f10188eff250fa77264f25e0f51071c"
     assert router["component_manifest_sha256"] == (
-        "701a8a4b5169fd7c6b5c2ce557cf76ca4a36fff1d7c4bb182edf5bb606b3c317"
+        "940cf8536aefc5bb79b29c005c962140dc589eadfd40f8b88cd306cfd17c1596"
     )
     filter_source = sources["llm-cheap-filter"]
-    assert filter_source["commit"] == "8dd1ffb8a453f62c9dd4b4a518754a23bd1651b6"
-    assert filter_source["tree"] == "d42f7f47a85a80cfe435a890c6ddd695085943b4"
+    assert filter_source["commit"] == "cf8161cecf82276162cedb9f46cc454fe6c08d32"
+    assert filter_source["tree"] == "ed587047da7364ac3bce4cb269553abee9a5e4d9"
     assert filter_source["component_manifest_sha256"] == (
-        "64c44eebde9d51eb48e3277864fb3ee5b3dc2efef38000648c14af1dd6a4d13f"
+        "dec67b4b1e4a3f98b46d915e24cb063b502dc569f8343a502b7d613cdc580dcd"
     )
     assert all(
         schema["additionalProperties"] is False

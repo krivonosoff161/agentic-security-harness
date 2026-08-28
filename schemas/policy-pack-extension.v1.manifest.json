@@ -22,7 +22,7 @@
   },
   "documentation": {
     "path": "docs/policy-pack-extension.md",
-    "sha256": "929ed346f5a9a372288ca01e8b3d6a0715f72747f1e806a6d2fcdfdc4fe86902"
+    "sha256": "dadb4532bfe1e7caa837359f61e926fb82ee62d784febf14146a321e0c0d16a3"
   },
   "extension_sdk_contract": {
     "path": "schemas/extension-sdk.v1.manifest.json",
@@ -35,7 +35,7 @@
   "harness_api": "1",
   "implementation": {
     "path": "src/agentic_security_harness/policy_pack_extension.py",
-    "sha256": "1eae46326230e516e0b252b3a855f642fef60b4334017cf5987c85157fae3388"
+    "sha256": "ee2efebc57969f522e71ca239a26efc6b8b06d584eec984b31966fe17ab27a17"
   },
   "integration_model": "explicit_caller_supplied_exact_canonical_data_only_pack",
   "may_authorize_effects": false,
@@ -49,18 +49,18 @@
   "raw_content_included": false,
   "reviewed_source": {
     "component_id": "llm-safety-playbooks",
-    "component_manifest_sha256": "7c979980ce5359ce45939789cb2c17d8966c748bdb1277526685c2de89749a58",
+    "component_manifest_sha256": "f429ce29a5edcffe954b89246c58399247f04c74d7348b431fc714c0198a7004",
     "input_schema_sha256": "d6a39ad8cb1cfc9e61094fa3c92b11d66b2df3370a326f89ecb4a52c49dd3e8b",
     "operational_authority": "none",
     "output_schema_sha256": "b5e4d5554fb930529fd493dad903a25698c99c62c57d99934f66edda8b4f6f1c",
     "pack_file_sha256": "1c8ca14e6ab83d92742f6fba0b0d1b1bc422ebe30163c6619e9c80f5413b8915",
-    "pack_manifest_sha256": "2c054ca23db7fd18f69180f868cc0af8a900b1a02fb75dab7d8edffe5427faa0",
+    "pack_manifest_sha256": "72cefee83964c53930ff64750584faa35e144ab8fa8db1ef5ccf066e11604a41",
     "pack_schema_sha256": "fd99422169c4cbfbe0f80a16a39cf7557d7ef6d28669b03ae940b24b9e2172a1",
     "pack_sha256": "44fa5aced73c6a2fc1eb3cb827955d245c887fa8d7c596e353bb2e9678119169",
     "repository": "https://github.com/krivonosoff161/llm-safety-playbooks",
     "schema_version": "harness-policy-pack-source-pin-v1.0",
-    "source_commit": "5a6519df5a54c103cd4b5ca14b479867c549d7d3",
-    "source_tree": "ab88886f92dc1efdbdc10a1761c91d3fceca8622",
+    "source_commit": "3e6795a4671cc6417bc04aad17163238a8b01ddc",
+    "source_tree": "c5e34452e978193877fef660e417e4f376904a34",
     "verification": "exact_public_git_reviewed"
   },
   "schema_version": "harness-policy-pack-extension-contract-manifest-v1.0",
