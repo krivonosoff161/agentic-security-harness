@@ -44,7 +44,7 @@ be confused with the stable technical contract (see
 
 ## Distribution
 
-- PyPI publishing and a pinned, reproducible install. **Completed:** v1.2.0 is published
+- PyPI publishing and a pinned, reproducible install. **Completed:** v1.3.0 is published
   with exact wheel/sdist checksums, SBOM, attestations, and post-index installation checks.
 - A source-build Docker/Compose synthetic Runtime Gateway contour is shipped. Publishing
   an official public image remains future work.

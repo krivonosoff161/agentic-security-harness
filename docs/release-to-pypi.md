@@ -1,13 +1,13 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The package is published as `1.2.0` on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.2.0/). This page documents the
+The package is published as `1.3.0` on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.3.0/). This page documents the
 manual, environment-gated OIDC promotion path used for that release and required for
 future releases. See the gates in [release-checklist.md](release-checklist.md).
 
-The repository source metadata is finalized for the `1.3.0` release source. That version
-is not published merely because these files exist; tag, attested release build,
-TestPyPI review, and PyPI promotion remain separate exact-head owner gates.
+Release `v1.3.0` completed the exact tag, attested release build, TestPyPI review,
+separately approved PyPI promotion, and post-publication verification gates. Future
+versions must repeat those gates; repository metadata alone never authorizes publication.
 
 ## Packaging facts (current)
 
@@ -89,6 +89,19 @@ The smoke jobs install runtime dependencies from the hash-locked runtime require
 derive the exact universal-wheel SHA-256 from the official package-index JSON response,
 and require that hash during a `--no-deps` package install. TestPyPI is not used as an
 extra dependency index.
+
+For `v1.3.0`, release workflow
+[`33105856816`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/33105856816)
+built the exact subjects, TestPyPI workflow
+[`33106417655`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/33106417655)
+verified the staging promotion, production workflow
+[`33135327780`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/33135327780)
+published and smoke-tested PyPI, and read-only workflow
+[`33135478838`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/33135478838)
+reverified the closed release asset set, attestations, index equality, and clean installs.
+TestPyPI and PyPI expose wheel SHA-256
+`d02dd3be9434785df49a7b2d10e00b35cdfef237efc3d4f476ea63164daa26ac` and sdist SHA-256
+`a3f06fe627ef8b57d9c625058f47ce1fad0d025e7c594975c980d3bb6ff3b0bc`.
 
 For `v1.0.0`, both package indexes expose wheel/sdist SHA-256 values identical to the
 attested GitHub Release subjects. The first promotion runs uploaded successfully but their

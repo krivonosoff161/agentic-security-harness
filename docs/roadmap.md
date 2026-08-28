@@ -20,20 +20,21 @@ OpenAI-compatible calls only on explicit opt-in (prompt-only). The provider-neut
 Agent Host V1 record/replay, deterministic evaluation, explicit digest-only owned-workflow
 instrumentation, and a built-in validated no-network quickstart are shipped in v1.1.0;
 native external-provider and live arbitrary host/tool collectors remain future. A
-literal-loopback local `/v1/responses` client with synthetic-only gateway dispatch is an
-unreleased stacked candidate, not part of the shipped surface.
+literal-loopback local `/v1/responses` client with synthetic-only gateway dispatch is
+shipped in v1.3.0; it is not a remote-provider or production-enforcement surface.
 
-The unreleased Extension SDK stack now has a metadata-only operator path for explicit
+The Extension SDK stack shipped in v1.3.0 has a metadata-only operator path for explicit
 installed-distribution inspection, exact-reinspection approval, receipt-only list/disable
 and rollback planning, plus binding of an already constructed object. Automatic import,
 download, executable-state discovery, disable/rollback enforcement, operator
-authentication, sandboxing, and release remain separate future gates.
+authentication, sandboxing, and executable-state enforcement remain separate future gates.
 
-The integrated stack is finalized as the `v1.3.0` release source. Its remaining release
-sequence is exact-head review and full CI, followed only under explicit owner authority
-by tag-bound reproducible build/provenance, TestPyPI review, PyPI promotion, and
-published-release verification. Release-source preparation does not imply any of those
-external state changes.
+The integrated stack was released as `v1.3.0` from exact commit
+`b429ea684d71b0577b9b0040065b152eb0c8c2de`. Tag-bound reproducible build/provenance,
+TestPyPI review, PyPI promotion, cross-platform clean installation, and independent
+published-release verification completed successfully. This ships the bounded core
+contracts; it does not bundle companion repositories or imply deployment, enforcement,
+provider authenticity, independent effectiveness, or certification.
 
 ---
 
@@ -160,7 +161,7 @@ The next work is ordered by credibility, not by feature volume:
     raw cases/labels/seeds, keys, ledger, or custody data. The terminal `FAIL` closes this
     frozen candidate's one-burn contour; any new scientific candidate requires a separate
     preregistration and owner gate rather than a rerun.
-14. **Optional corpus packs:** review the Corpus Pack SDK V1 source candidate for closed
+14. **Optional corpus packs:** maintain the shipped Corpus Pack SDK V1 contract for closed
     canonical manifests, core-id preservation, deterministic composition and Extension SDK
     evidence readiness. Optional pack code discovery, execution, authenticity and release
     remain separate future gates.

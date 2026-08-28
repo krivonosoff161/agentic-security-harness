@@ -1,13 +1,13 @@
 # Project tracker
 
-## v1.3.0 exact release source
+## v1.3.0 published release
 
-The exact merged Harness `main` head
-`1f5709b454364c8fb5f1bb91a92c1af3f590a8cb` is the post-maintenance baseline for the
-`v1.3.0` release source. The release source aligns package, CFF, changelog, release-note,
-component and compatibility identities and reruns the complete repository and package
-gate. It does not create a tag, GitHub Release, package-index upload, deployment, or
-enforcement authority; those remain separate owner decisions after exact-head review.
+Exact tag `v1.3.0` resolves to
+`b429ea684d71b0577b9b0040065b152eb0c8c2de`. The attested GitHub Release, TestPyPI and
+PyPI expose the same wheel and sdist subjects; the production and read-only verification
+workflows clean-installed and validated the package on the supported Linux/Python matrix
+and Windows/Python 3.11. Publication does not grant deployment, enforcement, companion
+repository installation, or certification authority.
 
 This page explains how public project work is tracked. It is intentionally small:
 GitHub Issues and milestones are the source of truth for work in progress; repository
@@ -15,7 +15,7 @@ docs describe the current shipped state.
 
 ## Current GitHub snapshot
 
-Snapshot refreshed against GitHub on 2026-08-27:
+Snapshot refreshed against GitHub on 2026-08-28:
 
 | Milestone | Purpose |
 |---|---|
@@ -24,7 +24,7 @@ Snapshot refreshed against GitHub on 2026-08-27:
 | [Post-v1 independent review](https://github.com/krivonosoff161/agentic-security-harness/milestone/7) | Non-blocking independent standards review and durable second-reviewer governance. |
 
 Completed milestones `v0.14` through `v0.17`, the v0.15.1 self-service release, and the
-[v1.2.0 release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.2.0)
+[v1.3.0 release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.3.0)
 are closed. Milestone state and
 open issues describe active work, not shipped capability.
 
@@ -40,13 +40,14 @@ Docker operator path. Real provider transports, arbitrary external tools, authen
 approval grants, production deployment, certification, and operational authority remain
 future work and must not be inferred from this release.
 
-The unreleased Extension SDK review stack now includes exact-source companion adapters,
+The Extension SDK stack published in v1.3.0 includes exact-source companion adapters,
 offline Security Intelligence, deterministic Router/Cheap Filter receipt auditors,
 verified installed-distribution metadata, an explicit metadata-only operator lifecycle,
 closed optional Corpus Pack composition that preserves the frozen 24-pattern corpus 1.0.0,
 an exact-pinned data-only Playbooks Policy Pack extension, and a controlled
 literal-loopback local provider/tool-host adapter.
-These are source candidates, not shipped capability: receipt conformance binds accounting
+These are bounded shipped core capabilities, not automatic companion installations:
+receipt conformance binds accounting
 bytes and event linkage only, never a pass/allow decision, producer authenticity,
 effectiveness claim, external provider call, deployment, or enforcement authority. The
 local adapter neither authenticates the local process nor exposes arbitrary tools; it
@@ -69,8 +70,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.2.0` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.2.0/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.3.0` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.3.0/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are
