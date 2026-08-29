@@ -52,7 +52,7 @@
     },
     "test": {
       "path": "tests/test_ecosystem_integration_candidate.py",
-      "sha256": "a7a06701bb5398ef28af1f392cc266ced37f429e9bdf46e83cd5a5854bd9c319"
+      "sha256": "3dd480dee0fc485e08d66351fa78d7b7ae2717d1167c8eb60a57d71c9155e7be"
     },
     "wheelhouse_smoke": {
       "path": "tools/optional_wheelhouse_smoke.py",
@@ -60,7 +60,7 @@
     },
     "workflow": {
       "path": ".github/workflows/ecosystem-integration.yml",
-      "sha256": "955c9a6d08ad257f3f4fb678500eb16ed5e80a64c2b9e52060d70877ef4be94f"
+      "sha256": "42a5d91c1f5846edf48649fc1276e201147dcdf59220e90173f902cf13a00636"
     }
   },
   "integration_model": "explicit_normalized_digest_bound_outputs",
