@@ -10,18 +10,18 @@ still grants no automatic activation, execution, or deployment authority.
 | Surface | Source head | Source tree | Role in this gate |
 |---|---|---|---|
 | Harness merged baseline | `c1dd69856212458ae952e43aeb2b0cc9290e8205` | `596c189e8b15ceaf7bf28337546655e23d47d3ef` | released `v1.3.0` docs-sync main anchor and optional-extras base |
-| Transfer extension | `02a9f963f71804f18077ae560ac00f82ec55602d` | `dded5dd4dde34660259b80dbd48f2df1abe52cf2` | coordinated base 0.2.0 and extension 1.0.0 wheel candidates |
-| Handoff extension | `ae60003c4a681f6de11416d935e865f1c1c56557` | `1443b6fed31805800d553cca31eade6d8a40dfe9` | coordinated base 0.3.0 and extension 1.0.0 wheel candidates |
-| Policy Pack | `3e6795a4671cc6417bc04aad17163238a8b01ddc` | `c5e34452e978193877fef660e417e4f376904a34` | exact data-only package 0.1.0 candidate |
-| Router receipts | `463f8472b50e4b20c01366b3f5355a2e8f6cdac2` | `641f3fa10f10188eff250fa77264f25e0f51071c` | unique `agentic-llm-router` 0.2.0 package and receipt contract |
-| Cheap Filter receipts | `cf8161cecf82276162cedb9f46cc454fe6c08d32` | `ed587047da7364ac3bce4cb269553abee9a5e4d9` | zero-runtime-dependency 0.2.0 package and receipt contract |
+| Transfer extension | `24b94cec7a18668ce4b236005a88e7be2bc205a1` | `dded5dd4dde34660259b80dbd48f2df1abe52cf2` | merged base 0.2.0 and extension 1.0.0 wheel sources |
+| Handoff extension | `c02c8729d272aabed569e8e9a5f4dbd16e23a8f4` | `1443b6fed31805800d553cca31eade6d8a40dfe9` | merged base 0.3.0 and extension 1.0.0 wheel sources |
+| Policy Pack | `dc75965f7ba4a766bb0e142773cf81985dc8340a` | `c5e34452e978193877fef660e417e4f376904a34` | merged data-only package 0.1.0 source |
+| Router receipts | `87bc037b5c31cb110f7f253fb6bdcde0fa0c0f22` | `641f3fa10f10188eff250fa77264f25e0f51071c` | merged unique `agentic-llm-router` 0.2.0 package source and receipt contract |
+| Cheap Filter receipts | `8d4dcf282a5408e04151ec550f69bc7c5065621f` | `ed587047da7364ac3bce4cb269553abee9a5e4d9` | merged zero-runtime-dependency 0.2.0 package source and receipt contract |
 | Public profile projection | `ccb34ef951f434db8220b75bdf1129c3d0f97fda` | `b2c08e6aebd042d8fdfa3cf16dd42fd2b59355a0` | merged documentation projection only |
 
 The final candidate descends from Harness `main` commit
 `c1dd69856212458ae952e43aeb2b0cc9290e8205` and binds each companion repository's
-review-branch commit shown above. The lock names `refs/heads/codex/installable-modules-v1`
-until the companion PRs merge; the release retarget must replace every row with the new
-exact `main` head and rerun the full matrix.
+merged `main` commit shown above. The central lock names `refs/heads/main` and the
+workflow checks out those exact immutable commits. A later release gate must reverify
+that the same source set remains intended; it must not silently float to newer heads.
 
 Both source-owned extension manifests now name exact released Harness source
 `c1dd69856212458ae952e43aeb2b0cc9290e8205`. The central matrix checks that same base,

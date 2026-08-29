@@ -23,7 +23,7 @@
   "harness_api": "1",
   "implementation": {
     "path": "src/agentic_security_harness/receipt_auditors.py",
-    "sha256": "175d0aa42d3154dbef6f10553cf2fcd731464596c92c1dbca13a0bd096cd2878"
+    "sha256": "862fbf116869a740267301c3cbb7dc60db1b97d7cffeb95f2ba31ad7f11c6c5f"
   },
   "injected_callables": false,
   "integration_model": "explicit_caller_supplied_canonical_receipt_bytes",
@@ -34,7 +34,7 @@
   "operational_authority": "none",
   "reviewed_sources": [
     {
-      "commit": "463f8472b50e4b20c01366b3f5355a2e8f6cdac2",
+      "commit": "87bc037b5c31cb110f7f253fb6bdcde0fa0c0f22",
       "component_id": "llm-router",
       "component_manifest_sha256": "940cf8536aefc5bb79b29c005c962140dc589eadfd40f8b88cd306cfd17c1596",
       "contract_id": "router-invocation-receipt",
@@ -50,7 +50,7 @@
       "tree": "641f3fa10f10188eff250fa77264f25e0f51071c"
     },
     {
-      "commit": "cf8161cecf82276162cedb9f46cc454fe6c08d32",
+      "commit": "8d4dcf282a5408e04151ec550f69bc7c5065621f",
       "component_id": "llm-cheap-filter",
       "component_manifest_sha256": "dec67b4b1e4a3f98b46d915e24cb063b502dc569f8343a502b7d613cdc580dcd",
       "contract_id": "triage-batch-receipt",
@@ -80,11 +80,11 @@
   "subprocess_access": false,
   "unit_tests": {
     "path": "tests/test_receipt_auditors.py",
-    "sha256": "5e97c84a44aec8658414c04fdf90e314cd5757ff8aa0978fad3fb81ab1a1f0c2"
+    "sha256": "a97bdc2a44017ac1610ff127ea9539c2725471c0a3623cfe3654c490e8e22a04"
   },
   "valid_accounting_disposition": "inconclusive_no_security_verdict",
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "39721900ed668b3bc505dbb77db18eaa9029ece0bbbc4f95be9c3e58b3242684"
+    "sha256": "8e4238bb35107412881fd362fabb166d0dbb685ea0abda9f77ee44663c5ce8ec"
   }
 }
