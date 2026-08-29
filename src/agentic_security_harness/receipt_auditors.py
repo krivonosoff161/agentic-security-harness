@@ -112,7 +112,7 @@ REVIEWED_RECEIPT_SOURCES_V1: Final = (
         implementation_sha256=("e939e1ea1d58efd30ec447a522f4886da1d8a7f8a66eae06d711d4ed7a2dfc4c"),
         contract_manifest_path="schemas/triage-batch-receipt.v1.manifest.json",
         contract_manifest_sha256=(
-            "9e5ff8d25c8786651671679517ae767caaf244fb006a3541b2b89cb67e5458ed"
+            "059bba837fcfe487ddfed6c84223b588933960dc4a87598dd0e5d1c717724b0f"
         ),
         evidence_class="external_unreviewed",
     ),
