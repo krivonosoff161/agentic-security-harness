@@ -1,7 +1,7 @@
 # Security Intelligence extension V1
 
-Status: source-level candidate in the current unreleased development stack. It is not in
-the published `v1.2.0` package.
+Status: published in the `v1.3.0` Harness core. It remains an offline review contract and
+does not fetch sources, invoke a model, publish a companion, or grant operational authority.
 
 The Security Intelligence slice turns the ecosystem roadmap's weekly threat-watch item
 into an executable **offline review contract**. It accepts normalized metadata snapshots

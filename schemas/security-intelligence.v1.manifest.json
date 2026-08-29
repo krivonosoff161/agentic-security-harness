@@ -3,7 +3,7 @@
   "contract_id": "harness-security-intelligence-v1.0",
   "documentation": {
     "path": "docs/security-intelligence-extension.md",
-    "sha256": "7a551f73979cc4d02a42fc5e86395f54034f6561a069efa0224d702d3a12925f"
+    "sha256": "24c9079ec78db678708893be0120226d8718a70ce02267fba5d739d90279c98f"
   },
   "evidence_provenance": "external_unreviewed",
   "extension_sdk_contract": {
@@ -52,6 +52,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "8e4238bb35107412881fd362fabb166d0dbb685ea0abda9f77ee44663c5ce8ec"
+    "sha256": "2a49dd451c909a26b37acff2599342879bde24a0b5a9a20c9d28ca8d988ecf7f"
   }
 }

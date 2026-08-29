@@ -1,6 +1,7 @@
 # Extension Distribution Discovery V1
 
-Status: stacked source-level candidate. It is not part of the published `v1.2.0` package.
+Status: published in the `v1.3.0` Harness core. Publication does not enumerate, install,
+trust, import, or activate an optional companion distribution.
 
 This contract closes one narrow installable-extension gap without turning package metadata
 into trust. An operator names exactly one distribution, one extension id, one or more

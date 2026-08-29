@@ -1,7 +1,7 @@
 # Controlled local provider/tool-host adapter V1
 
-Status: stacked source candidate above the unreleased receipt-auditor branch. It is not
-present in the published `v1.2.0` package and is not a production provider integration.
+Status: published in the `v1.3.0` Harness core. It is not a production provider
+integration and publication does not configure, discover, connect to, or activate an endpoint.
 
 This adapter gives an operator-controlled local OpenAI-compatible `/v1/responses`
 endpoint one deliberately narrow path into the Runtime Gateway. The model may propose

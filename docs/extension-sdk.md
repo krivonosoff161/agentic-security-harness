@@ -5,8 +5,9 @@ and optional security components. It lets an operator pass validated, privacy-mi
 `CanonicalObservationEventV1` records through explicitly registered checks and receive
 content-bound findings and receipts.
 
-This source-level contract is under review on the Extension SDK branch. It is not part of
-the published `1.2.0` package until a later release gate says so.
+Status: published in the `v1.3.0` Harness core. This core contract does not publish,
+install, discover, or activate any optional companion distribution; current source extras
+and companion artifacts remain separately unreleased.
 
 ## What the contract provides
 

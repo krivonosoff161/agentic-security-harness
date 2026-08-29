@@ -1,7 +1,7 @@
 # Extension Operator Lifecycle V1
 
-Status: stacked source candidate above Extension Distribution Discovery V1. It is not in
-the published `v1.2.0` package and grants no operational authority.
+Status: published in the `v1.3.0` Harness core. It grants no operational authority and
+does not auto-discover, install, bind, or activate any optional companion distribution.
 
 ## What this closes
 

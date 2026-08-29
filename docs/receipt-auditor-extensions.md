@@ -1,7 +1,7 @@
 # Router and Cheap Filter receipt auditors
 
-Status: source-level review candidate stacked on the unreleased Security Intelligence
-extension. It is not present in the published `v1.2.0` package.
+Status: published in the `v1.3.0` Harness core. The auditors do not install, execute, or
+activate Router or Cheap Filter, whose companion packages remain separately unreleased.
 
 Harness owns two deterministic Extension SDK auditors for canonical accounting receipts
 produced by exact public companion revisions:

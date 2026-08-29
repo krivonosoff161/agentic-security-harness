@@ -1,7 +1,8 @@
 # Companion Extension adapters
 
-Status: source-level V1 candidate in the current unreleased development line. This page
-does not claim the adapters are present in the published `v1.2.0` package.
+Status: published in the `v1.3.0` Harness core. The built-in adapters do not publish or
+install companion distributions, and current source extras remain absent from published
+`v1.3.0` package metadata.
 
 The adapters turn three previously separate public projects into one executable,
 offline producer-to-consumer path:

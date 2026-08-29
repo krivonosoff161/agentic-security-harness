@@ -76,7 +76,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/agentic-transfer-verifier
-          ref: 24b94cec7a18668ce4b236005a88e7be2bc205a1
+          ref: b6ec73b552eddd582a17794d1ce167b611b9aa28
           path: components/transfer
           persist-credentials: false
 
@@ -84,7 +84,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/ai-agent-handoff
-          ref: c02c8729d272aabed569e8e9a5f4dbd16e23a8f4
+          ref: 796898733ccb157519b818e2c36b5769be2a030b
           path: components/handoff
           persist-credentials: false
 
@@ -92,7 +92,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/llm-safety-playbooks
-          ref: dc75965f7ba4a766bb0e142773cf81985dc8340a
+          ref: ffaec98d85a8cd0b7d728375b24501f292d9e822
           path: components/playbooks
           persist-credentials: false
 
@@ -100,7 +100,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/llm-safety-playbooks
-          ref: dc75965f7ba4a766bb0e142773cf81985dc8340a
+          ref: ffaec98d85a8cd0b7d728375b24501f292d9e822
           path: components/playbooks-policy-pack-v1
           persist-credentials: false
 
@@ -108,7 +108,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/llm-router
-          ref: 87bc037b5c31cb110f7f253fb6bdcde0fa0c0f22
+          ref: f17aca58b7b5b624d0e4d16949a14eab714bb998
           path: components/router
           persist-credentials: false
 
@@ -116,7 +116,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/llm-cheap-filter
-          ref: 8d4dcf282a5408e04151ec550f69bc7c5065621f
+          ref: c5f8b7dd8f85782dae80418e8aad0d0a8debe1dd
           path: components/filter
           persist-credentials: false
 
