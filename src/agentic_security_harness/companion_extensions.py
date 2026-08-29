@@ -82,7 +82,7 @@ REVIEWED_COMPANION_SOURCES_V1: Final = (
         repository="https://github.com/krivonosoff161/agentic-transfer-verifier",
         commit="97d5d3cbdcab825486e063be8823d426ab3e9176",
         component_manifest_sha256=(
-            "dcf2d3239e886eceb5818df8a439d4fc4e70e0d98708eeca811240c798d6e05b"
+            "e973fccca42919ec596a2ac00cf70514ec5fbc6eb4e1ae9f53e239ebef567a3b"
         ),
         contract_id="transfer-verification-report",
         contract_version="0.1",
