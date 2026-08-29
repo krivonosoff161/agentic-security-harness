@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/agentic-transfer-verifier
-          ref: 97d5d3cbdcab825486e063be8823d426ab3e9176
+          ref: f4f464a085734b3a9296d337ad87897954905e2a
           path: components/transfer
           persist-credentials: false
 
@@ -48,7 +48,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/ai-agent-handoff
-          ref: 796898733ccb157519b818e2c36b5769be2a030b
+          ref: 46aba8284dd1a006bf9739edaa1c9d3212b7e735
           path: components/handoff
           persist-credentials: false
 
@@ -56,7 +56,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/llm-safety-playbooks
-          ref: ffaec98d85a8cd0b7d728375b24501f292d9e822
+          ref: 190769a15a44f5a5af790b33fc37724e6417c27f
           path: components/playbooks
           persist-credentials: false
 
@@ -64,7 +64,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/llm-router
-          ref: f17aca58b7b5b624d0e4d16949a14eab714bb998
+          ref: 69642b42d9999285a0c4642fcaa0405b67e619ad
           path: components/router
           persist-credentials: false
 
@@ -72,7 +72,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/llm-cheap-filter
-          ref: c5f8b7dd8f85782dae80418e8aad0d0a8debe1dd
+          ref: 17f13fd3986a2869686e59ca62123340fd56178b
           path: components/filter
           persist-credentials: false
 
@@ -80,7 +80,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/krivonosoff161
-          ref: ccb34ef951f434db8220b75bdf1129c3d0f97fda
+          ref: 36ce2be1ac27867cd95fbdb9d1a1027e8a0ed2f2
           path: components/profile
           persist-credentials: false
 

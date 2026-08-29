@@ -1189,7 +1189,7 @@ def test_artifact_authenticity_design_separates_trust_domains_and_non_claims() -
     assert "slsa.dev/spec/v1.0" not in design
     assert "artifact-authenticity-design.md" in project_map
     assert "Historical releases and examples remain unsigned" in current_state
-    assert "v1.3.0 released with verified provenance" in current_state
+    assert "v1.4.0 released with verified provenance" in current_state
     assert "retained `v0.15.0` tag is transparent failed-gate evidence" in current_state
     assert "authentication_state=unverified" in _read("docs/evidence-classes.md")
     assert "precision/recall claims are forbidden" in _read("docs/benchmark-semantics.md")
@@ -1276,5 +1276,6 @@ def test_published_v13_feature_docs_do_not_regress_to_unreleased_v12_status() ->
         assert "current unreleased development" not in normalized
 
     companion = " ".join(_read("docs/companion-extensions.md").split())
-    assert "source extras remain absent from published `v1.3.0` package metadata" in companion
-    assert "do not publish or install companion distributions" in companion
+    assert "Harness `v1.4.0` now publishes passive extras" in companion
+    assert "install the exact companion distributions from PyPI" in companion
+    assert "do not auto-discover, approve, bind, or execute installed packages" in companion

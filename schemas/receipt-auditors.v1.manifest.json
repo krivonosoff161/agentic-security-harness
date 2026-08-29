@@ -23,7 +23,7 @@
   "harness_api": "1",
   "implementation": {
     "path": "src/agentic_security_harness/receipt_auditors.py",
-    "sha256": "da5665d918ea84fad64091747c5d2a2a97532cd3676fbeceb620dff43aed63b1"
+    "sha256": "034fbdb4b8d4ed97b81289e92f6c693b91cbd3a7222b5ebf7391a722cf0e33fa"
   },
   "injected_callables": false,
   "integration_model": "explicit_caller_supplied_canonical_receipt_bytes",
@@ -34,9 +34,9 @@
   "operational_authority": "none",
   "reviewed_sources": [
     {
-      "commit": "f17aca58b7b5b624d0e4d16949a14eab714bb998",
+      "commit": "69642b42d9999285a0c4642fcaa0405b67e619ad",
       "component_id": "llm-router",
-      "component_manifest_sha256": "940cf8536aefc5bb79b29c005c962140dc589eadfd40f8b88cd306cfd17c1596",
+      "component_manifest_sha256": "34eef49ca982d4894823f581ac16c2e944d0706e483977db2aff389a33e0fb87",
       "contract_id": "router-invocation-receipt",
       "contract_manifest_path": null,
       "contract_manifest_sha256": null,
@@ -47,15 +47,15 @@
       "implementation_path": "src/llm_router/receipt.py",
       "implementation_sha256": "68b054179bd4c9df33ab0782b8873b81da96e942f6fa923bdc3fbcb94485d468",
       "repository": "https://github.com/krivonosoff161/llm-router",
-      "tree": "d5c19fe863aae171b1dc60fa5f3b75fc2e392c99"
+      "tree": "bb1507c6389c6f4e91edd447b91c4c90b915f9a7"
     },
     {
-      "commit": "c5f8b7dd8f85782dae80418e8aad0d0a8debe1dd",
+      "commit": "17f13fd3986a2869686e59ca62123340fd56178b",
       "component_id": "llm-cheap-filter",
-      "component_manifest_sha256": "dec67b4b1e4a3f98b46d915e24cb063b502dc569f8343a502b7d613cdc580dcd",
+      "component_manifest_sha256": "c9dd234324ee368a591a5e33b9436827fcdf0ff5a45db16711250ca21aa4d529",
       "contract_id": "triage-batch-receipt",
       "contract_manifest_path": "schemas/triage-batch-receipt.v1.manifest.json",
-      "contract_manifest_sha256": "9e5ff8d25c8786651671679517ae767caaf244fb006a3541b2b89cb67e5458ed",
+      "contract_manifest_sha256": "059bba837fcfe487ddfed6c84223b588933960dc4a87598dd0e5d1c717724b0f",
       "contract_path": "schemas/triage-batch-receipt.v1.schema.json",
       "contract_sha256": "556a67e3c99e3415650e2a9a461c653b80686e000511b549a9c50fde1ae79522",
       "contract_version": "1.0",
@@ -63,7 +63,7 @@
       "implementation_path": "src/llm_cheap_filter/receipt.py",
       "implementation_sha256": "e939e1ea1d58efd30ec447a522f4886da1d8a7f8a66eae06d711d4ed7a2dfc4c",
       "repository": "https://github.com/krivonosoff161/llm-cheap-filter",
-      "tree": "e7f66f3a95bbc85d2b928b12b16af19561b38f3a"
+      "tree": "5fc988323cada929a5c74846c4e28ddd468d26be"
     }
   ],
   "schema_version": "harness-receipt-auditor-contract-manifest-v1.0",
@@ -80,11 +80,11 @@
   "subprocess_access": false,
   "unit_tests": {
     "path": "tests/test_receipt_auditors.py",
-    "sha256": "1861aaf048f747b9439ea6cb947cc95d3f0d033956af83ac68d376e086e22e53"
+    "sha256": "21752132bc4dfd58933dee3f4cfe22bb9bde076b36d9d403f0708eb3ee64b3b2"
   },
   "valid_accounting_disposition": "inconclusive_no_security_verdict",
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "beae97b3a4c74d42596f1acc55760cd1bfbb2f280c17acae0b74ebe157296d97"
+    "sha256": "956e51df61c74bb6da530dfa942821f438ff4939bcd6c36ff670d205f9fa23b5"
   }
 }

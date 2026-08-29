@@ -104,9 +104,9 @@ The generic PyPI coordinate `llm-router` is intentionally absent because it belo
 another project. CI builds all eight exact wheels from pinned Git SHAs and installs the
 closed local wheelhouse without loading either extension entry point. The public install
 commands are
-`pip install "agentic-security-harness[router]"` or
-`pip install "agentic-security-harness[all]"` once public index availability for `1.4.0`
-has been confirmed.
+`pip install "agentic-security-harness[router]==1.4.0"` or
+`pip install "agentic-security-harness[all]==1.4.0"`. Both commands were verified in
+fresh isolated environments against PyPI only.
 
 The published [Corpus Pack SDK V1](docs/corpus-pack-sdk.md) adds a separate,
 canonical registry for optional namespaced boundary-invariant metadata. It preserves the
@@ -116,7 +116,7 @@ later rule evaluation rather than a security verdict.
 The published v1.3.0 [companion adapter contracts](docs/companion-extensions.md) exercise
 exact Transfer Verifier reports, Handoff metadata and Playbooks guidance through that
 SDK on Linux and Windows. This closes a concrete producer-to-consumer dataflow gap; it
-does not make those repositories installable extensions or production enforcement.
+does not auto-load those installed distributions or make them production enforcement.
 
 The published v1.3.0 [Security Intelligence contour](docs/security-intelligence-extension.md)
 adds a provider-neutral offline weekly public-source review contract with digest-only

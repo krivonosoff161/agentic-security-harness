@@ -1,7 +1,8 @@
 # Policy Pack V1 extension
 
-Status: published in the `v1.3.0` Harness core. It is not a runtime enforcement control,
-does not execute playbook code, and does not publish or install the Playbooks distribution.
+Status: published in the `v1.3.0` Harness core. It is not a runtime enforcement control
+and does not execute playbook code. Harness `v1.4.0` can passively install the Playbooks
+distribution through an explicit extra, but installation does not bind or activate it.
 
 The optional Policy Pack extension turns one exact reviewed
 `llm-safety-playbooks` declarative pack into deterministic Harness Extension SDK
@@ -20,8 +21,8 @@ explicit pack bytes + digest ────┘      -> ExtensionFindingV1
 ## Source and trust boundary
 
 The reviewed upstream source is fixed to commit
-`ffaec98d85a8cd0b7d728375b24501f292d9e822`, tree
-`de431de80571db6d1ccea6fffdd0bb20c8cae6e5`. The generated Harness manifest binds the
+`190769a15a44f5a5af790b33fc37724e6417c27f`, tree
+`e3a5601a779c8b2e2f92516da30cf2750d320b5b`. The generated Harness manifest binds the
 exact pack, pack schema, pack manifest, component manifest, input schema and output
 schema digests. Cross-repository CI checks those bytes and the exact Git identity on
 Linux and Windows.

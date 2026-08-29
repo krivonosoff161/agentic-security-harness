@@ -205,6 +205,8 @@ def test_component_compatibility_rejects_status_platform_or_python_drift(
 def test_roadmap_rejects_dependency_cycles() -> None:
     payload = load_contract(ECOSYSTEM / "roadmap.yaml")
     assert isinstance(payload, dict)
+    for phase in payload["phases"]:
+        phase["status"] = "active"
     payload["phases"][0]["depends_on"] = [payload["phases"][-1]["id"]]
 
     with pytest.raises(ValidationError, match="dependency cycle"):
@@ -214,7 +216,7 @@ def test_roadmap_rejects_dependency_cycles() -> None:
 def test_roadmap_rejects_completed_phase_with_incomplete_dependency() -> None:
     payload = load_contract(ECOSYSTEM / "roadmap.yaml")
     assert isinstance(payload, dict)
-    payload["phases"][1]["status"] = "complete"
+    payload["phases"][4]["status"] = "complete"
 
     with pytest.raises(ValidationError, match="incomplete dependencies"):
         EcosystemRoadmap.model_validate(payload)

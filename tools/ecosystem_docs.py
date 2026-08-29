@@ -624,10 +624,10 @@ def _render_components(compatibility: EcosystemCompatibility) -> str:
     lines.extend(
         [
             "",
-            "`contract_only` and `standalone` are honest current states. They do not mean",
-            "the component is already installable through the Harness Extension API.",
-            "`extension_candidate` identifies an exact review-only source extension tested",
-            "by Harness; it is not a released dependency and grants no execution authority.",
+            "`contract_only` and `standalone` are honest integration states; a passive",
+            "Harness package extra does not promote them into runtime extensions.",
+            "`extension_candidate` identifies an operator-selected extension tested by",
+            "Harness. Publication does not grant approval, binding, or execution authority.",
             "For that state, source-package Python preserves the base package declaration",
             "and extension Python records the separately tested nested runtime range.",
         ]

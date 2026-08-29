@@ -1,13 +1,14 @@
 # Project tracker
 
-## v1.3.0 published release
+## v1.4.0 published release
 
-Exact tag `v1.3.0` resolves to
-`b429ea684d71b0577b9b0040065b152eb0c8c2de`. The attested GitHub Release, TestPyPI and
+Exact tag `v1.4.0` resolves to
+`31c1f290f724298e5674a581c0699e6718b89285`. The attested GitHub Release, TestPyPI and
 PyPI expose the same wheel and sdist subjects; the production and read-only verification
 workflows clean-installed and validated the package on the supported Linux/Python matrix
-and Windows/Python 3.11. Publication does not grant deployment, enforcement, companion
-repository installation, or certification authority.
+and Windows/Python 3.11. The passive `transfer`, `handoff`, `playbooks`, `router`, `filter`,
+and `all` extras resolve exact public companion distributions without automatic activation.
+Publication does not grant deployment, enforcement, provider, or certification authority.
 
 This page explains how public project work is tracked. It is intentionally small:
 GitHub Issues and milestones are the source of truth for work in progress; repository
@@ -15,7 +16,7 @@ docs describe the current shipped state.
 
 ## Current GitHub snapshot
 
-Snapshot refreshed against GitHub on 2026-08-28:
+Snapshot refreshed against GitHub on 2026-08-30:
 
 | Milestone | Purpose |
 |---|---|
@@ -24,7 +25,7 @@ Snapshot refreshed against GitHub on 2026-08-28:
 | [Post-v1 independent review](https://github.com/krivonosoff161/agentic-security-harness/milestone/7) | Non-blocking independent standards review and durable second-reviewer governance. |
 
 Completed milestones `v0.14` through `v0.17`, the v0.15.1 self-service release, and the
-[v1.3.0 release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.3.0)
+[v1.4.0 release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.4.0)
 are closed. Milestone state and
 open issues describe active work, not shipped capability.
 
@@ -70,8 +71,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.3.0` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.3.0/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.4.0` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.4.0/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are
