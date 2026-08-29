@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/status-v1.3.0--released-brightgreen)
+![Status](https://img.shields.io/badge/package_source-v1.4.0-blue)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -20,10 +20,11 @@ validate, compare, and review.
 
 ## Quickstart
 
-Install the stable release from PyPI:
+Install the exact package version from PyPI after confirming that the public index lists
+`1.4.0`:
 
 ```bash
-python -m pip install agentic-security-harness==1.3.0
+python -m pip install agentic-security-harness==1.4.0
 ash quickstart --out reports/quickstart
 ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
@@ -82,18 +83,17 @@ facts. The Harness generates only the cross-project roadmap and compatibility vi
 - [Documentation crosswalk](docs/documentation-map.md)
 - [`component.yaml`](component.yaml) and [`ecosystem/roadmap.yaml`](ecosystem/roadmap.yaml)
 
-Today most companion repositories are `standalone` or `contract_only`. Published core
-release `v1.3.0` contains the first closed [Extension SDK V1](docs/extension-sdk.md) for
+Runtime Guard remains private and `contract_only`. Harness package source `v1.4.0`
+contains the closed [Extension SDK V1](docs/extension-sdk.md) and public passive extras for
 validated observation-to-finding dataflow. It does not auto-load installed packages;
-companion repositories remain optional and require their own conformance and release
-gates before an operator installs or binds them.
+companion repositories remain optional, separately versioned distributions.
 
-The current source candidate defines closed optional-dependency groups for the first
-installable module set:
+Package source `v1.4.0` defines closed optional-dependency groups for the installable
+public module set:
 
 | Extra | Exact companion distributions | Automatic activation |
 |---|---|---|
-| `transfer` | `agentic-transfer-verifier==0.2.0`, extension `==1.0.0` | no |
+| `transfer` | `agentic-transfer-verifier==0.2.1`, extension `==1.0.1` | no |
 | `handoff` | `ai-agent-handoff==0.3.0`, extension `==1.0.0` | no |
 | `playbooks` | `llm-safety-playbooks==0.1.0` data-only wheel | no |
 | `router` | `agentic-llm-router==0.2.0` | no |
@@ -102,11 +102,11 @@ installable module set:
 
 The generic PyPI coordinate `llm-router` is intentionally absent because it belongs to
 another project. CI builds all eight exact wheels from pinned Git SHAs and installs the
-closed local wheelhouse without loading either extension entry point. After companion and
-Harness publication pass their separate release gates, the intended user commands are
+closed local wheelhouse without loading either extension entry point. The public install
+commands are
 `pip install "agentic-security-harness[router]"` or
-`pip install "agentic-security-harness[all]"`. The published v1.3.0 metadata does not yet
-contain these extras.
+`pip install "agentic-security-harness[all]"` once public index availability for `1.4.0`
+has been confirmed.
 
 The published [Corpus Pack SDK V1](docs/corpus-pack-sdk.md) adds a separate,
 canonical registry for optional namespaced boundary-invariant metadata. It preserves the
@@ -353,14 +353,13 @@ approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install the
 
 ## Release and package status
 
-The stable `v1.3.0` package is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.3.0/) and as an attested
-[GitHub Release](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.3.0).
-The exact wheel and sdist subjects were promoted through TestPyPI and PyPI with matching
-SHA-256 values, then clean-installed and validated on Linux/Python 3.11-3.13 and
-Windows/Python 3.11. Publication makes the bounded core modules above installable; it is
-not a production deployment, enforcement claim, companion-repository bundle, or security
-certification.
+Package source `v1.4.0` is configured for the repository's tag-only attested release and
+OIDC promotion workflows. Availability is established only by the exact
+[PyPI project history](https://pypi.org/project/agentic-security-harness/#history) and
+[GitHub Releases](https://github.com/krivonosoff161/agentic-security-harness/releases),
+not by source metadata alone. Publication makes the bounded core and selected passive
+distributions installable; it is not automatic activation, production deployment,
+enforcement, provider authority, or security certification.
 
 - [Release checklist](docs/release-checklist.md)
 - [PyPI release process](docs/release-to-pypi.md)

@@ -117,16 +117,16 @@ def test_current_release_source_metadata_is_synchronized() -> None:
     version_text = (ROOT / "src/agentic_security_harness/version.py").read_text("utf-8")
     citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-    release_notes = (ROOT / "docs/releases/v1.3.0.md").read_text(encoding="utf-8")
+    release_notes = (ROOT / "docs/releases/v1.4.0.md").read_text(encoding="utf-8")
 
     package_version = re.search(r'^__version__ = "([^"]+)"$', version_text, re.MULTILINE)
     assert package_version is not None
-    assert project["version"] == package_version.group(1) == "1.3.0"
+    assert project["version"] == package_version.group(1) == "1.4.0"
     assert 'Development Status :: 4 - Beta' in project["classifiers"]
-    assert 'version: "1.3.0"' in citation
-    assert 'date-released: "2026-08-27"' in citation
-    assert "## [1.3.0] - 2026-08-27" in changelog
-    assert "Agentic Security Harness v1.3.0" in release_notes
+    assert 'version: "1.4.0"' in citation
+    assert 'date-released: "2026-08-29"' in citation
+    assert "## [1.4.0] - 2026-08-29" in changelog
+    assert "Agentic Security Harness v1.4.0" in release_notes
     assert "release source" in release_notes
     assert "not a production safety certification" in " ".join(release_notes.split())
 

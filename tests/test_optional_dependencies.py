@@ -6,8 +6,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED = {
     "transfer": {
-        "agentic-transfer-verifier==0.2.0",
-        "agentic-transfer-verifier-harness-extension==1.0.0",
+        "agentic-transfer-verifier==0.2.1",
+        "agentic-transfer-verifier-harness-extension==1.0.1",
     },
     "handoff": {
         "ai-agent-handoff==0.3.0",

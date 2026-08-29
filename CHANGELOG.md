@@ -6,6 +6,24 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-08-29
+
+### Added
+- Added public install extras for Transfer, Handoff, Safety Playbooks, Router, Cheap
+  Filter, and their exact closed union under `all`.
+
+### Changed
+- Bound every companion extra to the exact version independently released and verified
+  on TestPyPI and PyPI before this Harness release source was finalized.
+- Documented the passive installation contract: extras install distributions only and
+  grant no discovery, loading, binding, provider access, execution, deployment, or
+  enforcement authority.
+
+### Fixed
+- Advanced the Transfer pins to `agentic-transfer-verifier==0.2.1` and
+  `agentic-transfer-verifier-harness-extension==1.0.1`, avoiding the superseded package
+  coordinates that did not represent the final reproducible extension artifact closure.
+
 ## [1.3.0] - 2026-08-27
 
 ### Added
