@@ -81,10 +81,10 @@ REVIEWED_RECEIPT_SOURCES_V1: Final = (
     ReviewedReceiptSourceV1(
         component_id="llm-router",
         repository="https://github.com/krivonosoff161/llm-router",
-        commit="f17aca58b7b5b624d0e4d16949a14eab714bb998",
-        tree="d5c19fe863aae171b1dc60fa5f3b75fc2e392c99",
+        commit="69642b42d9999285a0c4642fcaa0405b67e619ad",
+        tree="bb1507c6389c6f4e91edd447b91c4c90b915f9a7",
         component_manifest_sha256=(
-            "940cf8536aefc5bb79b29c005c962140dc589eadfd40f8b88cd306cfd17c1596"
+            "34eef49ca982d4894823f581ac16c2e944d0706e483977db2aff389a33e0fb87"
         ),
         contract_id="router-invocation-receipt",
         contract_version="1.0",
@@ -99,10 +99,10 @@ REVIEWED_RECEIPT_SOURCES_V1: Final = (
     ReviewedReceiptSourceV1(
         component_id="llm-cheap-filter",
         repository="https://github.com/krivonosoff161/llm-cheap-filter",
-        commit="c5f8b7dd8f85782dae80418e8aad0d0a8debe1dd",
-        tree="e7f66f3a95bbc85d2b928b12b16af19561b38f3a",
+        commit="17f13fd3986a2869686e59ca62123340fd56178b",
+        tree="5fc988323cada929a5c74846c4e28ddd468d26be",
         component_manifest_sha256=(
-            "dec67b4b1e4a3f98b46d915e24cb063b502dc569f8343a502b7d613cdc580dcd"
+            "c9dd234324ee368a591a5e33b9436827fcdf0ff5a45db16711250ca21aa4d529"
         ),
         contract_id="triage-batch-receipt",
         contract_version="1.0",

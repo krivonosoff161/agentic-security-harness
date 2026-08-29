@@ -22,7 +22,7 @@
   },
   "documentation": {
     "path": "docs/policy-pack-extension.md",
-    "sha256": "b59917203a75d2ea3634028ced06594beb0b35c1a6245a9eb977e9fe39caf07e"
+    "sha256": "007dcb1e5cb7f36a6f5d3dd3ff713730c3c284e62cfa22bea7a4369cc431a832"
   },
   "extension_sdk_contract": {
     "path": "schemas/extension-sdk.v1.manifest.json",
@@ -35,7 +35,7 @@
   "harness_api": "1",
   "implementation": {
     "path": "src/agentic_security_harness/policy_pack_extension.py",
-    "sha256": "44ea3ebe56e352cb6eca002556ba6005f9c882ab8ce7b77c63daf50fa8cdd092"
+    "sha256": "5dc3e83d237145e688828bfd47a0bd1825fb5943482c010cf0f440c885c53da8"
   },
   "integration_model": "explicit_caller_supplied_exact_canonical_data_only_pack",
   "may_authorize_effects": false,
@@ -59,8 +59,8 @@
     "pack_sha256": "44fa5aced73c6a2fc1eb3cb827955d245c887fa8d7c596e353bb2e9678119169",
     "repository": "https://github.com/krivonosoff161/llm-safety-playbooks",
     "schema_version": "harness-policy-pack-source-pin-v1.0",
-    "source_commit": "ffaec98d85a8cd0b7d728375b24501f292d9e822",
-    "source_tree": "de431de80571db6d1ccea6fffdd0bb20c8cae6e5",
+    "source_commit": "190769a15a44f5a5af790b33fc37724e6417c27f",
+    "source_tree": "e3a5601a779c8b2e2f92516da30cf2750d320b5b",
     "verification": "exact_public_git_reviewed"
   },
   "schema_version": "harness-policy-pack-extension-contract-manifest-v1.0",

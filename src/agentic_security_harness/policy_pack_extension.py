@@ -63,8 +63,8 @@ POLICY_PACK_INPUT_SCHEMA_SHA256: Final = (
 POLICY_PACK_OUTPUT_SCHEMA_SHA256: Final = (
     "b5e4d5554fb930529fd493dad903a25698c99c62c57d99934f66edda8b4f6f1c"
 )
-POLICY_PACK_SOURCE_COMMIT: Final = "ffaec98d85a8cd0b7d728375b24501f292d9e822"
-POLICY_PACK_SOURCE_TREE: Final = "de431de80571db6d1ccea6fffdd0bb20c8cae6e5"
+POLICY_PACK_SOURCE_COMMIT: Final = "190769a15a44f5a5af790b33fc37724e6417c27f"
+POLICY_PACK_SOURCE_TREE: Final = "e3a5601a779c8b2e2f92516da30cf2750d320b5b"
 POLICY_PACK_DOMAIN: Final = b"llm-safety-playbooks/policy-pack/v1\0"
 POLICY_SIGNAL_BINDING_DOMAIN: Final = (
     b"agentic-security-harness/policy-pack-signal-binding/v1\0"
