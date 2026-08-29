@@ -9,7 +9,7 @@
   },
   "documentation": {
     "path": "docs/companion-extensions.md",
-    "sha256": "ce74d28bb46aef540a1d9b0072faa02603012291fb371e53108597e2dc0730e5"
+    "sha256": "1e3e7698737733f56538715affb7a0b098bfde6adcac37192355636c2c3bc0e7"
   },
   "execution_model": "explicit_in_process_not_sandboxed",
   "extension_sdk_contract": {
@@ -23,7 +23,7 @@
   "harness_api": "1",
   "implementation": {
     "path": "src/agentic_security_harness/companion_extensions.py",
-    "sha256": "7a4739ee451938787c9f411feb2b33a6d7cd9692810f2a5a577799451750b1f6"
+    "sha256": "e256c32f279481a2583feff74f40325879180ba95c08970ed273a6ffadc5d74a"
   },
   "integration_candidate": {
     "build_requirements_in": {
@@ -48,11 +48,11 @@
     },
     "documentation": {
       "path": "docs/ecosystem-integration-candidate.md",
-      "sha256": "dc890a539178c75a4592f9be8b27c6c12df575adc9d31ffcd172f52ab7b97cca"
+      "sha256": "628084504419a61d1ddf3e4d21c91a18036cdf77893a4c34cb8e9a3fee4dbb46"
     },
     "test": {
       "path": "tests/test_ecosystem_integration_candidate.py",
-      "sha256": "75075ddf1f2c1e8cde2d7188b26039ca2a377b81baad6ba8bea14e395348c3b7"
+      "sha256": "a19ca3a91d1d4812e294e455e1da33554d3d83f4d4913caea84a613602b65c4f"
     },
     "wheelhouse_smoke": {
       "path": "tools/optional_wheelhouse_smoke.py",
@@ -60,7 +60,7 @@
     },
     "workflow": {
       "path": ".github/workflows/ecosystem-integration.yml",
-      "sha256": "6ae06f413af26f697e5c72a575ef7666bb280d62c6f35bd76dcc1b5950e3e731"
+      "sha256": "5e13a6a541c9c897fa3b50f278bcb3bef9bd05d45999bcfebcdbc66673ef4261"
     }
   },
   "integration_model": "explicit_normalized_digest_bound_outputs",
@@ -68,7 +68,7 @@
   "operational_authority": "none",
   "reviewed_sources": [
     {
-      "commit": "24b94cec7a18668ce4b236005a88e7be2bc205a1",
+      "commit": "b6ec73b552eddd582a17794d1ce167b611b9aa28",
       "component_id": "agentic-transfer-verifier",
       "component_manifest_sha256": "184fd2fe84b2096ed5a3083a808be372a71999d3ce7a8f5a0cd46deca796c88d",
       "contract_id": "transfer-verification-report",
@@ -78,7 +78,7 @@
       "repository": "https://github.com/krivonosoff161/agentic-transfer-verifier"
     },
     {
-      "commit": "c02c8729d272aabed569e8e9a5f4dbd16e23a8f4",
+      "commit": "796898733ccb157519b818e2c36b5769be2a030b",
       "component_id": "ai-agent-handoff",
       "component_manifest_sha256": "34b4ac1e36b7e0481e3a0829bd277a7eee5b0a1b7ada5e5c6555a41f585d1e33",
       "contract_id": "handoff-metadata",
@@ -88,7 +88,7 @@
       "repository": "https://github.com/krivonosoff161/ai-agent-handoff"
     },
     {
-      "commit": "dc75965f7ba4a766bb0e142773cf81985dc8340a",
+      "commit": "ffaec98d85a8cd0b7d728375b24501f292d9e822",
       "component_id": "llm-safety-playbooks",
       "component_manifest_sha256": "5250e374bdbe97727db271fb0ae1061ed975feedca7dcfe7c81aa952f7d24f18",
       "contract_id": "portfolio-observation-guidance",
@@ -123,6 +123,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "8e4238bb35107412881fd362fabb166d0dbb685ea0abda9f77ee44663c5ce8ec"
+    "sha256": "2a49dd451c909a26b37acff2599342879bde24a0b5a9a20c9d28ca8d988ecf7f"
   }
 }

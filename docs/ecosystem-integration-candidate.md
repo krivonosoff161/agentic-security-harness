@@ -10,11 +10,11 @@ still grants no automatic activation, execution, or deployment authority.
 | Surface | Source head | Source tree | Role in this gate |
 |---|---|---|---|
 | Harness merged baseline | `c1dd69856212458ae952e43aeb2b0cc9290e8205` | `596c189e8b15ceaf7bf28337546655e23d47d3ef` | released `v1.3.0` docs-sync main anchor and optional-extras base |
-| Transfer extension | `24b94cec7a18668ce4b236005a88e7be2bc205a1` | `dded5dd4dde34660259b80dbd48f2df1abe52cf2` | merged base 0.2.0 and extension 1.0.0 wheel sources |
-| Handoff extension | `c02c8729d272aabed569e8e9a5f4dbd16e23a8f4` | `1443b6fed31805800d553cca31eade6d8a40dfe9` | merged base 0.3.0 and extension 1.0.0 wheel sources |
-| Policy Pack | `dc75965f7ba4a766bb0e142773cf81985dc8340a` | `c5e34452e978193877fef660e417e4f376904a34` | merged data-only package 0.1.0 source |
-| Router receipts | `87bc037b5c31cb110f7f253fb6bdcde0fa0c0f22` | `641f3fa10f10188eff250fa77264f25e0f51071c` | merged unique `agentic-llm-router` 0.2.0 package source and receipt contract |
-| Cheap Filter receipts | `8d4dcf282a5408e04151ec550f69bc7c5065621f` | `ed587047da7364ac3bce4cb269553abee9a5e4d9` | merged zero-runtime-dependency 0.2.0 package source and receipt contract |
+| Transfer extension | `b6ec73b552eddd582a17794d1ce167b611b9aa28` | `a070e2eb7e5dfb34010445462adae15e235f2a86` | merged base 0.2.0 and extension 1.0.0 wheel sources |
+| Handoff extension | `796898733ccb157519b818e2c36b5769be2a030b` | `467a8fbb345088a9c6170c8673f09f998563ce31` | merged base 0.3.0 and extension 1.0.0 wheel sources |
+| Policy Pack | `ffaec98d85a8cd0b7d728375b24501f292d9e822` | `de431de80571db6d1ccea6fffdd0bb20c8cae6e5` | merged data-only package 0.1.0 source |
+| Router receipts | `f17aca58b7b5b624d0e4d16949a14eab714bb998` | `d5c19fe863aae171b1dc60fa5f3b75fc2e392c99` | merged unique `agentic-llm-router` 0.2.0 package source and receipt contract |
+| Cheap Filter receipts | `c5f8b7dd8f85782dae80418e8aad0d0a8debe1dd` | `e7f66f3a95bbc85d2b928b12b16af19561b38f3a` | merged zero-runtime-dependency 0.2.0 package source and receipt contract |
 | Public profile projection | `ccb34ef951f434db8220b75bdf1129c3d0f97fda` | `b2c08e6aebd042d8fdfa3cf16dd42fd2b59355a0` | merged documentation projection only |
 
 The final candidate descends from Harness `main` commit

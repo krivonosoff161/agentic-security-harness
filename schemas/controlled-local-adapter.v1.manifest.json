@@ -2,7 +2,7 @@
   "contract_id": "harness-controlled-local-adapter-v1.0",
   "documentation": {
     "path": "docs/controlled-local-adapter.md",
-    "sha256": "f950560f95abe3bb690045ce0d6594b4ae9d68b9173cda159a776a0112b888b8"
+    "sha256": "3f9adb077699a7255ee51232f60ccb5676299b53a1f7382fcacb157da69467ea"
   },
   "external_provider_calls": false,
   "gateway_policy_sha256": "373c568f6dab98b4ca8e464e1867d035715a4baa6c4981a0142c3a72f3f27705",
@@ -82,6 +82,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "8e4238bb35107412881fd362fabb166d0dbb685ea0abda9f77ee44663c5ce8ec"
+    "sha256": "2a49dd451c909a26b37acff2599342879bde24a0b5a9a20c9d28ca8d988ecf7f"
   }
 }

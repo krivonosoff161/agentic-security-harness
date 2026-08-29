@@ -1254,3 +1254,27 @@ def test_r5_public_status_exposes_terminal_calculations_without_promotion() -> N
     assert "C:\\" not in status
     assert "E:\\" not in status
     assert "raw cases" in status.lower()
+
+
+def test_published_v13_feature_docs_do_not_regress_to_unreleased_v12_status() -> None:
+    feature_docs = (
+        "docs/extension-sdk.md",
+        "docs/extension-distribution-discovery.md",
+        "docs/extension-operator-lifecycle.md",
+        "docs/companion-extensions.md",
+        "docs/security-intelligence-extension.md",
+        "docs/receipt-auditor-extensions.md",
+        "docs/controlled-local-adapter.md",
+        "docs/policy-pack-extension.md",
+    )
+
+    for path in feature_docs:
+        text = _read(path)
+        normalized = " ".join(text.split())
+        assert "published in the `v1.3.0` Harness core" in normalized
+        assert "published `v1.2.0`" not in normalized
+        assert "current unreleased development" not in normalized
+
+    companion = " ".join(_read("docs/companion-extensions.md").split())
+    assert "source extras remain absent from published `v1.3.0` package metadata" in companion
+    assert "do not publish or install companion distributions" in companion

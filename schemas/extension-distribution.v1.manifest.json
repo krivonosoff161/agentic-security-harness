@@ -6,7 +6,7 @@
   "discovery_semantics": "explicit_distribution_and_extension_id_only",
   "documentation": {
     "path": "docs/extension-distribution-discovery.md",
-    "sha256": "2dd73100fc573375e2c8f2cf819b4770d9322f69afdefb6a4b38706032e939cd"
+    "sha256": "10eab73f7357786051a9b1e7124e73b893533a762740b8c5c89ace65da3f5a52"
   },
   "generator": {
     "path": "tools/extension_distribution_contracts.py",
@@ -56,6 +56,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "8e4238bb35107412881fd362fabb166d0dbb685ea0abda9f77ee44663c5ce8ec"
+    "sha256": "2a49dd451c909a26b37acff2599342879bde24a0b5a9a20c9d28ca8d988ecf7f"
   }
 }

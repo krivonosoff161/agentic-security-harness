@@ -10,7 +10,7 @@
   "disable_semantics": "metadata_only_application_enforcement_required",
   "documentation": {
     "path": "docs/extension-operator-lifecycle.md",
-    "sha256": "86f413d23e02e78042b11e01f9c964df7fa4ce3ea334109f5cff067423c32237"
+    "sha256": "63d87aa3b8b45583d88a79fa98eb2d2fd072e914181a3481f94477ceaf4239ec"
   },
   "generator": {
     "path": "tools/extension_lifecycle_contracts.py",
@@ -74,6 +74,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "8e4238bb35107412881fd362fabb166d0dbb685ea0abda9f77ee44663c5ce8ec"
+    "sha256": "2a49dd451c909a26b37acff2599342879bde24a0b5a9a20c9d28ca8d988ecf7f"
   }
 }
