@@ -1,7 +1,7 @@
 {
   "schema_version": "AgenticSecurityEcosystemRoadmap.v1",
   "roadmap_id": "agentic-security-ecosystem",
-  "version": "2026.08.28-installable-modules",
+  "version": "2026.08.30-public-packages",
   "canonical_repository": "https://github.com/krivonosoff161/agentic-security-harness",
   "authority": "none",
   "components": [
@@ -18,23 +18,23 @@
     {
       "id": "documentation-convergence",
       "title": "One public documentation authority and source-owned component manifests",
-      "status": "active",
+      "status": "complete",
       "depends_on": [],
       "deliverables": ["component manifests", "document crosswalk", "generated public projections", "drift and link checks"]
     },
     {
       "id": "extension-contract",
       "title": "Stable Extension SDK and check descriptor contract",
-      "status": "active",
+      "status": "complete",
       "depends_on": ["documentation-convergence"],
       "deliverables": ["extension manifest", "check catalog", "offline conformance kit", "digest-bound companion adapters"]
     },
     {
       "id": "installable-extensions",
       "title": "Installable optional security components",
-      "status": "active",
+      "status": "complete",
       "depends_on": ["extension-contract"],
-      "deliverables": ["package entry points", "compatibility matrix", "cross-platform suite verification", "controlled literal-loopback local provider and synthetic tool-host adapter"]
+      "deliverables": ["passive public extras", "compatibility matrix", "cross-platform suite verification", "controlled literal-loopback local provider and synthetic tool-host adapter"]
     },
     {
       "id": "threat-watch",
@@ -62,5 +62,5 @@
     "roles": ["canonical", "component-owned", "generated", "current-snapshot", "research", "historical", "superseded"],
     "generated_outputs": ["docs/ecosystem-roadmap.md", "docs/ecosystem-components.md", "docs/documentation-map.md", "ecosystem/document-registry.json"]
   },
-  "non_claims": ["optional companion packages are already published", "installation automatically activates extension code", "private research is public", "roadmap status grants operational authority", "synthetic validation proves production effectiveness", "optional corpus packs are automatically discovered, executed, authenticated or independently reviewed"]
+  "non_claims": ["installation automatically activates extension code", "private research is public", "roadmap status grants operational authority", "synthetic validation proves production effectiveness", "optional corpus packs are automatically discovered, executed, authenticated or independently reviewed"]
 }

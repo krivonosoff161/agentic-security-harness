@@ -6,7 +6,7 @@ cannot prove, and what must stay experimental until the method is stronger.
 
 ## Status
 
-Current release status: **published v1.3.0 public defensive benchmark/toolkit**. The
+Current release status: **published v1.4.0 public defensive benchmark/toolkit**. The
 trace and corpus v1 contracts are frozen and published on PyPI and GitHub Releases. New
 capabilities remain separately versioned and do not silently redefine those stable
 contracts.

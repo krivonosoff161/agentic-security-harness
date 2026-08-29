@@ -1,32 +1,33 @@
-# Ecosystem integration candidate
+# Ecosystem integration and public package set
 
-This page records the review-only source integration gate for the optional public
-ecosystem components. The published `v1.3.0` core contains the SDK and built-in auditors,
-but not these optional package dependencies. This source candidate adds exact extras and
-still grants no automatic activation, execution, or deployment authority.
+This page records the exact source integration gate and the public package set for the
+optional ecosystem components. Harness `v1.4.0` publishes the exact extras after the
+companion distributions were released. Installation still grants no automatic approval,
+binding, activation, execution, provider access, or deployment authority.
 
 ## Exact source set
 
 | Surface | Source head | Source tree | Role in this gate |
 |---|---|---|---|
-| Harness merged baseline | `c1dd69856212458ae952e43aeb2b0cc9290e8205` | `596c189e8b15ceaf7bf28337546655e23d47d3ef` | released `v1.3.0` docs-sync main anchor and optional-extras base |
-| Transfer extension | `97d5d3cbdcab825486e063be8823d426ab3e9176` | `37e31178c53d51f008f4e121d5ccb304485b11ea` | merged base 0.2.1 and extension 1.0.1 wheel sources |
-| Handoff extension | `796898733ccb157519b818e2c36b5769be2a030b` | `467a8fbb345088a9c6170c8673f09f998563ce31` | merged base 0.3.0 and extension 1.0.0 wheel sources |
-| Policy Pack | `ffaec98d85a8cd0b7d728375b24501f292d9e822` | `de431de80571db6d1ccea6fffdd0bb20c8cae6e5` | merged data-only package 0.1.0 source |
-| Router receipts | `f17aca58b7b5b624d0e4d16949a14eab714bb998` | `d5c19fe863aae171b1dc60fa5f3b75fc2e392c99` | merged unique `agentic-llm-router` 0.2.0 package source and receipt contract |
-| Cheap Filter receipts | `c5f8b7dd8f85782dae80418e8aad0d0a8debe1dd` | `e7f66f3a95bbc85d2b928b12b16af19561b38f3a` | merged zero-runtime-dependency 0.2.0 package source and receipt contract |
-| Public profile projection | `ccb34ef951f434db8220b75bdf1129c3d0f97fda` | `b2c08e6aebd042d8fdfa3cf16dd42fd2b59355a0` | merged documentation projection only |
+| Harness release baseline | `31c1f290f724298e5674a581c0699e6718b89285` | `fabb779cb29523ae0d42d346e1249371dc608f71` | released `v1.4.0` package source and optional-extras base |
+| Transfer extension | `f4f464a085734b3a9296d337ad87897954905e2a` | `b75caee39d50b48b54f07070e4c8193518d43333` | published base 0.2.1 and extension 1.0.1 plus reconciled docs |
+| Handoff extension | `46aba8284dd1a006bf9739edaa1c9d3212b7e735` | `5103a8be98628a2a575fda753a0a4a473168cc62` | published base 0.3.0 and extension 1.0.0 plus reconciled docs |
+| Policy Pack | `190769a15a44f5a5af790b33fc37724e6417c27f` | `e3a5601a779c8b2e2f92516da30cf2750d320b5b` | published data-only package 0.1.0 plus reconciled docs |
+| Router receipts | `69642b42d9999285a0c4642fcaa0405b67e619ad` | `bb1507c6389c6f4e91edd447b91c4c90b915f9a7` | published unique `agentic-llm-router` 0.2.0 package and receipt contract |
+| Cheap Filter receipts | `17f13fd3986a2869686e59ca62123340fd56178b` | `5fc988323cada929a5c74846c4e28ddd468d26be` | published zero-runtime-dependency 0.2.0 package and receipt contract |
+| Public profile projection | `36ce2be1ac27867cd95fbdb9d1a1027e8a0ed2f2` | `56d2069a47280bb80df7426a2c2d2ea29667a5df` | pre-final-repin documentation projection |
 
-The final candidate descends from Harness `main` commit
-`c1dd69856212458ae952e43aeb2b0cc9290e8205` and binds each companion repository's
+The release baseline is Harness `main` commit
+`31c1f290f724298e5674a581c0699e6718b89285` and the lock binds each companion repository's
 merged `main` commit shown above. The central lock names `refs/heads/main` and the
-workflow checks out those exact immutable commits. A later release gate must reverify
-that the same source set remains intended; it must not silently float to newer heads.
+workflow checks out those exact immutable commits. The final profile repin is deliberately
+sequenced after this Harness documentation merge to avoid a false circular current-head claim.
 
-Both source-owned extension manifests now name exact released Harness source
+Both source-owned extension manifests retain exact Harness API compatibility evidence at
 `c1dd69856212458ae952e43aeb2b0cc9290e8205`. The central matrix checks that same base,
 builds all eight wheels, installs the closed wheelhouse without dependency resolution,
-and verifies the two entry-point declarations without loading extension code.
+and verifies the two entry-point declarations without loading extension code. Separate
+PyPI resolver smokes prove the published `v1.4.0` package coordinates.
 
 ## Executable gate
 
@@ -65,20 +66,18 @@ third-party code.
 
 ## Compatibility labels
 
-`extension_candidate` describes a review-only nested extension source tree. The
+`extension_candidate` describes an operator-selected nested extension. The
 compatibility matrix therefore records two Python ranges: `python` preserves the base
 repository package range, while `extension_python` records the tested nested extension
-range (`>=3.11,<3.14`). Neither label means that the extension ships inside the Harness
-wheel or is available from PyPI.
+range (`>=3.11,<3.14`). The packages are available from PyPI, but the extension does not
+ship inside the Harness wheel and installation does not approve or bind it.
 
 ## Schema governance
 
-The ecosystem `*.v1` files in this stacked source candidate are review-only and have not
-had a first stable public release. Adding the closed `extension_candidate` enum and
-optional `extension_python` field is therefore a pre-publication contract correction,
-not a backwards-compatible evolution of a shipped schema. Generated schema and
-component-lock digests identify the exact reviewed revision; an older reader that does
-not know the enum fails closed. No compatibility promise is made to earlier PR snapshots.
+The ecosystem `*.v1` files shipped with the public Harness line. This reconciliation does
+not widen their closed enums or runtime semantics. Generated schema and component-lock
+digests identify the exact reviewed revision; incompatible future schema changes require
+the documented versioned lifecycle rather than silent widening.
 
 This separate policy does not alter the runtime evidence-artifact rules in
 [artifact-schemas.md](artifact-schemas.md): widening a runtime artifact enum still

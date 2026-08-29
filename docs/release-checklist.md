@@ -6,7 +6,10 @@ as `v1.1.0` on 2026-08-22. The Runtime Gateway synthetic contour was released as
 `v1.2.0` on 2026-08-23. The integrated ecosystem stack was released as `v1.3.0` on
 2026-08-28 after exact-head CI, reproducible attested build, TestPyPI review, separately
 approved PyPI promotion, cross-platform clean installation, and read-only
-post-publication verification. This
+post-publication verification. The passive public companion extras and their five exact
+PyPI distributions were released with Harness `v1.4.0` on 2026-08-30 after isolated
+resolver checks for every extra and `all`; installation still grants no discovery,
+approval, binding, configuration, invocation, or activation authority. This
 checklist remains the required
 procedure for subsequent releases. The broader readiness map is
 [v1-readiness.md](v1-readiness.md).

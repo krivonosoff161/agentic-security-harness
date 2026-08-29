@@ -9,7 +9,7 @@
   },
   "documentation": {
     "path": "docs/companion-extensions.md",
-    "sha256": "1e3e7698737733f56538715affb7a0b098bfde6adcac37192355636c2c3bc0e7"
+    "sha256": "8ba9ae4dfb86728899fbff0e64cadf56fc112e56c9bee76f39a44b0a62e1f375"
   },
   "execution_model": "explicit_in_process_not_sandboxed",
   "extension_sdk_contract": {
@@ -36,7 +36,7 @@
     },
     "compatibility": {
       "path": "ecosystem/compatibility.json",
-      "sha256": "9aef7d68d12b8600d1473634e67d77c92f10b37fa148759dbe8ced12c6e2238c"
+      "sha256": "1400c73dce9f046716a5eba5b7cc5abc81009977a1b010e4f97d65c9ee6a3a0f"
     },
     "development_requirements_in": {
       "path": "requirements/dev.in",
@@ -48,7 +48,7 @@
     },
     "documentation": {
       "path": "docs/ecosystem-integration-candidate.md",
-      "sha256": "f0ef7643223e420cfebf6bc1d69c6ee18ae9bc25f092e72a01182a820aff3758"
+      "sha256": "01c005fd944a5ba158b6841c0db0a8108b4925a741c5c38f0a5eee520e10e905"
     },
     "test": {
       "path": "tests/test_ecosystem_integration_candidate.py",
@@ -123,6 +123,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "beae97b3a4c74d42596f1acc55760cd1bfbb2f280c17acae0b74ebe157296d97"
+    "sha256": "956e51df61c74bb6da530dfa942821f438ff4939bcd6c36ff670d205f9fa23b5"
   }
 }

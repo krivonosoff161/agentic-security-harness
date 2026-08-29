@@ -1,19 +1,19 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The package is published as `1.3.0` on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.3.0/). This page documents the
+The package is published as `1.4.0` on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.4.0/). This page documents the
 manual, environment-gated OIDC promotion path used for that release and required for
 future releases. See the gates in [release-checklist.md](release-checklist.md).
 
-Release `v1.3.0` completed the exact tag, attested release build, TestPyPI review,
+Release `v1.4.0` completed the exact tag, attested release build, TestPyPI review,
 separately approved PyPI promotion, and post-publication verification gates. Future
 versions must repeat those gates; repository metadata alone never authorizes publication.
 
 ## Packaging facts (current)
 
 - `pyproject.toml`: name `agentic-security-harness`, Apache-2.0, `requires-python >=3.11`,
-  one runtime dependency (`pydantic`), `Operating System :: OS Independent`, typed
-  (`py.typed` shipped in the wheel).
+  one required runtime dependency (`pydantic`) plus passive exact-version companion
+  extras, `Operating System :: OS Independent`, typed (`py.typed` shipped in the wheel).
 - Console script: `ash = agentic_security_harness.cli:main`.
 - License files `LICENSE` and `NOTICE` are included in the wheel.
 
@@ -90,18 +90,24 @@ derive the exact universal-wheel SHA-256 from the official package-index JSON re
 and require that hash during a `--no-deps` package install. TestPyPI is not used as an
 extra dependency index.
 
-For `v1.3.0`, release workflow
-[`33105856816`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/33105856816)
+For `v1.4.0`, release workflow
+[`33272847060`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/33272847060)
 built the exact subjects, TestPyPI workflow
-[`33106417655`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/33106417655)
+[`33273085435`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/33273085435)
 verified the staging promotion, production workflow
-[`33135327780`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/33135327780)
+[`33273173580`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/33273173580)
 published and smoke-tested PyPI, and read-only workflow
-[`33135478838`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/33135478838)
+[`33273274087`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/33273274087)
 reverified the closed release asset set, attestations, index equality, and clean installs.
 TestPyPI and PyPI expose wheel SHA-256
-`d02dd3be9434785df49a7b2d10e00b35cdfef237efc3d4f476ea63164daa26ac` and sdist SHA-256
-`a3f06fe627ef8b57d9c625058f47ce1fad0d025e7c594975c980d3bb6ff3b0bc`.
+`41338eeebccc208208a108199af5129ff2214cfab9f0061a9a0b7ac47ca18ee5` and sdist SHA-256
+`696a16793e6298ef69fd519879334c05912c068543ec5aa352bfdbc0c801836d`.
+The fresh PyPI-only resolver smokes for each published extra and `all` passed without
+editable installs, local paths, Git URLs, or a pre-existing wheelhouse. These are
+installation facts only; they do not grant automatic discovery or execution authority.
+
+For historical continuity, `v1.3.0` used release run `33105856816`, TestPyPI run
+`33106417655`, PyPI run `33135327780`, and read-only verification run `33135478838`.
 
 For `v1.0.0`, both package indexes expose wheel/sdist SHA-256 values identical to the
 attested GitHub Release subjects. The first promotion runs uploaded successfully but their

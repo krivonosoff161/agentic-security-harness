@@ -11,11 +11,11 @@ with no API keys and no network.
 ## 1. Install
 
 ```bash
-git clone https://github.com/krivonosoff161/agentic-security-harness
-cd agentic-security-harness
-python -m pip install .
+python -m pip install agentic-security-harness==1.4.0
 ash --help
 ```
+
+For source development, clone the repository and use `python -m pip install -e .[dev]`.
 
 Requires Python 3.11+. Pure Python; the only runtime dependency is `pydantic`.
 Ubuntu/Linux is the primary clean-install and first-user contour; Windows remains an

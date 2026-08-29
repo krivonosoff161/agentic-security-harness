@@ -1,8 +1,8 @@
 # Companion Extension adapters
 
-Status: published in the `v1.3.0` Harness core. The built-in adapters do not publish or
-install companion distributions, and current source extras remain absent from published
-`v1.3.0` package metadata.
+Status: the adapters were published in the `v1.3.0` Harness core. Harness `v1.4.0` now
+publishes passive extras that install the exact companion distributions from PyPI. The
+adapters still do not auto-discover, approve, bind, or execute installed packages.
 
 The adapters turn three previously separate public projects into one executable,
 offline producer-to-consumer path:
@@ -66,7 +66,7 @@ the JSON Schemas are not advertised as standalone semantic validators.
 
 ## Honest limits
 
-This closes the old dataflow gap for three reviewed contract surfaces. It does not make
-the companion repositories installable packages, turn Playbooks into enforcement,
+This closes the old dataflow gap for three reviewed contract surfaces. The companion
+packages are installable, but installation does not turn Playbooks into enforcement,
 authenticate producers, calibrate Transfer risk against incidents, sandbox extension
 code or prove effectiveness against live agents. Those remain later roadmap work.
