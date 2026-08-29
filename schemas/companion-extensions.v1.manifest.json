@@ -18,12 +18,12 @@
   },
   "generator": {
     "path": "tools/companion_extension_contracts.py",
-    "sha256": "2a44a403f3a96778a860ee7cd29718c90a77a4adf90fd087ec8f9a6b8bf702cc"
+    "sha256": "7daeb18e35617520a22b7715c41474b52803aabe4a1d54d36d99deb226afd698"
   },
   "harness_api": "1",
   "implementation": {
     "path": "src/agentic_security_harness/companion_extensions.py",
-    "sha256": "0b764813ea617eb493d9ff2b5b34509e300a678471ad454fbf5b76504ca2a614"
+    "sha256": "7a4739ee451938787c9f411feb2b33a6d7cd9692810f2a5a577799451750b1f6"
   },
   "integration_candidate": {
     "build_requirements_in": {
@@ -36,7 +36,7 @@
     },
     "compatibility": {
       "path": "ecosystem/compatibility.json",
-      "sha256": "f35c3f3f1b639d6a089e93fbec07ec4671115dffb68c10e46a22eb439a610159"
+      "sha256": "9aef7d68d12b8600d1473634e67d77c92f10b37fa148759dbe8ced12c6e2238c"
     },
     "development_requirements_in": {
       "path": "requirements/dev.in",
@@ -48,15 +48,19 @@
     },
     "documentation": {
       "path": "docs/ecosystem-integration-candidate.md",
-      "sha256": "d5c39d89659c42c06cddb259751c75d2dc69a85a3c76505e3f0b042631036db3"
+      "sha256": "dc890a539178c75a4592f9be8b27c6c12df575adc9d31ffcd172f52ab7b97cca"
     },
     "test": {
       "path": "tests/test_ecosystem_integration_candidate.py",
-      "sha256": "c69f6ae765f844715b9a91111068afa107cccf7f019ce61f3cea05a9c9319768"
+      "sha256": "75075ddf1f2c1e8cde2d7188b26039ca2a377b81baad6ba8bea14e395348c3b7"
+    },
+    "wheelhouse_smoke": {
+      "path": "tools/optional_wheelhouse_smoke.py",
+      "sha256": "246e96d1640ed8d249a11cdb15fbca389233065f6f728cf8051f35e5b3ead3ce"
     },
     "workflow": {
       "path": ".github/workflows/ecosystem-integration.yml",
-      "sha256": "92bb92a0b6ec309f1f765eb0576161625f2f7730801fe4aa23e487509e25e8bb"
+      "sha256": "6ae06f413af26f697e5c72a575ef7666bb280d62c6f35bd76dcc1b5950e3e731"
     }
   },
   "integration_model": "explicit_normalized_digest_bound_outputs",
@@ -64,9 +68,9 @@
   "operational_authority": "none",
   "reviewed_sources": [
     {
-      "commit": "240f3081b6614439e03d61479114e330fe7c3d52",
+      "commit": "24b94cec7a18668ce4b236005a88e7be2bc205a1",
       "component_id": "agentic-transfer-verifier",
-      "component_manifest_sha256": "c71d011af801c7ab21be19d99914eb67076d3f35dd3896d48f47789d52442473",
+      "component_manifest_sha256": "184fd2fe84b2096ed5a3083a808be372a71999d3ce7a8f5a0cd46deca796c88d",
       "contract_id": "transfer-verification-report",
       "contract_path": "src/agentic_transfer_verifier/verifier.py",
       "contract_sha256": "7335162fcf546ac3927e8a2f2ccb35c7102eaa7d29be53d8a41389e513a70e3d",
@@ -74,9 +78,9 @@
       "repository": "https://github.com/krivonosoff161/agentic-transfer-verifier"
     },
     {
-      "commit": "f4e51e0603497f63c62453fc4030319fdfc5ac04",
+      "commit": "c02c8729d272aabed569e8e9a5f4dbd16e23a8f4",
       "component_id": "ai-agent-handoff",
-      "component_manifest_sha256": "7d6aad48e90cb322f3f2a3176208f7ef9095bf3d7e65a662c8cc2df52296ea15",
+      "component_manifest_sha256": "34b4ac1e36b7e0481e3a0829bd277a7eee5b0a1b7ada5e5c6555a41f585d1e33",
       "contract_id": "handoff-metadata",
       "contract_path": "contracts/handoff-metadata.v1.schema.json",
       "contract_sha256": "d1015a42c31c260049d104b581c025556cb421fcdbf63af3fbac1f7eadb55f90",
@@ -84,9 +88,9 @@
       "repository": "https://github.com/krivonosoff161/ai-agent-handoff"
     },
     {
-      "commit": "5a6519df5a54c103cd4b5ca14b479867c549d7d3",
+      "commit": "dc75965f7ba4a766bb0e142773cf81985dc8340a",
       "component_id": "llm-safety-playbooks",
-      "component_manifest_sha256": "b60f7332d153c356a864561166ca94fd9107db35b71c88daf692102286222fc7",
+      "component_manifest_sha256": "5250e374bdbe97727db271fb0ae1061ed975feedca7dcfe7c81aa952f7d24f18",
       "contract_id": "portfolio-observation-guidance",
       "contract_path": "contracts/portfolio-observation-guidance.v1.json",
       "contract_sha256": "f87253b6a1e541ba8e05a2bdc844d70a13d3324975d4f28dd525574c2041de4e",
@@ -115,10 +119,10 @@
   ],
   "unit_tests": {
     "path": "tests/test_companion_extensions.py",
-    "sha256": "04e53862463a50a22e4f19d7816a905bd2e70511e43200885cf80c5ad3fe62c6"
+    "sha256": "0a05f89e3c4d7c727d9a8b00c875695ead161fd5498a7e8d2bdbf46c04955827"
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "80f90202cd1ec23050464e01c56ac1daa61fc89fdc5eac096818f37edb84d385"
+    "sha256": "8e4238bb35107412881fd362fabb166d0dbb685ea0abda9f77ee44663c5ce8ec"
   }
 }

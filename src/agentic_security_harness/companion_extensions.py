@@ -80,9 +80,9 @@ REVIEWED_COMPANION_SOURCES_V1: Final = (
     ReviewedCompanionSourceV1(
         component_id="agentic-transfer-verifier",
         repository="https://github.com/krivonosoff161/agentic-transfer-verifier",
-        commit="240f3081b6614439e03d61479114e330fe7c3d52",
+        commit="24b94cec7a18668ce4b236005a88e7be2bc205a1",
         component_manifest_sha256=(
-            "c71d011af801c7ab21be19d99914eb67076d3f35dd3896d48f47789d52442473"
+            "184fd2fe84b2096ed5a3083a808be372a71999d3ce7a8f5a0cd46deca796c88d"
         ),
         contract_id="transfer-verification-report",
         contract_version="0.1",
@@ -94,9 +94,9 @@ REVIEWED_COMPANION_SOURCES_V1: Final = (
     ReviewedCompanionSourceV1(
         component_id="ai-agent-handoff",
         repository="https://github.com/krivonosoff161/ai-agent-handoff",
-        commit="f4e51e0603497f63c62453fc4030319fdfc5ac04",
+        commit="c02c8729d272aabed569e8e9a5f4dbd16e23a8f4",
         component_manifest_sha256=(
-            "7d6aad48e90cb322f3f2a3176208f7ef9095bf3d7e65a662c8cc2df52296ea15"
+            "34b4ac1e36b7e0481e3a0829bd277a7eee5b0a1b7ada5e5c6555a41f585d1e33"
         ),
         contract_id="handoff-metadata",
         contract_version="1.0",
@@ -108,9 +108,9 @@ REVIEWED_COMPANION_SOURCES_V1: Final = (
     ReviewedCompanionSourceV1(
         component_id="llm-safety-playbooks",
         repository="https://github.com/krivonosoff161/llm-safety-playbooks",
-        commit="5a6519df5a54c103cd4b5ca14b479867c549d7d3",
+        commit="dc75965f7ba4a766bb0e142773cf81985dc8340a",
         component_manifest_sha256=(
-            "b60f7332d153c356a864561166ca94fd9107db35b71c88daf692102286222fc7"
+            "5250e374bdbe97727db271fb0ae1061ed975feedca7dcfe7c81aa952f7d24f18"
         ),
         contract_id="portfolio-observation-guidance",
         contract_version="1.0",

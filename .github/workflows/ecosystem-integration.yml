@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/agentic-transfer-verifier
-          ref: 240f3081b6614439e03d61479114e330fe7c3d52
+          ref: 24b94cec7a18668ce4b236005a88e7be2bc205a1
           path: components/transfer
           persist-credentials: false
 
@@ -48,7 +48,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/ai-agent-handoff
-          ref: f4e51e0603497f63c62453fc4030319fdfc5ac04
+          ref: c02c8729d272aabed569e8e9a5f4dbd16e23a8f4
           path: components/handoff
           persist-credentials: false
 
@@ -56,7 +56,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/llm-safety-playbooks
-          ref: 5a6519df5a54c103cd4b5ca14b479867c549d7d3
+          ref: dc75965f7ba4a766bb0e142773cf81985dc8340a
           path: components/playbooks
           persist-credentials: false
 
@@ -64,7 +64,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/llm-router
-          ref: 790a101ba82fa34203219d7963978a20b55cf504
+          ref: 87bc037b5c31cb110f7f253fb6bdcde0fa0c0f22
           path: components/router
           persist-credentials: false
 
@@ -72,7 +72,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/llm-cheap-filter
-          ref: 8dd1ffb8a453f62c9dd4b4a518754a23bd1651b6
+          ref: 8d4dcf282a5408e04151ec550f69bc7c5065621f
           path: components/filter
           persist-credentials: false
 
@@ -149,6 +149,18 @@ jobs:
           python -m ruff check . --exclude components
           python -m mypy src tests tools
           python -m bandit -q -ll -r src
+
+      - name: Build exact optional-module wheelhouse
+        run: |
+          python -m build --no-isolation --wheel --outdir wheelhouse .
+          python -m build --no-isolation --wheel --outdir wheelhouse components/transfer
+          python -m build --no-isolation --wheel --outdir wheelhouse components/transfer/extensions/transfer_harness_extension_v1
+          python -m build --no-isolation --wheel --outdir wheelhouse components/handoff
+          python -m build --no-isolation --wheel --outdir wheelhouse components/handoff/extensions/harness-v1
+          python -m build --no-isolation --wheel --outdir wheelhouse components/playbooks
+          python -m build --no-isolation --wheel --outdir wheelhouse components/router
+          python -m build --no-isolation --wheel --outdir wheelhouse components/filter
+          python tools/optional_wheelhouse_smoke.py wheelhouse
 
       - name: Build and smoke the Harness package
         run: |

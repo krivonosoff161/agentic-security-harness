@@ -586,7 +586,7 @@ def _render_roadmap(roadmap: EcosystemRoadmap) -> str:
         "> Generated from `ecosystem/roadmap.yaml`; edit the machine contract, not this file.",
         "> Roadmap entries grant no operational authority.",
         "",
-        f"Version: `{roadmap.version}`  ",
+        f"Version: `{roadmap.version}`",
         f"Authority: `{roadmap.authority}`",
         "",
         "## Ordered phases",

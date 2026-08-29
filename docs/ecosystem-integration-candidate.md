@@ -1,39 +1,32 @@
 # Ecosystem integration candidate
 
 This page records the review-only source integration gate for the optional public
-ecosystem components. It is not part of the published `v1.2.0` package, does not install
-companions automatically, and grants no execution or deployment authority.
+ecosystem components. The published `v1.3.0` core contains the SDK and built-in auditors,
+but not these optional package dependencies. This source candidate adds exact extras and
+still grants no automatic activation, execution, or deployment authority.
 
 ## Exact source set
 
 | Surface | Source head | Source tree | Role in this gate |
 |---|---|---|---|
-| Harness merged baseline | `e49a9d81334177dffa1786d132344ba8e51902e1` | `673afdbdf4ab3af7ff975b66610f771ff74aace9` | stable `main` anchor containing the squash-merged ecosystem candidate and profile convergence |
-| Transfer extension | `240f3081b6614439e03d61479114e330fe7c3d52` | `8e2e3319776a48fb96e04a2cd34ed83bb5d3d191` | nested no-dependency Harness extension plus `agentic-transfer-verifier` runtime wheel |
-| Handoff extension | `f4e51e0603497f63c62453fc4030319fdfc5ac04` | `78311595f72469748469a1dfd4dc4a286244159f` | nested no-dependency Harness extension plus `ai-agent-handoff` runtime wheel |
-| Policy Pack | `5a6519df5a54c103cd4b5ca14b479867c549d7d3` | `ab88886f92dc1efdbdc10a1761c91d3fceca8622` | exact data-only policy pack source |
-| Router receipts | `790a101ba82fa34203219d7963978a20b55cf504` | `05fa373b1b16b276e44a9d39942127af729e7d23` | exact receipt producer contract |
-| Cheap Filter receipts | `8dd1ffb8a453f62c9dd4b4a518754a23bd1651b6` | `d42f7f47a85a80cfe435a890c6ddd695085943b4` | exact receipt producer contract |
+| Harness merged baseline | `c1dd69856212458ae952e43aeb2b0cc9290e8205` | `596c189e8b15ceaf7bf28337546655e23d47d3ef` | released `v1.3.0` docs-sync main anchor and optional-extras base |
+| Transfer extension | `24b94cec7a18668ce4b236005a88e7be2bc205a1` | `dded5dd4dde34660259b80dbd48f2df1abe52cf2` | merged base 0.2.0 and extension 1.0.0 wheel sources |
+| Handoff extension | `c02c8729d272aabed569e8e9a5f4dbd16e23a8f4` | `1443b6fed31805800d553cca31eade6d8a40dfe9` | merged base 0.3.0 and extension 1.0.0 wheel sources |
+| Policy Pack | `dc75965f7ba4a766bb0e142773cf81985dc8340a` | `c5e34452e978193877fef660e417e4f376904a34` | merged data-only package 0.1.0 source |
+| Router receipts | `87bc037b5c31cb110f7f253fb6bdcde0fa0c0f22` | `641f3fa10f10188eff250fa77264f25e0f51071c` | merged unique `agentic-llm-router` 0.2.0 package source and receipt contract |
+| Cheap Filter receipts | `8d4dcf282a5408e04151ec550f69bc7c5065621f` | `ed587047da7364ac3bce4cb269553abee9a5e4d9` | merged zero-runtime-dependency 0.2.0 package source and receipt contract |
 | Public profile projection | `ccb34ef951f434db8220b75bdf1129c3d0f97fda` | `b2c08e6aebd042d8fdfa3cf16dd42fd2b59355a0` | merged documentation projection only |
 
 The final candidate descends from Harness `main` commit
-`e49a9d81334177dffa1786d132344ba8e51902e1` and binds each companion repository's
-merged `main` commit shown above. The central lock uses `refs/heads/main` for every
-public source; it does not rely on former task branches.
+`c1dd69856212458ae952e43aeb2b0cc9290e8205` and binds each companion repository's
+merged `main` commit shown above. The central lock names `refs/heads/main` and the
+workflow checks out those exact immutable commits. A later release gate must reverify
+that the same source set remains intended; it must not silently float to newer heads.
 
-The Transfer source-owned manifest names Harness `6354635c...` as its historical tested
-baseline. The Handoff source-owned manifest independently names Harness `285d05ad...` as
-its historical tested baseline. Those commits belonged to pre-squash task histories and
-are not represented as ancestors of stable `main`. The central gate instead verifies the
-exact merged Harness commit and tree above as an ancestor of the current checkout, then
-proves forward compatibility by building and running both exact source extensions against
-that current checkout on Ubuntu and Windows.
-
-This asymmetry is deliberate. Companion repositories retain their exact historical test
-identity while the central Harness lock binds their later merged source heads. Requiring
-every repository to name the final Harness head would create an impossible mutual-head
-fixed point. Requiring pre-squash commits to remain ancestors after a squash merge would
-also make the gate depend on former task-branch history rather than the stable merged tree.
+Both source-owned extension manifests now name exact released Harness source
+`c1dd69856212458ae952e43aeb2b0cc9290e8205`. The central matrix checks that same base,
+builds all eight wheels, installs the closed wheelhouse without dependency resolution,
+and verifies the two entry-point declarations without loading extension code.
 
 ## Executable gate
 
@@ -43,15 +36,17 @@ matrix row:
 1. checks out every public component at the exact head above;
 2. validates all generated Harness schemas, manifests, docs, and the central component
    lock;
-3. builds the Transfer and Handoff runtime and nested extension wheels from clean `git
-   archive` snapshots, then installs all four with `--no-index --no-deps`;
+3. builds the Harness wheel plus all seven companion/runtime/extension wheels, then installs
+   the closed wheelhouse with `--no-index --no-deps`;
 4. performs metadata-only distribution inspection and reinspection-based approval before
    any extension module is imported;
 5. imports only the explicitly selected factory, applies lifecycle binding, and executes
    one canonical synthetic advisory observation for each extension;
 6. composes the Corpus Pack, evaluates the data-only Policy Pack, and exercises the
    Controlled Local adapter against an in-process literal-loopback fixture; and
-7. runs the repository test, Ruff, mypy, Bandit, and package build/wheel smoke gates.
+7. verifies exact optional-dependency coordinates and installed wheel metadata without
+   importing extension entry points; and
+8. runs the repository test, Ruff, mypy, Bandit, and package build/wheel smoke gates.
 
 The repository's separate pinned Gitleaks workflow remains the PR-level full-history
 secret scan. It runs on the same pull request without making the exact-source matrix
