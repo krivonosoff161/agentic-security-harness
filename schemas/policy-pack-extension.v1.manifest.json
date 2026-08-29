@@ -35,7 +35,7 @@
   "harness_api": "1",
   "implementation": {
     "path": "src/agentic_security_harness/policy_pack_extension.py",
-    "sha256": "db0825639539767fdb090fbca7fd598d5754153594a6fe9c16fefdb52e84f234"
+    "sha256": "44ea3ebe56e352cb6eca002556ba6005f9c882ab8ce7b77c63daf50fa8cdd092"
   },
   "integration_model": "explicit_caller_supplied_exact_canonical_data_only_pack",
   "may_authorize_effects": false,
@@ -54,7 +54,7 @@
     "operational_authority": "none",
     "output_schema_sha256": "b5e4d5554fb930529fd493dad903a25698c99c62c57d99934f66edda8b4f6f1c",
     "pack_file_sha256": "1c8ca14e6ab83d92742f6fba0b0d1b1bc422ebe30163c6619e9c80f5413b8915",
-    "pack_manifest_sha256": "72cefee83964c53930ff64750584faa35e144ab8fa8db1ef5ccf066e11604a41",
+    "pack_manifest_sha256": "176ef71ad235697f568a0b831e41443474572f52b792c90573bae19ad98b19ac",
     "pack_schema_sha256": "fd99422169c4cbfbe0f80a16a39cf7557d7ef6d28669b03ae940b24b9e2172a1",
     "pack_sha256": "44fa5aced73c6a2fc1eb3cb827955d245c887fa8d7c596e353bb2e9678119169",
     "repository": "https://github.com/krivonosoff161/llm-safety-playbooks",
