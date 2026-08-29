@@ -35,8 +35,8 @@ from agentic_security_harness.portfolio_contract import (
 )
 from agentic_security_harness.safe_io import is_link_or_reparse
 
-TRANSFER_HEAD = "b6ec73b552eddd582a17794d1ce167b611b9aa28"
-TRANSFER_TREE = "a070e2eb7e5dfb34010445462adae15e235f2a86"
+TRANSFER_HEAD = "97d5d3cbdcab825486e063be8823d426ab3e9176"
+TRANSFER_TREE = "37e31178c53d51f008f4e121d5ccb304485b11ea"
 HANDOFF_HEAD = "796898733ccb157519b818e2c36b5769be2a030b"
 HANDOFF_TREE = "467a8fbb345088a9c6170c8673f09f998563ce31"
 TRANSFER_HARNESS_BASELINE = "c1dd69856212458ae952e43aeb2b0cc9290e8205"
