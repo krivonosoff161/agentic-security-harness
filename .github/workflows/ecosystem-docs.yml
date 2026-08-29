@@ -76,7 +76,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/agentic-transfer-verifier
-          ref: b6ec73b552eddd582a17794d1ce167b611b9aa28
+          ref: 97d5d3cbdcab825486e063be8823d426ab3e9176
           path: components/transfer
           persist-credentials: false
 

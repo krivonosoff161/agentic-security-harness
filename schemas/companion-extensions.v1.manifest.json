@@ -23,7 +23,7 @@
   "harness_api": "1",
   "implementation": {
     "path": "src/agentic_security_harness/companion_extensions.py",
-    "sha256": "e256c32f279481a2583feff74f40325879180ba95c08970ed273a6ffadc5d74a"
+    "sha256": "87efe78c47dd91c7065da4807bc2878fae74ca7a752c68d6faadc8e91a7b8274"
   },
   "integration_candidate": {
     "build_requirements_in": {
@@ -48,19 +48,19 @@
     },
     "documentation": {
       "path": "docs/ecosystem-integration-candidate.md",
-      "sha256": "628084504419a61d1ddf3e4d21c91a18036cdf77893a4c34cb8e9a3fee4dbb46"
+      "sha256": "f0ef7643223e420cfebf6bc1d69c6ee18ae9bc25f092e72a01182a820aff3758"
     },
     "test": {
       "path": "tests/test_ecosystem_integration_candidate.py",
-      "sha256": "a19ca3a91d1d4812e294e455e1da33554d3d83f4d4913caea84a613602b65c4f"
+      "sha256": "3dd480dee0fc485e08d66351fa78d7b7ae2717d1167c8eb60a57d71c9155e7be"
     },
     "wheelhouse_smoke": {
       "path": "tools/optional_wheelhouse_smoke.py",
-      "sha256": "246e96d1640ed8d249a11cdb15fbca389233065f6f728cf8051f35e5b3ead3ce"
+      "sha256": "10bf0b72a14a9bc5cba63694e9f207cfaf201905e1d4d9eea1ac061706dc0a04"
     },
     "workflow": {
       "path": ".github/workflows/ecosystem-integration.yml",
-      "sha256": "5e13a6a541c9c897fa3b50f278bcb3bef9bd05d45999bcfebcdbc66673ef4261"
+      "sha256": "42a5d91c1f5846edf48649fc1276e201147dcdf59220e90173f902cf13a00636"
     }
   },
   "integration_model": "explicit_normalized_digest_bound_outputs",
@@ -68,9 +68,9 @@
   "operational_authority": "none",
   "reviewed_sources": [
     {
-      "commit": "b6ec73b552eddd582a17794d1ce167b611b9aa28",
+      "commit": "97d5d3cbdcab825486e063be8823d426ab3e9176",
       "component_id": "agentic-transfer-verifier",
-      "component_manifest_sha256": "184fd2fe84b2096ed5a3083a808be372a71999d3ce7a8f5a0cd46deca796c88d",
+      "component_manifest_sha256": "e973fccca42919ec596a2ac00cf70514ec5fbc6eb4e1ae9f53e239ebef567a3b",
       "contract_id": "transfer-verification-report",
       "contract_path": "src/agentic_transfer_verifier/verifier.py",
       "contract_sha256": "7335162fcf546ac3927e8a2f2ccb35c7102eaa7d29be53d8a41389e513a70e3d",
@@ -123,6 +123,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "2a49dd451c909a26b37acff2599342879bde24a0b5a9a20c9d28ca8d988ecf7f"
+    "sha256": "beae97b3a4c74d42596f1acc55760cd1bfbb2f280c17acae0b74ebe157296d97"
   }
 }

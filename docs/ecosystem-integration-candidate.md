@@ -10,7 +10,7 @@ still grants no automatic activation, execution, or deployment authority.
 | Surface | Source head | Source tree | Role in this gate |
 |---|---|---|---|
 | Harness merged baseline | `c1dd69856212458ae952e43aeb2b0cc9290e8205` | `596c189e8b15ceaf7bf28337546655e23d47d3ef` | released `v1.3.0` docs-sync main anchor and optional-extras base |
-| Transfer extension | `b6ec73b552eddd582a17794d1ce167b611b9aa28` | `a070e2eb7e5dfb34010445462adae15e235f2a86` | merged base 0.2.0 and extension 1.0.0 wheel sources |
+| Transfer extension | `97d5d3cbdcab825486e063be8823d426ab3e9176` | `37e31178c53d51f008f4e121d5ccb304485b11ea` | merged base 0.2.1 and extension 1.0.1 wheel sources |
 | Handoff extension | `796898733ccb157519b818e2c36b5769be2a030b` | `467a8fbb345088a9c6170c8673f09f998563ce31` | merged base 0.3.0 and extension 1.0.0 wheel sources |
 | Policy Pack | `ffaec98d85a8cd0b7d728375b24501f292d9e822` | `de431de80571db6d1ccea6fffdd0bb20c8cae6e5` | merged data-only package 0.1.0 source |
 | Router receipts | `f17aca58b7b5b624d0e4d16949a14eab714bb998` | `d5c19fe863aae171b1dc60fa5f3b75fc2e392c99` | merged unique `agentic-llm-router` 0.2.0 package source and receipt contract |
