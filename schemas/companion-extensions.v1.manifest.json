@@ -28,11 +28,11 @@
   "integration_candidate": {
     "build_requirements_in": {
       "path": "requirements/build.in",
-      "sha256": "8fc6925c67879665cf8a25961d00d8882e8abd754da43e4417bff9593834ef1a"
+      "sha256": "591f5f818c9a6474d23d0eae8f61c9f75d2a3680dc5f618d47408f493987f95a"
     },
     "build_requirements_lock": {
       "path": "requirements/build.txt",
-      "sha256": "6409b3931bc5f23dc87888a0dbc7c88bcebe42ea0a4039d33e9d7fd896385a84"
+      "sha256": "e88ced0bf27bd8c5ffcf158f9e850e7e8618e27d00e53408c78c2d0ac68a1caa"
     },
     "compatibility": {
       "path": "ecosystem/compatibility.json",
@@ -40,11 +40,11 @@
     },
     "development_requirements_in": {
       "path": "requirements/dev.in",
-      "sha256": "a46a2ec419f44e4044089fb46e57b062cc537333a3013f3622da82b61c8fbf2d"
+      "sha256": "99d4e64e76467f084aea6f1a2146186c5d7771773c12b14ca082dd68d6283200"
     },
     "development_requirements_lock": {
       "path": "requirements/dev.txt",
-      "sha256": "1dc3c05f1808c98c17168a286389c7059969dd0a86da553e5d8514c086bea8bd"
+      "sha256": "f9647e59a5f12c8d903ea529992f82f4bfa832cc5a8e2464b536982772355cd3"
     },
     "documentation": {
       "path": "docs/ecosystem-integration-candidate.md",
