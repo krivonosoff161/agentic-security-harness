@@ -139,3 +139,8 @@ Later, separately reviewed increments can add authenticated approval grants, rea
 upstream isolation, durable operator identity, policy bundles, and production deployment
 guidance. The current approval request digest is not an authenticated approval receipt and
 does not grant execution authority.
+
+The [Quarantine Connector proposal](quarantine-connector.md) separately documents a
+future, additive, opt-in admission boundary for untrusted LLM responses before this
+Gateway. It is not implemented, does not change this contour, and treats admission as
+distinct from the Gateway policy decision that alone can permit synthetic dispatch.
