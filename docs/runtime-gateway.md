@@ -140,7 +140,9 @@ upstream isolation, durable operator identity, policy bundles, and production de
 guidance. The current approval request digest is not an authenticated approval receipt and
 does not grant execution authority.
 
-The [Quarantine Connector proposal](quarantine-connector.md) separately documents a
-future, additive, opt-in admission boundary for untrusted LLM responses before this
-Gateway. It is not implemented, does not change this contour, and treats admission as
-distinct from the Gateway policy decision that alone can permit synthetic dispatch.
+The [Quarantine Connector V1 source contract](quarantine-connector.md) separately
+provides an additive, opt-in admission boundary for untrusted model/provider bytes before
+this Gateway. It constructs only the existing untrusted `GatewayToolCallV1`; it is not
+wired into this service, does not dispatch, and does not change this contour. Admission
+remains distinct from the Gateway policy decision that alone can permit synthetic
+dispatch.
