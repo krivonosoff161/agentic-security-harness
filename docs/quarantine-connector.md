@@ -1,17 +1,20 @@
-# Quarantine Connector: future opt-in admission contract
+# Quarantine Connector V1: opt-in source contract
 
-Status: design proposal for owner review. No connector, profile registry, decoder,
-schema, receipt, corpus, or runtime integration described here is implemented by the
-current Harness release.
+Status: additive source-level API proposed for the next Harness release. It is not in the
+published `v1.4.0` package. The source implementation provides closed Pydantic objects,
+an explicit registry, a strict canonical-JSON decoder, a pure verdict function, a
+non-executing Gateway-call bridge, generated JSON Schemas, and synthetic conformance
+tests. It provides no transport, listener, provider/model adapter, receipt, CLI,
+auto-activation, dispatch, or production integration.
 
-The proposed Quarantine Connector is an additive, explicitly selected boundary between
-untrusted LLM output and the existing Runtime Gateway. It does not replace or weaken the
+The Quarantine Connector source API is an additive, explicitly selected boundary between
+untrusted model/provider output and the existing Runtime Gateway. It does not replace or weaken the
 Gateway policy and does not change the accepted bytes, dispatch behavior, or receipts of
 the current controlled-local and provider-tool paths.
 
-## Proposed boundary
+## Implemented source boundary
 
-The future opt-in path is:
+The opt-in source path is:
 
 ```text
 LLM response
@@ -24,29 +27,36 @@ LLM response
   -> controlled/synthetic dispatch
 ```
 
-The `ModelEnvelopeV1` stage above is an untrusted candidate, not a validated object. The
-explicitly selected profile and strict decoder must validate it before a verdict exists.
-All LLM-originated material remains untrusted throughout this path. `admit` means only
-that the candidate matched the closed profile and, when present, produced a closed
-capability request. It does **not** mean `allow`.
-Only the existing deterministic Runtime Gateway policy can permit a controlled or
-synthetic dispatch.
+On the wire, the candidate is canonical JSON bytes matching the
+`AgenticSecurityHarnessModelEnvelope.v1` representation. The Python `ModelEnvelopeV1`
+object exists only after the explicitly selected profile and strict decoder accept those
+bytes. All model/provider-originated material remains untrusted throughout this path.
+`admit` means only that the complete representation matched the closed profile and, when
+present, produced a closed capability request. It does **not** mean `allow`. Only the
+existing deterministic Runtime Gateway policy can permit a controlled or synthetic
+dispatch.
 
-The connector would be the first formal admission boundary between an untrusted LLM
-response and the action-facing Gateway surface. It would not prove that the model's
+The connector is the first source-level admission object between untrusted model/provider
+bytes and the action-facing Gateway call surface. It does not prove that the model's
 intent is safe, that policy coverage is complete, that downstream code is safe, or that
 an integration is production-ready.
 
-## Proposed closed objects
+## Closed source objects
 
-These names describe a future compatibility surface, not current Python or schema APIs.
+The public source entry point is
+`agentic_security_harness.quarantine_connector`. The application constructs a closed
+`ProviderAdapterProfileRegistryV1`, explicitly supplies the selected profile id/version
+and candidate bytes to `evaluate_quarantine_input_v1()`, and may call
+`bridge_quarantine_admission_v1()` only with the resulting admit verdict. The module is
+not imported by a CLI, transport, adapter, or automatic package hook.
 
 ### `ModelEnvelopeV1`
 
-The proposed candidate envelope contains only bounded, versioned fields owned by one
-explicitly selected profile. Creating or transporting a candidate grants nothing; it
-becomes an admitted envelope only after the selected profile's strict decoder succeeds.
-Durable representations use strict canonical UTF-8 JSON and
+The admitted envelope contains only bounded, versioned fields owned by one explicitly
+selected profile, the selected profile/input digests, an optional digest-only context
+binding, and an optional typed capability request. Candidate bytes grant nothing; an
+envelope exists only after the selected profile's strict decoder succeeds. The wire
+representation uses strict canonical UTF-8 JSON and the typed objects use
 domain-separated commitments. Raw prompts, response text, credentials, headers,
 provider endpoints, routes, policy, roles, tokens, executor choices, and free-form
 authority fields do not belong in the envelope.
@@ -64,23 +74,26 @@ id and version from an application-owned registry. Unknown, stale, mismatched, o
 unsupported profiles yield `reject` or `inconclusive`; they never fall back to another
 decoder, a permissive generic parser, provider autodetection, or a companion package.
 
-Each future profile must declare its complete outer shape, closed field vocabulary,
-serialization rules, extraction locations, byte/depth/string/list limits, and treatment
-of transport-only metadata. The strict decoder validates the entire profile-native
-object before any `CapabilityRequestV1` can exist. It cannot invent a missing value,
-coerce a type, select a route, rewrite semantic content, repair malformed JSON, or drop
-semantic context.
+Each `ProviderAdapterProfileV1` declares an exact id/version, canonical-JSON
+representation, context mode, byte/depth/string/collection/object limits, and a sorted
+closed mapping of application-owned capability ids to existing Gateway protocol/tool
+names and argument-key sets. The strict decoder validates the complete representation
+before any `CapabilityRequestV1` can exist. It cannot invent a missing value, coerce a
+type, select a route from model bytes, rewrite semantic content, repair malformed JSON,
+or drop semantic context.
 
 Unknown profiles, extra fields, duplicate keys, malformed UTF-8, trailing bytes, type
 mismatches, noncanonical values, unsupported versions, ambiguous shapes, and
 semantic-bearing context without an explicit profile contract produce `reject` or
 `inconclusive`, never fallback or best-effort admission.
 
-Stateful context is valid only through a future explicit, opaque, bounded contract bound
-to the selected profile, session, and endpoint. The context must not carry implicit tool,
-route, policy, token, or capability authority. Missing, unbound, cross-profile,
-cross-session, cross-endpoint, or otherwise ambiguous state is rejected rather than
-silently discarded.
+Stateful context is valid only for a profile whose `context_mode` is explicitly
+`required`, through `QuarantineContextBindingV1`: profile id/version plus opaque
+session and endpoint SHA-256 commitments. The binding carries no raw endpoint and no
+implicit tool, route, policy, token, or capability authority. Missing, unbound,
+cross-profile, or otherwise malformed state is rejected rather than silently discarded.
+The current connector validates binding shape and profile identity; custody, replay, and
+external session/endpoint pin verification remain caller and future receipt concerns.
 
 Profile registration does not discover, install, import, activate, or bind a companion
 distribution. Harness extras remain passive until an operator or application explicitly
@@ -88,7 +101,7 @@ invokes their existing contracts.
 
 ### `QuarantineVerdictV1`
 
-The proposed closed verdict has exactly three dispositions:
+The closed verdict has exactly three dispositions:
 
 - `admit`: the selected profile accepted the complete input and constructed the closed
   envelope; this grants no operational authority;
@@ -97,88 +110,93 @@ The proposed closed verdict has exactly three dispositions:
 - `inconclusive`: the connector cannot establish a safe typed interpretation or cannot
   complete its own observation without guessing.
 
-A future verdict links the exact profile and envelope commitments and uses bounded stable
-reason codes. Its operational authority is always `none`. Neither `reject` nor
-`inconclusive` constructs or dispatches a Gateway call.
+The verdict links exact profile, input, envelope, and request commitments and uses bounded
+stable reason codes. Its operational authority is always `none`. Neither `reject` nor
+`inconclusive` retains admitted typed objects or can cross the bridge. No verdict
+dispatches a Gateway call.
 
 ### `CapabilityRequestV1`
 
-The proposed capability request is still untrusted. It may contain only a closed protocol
-and capability identifier, bounded canonical arguments, and correlation commitments
-defined by the selected profile. It has no `allow`, policy, role, token, approval,
+The capability request is still untrusted. It contains only selected profile identity,
+a request id, one application-owned capability id, and bounded canonical arguments whose
+keys are closed by that profile. It has no `allow`, policy, role, token, approval,
 endpoint, executor, route override, or result field.
 
-Only a pure, separately reviewed conversion from an admitted request to the existing
-untrusted Gateway call shape may cross the next boundary. The existing Gateway engine
-then makes its own deterministic decision under its current policy.
+`bridge_quarantine_admission_v1()` is that pure conversion: it verifies the profile
+commitment again and constructs only the existing untrusted `GatewayToolCallV1`. It does
+not instantiate or call `GatewayEngine`. The existing Gateway engine must independently
+make its deterministic policy decision.
 
 ## Compatibility invariants
 
-This proposal is additive and opt-in. Any future implementation must preserve all of the
-following:
+The source implementation is additive and opt-in and preserves all of the following:
 
 - existing controlled-local and provider-tool behavior remains unchanged by default;
 - existing Runtime Gateway policy remains the only action-permitting decision point;
 - legacy receipt schemas, canonical bytes, hashes, fixtures, and public contracts remain
   byte-identical;
-- a new admission commitment uses an additive sidecar or a separately versioned future
-  receipt instead of rewriting a legacy receipt;
+- new admission commitments exist only in the new objects and bridge sidecar; no legacy
+  receipt is rewritten;
 - profile discovery and companion activation remain explicit and nonautomatic;
 - no provider call, listener, executor, package discovery, or retention policy is implied
   by the connector contract;
 - the terms here do not redefine the planned ingress queue in `api-reference.md`, handoff
   quarantine, memory quarantine, or historical Runtime Guard verdict vocabularies.
 
-## Future conformance requirements
+## Conformance status and future requirements
 
-No public conformance corpus is claimed to exist yet. A later implementation proposal
-must add reviewable, deterministic vectors before any API or runtime integration is
-considered complete.
+`tests/test_quarantine_connector.py` provides synthetic deterministic source vectors.
+It is not a provider/model corpus, runtime integration result, or proof over retained raw
+responses. Runtime integration still requires a separate review.
 
 ### Byte and shape
 
-Cover valid minimal no-request and request cases, duplicate keys, unknown fields, wrong
-scalar and container types, unsupported versions, malformed UTF-8, trailing bytes,
-nonfinite or otherwise noncanonical values, and every declared size/depth/string/list
-limit. Every non-admit case must demonstrate that no Gateway call is constructed.
+Current vectors cover valid minimal no-request and request cases, duplicate keys, unknown
+fields, wrong scalar/container types, unsupported versions, malformed UTF-8, trailing
+bytes, noncanonical JSON, and representative byte/depth/string limits. Non-admit vectors
+demonstrate that the bridge cannot construct a Gateway call. Exhaustive boundary-value
+generation for every declared limit remains future corpus work.
 
 ### Profile mismatch and no fallback
 
-Cover unknown, stale, newer, and cross-family profiles; documented transport-only outer
-metadata; semantic-bearing outer context; endpoint/profile mismatch; and explicit
-stateful profile/session/endpoint binding. No case may pass through autodetection, generic
-fallback, silent context removal, or a different profile.
+Current vectors cover unknown/version-mismatched profiles, semantic-bearing outer
+context, required binding, and profile mismatch. No case passes through autodetection,
+generic fallback, silent context removal, or a different profile. Cross-session,
+cross-endpoint, replay, and pin-drift custody require a future receipt/integration layer.
 
 ### Authority injection
 
-Cover model-originated tool substitutions, extra capability fields, route changes,
-`allow`, policy, role, token, approval, endpoint, executor, and missing required
-capability fields. None may mint authority or bypass the existing Gateway policy.
+Current vectors cover model-originated authority keys including route, `allow`, policy,
+role/principal, token, endpoint, tool definition, and effect, plus unknown capability and
+argument-key drift. An admitted application-mapped request is also shown independently
+denied by the Gateway, proving that admission does not mint authority or bypass policy.
 
 ### Receipt custody, replay, and pin drift
 
-Cover exact envelope/profile/verdict/request commitments, replay and reordering,
-cross-session or cross-endpoint reuse, stale profile pins, changed profile bytes, and
-Gateway decision linkage. Legacy controlled-local, provider-tool, Gateway, extension,
-and auditor receipt bytes must remain byte-identical.
+The new objects provide exact envelope/profile/verdict/request and bridge commitments.
+Replay/reordering, cross-session or cross-endpoint reuse, stale pins, and durable Gateway
+decision linkage are not implemented. Focused legacy controlled-local, provider-tool,
+and Gateway regressions remain required, and their bytes/manifests must remain
+byte-identical.
 
 ### Passive extras
 
-Verify base-only behavior and each optional extra independently. Installation alone must
-not discover, select, import, bind, configure, invoke, or activate a decoder profile or
-companion module.
+The source module has no package-discovery or activation hook and package extras are
+unchanged. Installation-matrix verification remains a release gate: installation alone
+must not discover, select, import, bind, configure, invoke, or activate a decoder profile
+or companion module.
 
 ### Legacy regressions
 
-Re-run the existing controlled-local adapter and provider-tool envelope contracts against
-their exact accepted and rejected bytes. A future connector must not make either path
-more permissive, change reason-code meaning, dispatch additional tools, or alter the
-closed synthetic Gateway behavior.
+The existing controlled-local adapter, provider-tool adapter, and Runtime Gateway suites
+are rerun with this source increment. The connector is not imported or invoked by those
+paths and must not make either path more permissive, change reason-code meaning, dispatch
+additional tools, or alter the closed synthetic Gateway behavior.
 
 ## Explicit non-claims
 
 This document does not claim a defect in the current Harness. It does not claim that the
-future connector is implemented, installable, enabled, production-safe, compatible with
-every provider or model, able to determine intent, sufficient to make an unsafe policy
-safe, or able to secure downstream modules. It grants no model, provider, package,
-profile, extension, or operator any new authority.
+source connector is included in the published package, enabled, runtime-integrated,
+production-safe, compatible with every provider or model, able to determine intent,
+sufficient to make an unsafe policy safe, or able to secure downstream modules. It
+grants no model, provider, package, profile, extension, or operator any new authority.
