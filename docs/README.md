@@ -14,7 +14,7 @@ research and contract files.
 | Build a local target adapter | [Custom adapter tutorial](custom-adapter-tutorial.md) |
 | Integrate an owned agent workflow offline | [Agent Host Adapter V1](agent-host-adapter.md) |
 | Validate an optional security component contract | [Extension SDK V1](extension-sdk.md) |
-| Review the opt-in pre-Gateway source admission contract | [Quarantine Connector V1](quarantine-connector.md) |
+| Review the opt-in admission and non-executing Gateway-decision seam | [Quarantine Connector V1](quarantine-connector.md) |
 
 ## Security and evidence
 

@@ -1,11 +1,12 @@
 # Quarantine Connector V1: opt-in source contract
 
-Status: additive source-level API proposed for the next Harness release. It is not in the
-published `v1.4.0` package. The source implementation provides closed Pydantic objects,
-an explicit registry, a strict canonical-JSON decoder, a pure verdict function, a
-non-executing Gateway-call bridge, generated JSON Schemas, and synthetic conformance
-tests. It provides no transport, listener, provider/model adapter, receipt, CLI,
-auto-activation, dispatch, or production integration.
+Status: additive source-level APIs proposed for the next Harness release. They are not in
+the published `v1.4.0` package. The source implementation provides closed Pydantic
+objects, an explicit registry, a strict canonical-JSON decoder, a pure verdict function,
+a non-executing Gateway-call bridge, and a separate opt-in composition ending at the
+existing pure Gateway policy decision. Generated JSON Schemas and synthetic conformance
+tests cover both APIs. They provide no transport, listener, provider/model adapter,
+durable receipt, CLI, auto-activation, dispatch, or production integration.
 
 The Quarantine Connector source API is an additive, explicitly selected boundary between
 untrusted model/provider output and the existing Runtime Gateway. It does not replace or weaken the
@@ -23,8 +24,8 @@ LLM response
   -> strict decoder
   -> QuarantineVerdictV1 (admit | reject | inconclusive)
   -> CapabilityRequestV1
-  -> existing Runtime Gateway policy
-  -> controlled/synthetic dispatch
+  -> existing pure Runtime Gateway policy decision
+  -> composition stops (no dispatch)
 ```
 
 On the wire, the candidate is canonical JSON bytes matching the
@@ -124,8 +125,36 @@ endpoint, executor, route override, or result field.
 
 `bridge_quarantine_admission_v1()` is that pure conversion: it verifies the profile
 commitment again and constructs only the existing untrusted `GatewayToolCallV1`. It does
-not instantiate or call `GatewayEngine`. The existing Gateway engine must independently
-make its deterministic policy decision.
+not instantiate or call `GatewayEngine`.
+
+### Opt-in Gateway decision composition
+
+The separate `agentic_security_harness.quarantine_gateway_composition` module adds one
+caller-invoked seam: `compose_quarantine_gateway_v1()`. The caller must supply the exact
+immutable profile registry, selected profile id/version, bounded candidate bytes, and an
+existing `GatewayPolicyV1`. The function performs admission first and calls only
+`evaluate_gateway_tool_call()` when an admitted envelope contains a capability request.
+It never accepts or constructs a `GatewayEngine`.
+
+`QuarantineGatewayCompositionV1` is a privacy-minimized typed outcome. It retains the
+closed Connector disposition/reason, selected profile identity, registry/verdict/input/
+profile/envelope/request/bridge commitments when applicable, and the existing safe
+Gateway decision plus its commitment. It never retains raw candidate bytes, arguments,
+tool names, endpoint data, credentials, free-form policy, executor identity, audit state,
+or tool output. `dispatch_performed` is always `false` and operational authority is always
+`none`.
+
+| Connector result | Gateway policy evaluated | Dispatch or execution |
+|---|---:|---:|
+| `reject` / `inconclusive` | no | no |
+| `admit` + `no_request` | no | no |
+| `admit` + capability request, Gateway `deny` or `require_approval` | yes | no |
+| `admit` + capability request, Gateway `allow` | yes | no |
+
+This makes the product boundary explicit:
+`Connector admission != Gateway decision != tool execution`. A Gateway `allow` is a pure
+policy result in this API, not an engine call, audit receipt, dispatch instruction, or
+proof that execution occurred.
 
 ## Compatibility invariants
 
@@ -133,6 +162,8 @@ The source implementation is additive and opt-in and preserves all of the follow
 
 - existing controlled-local and provider-tool behavior remains unchanged by default;
 - existing Runtime Gateway policy remains the only action-permitting decision point;
+- the composition uses only the existing pure policy evaluator and cannot call the
+  dispatching Gateway engine;
 - legacy receipt schemas, canonical bytes, hashes, fixtures, and public contracts remain
   byte-identical;
 - new admission commitments exist only in the new objects and bridge sidecar; no legacy
@@ -145,9 +176,10 @@ The source implementation is additive and opt-in and preserves all of the follow
 
 ## Conformance status and future requirements
 
-`tests/test_quarantine_connector.py` provides synthetic deterministic source vectors.
-It is not a provider/model corpus, runtime integration result, or proof over retained raw
-responses. Runtime integration still requires a separate review.
+`tests/test_quarantine_connector.py` and
+`tests/test_quarantine_gateway_composition.py` provide synthetic deterministic source
+vectors. They are not a provider/model corpus, runtime integration result, or proof over
+retained raw responses. Runtime integration still requires a separate review.
 
 ### Byte and shape
 
@@ -173,11 +205,12 @@ denied by the Gateway, proving that admission does not mint authority or bypass 
 
 ### Receipt custody, replay, and pin drift
 
-The new objects provide exact envelope/profile/verdict/request and bridge commitments.
-Replay/reordering, cross-session or cross-endpoint reuse, stale pins, and durable Gateway
-decision linkage are not implemented. Focused legacy controlled-local, provider-tool,
-and Gateway regressions remain required, and their bytes/manifests must remain
-byte-identical.
+The source objects provide exact envelope/profile/verdict/request/bridge commitments and
+the composition adds an in-memory commitment to the existing safe Gateway decision.
+This is not a durable, authenticated, ordered, replay-resistant receipt. Replay/reordering,
+cross-session or cross-endpoint reuse, stale pins, custody, and persistence remain
+unimplemented. Focused legacy controlled-local, provider-tool, and Gateway regressions
+remain required, and their bytes/manifests must remain byte-identical.
 
 ### Passive extras
 
@@ -196,7 +229,9 @@ additional tools, or alter the closed synthetic Gateway behavior.
 ## Explicit non-claims
 
 This document does not claim a defect in the current Harness. It does not claim that the
-source connector is included in the published package, enabled, runtime-integrated,
-production-safe, compatible with every provider or model, able to determine intent,
-sufficient to make an unsafe policy safe, or able to secure downstream modules. It
-grants no model, provider, package, profile, extension, or operator any new authority.
+source connector or composition is included in the published package, enabled, wired to
+a CLI/transport/engine, runtime-integrated, production-safe, compatible with every
+provider or model, able to determine intent, sufficient to make an unsafe policy safe,
+or able to secure downstream modules. A returned Gateway `allow` does not prove or cause
+tool execution. These APIs grant no model, provider, package, profile, extension, or
+operator any new authority.
