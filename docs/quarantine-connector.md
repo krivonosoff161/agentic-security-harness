@@ -151,6 +151,62 @@ or tool output. `dispatch_performed` is always `false` and operational authority
 | `admit` + capability request, Gateway `deny` or `require_approval` | yes | no |
 | `admit` + capability request, Gateway `allow` | yes | no |
 
+The composition is never enabled implicitly. A caller opts in by constructing the closed
+profile registry and invoking the separate API directly:
+
+```python
+from agentic_security_harness.quarantine_connector import (
+    ProviderAdapterProfileRegistryV1,
+    ProviderAdapterProfileV1,
+    QuarantineCapabilityBindingV1,
+)
+from agentic_security_harness.quarantine_gateway_composition import (
+    compose_quarantine_gateway_v1,
+)
+from agentic_security_harness.runtime_gateway import default_gateway_policy_v1
+
+registry = ProviderAdapterProfileRegistryV1(
+    profiles=(
+        ProviderAdapterProfileV1(
+            profile_id="synthetic.example",
+            profile_version="1",
+            capabilities=(
+                QuarantineCapabilityBindingV1(
+                    capability_id="bounded.lookup",
+                    gateway_protocol="mcp",
+                    gateway_tool_name="synthetic.lookup",
+                    allowed_argument_keys=("key",),
+                    required_argument_keys=("key",),
+                ),
+            ),
+        ),
+    )
+)
+candidate = (
+    b'{"profile_id":"synthetic.example","profile_version":"1",'
+    b'"representation":{"arguments":{"key":"project-status"},'
+    b'"capability_id":"bounded.lookup","kind":"capability_request",'
+    b'"request_id":"request:example"},'
+    b'"schema_version":"AgenticSecurityHarnessModelEnvelope.v1"}'
+)
+outcome = compose_quarantine_gateway_v1(
+    registry,
+    selected_profile_id="synthetic.example",
+    selected_profile_version="1",
+    payload=candidate,
+    gateway_policy=default_gateway_policy_v1(),
+)
+
+assert outcome.connector_disposition == "admit"
+assert outcome.gateway_decision is not None
+assert outcome.gateway_decision.disposition == "allow"
+assert outcome.dispatch_performed is False
+```
+
+The final assertion is the boundary: the example computes admission and a deterministic
+policy decision only. It does not start the Gateway service, choose an executor, call a
+provider, write an audit record, or execute `synthetic.lookup`.
+
 This makes the product boundary explicit:
 `Connector admission != Gateway decision != tool execution`. A Gateway `allow` is a pure
 policy result in this API, not an engine call, audit receipt, dispatch instruction, or
