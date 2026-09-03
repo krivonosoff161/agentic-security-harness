@@ -141,8 +141,10 @@ guidance. The current approval request digest is not an authenticated approval r
 does not grant execution authority.
 
 The [Quarantine Connector V1 source contract](quarantine-connector.md) separately
-provides an additive, opt-in admission boundary for untrusted model/provider bytes before
-this Gateway. It constructs only the existing untrusted `GatewayToolCallV1`; it is not
-wired into this service, does not dispatch, and does not change this contour. Admission
-remains distinct from the Gateway policy decision that alone can permit synthetic
-dispatch.
+provides an additive, opt-in admission boundary for bounded untrusted bytes before this
+Gateway. Its separate `quarantine_gateway_composition` source API can take an admitted
+capability request through `evaluate_gateway_tool_call()` and return a digest-linked
+typed outcome. The composition never calls `GatewayEngine`, writes the audit ledger, or
+dispatches—even when the pure policy decision is `allow`. It is not wired into this
+service and does not change this contour. Connector admission, Gateway policy decision,
+and tool execution remain three distinct boundaries.
