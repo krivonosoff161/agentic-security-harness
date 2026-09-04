@@ -262,4 +262,3 @@ adapter, policy completeness proof, approval system, sandbox, or dispatch contro
 not prove that an advisory is correct or safe, that a mapped capability should be allowed,
 or that downstream code is safe. It does not change current Harness behavior because no
 source implementation exists in this phase.
-
