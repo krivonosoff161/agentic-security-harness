@@ -148,3 +148,10 @@ typed outcome. The composition never calls `GatewayEngine`, writes the audit led
 dispatches—even when the pure policy decision is `allow`. It is not wired into this
 service and does not change this contour. Connector admission, Gateway policy decision,
 and tool execution remain three distinct boundaries.
+
+The proposed [Advisory-to-Gateway Authority Connector V1](advisory-gateway-connector.md)
+documents a separate future, opt-in seam for authority-free Cheap Filter and Playbooks
+advice. A caller-owned closed profile—not advisory text—would own any capability mapping,
+and the seam would stop at this module's existing pure policy evaluator. Phase 1 is
+documentation only: no source adapter, `GatewayEngine` call, audit, dispatch, or default
+behavior change exists.
