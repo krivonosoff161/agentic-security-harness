@@ -1,10 +1,11 @@
 # Advisory-to-Gateway Authority Connector V1: proposed contract
 
-Status: **Phase 1 documentation/evidence contract only**. No production source class,
-schema artifact, CLI, runtime binding, or package entry point implements this proposal.
-The contract is bound to the reviewed Harness source at
-`85f94100eb2e64a8aecd4df3c3b2d6e10ae52342` and must be rebaselined if `main` changes
-before a code phase.
+Status: **Phase 1 documentation contract plus a stacked Phase 2 review candidate**. The
+candidate adds one direct-call source module and synthetic tests above docs PR `#272`; it
+is not merged into `main`, registered in the package root, connected to a CLI/runtime
+path, released, or automatically activated. The underlying contract remains bound to
+reviewed Harness source `85f94100eb2e64a8aecd4df3c3b2d6e10ae52342` and docs head
+`41699b919991e9132341564fab69f01ae605d762`.
 
 ## Root question and verified gap
 
@@ -23,11 +24,11 @@ Current source provides the pieces on either side but not this adapter:
 - `evaluate_gateway_tool_call()` is the existing pure, deterministic policy decision;
   `GatewayEngine` is the separate audit/dispatch boundary.
 
-There is no current public API that accepts Filter/Playbooks advisory material, applies
+Released `main` has no public API that accepts Filter/Playbooks advisory material, applies
 an application-owned mapping, constructs the existing closed `CapabilityRequestV1`, and
-ends at the pure Gateway decision. This proposal fills only that missing seam. It must not
-route advisory evidence through `ModelEnvelopeV1`, weaken Quarantine admission, or create
-a second Gateway policy model.
+ends at the pure Gateway decision. The stacked Phase 2 candidate fills only that missing
+seam. It does not route advisory evidence through `ModelEnvelopeV1`, weaken Quarantine
+admission, or create a second Gateway policy model.
 
 ## One-way causal and authority path
 
@@ -188,6 +189,32 @@ Even after a future source implementation, installation or import must not:
 The only V1 activation is a direct caller invocation with an exact profile, exact profile
 id/version, bounded canonical bytes, and an existing deterministic Gateway policy.
 
+### Review-candidate API
+
+The additive module is imported explicitly; it is deliberately absent from the package
+root and every discovery/CLI registry:
+
+```python
+from agentic_security_harness.advisory_gateway_connector import (
+    compose_advisory_gateway_v1,
+)
+
+outcome = compose_advisory_gateway_v1(
+    application_owned_profile,
+    selected_profile_id="synthetic.advisory",
+    selected_profile_version="1",
+    payload=canonical_advisory_bytes,
+    gateway_policy=existing_gateway_policy,
+)
+assert outcome.dispatch_performed is False
+```
+
+The caller must construct `AdvisoryGatewayProfileV1` from reviewed code-owned constants
+and provide canonical `AdvisoryEnvelopeV1` bytes. `advisory_gateway_connector_v1_json_schemas()`
+and `advisory_gateway_connector_v1_api_sha256()` expose the closed schema set and a
+sanitized API commitment. The module never imports Filter or Playbooks packages; package
+installation and advisory production remain separate explicit steps.
+
 ## Future conformance vectors and metrics
 
 All future fixtures are synthetic and sanitized. No retained Filter/Playbooks payload,
@@ -260,5 +287,5 @@ This is a public reference integration seam, not a production firewall, live Che
 or Playbooks execution path, semantic truth detector, source authenticator, provider/model
 adapter, policy completeness proof, approval system, sandbox, or dispatch control. It does
 not prove that an advisory is correct or safe, that a mapped capability should be allowed,
-or that downstream code is safe. It does not change current Harness behavior because no
-source implementation exists in this phase.
+or that downstream code is safe. The stacked review candidate changes no default Harness
+behavior and has no effect on released `main` until a separate owner-authorized merge.
