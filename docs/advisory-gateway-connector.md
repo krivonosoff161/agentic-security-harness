@@ -215,15 +215,14 @@ and `advisory_gateway_connector_v1_api_sha256()` expose the closed schema set an
 sanitized API commitment. The module never imports Filter or Playbooks packages; package
 installation and advisory production remain separate explicit steps.
 
-## Proposed strict source-result ingress seam
+## Review-candidate strict source-result ingress seam
 
 The review-candidate connector intentionally starts after an `AdvisoryEnvelopeV1` already
-exists. A second, additive direct-call seam is required before a caller can present an
-exact Cheap Filter receipt or Playbooks policy evaluation without also constructing its
-own provenance assertions. This section defines that future seam; it is not implemented
-by the documentation PR.
+exists. The stacked source candidate adds a second, additive direct-call seam so a caller
+can present an exact Cheap Filter receipt or Playbooks policy evaluation without also
+constructing its own provenance assertions.
 
-The future `AdvisoryIngressProfileV1` is an immutable maintainer-owned object. It binds one
+`AdvisoryIngressProfileV1` is an immutable maintainer-owned object. It binds one
 explicit ingress id/version to all of the following:
 
 - exactly one supported source representation: the reviewed Cheap Filter triage receipt
@@ -271,7 +270,7 @@ authority.
 
 ### Session and replay contract
 
-The future call takes an exact immutable `AdvisoryIngressReplayStateV1` plus an explicit
+The call takes an exact immutable `AdvisoryIngressReplayStateV1` plus an explicit
 integer sequence. The state contains only an opaque session commitment, the next expected
 sequence, the previous ingress-receipt digest when one exists, and a bounded unique set of
 already consumed source-result digests. It contains no raw input, endpoint, credential,
@@ -288,7 +287,7 @@ as durable replay prevention.
 
 ### Causal stop points and output custody
 
-The future result is safe-to-publish metadata only: disposition/reason, ingress profile
+The result is safe-to-publish metadata only: disposition/reason, ingress profile
 identity and digest, session/sequence commitments, source-result digest, derived advisory
 identity, connector outcome identity, ingress receipt digest, and `dispatch_performed=false`.
 It retains no raw source bytes, advisory text, endpoint, secret, free-form policy, executor
@@ -305,15 +304,36 @@ pure Gateway `allow` remains only a decision object. The ingress seam must not c
 `GatewayEngine`, write an audit record, create an approval grant, invoke a provider/model,
 dispatch a tool, or cause a network/process/filesystem effect.
 
-### Source-phase gate and non-claims
+### Review-candidate API, evidence, and non-claims
 
-Only after this exact documentation head has terminal-success CI may a separate stacked
-source PR add one explicit-import module and synthetic tests. The required regression set
-must prove: strict Filter/Playbooks representation validation; dynamic byte-bound result
-commitment; static profile authority; semantic-label mismatch rejection; malformed,
-authority-bearing, session-drift, and replay rejection before connector invocation; benign
-twin admission; exact next-state/receipt linkage; pure Gateway deny and allow outcomes with
-zero dispatch; and zero companion import/discovery.
+The additive module remains absent from the package root and every discovery/CLI registry:
+
+```python
+from agentic_security_harness.advisory_ingress import (
+    ingest_advisory_source_result_v1,
+)
+
+outcome = ingest_advisory_source_result_v1(
+    application_owned_ingress_profile,
+    selected_profile_id="playbooks.policy.review",
+    selected_profile_version="1",
+    selected_session_sha256=application_session_commitment,
+    sequence=application_replay_state.next_sequence,
+    replay_state=application_replay_state,
+    payload=canonical_source_result_bytes,
+    gateway_policy=existing_gateway_policy,
+)
+assert outcome.dispatch_performed is False
+```
+
+`advisory_ingress_v1_json_schemas()` returns the three closed ingress models. The sanitized
+`advisory_ingress_v1_api_sha256()` commitment for this review head is
+`a9899c60f6af11018099ab9d6eee60e08e8833aa0e9f050e5eedbdd448fa43c7`.
+Synthetic regression tests prove strict Filter/Playbooks representation validation;
+dynamic byte-bound result commitment; static profile authority; semantic-label mismatch
+rejection; malformed, authority-bearing, session-drift, and replay rejection before
+connector invocation; benign admission; exact next-state/receipt linkage; pure Gateway
+deny and allow outcomes with zero dispatch; and zero companion import/discovery.
 
 The seam is not a component runner, package bridge, provider/model integration, semantic
 truth detector, source authenticator, durable replay database, transaction manager,
