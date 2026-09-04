@@ -215,6 +215,112 @@ and `advisory_gateway_connector_v1_api_sha256()` expose the closed schema set an
 sanitized API commitment. The module never imports Filter or Playbooks packages; package
 installation and advisory production remain separate explicit steps.
 
+## Proposed strict source-result ingress seam
+
+The review-candidate connector intentionally starts after an `AdvisoryEnvelopeV1` already
+exists. A second, additive direct-call seam is required before a caller can present an
+exact Cheap Filter receipt or Playbooks policy evaluation without also constructing its
+own provenance assertions. This section defines that future seam; it is not implemented
+by the documentation PR.
+
+The future `AdvisoryIngressProfileV1` is an immutable maintainer-owned object. It binds one
+explicit ingress id/version to all of the following:
+
+- exactly one supported source representation: the reviewed Cheap Filter triage receipt
+  or the reviewed `PolicyPackEvaluationV1` representation;
+- the exact source component, contract id/version, source commit/tree, and contract digest;
+- one fixed advisory kind, fixed risk label, fixed advisory text/summary, and accepted
+  evidence class;
+- the existing code-owned capability bindings and label mapping used to derive a single
+  `AdvisoryGatewayProfileV1` for the admitted result.
+
+The source result cannot provide or override any of these fields. In particular, it cannot
+select a component, kind, label, capability, tool, route, policy, role, principal, token,
+endpoint, executor, approval, dispatch, or effect. Profile selection is exact and explicit;
+there is no discovery, companion inspection, best match, fallback, or implicit upgrade.
+
+### Accepted source representations
+
+The ingress decoder operates on caller-supplied bounded bytes and imports no companion
+distribution:
+
+1. A Cheap Filter input must be exact canonical bytes for the already reviewed triage
+   batch receipt contract and must pass the existing Harness receipt audit against its
+   exact reviewed source pin. Because that contract is accounting-only and expressly not
+   a security verdict, its only V1 ingress label is the profile-owned `inconclusive`; the
+   receipt cannot lower a security decision or choose a mapping.
+2. A Playbooks input must be exact canonical bytes for the in-repository
+   `PolicyPackEvaluationV1` contract, must validate its content identity and exact reviewed
+   source pin, and must equal the profile-owned expected advisory disposition. A different
+   valid disposition requires a different explicitly selected profile; it never changes
+   the selected profile's label dynamically.
+
+Unknown representations, malformed or noncanonical bytes, duplicate/unknown fields,
+invalid self-identities, static source drift, semantic-label drift, and authority-shaped
+fields are rejected before an advisory envelope or connector call exists. Validation may
+reuse the existing Harness-owned receipt and Policy Pack contracts, but it must not import,
+discover, instantiate, or invoke `llm_cheap_filter` or `llm_safety_playbooks`.
+
+For an admitted result, code computes `source_result_sha256 = SHA256(exact_input_bytes)`.
+It combines that dynamic digest with only the selected profile's static source identity to
+derive the exact one-result `AdvisorySourcePinV1`, then constructs the envelope and calls
+the existing `compose_advisory_gateway_v1()` path. The source cannot assert its own digest,
+and changing even one input byte changes the derived result pin. A digest is content
+binding only: it is not producer authentication, freshness, correctness, consent, or
+authority.
+
+### Session and replay contract
+
+The future call takes an exact immutable `AdvisoryIngressReplayStateV1` plus an explicit
+integer sequence. The state contains only an opaque session commitment, the next expected
+sequence, the previous ingress-receipt digest when one exists, and a bounded unique set of
+already consumed source-result digests. It contains no raw input, endpoint, credential,
+policy, tool output, or mutable authority.
+
+Before source evaluation, the adapter rejects a session identity mismatch, an unexpected
+sequence, a repeated source-result digest, malformed state, or history-cap overflow. An
+admitted result returns a new immutable state and an ingress receipt digest binding the
+old state, sequence, dynamic result digest, derived envelope/profile identities, connector
+outcome identity, and new state. The adapter does not persist or coordinate that state:
+the caller must atomically adopt the returned state before another call. Lost, forked, or
+concurrently reused caller state is outside V1's replay guarantee and must not be described
+as durable replay prevention.
+
+### Causal stop points and output custody
+
+The future result is safe-to-publish metadata only: disposition/reason, ingress profile
+identity and digest, session/sequence commitments, source-result digest, derived advisory
+identity, connector outcome identity, ingress receipt digest, and `dispatch_performed=false`.
+It retains no raw source bytes, advisory text, endpoint, secret, free-form policy, executor
+choice, or tool output.
+
+| Ingress state | Envelope | Connector/Gateway evaluator | Dispatch/effect |
+|---|---:|---:|---:|
+| malformed, source/profile drift, session/replay failure | 0 | 0 | 0 |
+| valid source, connector reject/inconclusive | 1 | connector only; Gateway evaluator 0 | 0 |
+| valid source, mapped connector admit | 1 | one existing pure Gateway evaluation | 0 |
+
+`Ingress admission != connector admission != Gateway decision != tool execution`. Even a
+pure Gateway `allow` remains only a decision object. The ingress seam must not construct
+`GatewayEngine`, write an audit record, create an approval grant, invoke a provider/model,
+dispatch a tool, or cause a network/process/filesystem effect.
+
+### Source-phase gate and non-claims
+
+Only after this exact documentation head has terminal-success CI may a separate stacked
+source PR add one explicit-import module and synthetic tests. The required regression set
+must prove: strict Filter/Playbooks representation validation; dynamic byte-bound result
+commitment; static profile authority; semantic-label mismatch rejection; malformed,
+authority-bearing, session-drift, and replay rejection before connector invocation; benign
+twin admission; exact next-state/receipt linkage; pure Gateway deny and allow outcomes with
+zero dispatch; and zero companion import/discovery.
+
+The seam is not a component runner, package bridge, provider/model integration, semantic
+truth detector, source authenticator, durable replay database, transaction manager,
+production safety boundary, policy completeness proof, approval system, sandbox, or
+execution path. It does not establish the real-world correctness of a Filter or Playbooks
+result and does not make either companion an authority source.
+
 ## Future conformance vectors and metrics
 
 All future fixtures are synthetic and sanitized. No retained Filter/Playbooks payload,
