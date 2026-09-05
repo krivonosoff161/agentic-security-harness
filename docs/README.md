@@ -15,6 +15,7 @@ research and contract files.
 | Integrate an owned agent workflow offline | [Agent Host Adapter V1](agent-host-adapter.md) |
 | Validate an optional security component contract | [Extension SDK V1](extension-sdk.md) |
 | Review the opt-in admission and non-executing Gateway-decision seam | [Quarantine Connector V1](quarantine-connector.md) |
+| Review the proposed authority-safe advisory-to-Gateway seam | [Advisory-to-Gateway Connector V1](advisory-gateway-connector.md) |
 
 ## Security and evidence
 
