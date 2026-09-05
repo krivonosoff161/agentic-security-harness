@@ -341,6 +341,208 @@ production safety boundary, policy completeness proof, approval system, sandbox,
 execution path. It does not establish the real-world correctness of a Filter or Playbooks
 result and does not make either companion an authority source.
 
+## External Playbooks receipt-pair ingress: docs-only candidate
+
+This section defines a separate future consumer for one unchanged external Playbooks
+input/output pair. It does not widen the `PolicyPackEvaluationV1` path above and does not
+reinterpret an external receipt as that internal Harness model. The external output schema
+`llm-safety-policy-evaluation-receipt-v1.0` and the internal schema
+`harness-policy-pack-evaluation-v1.0` have different fields, identity domains, and byte
+rules; stripping the external final line feed would not make them interchangeable.
+
+The candidate boundary is additive and explicit-call only:
+
+```text
+exact external input receipt bytes + exact external output receipt bytes
+  -> explicitly selected immutable ExternalPlaybooksIngressProfileV1
+  -> strict pair validator and correspondence checks
+  -> content-free external ingress receipt and immutable replay next-state
+  -> existing advisory envelope/connector using only code-owned mapping
+  -> existing pure Gateway policy evaluator
+  -> STOP
+```
+
+There is no schema detection, representation fallback, companion import, evaluator
+invocation, file or URL resolution, `GatewayEngine`, audit write, dispatch, or effect in
+this boundary. `External pair admission != advisory admission != Gateway decision != tool
+execution`. The input and output remain evidence with `operational_authority=none`; they
+cannot choose or modify a capability, tool, protocol, arguments, policy, scope, recipient,
+budget, role, principal, token, endpoint, executor, approval, route, dispatch, or effect.
+
+### Reviewed profile pins
+
+The first profile is closed over the following reviewed source snapshot and artifacts.
+These values identify the candidate contract; they are not a statement that a later
+remote head, release, or installed distribution is byte-equal. A source implementation
+must independently reverify every pin before using this profile.
+
+| Profile subject | Exact required value |
+|---|---|
+| external input schema | `llm-safety-policy-input-receipt-v1.0` |
+| external output schema | `llm-safety-policy-evaluation-receipt-v1.0` |
+| Playbooks source commit | `190769a15a44f5a5af790b33fc37724e6417c27f` |
+| Playbooks source tree | `e3a5601a779c8b2e2f92516da30cf2750d320b5b` |
+| `tools/policy_pack.py` Git blob | `5efefc3aa8baecb5496ee87717b625c4efe71331` |
+| `tools/policy_pack.py` byte SHA-256 | `3e117b26a75e4aa297ef82658059a627d251000f27bb819f5b332edfbc06c5c8` |
+| pack semantic id | `44fa5aced73c6a2fc1eb3cb827955d245c887fa8d7c596e353bb2e9678119169` |
+| `contracts/policy-pack.v1.json` byte SHA-256 | `1c8ca14e6ab83d92742f6fba0b0d1b1bc422ebe30163c6619e9c80f5413b8915` |
+| pack schema byte SHA-256 | `fd99422169c4cbfbe0f80a16a39cf7557d7ef6d28669b03ae940b24b9e2172a1` |
+| input schema byte SHA-256 | `d6a39ad8cb1cfc9e61094fa3c92b11d66b2df3370a326f89ecb4a52c49dd3e8b` |
+| output schema byte SHA-256 | `b5e4d5554fb930529fd493dad903a25698c99c62c57d99934f66edda8b4f6f1c` |
+| pack manifest byte SHA-256 | `f16f7b905150a5b19adbf8c412c1f6eede23718ef0dd35187e4fd8381d92463c` |
+| committed mixed-signals vector byte SHA-256 | `21373b3b151b451baf8b71ab0a9dd9f8303e9ab6239301b59046dfec2b087040` |
+
+All digest fields are exactly 64 lowercase hexadecimal characters. The profile owns the
+source, schema, pack, rule-table, evidence-class, component/kind, expected-disposition,
+fixed-text, and advisory mapping commitments. Untrusted receipt bytes may repeat required
+identities for correspondence checks but cannot replace a profile pin. A playbook path is
+matched as data against the pinned rule table and is never opened as an instruction.
+
+### Exact pair bytes and identities
+
+The future API accepts two `bytes` values and one exact selected profile. For a decoded
+object `x`, define `C(x)` as Python UTF-8 JSON with sorted keys, compact separators,
+`ensure_ascii=False`, `allow_nan=False`, and no final line feed. Each accepted wire value
+is exactly `C(x) || 0x0a`: one final LF byte, with no BOM, CRLF, trailing space, second LF,
+or other trailing byte. This is the pinned producer representation, not a claim of general
+RFC 8785 canonicalization. The validator checks the supplied bytes; it must not repair or
+reserialize a noncanonical value and then admit the replacement.
+
+Both roots must be objects with strict UTF-8, unique keys, closed fields, exact types,
+valid Unicode scalar values, and finite numbers. The input limit is 16,384 bytes, the
+output limit is 65,536 bytes, and the consumer-specific maximum structural depth is eight
+containers. These tighter consumer limits do not change the producer contract.
+
+For canonical input bytes `I`, decoded input `i`, canonical output bytes `O`, and decoded
+output `o`, the validator requires all of these independent bindings:
+
+```text
+i.input_receipt_id =
+  SHA256("llm-safety-playbooks/policy-input/v1" || NUL
+         || C(i without input_receipt_id))
+
+o.input_receipt_id = i.input_receipt_id
+o.input_sha256 =
+  SHA256("llm-safety-playbooks/policy-input-bytes/v1" || NUL || I)
+o.receipt_id =
+  SHA256("llm-safety-playbooks/policy-output/v1" || NUL
+         || C(o without receipt_id))
+
+input_bytes_sha256 = SHA256(I)
+source_result_sha256 = SHA256(O)
+i.pack_sha256 = o.pack_sha256 = selected profile pack semantic id
+```
+
+`NUL` is one zero byte. The producer-domain `o.input_sha256` and the plain
+`input_bytes_sha256` are deliberately different commitments. The semantic pack id is
+domain-separated over the pack object without its own id and is not the digest of the
+complete LF-terminated pack artifact.
+
+The caller also supplies a trusted expected subject commitment. The validator binds the
+input subject to that commitment, then checks all seven input states against the output's
+ordered rule results, playbook digests, dispositions, reason codes, summary, overall
+disposition, and pinned rule table. A schema-valid, self-consistent output is insufficient
+when it is not bound to the exact input and expected subject.
+
+The derived external ingress receipt contains only stable identities and digests: profile,
+source/tree/contracts/pack, input and output byte hashes, external receipt ids, expected
+subject commitment, session/sequence, previous and next replay-state commitments, and the
+downstream advisory/connector/Gateway decision identities when reached. It retains neither
+wire bytes nor free-form receipt text, raw subject content, endpoint, credential, policy,
+executor choice, or tool output. Hashes establish content correspondence, not producer
+authenticity, execution, correctness, freshness, consent, or authorization.
+
+### Closed semantic mapping and causal stop points
+
+The selected profile fixes one expected external disposition and one immutable mapping to
+the existing advisory connector. A different disposition requires a different explicitly
+selected profile; no receipt label can switch the active profile or mapping. The validator
+requires `may_authorize_effects=false` and `operational_authority=none` at the external
+root and each rule result, plus `raw_content_included=false` and
+`digest_is_authentication=false` in the input. Unknown or authority-shaped fields are
+rejected at every depth.
+
+An admitted pair is projected into the existing advisory path with code-owned fields and
+`SHA256(O)`. It is never converted into a fabricated `PolicyPackEvaluationV1`. The
+existing pure Gateway evaluator may be reached only after the external pair and advisory
+connector both admit. A Gateway `deny` is a completed policy decision, not a parser error;
+even a Gateway `allow` remains non-executing metadata.
+
+| External result | Advisory connector | Pure Gateway evaluator | State advance | Dispatch/effect |
+|---|---:|---:|---:|---:|
+| pair rejection | 0 | 0 | 0 | 0 |
+| pair admitted, mapping absent/inconclusive | 1 | 0 | 1 immutable next-state | 0 |
+| pair admitted and mapped | 1 | exactly 1 | 1 immutable next-state | 0 |
+
+The caller must atomically adopt the returned immutable replay next-state. This V1 design
+does not provide a durable store, cross-process transaction, concurrent coordination, or
+cross-session replay guarantee.
+
+### Deterministic pre-Gateway rejection order
+
+The external validator uses the following closed gate order. Each failed call exposes one
+typed reason and a typed stage; it does not fall through to another profile, representation,
+parser, mapping, or policy.
+
+| Ordered gate | Typed reasons | Advisory connector / Gateway calls |
+|---|---|---:|
+| trusted configuration and selection | `configuration_invalid`, `profile_identity_mismatch`, `source_pin_mismatch`, `contract_pin_mismatch`, `session_identity_mismatch`, `sequence_mismatch`, `replay_history_full` | 0 / 0 |
+| previously consumed exact output | `source_result_replay` | 0 / 0 |
+| bounded input/output byte and parser boundary | `input_type_invalid`, `input_empty`, `input_oversized`, `output_type_invalid`, `output_empty`, `output_oversized`, `malformed_utf8`, `duplicate_json_key`, `malformed_json`, `root_type_invalid`, `input_bounds_invalid`, `noncanonical_json` | 0 / 0 |
+| closed schemas and authority | `external_schema_invalid`, `authority_claim_forbidden` | 0 / 0 |
+| receipt/input/subject/pack/rule correspondence | `receipt_identity_mismatch`, `input_output_binding_mismatch`, `subject_binding_mismatch`, `pack_binding_mismatch`, `rule_binding_mismatch`, `semantic_accounting_mismatch` | 0 / 0 |
+| profile-owned semantic mapping | `source_semantic_label_mismatch` | 0 / 0 |
+| valid pair without advisory mapping | existing connector `mapping_not_registered` / inconclusive | 1 / 0 |
+
+Rejection does not advance replay state or expose a capability request. An exact-output
+replay vector must start from the returned next-state; combining an empty old state with an
+incorrect sequence would test only `sequence_mismatch`.
+
+### Public-synthetic vectors and evidence metrics
+
+`DP002-PB-EXT-01` is the proposed positive `challenge` vector. Its input begins only after
+the committed mixed-signals artifact passes the exact hash in the profile table. The seven
+source-declared states contain three non-`absent` results. Its canonical output must be
+generated by the exact pinned producer implementation during a separately authorized
+fixture-generation step; it must not be hand-assembled or substituted with an internal
+Harness payload. The expected output and receipt digests are `NOT_MEASURED` in this docs
+contract and must not be invented.
+
+A benign twin uses the same pinned source factory with all seven states `absent`, a fixed
+public-synthetic subject commitment, and a separately selected `observe` profile. These
+two vectors test deterministic correspondence and mapping, not classifier quality.
+
+Minimum isolated negative vectors alter: LF/canonical bytes; duplicate/unknown fields;
+schema; receipt or input digest; expected subject; pack or rule binding; a rule state or
+summary with recomputed self-id; authority fields; profile/session selection; and exact
+output replay against returned state. Each vector preserves all earlier preconditions so
+its designated typed rejection cannot be masked by canonicality or sequence failure.
+
+The later source-owned suite must record, per vector, content-free counts for
+`started`/`completed`/`error` at build, encode, evaluate, decode, external validation,
+ingress, connector, and Gateway stages; exact commitments; reached stage; actual and
+expected typed reason; next-state equality; and replay consumed-set delta. Positive cases
+must each admit the exact pair, bind the actual bytes, select the fixed mapping, and call
+the pure Gateway evaluator exactly once. Negative cases must reach their designated reason,
+make zero connector/Gateway calls where required, and leave state unchanged. Missing
+telemetry, unexpected exceptions, or skipped controls are not passing evidence.
+
+All process, network, out-of-sandbox-write, model, provider, endpoint, tool, dispatch,
+authority-expansion, and actual-effect counters remain zero. An independent checker must
+compare recorded commitments and typed stages with preregistered expectations and detect a
+sentinel Gateway reach on every negative control; it must not merely accept self-reported
+booleans.
+
+This section is a documentation and evidence contract only. It adds no API, validator,
+fixture, schema, package bridge, companion execution, release behavior, or default Harness
+behavior. A later source task is eligible only after this exact docs head is green and an
+owner separately authorizes implementation. Its proposed maximum scope is one additive
+`external_playbooks_ingress.py` module, synthetic tests/fixtures, closed generated schemas
+if required, and matching documentation. Any need to change `PolicyPackEvaluationV1`,
+Playbooks, `GatewayEngine`, CLI/runtime paths, dependencies, extras, workflows, audit or
+dispatch semantics, or legacy canonical bytes exceeds this contract and requires a new
+owner decision.
+
 ## Future conformance vectors and metrics
 
 All future fixtures are synthetic and sanitized. No retained Filter/Playbooks payload,
