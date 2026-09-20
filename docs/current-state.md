@@ -1,5 +1,10 @@
 # Current state
 
+Unreleased source increment: the [native Ollama adapter](ollama-quarantine-adapter.md)
+connects one explicitly selected local model to Quarantine and a pure Gateway
+decision. It owns envelope formatting, not policy authority; it never dispatches.
+Published 1.5.1 artifacts are unchanged and do not contain this module.
+
 Published update: [v1.5.1](releases/v1.5.1.md) adds a typed refusal for non-string
 Gateway lookup keys, changes the exact Router pin to 0.2.1 and updates scoped
 dependencies. Tag-bound build, staging, separately approved production promotion,

@@ -7,6 +7,11 @@
 
 ## 1. Overview
 
+This page covers the existing prompt-based benchmark adapter. For the separate
+unreleased source path from **native Ollama proposals** to Quarantine and a pure
+Gateway decision, see [native Ollama adapter](ollama-quarantine-adapter.md). The
+two protocols and their evidence classes are not interchangeable.
+
 The harness ships **one** external adapter: **`openai-compatible`**. It speaks the
 OpenAI Chat Completions wire format (`POST {base_url}/chat/completions`). Anything that
 exposes that format - a cloud API, a local server, or a gateway/proxy in front of

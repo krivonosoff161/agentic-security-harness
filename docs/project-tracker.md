@@ -1,5 +1,14 @@
 # Project tracker
 
+## Native Ollama connector source increment
+
+[Issue #291](https://github.com/krivonosoff161/agentic-security-harness/issues/291)
+tracks the bounded native-response adapter, offline adversarial/transport tests,
+separate installed-artifact local-model evidence and checked Git integration.
+The [operator contract](ollama-quarantine-adapter.md) distinguishes normalization,
+admission and pure Gateway authorization; no dispatch or universal provider support
+is claimed. This is unreleased source, not a modification of published 1.5.1.
+
 ## v1.5.1 published release
 
 [PR #288](https://github.com/krivonosoff161/agentic-security-harness/pull/288) integrated

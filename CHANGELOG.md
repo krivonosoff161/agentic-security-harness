@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- Add the opt-in native Ollama proposal adapter: one bounded literal-loopback
+  request, application-owned envelope identity, strict response normalization,
+  unchanged Quarantine admission and pure Gateway decision, with no dispatch.
+  Include offline protocol/adversarial tests and explicit operator documentation.
+  This source capability is not part of the published 1.5.1 artifacts.
+
 ## [1.5.1] - 2026-09-20
 
 ### Fixed

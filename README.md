@@ -299,6 +299,7 @@ The README is the front door; deeper contracts live in `docs/`:
 | How can an external agent host record and evaluate observations? | [Agent Host Adapter SDK](docs/agent-host-adapter.md) |
 | How can I run the local policy gateway and MCP/OpenAI-compatible demo? | [Runtime Gateway synthetic contour](docs/runtime-gateway.md) |
 | How are provider tool-call envelopes normalized without credentials? | [Provider-neutral tool-call adapters](docs/provider-tool-adapters.md) |
+| How can native Ollama output reach Quarantine and a pure Gateway decision without dispatch? | [Native Ollama adapter (unreleased source)](docs/ollama-quarantine-adapter.md) |
 | How do optional components exchange validated observations and findings? | [Extension SDK V1](docs/extension-sdk.md) |
 | How is an installed extension distribution verified before explicit registration? | [Extension Distribution Discovery V1](docs/extension-distribution-discovery.md) |
 | How does an operator approve, list, disable, or plan rollback without automatic code loading? | [Extension Operator Lifecycle V1](docs/extension-operator-lifecycle.md) |
