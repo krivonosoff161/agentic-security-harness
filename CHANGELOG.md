@@ -8,6 +8,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [1.5.1] - 2026-09-20
 
+### Fixed
+- Return a typed Gateway denial for non-string `synthetic.lookup.key` values before
+  checking the fixed key allowlist. Nested objects/arrays no longer raise `TypeError`
+  through the pure Connector/Gateway composition; no execution path is added.
+
 ### Changed
 - Pin the passive Router extra to `agentic-llm-router==0.2.1`, distributing its
   reviewed lazy HTTP-client import repair; rebind the reviewed receipt producer and

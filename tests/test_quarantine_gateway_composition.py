@@ -193,6 +193,33 @@ def test_gateway_allow_remains_non_executing(
     assert outcome.dispatch_performed is False
 
 
+@pytest.mark.parametrize(
+    "key", [{"operational_authority": "admin"}, [], ["project-status"], None, True, 1],
+)
+def test_nested_or_non_string_lookup_key_is_typed_denial_without_dispatch(
+    monkeypatch: pytest.MonkeyPatch, key: Any,
+) -> None:
+    monkeypatch.setattr(GatewayEngine, "call_tool", _unexpected)
+    outcome = compose_quarantine_gateway_v1(
+        _registry(),
+        selected_profile_id="synthetic.composition",
+        selected_profile_version="1",
+        payload=_payload({
+            "arguments": {"key": key}, "capability_id": "bounded.lookup",
+            "kind": "capability_request", "request_id": "request:malformed-key",
+        }),
+        gateway_policy=default_gateway_policy_v1(),
+    )
+
+    assert outcome.connector_disposition == "admit"
+    assert outcome.gateway_decision is not None
+    assert outcome.gateway_decision.disposition == "deny"
+    assert outcome.gateway_decision.reason_code == "tool_arguments_denied"
+    assert outcome.gateway_decision.execution_permitted is False
+    assert outcome.dispatch_performed is False
+    assert outcome.operational_authority == "none"
+
+
 def test_profile_binding_drift_fails_before_gateway_decision(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
