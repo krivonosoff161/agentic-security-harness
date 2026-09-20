@@ -222,6 +222,8 @@ def _validate_caller(
     GatewayPolicyV1.model_validate(policy.model_dump(mode="python"))
     if type(model_id) is not str or _MODEL_ID.fullmatch(model_id) is None:
         raise ValueError("invalid model identity")
+    if model_id.lower().endswith(":cloud"):
+        raise ValueError("cloud-routed model aliases are not a local model boundary")
     if type(request_id) is not str or re.fullmatch(SAFE_TOKEN_PATTERN, request_id) is None:
         raise ValueError("invalid application request identity")
     profile = registry.select_exact(profile_id, profile_version)

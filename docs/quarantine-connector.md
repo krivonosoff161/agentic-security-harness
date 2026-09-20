@@ -9,6 +9,10 @@ existing pure Gateway policy decision. Generated JSON Schemas and synthetic conf
 tests cover both APIs. They provide no transport, listener, provider/model adapter,
 durable receipt, CLI, auto-activation, dispatch, or production integration.
 
+A separate [native Ollama adapter](ollama-quarantine-adapter.md) is now available
+in unreleased source. It owns native-response parsing and application envelope
+construction without changing this Connector contract or adding dispatch.
+
 The Quarantine Connector source API is an additive, explicitly selected boundary between
 untrusted model/provider output and the existing Runtime Gateway. It does not replace or weaken the
 Gateway policy and does not change the accepted bytes, dispatch behavior, or receipts of

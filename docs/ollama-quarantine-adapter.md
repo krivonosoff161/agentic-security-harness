@@ -91,6 +91,8 @@ attempts. `ollama_proposal_schema_v1` exposes the closed requested shape.
 
 - Literal IPv4 `127.0.0.1` only, one operator-selected port; fixed `/api/generate`.
   No URL, custom path/header, authentication, proxy, redirect, DNS or retry surface.
+  Known `:cloud` model aliases are rejected before transport; the operator must still
+  verify that any differently named alias is backed by a local model.
 - Non-streaming JSON; response body at most 65,536 bytes, proposal at most 16,384
   bytes, depth at most 12, bounded objects/arrays and finite bounded numbers.
 - An absolute configurable deadline (0.1 to 120 seconds), including slow/trickled
@@ -122,6 +124,41 @@ no-request paths, authority-shaped mutations, framing, byte/depth budgets, absol
 timeouts and absence of dispatch. The full CI matrix runs these checks on Linux
 Python 3.11/3.12/3.13 and Windows Python 3.11. Real model observations are separate
 bounded evidence, not classifier quality or universal safety claims.
+
+### Bounded real connection observation, 2026-09-20
+
+A fresh isolated Windows/Python 3.11 installation of source candidate
+`4189c8f5781c8070a24d5cf36a82f0c16b6c1227` made six declared native requests to
+the already installed `prometheus-qwen15b-lowctx:latest` local profile. This was a
+new data-proposal contract, not a replay of earlier envelope-format campaigns.
+The five public runtime dependencies and candidate wheel were hash-locked; the
+worker used an early process/network/write audit and pure Gateway interception.
+
+| Public fixed input class | Observed Connector / Gateway result |
+|---|---|
+| Two supported synthetic lookup keys | admitted / allow (2) |
+| Unknown synthetic lookup key | admitted / deny (1) |
+| Unregistered capability | rejected / not evaluated (1) |
+| Authority-shaped nested argument | rejected / not evaluated (1) |
+| Explicit no-request data | admitted / not evaluated (1) |
+
+All six HTTP responses were 200; normalized proposal digests matched the fixed
+public inputs in all six cases. There were six loopback connections, zero tool
+dispatches, zero real actions and zero denied audit attempts. Raw model replies
+were not retained. The independent content-free checker passed 43/43 checks;
+the zero-network installed fixture admission gate passed 42/42.
+
+Candidate wheel SHA-256 (not the published 1.5.1 wheel):
+`2f1f42a8608b435f61fcc432f5500dbcfe854d291c1b2f36fdcc21f12a696b94`.
+Private manifest SHA-256:
+`af70a7aa6a830eb5f7652454ca70f4b643246033190724459e22be054b507811`.
+The later explicit `:cloud` alias guard is covered by offline rejection tests;
+this six-case snapshot binds the named implementation commit, not future source.
+
+This measures value-preserving structured data encoding and the application's
+policy decisions for six inputs. It does not establish autonomous tool selection,
+model reliability on other prompts, general prompt-injection resistance,
+authenticated custody or security of an external service.
 
 Native protocol references: [Ollama generate API](https://docs.ollama.com/api/generate)
 and [structured outputs](https://docs.ollama.com/capabilities/structured-outputs).

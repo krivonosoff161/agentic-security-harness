@@ -268,6 +268,8 @@ def test_config_has_no_remote_or_credential_surface(changes: dict[str, Any]) -> 
     "changes",
     [
         {"model_id": "bad model"},
+        {"model_id": "public-toy:cloud"},
+        {"model_id": "public-toy:CLOUD"},
         {"request_id": "bad request"},
         {"selected_profile_id": "missing"},
         {"selected_profile_version": "missing"},
