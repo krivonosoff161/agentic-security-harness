@@ -1,5 +1,9 @@
 # Current state
 
+Source update: [v1.5.1 preparation](releases/v1.5.1.md) changes the exact Router pin
+to 0.2.1 and updates scoped dependencies. The publication evidence below is still for
+v1.5.0 until separate tag, staging and production gates have completed.
+
 The public cross-project source of truth is now
 [`ecosystem/roadmap.yaml`](../ecosystem/roadmap.yaml), with source-owned facts in each
 repository's `component.yaml`. The older `2026.08.02-r4-trajectory-containment` Security

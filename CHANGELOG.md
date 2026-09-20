@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-09-20
+
+### Changed
+- Pin the passive Router extra to `agentic-llm-router==0.2.1`, distributing its
+  reviewed lazy HTTP-client import repair; rebind the reviewed receipt producer and
+  ecosystem source checks without changing the receipt schema or authority semantics.
+- Update the scoped locked development/build/runtime dependencies (Ruff 0.16.8,
+  build 1.6.1, Pydantic 2.13.5/core 2.46.5) and CodeQL actions to v4.38.0.
+  Preserve the Windows-only colorama dependency in the cross-platform locks.
+- No automatic companion activation, provider/model call, or action grant is added.
+
 ## [1.5.0] - 2026-09-20
 
 ### Added

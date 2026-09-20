@@ -14,7 +14,7 @@ EXPECTED = {
         "ai-agent-handoff-harness-extension==1.0.0",
     },
     "playbooks": {"llm-safety-playbooks==0.1.0"},
-    "router": {"agentic-llm-router==0.2.0"},
+    "router": {"agentic-llm-router==0.2.1"},
     "filter": {"llm-cheap-filter==0.2.0"},
 }
 

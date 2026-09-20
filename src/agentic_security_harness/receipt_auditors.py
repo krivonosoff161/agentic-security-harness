@@ -81,10 +81,10 @@ REVIEWED_RECEIPT_SOURCES_V1: Final = (
     ReviewedReceiptSourceV1(
         component_id="llm-router",
         repository="https://github.com/krivonosoff161/llm-router",
-        commit="69642b42d9999285a0c4642fcaa0405b67e619ad",
-        tree="bb1507c6389c6f4e91edd447b91c4c90b915f9a7",
+        commit="2a743af4518985f7d8c51a8870a53f7290886b23",
+        tree="9c527d0f9377652c41f3e3bb119d3cec3dd95507",
         component_manifest_sha256=(
-            "34eef49ca982d4894823f581ac16c2e944d0706e483977db2aff389a33e0fb87"
+            "d3b554debefe4deb196206094f4924695102f00345b110b6e1cdaae08a7f6075"
         ),
         contract_id="router-invocation-receipt",
         contract_version="1.0",
