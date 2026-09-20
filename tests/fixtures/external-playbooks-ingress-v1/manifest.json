@@ -1,5 +1,5 @@
 {
-  "api_sha256": "f298e0821bce39a439c51fd5af7967910cf8490c3f04170be61c4d2d57579412",
+  "contract_digest": "f298e0821bce39a439c51fd5af7967910cf8490c3f04170be61c4d2d57579412",
   "authority_expansion_expected": 0,
   "external_evaluator_call_budget": 2,
   "gateway_evaluation_budget": 2,

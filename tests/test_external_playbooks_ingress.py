@@ -597,7 +597,7 @@ def test_api_digest_and_content_free_regression_manifest_are_exact() -> None:
         "ExternalPlaybooksIngressOutcomeV1",
         "ExternalPlaybooksIngressProfileV1",
     }
-    assert manifest["api_sha256"] == external_playbooks_ingress_v1_api_sha256()
+    assert manifest["contract_digest"] == external_playbooks_ingress_v1_api_sha256()
     assert manifest["vectors"] == [
         {
             "expected_disposition": "challenge",
