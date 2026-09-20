@@ -9,8 +9,11 @@ approved PyPI promotion, cross-platform clean installation, and read-only
 post-publication verification. The passive public companion extras and their five exact
 PyPI distributions were released with Harness `v1.4.0` on 2026-08-30 after isolated
 resolver checks for every extra and `all`; installation still grants no discovery,
-approval, binding, configuration, invocation, or activation authority. This
-checklist remains the required
+approval, binding, configuration, invocation, or activation authority. The explicit
+Quarantine/advisory/source-result ingress APIs were published in `v1.5.0` on 2026-09-20;
+[its evidence](releases/v1.5.0.md#publication-evidence) records the immutable subjects,
+successful cross-platform read-only verification, and the retained initial install
+failure. No upload was repeated. This checklist remains the required
 procedure for subsequent releases. The broader readiness map is
 [v1-readiness.md](v1-readiness.md).
 

@@ -1,8 +1,9 @@
 # Quarantine Connector V1: opt-in source contract
 
-Status: additive source-level APIs proposed for the next Harness release. They are not in
-the published `v1.4.0` package. The source implementation provides closed Pydantic
-objects, an explicit registry, a strict canonical-JSON decoder, a pure verdict function,
+Status: additive opt-in APIs published in Harness `v1.5.0`; old `v1.4.0` artifacts are
+unchanged. [Release evidence](releases/v1.5.0.md) binds the exact package. The implementation
+provides closed Pydantic objects, an explicit registry, a strict canonical-JSON decoder,
+a pure verdict function,
 a non-executing Gateway-call bridge, and a separate opt-in composition ending at the
 existing pure Gateway policy decision. Generated JSON Schemas and synthetic conformance
 tests cover both APIs. They provide no transport, listener, provider/model adapter,

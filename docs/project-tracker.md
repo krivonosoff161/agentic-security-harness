@@ -1,14 +1,16 @@
 # Project tracker
 
-## v1.5.0 release preparation
+## v1.5.0 published release
 
 [Issue #285](https://github.com/krivonosoff161/agentic-security-harness/issues/285)
-tracks the additive Quarantine/advisory Gateway API release, exact-head CI and merge,
-attested GitHub artifacts, gated TestPyPI/PyPI promotion and cross-platform installation.
-The [release source notes](releases/v1.5.0.md) are not a publication claim. The verified
-published baseline below remains v1.4.0 until the new exact-subject evidence is recorded.
+records the additive Quarantine/advisory Gateway API release from exact source
+`17d7eac54782301d31cb9a80f6200df1c4b6e781` (PR #286). GitHub, TestPyPI and PyPI
+expose matching attested wheel/sdist bytes. [Read-only verification](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35507083204)
+passed all six jobs after an initial production smoke's Linux 3.12 pip-index lookup
+failure; no upload was repeated. [Release notes](releases/v1.5.0.md) retain both results.
+Publication proves bounded package availability/compatibility, not production safety.
 
-## v1.4.0 published release
+## Historical v1.4.0 published release
 
 Exact tag `v1.4.0` resolves to
 `31c1f290f724298e5674a581c0699e6718b89285`. The attested GitHub Release, TestPyPI and
@@ -79,8 +81,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.4.0` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.4.0/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.5.0` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.5.0/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are

@@ -1,12 +1,13 @@
 # Advisory-to-Gateway Authority Connector V1
 
-Status: **implemented, opt-in source APIs; not part of published v1.4.0**.
+Status: explicit opt-in APIs published in Harness `v1.5.0`; see
+[release evidence](releases/v1.5.0.md).
 The additive modules `advisory_gateway_connector`, `advisory_ingress`, and
 `external_playbooks_ingress` are direct-call only. They are not registered in the package
 root or a CLI/runtime path and never activate automatically. The contract originated at
 Harness source `85f94100eb2e64a8aecd4df3c3b2d6e10ae52342`; implementation tests, not that
 historical snapshot, describe the current source behavior. A source merge is not a package
-release or deployment.
+release or deployment; the v1.5.0 publication is supported by separate linked evidence.
 
 ## Root question and verified gap
 
