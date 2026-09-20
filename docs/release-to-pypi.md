@@ -155,6 +155,15 @@ Given the exact release tag and successful tag-triggered `release.yml` run id, i
   Python 3.11-3.13 plus Windows Python 3.11, then runs `ash --help`, `ash quickstart`, and
   `ash validate`.
 
+The default `target=both` retains all of those checks. If a TestPyPI upload succeeded
+but its simple index lagged and the install smoke failed, first diagnose that failed
+run; do not rerun the upload. Select `target=testpypi` on this read-only workflow to
+verify the same immutable subjects and perform the clean Linux staging smoke without
+requiring an unpublished production version. A green staging-only verification is
+new evidence, not a rewritten historical PASS, and does not satisfy the separate
+post-staging owner approval for PyPI. After production publication, use `target=both`
+for cross-index equality and the full Linux/Windows matrix.
+
 A successful verification run adds current read-only evidence. It does not rewrite the
 historical promotion runs, republish the package, or grant deployment/enforcement
 authority.
