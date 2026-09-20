@@ -20,6 +20,10 @@ validate, compare, and review.
 
 ## Quickstart
 
+The source tree prepares [v1.5.1](docs/releases/v1.5.1.md), including Router 0.2.1
+and scoped dependency updates. Until its protected publication gates complete, the
+verified public installation below remains v1.5.0; source preparation is not publication.
+
 Install the exact package version from PyPI after confirming that the public index lists
 `1.5.0`:
 
@@ -106,6 +110,10 @@ commands are
 `pip install "agentic-security-harness[router]==1.5.0"` or
 `pip install "agentic-security-harness[all]==1.5.0"`. Exact companion pins are unchanged;
 installation remains separate from module activation.
+
+The v1.5.1 source changes only the Router row to `agentic-llm-router==0.2.1` and binds
+its reviewed receipt source to the same release commit. The other companion versions
+remain unchanged. Do not use v1.5.0 installed-package evidence as proof of the new pin.
 
 The published [Corpus Pack SDK V1](docs/corpus-pack-sdk.md) adds a separate,
 canonical registry for optional namespaced boundary-invariant metadata. It preserves the

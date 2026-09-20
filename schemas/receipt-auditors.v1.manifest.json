@@ -23,7 +23,7 @@
   "harness_api": "1",
   "implementation": {
     "path": "src/agentic_security_harness/receipt_auditors.py",
-    "sha256": "034fbdb4b8d4ed97b81289e92f6c693b91cbd3a7222b5ebf7391a722cf0e33fa"
+    "sha256": "415703a98bcafa10302afd63fe35b96fcd0872094368a0e00be00e261e8862b4"
   },
   "injected_callables": false,
   "integration_model": "explicit_caller_supplied_canonical_receipt_bytes",
@@ -34,9 +34,9 @@
   "operational_authority": "none",
   "reviewed_sources": [
     {
-      "commit": "69642b42d9999285a0c4642fcaa0405b67e619ad",
+      "commit": "2a743af4518985f7d8c51a8870a53f7290886b23",
       "component_id": "llm-router",
-      "component_manifest_sha256": "34eef49ca982d4894823f581ac16c2e944d0706e483977db2aff389a33e0fb87",
+      "component_manifest_sha256": "d3b554debefe4deb196206094f4924695102f00345b110b6e1cdaae08a7f6075",
       "contract_id": "router-invocation-receipt",
       "contract_manifest_path": null,
       "contract_manifest_sha256": null,
@@ -47,7 +47,7 @@
       "implementation_path": "src/llm_router/receipt.py",
       "implementation_sha256": "68b054179bd4c9df33ab0782b8873b81da96e942f6fa923bdc3fbcb94485d468",
       "repository": "https://github.com/krivonosoff161/llm-router",
-      "tree": "bb1507c6389c6f4e91edd447b91c4c90b915f9a7"
+      "tree": "9c527d0f9377652c41f3e3bb119d3cec3dd95507"
     },
     {
       "commit": "17f13fd3986a2869686e59ca62123340fd56178b",
@@ -80,11 +80,11 @@
   "subprocess_access": false,
   "unit_tests": {
     "path": "tests/test_receipt_auditors.py",
-    "sha256": "21752132bc4dfd58933dee3f4cfe22bb9bde076b36d9d403f0708eb3ee64b3b2"
+    "sha256": "78c79068ea3b4c78acce760fefa80c864eb208c710c5ad765c4b10597d85c930"
   },
   "valid_accounting_disposition": "inconclusive_no_security_verdict",
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "956e51df61c74bb6da530dfa942821f438ff4939bcd6c36ff670d205f9fa23b5"
+    "sha256": "ccde672a44fafc627758b361bb17e7e550114062a25a7386ea9d20068842579d"
   }
 }

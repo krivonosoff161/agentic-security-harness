@@ -11,7 +11,7 @@ import tempfile
 from pathlib import Path
 
 EXPECTED = {
-    "agentic-security-harness": ("1.5.0", "agentic_security_harness-1.5.0-py3-none-any.whl"),
+    "agentic-security-harness": ("1.5.1", "agentic_security_harness-1.5.1-py3-none-any.whl"),
     "agentic-transfer-verifier": ("0.2.1", "agentic_transfer_verifier-0.2.1-py3-none-any.whl"),
     "agentic-transfer-verifier-harness-extension": (
         "1.0.1",
@@ -23,7 +23,7 @@ EXPECTED = {
         "ai_agent_handoff_harness_extension-1.0.0-py3-none-any.whl",
     ),
     "llm-safety-playbooks": ("0.1.0", "llm_safety_playbooks-0.1.0-py3-none-any.whl"),
-    "agentic-llm-router": ("0.2.0", "agentic_llm_router-0.2.0-py3-none-any.whl"),
+    "agentic-llm-router": ("0.2.1", "agentic_llm_router-0.2.1-py3-none-any.whl"),
     "llm-cheap-filter": ("0.2.0", "llm_cheap_filter-0.2.0-py3-none-any.whl"),
 }
 PLAYBOOK_SHA256 = "1c8ca14e6ab83d92742f6fba0b0d1b1bc422ebe30163c6619e9c80f5413b8915"

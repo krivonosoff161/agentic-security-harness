@@ -12,7 +12,7 @@
   "companion_package_imports_at_runtime": false,
   "component_manifest": {
     "path": "component.yaml",
-    "sha256": "7a71ceb1b50ffe85a7c79644808fd9fafe1f3a5e8ad5826e75167cdb52693d82"
+    "sha256": "cce2e60bf7eca5fc6c2e0f10e6d7f7007c2bc10b3df36e16224e52549ff1216e"
   },
   "contract_id": "harness-policy-pack-extension-v1.0",
   "credentials_supported": false,
@@ -100,6 +100,6 @@
   "verdict_semantics": "advisory_only_no_allow_or_enforcement",
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "956e51df61c74bb6da530dfa942821f438ff4939bcd6c36ff670d205f9fa23b5"
+    "sha256": "ccde672a44fafc627758b361bb17e7e550114062a25a7386ea9d20068842579d"
   }
 }

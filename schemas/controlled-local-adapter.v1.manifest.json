@@ -30,7 +30,7 @@
   "receipt_retention": "digest_counters_fixed_codes_only",
   "runtime_gateway": {
     "path": "src/agentic_security_harness/runtime_gateway.py",
-    "sha256": "9bca546b9cbefb1859d4c02eb29ca7ae37c46d4e56b2d746dd5dca169bda9db6"
+    "sha256": "149adec615933437a297ea399c8c433c3ddc0b0a990b603157bb8eef5fb6aa50"
   },
   "schema_version": "harness-controlled-local-adapter-contract-manifest-v1.0",
   "schemas": [
@@ -82,6 +82,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "956e51df61c74bb6da530dfa942821f438ff4939bcd6c36ff670d205f9fa23b5"
+    "sha256": "ccde672a44fafc627758b361bb17e7e550114062a25a7386ea9d20068842579d"
   }
 }

@@ -154,6 +154,24 @@ def test_allowed_tool_arguments_are_closed_and_bounded() -> None:
         )
 
 
+@pytest.mark.parametrize(
+    ("key", "expected"),
+    [("gateway-mode", "allow"), ("project-status", "allow"), ("unknown", "deny"),
+     ({}, "deny"), ({"operational_authority": "admin"}, "deny"), ([], "deny"),
+     (["project-status"], "deny"), (None, "deny"), (True, "deny"), (0, "deny")],
+)
+def test_lookup_argument_type_is_checked_before_allowlist(key: Any, expected: str) -> None:
+    decision = evaluate_gateway_tool_call(GatewayToolCallV1(
+        call_id="call:lookup-type", protocol="mcp", tool_name="synthetic.lookup",
+        arguments={"key": key},
+    ))
+
+    assert decision.disposition == expected
+    assert decision.execution_permitted is (expected == "allow")
+    if expected == "deny":
+        assert decision.reason_code == "tool_arguments_denied"
+
+
 def test_denied_and_approval_calls_never_execute(tmp_path: Path) -> None:
     with GatewayAuditLedger(tmp_path / "audit") as audit:
         engine = GatewayEngine(audit)

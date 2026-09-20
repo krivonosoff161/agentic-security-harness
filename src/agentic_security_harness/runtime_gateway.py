@@ -1236,7 +1236,8 @@ def _validate_builtin_arguments(call: GatewayToolCallV1) -> str | None:
     if call.tool_name == "synthetic.lookup":
         if set(call.arguments) != {"key"}:
             return "tool_arguments_denied"
-        if call.arguments.get("key") not in {"gateway-mode", "project-status"}:
+        key = call.arguments.get("key")
+        if not isinstance(key, str) or key not in {"gateway-mode", "project-status"}:
             return "tool_arguments_denied"
         return None
     return None

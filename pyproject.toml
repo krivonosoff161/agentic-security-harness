@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentic-security-harness"
-version = "1.5.0"
+version = "1.5.1"
 description = "Open-source defensive harness and learning lab for reproducing and measuring agentic AI failure modes with portable traces, attack graphs, scorecards, and data-boundary tests."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -54,7 +54,7 @@ playbooks = [
     "llm-safety-playbooks==0.1.0",
 ]
 router = [
-    "agentic-llm-router==0.2.0",
+    "agentic-llm-router==0.2.1",
 ]
 filter = [
     "llm-cheap-filter==0.2.0",
@@ -65,7 +65,7 @@ all = [
     "ai-agent-handoff==0.3.0",
     "ai-agent-handoff-harness-extension==1.0.0",
     "llm-safety-playbooks==0.1.0",
-    "agentic-llm-router==0.2.0",
+    "agentic-llm-router==0.2.1",
     "llm-cheap-filter==0.2.0",
 ]
 dev = [

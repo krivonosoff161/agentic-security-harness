@@ -136,7 +136,7 @@ def _event(payload: bytes, *, event_id: str = SHA_A) -> CanonicalObservationEven
         event_id=event_id,
         project_id="llm-router",
         repository_id="krivonosoff161/llm-router",
-        repository_sha="69642b42d9999285a0c4642fcaa0405b67e619ad",
+        repository_sha="2a743af4518985f7d8c51a8870a53f7290886b23",
         occurred_at=datetime.fromisoformat(OCCURRED_AT.replace("Z", "+00:00")),
         producer_id_hash=SHA_B,
         producer_attestation="unattested",
@@ -258,6 +258,18 @@ def test_event_receipt_binding_drift_is_a_finding() -> None:
 
     assert finding.outcome == "finding"
     assert finding.reason_code == "llm-router.event_receipt_binding_drift"
+
+
+def test_old_router_source_identity_is_not_promoted_by_new_package_pin() -> None:
+    payload = _router_payload()
+    event = _event(payload).model_copy(
+        update={"repository_sha": "69642b42d9999285a0c4642fcaa0405b67e619ad"}
+    )
+
+    run = _run(payload, event)
+    assert run.result.findings[0].outcome == "finding"
+    assert run.result.findings[0].reason_code == "llm-router.event_receipt_binding_drift"
+    assert run.result.operational_authority == "none"
 
 
 def test_missing_receipt_evidence_is_inconclusive() -> None:
@@ -418,10 +430,10 @@ def test_receipt_replay_is_rejected_before_extension_execution() -> None:
 def test_source_pin_and_generated_schemas_are_closed() -> None:
     sources = {item["component_id"]: item for item in reviewed_receipt_sources_v1()}
     router = sources["llm-router"]
-    assert router["commit"] == "69642b42d9999285a0c4642fcaa0405b67e619ad"
-    assert router["tree"] == "bb1507c6389c6f4e91edd447b91c4c90b915f9a7"
+    assert router["commit"] == "2a743af4518985f7d8c51a8870a53f7290886b23"
+    assert router["tree"] == "9c527d0f9377652c41f3e3bb119d3cec3dd95507"
     assert router["component_manifest_sha256"] == (
-        "34eef49ca982d4894823f581ac16c2e944d0706e483977db2aff389a33e0fb87"
+        "d3b554debefe4deb196206094f4924695102f00345b110b6e1cdaae08a7f6075"
     )
     filter_source = sources["llm-cheap-filter"]
     assert filter_source["commit"] == "17f13fd3986a2869686e59ca62123340fd56178b"

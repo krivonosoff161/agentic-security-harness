@@ -28,23 +28,23 @@
   "integration_candidate": {
     "build_requirements_in": {
       "path": "requirements/build.in",
-      "sha256": "591f5f818c9a6474d23d0eae8f61c9f75d2a3680dc5f618d47408f493987f95a"
+      "sha256": "a6a966e99353bf10b44c86ef2b0266aa7c502589c9f6bf30b8a824b3a0b5e5e7"
     },
     "build_requirements_lock": {
       "path": "requirements/build.txt",
-      "sha256": "e88ced0bf27bd8c5ffcf158f9e850e7e8618e27d00e53408c78c2d0ac68a1caa"
+      "sha256": "d5c2394da5e7f48f2e231f5c92a7554c2f01ac28eff1c9bdb35bb97b38dbc264"
     },
     "compatibility": {
       "path": "ecosystem/compatibility.json",
-      "sha256": "c6e18ee3661ced1314927b97df6c82221617d1be1186276d5e3b8ac53e6de3a8"
+      "sha256": "cbb24e959e55e03e8b6f01fa1f9cb67350f956bcfb2d893aa738dfd8e46b04a6"
     },
     "development_requirements_in": {
       "path": "requirements/dev.in",
-      "sha256": "99d4e64e76467f084aea6f1a2146186c5d7771773c12b14ca082dd68d6283200"
+      "sha256": "b3c0ea21c0d32d6509c50220f19073c277938e38c6cddbaa2f10a21712438edb"
     },
     "development_requirements_lock": {
       "path": "requirements/dev.txt",
-      "sha256": "f9647e59a5f12c8d903ea529992f82f4bfa832cc5a8e2464b536982772355cd3"
+      "sha256": "87f029b2b9d2d949f701585ac8fcd2894e11c7142b71eaad0992b4b9f4adf3d7"
     },
     "documentation": {
       "path": "docs/ecosystem-integration-candidate.md",
@@ -52,15 +52,15 @@
     },
     "test": {
       "path": "tests/test_ecosystem_integration_candidate.py",
-      "sha256": "5763f3199e5bdab10d7d4a0dcd1b772909cb5dca4b0ce28882dfe72c31ff29e9"
+      "sha256": "963455f164480f599e71a47ee556668b3c9f032ff9224403c491b6a68fa90e42"
     },
     "wheelhouse_smoke": {
       "path": "tools/optional_wheelhouse_smoke.py",
-      "sha256": "b2e6f8ca533341fae8ead51edf96d2167cf5f66e503533bd50f80d826740ae04"
+      "sha256": "762af476fd89c2ec6776957f69d41626af6493759d9afa90cbd816c33b9d77ba"
     },
     "workflow": {
       "path": ".github/workflows/ecosystem-integration.yml",
-      "sha256": "89ce502cfe5de5072fccb14559926a0f5c474b6a7d9e86645f3a469061bb742c"
+      "sha256": "bf22153250a24cda3514c9e9321b2285200ded728edc5902e3da90c0d363d522"
     }
   },
   "integration_model": "explicit_normalized_digest_bound_outputs",
@@ -123,6 +123,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "956e51df61c74bb6da530dfa942821f438ff4939bcd6c36ff670d205f9fa23b5"
+    "sha256": "ccde672a44fafc627758b361bb17e7e550114062a25a7386ea9d20068842579d"
   }
 }

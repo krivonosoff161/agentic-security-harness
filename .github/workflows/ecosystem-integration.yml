@@ -64,7 +64,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/llm-router
-          ref: 69642b42d9999285a0c4642fcaa0405b67e619ad
+          ref: 2a743af4518985f7d8c51a8870a53f7290886b23
           path: components/router
           persist-credentials: false
 
@@ -165,5 +165,5 @@ jobs:
       - name: Build and smoke the Harness package
         run: |
           python -m build --no-isolation --wheel --outdir dist
-          python -m pip install --no-index --no-deps --force-reinstall dist/agentic_security_harness-1.5.0-py3-none-any.whl
+          python -m pip install --no-index --no-deps --force-reinstall dist/agentic_security_harness-1.5.1-py3-none-any.whl
           ash --help
