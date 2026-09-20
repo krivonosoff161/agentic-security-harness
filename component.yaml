@@ -8,8 +8,8 @@
   "summary": "Published defensive benchmark and toolkit that owns the public ecosystem contracts and synthetic integration laboratory.",
   "package": {
     "name": "agentic-security-harness",
-    "version": "1.4.0",
-    "install": "pip install agentic-security-harness==1.4.0",
+    "version": "1.5.0",
+    "install": "pip install agentic-security-harness==1.5.0",
     "entry_points": ["ash"]
   },
   "owns": {

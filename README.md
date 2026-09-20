@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/package_source-v1.4.0-blue)
+![Status](https://img.shields.io/badge/package_source-v1.5.0-blue)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -21,10 +21,10 @@ validate, compare, and review.
 ## Quickstart
 
 Install the exact package version from PyPI after confirming that the public index lists
-`1.4.0`:
+`1.5.0`:
 
 ```bash
-python -m pip install agentic-security-harness==1.4.0
+python -m pip install agentic-security-harness==1.5.0
 ash quickstart --out reports/quickstart
 ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
@@ -353,13 +353,19 @@ approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install the
 
 ## Release and package status
 
-Package source `v1.4.0` is configured for the repository's tag-only attested release and
+Package source `v1.5.0` is configured for the repository's tag-only attested release and
 OIDC promotion workflows. Availability is established only by the exact
 [PyPI project history](https://pypi.org/project/agentic-security-harness/#history) and
 [GitHub Releases](https://github.com/krivonosoff161/agentic-security-harness/releases),
 not by source metadata alone. Publication makes the bounded core and selected passive
 distributions installable; it is not automatic activation, production deployment,
 enforcement, provider authority, or security certification.
+
+The [v1.5.0 release source](docs/releases/v1.5.0.md) adds explicit Quarantine and
+advisory-to-Gateway composition plus exact-pinned external Playbooks receipt ingress.
+These pure APIs stop at a Gateway decision: they do not dispatch, activate companions,
+authenticate producers or infer safe model intent. Historical v1.4.0 installation
+evidence above remains scoped to that version until new publication checks complete.
 
 - [Release checklist](docs/release-checklist.md)
 - [PyPI release process](docs/release-to-pypi.md)

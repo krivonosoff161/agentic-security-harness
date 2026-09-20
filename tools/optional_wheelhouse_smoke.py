@@ -11,7 +11,7 @@ import tempfile
 from pathlib import Path
 
 EXPECTED = {
-    "agentic-security-harness": ("1.4.0", "agentic_security_harness-1.4.0-py3-none-any.whl"),
+    "agentic-security-harness": ("1.5.0", "agentic_security_harness-1.5.0-py3-none-any.whl"),
     "agentic-transfer-verifier": ("0.2.1", "agentic_transfer_verifier-0.2.1-py3-none-any.whl"),
     "agentic-transfer-verifier-harness-extension": (
         "1.0.1",

@@ -6,14 +6,22 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-09-20
+
 ### Added
+- Added opt-in Quarantine Connector canonical envelope decoding, explicit profile
+  selection, typed admission verdicts and non-executing composition with the existing
+  pure Runtime Gateway policy. Admission is not action authorization.
 - Added opt-in advisory-to-Gateway composition and strict source-result ingress APIs,
   with caller-owned capability mapping, immutable replay transitions, and pure Gateway
   decisions only. No automatic companion activation, audit write, or dispatch is added.
 - Added exact-pinned external Playbooks synthetic receipt-pair validation with separate
   input/output identity, subject, pack, rule, semantic-accounting, and replay checks.
   Malformed JSON types and Unicode produce typed refusals before downstream evaluation.
-  These source additions are not part of the published v1.4.0 artifacts.
+
+### Changed
+- Prepared the additive API release without changing stable trace/corpus identities,
+  exact passive companion package pins, or automatic activation behavior.
 
 ## [1.4.0] - 2026-08-29
 
