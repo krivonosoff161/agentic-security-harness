@@ -1,11 +1,12 @@
-# Advisory-to-Gateway Authority Connector V1: proposed contract
+# Advisory-to-Gateway Authority Connector V1
 
-Status: **Phase 1 documentation contract plus a stacked Phase 2 review candidate**. The
-candidate adds one direct-call source module and synthetic tests above docs PR `#272`; it
-is not merged into `main`, registered in the package root, connected to a CLI/runtime
-path, released, or automatically activated. The underlying contract remains bound to
-reviewed Harness source `85f94100eb2e64a8aecd4df3c3b2d6e10ae52342` and docs head
-`41699b919991e9132341564fab69f01ae605d762`.
+Status: **implemented, opt-in source APIs; not part of published v1.4.0**.
+The additive modules `advisory_gateway_connector`, `advisory_ingress`, and
+`external_playbooks_ingress` are direct-call only. They are not registered in the package
+root or a CLI/runtime path and never activate automatically. The contract originated at
+Harness source `85f94100eb2e64a8aecd4df3c3b2d6e10ae52342`; implementation tests, not that
+historical snapshot, describe the current source behavior. A source merge is not a package
+release or deployment.
 
 ## Root question and verified gap
 
@@ -13,7 +14,7 @@ Can untrusted Cheap Filter or Playbooks advice be represented as a typed advisor
 envelope and evaluated by the existing pure Runtime Gateway policy boundary without the
 advice being reinterpreted as authority?
 
-Current source provides the pieces on either side but not this adapter:
+The pre-connector source provided the pieces on either side:
 
 - the Cheap Filter receipt auditor emits authority-free Extension SDK findings and never
   lowers a security decision;
@@ -24,9 +25,9 @@ Current source provides the pieces on either side but not this adapter:
 - `evaluate_gateway_tool_call()` is the existing pure, deterministic policy decision;
   `GatewayEngine` is the separate audit/dispatch boundary.
 
-Released `main` has no public API that accepts Filter/Playbooks advisory material, applies
+Published v1.4.0 has no public API that accepts Filter/Playbooks advisory material, applies
 an application-owned mapping, constructs the existing closed `CapabilityRequestV1`, and
-ends at the pure Gateway decision. The stacked Phase 2 candidate fills only that missing
+ends at the pure Gateway decision. The additive source modules fill only that missing
 seam. It does not route advisory evidence through `ModelEnvelopeV1`, weaken Quarantine
 admission, or create a second Gateway policy model.
 
@@ -61,7 +62,7 @@ An admitted advisory envelope is not a capability request. A constructed capabil
 request is not a Gateway allow. A Gateway allow returned by the pure evaluator is not
 execution.
 
-## Proposed exact advisory wire contract
+## Exact advisory wire contract
 
 `AdvisoryEnvelopeV1` is one canonical UTF-8 JSON object with exactly these fields. All
 fields are required; no aliases or alternate shapes are accepted.
@@ -97,7 +98,7 @@ safe to publish merely because it is bounded.
 | `evidence_class` | `producer_declared`, `external_unreviewed`, `synthetic_fixture`, or `sanitized_metadata` |
 | `operational_authority` | literal `none` |
 
-The proposed decoder limit is 16,384 input bytes and four JSON container levels. Strings
+The decoder limit is 16,384 input bytes and four JSON container levels. Strings
 must contain valid Unicode scalar values. Integers, floats, booleans, null, arrays, and
 additional objects are impossible in this closed shape except for the single provenance
 object.
@@ -129,7 +130,7 @@ id and version with the advisory bytes and an existing `GatewayPolicyV1`. There 
 profile discovery, package inspection, environment lookup, fallback, implicit upgrade,
 or best-match selection.
 
-The proposed closed profile owns:
+The closed profile owns:
 
 - exact `profile_id` and `profile_version` safe tokens;
 - accepted component/kind pairs and exact source contract ids, versions, commits, trees,
@@ -147,8 +148,8 @@ text and summary are never interpolated into tool arguments. Thus the source may
 whether a code-owned rule matches, but it cannot supply the resulting capability identity
 or authority fields.
 
-The future adapter should reuse the existing `CapabilityRequestV1`, `GatewayToolCallV1`,
-`GatewayDecisionV1`, and `evaluate_gateway_tool_call()` contracts. It must not change
+The adapter reuses the existing `CapabilityRequestV1`, `GatewayToolCallV1`,
+`GatewayDecisionV1`, and `evaluate_gateway_tool_call()` contracts. It does not change
 `GatewayPolicyV1`, call `GatewayEngine`, or duplicate the existing Quarantine composition.
 
 ## Fail-closed rules
@@ -173,11 +174,11 @@ policy, or permissive generic representation. `reject` and `inconclusive` create
 
 ## Opt-in and default compatibility
 
-The proposed connector is disabled by absence: existing imports, CLI commands, extension
+The connector is disabled by absence: existing imports, CLI commands, extension
 registries, Policy Pack evaluation, receipt auditing, Quarantine composition, controlled
 local adapter, provider-tool adapter, and Runtime Gateway remain unchanged.
 
-Even after a future source implementation, installation or import must not:
+Installation or import must not:
 
 - discover, import, activate, or invoke a companion package;
 - read provider/model configuration or call a provider/model;
@@ -189,7 +190,7 @@ Even after a future source implementation, installation or import must not:
 The only V1 activation is a direct caller invocation with an exact profile, exact profile
 id/version, bounded canonical bytes, and an existing deterministic Gateway policy.
 
-### Review-candidate API
+### Explicit source API
 
 The additive module is imported explicitly; it is deliberately absent from the package
 root and every discovery/CLI registry:
@@ -215,10 +216,10 @@ and `advisory_gateway_connector_v1_api_sha256()` expose the closed schema set an
 sanitized API commitment. The module never imports Filter or Playbooks packages; package
 installation and advisory production remain separate explicit steps.
 
-## Review-candidate strict source-result ingress seam
+## Strict source-result ingress seam
 
-The review-candidate connector intentionally starts after an `AdvisoryEnvelopeV1` already
-exists. The stacked source candidate adds a second, additive direct-call seam so a caller
+The connector intentionally starts after an `AdvisoryEnvelopeV1` already
+exists. A second, additive direct-call seam lets a caller
 can present an exact Cheap Filter receipt or Playbooks policy evaluation without also
 constructing its own provenance assertions.
 
@@ -304,7 +305,7 @@ pure Gateway `allow` remains only a decision object. The ingress seam must not c
 `GatewayEngine`, write an audit record, create an approval grant, invoke a provider/model,
 dispatch a tool, or cause a network/process/filesystem effect.
 
-### Review-candidate API, evidence, and non-claims
+### Source API, evidence, and non-claims
 
 The additive module remains absent from the package root and every discovery/CLI registry:
 
@@ -327,9 +328,9 @@ assert outcome.dispatch_performed is False
 ```
 
 `advisory_ingress_v1_json_schemas()` returns the three closed ingress models. The sanitized
-`advisory_ingress_v1_api_sha256()` commitment for this review head is
+`advisory_ingress_v1_api_sha256()` commitment is
 `a9899c60f6af11018099ab9d6eee60e08e8833aa0e9f050e5eedbdd448fa43c7`.
-Synthetic regression tests prove strict Filter/Playbooks representation validation;
+Synthetic regression tests check strict Filter/Playbooks representation validation;
 dynamic byte-bound result commitment; static profile authority; semantic-label mismatch
 rejection; malformed, authority-bearing, session-drift, and replay rejection before
 connector invocation; benign admission; exact next-state/receipt linkage; pure Gateway
@@ -341,16 +342,16 @@ production safety boundary, policy completeness proof, approval system, sandbox,
 execution path. It does not establish the real-world correctness of a Filter or Playbooks
 result and does not make either companion an authority source.
 
-## External Playbooks receipt-pair ingress: docs-only candidate
+## External Playbooks receipt-pair ingress
 
-This section defines a separate future consumer for one unchanged external Playbooks
+This section defines the separate consumer for one unchanged external Playbooks
 input/output pair. It does not widen the `PolicyPackEvaluationV1` path above and does not
 reinterpret an external receipt as that internal Harness model. The external output schema
 `llm-safety-policy-evaluation-receipt-v1.0` and the internal schema
 `harness-policy-pack-evaluation-v1.0` have different fields, identity domains, and byte
 rules; stripping the external final line feed would not make them interchangeable.
 
-The candidate boundary is additive and explicit-call only:
+The boundary is additive and explicit-call only:
 
 ```text
 exact external input receipt bytes + exact external output receipt bytes
@@ -372,9 +373,10 @@ budget, role, principal, token, endpoint, executor, approval, route, dispatch, o
 ### Reviewed profile pins
 
 The first profile is closed over the following reviewed source snapshot and artifacts.
-These values identify the candidate contract; they are not a statement that a later
-remote head, release, or installed distribution is byte-equal. A source implementation
-must independently reverify every pin before using this profile.
+These values identify the supported contract; they are not a statement that a later
+remote head, release, or installed distribution is byte-equal. The profile rejects pin
+overrides. The operator must independently verify producer artifacts before using it;
+the consumer does not fetch or authenticate source code at runtime.
 
 | Profile subject | Exact required value |
 |---|---|
@@ -400,7 +402,7 @@ matched as data against the pinned rule table and is never opened as an instruct
 
 ### Exact pair bytes and identities
 
-The future API accepts two `bytes` values and one exact selected profile. For a decoded
+The API accepts two `bytes` values and one exact selected profile. For a decoded
 object `x`, define `C(x)` as Python UTF-8 JSON with sorted keys, compact separators,
 `ensure_ascii=False`, `allow_nan=False`, and no final line feed. Each accepted wire value
 is exactly `C(x) || 0x0a`: one final LF byte, with no BOM, CRLF, trailing space, second LF,
@@ -462,6 +464,10 @@ root and each rule result, plus `raw_content_included=false` and
 `digest_is_authentication=false` in the input. Unknown or authority-shaped fields are
 rejected at every depth.
 
+This first profile accepts only `source_class=synthetic_fixture`, matching the derived
+advisory evidence class. Other producer source classes are rejected, not silently relabeled
+as synthetic. Supporting them needs a separately reviewed profile/evidence contract.
+
 An admitted pair is projected into the existing advisory path with code-owned fields and
 `SHA256(O)`. It is never converted into a fabricated `PolicyPackEvaluationV1`. The
 existing pure Gateway evaluator may be reached only after the external pair and advisory
@@ -486,9 +492,9 @@ parser, mapping, or policy.
 
 | Ordered gate | Typed reasons | Advisory connector / Gateway calls |
 |---|---|---:|
-| trusted configuration and selection | `configuration_invalid`, `profile_identity_mismatch`, `source_pin_mismatch`, `contract_pin_mismatch`, `session_identity_mismatch`, `sequence_mismatch`, `replay_history_full` | 0 / 0 |
+| trusted configuration and selection | trusted model/pin misuse raises `ExternalPlaybooksIngressError` or construction-time validation error; selection returns `profile_identity_mismatch`, `session_identity_mismatch`, `sequence_mismatch`, `replay_history_full` | 0 / 0 |
 | previously consumed exact output | `source_result_replay` | 0 / 0 |
-| bounded input/output byte and parser boundary | `input_type_invalid`, `input_empty`, `input_oversized`, `output_type_invalid`, `output_empty`, `output_oversized`, `malformed_utf8`, `duplicate_json_key`, `malformed_json`, `root_type_invalid`, `input_bounds_invalid`, `noncanonical_json` | 0 / 0 |
+| bounded input/output byte and parser boundary | `input_type_invalid`, `input_empty`, `input_oversized`, `output_type_invalid`, `output_empty`, `output_oversized`, `malformed_utf8`, `bom_forbidden`, `duplicate_json_key`, `malformed_json`, `root_type_invalid`, `input_bounds_invalid`, `noncanonical_json` | 0 / 0 |
 | closed schemas and authority | `external_schema_invalid`, `authority_claim_forbidden` | 0 / 0 |
 | receipt/input/subject/pack/rule correspondence | `receipt_identity_mismatch`, `input_output_binding_mismatch`, `subject_binding_mismatch`, `pack_binding_mismatch`, `rule_binding_mismatch`, `semantic_accounting_mismatch` | 0 / 0 |
 | profile-owned semantic mapping | `source_semantic_label_mismatch` | 0 / 0 |
@@ -500,15 +506,16 @@ incorrect sequence would test only `sequence_mismatch`.
 
 ### Public-synthetic vectors and evidence metrics
 
-`DP002-PB-EXT-01` is the proposed positive `challenge` vector. Its input begins only after
-the committed mixed-signals artifact passes the exact hash in the profile table. The seven
-source-declared states contain three non-`absent` results. Its canonical output must be
-generated by the exact pinned producer implementation during a separately authorized
-fixture-generation step; it must not be hand-assembled or substituted with an internal
-Harness payload. The expected output and receipt digests are `NOT_MEASURED` in this docs
-contract and must not be invented.
+`DP002-PB-EXT-01` is the positive `challenge` vector. Its input matches the exact hash in
+the profile table; the seven source-declared states contain three non-`absent` results.
+The committed content-free [regression manifest](../tests/fixtures/external-playbooks-ingress-v1/manifest.json)
+pins the two public-synthetic input/output byte pairs. The source suite independently
+constructs these deterministic records and checks their exact hashes. It never imports
+or runs an external producer, and therefore does not establish producer execution or
+package/runtime equivalence. That separate claim requires a fresh exact-source Lab run;
+an internal `PolicyPackEvaluationV1` must never be substituted for these wire records.
 
-A benign twin uses the same pinned source factory with all seven states `absent`, a fixed
+A benign twin uses the same declared wire contract with all seven states `absent`, a fixed
 public-synthetic subject commitment, and a separately selected `observe` profile. These
 two vectors test deterministic correspondence and mapping, not classifier quality.
 
@@ -518,34 +525,51 @@ summary with recomputed self-id; authority fields; profile/session selection; an
 output replay against returned state. Each vector preserves all earlier preconditions so
 its designated typed rejection cannot be masked by canonicality or sequence failure.
 
-The later source-owned suite must record, per vector, content-free counts for
-`started`/`completed`/`error` at build, encode, evaluate, decode, external validation,
-ingress, connector, and Gateway stages; exact commitments; reached stage; actual and
-expected typed reason; next-state equality; and replay consumed-set delta. Positive cases
+The source-owned suite checks exact commitments, reached stage, actual and expected typed
+reason, next-state linkage, and replay consumed-set delta. Positive cases
 must each admit the exact pair, bind the actual bytes, select the fixed mapping, and call
 the pure Gateway evaluator exactly once. Negative cases must reach their designated reason,
 make zero connector/Gateway calls where required, and leave state unchanged. Missing
 telemetry, unexpected exceptions, or skipped controls are not passing evidence.
 
-All process, network, out-of-sandbox-write, model, provider, endpoint, tool, dispatch,
-authority-expansion, and actual-effect counters remain zero. An independent checker must
-compare recorded commitments and typed stages with preregistered expectations and detect a
-sentinel Gateway reach on every negative control; it must not merely accept self-reported
-booleans.
+Negative tests install downstream sentinels rather than trusting self-reported booleans.
+A fresh-interpreter passive-import test denies process/network/write attempts before
+effects. Tests also cover wrong root-field types, invalid Unicode, oversized keys, depth,
+history capacity, and non-synthetic evidence-class rejection. These checks are finite
+regressions, not a sandbox or universal proof. A separate producer campaign must account
+every invocation and effect independently; its raw content does not belong in this repo.
 
-This section is a documentation and evidence contract only. It adds no API, validator,
-fixture, schema, package bridge, companion execution, release behavior, or default Harness
-behavior. A later source task is eligible only after this exact docs head is green and an
-owner separately authorizes implementation. Its proposed maximum scope is one additive
-`external_playbooks_ingress.py` module, synthetic tests/fixtures, closed generated schemas
-if required, and matching documentation. Any need to change `PolicyPackEvaluationV1`,
-Playbooks, `GatewayEngine`, CLI/runtime paths, dependencies, extras, workflows, audit or
-dispatch semantics, or legacy canonical bytes exceeds this contract and requires a new
-owner decision.
+### Explicit external ingress API
 
-## Future conformance vectors and metrics
+```python
+from agentic_security_harness.external_playbooks_ingress import (
+    ingest_external_playbooks_pair_v1,
+)
 
-All future fixtures are synthetic and sanitized. No retained Filter/Playbooks payload,
+outcome = ingest_external_playbooks_pair_v1(
+    application_owned_external_profile,
+    selected_profile_id=application_owned_external_profile.profile_id,
+    selected_profile_version=application_owned_external_profile.profile_version,
+    selected_subject_sha256=expected_synthetic_subject_commitment,
+    selected_session_sha256=application_session_commitment,
+    sequence=application_replay_state.next_sequence,
+    replay_state=application_replay_state,
+    input_payload=exact_external_input_bytes,
+    output_payload=exact_external_output_bytes,
+    gateway_policy=existing_gateway_policy,
+)
+assert outcome.dispatch_performed is False
+```
+
+`external_playbooks_ingress_v1_json_schemas()` exposes the two closed models;
+`external_playbooks_ingress_v1_api_sha256()` commits to those schemas and fixed source/rule
+pins. This is an API-shape commitment, not a digest of all implementation behavior.
+No `PolicyPackEvaluationV1`, Playbooks source, `GatewayEngine`, CLI/runtime path,
+dependency, extra, workflow, audit/dispatch semantic, or legacy canonical byte changes.
+
+## Conformance vectors and metrics
+
+All fixtures are synthetic and sanitized. No retained private Filter/Playbooks payload,
 provider response, model output, credential, endpoint, or Lab trace belongs in Git.
 
 ### Negative controls
@@ -591,16 +615,14 @@ production safety, or real-world false-positive/false-negative measurements.
 
 ## Ownership and source-impact threshold
 
-The public connector contract and any future implementation are owned by
+The public connector contract and implementation are owned by
 `https://github.com/krivonosoff161/agentic-security-harness`. Cheap Filter and Playbooks
 own their source contracts and advisory results only; they do not own Harness capability
 mapping, Gateway policy, or execution authority. Package availability and exact version
 binding are supply-chain evidence, not a runtime trust grant.
 
-The next code phase is eligible only after this docs PR has terminal exact-head checks and
-a separate owner decision. Its maximum expected source scope is one additive adapter
-module, generated closed schemas/manifest, explicit exports if required, synthetic tests,
-and matching documentation. Existing Quarantine, Runtime Gateway, Policy Pack, receipt
+This source increment is limited to additive adapter modules, a content-free fixture
+manifest, synthetic tests, and matching documentation. Existing Quarantine, Runtime Gateway, Policy Pack, receipt
 auditor, controlled-local, provider-tool, CLI, extras, dependency, and workflow behavior
 must remain unchanged.
 
@@ -615,5 +637,5 @@ This is a public reference integration seam, not a production firewall, live Che
 or Playbooks execution path, semantic truth detector, source authenticator, provider/model
 adapter, policy completeness proof, approval system, sandbox, or dispatch control. It does
 not prove that an advisory is correct or safe, that a mapped capability should be allowed,
-or that downstream code is safe. The stacked review candidate changes no default Harness
-behavior and has no effect on released `main` until a separate owner-authorized merge.
+or that downstream code is safe. These source APIs change no default Harness behavior;
+their presence in a checkout does not change published v1.4.0 artifacts.

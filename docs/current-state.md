@@ -17,6 +17,12 @@ current ecosystem product roadmap. Operational authority remains `none`.
 
 ## One-line status
 
+Source-only increment (2026-09-20): the opt-in
+[advisory-to-Gateway connector and ingress APIs](advisory-gateway-connector.md) accept
+strict advisory/source receipts, including exact-pinned external Playbooks synthetic
+receipt pairs. They end at a pure Gateway decision with no dispatch or automatic companion
+activation. They are not included in the published v1.4.0 artifacts described below.
+
 Agentic Security Harness is a **published v1.4.0 public defensive benchmark/toolkit**: a working
 trace-first defensive benchmark for agentic AI boundary failures with committed
 deterministic examples, bounded local-swarm evidence, evidence-campaign metrics, and

@@ -266,8 +266,8 @@ class AdvisoryIngressOutcomeV1(BaseModel):
             raise ValueError("admitted ingress requires complete source and transition links")
         if not self.connector_invoked:
             raise ValueError("admitted ingress requires exactly one connector invocation")
-        assert self.connector_outcome is not None
-        assert self.next_replay_state is not None
+        if self.connector_outcome is None or self.next_replay_state is None:
+            raise ValueError("admitted ingress requires complete source and transition links")
         if self.connector_outcome_sha256 != self.connector_outcome.sha256():
             raise ValueError("connector outcome commitment drifted")
         if self.gateway_evaluated != self.connector_outcome.gateway_evaluated:
