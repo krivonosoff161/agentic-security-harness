@@ -1,0 +1,46 @@
+{
+  "contract_digest": "f298e0821bce39a439c51fd5af7967910cf8490c3f04170be61c4d2d57579412",
+  "authority_expansion_expected": 0,
+  "external_evaluator_call_budget": 2,
+  "gateway_evaluation_budget": 2,
+  "harness_source_binding": "exact_pr_head_required_at_lab_handoff",
+  "negative_controls": [
+    "authority_claim_forbidden",
+    "duplicate_json_key",
+    "external_schema_invalid",
+    "input_output_binding_mismatch",
+    "noncanonical_json",
+    "pack_binding_mismatch",
+    "profile_identity_mismatch",
+    "receipt_identity_mismatch",
+    "rule_binding_mismatch",
+    "semantic_accounting_mismatch",
+    "sequence_mismatch",
+    "session_identity_mismatch",
+    "source_result_replay",
+    "source_semantic_label_mismatch",
+    "subject_binding_mismatch"
+  ],
+  "negative_gateway_evaluations_expected": 0,
+  "network_process_write_attempts_expected": 0,
+  "operational_authority": "none",
+  "playbooks_source_commit": "190769a15a44f5a5af790b33fc37724e6417c27f",
+  "playbooks_source_tree": "e3a5601a779c8b2e2f92516da30cf2750d320b5b",
+  "producer_runtime_equivalence": "pending_fresh_lab_regression",
+  "raw_content_included": false,
+  "schema_version": "AgenticSecurityHarnessExternalPlaybooksRegressionManifest.v1",
+  "vectors": [
+    {
+      "expected_disposition": "challenge",
+      "input_bytes_sha256": "21373b3b151b451baf8b71ab0a9dd9f8303e9ab6239301b59046dfec2b087040",
+      "output_bytes_sha256": "d92ccf115533f64443800ef5bf01ad1843c6a95c59929b3f82dc523d9cf0b61a",
+      "vector_id": "DP002-PB-EXT-01"
+    },
+    {
+      "expected_disposition": "observe",
+      "input_bytes_sha256": "bc15086ae75e743c41f0d30d7cce36d5ff7dfb0a71472099b4eea0f168d98da6",
+      "output_bytes_sha256": "f44c417e942160fe44994ddbf54b884a3c4668ed19d7ad249735f2ae9a5c8627",
+      "vector_id": "DP002-PB-EXT-OBSERVE-01"
+    }
+  ]
+}

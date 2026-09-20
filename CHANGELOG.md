@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- Added opt-in advisory-to-Gateway composition and strict source-result ingress APIs,
+  with caller-owned capability mapping, immutable replay transitions, and pure Gateway
+  decisions only. No automatic companion activation, audit write, or dispatch is added.
+- Added exact-pinned external Playbooks synthetic receipt-pair validation with separate
+  input/output identity, subject, pack, rule, semantic-accounting, and replay checks.
+  Malformed JSON types and Unicode produce typed refusals before downstream evaluation.
+  These source additions are not part of the published v1.4.0 artifacts.
+
 ## [1.4.0] - 2026-08-29
 
 ### Added
