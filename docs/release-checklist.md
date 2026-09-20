@@ -13,7 +13,10 @@ approval, binding, configuration, invocation, or activation authority. The expli
 Quarantine/advisory/source-result ingress APIs were published in `v1.5.0` on 2026-09-20;
 [its evidence](releases/v1.5.0.md#publication-evidence) records the immutable subjects,
 successful cross-platform read-only verification, and the retained initial install
-failure. No upload was repeated. This checklist remains the required
+failure. The [v1.5.1 patch](releases/v1.5.1.md#publication-evidence) published on the same
+date adds the Gateway lookup-key type guard, Router 0.2.1 and scoped dependency updates;
+its separate staging and full cross-platform read-only checks passed. No upload was
+repeated. This checklist remains the required
 procedure for subsequent releases. The broader readiness map is
 [v1-readiness.md](v1-readiness.md).
 

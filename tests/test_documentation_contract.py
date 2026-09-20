@@ -1189,7 +1189,7 @@ def test_artifact_authenticity_design_separates_trust_domains_and_non_claims() -
     assert "slsa.dev/spec/v1.0" not in design
     assert "artifact-authenticity-design.md" in project_map
     assert "Historical releases and examples remain unsigned" in current_state
-    assert "v1.5.0 released with verified provenance" in current_state
+    assert "v1.5.1 released with verified provenance" in current_state
     assert "retained `v0.15.0` tag is transparent failed-gate evidence" in current_state
     assert "authentication_state=unverified" in _read("docs/evidence-classes.md")
     assert "precision/recall claims are forbidden" in _read("docs/benchmark-semantics.md")
@@ -1307,3 +1307,30 @@ def test_v15_publication_docs_preserve_exact_evidence_and_failed_run_history() -
         text = " ".join(_read(path).split())
         assert "published in Harness `v1.5.0`" in text
         assert "releases/v1.5.0.md" in text
+
+
+def test_v151_publication_docs_bind_current_release_and_preserve_failures() -> None:
+    for path in (
+        "README.md", "docs/current-state.md", "docs/project-tracker.md",
+        "docs/release-to-pypi.md", "docs/releases/v1.5.1.md",
+    ):
+        text = _read(path)
+        assert "1.5.1" in text
+        assert "35516400380" in text
+    notes = " ".join(_read("docs/releases/v1.5.1.md").split())
+    for marker in (
+        "86b15716a57d5ffc6a85ebb408d62da0559d4ab7",
+        "36d02d9ebd5b1ac0280e5b9d07befe6439f051ab82924c61ff4550ec77001f84",
+        "0f5a78ef3911e0cbbc4e1ea4897802e3a46c059a62c173d87181b39490dd04d8",
+        "35514377652", "35515454773", "35516245065",
+        "overall workflow remains failed", "No upload was repeated",
+        "not activation or execution", "None of these checks certifies production safety",
+    ):
+        assert marker in notes
+    readme = _read("README.md")
+    assert "public_research_release-v1.5.1-blue" in readme
+    assert "agentic-security-harness==1.5.1" in readme
+    assert "agentic-security-harness[all]==1.5.1" in readme
+    assert "agentic-llm-router==0.2.1" in readme
+    assert "agentic-llm-router==0.2.0" not in readme
+    assert "source tree prepares" not in readme

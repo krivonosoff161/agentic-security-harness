@@ -42,6 +42,11 @@ These explicit pure APIs stop before dispatch. [Release notes](releases/v1.5.0.m
 the attested source, matching package indexes and successful cross-platform read-only
 verification; source merge alone is still not publication or deployment evidence.
 
+Published [v1.5.1](releases/v1.5.1.md) adds the minimal non-string lookup-key refusal,
+Router 0.2.1 passive-import repair binding and scoped dependency updates. Its exact
+release subjects passed both indexes and the Linux/Windows read-only install matrix.
+This maintenance release does not close the independent review or real-provider gaps.
+
 ---
 
 ## Done
