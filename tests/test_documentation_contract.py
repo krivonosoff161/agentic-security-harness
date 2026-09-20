@@ -1189,7 +1189,7 @@ def test_artifact_authenticity_design_separates_trust_domains_and_non_claims() -
     assert "slsa.dev/spec/v1.0" not in design
     assert "artifact-authenticity-design.md" in project_map
     assert "Historical releases and examples remain unsigned" in current_state
-    assert "v1.4.0 released with verified provenance" in current_state
+    assert "v1.5.0 released with verified provenance" in current_state
     assert "retained `v0.15.0` tag is transparent failed-gate evidence" in current_state
     assert "authentication_state=unverified" in _read("docs/evidence-classes.md")
     assert "precision/recall claims are forbidden" in _read("docs/benchmark-semantics.md")
@@ -1279,3 +1279,31 @@ def test_published_v13_feature_docs_do_not_regress_to_unreleased_v12_status() ->
     assert "Harness `v1.4.0` now publishes passive extras" in companion
     assert "install the exact companion distributions from PyPI" in companion
     assert "do not auto-discover, approve, bind, or execute installed packages" in companion
+
+
+def test_v15_publication_docs_preserve_exact_evidence_and_failed_run_history() -> None:
+    for path in (
+        "README.md",
+        "docs/current-state.md",
+        "docs/project-tracker.md",
+        "docs/release-to-pypi.md",
+        "docs/releases/v1.5.0.md",
+    ):
+        text = _read(path)
+        assert "1.5.0" in text
+        assert "35507083204" in text
+
+    notes = " ".join(_read("docs/releases/v1.5.0.md").split())
+    assert "17d7eac54782301d31cb9a80f6200df1c4b6e781" in notes
+    assert "4512f7955335b103f902b17099f5c086451b2f702822675d8d039f66875234b2" in notes
+    assert "38e20c148d6fa9b16ec357af2059edc2628e37ff5664921b9549c30b32d7d047" in notes
+    assert "35506988669" in notes
+    assert "overall workflow remains failed" in notes
+    assert "No upload was repeated" in notes
+    assert "not activation or execution" in notes
+    assert "None of these checks certifies production safety" in notes
+
+    for path in ("docs/quarantine-connector.md", "docs/advisory-gateway-connector.md"):
+        text = " ".join(_read(path).split())
+        assert "published in Harness `v1.5.0`" in text
+        assert "releases/v1.5.0.md" in text

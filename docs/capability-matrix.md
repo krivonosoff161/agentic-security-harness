@@ -48,7 +48,18 @@ the topology page is the methodology map.
 | Runtime Gateway synthetic contour | Exercising pre-dispatch allow/deny/approval decisions, OpenAI-compatible integration shape, a bounded stateless MCP 2026-07-28 subset, strict HTTP/header parsing, safe audit, dashboard, and container operation. | No live provider, credential broker, arbitrary tool, full MCP extension/SDK conformance, authenticated approval, production IAM, deployment, certification, or security guarantee. |
 | Offline provider tool-envelope normalization | Converting retained OpenAI Responses, Anthropic Messages, Google Interactions, and MCP tool calls into the same closed gateway policy without SDK or credential access. | No provider transport, streaming, producer authentication, arbitrary tool execution, or full provider/MCP conformance. |
 
-## Notes
+## Explicit pure APIs published in v1.5.0
+
+The [Quarantine Connector](quarantine-connector.md) and
+[advisory/source-result/external Playbooks ingress](advisory-gateway-connector.md)
+are direct-call Python boundaries, not CLI modes. They evaluate public or caller-owned
+bytes under explicit profiles and may end at the existing pure Gateway policy decision.
+They do not call models/providers, activate companion packages, write audit state,
+dispatch tools or create action authority. Admission, policy decision and execution
+remain separate. [Release evidence](releases/v1.5.0.md) establishes bounded package
+availability and compatibility, not a production safety certificate.
+
+## Mode notes
 
 - "Corpus scope" full = all 24 patterns in one pass; subset = the patterns in the chosen
   scenario (see `ash scenarios --verbose`).

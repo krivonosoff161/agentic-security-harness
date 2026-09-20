@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/package_source-v1.5.0-blue)
+![Status](https://img.shields.io/badge/public_research_release-v1.5.0-blue)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -83,13 +83,12 @@ facts. The Harness generates only the cross-project roadmap and compatibility vi
 - [Documentation crosswalk](docs/documentation-map.md)
 - [`component.yaml`](component.yaml) and [`ecosystem/roadmap.yaml`](ecosystem/roadmap.yaml)
 
-Runtime Guard remains private and `contract_only`. Harness package source `v1.4.0`
+Runtime Guard remains private and `contract_only`. Harness release `v1.5.0`
 contains the closed [Extension SDK V1](docs/extension-sdk.md) and public passive extras for
 validated observation-to-finding dataflow. It does not auto-load installed packages;
 companion repositories remain optional, separately versioned distributions.
 
-Package source `v1.4.0` defines closed optional-dependency groups for the installable
-public module set:
+Release `v1.5.0` retains the closed optional-dependency groups introduced in `v1.4.0`:
 
 | Extra | Exact companion distributions | Automatic activation |
 |---|---|---|
@@ -104,9 +103,9 @@ The generic PyPI coordinate `llm-router` is intentionally absent because it belo
 another project. CI builds all eight exact wheels from pinned Git SHAs and installs the
 closed local wheelhouse without loading either extension entry point. The public install
 commands are
-`pip install "agentic-security-harness[router]==1.4.0"` or
-`pip install "agentic-security-harness[all]==1.4.0"`. Both commands were verified in
-fresh isolated environments against PyPI only.
+`pip install "agentic-security-harness[router]==1.5.0"` or
+`pip install "agentic-security-harness[all]==1.5.0"`. Exact companion pins are unchanged;
+installation remains separate from module activation.
 
 The published [Corpus Pack SDK V1](docs/corpus-pack-sdk.md) adds a separate,
 canonical registry for optional namespaced boundary-invariant metadata. It preserves the
@@ -353,19 +352,21 @@ approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install the
 
 ## Release and package status
 
-Package source `v1.5.0` is configured for the repository's tag-only attested release and
-OIDC promotion workflows. Availability is established only by the exact
-[PyPI project history](https://pypi.org/project/agentic-security-harness/#history) and
-[GitHub Releases](https://github.com/krivonosoff161/agentic-security-harness/releases),
-not by source metadata alone. Publication makes the bounded core and selected passive
+Release `v1.5.0` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.5.0/) and
+[GitHub Releases](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.5.0).
+[Published-release verification](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35507083204)
+passed exact-subject provenance/index checks and clean Linux/Python 3.11-3.13 plus
+Windows/Python 3.11 installation. Publication makes the bounded core and selected passive
 distributions installable; it is not automatic activation, production deployment,
 enforcement, provider authority, or security certification.
 
-The [v1.5.0 release source](docs/releases/v1.5.0.md) adds explicit Quarantine and
+The [v1.5.0 release](docs/releases/v1.5.0.md) adds explicit Quarantine and
 advisory-to-Gateway composition plus exact-pinned external Playbooks receipt ingress.
 These pure APIs stop at a Gateway decision: they do not dispatch, activate companions,
-authenticate producers or infer safe model intent. Historical v1.4.0 installation
-evidence above remains scoped to that version until new publication checks complete.
+authenticate producers or infer safe model intent. The release notes retain the initial
+Linux 3.12 index-availability failure and the successful read-only recovery evidence;
+the published package was not rebuilt or uploaded again.
 
 - [Release checklist](docs/release-checklist.md)
 - [PyPI release process](docs/release-to-pypi.md)

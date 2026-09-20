@@ -6,27 +6,26 @@ repository's `component.yaml`. The older `2026.08.02-r4-trajectory-containment` 
 Portfolio projection remains preserved as historical research evidence; it is not the
 current ecosystem product roadmap. Operational authority remains `none`.
 
-> Last reviewed: 2026-08-30 against exact released Harness commit
-> `31c1f290f724298e5674a581c0699e6718b89285`, merged Security Portfolio projection
+> Last reviewed: 2026-09-20 against exact released Harness commit
+> `17d7eac54782301d31cb9a80f6200df1c4b6e781`, merged Security Portfolio projection
 > `2026.08.02-r4-trajectory-containment`, the historical `v1.0.0` release commit
-> `71295922b8053a188431d0f510f1e9146435c742`, and verified published release `v1.4.0`.
+> `71295922b8053a188431d0f510f1e9146435c742`, and verified published release `v1.5.0`.
 >
-> Scope: public status of `agentic-security-harness` and published release `1.4.0`.
+> Scope: public status of `agentic-security-harness` and published release `1.5.0`.
 > This page is a reviewer-facing status
 > snapshot, not a roadmap promise or publication claim.
 
 ## One-line status
 
-Release-source increment v1.5.0 (2026-09-20): the opt-in
+Published increment v1.5.0 (2026-09-20): the opt-in
 [advisory-to-Gateway connector and ingress APIs](advisory-gateway-connector.md) accept
 strict advisory/source receipts, including exact-pinned external Playbooks synthetic
 receipt pairs. They end at a pure Gateway decision with no dispatch or automatic companion
-activation. They are not included in the published v1.4.0 artifacts described below.
-The [v1.5.0 release source](releases/v1.5.0.md) also includes the opt-in Quarantine
-Connector and its pure Gateway composition. Until publication evidence is recorded,
-v1.4.0 remains the verified published baseline; version metadata is not publication proof.
+activation. The [v1.5.0 release](releases/v1.5.0.md) also includes the opt-in Quarantine
+Connector and its pure Gateway composition. Exact-subject publication and clean-install
+evidence is linked below; old v1.4.0 artifacts remain unchanged.
 
-Agentic Security Harness is a **published v1.4.0 public defensive benchmark/toolkit**: a working
+Agentic Security Harness is a **published v1.5.0 public defensive benchmark/toolkit**: a working
 trace-first defensive benchmark for agentic AI boundary failures with committed
 deterministic examples, bounded local-swarm evidence, evidence-campaign metrics, and
 sanitized local-model semantic-drift / propagation probes, plus a bounded local Runtime
@@ -51,7 +50,7 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 
 | Area | Status | Evidence |
 |---|---|---|
-| Package identity | v1.4.0 published to PyPI, TestPyPI, and GitHub Releases | Exact tag `v1.4.0` resolves to `31c1f290f724298e5674a581c0699e6718b89285`. Release run `33272847060` built and attested the closed wheel/sdist/SBOM/checksum set; TestPyPI run `33273085435`, PyPI run `33273173580`, and read-only verification run `33273274087` confirmed matching subjects and clean installed-package validation. |
+| Package identity | v1.5.0 published to PyPI, TestPyPI, and GitHub Releases | Exact tag `v1.5.0` resolves to `17d7eac54782301d31cb9a80f6200df1c4b6e781`. Release run `35500105440` built and attested the closed subjects; TestPyPI run `35500298708` passed. PyPI upload in `35506988669` succeeded, but its initial Linux 3.12 pip lookup did not yet find the version. Read-only verification `35507083204` passed all six jobs, including exact index hashes and the complete Linux/Windows matrix, without republishing. |
 | Passive companion extras | Published in v1.4.0 | `transfer`, `handoff`, `playbooks`, `router`, `filter`, and `all` resolve exact public package versions from PyPI. Fresh PyPI-only resolver smokes passed for each extra and `all`; installation does not discover, approve, bind, configure, invoke, or activate modules. Runtime Guard remains private and absent. |
 | Local deterministic corpus | Shipped stable v1 contract | Corpus 1.0.0 freezes 24 ordered sanitized seed ids and fields in a closed committed manifest/schema; new traces bind its canonical semantic digest. |
 | Local targets | Shipped | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, `protected-toy-multi-agent`. |
@@ -104,11 +103,12 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 | Evidence pack format | Shipped docs slice | `docs/evidence-pack-format.md` defines how future local research becomes sanitized public evidence with private/public boundaries, hashes, claim rows, tests, and validation commands. |
 | Local real-model swarm probes | Unverified maintainer declaration | Historical documentation declares two full 15-scenario runs and complete hash-field coverage. No versioned public result projection or reconciliation receipt is present, so the repository cannot verify that the runs occurred or bind the aggregates to retained bytes. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
-| Public project process | v1.4.0 released with verified provenance | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, and a tag-only release workflow bind tag/package/CHANGELOG version and rerun the repository gates. The release workflow reproducibly builds and smoke-installs wheel/sdist subjects, publishes checksums plus an exact-subject CycloneDX SBOM, creates GitHub/Sigstore attestations, and independently verifies repository/workflow/tag/source/builder/predicate policy. The retained `v0.15.0` tag is transparent failed-gate evidence and has no GitHub Release. |
+| Public project process | v1.5.0 released with verified provenance | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, and a tag-only release workflow bind tag/package/CHANGELOG version and rerun the repository gates. The release workflow reproducibly builds and smoke-installs wheel/sdist subjects, publishes checksums plus an exact-subject CycloneDX SBOM, creates GitHub/Sigstore attestations, and independently verifies repository/workflow/tag/source/builder/predicate policy. The retained `v0.15.0` tag is transparent failed-gate evidence and has no GitHub Release. |
 | Container definitions | Shipped source definitions; images unpublished | The root Dockerfile packages the source-layout CLI and runs the offline doctor as a non-root user. `Dockerfile.gateway` and `compose.gateway.yml` build the synthetic gateway locally with loopback-only publication, read-only root filesystem, dropped capabilities, and no-new-privileges. The fail-closed `.dockerignore` excludes local/private descendants. No public image is published and the source definitions do not attest production network isolation. |
 | Runtime Guard product foundation | Shipped bounded executable specification | Metadata-only action, capability, consent, handoff, provider, budget, decision, and evidence contracts plus a pure deterministic evaluator and synthetic adversarial tests were merged through PR #162. No proxy, executor, credential broker, durable ledger, IAM integration, deployment, or production protection is shipped. |
 | Runtime Gateway local synthetic contour | Shipped in v1.2.0 | A loopback-first HTTP service applies a closed pre-dispatch policy to two deterministic synthetic tools, exposes bounded OpenAI-compatible and stateless MCP 2026-07-28 endpoints, writes a privacy-minimized single-writer hash-chain audit, and normalizes four retained provider/tool envelope families through the same policy. Docker Compose publishes host loopback only. It has no live provider transport, real credential path, arbitrary executor, authenticated approval service, IAM, production deployment, independent effectiveness evidence, or operational authority. See [runtime-gateway.md](runtime-gateway.md) and [provider-tool-adapters.md](provider-tool-adapters.md). |
-| Quarantine Connector and non-executing Gateway composition V1 | Source candidate; not in published v1.4.0 | Additive explicit-profile canonical-JSON admission accepts bounded untrusted bytes and returns `admit`/`reject`/`inconclusive`. A separate opt-in composition may pass an admitted capability request to the existing pure Gateway policy evaluator and returns only digest-linked admission and decision identities; it never calls the engine, writes audit state, or dispatches. The source APIs have no transport, provider/model call, discovery, activation, CLI, durable receipt, or production integration. `admit` is not Gateway `allow`, and Gateway `allow` is not tool execution. See [quarantine-connector.md](quarantine-connector.md). |
+| Quarantine Connector and non-executing Gateway composition V1 | Published in v1.5.0; explicit opt-in API | Additive explicit-profile canonical-JSON admission accepts bounded untrusted bytes and returns `admit`/`reject`/`inconclusive`. A separate opt-in composition may pass an admitted capability request to the existing pure Gateway policy evaluator and returns only digest-linked admission and decision identities; it never calls the engine, writes audit state, or dispatches. The source APIs have no transport, provider/model call, discovery, activation, CLI, durable receipt, or production integration. `admit` is not Gateway `allow`, and Gateway `allow` is not tool execution. See [quarantine-connector.md](quarantine-connector.md). |
+| Advisory/source-result/external Playbooks receipt ingress | Published in v1.5.0; explicit opt-in API | Exact-pinned synthetic receipts, caller-owned capability mapping and immutable replay transitions end at a pure Gateway decision. No automatic companion activation, producer authentication, audit write or dispatch. See [advisory-gateway-connector.md](advisory-gateway-connector.md). |
 | Runtime Guard R5 sealed synthetic research | Terminal `FAIL`; sanitized public projection | One frozen common-control run reached `PRECOMMITTED` -> `CONSUMED` -> `COMPLETED` and failed three preregistered gates: recall lower index, counterfactual pre-effect lower index, and balanced accuracy. The public validator recomputes the aggregate statistics and receipt bindings; private cases, labels, seeds, keys, ledger, and custody remain outside Git. Independence, promotion, production protection, and operational authority are not claimed. See [r5-research-status.md](r5-research-status.md). |
 | Portfolio threat ontology and shadow interchange | Shipped authority-free integration contract | A provider-neutral 26-family [ontology](threat-ontology.md), explicit [provisional adjudication](scenario-adjudication-ledger.md) of 127 units from 13 enumerated executable builders, a 27-row constrained development design covering all 238 feasible factor pairs, a [unified event envelope](unified-event-envelope.md), and an authority-free shadow evaluator were merged through PR #167. The inventory is not a repository-wide total, no cross-source equivalence is asserted, the development family values are non-canonical hints rather than adjudicated labels, and the rows are not holdout evidence. The contract has no `allow` representation, receipt, executor, provider, device, deployment, or production authority. |
 

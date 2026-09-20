@@ -1,11 +1,11 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The package is published as `1.4.0` on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.4.0/). This page documents the
+The package is published as `1.5.0` on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.5.0/). This page documents the
 manual, environment-gated OIDC promotion path used for that release and required for
 future releases. See the gates in [release-checklist.md](release-checklist.md).
 
-Release `v1.4.0` completed the exact tag, attested release build, TestPyPI review,
+Release `v1.5.0` completed the exact tag, attested release build, TestPyPI review,
 separately approved PyPI promotion, and post-publication verification gates. Future
 versions must repeat those gates; repository metadata alone never authorizes publication.
 
@@ -89,6 +89,27 @@ The smoke jobs install runtime dependencies from the hash-locked runtime require
 derive the exact universal-wheel SHA-256 from the official package-index JSON response,
 and require that hash during a `--no-deps` package install. TestPyPI is not used as an
 extra dependency index.
+
+### Current published release: v1.5.0
+
+The exact source is `17d7eac54782301d31cb9a80f6200df1c4b6e781`. Release workflow
+[`35500105440`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35500105440)
+built the attested subjects; TestPyPI workflow
+[`35500298708`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35500298708)
+passed staging. Production workflow
+[`35506988669`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35506988669)
+uploaded successfully, but its initial Linux Python 3.12 install could not find version
+1.5.0 in the index. That workflow remains failed; the other three PyPI smoke jobs passed.
+Index propagation is a plausible explanation, not a proven infrastructure diagnosis.
+
+No upload was repeated. The read-only verification workflow
+[`35507083204`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35507083204)
+passed all six jobs: closed subjects/provenance/index equality, TestPyPI Linux 3.11, and
+PyPI Linux 3.11-3.13 plus Windows 3.11 clean installations and quickstarts. Both indexes
+match the wheel and sdist SHA-256 values recorded in the
+[v1.5.0 release evidence](releases/v1.5.0.md#publication-evidence).
+
+### Historical published releases
 
 For `v1.4.0`, release workflow
 [`33272847060`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/33272847060)
