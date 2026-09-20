@@ -12,7 +12,7 @@
   "companion_package_imports_at_runtime": false,
   "component_manifest": {
     "path": "component.yaml",
-    "sha256": "099d3b6dc933c3f351b7a9c7a154e662bf9e10e1a70b250904e4a0b078fb0e66"
+    "sha256": "7a71ceb1b50ffe85a7c79644808fd9fafe1f3a5e8ad5826e75167cdb52693d82"
   },
   "contract_id": "harness-policy-pack-extension-v1.0",
   "credentials_supported": false,

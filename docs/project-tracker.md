@@ -1,5 +1,13 @@
 # Project tracker
 
+## v1.5.0 release preparation
+
+[Issue #285](https://github.com/krivonosoff161/agentic-security-harness/issues/285)
+tracks the additive Quarantine/advisory Gateway API release, exact-head CI and merge,
+attested GitHub artifacts, gated TestPyPI/PyPI promotion and cross-platform installation.
+The [release source notes](releases/v1.5.0.md) are not a publication claim. The verified
+published baseline below remains v1.4.0 until the new exact-subject evidence is recorded.
+
 ## v1.4.0 published release
 
 Exact tag `v1.4.0` resolves to

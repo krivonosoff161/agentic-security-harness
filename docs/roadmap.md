@@ -36,6 +36,11 @@ published-release verification completed successfully. This ships the bounded co
 contracts; it does not bundle companion repositories or imply deployment, enforcement,
 provider authenticity, independent effectiveness, or certification.
 
+The v1.5.0 release source adds opt-in Quarantine and advisory-to-Gateway composition,
+strict source-result ingress and exact-pinned external Playbooks receipt-pair validation.
+These explicit pure APIs stop before dispatch. [Release notes](releases/v1.5.0.md) define
+the evidence gates; source merge alone does not establish package-index publication.
+
 ---
 
 ## Done
