@@ -67,12 +67,18 @@ def test_gitleaks_allowlist_contains_only_exact_historical_fingerprints() -> Non
         "7ab3f1040a863a0754a2d03b3b8362d6e3565d92:docs/r5-research-status.md:generic-api-key:54",
         "8efc46e466b5a92e8a6a0ea4e9f953cd5e4f96f4:examples/r5-sealed-synthetic-sanitized/terminal-envelope.json:generic-api-key:1",
         "8efc46e466b5a92e8a6a0ea4e9f953cd5e4f96f4:docs/r5-research-status.md:generic-api-key:54",
+        "9f922650d3c036d2675ffc5a07279bc8c00c8ff0:tests/fixtures/external-playbooks-ingress-v1/manifest.json:generic-api-key:2",
     }
     assert all(re.fullmatch(r"[0-9a-f]{40}:[^:*]+:generic-api-key:\d+", line) for line in lines)
     fresh_fingerprint = (
         "f" * 40 + ":tests/fixtures/fresh-synthetic.txt:generic-api-key:1"
     )
     assert fresh_fingerprint not in lines
+    # The public digest exception must not authorize another commit at the same path.
+    assert (
+        "f" * 40
+        + ":tests/fixtures/external-playbooks-ingress-v1/manifest.json:generic-api-key:2"
+    ) not in lines
 
 
 def test_secret_scan_is_pinned_and_does_not_publish_findings() -> None:
