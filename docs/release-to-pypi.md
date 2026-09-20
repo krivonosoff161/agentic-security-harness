@@ -1,11 +1,11 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The package is published as `1.5.0` on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.5.0/). This page documents the
+The package is published as `1.5.1` on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.5.1/). This page documents the
 manual, environment-gated OIDC promotion path used for that release and required for
 future releases. See the gates in [release-checklist.md](release-checklist.md).
 
-Release `v1.5.0` completed the exact tag, attested release build, TestPyPI review,
+Release `v1.5.1` completed the exact tag, attested release build, TestPyPI review,
 separately approved PyPI promotion, and post-publication verification gates. Future
 versions must repeat those gates; repository metadata alone never authorizes publication.
 
@@ -90,7 +90,21 @@ derive the exact universal-wheel SHA-256 from the official package-index JSON re
 and require that hash during a `--no-deps` package install. TestPyPI is not used as an
 extra dependency index.
 
-### Current published release: v1.5.0
+### Current published release: v1.5.1
+
+Exact release source is `86b15716a57d5ffc6a85ebb408d62da0559d4ab7`, built and attested
+by [35514250035](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35514250035).
+TestPyPI upload `35514377652` succeeded, but initial simple-index lookup failed before
+application execution. Read-only staging verification `35515454773` passed; the owner
+then separately approved PyPI. Production upload `35516245065` succeeded, and Linux
+3.11-3.13 smokes passed; the initial Windows lookup failed. These failed historical
+workflow results are retained, with index propagation/cache delay an inference only.
+[Read-only verification 35516400380](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35516400380)
+passed all six jobs: exact subjects/provenance/index equality, TestPyPI Linux 3.11,
+and PyPI Linux 3.11-3.13 plus Windows 3.11. No package upload or build was repeated.
+[v1.5.1 evidence](releases/v1.5.1.md#publication-evidence) records all four subject hashes.
+
+### Historical published release: v1.5.0
 
 The exact source is `17d7eac54782301d31cb9a80f6200df1c4b6e781`. Release workflow
 [`35500105440`](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35500105440)

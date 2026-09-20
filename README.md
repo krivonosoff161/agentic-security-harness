@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/public_research_release-v1.5.0-blue)
+![Status](https://img.shields.io/badge/public_research_release-v1.5.1-blue)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -20,15 +20,15 @@ validate, compare, and review.
 
 ## Quickstart
 
-The source tree prepares [v1.5.1](docs/releases/v1.5.1.md), including Router 0.2.1
-and scoped dependency updates. Until its protected publication gates complete, the
-verified public installation below remains v1.5.0; source preparation is not publication.
+Published [v1.5.1](docs/releases/v1.5.1.md) includes the Gateway lookup-key type guard,
+Router 0.2.1 and scoped dependency updates. Exact release files passed separate
+TestPyPI/PyPI verification and clean Linux/Windows installed-package checks.
 
 Install the exact package version from PyPI after confirming that the public index lists
-`1.5.0`:
+`1.5.1`:
 
 ```bash
-python -m pip install agentic-security-harness==1.5.0
+python -m pip install agentic-security-harness==1.5.1
 ash quickstart --out reports/quickstart
 ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
@@ -87,19 +87,19 @@ facts. The Harness generates only the cross-project roadmap and compatibility vi
 - [Documentation crosswalk](docs/documentation-map.md)
 - [`component.yaml`](component.yaml) and [`ecosystem/roadmap.yaml`](ecosystem/roadmap.yaml)
 
-Runtime Guard remains private and `contract_only`. Harness release `v1.5.0`
+Runtime Guard remains private and `contract_only`. Harness release `v1.5.1`
 contains the closed [Extension SDK V1](docs/extension-sdk.md) and public passive extras for
 validated observation-to-finding dataflow. It does not auto-load installed packages;
 companion repositories remain optional, separately versioned distributions.
 
-Release `v1.5.0` retains the closed optional-dependency groups introduced in `v1.4.0`:
+Release `v1.5.1` retains the closed optional-dependency groups introduced in `v1.4.0`:
 
 | Extra | Exact companion distributions | Automatic activation |
 |---|---|---|
 | `transfer` | `agentic-transfer-verifier==0.2.1`, extension `==1.0.1` | no |
 | `handoff` | `ai-agent-handoff==0.3.0`, extension `==1.0.0` | no |
 | `playbooks` | `llm-safety-playbooks==0.1.0` data-only wheel | no |
-| `router` | `agentic-llm-router==0.2.0` | no |
+| `router` | `agentic-llm-router==0.2.1` | no |
 | `filter` | `llm-cheap-filter==0.2.0` | no |
 | `all` | the exact union of the five rows | no |
 
@@ -107,13 +107,13 @@ The generic PyPI coordinate `llm-router` is intentionally absent because it belo
 another project. CI builds all eight exact wheels from pinned Git SHAs and installs the
 closed local wheelhouse without loading either extension entry point. The public install
 commands are
-`pip install "agentic-security-harness[router]==1.5.0"` or
-`pip install "agentic-security-harness[all]==1.5.0"`. Exact companion pins are unchanged;
+`pip install "agentic-security-harness[router]==1.5.1"` or
+`pip install "agentic-security-harness[all]==1.5.1"`. Other companion pins are unchanged;
 installation remains separate from module activation.
 
-The v1.5.1 source changes only the Router row to `agentic-llm-router==0.2.1` and binds
-its reviewed receipt source to the same release commit. The other companion versions
-remain unchanged. Do not use v1.5.0 installed-package evidence as proof of the new pin.
+Published Router 0.2.1 includes the lazy HTTP-client import repair; Harness binds
+its reviewed receipt source to that exact release commit. Installing the package does
+not call a provider or make the receipt an action grant.
 
 The published [Corpus Pack SDK V1](docs/corpus-pack-sdk.md) adds a separate,
 canonical registry for optional namespaced boundary-invariant metadata. It preserves the
@@ -360,10 +360,10 @@ approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install the
 
 ## Release and package status
 
-Release `v1.5.0` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.5.0/) and
-[GitHub Releases](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.5.0).
-[Published-release verification](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35507083204)
+Release `v1.5.1` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.5.1/) and
+[GitHub Releases](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.5.1).
+[Published-release verification](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35516400380)
 passed exact-subject provenance/index checks and clean Linux/Python 3.11-3.13 plus
 Windows/Python 3.11 installation. Publication makes the bounded core and selected passive
 distributions installable; it is not automatic activation, production deployment,
@@ -372,9 +372,11 @@ enforcement, provider authority, or security certification.
 The [v1.5.0 release](docs/releases/v1.5.0.md) adds explicit Quarantine and
 advisory-to-Gateway composition plus exact-pinned external Playbooks receipt ingress.
 These pure APIs stop at a Gateway decision: they do not dispatch, activate companions,
-authenticate producers or infer safe model intent. The release notes retain the initial
-Linux 3.12 index-availability failure and the successful read-only recovery evidence;
-the published package was not rebuilt or uploaded again.
+authenticate producers or infer safe model intent. The [v1.5.1 notes](docs/releases/v1.5.1.md)
+retain the initial TestPyPI and Windows PyPI index-lookup failures and successful
+read-only recovery; no published package was rebuilt or uploaded again.
+Historical v1.5.0 [verification 35507083204](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35507083204)
+and its release artifacts remain unchanged.
 
 - [Release checklist](docs/release-checklist.md)
 - [PyPI release process](docs/release-to-pypi.md)

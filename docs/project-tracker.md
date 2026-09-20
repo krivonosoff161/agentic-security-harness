@@ -1,6 +1,17 @@
 # Project tracker
 
-## v1.5.0 published release
+## v1.5.1 published release
+
+[PR #288](https://github.com/krivonosoff161/agentic-security-harness/pull/288) integrated
+the approved Gateway key-type guard, Router 0.2.1 and six scoped dependency updates;
+Dependabot PRs #277-282 closed after integration. Release source is
+`86b15716a57d5ffc6a85ebb408d62da0559d4ab7`. GitHub, TestPyPI and PyPI expose the same
+attested subjects. [Read-only verification 35516400380](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35516400380)
+passed all six jobs. The [release notes](releases/v1.5.1.md#publication-evidence) retain
+initial staging/production index-lookup failures and the separate successful recovery.
+No upload was repeated; installation is not activation or production safety.
+
+## Historical v1.5.0 published release
 
 [Issue #285](https://github.com/krivonosoff161/agentic-security-harness/issues/285)
 records the additive Quarantine/advisory Gateway API release from exact source
@@ -81,8 +92,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.5.0` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.5.0/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.5.1` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.5.1/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are
