@@ -1,7 +1,7 @@
 {
   "schema_version": "AgenticSecurityEcosystemRoadmap.v1",
   "roadmap_id": "agentic-security-ecosystem",
-  "version": "2026.08.30-public-packages",
+  "version": "2026.09.21-functional-ecosystem",
   "canonical_repository": "https://github.com/krivonosoff161/agentic-security-harness",
   "authority": "none",
   "components": [
@@ -35,6 +35,13 @@
       "status": "complete",
       "depends_on": ["extension-contract"],
       "deliverables": ["passive public extras", "compatibility matrix", "cross-platform suite verification", "controlled literal-loopback local provider and synthetic tool-host adapter"]
+    },
+    {
+      "id": "functional-ecosystem",
+      "title": "Executable six-component public-synthetic chain before external review",
+      "status": "active",
+      "depends_on": ["installable-extensions"],
+      "deliverables": ["16 fixed causal and rejection routes", "actual installed component APIs", "independent report mutation verifier", "exact public wheel Linux and Windows checks", "explicit synthetic versus real effect accounting"]
     },
     {
       "id": "threat-watch",

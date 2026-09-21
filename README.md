@@ -117,6 +117,12 @@ and positive/negative controls in the
 [installed-ecosystem example](examples/installed-ecosystem/README.md). The
 [external pilot protocol](docs/external-pilot.md) explains the bounded feedback request.
 
+For the actual six-component flow, run the separate
+[16-case functional chain](examples/installed-ecosystem/README.md#functional-six-component-chain)
+and its independent report verifier. Router and Filter APIs execute here; provider
+transport is an explicit in-memory double. The [expert-readiness contract](docs/expert-readiness.md)
+separates this reproducible technical baseline from outstanding human review.
+
 Published Router 0.2.1 includes the lazy HTTP-client import repair; Harness binds
 its reviewed receipt source to that exact release commit. Installing the package does
 not call a provider or make the receipt an action grant.

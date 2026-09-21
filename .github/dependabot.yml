@@ -20,6 +20,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      codeql-family:
+        patterns:
+          - "github/codeql-action/*"
     labels:
       - "dependencies"
       - "github-actions"

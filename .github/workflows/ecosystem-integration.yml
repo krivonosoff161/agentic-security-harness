@@ -24,6 +24,39 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  published-functional-chain:
+    name: Published functional chain (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Check out the explicit functional example
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+      - name: Install exact hash-locked public wheels without local source builds
+        run: |
+          python -m pip --isolated install --index-url https://pypi.org/simple --no-compile --only-binary=:all: --require-hashes -r requirements/runtime.txt -r requirements/companions.txt -r examples/installed-ecosystem/core-release.txt
+          python -m pip check
+      - name: Execute all declared functional routes and independently verify results
+        run: |
+          python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json
+          python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json
+      - name: Preserve content-free published-wheel evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: published-functional-chain-${{ matrix.os }}
+          path: functional-chain.json
+          if-no-files-found: error
+          retention-days: 30
+
   installed-ecosystem:
     name: Installed ecosystem (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -51,8 +84,17 @@ jobs:
       - name: Exercise installed positive and negative paths without source imports
         run: |
           python -I -B examples/installed-ecosystem/check.py --out installed-ecosystem-result.json
+          python -I -B examples/installed-ecosystem/chain.py --out candidate-functional-chain.json
+          python -I -B examples/installed-ecosystem/verify_chain.py candidate-functional-chain.json
           ash quickstart --out installed-quickstart
           ash validate installed-quickstart
+      - name: Preserve content-free candidate-wheel evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: candidate-functional-chain-${{ matrix.os }}
+          path: candidate-functional-chain.json
+          if-no-files-found: error
+          retention-days: 30
 
   exact-source-matrix:
     strategy:

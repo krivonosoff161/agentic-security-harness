@@ -6,6 +6,12 @@ Do not promise a production firewall, universal connector or a model leaderboard
 
 ## Scope and preparation
 
+For a functional ecosystem review, use the
+[16-case chain and independent verifier](../examples/installed-ecosystem/README.md#functional-six-component-chain).
+The earlier eight-case `check.py` is an installation/compatibility baseline only.
+The [expert-readiness contract](expert-readiness.md) defines the current technical
+scope and the remaining independent-human gates.
+
 No credentials, customer data, private repositories, model access, real tools or
 production targets are required. Use a fresh Python 3.11 environment and the exact
 release's fixed example and locks. The published 1.6.0 baseline is documented in

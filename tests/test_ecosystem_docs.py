@@ -216,7 +216,9 @@ def test_roadmap_rejects_dependency_cycles() -> None:
 def test_roadmap_rejects_completed_phase_with_incomplete_dependency() -> None:
     payload = load_contract(ECOSYSTEM / "roadmap.yaml")
     assert isinstance(payload, dict)
-    payload["phases"][4]["status"] = "complete"
+    phases = {phase["id"]: phase for phase in payload["phases"]}
+    phases["threat-watch"]["status"] = "active"
+    phases["ecosystem-release-gates"]["status"] = "complete"
 
     with pytest.raises(ValidationError, match="incomplete dependencies"):
         EcosystemRoadmap.model_validate(payload)

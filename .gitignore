@@ -6,6 +6,7 @@ __pycache__/
 build/
 dist/
 .venv/
+.venv-*/
 venv/
 
 # Env, credentials, and local data (note: .env.example IS tracked)

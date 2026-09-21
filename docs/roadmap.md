@@ -1,5 +1,11 @@
 # Roadmap
 
+Current engineering focus: [executable ecosystem closure](expert-readiness.md),
+not another installation-only milestone. The 16-case fixed chain exercises all six
+public components and separates functional verification from external human review.
+Mathematical working papers remain private; public theory is a curated statement of
+invariants and limits, not automatic publication of local research.
+
 > The machine-readable public master roadmap is
 > [`ecosystem/roadmap.yaml`](../ecosystem/roadmap.yaml); its generated view is
 > [Ecosystem roadmap](ecosystem-roadmap.md). The detailed Harness backlog below remains a

@@ -51,3 +51,48 @@ production safety. Router/Filter are passive imports here; Playbooks is a pinned
 pack, not an action authorizer. Installing all components is not a universal pipeline.
 
 See [the external pilot protocol](../../docs/external-pilot.md) for sharing results.
+
+## Functional six-component chain
+
+The original `check.py` remains the eight-case installation baseline above. The
+separate `chain.py` exercises actual installed APIs in a single causally linked
+public-synthetic flow, not just passive imports:
+
+```bash
+python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json
+python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json
+```
+
+Run these after the same exact-wheel installation above. The example itself is
+repository-owned and version-bound; it is not a new wheel or a change to the
+immutable 1.6.0 release. No credentials or account configuration are used.
+
+| Component | Executed boundary |
+|---|---|
+| Core Quarantine | Closed canonical profile admission; malformed and authority fields rejected. |
+| Filter | `PreFilter.score` and `EscalationPolicy.decide`; drop, cheap and chief routes. |
+| Router | Real `client.call` code with an explicitly injected in-memory transport/configuration; role selection, response parsing, token accounting and canonical receipt encoding/decoding. No actual provider is contacted. |
+| Transfer | `verify_envelope` consumes the Router/request commitments; non-empty untrusted authority and self-parent controls stop the flow. |
+| Handoff | Build/project initial and child metadata against the actual artifact bytes; tamper, replay and parent rebinding are rejected. |
+| Playbooks | Installed `policy_pack_bytes`, exact pack decoding, observation-bound signal evaluation; tampering rejected and the selected unknown Handoff signal returns `challenge`, stopping this example before Gateway. Signals are fixture-owned, not inferred classifications. |
+| Core Gateway | `GatewayEngine.call_tool` applies real policy before its built-in constant lookup; an unknown key is denied even after the preceding components accept their inputs. |
+
+`chain-cases.json` freezes 16 cases and independent expected outcomes. Two valid
+routes reach all seven boundaries and each executes one built-in constant lookup.
+The other 14 routes stop at their declared boundary. Synthetic execution is counted
+separately from real effects; real model/provider calls and real effects stay zero.
+Process/network access and undeclared file writes are denied by an early Python audit
+hook. The only output write is the explicitly named, previously absent report.
+
+The Gateway audit sink is an explicit in-memory test double, not a durable or
+authenticated ledger. Router transport is a test double, not a model or endpoint.
+The caller's example withholds dispatch on rejected/incomplete prior evidence; this
+does not add standalone enforcement to Transfer, Handoff or Playbooks. The finite
+self-parent/replay cases do not prove arbitrary graph-cycle or distributed replay
+protection. Python audit hooks are not an OS sandbox.
+
+The stdlib-only verifier imports none of the product packages or runner. It checks
+closed report fields, pins, exact runner/fixture digests, all stage prefixes,
+outcomes, causal digest links, transport accounting and zero real effects.
+Digest integrity is not producer authenticity or independent human review.
+Linux and Windows CI run both candidate-wheel and exact published-wheel contours.

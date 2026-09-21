@@ -1,0 +1,22 @@
+{
+  "schema": "ecosystem-chain-cases-v1",
+  "data_class": "public_synthetic",
+  "cases": [
+    {"id": "valid-cheap", "mutation": "none", "score": 0.5, "outcome": "completed", "terminal_stage": "gateway", "synthetic_executions": 1},
+    {"id": "valid-chief", "mutation": "none", "score": 0.9, "outcome": "completed", "terminal_stage": "gateway", "synthetic_executions": 1},
+    {"id": "filter-drop", "mutation": "none", "score": 0.1, "outcome": "filtered", "terminal_stage": "filter", "synthetic_executions": 0},
+    {"id": "malformed-input", "mutation": "malformed-input", "score": 0.5, "outcome": "rejected", "terminal_stage": "quarantine", "synthetic_executions": 0},
+    {"id": "authority-field", "mutation": "authority-field", "score": 0.5, "outcome": "rejected", "terminal_stage": "quarantine", "synthetic_executions": 0},
+    {"id": "no-request", "mutation": "no-request", "score": 0.5, "outcome": "no_request", "terminal_stage": "quarantine", "synthetic_executions": 0},
+    {"id": "router-rebind", "mutation": "router-rebind", "score": 0.5, "outcome": "rejected", "terminal_stage": "router", "synthetic_executions": 0},
+    {"id": "router-accounting", "mutation": "router-accounting", "score": 0.5, "outcome": "rejected", "terminal_stage": "router", "synthetic_executions": 0},
+    {"id": "transfer-authority", "mutation": "transfer-authority", "score": 0.5, "outcome": "rejected", "terminal_stage": "transfer", "synthetic_executions": 0},
+    {"id": "transfer-cycle", "mutation": "transfer-cycle", "score": 0.5, "outcome": "rejected", "terminal_stage": "transfer", "synthetic_executions": 0},
+    {"id": "handoff-tamper", "mutation": "handoff-tamper", "score": 0.5, "outcome": "rejected", "terminal_stage": "handoff", "synthetic_executions": 0},
+    {"id": "handoff-replay", "mutation": "handoff-replay", "score": 0.5, "outcome": "rejected", "terminal_stage": "handoff", "synthetic_executions": 0},
+    {"id": "handoff-rebind", "mutation": "handoff-rebind", "score": 0.5, "outcome": "rejected", "terminal_stage": "handoff", "synthetic_executions": 0},
+    {"id": "playbooks-tamper", "mutation": "playbooks-tamper", "score": 0.5, "outcome": "rejected", "terminal_stage": "playbooks", "synthetic_executions": 0},
+    {"id": "playbooks-unknown", "mutation": "playbooks-unknown", "score": 0.5, "outcome": "inconclusive", "terminal_stage": "playbooks", "synthetic_executions": 0},
+    {"id": "gateway-deny", "mutation": "gateway-deny", "score": 0.5, "outcome": "denied", "terminal_stage": "gateway", "synthetic_executions": 0}
+  ]
+}
