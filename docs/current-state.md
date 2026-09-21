@@ -1,15 +1,18 @@
 # Current state
 
-## Active technical closure
+## Executable ecosystem acceptance
 
 The [expert-readiness contract](expert-readiness.md) adds a separate functional
 six-component chain to the installation baseline: 16 declared public-synthetic
 routes, actual component API execution, a separate result verifier, and Linux/Windows
 checks of exact published wheels. It uses an explicit in-memory Router transport
 and Gateway audit sink; it is not a real-provider campaign or human audit.
-Issue [#299](https://github.com/krivonosoff161/agentic-security-harness/issues/299)
-tracks this closure and the coordinated CodeQL maintenance. The release below
-remains immutable; the new example is repository-owned, not a republished wheel.
+Published-wheel and candidate-wheel functional jobs passed on both operating systems;
+[the acceptance evidence](expert-readiness.md#execution-evidence) distinguishes those
+four job results from the initial central-lock failure and its correction.
+[PR #300](https://github.com/krivonosoff161/agentic-security-harness/pull/300) tracks
+exact-head integration and coordinated CodeQL maintenance for issue #299. The release
+below remains immutable; the new example is repository-owned, not a republished wheel.
 
 Published `1.6.0` delivers the existing native adapter and adds
 an [installed-ecosystem example](../examples/installed-ecosystem/README.md) with

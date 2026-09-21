@@ -39,7 +39,7 @@
     {
       "id": "functional-ecosystem",
       "title": "Executable six-component public-synthetic chain before external review",
-      "status": "active",
+      "status": "complete",
       "depends_on": ["installable-extensions"],
       "deliverables": ["16 fixed causal and rejection routes", "actual installed component APIs", "independent report mutation verifier", "exact public wheel Linux and Windows checks", "explicit synthetic versus real effect accounting"]
     },

@@ -24,6 +24,27 @@ type, lint, documentation and security workflow gates. A successful package rele
 alone does not satisfy this contract. CI checks and PR evidence belong to issue
 [#299](https://github.com/krivonosoff161/agentic-security-harness/issues/299).
 
+## Execution evidence
+
+At exact example commit `1287bf3cb0d5d2e971789201b46a90666ca55170`:
+
+- Published-wheel functional jobs passed on [Linux](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35614272014/job/106380849389)
+  and [Windows](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35614272014/job/106380849757).
+- Candidate-wheel jobs passed on [Linux](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35614272014/job/106380849897)
+  and [Windows](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35614272014/job/106380849685).
+- Both published reports were downloaded and independently revalidated: 16 cases,
+  two full paths, two synthetic operations, zero real effects, identical result
+  digest `85e994df089ffd4ea5a34ebf13155c92a05a7217c5c906eae9f8fd9a9ca9b80a`.
+
+Those four passing jobs do not mean the entire first workflow passed: the separate
+source matrix caught an unrefreshed roadmap digest in the central component lock.
+The correction rebinds that digest and adds a checkout-independent regression test;
+it does not change runtime code, package pins or the functional result. Final
+exact-head checks and integration are recorded in [PR #300](https://github.com/krivonosoff161/agentic-security-harness/pull/300).
+The earlier local full suite passed 2137 tests with 29 conditional skips; the new
+lock regression adds one test. Content-free CI artifacts have a 30-day retention;
+the committed runner/fixtures allow a fresh reproduction after expiry.
+
 ## Current work and research are different
 
 The master [ecosystem roadmap](ecosystem-roadmap.md) distinguishes functional

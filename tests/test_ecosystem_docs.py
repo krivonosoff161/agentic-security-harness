@@ -17,6 +17,7 @@ from tools.ecosystem_docs import (
     check_generated,
     generated_schemas,
     load_contract,
+    sha256,
     validate_all,
     validate_component_compatibility,
     validate_component_set,
@@ -30,6 +31,11 @@ def test_shape_and_semantic_validators_accept_canonical_contracts() -> None:
     assert roadmap.components == [row.component_id for row in compatibility.rows]
     assert roadmap.authority == "none"
     assert component.authority == "none"
+
+
+def test_component_lock_binds_current_roadmap_without_external_checkouts() -> None:
+    lock = ComponentsLock.model_validate(load_contract(ECOSYSTEM / "components.lock.json"))
+    assert lock.roadmap_sha256 == sha256(load_contract(ECOSYSTEM / "roadmap.yaml"))
 
 
 def test_generated_json_schemas_are_exact() -> None:

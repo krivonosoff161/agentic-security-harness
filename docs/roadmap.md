@@ -1,8 +1,8 @@
 # Roadmap
 
-Current engineering focus: [executable ecosystem closure](expert-readiness.md),
-not another installation-only milestone. The 16-case fixed chain exercises all six
-public components and separates functional verification from external human review.
+Current technical baseline: [executable ecosystem acceptance](expert-readiness.md),
+beyond installation-only checks. The 16-case fixed chain exercises all six public
+components; the next external step is reproduction and independent human review.
 Mathematical working papers remain private; public theory is a curated statement of
 invariants and limits, not automatic publication of local research.
 
