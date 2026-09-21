@@ -337,3 +337,20 @@ jobs:
           ash --help
           ash quickstart --out "$RUNNER_TEMP/quickstart"
           ash validate "$RUNNER_TEMP/quickstart"
+
+      - name: Check out the selected release example without changing verification policy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.release_tag }}
+          path: release-example
+          persist-credentials: false
+
+      - name: Verify installed ecosystem for releases declaring the example
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f release-example/examples/installed-ecosystem/check.py ]; then
+            python -m pip install --no-compile --only-binary=:all: --require-hashes -r release-example/requirements/companions.txt
+            python -m pip check
+            python -I -B release-example/examples/installed-ecosystem/check.py --out verified-ecosystem-result.json
+          fi

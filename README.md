@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/public_research_release-v1.5.1-blue)
+![Status](https://img.shields.io/badge/release_source-v1.6.0-blue)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -20,15 +20,16 @@ validate, compare, and review.
 
 ## Quickstart
 
-Published [v1.5.1](docs/releases/v1.5.1.md) includes the Gateway lookup-key type guard,
-Router 0.2.1 and scoped dependency updates. Exact release files passed separate
-TestPyPI/PyPI verification and clean Linux/Windows installed-package checks.
+This checkout describes [v1.6.0](docs/releases/v1.6.0.md): the native Ollama proposal
+adapter and an explicit installed-ecosystem pilot, retaining the Gateway lookup-key
+type guard and Router 0.2.1. The linked release notes distinguish source, staging and
+published evidence; a checkout or green CI alone is not proof of publication.
 
 Install the exact package version from PyPI after confirming that the public index lists
-`1.5.1`:
+`1.6.0`. If it is not listed yet, use the source-development path below instead:
 
 ```bash
-python -m pip install agentic-security-harness==1.5.1
+python -m pip install agentic-security-harness==1.6.0
 ash quickstart --out reports/quickstart
 ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
@@ -87,12 +88,12 @@ facts. The Harness generates only the cross-project roadmap and compatibility vi
 - [Documentation crosswalk](docs/documentation-map.md)
 - [`component.yaml`](component.yaml) and [`ecosystem/roadmap.yaml`](ecosystem/roadmap.yaml)
 
-Runtime Guard remains private and `contract_only`. Harness release `v1.5.1`
+Runtime Guard remains private and `contract_only`. Harness version `v1.6.0`
 contains the closed [Extension SDK V1](docs/extension-sdk.md) and public passive extras for
 validated observation-to-finding dataflow. It does not auto-load installed packages;
 companion repositories remain optional, separately versioned distributions.
 
-Release `v1.5.1` retains the closed optional-dependency groups introduced in `v1.4.0`:
+Version `v1.6.0` retains the closed optional-dependency groups introduced in `v1.4.0`:
 
 | Extra | Exact companion distributions | Automatic activation |
 |---|---|---|
@@ -107,9 +108,15 @@ The generic PyPI coordinate `llm-router` is intentionally absent because it belo
 another project. CI builds all eight exact wheels from pinned Git SHAs and installs the
 closed local wheelhouse without loading either extension entry point. The public install
 commands are
-`pip install "agentic-security-harness[router]==1.5.1"` or
-`pip install "agentic-security-harness[all]==1.5.1"`. Other companion pins are unchanged;
+`pip install "agentic-security-harness[router]==1.6.0"` or
+`pip install "agentic-security-harness[all]==1.6.0"`, after confirming that version is
+published. Other companion pins are unchanged;
 installation remains separate from module activation.
+
+For explicit installed extension binding, follow the fresh `--no-compile` environment
+and positive/negative controls in the
+[installed-ecosystem example](examples/installed-ecosystem/README.md). The
+[external pilot protocol](docs/external-pilot.md) explains the bounded feedback request.
 
 Published Router 0.2.1 includes the lazy HTTP-client import repair; Harness binds
 its reviewed receipt source to that exact release commit. Installing the package does
@@ -361,7 +368,11 @@ approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install the
 
 ## Release and package status
 
-Release `v1.5.1` is published on
+For the source version described by this README, consult the
+[v1.6.0 release evidence](docs/releases/v1.6.0.md) and exact package-index entry.
+The following prior release evidence is retained without rewriting its outcomes.
+
+Prior release `v1.5.1` is published on
 [PyPI](https://pypi.org/project/agentic-security-harness/1.5.1/) and
 [GitHub Releases](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.5.1).
 [Published-release verification](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35516400380)

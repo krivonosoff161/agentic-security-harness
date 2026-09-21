@@ -1,5 +1,10 @@
 # Current state
 
+Candidate `1.6.0` prepares the existing native adapter for versioned delivery and adds
+an [installed-ecosystem example](../examples/installed-ecosystem/README.md) with
+positive/negative controls and an [external pilot protocol](external-pilot.md).
+It is not yet published; [release gates](releases/v1.6.0.md) remain explicit.
+
 Unreleased source increment: the [native Ollama adapter](ollama-quarantine-adapter.md)
 connects one explicitly selected local model to Quarantine and a pure Gateway
 decision. It owns envelope formatting, not policy authority; it never dispatches.

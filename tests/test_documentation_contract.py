@@ -1328,9 +1328,11 @@ def test_v151_publication_docs_bind_current_release_and_preserve_failures() -> N
     ):
         assert marker in notes
     readme = _read("README.md")
-    assert "public_research_release-v1.5.1-blue" in readme
-    assert "agentic-security-harness==1.5.1" in readme
-    assert "agentic-security-harness[all]==1.5.1" in readme
+    assert any(status in readme for status in (
+        "release_source-v1.6.0-blue", "public_research_release-v1.6.0-blue"
+    ))
+    assert "agentic-security-harness==1.6.0" in readme
+    assert "agentic-security-harness[all]==1.6.0" in readme
     assert "agentic-llm-router==0.2.1" in readme
     assert "agentic-llm-router==0.2.0" not in readme
     assert "source tree prepares" not in readme

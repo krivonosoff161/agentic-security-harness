@@ -1,5 +1,13 @@
 # Project tracker
 
+## Product-readiness closure / 1.6.0 candidate
+
+Close onboarding version drift, run exact installed companion packages with positive
+and negative controls, and use the same example in Linux/Windows and publication
+verification. [External pilot](external-pilot.md) defines the small reproducibility
+request. [1.6.0 notes](releases/v1.6.0.md) remain candidate-only until the release gates
+are complete. No external review or model-effectiveness result is implied.
+
 ## Native Ollama connector source increment
 
 [Issue #291](https://github.com/krivonosoff161/agentic-security-harness/issues/291)

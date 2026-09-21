@@ -269,6 +269,12 @@ jobs:
           ash quickstart --out "$RUNNER_TEMP/quickstart"
           ash validate "$RUNNER_TEMP/quickstart"
 
+      - name: Verify installed ecosystem from exact staged subjects
+        run: |
+          python -m pip install --no-compile --only-binary=:all: --require-hashes -r requirements/companions.txt
+          python -m pip check
+          python -I -B examples/installed-ecosystem/check.py --out staged-ecosystem-result.json
+
   smoke-pypi:
     name: Smoke PyPI (${{ matrix.os }}, Python ${{ matrix.python }})
     if: inputs.target == 'pypi'
@@ -336,3 +342,9 @@ jobs:
           ash --help
           ash quickstart --out "$RUNNER_TEMP/quickstart"
           ash validate "$RUNNER_TEMP/quickstart"
+
+      - name: Verify installed ecosystem from exact published subjects
+        run: |
+          python -m pip install --no-compile --only-binary=:all: --require-hashes -r requirements/companions.txt
+          python -m pip check
+          python -I -B examples/installed-ecosystem/check.py --out published-ecosystem-result.json

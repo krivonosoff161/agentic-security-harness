@@ -6,12 +6,23 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-09-21
+
 ### Added
 - Add the opt-in native Ollama proposal adapter: one bounded literal-loopback
   request, application-owned envelope identity, strict response normalization,
   unchanged Quarantine admission and pure Gateway decision, with no dispatch.
   Include offline protocol/adversarial tests and explicit operator documentation.
   This source capability is not part of the published 1.5.1 artifacts.
+- Add a fixed installed-ecosystem example with explicit Transfer/Handoff lifecycle,
+  negative controls and offline native-proposal-to-Gateway checks. Runtime socket and
+  process activity is denied; no model/provider or tool is invoked.
+- Add a bounded external-pilot protocol and cross-platform installed-package CI gate.
+
+### Fixed
+- Align the versioned onboarding command, README and package version, including the
+  wheel's long description, and protect them with a documentation regression. Keep
+  source identity and verified publication status distinct.
 
 ## [1.5.1] - 2026-09-20
 
