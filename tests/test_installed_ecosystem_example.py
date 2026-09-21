@@ -38,7 +38,7 @@ def test_example_denies_effect_events(event: str) -> None:
 
 
 def test_example_version_set_matches_declared_extras() -> None:
-    project = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
     expected = dict(item.split("==") for item in project["optional-dependencies"]["all"])
     expected[project["name"]] = project["version"]
     assert _module().EXPECTED == expected
@@ -51,8 +51,8 @@ def test_example_fails_closed_on_contract_mismatch() -> None:
 
 def test_current_onboarding_install_pin_matches_readme_published_baseline() -> None:
     pattern = r"python -m pip install agentic-security-harness==([0-9]+\.[0-9]+\.[0-9]+)"
-    readme = re.search(pattern, (ROOT / "README.md").read_text())
-    onboarding = re.search(pattern, (ROOT / "docs/getting-started.md").read_text())
+    readme = re.search(pattern, (ROOT / "README.md").read_text(encoding="utf-8"))
+    onboarding = re.search(pattern, (ROOT / "docs/getting-started.md").read_text(encoding="utf-8"))
     assert readme and onboarding and readme.group(1) == onboarding.group(1)
 
 
@@ -65,7 +65,7 @@ def test_example_configs_are_canonical_and_authority_free() -> None:
 
 
 def test_installed_example_runs_in_existing_cross_platform_workflow() -> None:
-    workflow = (ROOT / ".github/workflows/ecosystem-integration.yml").read_text()
+    workflow = (ROOT / ".github/workflows/ecosystem-integration.yml").read_text(encoding="utf-8")
     assert "installed-ecosystem:" in workflow
     assert '"examples/installed-ecosystem/**"' in workflow
     assert "os: [ubuntu-latest, windows-latest]" in workflow
@@ -74,12 +74,12 @@ def test_installed_example_runs_in_existing_cross_platform_workflow() -> None:
     assert "--no-compile --only-binary=:all:" in workflow
     assert "python -m pip check" in workflow
     for file in ("publish-pypi.yml", "verify-published-release.yml"):
-        text = (ROOT / ".github/workflows" / file).read_text()
+        text = (ROOT / ".github/workflows" / file).read_text(encoding="utf-8")
         assert "examples/installed-ecosystem/check.py" in text
 
 
 def test_external_pilot_has_an_explicit_stop_and_feedback_contract() -> None:
-    text = (ROOT / "docs/external-pilot.md").read_text()
+    text = (ROOT / "docs/external-pilot.md").read_text(encoding="utf-8")
     for phrase in (
         "public synthetic",
         "negative control",
@@ -91,7 +91,7 @@ def test_external_pilot_has_an_explicit_stop_and_feedback_contract() -> None:
 
 
 def test_historical_release_verification_uses_its_own_optional_example() -> None:
-    text = (ROOT / ".github/workflows/verify-published-release.yml").read_text()
+    text = (ROOT / ".github/workflows/verify-published-release.yml").read_text(encoding="utf-8")
     checkout = text.split("Check out the selected release example", 1)[1].split("- name:", 1)[0]
     assert "ref: ${{ inputs.release_tag }}" in checkout
     assert "path: release-example" in checkout
@@ -100,3 +100,15 @@ def test_historical_release_verification_uses_its_own_optional_example() -> None
     assert "-r release-example/requirements/companions.txt" in text
     assert "python -I -B release-example/examples/installed-ecosystem/check.py" in text
     assert "verification-policy/src/agentic_security_harness/attestation_policy.py" in text
+
+
+def test_onboarding_reader_does_not_depend_on_windows_locale(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    read_text = Path.read_text
+
+    def locale_read(path: Path, encoding: str | None = None, errors: str | None = None) -> str:
+        return read_text(path, encoding=encoding or "cp1252", errors=errors)
+
+    monkeypatch.setattr(Path, "read_text", locale_read)
+    test_current_onboarding_install_pin_matches_readme_published_baseline()
