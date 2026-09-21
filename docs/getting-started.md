@@ -10,8 +10,12 @@ with no API keys and no network.
 
 ## 1. Install
 
+These commands match the 1.6.0 source version. First confirm the public package index
+lists that exact version; if publication is pending, use the source-development path
+below. A source checkout does not itself establish package-index availability.
+
 ```bash
-python -m pip install agentic-security-harness==1.5.1
+python -m pip install agentic-security-harness==1.6.0
 ash --help
 ```
 

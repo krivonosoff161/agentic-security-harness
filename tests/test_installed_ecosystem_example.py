@@ -49,11 +49,12 @@ def test_example_fails_closed_on_contract_mismatch() -> None:
         _module().require(False)
 
 
-def test_current_onboarding_install_pin_matches_readme_published_baseline() -> None:
+def test_versioned_onboarding_pin_matches_readme_and_source_version() -> None:
     pattern = r"python -m pip install agentic-security-harness==([0-9]+\.[0-9]+\.[0-9]+)"
     readme = re.search(pattern, (ROOT / "README.md").read_text(encoding="utf-8"))
     onboarding = re.search(pattern, (ROOT / "docs/getting-started.md").read_text(encoding="utf-8"))
-    assert readme and onboarding and readme.group(1) == onboarding.group(1)
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    assert readme and onboarding and readme.group(1) == onboarding.group(1) == project["version"]
 
 
 def test_example_configs_are_canonical_and_authority_free() -> None:
@@ -111,4 +112,4 @@ def test_onboarding_reader_does_not_depend_on_windows_locale(
         return read_text(path, encoding=encoding or "cp1252", errors=errors)
 
     monkeypatch.setattr(Path, "read_text", locale_read)
-    test_current_onboarding_install_pin_matches_readme_published_baseline()
+    test_versioned_onboarding_pin_matches_readme_and_source_version()

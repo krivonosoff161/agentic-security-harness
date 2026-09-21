@@ -20,8 +20,9 @@ All notable changes to this project are documented here. The format follows
 - Add a bounded external-pilot protocol and cross-platform installed-package CI gate.
 
 ### Fixed
-- Align the current published-baseline onboarding command with README and protect it
-  with a documentation regression. Keep candidate and published status distinct.
+- Align the versioned onboarding command, README and package version, including the
+  wheel's long description, and protect them with a documentation regression. Keep
+  source identity and verified publication status distinct.
 
 ## [1.5.1] - 2026-09-20
 
