@@ -1,16 +1,19 @@
 # Current state
 
-Candidate `1.6.0` prepares the existing native adapter for versioned delivery and adds
+Published `1.6.0` delivers the existing native adapter and adds
 an [installed-ecosystem example](../examples/installed-ecosystem/README.md) with
 positive/negative controls and an [external pilot protocol](external-pilot.md).
-It is not yet published; [release gates](releases/v1.6.0.md) remain explicit.
+Its [release evidence](releases/v1.6.0.md#publication-evidence) binds the exact source,
+attested subjects, successful staging and all six read-only published-verification jobs.
+The initial PyPI Linux 3.12 index-lookup failure is retained; no upload was repeated.
 
-Unreleased source increment: the [native Ollama adapter](ollama-quarantine-adapter.md)
+The [native Ollama adapter](ollama-quarantine-adapter.md)
 connects one explicitly selected local model to Quarantine and a pure Gateway
 decision. It owns envelope formatting, not policy authority; it never dispatches.
-Published 1.5.1 artifacts are unchanged and do not contain this module.
+It is included in the 1.6.0 wheel. Published 1.5.1 artifacts remain unchanged and do
+not contain this module. External pilot participation is not yet completed.
 
-Published update: [v1.5.1](releases/v1.5.1.md) adds a typed refusal for non-string
+Prior published update: [v1.5.1](releases/v1.5.1.md) adds a typed refusal for non-string
 Gateway lookup keys, changes the exact Router pin to 0.2.1 and updates scoped
 dependencies. Tag-bound build, staging, separately approved production promotion,
 exact index hashes and cross-platform read-only installation checks are complete.
@@ -21,12 +24,12 @@ repository's `component.yaml`. The older `2026.08.02-r4-trajectory-containment` 
 Portfolio projection remains preserved as historical research evidence; it is not the
 current ecosystem product roadmap. Operational authority remains `none`.
 
-> Last reviewed: 2026-09-20 against exact released Harness commit
-> `86b15716a57d5ffc6a85ebb408d62da0559d4ab7`, merged Security Portfolio projection
+> Last reviewed: 2026-09-21 against exact released Harness commit
+> `0796fc60020ced318ad67fecb29de60234e707df`, merged Security Portfolio projection
 > `2026.08.02-r4-trajectory-containment`, the historical `v1.0.0` release commit
-> `71295922b8053a188431d0f510f1e9146435c742`, and verified published release `v1.5.1`.
+> `71295922b8053a188431d0f510f1e9146435c742`, and verified published release `v1.6.0`.
 >
-> Scope: public status of `agentic-security-harness` and published release `1.5.1`.
+> Scope: public status of `agentic-security-harness` and published release `1.6.0`.
 > This page is a reviewer-facing status
 > snapshot, not a roadmap promise or publication claim.
 
@@ -40,7 +43,7 @@ activation. The [v1.5.0 release](releases/v1.5.0.md) also includes the opt-in Qu
 Connector and its pure Gateway composition. Exact-subject publication and clean-install
 evidence is linked below; old v1.4.0 artifacts remain unchanged.
 
-Agentic Security Harness is a **published v1.5.1 public defensive benchmark/toolkit**: a working
+Agentic Security Harness is a **published v1.6.0 public defensive benchmark/toolkit**: a working
 trace-first defensive benchmark for agentic AI boundary failures with committed
 deterministic examples, bounded local-swarm evidence, evidence-campaign metrics, and
 sanitized local-model semantic-drift / propagation probes, plus a bounded local Runtime
@@ -65,7 +68,8 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 
 | Area | Status | Evidence |
 |---|---|---|
-| Package identity | v1.5.1 published to PyPI, TestPyPI, and GitHub Releases | Exact tag `v1.5.1` resolves to `86b15716a57d5ffc6a85ebb408d62da0559d4ab7`. Build `35514250035` attested the closed subjects. TestPyPI upload `35514377652` succeeded but its initial lookup failed; staging recovery `35515454773` passed. PyPI upload `35516245065` succeeded; initial Windows lookup failed while Linux smokes passed. Read-only verification `35516400380` passed all six jobs, exact hashes and Linux/Windows installation, without republishing. [Full evidence](releases/v1.5.1.md#publication-evidence). |
+| Package identity | v1.6.0 published to PyPI, TestPyPI, and GitHub Releases | Exact tag source `0796fc60020ced318ad67fecb29de60234e707df`; build `35602050427`; staging `35602400245`; production upload `35602644448`. Initial production Linux 3.12 lookup failed before runtime; read-only `35602999743` passed all six subject/provenance/index/install jobs without republishing. [Full evidence](releases/v1.6.0.md#publication-evidence). |
+| Prior package identity | v1.5.1, immutable historical evidence | Exact tag `v1.5.1` resolves to `86b15716a57d5ffc6a85ebb408d62da0559d4ab7`. Build `35514250035` attested the closed subjects. TestPyPI upload `35514377652` succeeded but its initial lookup failed; staging recovery `35515454773` passed. PyPI upload `35516245065` succeeded; initial Windows lookup failed while Linux smokes passed. Read-only verification `35516400380` passed all six jobs, exact hashes and Linux/Windows installation, without republishing. [Full evidence](releases/v1.5.1.md#publication-evidence). |
 | Passive companion extras | Published in v1.4.0 | `transfer`, `handoff`, `playbooks`, `router`, `filter`, and `all` resolve exact public package versions from PyPI. Fresh PyPI-only resolver smokes passed for each extra and `all`; installation does not discover, approve, bind, configure, invoke, or activate modules. Runtime Guard remains private and absent. |
 | Local deterministic corpus | Shipped stable v1 contract | Corpus 1.0.0 freezes 24 ordered sanitized seed ids and fields in a closed committed manifest/schema; new traces bind its canonical semantic digest. |
 | Local targets | Shipped | `mock`, `demo-agent`, `protected-demo-agent`, `toy-local-function`, `toy-rag`, `toy-tools`, `toy-multi-agent`, `protected-toy-multi-agent`. |

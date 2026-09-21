@@ -1,8 +1,9 @@
 # Capability / coverage matrix
 
 What each target and mode does, so you can pick the right one and read its result
-correctly. Built-in/local modes are deterministic and offline; the external path is the
-only one that touches the network, and only with explicit `--execute`/`--live` opt-in.
+correctly. Built-in benchmark modes are deterministic and offline. The external CLI
+path needs explicit `--execute`/`--live` opt-in; the separately named local-model
+Python APIs require an explicit call and an operator-started literal-loopback service.
 
 For broader system shapes a target adapter may represent, see
 [evaluation-topologies.md](evaluation-topologies.md). This page is the shipped mode matrix;
@@ -23,7 +24,8 @@ the topology page is the methodology map.
 | Scenario matrix | `run-matrix --target <t> --scenario <s>` | offline | no | deterministic | subset (scenario) x variants | no | yes | yes | yes |
 | External (OpenAI-compatible) | `run-external --base-url ... --model ... --execute` | **opt-in only** | yes (prompt-only) | stochastic possible | subset (scenario) x variants | yes | yes | yes | yes |
 | Offline provider tool-envelope normalization | Python API | offline | no | deterministic | not a corpus run | no | four retained envelope families | privacy-minimized gateway audit | n/a |
-| Native live provider adapter | - | - | - | - | - | - | - | - | **future** |
+| Native local Ollama proposal adapter | explicit Python API | literal-loopback call only | operator-selected local model | stochastic possible | not a corpus run | no implicit retry | strict proposal/no-request | content-free return | n/a |
+| Arbitrary native remote-provider adapter | - | - | - | - | - | - | - | - | **future** |
 | Agent-host / tool-use adapter | - | - | - | - | - | - | - | - | **future** |
 | Runtime Gateway synthetic contour | `gateway-serve --config <toml>` | local listener | no | deterministic built-ins | not a corpus run | no | fixed policy paths | privacy-minimized audit chain | n/a |
 
@@ -60,6 +62,13 @@ remain separate. [Release evidence](releases/v1.5.0.md) establishes bounded pack
 availability and compatibility, not a production safety certificate.
 
 ## Mode notes
+
+Published [v1.6.0](releases/v1.6.0.md) includes the
+[native Ollama proposal adapter](ollama-quarantine-adapter.md) and an
+[offline installed-ecosystem example](../examples/installed-ecosystem/README.md).
+The adapter separates response normalization, Quarantine admission and a pure Gateway
+decision; it never dispatches. The example uses fixed response bytes, not a live
+model, and its negative controls do not measure classifier quality or universal safety.
 
 - "Corpus scope" full = all 24 patterns in one pass; subset = the patterns in the chosen
   scenario (see `ash scenarios --verbose`).

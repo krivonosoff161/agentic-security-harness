@@ -16,7 +16,11 @@ successful cross-platform read-only verification, and the retained initial insta
 failure. The [v1.5.1 patch](releases/v1.5.1.md#publication-evidence) published on the same
 date adds the Gateway lookup-key type guard, Router 0.2.1 and scoped dependency updates;
 its separate staging and full cross-platform read-only checks passed. No upload was
-repeated. This checklist remains the required
+repeated. The [v1.6.0 release](releases/v1.6.0.md#publication-evidence) adds the native
+local adapter and installed-ecosystem pilot. Its staging passed and the owner-authorized
+production upload succeeded. A retained initial Linux 3.12 index lookup failed;
+read-only verification passed all six jobs without re-upload, including the example
+on Linux/Windows. This checklist remains the required
 procedure for subsequent releases. The broader readiness map is
 [v1-readiness.md](v1-readiness.md).
 

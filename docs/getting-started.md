@@ -10,9 +10,10 @@ with no API keys and no network.
 
 ## 1. Install
 
-These commands match the 1.6.0 source version. First confirm the public package index
-lists that exact version; if publication is pending, use the source-development path
-below. A source checkout does not itself establish package-index availability.
+These commands use the published [1.6.0 package](https://pypi.org/project/agentic-security-harness/1.6.0/).
+For exact companion binding and negative controls, use the separate
+[hash-locked installed example](../examples/installed-ecosystem/README.md).
+Installation does not automatically activate companions or grant action authority.
 
 ```bash
 python -m pip install agentic-security-harness==1.6.0

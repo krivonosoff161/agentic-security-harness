@@ -113,3 +113,34 @@ def test_onboarding_reader_does_not_depend_on_windows_locale(
 
     monkeypatch.setattr(Path, "read_text", locale_read)
     test_versioned_onboarding_pin_matches_readme_and_source_version()
+
+
+def test_v160_pilot_lock_binds_one_exact_wheel_without_an_extra_index() -> None:
+    lock = (EXAMPLE.parent / "core-release.txt").read_text(encoding="utf-8")
+    rows = [line.strip() for line in lock.splitlines() if line and not line.startswith("#")]
+    assert rows == [
+        "agentic-security-harness @ https://files.pythonhosted.org/packages/1b/6d/"
+        "81c8e38b6d596329c812f82e665f211f6311469bdafef77952175c7f2c4f/"
+        "agentic_security_harness-1.6.0-py3-none-any.whl \\",
+        "--hash=sha256:bf393cb3644520a20e9c56d760c0e1ab330ddf8a099e704035a2bdad728a4a45",
+    ]
+    assert "index-url" not in lock
+    assert lock.count("https://files.pythonhosted.org/") == 1
+
+
+def test_v160_publication_docs_retain_initial_failures_and_evidence_limits() -> None:
+    notes = (ROOT / "docs/releases/v1.6.0.md").read_text(encoding="utf-8")
+    for marker in (
+        "0796fc60020ced318ad67fecb29de60234e707df",
+        "35602050427", "35602400245", "35602644448", "35602999743",
+        "bf393cb3644520a20e9c56d760c0e1ab330ddf8a099e704035a2bdad728a4a45",
+        "workflow remains failed", "No upload or build was repeated",
+        "not a production safety certification", "independent human review remain outstanding",
+    ):
+        assert marker in notes
+    adapter = (ROOT / "docs/ollama-quarantine-adapter.md").read_text(encoding="utf-8")
+    assert "**unreleased**" not in adapter
+    assert "publication is not a new model experiment" in adapter
+    example = (EXAMPLE.parent / "README.md").read_text(encoding="utf-8")
+    assert "--no-compile --only-binary=:all: --require-hashes" in example
+    assert "-r examples/installed-ecosystem/core-release.txt" in example

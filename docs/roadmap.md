@@ -47,6 +47,13 @@ Router 0.2.1 passive-import repair binding and scoped dependency updates. Its ex
 release subjects passed both indexes and the Linux/Windows read-only install matrix.
 This maintenance release does not close the independent review or real-provider gaps.
 
+Published [v1.6.0](releases/v1.6.0.md) delivers the native local Ollama proposal adapter
+and a fixed installed-ecosystem example with explicit positive/negative controls.
+The exact published subjects passed read-only Linux/Windows installation and the same
+example, without real model or target calls. The [external pilot](external-pilot.md)
+is prepared for reproduction; independent participation, broader provider coverage and
+production-effectiveness claims remain outside this release.
+
 ---
 
 ## Done
