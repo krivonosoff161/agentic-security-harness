@@ -1,5 +1,18 @@
 # Project tracker
 
+## Executable ecosystem acceptance / PR #300
+
+[#299](https://github.com/krivonosoff161/agentic-security-harness/issues/299) owns
+coordinated CodeQL maintenance and the functional six-component route described in
+[expert readiness](expert-readiness.md). Acceptance requires the installed public
+packages to execute 16 declared positive/negative paths and pass a separate verifier
+on Linux and Windows. All four functional jobs passed at `1287bf3`; see
+[exact evidence and correction history](expert-readiness.md#execution-evidence).
+Full exact-head integration is recorded in [PR #300](https://github.com/krivonosoff161/agentic-security-harness/pull/300).
+Installation-only success does not close this task.
+Independent standards review (#199), independent maintainer governance (#205), and
+external pilot participation remain human gates, never AI-completed evidence.
+
 ## Product-readiness delivery / 1.6.0 published
 
 Close onboarding version drift, run exact installed companion packages with positive

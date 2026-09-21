@@ -3,15 +3,14 @@
 import re
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).resolve().parent.parent
 WORKFLOWS = ROOT / ".github" / "workflows"
 
 
 def _workflow_texts() -> dict[str, str]:
-    return {
-        path.name: path.read_text(encoding="utf-8")
-        for path in sorted(WORKFLOWS.glob("*.yml"))
-    }
+    return {path.name: path.read_text(encoding="utf-8") for path in sorted(WORKFLOWS.glob("*.yml"))}
 
 
 def _checkout_credentials_states(text: str) -> list[bool]:
@@ -47,8 +46,7 @@ def test_every_external_action_reference_is_pinned_to_a_full_commit() -> None:
     references: list[tuple[str, str]] = []
     for name, text in _workflow_texts().items():
         references.extend(
-            (name, reference)
-            for reference in re.findall(r"(?m)^\s*uses:\s*([^\s#]+)", text)
+            (name, reference) for reference in re.findall(r"(?m)^\s*uses:\s*([^\s#]+)", text)
         )
 
     assert references
@@ -72,6 +70,14 @@ def test_coupled_action_families_use_one_commit_across_all_workflows() -> None:
         assert len(commits) == 1, (family, commits)
 
 
+def test_dependabot_groups_the_coupled_codeql_action_family() -> None:
+    config = yaml.safe_load((ROOT / ".github/dependabot.yml").read_text(encoding="utf-8"))
+    actions = next(
+        item for item in config["updates"] if item["package-ecosystem"] == "github-actions"
+    )
+    assert actions["groups"]["codeql-family"]["patterns"] == ["github/codeql-action/*"]
+
+
 def test_every_checkout_disables_persisted_credentials() -> None:
     checkout_steps = 0
     expected_checkout_steps = 0
@@ -91,9 +97,7 @@ def test_checkout_contract_handles_large_malformed_step_without_regex_backtracki
     malformed = (
         "      - name: Synthetic checkout\n"
         f"        uses: actions/checkout@{'a' * 40}\n"
-        "        with:\n"
-        + ("          \n" * 20_000)
-        + "      - run: echo omitted\n"
+        "        with:\n" + ("          \n" * 20_000) + "      - run: echo omitted\n"
     )
 
     assert _checkout_credentials_states(malformed) == [False]

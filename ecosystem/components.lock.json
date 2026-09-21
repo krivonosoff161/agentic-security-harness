@@ -1,7 +1,7 @@
 {
   "schema_version": "AgenticSecurityEcosystemComponentsLock.v1",
   "digest_algorithm": "sha256-canonical-json-v1",
-  "roadmap_sha256": "e0ef23afa0897f39a63a8d3a38b049778d461925b5fb55f48b253866fd16b91f",
+  "roadmap_sha256": "01d533c66355579998800737d45c90afb099b65c9620f49d0269463a5e898a00",
   "authority": "none",
   "entries": [
     {"component_id": "agentic-security-harness", "visibility": "public", "repository": "https://github.com/krivonosoff161/agentic-security-harness", "source_ref": "refs/heads/main", "source_commit": "31c1f290f724298e5674a581c0699e6718b89285", "source_tree": "fabb779cb29523ae0d42d346e1249371dc608f71", "manifest_sha256": "9e637801eca4fc7dadd97c94062f2c3af61130b623ee78f0e6a8d8a4f3034ad8", "verification": "exact_public_git", "projection_path": null},

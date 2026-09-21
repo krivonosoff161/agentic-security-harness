@@ -1,5 +1,11 @@
 # Roadmap
 
+Current technical baseline: [executable ecosystem acceptance](expert-readiness.md),
+beyond installation-only checks. The 16-case fixed chain exercises all six public
+components; the next external step is reproduction and independent human review.
+Mathematical working papers remain private; public theory is a curated statement of
+invariants and limits, not automatic publication of local research.
+
 > The machine-readable public master roadmap is
 > [`ecosystem/roadmap.yaml`](../ecosystem/roadmap.yaml); its generated view is
 > [Ecosystem roadmap](ecosystem-roadmap.md). The detailed Harness backlog below remains a

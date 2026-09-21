@@ -17,6 +17,7 @@ from tools.ecosystem_docs import (
     check_generated,
     generated_schemas,
     load_contract,
+    sha256,
     validate_all,
     validate_component_compatibility,
     validate_component_set,
@@ -30,6 +31,11 @@ def test_shape_and_semantic_validators_accept_canonical_contracts() -> None:
     assert roadmap.components == [row.component_id for row in compatibility.rows]
     assert roadmap.authority == "none"
     assert component.authority == "none"
+
+
+def test_component_lock_binds_current_roadmap_without_external_checkouts() -> None:
+    lock = ComponentsLock.model_validate(load_contract(ECOSYSTEM / "components.lock.json"))
+    assert lock.roadmap_sha256 == sha256(load_contract(ECOSYSTEM / "roadmap.yaml"))
 
 
 def test_generated_json_schemas_are_exact() -> None:
@@ -216,7 +222,9 @@ def test_roadmap_rejects_dependency_cycles() -> None:
 def test_roadmap_rejects_completed_phase_with_incomplete_dependency() -> None:
     payload = load_contract(ECOSYSTEM / "roadmap.yaml")
     assert isinstance(payload, dict)
-    payload["phases"][4]["status"] = "complete"
+    phases = {phase["id"]: phase for phase in payload["phases"]}
+    phases["threat-watch"]["status"] = "active"
+    phases["ecosystem-release-gates"]["status"] = "complete"
 
     with pytest.raises(ValidationError, match="incomplete dependencies"):
         EcosystemRoadmap.model_validate(payload)

@@ -5,7 +5,23 @@ optional ecosystem components. Harness `v1.4.0` publishes the exact extras after
 companion distributions were released. Installation still grants no automatic approval,
 binding, activation, execution, provider access, or deployment authority.
 
-## Exact source set
+## Current executable acceptance
+
+The source table below preserves the original v1.4.0 baseline, not today's mutable
+main or current Router release. Current published acceptance uses Harness 1.6.0
+and Router 0.2.1, pinned in the [installed example](../examples/installed-ecosystem/README.md)
+and its exact public-wheel locks. The current workflow also runs the new 16-case
+functional chain and independent verifier against both published and candidate
+wheels on Ubuntu and Windows; content-free results are retained as CI artifacts.
+The example invokes every component's declared API but uses an explicitly fake
+Router transport and in-memory Gateway audit sink. It is not provider conformance,
+authenticated custody or a human security review.
+
+The checked-out source pins in `.github/workflows/ecosystem-integration.yml` and
+`ecosystem/components.lock.json` are authoritative for the current source matrix.
+Do not use the historical table as current-head evidence.
+
+## Historical v1.4.0 exact source set
 
 | Surface | Source head | Source tree | Role in this gate |
 |---|---|---|---|
@@ -29,12 +45,12 @@ builds all eight wheels, installs the closed wheelhouse without dependency resol
 and verifies the two entry-point declarations without loading extension code. Separate
 PyPI resolver smokes prove the published `v1.4.0` package coordinates.
 
-## Executable gate
+## Source-matrix gate
 
 The `ecosystem-integration` workflow runs on Ubuntu and Windows with Python 3.11. Each
 matrix row:
 
-1. checks out every public component at the exact head above;
+1. checks out every public component at the immutable source pin in the workflow;
 2. validates all generated Harness schemas, manifests, docs, and the central component
    lock;
 3. builds the Harness wheel plus all seven companion/runtime/extension wheels, then installs

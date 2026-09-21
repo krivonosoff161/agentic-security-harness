@@ -2,12 +2,12 @@
 
 > Generated from `ecosystem/document-policy.json` and the current documentation tree.
 
-The registry classifies **175** current documentation artifacts.
+The registry classifies **176** current documentation artifacts.
 
 | Role | Files |
 |---|---:|
 | `canonical` | 1 |
-| `component-owned` | 114 |
+| `component-owned` | 115 |
 | `current-snapshot` | 2 |
 | `generated` | 11 |
 | `historical` | 13 |
