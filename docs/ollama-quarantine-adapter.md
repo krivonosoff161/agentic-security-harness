@@ -1,9 +1,10 @@
 # Native Ollama to Quarantine and pure Gateway
 
-Status: additive source capability, **unreleased**; the published `1.5.1` wheel
-does not contain this module. Build/install the reviewed source revision in an
-isolated environment. This is not an arbitrary-provider connector or a production
-deployment guide.
+Status: included in the published [1.6.0 wheel](releases/v1.6.0.md#publication-evidence).
+The older `1.5.1` wheel does not contain this module. Use the exact released package
+in an isolated environment. This is not an arbitrary-provider connector or a
+production deployment guide. The bounded model observations below retain their
+original source/artifact identity; publication is not a new model experiment.
 
 ## Boundary
 

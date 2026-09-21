@@ -1,30 +1,36 @@
 # Installed ecosystem compatibility example
 
 This directory is an explicit, offline operator example, not package auto-discovery.
-Use the repository checkout matching the selected release and a fresh environment.
+Use this fixed 1.6.0 example and its locks in a fresh environment.
 The scripts use installed distributions, not `src/`, and require no API key or model.
 
-For the **1.6.0 candidate** before publication, start at the repository root with
+For **published 1.6.0**, start at the repository root with
 Python 3.11. Create a fresh environment using `python -m venv .venv`. Activate it
 with `.venv\Scripts\Activate.ps1` in PowerShell or `source .venv/bin/activate` in Bash.
-Then build and install the candidate:
+Then install the exact public wheels; no local Core build is required:
 
 ```bash
-python -m pip install --require-hashes -r requirements/build.txt
-python -m build --no-isolation --wheel --outdir dist
-python -m pip install --require-hashes -r requirements/runtime.txt
-python -m pip install --no-compile --only-binary=:all: --require-hashes -r requirements/companions.txt
-python -m pip install --no-index --no-deps --no-compile dist/agentic_security_harness-1.6.0-py3-none-any.whl
+python -m pip --isolated install --index-url https://pypi.org/simple --no-compile --only-binary=:all: --require-hashes -r requirements/runtime.txt -r requirements/companions.txt -r examples/installed-ecosystem/core-release.txt
 python -m pip check
 python -I -B examples/installed-ecosystem/check.py --out result.json
 ash quickstart --out installed-quickstart
 ash validate installed-quickstart
 ```
 
-The currently published baseline remains 1.5.1 until the separate publication gates
-pass. Companion runtime dependencies
-are included in the hash lock, but no transport is activated. `python -m pip check`
-must succeed. For general installation use the documented `all` extra after publication.
+The Core wheel SHA-256 is
+`bf393cb3644520a20e9c56d760c0e1ab330ddf8a099e704035a2bdad728a4a45`,
+bound to [v1.6.0 publication evidence](../../docs/releases/v1.6.0.md#publication-evidence).
+The lock uses the official PyPI file URL from its JSON metadata plus the independently
+verified hash, avoiding a fresh-release simple-index lookup delay. It does not add a
+second dependency index or relax hash verification.
+Companion/runtime dependencies are included in the hash locks, but no transport is
+activated. `python -m pip check` must succeed. For general installation the `all`
+extra is also available; use this explicit lock route for reproducible binding.
+
+The immutable v1.6.0 tag retains its pre-publication local-build instructions. Its
+example code and companion locks are identical; `core-release.txt` is the later
+source-owned binding to the published wheel, not a change to that wheel. A future
+version requires a separately reviewed version/example/lock update.
 
 `--no-compile` is intentional for the two extensions: their strict distribution
 inspection requires hashed `RECORD` entries. Pip-generated `.pyc` entries have no

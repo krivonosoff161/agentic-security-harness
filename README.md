@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/release_source-v1.6.0-blue)
+![Status](https://img.shields.io/badge/public_research_release-v1.6.0-blue)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -20,13 +20,13 @@ validate, compare, and review.
 
 ## Quickstart
 
-This checkout describes [v1.6.0](docs/releases/v1.6.0.md): the native Ollama proposal
+Published [v1.6.0](docs/releases/v1.6.0.md): the native Ollama proposal
 adapter and an explicit installed-ecosystem pilot, retaining the Gateway lookup-key
 type guard and Router 0.2.1. The linked release notes distinguish source, staging and
 published evidence; a checkout or green CI alone is not proof of publication.
 
-Install the exact package version from PyPI after confirming that the public index lists
-`1.6.0`. If it is not listed yet, use the source-development path below instead:
+Install the exact package version from
+[PyPI](https://pypi.org/project/agentic-security-harness/1.6.0/):
 
 ```bash
 python -m pip install agentic-security-harness==1.6.0
@@ -109,8 +109,7 @@ another project. CI builds all eight exact wheels from pinned Git SHAs and insta
 closed local wheelhouse without loading either extension entry point. The public install
 commands are
 `pip install "agentic-security-harness[router]==1.6.0"` or
-`pip install "agentic-security-harness[all]==1.6.0"`, after confirming that version is
-published. Other companion pins are unchanged;
+`pip install "agentic-security-harness[all]==1.6.0"`. Other companion pins are unchanged;
 installation remains separate from module activation.
 
 For explicit installed extension binding, follow the fresh `--no-compile` environment
@@ -368,8 +367,12 @@ approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install the
 
 ## Release and package status
 
-For the source version described by this README, consult the
-[v1.6.0 release evidence](docs/releases/v1.6.0.md) and exact package-index entry.
+Release [v1.6.0](docs/releases/v1.6.0.md#publication-evidence) is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.6.0/) and
+[GitHub Releases](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.6.0).
+Its native adapter is now in the installed wheel; the
+[installed-ecosystem example](examples/installed-ecosystem/README.md) provides a
+hash-locked public-package route with positive and negative controls.
 The following prior release evidence is retained without rewriting its outcomes.
 
 Prior release `v1.5.1` is published on

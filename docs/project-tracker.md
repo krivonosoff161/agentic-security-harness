@@ -1,12 +1,16 @@
 # Project tracker
 
-## Product-readiness closure / 1.6.0 candidate
+## Product-readiness delivery / 1.6.0 published
 
 Close onboarding version drift, run exact installed companion packages with positive
 and negative controls, and use the same example in Linux/Windows and publication
 verification. [External pilot](external-pilot.md) defines the small reproducibility
-request. [1.6.0 notes](releases/v1.6.0.md) remain candidate-only until the release gates
-are complete. No external review or model-effectiveness result is implied.
+request. [PR #297](https://github.com/krivonosoff161/agentic-security-harness/pull/297)
+merged after 22 green checks. [1.6.0 evidence](releases/v1.6.0.md#publication-evidence)
+records the attested build, successful staging, unchanged production upload and all
+six passing read-only checks. The initial Linux 3.12 index lookup remains failed.
+No external review or model-effectiveness result is implied; pilot participation and
+outreach remain next steps, not completed validation.
 
 ## Native Ollama connector source increment
 
@@ -15,7 +19,7 @@ tracks the bounded native-response adapter, offline adversarial/transport tests,
 separate installed-artifact local-model evidence and checked Git integration.
 The [operator contract](ollama-quarantine-adapter.md) distinguishes normalization,
 admission and pure Gateway authorization; no dispatch or universal provider support
-is claimed. This is unreleased source, not a modification of published 1.5.1.
+is claimed. The module is published in 1.6.0; the earlier 1.5.1 is unchanged.
 
 ## v1.5.1 published release
 

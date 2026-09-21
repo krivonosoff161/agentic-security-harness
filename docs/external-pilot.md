@@ -8,15 +8,15 @@ Do not promise a production firewall, universal connector or a model leaderboard
 
 No credentials, customer data, private repositories, model access, real tools or
 production targets are required. Use a fresh Python 3.11 environment and the exact
-release checkout. The currently published baseline is documented in
-[Getting started](getting-started.md); the 1.6.0 candidate's installed example is at
+release's fixed example and locks. The published 1.6.0 baseline is documented in
+[Getting started](getting-started.md); its installed example is at
 [examples/installed-ecosystem](../examples/installed-ecosystem/README.md).
-Do not advertise that candidate as downloadable from PyPI before publication.
+That page provides a hash-locked PyPI route with no local package build required.
 For the explicit extension path, follow the example's `--no-compile` installation in
 a new environment. Ordinary pip bytecode entries are not accepted by the strict
 extension `RECORD` contract; a successful install alone is not a successful binding.
 
-The candidate gate installs exact companion wheels and Core's selected wheel, checks
+The installed gate installs exact companion wheels and Core's selected wheel, checks
 dependency consistency, and runs the same fixed example on Linux and Windows. The
 public command and result expectations live with the example rather than in private Lab.
 
