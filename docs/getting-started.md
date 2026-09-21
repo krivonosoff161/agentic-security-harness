@@ -11,7 +11,7 @@ with no API keys and no network.
 ## 1. Install
 
 ```bash
-python -m pip install agentic-security-harness==1.4.0
+python -m pip install agentic-security-harness==1.5.1
 ash --help
 ```
 

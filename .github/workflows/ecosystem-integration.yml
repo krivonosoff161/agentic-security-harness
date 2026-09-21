@@ -6,6 +6,7 @@ on:
       - ".github/workflows/ecosystem-integration.yml"
       - "component.yaml"
       - "ecosystem/**"
+      - "examples/installed-ecosystem/**"
       - "schemas/**"
       - "src/**"
       - "tests/**"
@@ -23,6 +24,36 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  installed-ecosystem:
+    name: Installed ecosystem (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Check out selected source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+      - name: Build candidate and install exact public companion wheels
+        run: |
+          python -m pip install --require-hashes -r requirements/build.txt
+          python -m pip install --no-compile --only-binary=:all: --require-hashes -r requirements/runtime.txt -r requirements/companions.txt
+          python -m build --no-isolation --wheel --outdir dist
+          python -m pip install --no-index --no-deps --no-compile dist/agentic_security_harness-1.6.0-py3-none-any.whl
+          python -m pip check
+      - name: Exercise installed positive and negative paths without source imports
+        run: |
+          python -I -B examples/installed-ecosystem/check.py --out installed-ecosystem-result.json
+          ash quickstart --out installed-quickstart
+          ash validate installed-quickstart
+
   exact-source-matrix:
     strategy:
       fail-fast: false
@@ -165,5 +196,5 @@ jobs:
       - name: Build and smoke the Harness package
         run: |
           python -m build --no-isolation --wheel --outdir dist
-          python -m pip install --no-index --no-deps --force-reinstall dist/agentic_security_harness-1.5.1-py3-none-any.whl
+          python -m pip install --no-index --no-deps --force-reinstall dist/agentic_security_harness-1.6.0-py3-none-any.whl
           ash --help
