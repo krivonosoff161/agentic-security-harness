@@ -2,6 +2,12 @@
 
 ## Executable ecosystem acceptance
 
+**Release boundary:** published package **1.6.0** is unchanged. The newer chain,
+prompt helper, corpus and observations below are repository-owned examples and
+evidence, not a new wheel or installed package API. They are public in
+[PR #303](https://github.com/krivonosoff161/agentic-security-harness/pull/303) and its
+predecessors; see the [post-release changelog](../CHANGELOG.md#unreleased).
+
 The [proposal-contract follow-up](ollama-quarantine-adapter.md#proposal-contract-follow-up-2026-09-26)
 now records **three real-model proposals completing all seven boundaries**, with
 three built-in constant lookups and zero real effects. Explicit vocabulary prompts
@@ -56,18 +62,19 @@ repository's `component.yaml`. The older `2026.08.02-r4-trajectory-containment` 
 Portfolio projection remains preserved as historical research evidence; it is not the
 current ecosystem product roadmap. Operational authority remains `none`.
 
-> Last reviewed: 2026-09-21 against exact released Harness commit
-> `0796fc60020ced318ad67fecb29de60234e707df`, merged Security Portfolio projection
+> Last reviewed: 2026-09-26 against merged proposal-contract evidence commit
+> `94d6f7062d4d4569d4993df5f63a9474e4e74114` and exact released Harness commit
+> `0796fc60020ced318ad67fecb29de60234e707df`, historical Security Portfolio projection
 > `2026.08.02-r4-trajectory-containment`, the historical `v1.0.0` release commit
 > `71295922b8053a188431d0f510f1e9146435c742`, and verified published release `v1.6.0`.
 >
-> Scope: public status of `agentic-security-harness` and published release `1.6.0`.
+> Scope: current repository evidence and separately published release `1.6.0`.
 > This page is a reviewer-facing status
 > snapshot, not a roadmap promise or publication claim.
 
 ## One-line status
 
-Published increment v1.5.0 (2026-09-20): the opt-in
+Historical increment v1.5.0 (2026-09-20): the opt-in
 [advisory-to-Gateway connector and ingress APIs](advisory-gateway-connector.md) accept
 strict advisory/source receipts, including exact-pinned external Playbooks synthetic
 receipt pairs. They end at a pure Gateway decision with no dispatch or automatic companion
@@ -154,7 +161,7 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 | Evidence pack format | Shipped docs slice | `docs/evidence-pack-format.md` defines how future local research becomes sanitized public evidence with private/public boundaries, hashes, claim rows, tests, and validation commands. |
 | Local real-model swarm probes | Unverified maintainer declaration | Historical documentation declares two full 15-scenario runs and complete hash-field coverage. No versioned public result projection or reconciliation receipt is present, so the repository cannot verify that the runs occurred or bind the aggregates to retained bytes. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
-| Public project process | v1.5.1 released with verified provenance | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, and a tag-only release workflow bind tag/package/CHANGELOG version and rerun the repository gates. The release workflow reproducibly builds and smoke-installs wheel/sdist subjects, publishes checksums plus an exact-subject CycloneDX SBOM, creates GitHub/Sigstore attestations, and independently verifies repository/workflow/tag/source/builder/predicate policy. The retained `v0.15.0` tag is transparent failed-gate evidence and has no GitHub Release. |
+| Public project process | v1.6.0 released with verified provenance | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, and a tag-only release workflow bind tag/package/CHANGELOG version and rerun the repository gates. The release workflow reproducibly builds and smoke-installs wheel/sdist subjects, publishes checksums plus an exact-subject CycloneDX SBOM, creates GitHub/Sigstore attestations, and independently verifies repository/workflow/tag/source/builder/predicate policy. The retained `v0.15.0` tag is transparent failed-gate evidence and has no GitHub Release. |
 | Container definitions | Shipped source definitions; images unpublished | The root Dockerfile packages the source-layout CLI and runs the offline doctor as a non-root user. `Dockerfile.gateway` and `compose.gateway.yml` build the synthetic gateway locally with loopback-only publication, read-only root filesystem, dropped capabilities, and no-new-privileges. The fail-closed `.dockerignore` excludes local/private descendants. No public image is published and the source definitions do not attest production network isolation. |
 | Runtime Guard product foundation | Shipped bounded executable specification | Metadata-only action, capability, consent, handoff, provider, budget, decision, and evidence contracts plus a pure deterministic evaluator and synthetic adversarial tests were merged through PR #162. No proxy, executor, credential broker, durable ledger, IAM integration, deployment, or production protection is shipped. |
 | Runtime Gateway local synthetic contour | Shipped in v1.2.0 | A loopback-first HTTP service applies a closed pre-dispatch policy to two deterministic synthetic tools, exposes bounded OpenAI-compatible and stateless MCP 2026-07-28 endpoints, writes a privacy-minimized single-writer hash-chain audit, and normalizes four retained provider/tool envelope families through the same policy. Docker Compose publishes host loopback only. It has no live provider transport, real credential path, arbitrary executor, authenticated approval service, IAM, production deployment, independent effectiveness evidence, or operational authority. See [runtime-gateway.md](runtime-gateway.md) and [provider-tool-adapters.md](provider-tool-adapters.md). |

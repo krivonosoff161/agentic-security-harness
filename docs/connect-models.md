@@ -8,11 +8,11 @@
 ## 1. Overview
 
 This page covers the existing prompt-based benchmark adapter. For the separate
-unreleased source path from **native Ollama proposals** to Quarantine and a pure
+path published in **1.6.0** from **native Ollama proposals** to Quarantine and a pure
 Gateway decision, see [native Ollama adapter](ollama-quarantine-adapter.md). The
 two protocols and their evidence classes are not interchangeable.
 
-The harness ships **one** external adapter: **`openai-compatible`**. It speaks the
+The prompt-based benchmark path uses **`openai-compatible`**. It speaks the
 OpenAI Chat Completions wire format (`POST {base_url}/chat/completions`). Anything that
 exposes that format - a cloud API, a local server, or a gateway/proxy in front of
 another provider - can be evaluated through the same path.
@@ -21,7 +21,7 @@ This is **prompt-based evaluation only**: the model receives a synthetic benchma
 scenario and returns a structured JSON verdict. **No tools are executed**, no agent host
 is driven, and no streaming is used. See [What is not supported yet](#13-what-is-not-supported-yet).
 
-Every model-evidence path applies the same fail-closed response contract. The top-level
+This prompt-based benchmark path applies a fail-closed response contract. The top-level
 `model` value must exactly match the requested model id (or an explicit, recorded
 `--operator-declared-model-alias` for a provider-documented normalization), and
 `choices[0].message.content` must be a nonblank string. Missing or mismatched identity,

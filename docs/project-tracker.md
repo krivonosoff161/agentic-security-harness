@@ -2,6 +2,10 @@
 
 ## Proposal-contract compatibility follow-up
 
+Delivered by [PR #303](https://github.com/krivonosoff161/agentic-security-harness/pull/303)
+on 2026-09-26. Published package **1.6.0** remains unchanged; the helper and evidence
+are repository-owned. This is completed integration work, not a pending package release.
+
 The [twelve-call paired follow-up](ollama-quarantine-adapter.md#proposal-contract-follow-up-2026-09-26)
 closes the missing bounded positive real-model chain observation: three actual
 proposals complete seven boundaries; six exact negative proposals stop as declared.
@@ -94,7 +98,9 @@ docs describe the current shipped state.
 
 ## Current GitHub snapshot
 
-Snapshot refreshed against GitHub on 2026-08-30:
+Milestone snapshot refreshed against GitHub on 2026-09-26. The technical milestones
+below are closed; the independent-review milestone remains open with two issues.
+Repository-owned follow-ups and their delivery PRs are recorded above.
 
 | Milestone | Purpose |
 |---|---|
@@ -149,8 +155,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.5.1` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.5.1/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.6.0` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.6.0/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are

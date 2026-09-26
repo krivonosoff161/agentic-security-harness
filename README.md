@@ -18,6 +18,29 @@ one.
 In plain English: it turns “the agent behaved unsafely” into evidence you can replay,
 validate, compare, and review.
 
+## Latest verified result — 2026-09-26
+
+The [twelve-call local-model follow-up](docs/ollama-quarantine-adapter.md#proposal-contract-follow-up-2026-09-26)
+records **three real-model proposals completing all seven boundaries** of the
+installed ecosystem, each ending in a built-in constant lookup. All six negative
+controls stopped at their declared boundary; real external effects were zero.
+Explicit protocol wording matched both fixed tasks; free wording matched neither
+capability identifier. This is bounded integration evidence, not a model reliability
+estimate, an autonomous-agent demonstration or an independent human audit.
+
+- **Inspect:** [fixed public corpus](examples/installed-ecosystem/proposal-contract-cases.json),
+  [content-free observations](examples/installed-ecosystem/proposal-contract-observation.json)
+  and [artifact checks](tests/test_proposal_contract_evidence.py).
+- **Use the example:** [explicit proposal protocol](examples/installed-ecosystem/README.md#explicit-proposal-protocol-and-real-model-follow-up).
+  Printing the prompt or checking artifacts does not rerun the model.
+- **Delivery:** [merged PR #303](https://github.com/krivonosoff161/agentic-security-harness/pull/303).
+  The earlier eight-call result is preserved separately in the report.
+
+**Package versus repository:** the published package remains **1.6.0**. This newer
+prompt helper, corpus, observations and tests are repository-owned; they are not a
+new installed package API. See [release and package status](#release-and-package-status)
+and [current state](docs/current-state.md) for the exact boundary.
+
 ## Quickstart
 
 Published [v1.6.0](docs/releases/v1.6.0.md): the native Ollama proposal
@@ -311,7 +334,7 @@ The README is the front door; deeper contracts live in `docs/`:
 | How can an external agent host record and evaluate observations? | [Agent Host Adapter SDK](docs/agent-host-adapter.md) |
 | How can I run the local policy gateway and MCP/OpenAI-compatible demo? | [Runtime Gateway synthetic contour](docs/runtime-gateway.md) |
 | How are provider tool-call envelopes normalized without credentials? | [Provider-neutral tool-call adapters](docs/provider-tool-adapters.md) |
-| How can native Ollama output reach Quarantine and a pure Gateway decision without dispatch? | [Native Ollama adapter (unreleased source)](docs/ollama-quarantine-adapter.md) |
+| How can native Ollama output reach Quarantine and a pure Gateway decision without dispatch? | [Native Ollama adapter (published in 1.6.0)](docs/ollama-quarantine-adapter.md) |
 | How do optional components exchange validated observations and findings? | [Extension SDK V1](docs/extension-sdk.md) |
 | How is an installed extension distribution verified before explicit registration? | [Extension Distribution Discovery V1](docs/extension-distribution-discovery.md) |
 | How does an operator approve, list, disable, or plan rollback without automatic code loading? | [Extension Operator Lifecycle V1](docs/extension-operator-lifecycle.md) |
@@ -379,6 +402,15 @@ Release [v1.6.0](docs/releases/v1.6.0.md#publication-evidence) is published on
 Its native adapter is now in the installed wheel; the
 [installed-ecosystem example](examples/installed-ecosystem/README.md) provides a
 hash-locked public-package route with positive and negative controls.
+
+The current repository adds a 16-case functional chain, caller-input checks and the
+twelve-call proposal-contract evidence above. These examples and documentation are
+newer than the immutable release; use the current checkout to inspect or run them.
+`pip install agentic-security-harness==1.6.0` installs the released runtime, not these
+repository files. No packaged runtime, dependency or public API changed in this
+follow-up, so it does not require a new wheel. The existing release artifacts and
+their embedded documentation remain unchanged; current guidance lives here.
+
 The following prior release evidence is retained without rewriting its outcomes.
 
 Prior release `v1.5.1` is published on
