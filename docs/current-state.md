@@ -2,6 +2,14 @@
 
 ## Executable ecosystem acceptance
 
+The [2026-09-26 follow-up](ollama-quarantine-adapter.md#two-step-ecosystem-proposal-campaign-2026-09-26)
+adds eight real local proposal observations through the component chain: six
+Quarantine rejections, one Handoff replay rejection and one Gateway denial, with
+zero real effects. It confirms connection and bounded enforcement observations,
+not a successful autonomous agent. The separate offline control has two full
+synthetic lookup paths. The external pilot now explicitly requests the 16-case
+functional chain rather than treating the eight-case installation baseline as it.
+
 The [expert-readiness contract](expert-readiness.md) adds a separate functional
 six-component chain to the installation baseline: 16 declared public-synthetic
 routes, actual component API execution, a separate result verifier, and Linux/Windows

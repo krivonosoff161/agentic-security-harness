@@ -1,5 +1,16 @@
 # Project tracker
 
+## Pilot protocol and model-chain follow-up
+
+The [pilot instructions](external-pilot.md) distinguish the 16-case functional
+chain from the optional eight-case installation baseline. A caller-supplied input
+regression now checks the installed chain on Linux/Windows without a model.
+[Eight fresh local model observations](ollama-quarantine-adapter.md#two-step-ecosystem-proposal-campaign-2026-09-26)
+are sealed: transport and parsing worked; no model proposal reached an allowed
+execution. Exact offline controls separately exercised both positive paths.
+The remaining empirical question is proposal-contract reliability, not missing
+model files or an untested transport. No universal safety or external review is claimed.
+
 ## Executable ecosystem acceptance / PR #300
 
 [#299](https://github.com/krivonosoff161/agentic-security-harness/issues/299) owns

@@ -28,6 +28,25 @@ def canonical(value: Any) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
 
 
+def test_historical_live_observation_keeps_finite_claims_and_digest() -> None:
+    report = json.loads((EXAMPLE / "local-model-observation.json").read_bytes())
+    corpus = json.loads((EXAMPLE / "local-model-cases.json").read_bytes())
+    expected = hashlib.sha256(
+        canonical({key: value for key, value in report.items() if key != "result_sha256"})
+    ).hexdigest()
+    assert report["result_sha256"] == expected
+    assert report["model_calls"] == report["network_connects"] == 8
+    assert report["raw_retained"] is False and report["real_effects"] == 0
+    assert report["operational_authority"] == "none"
+    assert set(report["audit_denials"].values()) == {0}
+    assert [row["id"] for row in report["rows"]] == [case["id"] for case in corpus["cases"]]
+    assert all(row["adapter"]["reason_code"] == "evaluated" for row in report["rows"])
+    terminals = [row["chain"]["terminal_stage"] for row in report["rows"]]
+    assert terminals.count("quarantine") == 6
+    assert terminals.count("handoff") == terminals.count("gateway") == 1
+    assert all(row["chain"]["synthetic_executions"] == 0 for row in report["rows"])
+
+
 def signed(value: dict[str, Any]) -> dict[str, Any]:
     value["result_sha256"] = hashlib.sha256(
         canonical({key: item for key, item in value.items() if key != "result_sha256"})
@@ -180,6 +199,7 @@ def test_ci_runs_functional_chain_and_separate_verifier_for_published_wheels() -
     assert "examples/installed-ecosystem/verify_chain.py" in workflow
     assert "-r examples/installed-ecosystem/core-release.txt" in workflow
     assert "os: [ubuntu-latest, windows-latest]" in workflow
+    assert workflow.count("examples/installed-ecosystem/check_supplied_input.py --out") == 2
 
 
 @pytest.mark.parametrize("payload", [b'{"x":1,"x":1}', b'{"x":NaN}', b'{"x":Infinity}'])

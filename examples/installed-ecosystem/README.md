@@ -96,3 +96,25 @@ closed report fields, pins, exact runner/fixture digests, all stage prefixes,
 outcomes, causal digest links, transport accounting and zero real effects.
 Digest integrity is not producer authenticity or independent human review.
 Linux and Windows CI run both candidate-wheel and exact published-wheel contours.
+
+### Caller-supplied input regression
+
+The separate [2026-09-26 model campaign](../../docs/ollama-quarantine-adapter.md#two-step-ecosystem-proposal-campaign-2026-09-26)
+publishes its fixed corpus in `local-model-cases.json` and a content-free historical
+snapshot in `local-model-observation.json`. These are evidence, not inputs replayed
+by the deterministic CLI or a claim that a live-model path completed successfully.
+
+`run_case(..., canonical_input=bytes)` is an in-memory example seam, not a provider
+adapter or new package API. Supplied bytes still pass through the same Quarantine
+admission and are committed into the case digest; they cannot replace the registry,
+policy or component bindings. The default 16-case CLI remains unchanged.
+
+```bash
+python -I -B examples/installed-ecosystem/check_supplied_input.py --out supplied-input.json
+```
+
+This separate offline installed check covers a valid key, an unknown key,
+authority-shaped arguments and malformed JSON. It expects one synthetic execution
+and zero real effects/model calls. Both installed-wheel CI contours run it.
+Any real-model use of this seam requires a separate finite campaign manifest;
+passing this check does not establish model behavior.
