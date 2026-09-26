@@ -222,6 +222,87 @@ only the upstream proposal model was real. The next discriminating hypothesis is
 whether an explicit literal work-item contract improves proposal identity compared
 with natural-language tasks; no repair or retry of the eight observed replies was made.
 
+### Proposal-contract follow-up, 2026-09-26
+
+A new preregistered twelve-call matrix tested that question without changing the
+model, generation options, JSON Schema, registered capabilities or Gateway policy.
+It used the same exact installed 1.6.0/companion wheels and runner bytes above,
+bound to repository base `2d20f6e016d69e77db2d0b78f2391f85c7a73b53`.
+Every installed wheel member except installation-rewritten `RECORD` was checked
+against its locked artifact. The old eight-call seal remains unchanged.
+
+Two public lookup tasks were each phrased three ways: free wording, a literal JSON
+record, and an explicit field/vocabulary contract. Order was reversed for the
+second task; every call was stateless, with no carried prior observation. Six
+separate negative controls used fixed literal proposals and fixture-owned mutations.
+The [public cases](../examples/installed-ecosystem/proposal-contract-cases.json)
+and [content-free observations](../examples/installed-ecosystem/proposal-contract-observation.json)
+retain the complete matrix, including unsuccessful cases.
+Git normalizes the observation file's line endings; the parsed record and its
+internal canonical result digest are unchanged from the sealed Lab result.
+
+| Framing/control | Exact proposal | Observed chain outcome |
+|---|---:|---|
+| Free task wording | 0/2 | Both rejected: capability not registered; expected key retained. |
+| Literal JSON | 1/2 | One complete lookup; one rejected for invalid arguments despite the expected capability/key. |
+| Explicit field/vocabulary contract | 2/2 | Both complete lookups through all seven boundaries. |
+| Six negative controls | 6/6 | Unknown capability and authority object rejected at Quarantine; unknown key denied by Gateway; replay and parent rebinding rejected at Handoff; unknown advisory signal stops at Playbooks. |
+
+All twelve HTTP responses parsed. Three **actual model proposals**, not substituted
+fixtures, completed the full chain and performed three built-in constant lookups.
+All six negative proposals exactly matched their public test records and reached
+the intended boundary; none executed. Real effects, raw retention and denied audit
+attempts were zero. The owned local service was stopped after the batch. There were
+no retries, response repairs, cloud calls or policy relaxations.
+
+The causal finding is narrow: JSON shape alone did not ensure correct capability
+identity or argument conformance. Explicit vocabulary framing distinguished these
+two tasks. The literal variant's failure also shows that asking for an exact record
+is not a substitute for validation. This is a prompt/integration usability gap,
+not evidence that the Connector's refusal was wrong or that its allowlist needs widening.
+
+The pure [prompt helper](../examples/installed-ecosystem/proposal_contract.py) makes
+the tested wording reusable. From a repository checkout, with the example's
+registry and config already constructed:
+
+```python
+from runpy import run_path
+
+build_lookup_prompt = run_path(
+    "examples/installed-ecosystem/proposal_contract.py"
+)["build_lookup_prompt"]
+# Pass this string to invoke_ollama_quarantine_v1(..., prompt=prompt, ...).
+prompt = build_lookup_prompt("project-status")  # no call or execution by itself
+```
+
+The helper defaults to `contract` framing and accepts only the two fixed public
+keys; `literal` is an explicit comparison option. It is a repository-owned example,
+not a new wheel API. The adapter outcome is still content-free and never dispatches.
+The Lab's transient transport capture passed unmodified proposal values into the
+example's existing caller-input seam; it did not add an automatic agent executor.
+
+Offline controls passed all twelve expected routes (1,982 checker assertions;
+nine re-signed report mutations rejected). A separate at-capture implementation
+classified actual response bytes, checked against the worker before discarding
+them. The model artifact verifier passed 1,850 assertions; exact matches also
+permit recomputation of public proposal/envelope digests. Non-exact raw responses
+cannot be independently reconstructed after deletion. An initial checker defect
+compared a raw digest to Quarantine's domain-separated digest; its correction is
+separately bound, with no result, manifest or primary replay.
+
+Manifest SHA-256: `3b1a9a4e41d5fd7c0ef2dffc760b99e0670ba42318d56fc54b0698f3b6e266df`.
+Sealed Lab result-file SHA-256: `168e6e30d5665feab9f4baa426c6e33dd84f6d3cddc47e06b489e9055ea608d3`.
+Checker-result SHA-256: `9245aaa1940545ad9f7564d32dcbfa7812ba30ad3297068731c6a2a8018149b9`.
+
+Two fixed positive tasks are not a statistical reliability estimate, proof of
+autonomous task understanding or a general prompt defense. Router transport,
+Filter score, advisory signals and the Gateway audit sink remain fixture-owned;
+the upstream local model and installed component APIs are real. Arbitrary tasks,
+other models, distributed custody, OS-level containment and production security
+remain unproved. Independent human review is still separate. The next research
+question is generalization on an independently chosen task/model corpus, not a
+repeat of these fixed successful cases.
+
 Native protocol references: [Ollama generate API](https://docs.ollama.com/api/generate)
 and [structured outputs](https://docs.ollama.com/capabilities/structured-outputs).
 Other providers require an explicitly declared adapter and its own conformance

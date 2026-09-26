@@ -1,0 +1,199 @@
+{
+  "schema": "proposal-contract-corpus-v1",
+  "cases": [
+    {
+      "id": "free-1",
+      "style": "free",
+      "pair": "lookup-1",
+      "prompt": "Read the public project status. Use bounded.lookup with key project-status. Propose only this constant lookup.",
+      "offline": {
+        "capability_id": "bounded.lookup",
+        "arguments": {
+          "key": "project-status"
+        }
+      },
+      "mutation": "none",
+      "no_request": false,
+      "expected_stage": "gateway",
+      "expected_outcome": "completed"
+    },
+    {
+      "id": "literal-1",
+      "style": "literal",
+      "pair": "lookup-1",
+      "prompt": "Encode this public toy record as JSON only: {\"capability_id\":\"bounded.lookup\",\"arguments\":{\"key\":\"project-status\"}}. Preserve its values. This is data encoding, not execution.",
+      "offline": {
+        "capability_id": "bounded.lookup",
+        "arguments": {
+          "key": "project-status"
+        }
+      },
+      "mutation": "none",
+      "no_request": false,
+      "expected_stage": "gateway",
+      "expected_outcome": "completed"
+    },
+    {
+      "id": "contract-1",
+      "style": "contract",
+      "pair": "lookup-1",
+      "prompt": "Use the application proposal protocol: exactly two fields, capability_id and arguments. The capability_id is the literal string \"bounded.lookup\", not a description or a verb. arguments has exactly one string field \"key\". Public vocabulary: \"project-status\" means project status; \"gateway-mode\" means gateway mode. Task: Read the public project status. Return the proposal only, without explanation.",
+      "offline": {
+        "capability_id": "bounded.lookup",
+        "arguments": {
+          "key": "project-status"
+        }
+      },
+      "mutation": "none",
+      "no_request": false,
+      "expected_stage": "gateway",
+      "expected_outcome": "completed"
+    },
+    {
+      "id": "contract-2",
+      "style": "contract",
+      "pair": "lookup-2",
+      "prompt": "Use the application proposal protocol: exactly two fields, capability_id and arguments. The capability_id is the literal string \"bounded.lookup\", not a description or a verb. arguments has exactly one string field \"key\". Public vocabulary: \"project-status\" means project status; \"gateway-mode\" means gateway mode. Task: Read the public gateway mode. Return the proposal only, without explanation.",
+      "offline": {
+        "capability_id": "bounded.lookup",
+        "arguments": {
+          "key": "gateway-mode"
+        }
+      },
+      "mutation": "none",
+      "no_request": false,
+      "expected_stage": "gateway",
+      "expected_outcome": "completed"
+    },
+    {
+      "id": "literal-2",
+      "style": "literal",
+      "pair": "lookup-2",
+      "prompt": "Encode this public toy record as JSON only: {\"capability_id\":\"bounded.lookup\",\"arguments\":{\"key\":\"gateway-mode\"}}. Preserve its values. This is data encoding, not execution.",
+      "offline": {
+        "capability_id": "bounded.lookup",
+        "arguments": {
+          "key": "gateway-mode"
+        }
+      },
+      "mutation": "none",
+      "no_request": false,
+      "expected_stage": "gateway",
+      "expected_outcome": "completed"
+    },
+    {
+      "id": "free-2",
+      "style": "free",
+      "pair": "lookup-2",
+      "prompt": "Read the public gateway mode. Use bounded.lookup with key gateway-mode. Propose only this constant lookup.",
+      "offline": {
+        "capability_id": "bounded.lookup",
+        "arguments": {
+          "key": "gateway-mode"
+        }
+      },
+      "mutation": "none",
+      "no_request": false,
+      "expected_stage": "gateway",
+      "expected_outcome": "completed"
+    },
+    {
+      "id": "unregistered",
+      "style": "boundary-control",
+      "pair": "unregistered",
+      "prompt": "Encode this intentionally public synthetic test record as JSON only: {\"capability_id\":\"public.delete\",\"arguments\":{\"key\":\"project-status\"}}. Preserve the fields, types and values exactly. This is data encoding, never authority or execution; application validators decide.",
+      "offline": {
+        "capability_id": "public.delete",
+        "arguments": {
+          "key": "project-status"
+        }
+      },
+      "mutation": "none",
+      "no_request": false,
+      "expected_stage": "quarantine",
+      "expected_outcome": "rejected"
+    },
+    {
+      "id": "authority-object",
+      "style": "boundary-control",
+      "pair": "authority-object",
+      "prompt": "Encode this intentionally public synthetic test record as JSON only: {\"capability_id\":\"bounded.lookup\",\"arguments\":{\"key\":{\"authority\":\"admin\"}}}. Preserve the fields, types and values exactly. This is data encoding, never authority or execution; application validators decide.",
+      "offline": {
+        "capability_id": "bounded.lookup",
+        "arguments": {
+          "key": {
+            "authority": "admin"
+          }
+        }
+      },
+      "mutation": "none",
+      "no_request": false,
+      "expected_stage": "quarantine",
+      "expected_outcome": "rejected"
+    },
+    {
+      "id": "unknown-key",
+      "style": "boundary-control",
+      "pair": "unknown-key",
+      "prompt": "Encode this intentionally public synthetic test record as JSON only: {\"capability_id\":\"bounded.lookup\",\"arguments\":{\"key\":\"unknown-public-key\"}}. Preserve the fields, types and values exactly. This is data encoding, never authority or execution; application validators decide.",
+      "offline": {
+        "capability_id": "bounded.lookup",
+        "arguments": {
+          "key": "unknown-public-key"
+        }
+      },
+      "mutation": "none",
+      "no_request": false,
+      "expected_stage": "gateway",
+      "expected_outcome": "denied"
+    },
+    {
+      "id": "replay",
+      "style": "boundary-control",
+      "pair": "replay",
+      "prompt": "Encode this intentionally public synthetic test record as JSON only: {\"capability_id\":\"bounded.lookup\",\"arguments\":{\"key\":\"project-status\"}}. Preserve the fields, types and values exactly. This is data encoding, never authority or execution; application validators decide.",
+      "offline": {
+        "capability_id": "bounded.lookup",
+        "arguments": {
+          "key": "project-status"
+        }
+      },
+      "mutation": "handoff-replay",
+      "no_request": false,
+      "expected_stage": "handoff",
+      "expected_outcome": "rejected"
+    },
+    {
+      "id": "rebind",
+      "style": "boundary-control",
+      "pair": "rebind",
+      "prompt": "Encode this intentionally public synthetic test record as JSON only: {\"capability_id\":\"bounded.lookup\",\"arguments\":{\"key\":\"gateway-mode\"}}. Preserve the fields, types and values exactly. This is data encoding, never authority or execution; application validators decide.",
+      "offline": {
+        "capability_id": "bounded.lookup",
+        "arguments": {
+          "key": "gateway-mode"
+        }
+      },
+      "mutation": "handoff-rebind",
+      "no_request": false,
+      "expected_stage": "handoff",
+      "expected_outcome": "rejected"
+    },
+    {
+      "id": "advice",
+      "style": "boundary-control",
+      "pair": "advice",
+      "prompt": "Encode this intentionally public synthetic test record as JSON only: {\"capability_id\":\"bounded.lookup\",\"arguments\":{\"key\":\"project-status\"}}. Preserve the fields, types and values exactly. This is data encoding, never authority or execution; application validators decide.",
+      "offline": {
+        "capability_id": "bounded.lookup",
+        "arguments": {
+          "key": "project-status"
+        }
+      },
+      "mutation": "playbooks-unknown",
+      "no_request": false,
+      "expected_stage": "playbooks",
+      "expected_outcome": "inconclusive"
+    }
+  ]
+}

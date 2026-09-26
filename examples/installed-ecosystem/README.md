@@ -118,3 +118,27 @@ authority-shaped arguments and malformed JSON. It expects one synthetic executio
 and zero real effects/model calls. Both installed-wheel CI contours run it.
 Any real-model use of this seam requires a separate finite campaign manifest;
 passing this check does not establish model behavior.
+
+### Explicit proposal protocol and real-model follow-up
+
+The separate [paired experiment](../../docs/ollama-quarantine-adapter.md#proposal-contract-follow-up-2026-09-26)
+records twelve new local calls in `proposal-contract-cases.json` and the content-free
+`proposal-contract-observation.json`. Three actual proposals reached all seven
+boundaries and performed the built-in constant lookup; all six negative controls
+stopped as declared. This does not replace the earlier eight-call evidence.
+
+The pure repository-owned helper prints the exact protocol wording used for a
+fixed public lookup. It performs no model call, package discovery or execution:
+
+```bash
+python -I -B examples/installed-ecosystem/proposal_contract.py --key project-status
+python -I -B examples/installed-ecosystem/proposal_contract.py --key gateway-mode
+```
+
+Use its `build_lookup_prompt` return value as `prompt` in the documented native
+adapter example. The default `contract` framing matched both fixed proposals in
+this run; `--framing literal` retains the comparison variant, which matched one
+of two. Prompt wording is guidance, never authorization. The adapter still owns
+normalization, Quarantine still rejects unknown identifiers/arguments, and Gateway
+still decides the action. Do not repair a response or broaden policy to force a pass.
+The helper is an example, not a newly published wheel API or a general agent planner.
