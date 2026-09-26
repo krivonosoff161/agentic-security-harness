@@ -49,11 +49,14 @@ jobs:
         run: |
           python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json
           python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json
+          python -I -B examples/installed-ecosystem/check_supplied_input.py --out supplied-input.json
       - name: Preserve content-free published-wheel evidence
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: published-functional-chain-${{ matrix.os }}
-          path: functional-chain.json
+          path: |
+            functional-chain.json
+            supplied-input.json
           if-no-files-found: error
           retention-days: 30
 
@@ -86,13 +89,16 @@ jobs:
           python -I -B examples/installed-ecosystem/check.py --out installed-ecosystem-result.json
           python -I -B examples/installed-ecosystem/chain.py --out candidate-functional-chain.json
           python -I -B examples/installed-ecosystem/verify_chain.py candidate-functional-chain.json
+          python -I -B examples/installed-ecosystem/check_supplied_input.py --out candidate-supplied-input.json
           ash quickstart --out installed-quickstart
           ash validate installed-quickstart
       - name: Preserve content-free candidate-wheel evidence
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: candidate-functional-chain-${{ matrix.os }}
-          path: candidate-functional-chain.json
+          path: |
+            candidate-functional-chain.json
+            candidate-supplied-input.json
           if-no-files-found: error
           retention-days: 30
 

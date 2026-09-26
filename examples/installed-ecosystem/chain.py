@@ -177,7 +177,12 @@ def router_with_in_memory_transport(role: str, payload: bytes) -> tuple[str, dic
     return text, usage, calls
 
 
-def run_case(case: dict[str, Any]) -> dict[str, Any]:
+def run_case(case: dict[str, Any], *, canonical_input: bytes | None = None) -> dict[str, Any]:
+    """Evaluate one closed chain; supplied bytes still pass normal Quarantine admission.
+
+    The optional input is an in-memory seam for separately manifested research.
+    It never adds transport, selects a provider, or changes the CLI fixture suite.
+    """
     from agent_guard.handoff_metadata import (
         HandoffAdapterContext,
         HandoffMetadataError,
@@ -222,7 +227,11 @@ def run_case(case: dict[str, Any]) -> dict[str, Any]:
         "fake_transport_calls": 0,
         "operational_authority": "none",
     }
-    commitment = digest(canonical({key: case[key] for key in ("id", "mutation", "score")}))
+    seed = {key: case[key] for key in ("id", "mutation", "score")}
+    if canonical_input is not None:
+        require(type(canonical_input) is bytes)
+        seed["canonical_input_sha256"] = digest(canonical_input)
+    commitment = digest(canonical(seed))
     row["fixture_sha256"] = commitment
 
     def stage(name: str, disposition: str, evidence: Any) -> None:
@@ -279,6 +288,8 @@ def run_case(case: dict[str, Any]) -> dict[str, Any]:
         "representation": representation,
     }
     payload = b"{" if mutation == "malformed-input" else canonical(wire)
+    if canonical_input is not None:
+        payload = canonical_input
     verdict = evaluate_quarantine_input_v1(
         registry,
         selected_profile_id="example.chain",

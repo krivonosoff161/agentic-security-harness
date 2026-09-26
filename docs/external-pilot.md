@@ -31,18 +31,36 @@ public command and result expectations live with the example rather than in priv
 1. Run `ash quickstart --out <new-directory>` and `ash validate <new-directory>`.
    Expect 24 vulnerable/protected synthetic pairs and a self-contained report. The
    modelled contrast is not detector accuracy on independent data.
-2. Run the selected release's installed-ecosystem example. It explicitly inspects,
-   approves and binds Transfer/Handoff distributions; installation alone does none of this.
-3. Check the **negative control**: missing Handoff artifact binding must produce a
-   finding; incomplete Transfer telemetry must remain inconclusive.
-4. Check the offline native-response fixtures: valid lookup proposal, unknown key,
-   authority-shaped malformed argument and no-request. The Gateway remains a pure
-   decision point; there must be zero transport attempts and no dispatch.
+2. After the exact-wheel setup above, run the functional chain and its separate verifier:
 
-Router/Filter are passive import surfaces in this example; Playbooks is a digest-bound
-data pack. Neither their real classification quality nor a universal all-component
-runtime chain is claimed. Public example/code licenses and the individual package
-licenses apply; no third-party private corpus is requested.
+   ```bash
+   python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json
+   python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json
+   ```
+
+   Expect 16 cases: two full paths with two built-in constant lookups in total,
+   and 14 paths stopping at their declared boundary. Synthetic execution is counted
+   separately: real effects, real model/provider calls and network/process attempts
+   must all remain zero.
+3. Check each **negative control** stops for its stated reason: malformed input,
+   authority escalation, receipt/accounting mismatch, Handoff tamper/replay/rebinding,
+   Playbooks tampering/unknown evidence, and Gateway denial. A missing dependency
+   or failed import is not a successful negative control.
+4. Optionally run
+   `python -I -B examples/installed-ecosystem/check.py --out installation-baseline.json`.
+   This separate eight-case installation baseline explicitly
+   inspects, approves and binds Transfer/Handoff extensions; installation alone does
+   none of this. Missing Handoff artifact binding is a finding and incomplete
+   Transfer telemetry is inconclusive. Its offline native-response fixtures use
+   pure Gateway decisions with no dispatch.
+
+The functional chain executes Filter/Router APIs and Playbook interpretation, but
+Router uses an in-memory transport and Gateway uses an in-memory audit sink. Filter
+scores/signals are fixture-owned; this is not a classifier-quality measurement.
+Only the optional installation baseline treats Router/Filter as passive imports.
+Neither route proves general cycle/replay resistance, authenticated custody, a
+universal runtime connector or production safety. Public example/code licenses and
+individual package licenses apply; no third-party private corpus is requested.
 
 ## Stop and report
 
@@ -51,8 +69,9 @@ a target or attempts a real action. Preserve only the error class, package versi
 OS/Python version and safe reproduction steps. Do not paste environment variables,
 headers, raw model output, private paths or account identifiers into an issue.
 
-The JSON example result contains fixed case ids, typed outcomes, versions, a pack
-digest and no-action counters. Review it before sharing; also state the exact source
+The JSON functional result contains fixed case ids, typed outcomes, versions,
+causal digests and separate synthetic-execution/real-effect counters. Review it
+before sharing; also state the exact source
 commit and whether the wheel came from a release or local candidate build.
 
 ## Feedback we need

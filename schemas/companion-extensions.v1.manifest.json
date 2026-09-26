@@ -60,7 +60,7 @@
     },
     "workflow": {
       "path": ".github/workflows/ecosystem-integration.yml",
-      "sha256": "4d5462cf7a0a1d2c3a55fedf8ca84955d28ae045d35b01bc03c2013af24266cc"
+      "sha256": "057a70002d10ecc30cf85661854bd3acd97541064e0c3478fe68505a1ef07a4f"
     }
   },
   "integration_model": "explicit_normalized_digest_bound_outputs",
