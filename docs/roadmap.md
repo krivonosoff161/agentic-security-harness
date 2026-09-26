@@ -2,7 +2,12 @@
 
 Current technical baseline: [executable ecosystem acceptance](expert-readiness.md),
 beyond installation-only checks. The 16-case fixed chain exercises all six public
-components; the next external step is reproduction and independent human review.
+components. The subsequent [twelve-call local-model follow-up](ollama-quarantine-adapter.md#proposal-contract-follow-up-2026-09-26)
+records three completed model-proposal paths and six expected negative stops. These
+repository-owned results use the unchanged published 1.6.0 runtime. The next research
+question is generalization beyond the two fixed lookup tasks; the next external step
+is reproduction and independent human review. Neither requires calling the previous
+bounded observations a general safety proof.
 Mathematical working papers remain private; public theory is a curated statement of
 invariants and limits, not automatic publication of local research.
 

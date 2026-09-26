@@ -1,4 +1,6 @@
+import json
 import re
+import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -6,6 +8,69 @@ ROOT = Path(__file__).resolve().parent.parent
 
 def _read(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
+
+
+def test_latest_proposal_evidence_is_visible_from_public_entry_points() -> None:
+    readme = _read("README.md")
+    overview = readme.split("## Latest verified result — 2026-09-26\n", 1)[1].split(
+        "## Quickstart", 1
+    )[0]
+    report = json.loads(_read("examples/installed-ecosystem/proposal-contract-observation.json"))
+    corpus = json.loads(_read("examples/installed-ecosystem/proposal-contract-cases.json"))
+    assert report["model_calls"] == len(corpus["cases"]) == 12
+    assert sum(row["chain"]["synthetic_executions"] for row in report["rows"]) == 3
+    assert sum(case["style"] == "boundary-control" for case in corpus["cases"]) == 6
+    assert report["real_effects"] == 0
+    assert "three real-model proposals completing all seven boundaries" in overview
+    assert "All six negative" in overview and "real external effects were zero" in overview
+    assert "repository-owned" in overview and "not a model reliability" in overview
+    for path in (
+        "examples/installed-ecosystem/proposal-contract-cases.json",
+        "examples/installed-ecosystem/proposal-contract-observation.json",
+        "tests/test_proposal_contract_evidence.py",
+    ):
+        assert f"]({path})" in overview
+        assert (ROOT / path).is_file()
+    anchor = "ollama-quarantine-adapter.md#proposal-contract-follow-up-2026-09-26"
+    assert "### Proposal-contract follow-up, 2026-09-26" in _read(
+        "docs/ollama-quarantine-adapter.md"
+    )
+    for path in (
+        "README.md", "docs/README.md", "docs/current-state.md",
+        "docs/project-tracker.md", "docs/roadmap.md",
+    ):
+        assert anchor in _read(path), path
+    assert "https://github.com/krivonosoff161/agentic-security-harness/pull/303" in overview
+    assert "eight-call result is preserved" in overview
+
+
+def test_current_onboarding_separates_published_runtime_from_repository_evidence() -> None:
+    version = tomllib.loads(_read("pyproject.toml"))["project"]["version"]
+    readme = _read("README.md")
+    assert f"Native Ollama adapter (published in {version})" in readme
+    assert "unreleased source" not in readme
+    connect = " ".join(_read("docs/connect-models.md").split())
+    assert f"path published in **{version}** from **native Ollama proposals**" in connect
+    assert "unreleased source path" not in connect
+    assert "This prompt-based benchmark path applies" in connect
+    assert "Every model-evidence path applies the same" not in connect
+    for path in ("README.md", "docs/current-state.md", "docs/project-tracker.md"):
+        text = " ".join(_read(path).split())
+        assert re.search(
+            rf"published package (?:remains )?\*\*{re.escape(version)}\*\*", text.lower()
+        ), path
+        assert "repository-owned" in text, path
+    status = _read("docs/current-state.md")
+    assert f"v{version} released with verified provenance" in status
+    assert "Last reviewed: 2026-09-26" in status
+    assert "94d6f7062d4d4569d4993df5f63a9474e4e74114" in status
+    changelog = _read("CHANGELOG.md").split("## [Unreleased]\n", 1)[1].split(
+        f"## [{version}]", 1
+    )[0]
+    assert "delivered in Git, not a new package release" in changelog
+    assert "release artifacts are immutable" in changelog
+    for number in (300, 301, 303):
+        assert f"/pull/{number}" in changelog
 
 
 def test_readme_links_methodology_docs() -> None:
@@ -1189,7 +1254,7 @@ def test_artifact_authenticity_design_separates_trust_domains_and_non_claims() -
     assert "slsa.dev/spec/v1.0" not in design
     assert "artifact-authenticity-design.md" in project_map
     assert "Historical releases and examples remain unsigned" in current_state
-    assert "v1.5.1 released with verified provenance" in current_state
+    assert "v1.6.0 released with verified provenance" in current_state
     assert "retained `v0.15.0` tag is transparent failed-gate evidence" in current_state
     assert "authentication_state=unverified" in _read("docs/evidence-classes.md")
     assert "precision/recall claims are forbidden" in _read("docs/benchmark-semantics.md")

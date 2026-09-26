@@ -6,6 +6,27 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Repository updates after 1.6.0
+
+These changes are delivered in Git, not a new package release. The packaged runtime,
+dependencies and public API remain those of 1.6.0; release artifacts are immutable.
+
+- Add the 16-case installed-ecosystem functional chain and separate verifier,
+  with exact published/candidate wheel checks on Linux and Windows
+  ([PR #300](https://github.com/krivonosoff161/agentic-security-harness/pull/300)).
+- Align the external pilot with the functional chain, add caller-supplied input
+  checks and retain the eight-call local-model predecessor, which had no successful
+  model-proposal completion
+  ([PR #301](https://github.com/krivonosoff161/agentic-security-harness/pull/301)).
+- Add the pure proposal-prompt example and twelve-call paired follow-up: three
+  actual model proposals complete all seven boundaries, six negative controls stop
+  as declared, and real effects remain zero. Publish the fixed corpus, content-free
+  observations and regression checks without altering replies or policy
+  ([PR #303](https://github.com/krivonosoff161/agentic-security-harness/pull/303)).
+- Reconcile README/navigation/status with the published native adapter and these
+  newer repository results. Bounded observations do not close generalization,
+  production-safety or independent-human-review questions.
+
 ## [1.6.0] - 2026-09-21
 
 ### Added

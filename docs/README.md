@@ -10,6 +10,8 @@ research and contract files.
 | Install and reproduce the first local report | [Getting started](getting-started.md) |
 | Prepare one bounded external reproduction | [External pilot](external-pilot.md) |
 | Understand what is shipped versus planned | [Current state](current-state.md) |
+| Inspect the latest real-model chain result and its limits | [Twelve-call proposal-contract follow-up](ollama-quarantine-adapter.md#proposal-contract-follow-up-2026-09-26) |
+| Use the repository-owned prompt helper with the published native adapter | [Explicit proposal protocol](../examples/installed-ecosystem/README.md#explicit-proposal-protocol-and-real-model-follow-up) |
 | Compare supported modes and their limits | [Capability matrix](capability-matrix.md) |
 | Interpret PASS, finding, inconclusive, and adapter error | [Benchmark semantics](benchmark-semantics.md) |
 | Build a local target adapter | [Custom adapter tutorial](custom-adapter-tutorial.md) |
