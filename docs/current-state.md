@@ -2,11 +2,21 @@
 
 ## Executable ecosystem acceptance
 
+The [proposal-contract follow-up](ollama-quarantine-adapter.md#proposal-contract-follow-up-2026-09-26)
+now records **three real-model proposals completing all seven boundaries**, with
+three built-in constant lookups and zero real effects. Explicit vocabulary prompts
+matched both fixed tasks; free wording matched neither capability identifier, and
+literal JSON matched one of two complete proposals. All six negative controls
+reached their intended stop. The repository-owned prompt example keeps the schema,
+allowlist and Gateway policy unchanged; these twelve observations are not a
+reliability estimate or a production claim.
+
 The [2026-09-26 follow-up](ollama-quarantine-adapter.md#two-step-ecosystem-proposal-campaign-2026-09-26)
 adds eight real local proposal observations through the component chain: six
 Quarantine rejections, one Handoff replay rejection and one Gateway denial, with
 zero real effects. It confirms connection and bounded enforcement observations,
-not a successful autonomous agent. The separate offline control has two full
+not a successful autonomous agent. That earlier result is preserved, not replayed.
+The separate offline control has two full
 synthetic lookup paths. The external pilot now explicitly requests the 16-case
 functional chain rather than treating the eight-case installation baseline as it.
 

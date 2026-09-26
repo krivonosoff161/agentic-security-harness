@@ -1,5 +1,17 @@
 # Project tracker
 
+## Proposal-contract compatibility follow-up
+
+The [twelve-call paired follow-up](ollama-quarantine-adapter.md#proposal-contract-follow-up-2026-09-26)
+closes the missing bounded positive real-model chain observation: three actual
+proposals complete seven boundaries; six exact negative proposals stop as declared.
+Free wording produces unregistered identifiers in both fixed cases; explicit
+vocabulary prompts preserve both proposals. A pure prompt builder and frozen
+content-free evidence are added without changing admission or policy. The next
+empirical question is generalization across independently chosen tasks/models,
+not whether these two explicitly framed lookups can traverse the installed chain.
+No new package publication, model-reply repair or human-review closure is implied.
+
 ## Pilot protocol and model-chain follow-up
 
 The [pilot instructions](external-pilot.md) distinguish the 16-case functional
@@ -8,7 +20,7 @@ regression now checks the installed chain on Linux/Windows without a model.
 [Eight fresh local model observations](ollama-quarantine-adapter.md#two-step-ecosystem-proposal-campaign-2026-09-26)
 are sealed: transport and parsing worked; no model proposal reached an allowed
 execution. Exact offline controls separately exercised both positive paths.
-The remaining empirical question is proposal-contract reliability, not missing
+At that predecessor checkpoint the empirical question was proposal-contract reliability, not missing
 model files or an untested transport. No universal safety or external review is claimed.
 
 ## Executable ecosystem acceptance / PR #300
