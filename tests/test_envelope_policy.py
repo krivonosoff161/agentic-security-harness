@@ -146,3 +146,48 @@ def test_memory_read_chain_rejects_drift_and_expired_ttl_from_write_time() -> No
         "read:ttl_removed",
         "read:ttl_expired_from_write_time",
     )
+
+
+def test_memory_ttl_narrowing_uses_one_write_epoch() -> None:
+    """A shorter downstream TTL is an earlier deadline, not a renewed lease."""
+    for write_ttl, stored_ttl, read_ttl in ((60, 1, 1), (60, 30, 1), (None, 1, 1)):
+        for elapsed, expected in ((0, True), (1, True), (2, False), (30, False)):
+            result = validate_memory_read_envelope(
+                write_envelope=_env(ttl_seconds=write_ttl),
+                stored_envelope=_env(ttl_seconds=stored_ttl),
+                read_envelope=_env(ttl_seconds=read_ttl),
+                elapsed_seconds=elapsed,
+            )
+            assert result.ok is expected, (write_ttl, stored_ttl, read_ttl, elapsed)
+            if not expected:
+                assert result.violations == ("read:ttl_expired_from_write_time",)
+
+
+def test_zero_ttl_allows_only_the_write_instant() -> None:
+    for elapsed, expected in ((0, True), (1, False)):
+        result = validate_memory_read_envelope(
+            write_envelope=_env(ttl_seconds=0),
+            stored_envelope=_env(ttl_seconds=0),
+            read_envelope=_env(ttl_seconds=0),
+            elapsed_seconds=elapsed,
+        )
+        assert result.ok is expected
+
+
+def test_absent_ttls_do_not_invent_a_deadline() -> None:
+    result = validate_memory_read_envelope(
+        write_envelope=_env(ttl_seconds=None),
+        stored_envelope=_env(ttl_seconds=None),
+        read_envelope=_env(ttl_seconds=None),
+        elapsed_seconds=1000,
+    )
+    assert result.ok
+
+
+def test_missing_elapsed_time_checks_only_metadata_not_freshness() -> None:
+    result = validate_memory_read_envelope(
+        write_envelope=_env(ttl_seconds=60),
+        stored_envelope=_env(ttl_seconds=1),
+        read_envelope=_env(ttl_seconds=1),
+    )
+    assert result.ok

@@ -127,19 +127,21 @@ def validate_memory_read_envelope(
 ) -> EnvelopeCheck:
     """Validate envelope preservation across write -> stored record -> read.
 
-    TTL is measured from the write event. A read cannot restart the TTL clock.
+    Every finite TTL is measured from the same original write event. The earliest
+    deadline wins, so narrowing a stored/read TTL cannot restart or extend it.
+    Without elapsed time this function checks metadata restrictions only.
     """
 
     violations: list[str] = []
     violations.extend(f"stored:{v}" for v in envelope_violations(stored_envelope, write_envelope))
     violations.extend(f"read:{v}" for v in envelope_violations(read_envelope, stored_envelope))
 
-    if (
-        write_envelope is not None
-        and write_envelope.ttl_seconds is not None
-        and elapsed_seconds is not None
-        and elapsed_seconds > write_envelope.ttl_seconds
-    ):
+    finite_ttls = [
+        envelope.ttl_seconds
+        for envelope in (write_envelope, stored_envelope, read_envelope)
+        if envelope is not None and envelope.ttl_seconds is not None
+    ]
+    if elapsed_seconds is not None and finite_ttls and elapsed_seconds > min(finite_ttls):
         violations.append("read:ttl_expired_from_write_time")
 
     return EnvelopeCheck(ok=not violations, violations=tuple(violations))

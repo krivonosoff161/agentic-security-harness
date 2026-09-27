@@ -3,7 +3,7 @@
 > Status: pilot theory module. Formal executable invariant prototype validated on
 > deterministic synthetic topology.
 >
-> Last reviewed: 2026-06-21.
+> Last reviewed: 2026-09-27 (foundation reconciliation candidate).
 
 ## 1. Claim
 
@@ -31,13 +31,26 @@ on synthetic topologies.
 | Payload byte integrity | `payload_hash == SHA-256(JSON-canonical(payload))` | `integrity_mismatch` |
 | Source-label preservation | Sender labels are a subset of receiver labels | `label_loss` |
 | Required provenance | Required payload types carry non-empty `source_labels` | `missing_provenance` |
-| Authority non-expansion | Delegated issuer, scope, purpose, TTL, and delegation depth do not expand beyond the parent grant | `authority_expansion` |
+| Supplied authority constraints | Compare issuer, scope, purpose and TTL with each supplied parent value; check depth against the child's declared maximum | `authority_expansion` |
 | Recipient policy | Receiver is in `allowed_recipients` when constrained | `recipient_violation` |
-| Freshness | `current_time <= expires_at` | `stale_or_replayed` |
+| Declared expiry | `current_time <= expires_at`; no replay ledger | `stale_or_replayed` (historical reason name) |
 | Policy compatibility | Sender policy is in receiver-supported policy versions | `policy_mismatch` |
 | Fail-closed verifier | Unavailable verifier blocks, not passes | `verifier_error` |
 
 ## 4. Verifier decision
+
+These checks are not interchangeable with authenticated custody. Parent arguments are
+optional: absent (`None`) arguments do not establish that axis of ancestry. An explicit
+empty parent scope is checked as an empty grant. The maximum depth, permitted recipients,
+supported policies and expiry are supplied metadata, not authenticated parent policy.
+`ttl_seconds` is compared as a duration; this API does not derive `expires_at` from it or
+establish a common parent issuance epoch. Empty `allowed_recipients` here means unspecified,
+whereas an empty `DataEnvelope.allowed_recipients` allows nobody. An adapter must not
+silently translate one into the other.
+
+The expiry check does not detect repeated use before expiry, future issuance, revocation,
+or a missing ancestor. See [foundation obligations](foundation-obligations.md#l3-scope-and-ancestry)
+and the executable limitation cases in `tests/test_foundation_contracts.py`.
 
 The verdict is a blocker decision, not a score:
 

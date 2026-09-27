@@ -109,3 +109,11 @@ statuses. Historical and unreconciled empirical components are explicitly marked
 `legacy-structural-only`. A green integrity result does not remove any of these statuses.
 It is read-only. It does not rerun models, authenticate artifact provenance,
 independently reproduce private adjudication, or certify target safety.
+
+For ordinary trace records, sequential step indices and corpus/scorecard consistency
+are not evidence that every causal event was recorded. A shortened, internally
+consistent trace can satisfy the structural validator; an on-disk bundle must also
+have matching artifact hashes. Neither check authenticates the producer or a complete
+execution history. `test_trace_step_truncation_is_structurally_accepted_without_causal_proof`
+in `tests/test_foundation_contracts.py` preserves this distinction. Causal-completeness
+claims need an independently anchored event contract and an omission detector.

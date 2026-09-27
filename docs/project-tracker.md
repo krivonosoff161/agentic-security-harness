@@ -5,6 +5,22 @@ hash equality are verified. The
 [corrected read-only matrix](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36306894913)
 passed all seven jobs without re-upload.
 
+## Foundation reconciliation — local candidate, not published
+
+Tracked by [issue #312](https://github.com/krivonosoff161/agentic-security-harness/issues/312).
+The [1.7.1 patch preparation](releases/v1.7.1.md) is not yet a published package;
+candidate-wheel CI is separate from the immutable published 1.7.0 lane.
+
+The owner-requested [ecosystem foundation matrix](foundation-matrix.md) now maps the
+17 original questions to mathematical obligations, source-owned modules, code/tests
+and residual questions. Candidate fixes cover known-empty delegation scope and a
+narrowed memory deadline. Do not count this matrix as 17 completed proofs or promote
+the unchanged published 1.7.0 package on the strength of local tests.
+
+The next depth work is authenticated ancestry/replay context, causal trace omission
+detection and bounded recovery/progress, with companion-owned changes kept outside
+Core. Private Runtime Guard and private mathematical archives remain private.
+
 ## Generalization and experimental connector release / #308
 
 [Issue #308](https://github.com/krivonosoff161/agentic-security-harness/issues/308)

@@ -3,6 +3,7 @@
 import json
 from collections.abc import Mapping
 from datetime import UTC, datetime
+from itertools import product
 from pathlib import Path
 
 import pytest
@@ -132,6 +133,69 @@ def test_capability_scope_expansion_is_hard_blocker_with_multiplier() -> None:
     assert result.failure_reasons == ["authority_expansion"]
     assert result.payload_multiplier == 1.5
     assert result.combined_score == 0.7
+
+
+def test_capability_scope_subset_over_complete_two_action_powerset() -> None:
+    scopes = [[], ["read"], ["write"], ["read", "write"]]
+    for parent_scope, child_scope in product(scopes, repeat=2):
+        payload = {"capability_id": "scope-matrix", "scope": child_scope}
+        envelope = HandoffEnvelope(
+            envelope_id="env-scope-matrix",
+            created_at=NOW,
+            sender_id="worker",
+            receiver_id="delegate",
+            payload_type="capability",
+            payload_hash=payload_sha256(payload),
+            source_labels=["public-synthetic"],
+            authority_issuer="senior",
+            authority_scope=child_scope,
+            purpose="summarize",
+            delegation_depth=1,
+            max_delegation_depth=1,
+            can_delegate=True,
+            allowed_recipients=["delegate"],
+            ttl_seconds=60,
+            expires_at=EXPIRES,
+            policy_version="handoff-policy-v1",
+            receiver_supported_policy_versions=["handoff-policy-v1"],
+            audit_entry_hash="audit-scope-matrix",
+        )
+        result = verify_handoff(
+            envelope,
+            payload,
+            current_time=NOW,
+            parent_authority_scope=parent_scope,
+            parent_authority_issuer="senior",
+            parent_purpose="summarize",
+            parent_ttl_seconds=60,
+        )
+        expected_pass = set(child_scope).issubset(parent_scope)
+        assert result.verdict == ("pass" if expected_pass else "blocked"), (
+            parent_scope,
+            child_scope,
+        )
+        assert result.failure_reasons == ([] if expected_pass else ["authority_expansion"])
+
+
+def test_unspecified_parent_scope_retains_compatibility_without_ancestry_check() -> None:
+    payload = {"summary": "synthetic fact"}
+    envelope = _summary_envelope(payload)
+
+    result = verify_handoff(envelope, payload, current_time=NOW, parent_authority_scope=None)
+
+    assert envelope.authority_scope
+    assert result.verdict == "pass"
+    assert result.failure_reasons == []
+
+
+def test_raw_handoff_explicit_empty_parent_scope_blocks_nonempty_child() -> None:
+    payload = {"summary": "synthetic fact"}
+    raw = _summary_envelope(payload).model_dump(mode="json")
+
+    result = verify_raw_handoff(raw, payload, current_time=NOW, parent_authority_scope=[])
+
+    assert result.verdict == "blocked"
+    assert result.failure_reasons == ["authority_expansion"]
 
 
 @pytest.mark.parametrize(

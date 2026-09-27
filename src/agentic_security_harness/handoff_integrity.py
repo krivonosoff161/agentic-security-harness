@@ -151,6 +151,9 @@ def verify_handoff(
 
     The verdict is a blocker decision. The score is reporting metadata:
 
+    Authority comparison applies to envelope metadata. Payload fields are opaque
+    hash-bound data, not interpreted capability grants or execution authorization.
+
     ``S_structural = 1`` for hard blockers, ``0.5`` for review-only uncertainty, else ``0``.
     ``S_semantic = n_unsafe / n_consumptions`` with a zero-consumption guard.
     ``S_combined = 0.7 * min(1, multiplier * S_structural) + 0.3 * S_semantic``.
@@ -187,7 +190,7 @@ def verify_handoff(
         set(envelope.source_labels)
     ):
         hard_blockers.append("label_loss")
-    if parent_authority_scope and not set(envelope.authority_scope).issubset(
+    if parent_authority_scope is not None and not set(envelope.authority_scope).issubset(
         set(parent_authority_scope)
     ):
         hard_blockers.append("authority_expansion")

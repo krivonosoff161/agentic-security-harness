@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from agentic_security_harness import cli
+from agentic_security_harness import __version__, cli
 from agentic_security_harness.external_runner import run_external
 from agentic_security_harness.remediation import _FAMILY_MAP
 
@@ -97,7 +97,13 @@ def test_golden_comparison_snapshot(tmp_path: Path) -> None:
 def test_golden_external_snapshot(tmp_path: Path) -> None:
     out = tmp_path / ".internal" / "external-pass"
     fixed_execution_id = "run_" + ("1" * 32)
+    # Keep the stub snapshot's metadata frozen, like its clock and execution ID.
+    # Current package identity is checked separately by test_packaging.py.
+    fixture_version = json.loads(
+        (GOLDEN / "external-pass" / "run_config.json").read_text(encoding="utf-8")
+    )["tool_version"]
     with (
+        patch("agentic_security_harness.external_runner.__version__", fixture_version),
         patch(
             "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
             side_effect=_external_snapshot_open,
@@ -130,3 +136,23 @@ def test_golden_external_snapshot(tmp_path: Path) -> None:
     results = json.loads((out / "external_results.json").read_text(encoding="utf-8"))
     raw_path = out / results[0]["raw_response_path"]
     assert raw_path.read_text(encoding="utf-8") == results[0]["raw_response"]
+
+
+def test_external_metadata_uses_current_version_without_snapshot_patch(tmp_path: Path) -> None:
+    """Historical snapshot pinning must not hide stale current-run provenance."""
+    out = tmp_path / ".internal" / "current-version"
+    with patch(
+        "agentic_security_harness.external_openai_compatible.urlopen_no_redirect",
+        side_effect=_external_snapshot_open,
+    ):
+        run_external(
+            base_url="http://localhost:8000/v1",
+            model="snapshot-model",
+            scenario_id="perception-boundary",
+            out_dir=out,
+            repeats=1,
+            max_variants=1,
+        )
+    for name in ("run_config.json", "run_index.json"):
+        metadata = json.loads((out / name).read_text(encoding="utf-8"))
+        assert metadata["tool_version"] == __version__

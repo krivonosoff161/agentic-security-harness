@@ -1,5 +1,15 @@
 # Current state
 
+## Foundation reconciliation candidate
+
+The [17-question ecosystem matrix](foundation-matrix.md) separates mathematical
+assumptions, implemented predicates, synthetic controls and remaining gaps across
+Core and its source-owned companions. Local candidate changes repair known-empty
+parent scope and narrowed memory TTL; they do not alter the published 1.7.0 evidence
+or imply that all questions have complete proofs. See
+[contract conclusions and evidence limits](theory/foundation-obligations.md) and the
+associated regressions. Complete working derivations remain outside public Git.
+
 The published package is **1.7.0**. Its PyPI wheel and sdist match the attested
 tag subjects. Corrected read-only verification passed all seven jobs after
 retained initial Python 3.12/3.13 dependency-lock failures.
