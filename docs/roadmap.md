@@ -1,14 +1,15 @@
 # Roadmap
 
-Current bounded work: [#308](https://github.com/krivonosoff161/agentic-security-harness/issues/308)
-adds fresh task/operation generalization observations and the experimental
-connector's [1.7.0 release](releases/v1.7.0.md). The exact tag build and TestPyPI
-Linux/Windows staging passed; the exact subjects are now on PyPI. Initial
-Linux 3.12/3.13 production and read-only smokes stopped at an incomplete
-same-version PyYAML hash lock before garak. Corrected read-only verification
-remains a separate pending result; no upload is repeated.
-Corpus size is not a claim of general safety; package promotion remains separate
-from model observations.
+Completed bounded delivery: [#308](https://github.com/krivonosoff161/agentic-security-harness/issues/308)
+records fresh task/operation generalization observations and the experimental
+connector's [1.7.0 release](releases/v1.7.0.md). The tag build, TestPyPI
+Linux/Windows staging and exact-subject PyPI upload succeeded. Initial Linux
+3.12/3.13 production/read-only smokes failed before garak on an incomplete
+same-version PyYAML hash lock; the separately corrected
+[read-only verification](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36306894913)
+passed all seven jobs without re-upload. Corpus size is not a general-safety
+claim; the next research question is semantic task correctness, separate from
+package availability and without an independent human-review claim.
 
 That [sixteen-call batch](proposal-generalization-20260927.md) now distinguishes
 permission from task correctness: one allowed hash used the wrong argument. The next

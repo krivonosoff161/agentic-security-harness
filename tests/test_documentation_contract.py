@@ -65,7 +65,10 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
         ), path
         assert "repository-owned" in text, path
     status = _read("docs/current-state.md")
-    assert f"v{version} published with verified build provenance" in status
+    assert (
+        f"v{version} published with verified build provenance and read-only install matrix"
+        in status
+    )
     assert "Last reviewed: 2026-09-27" in status
     assert "9284c1292fe15f5fa2c3581abd3a18aab2358b5b" in status
     changelog = _read("CHANGELOG.md").split("## [1.7.0] - 2026-09-27\n", 1)[1].split(
@@ -75,6 +78,24 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
     assert "artifacts remain immutable" in changelog
     for number in (300, 301, 303):
         assert f"/pull/{number}" in changelog
+
+
+def test_v170_publication_confirmation_preserves_failed_runs_and_exact_subjects() -> None:
+    notes = _read("docs/releases/v1.7.0.md")
+    for marker in (
+        "36304199032", "36304383233", "36304457074", "36305471109", "36305620644",
+        "36306894913", "e788ecdbdab3259b38bdddccdcfea55998e66795",
+        "87210392f1596477008bd78fdc71229047b863f42b3a459c6f9222508043a6eb",
+        "a2b7d3f6c1bc9c1cabe3e1616e74b1e4743632cbb4459e3bf2c1f21cad2209aa",
+        "17ba5d65707a935fdf8f78b4321a7f1bd5b682b0cdde1f96bd9d190c97e9b6c9",
+        "9439032ca986b7b20f196507b92200fbb09a3af935457a2931af3561eb8b8ac1",
+        "overall workflow remains failed", "no upload was repeated",
+        "not a production safety certification", "independent human review",
+    ):
+        assert marker in notes
+    for path in ("README.md", "docs/current-state.md", "docs/project-tracker.md"):
+        assert "36306894913" in _read(path), path
+    assert "| Corrected read-only verification | Pending |" not in notes
 
 
 def test_readme_links_methodology_docs() -> None:
@@ -1258,7 +1279,10 @@ def test_artifact_authenticity_design_separates_trust_domains_and_non_claims() -
     assert "slsa.dev/spec/v1.0" not in design
     assert "artifact-authenticity-design.md" in project_map
     assert "Historical releases and examples remain unsigned" in current_state
-    assert "v1.7.0 published with verified build provenance" in current_state
+    assert (
+        "v1.7.0 published with verified build provenance and read-only install matrix"
+        in current_state
+    )
     assert "retained `v0.15.0` tag is transparent failed-gate evidence" in current_state
     assert "authentication_state=unverified" in _read("docs/evidence-classes.md")
     assert "precision/recall claims are forbidden" in _read("docs/benchmark-semantics.md")

@@ -3,8 +3,10 @@
 An independent, experimental Harness connector example. **Not an official NVIDIA/garak
 integration.** The adapter is in the attested Harness 1.7.0 wheel staged on
 TestPyPI and published on PyPI. Linux/Windows 3.11 production smokes passed;
-Linux 3.12/3.13 stopped at missing PyYAML wheel hashes before garak execution.
-Corrected read-only verification is pending. Published Harness 1.6.0 does not contain it.
+Linux 3.12/3.13 initially stopped at missing PyYAML wheel hashes before garak
+execution. The [corrected read-only run](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36306894913)
+passed all seven jobs, including exact-wheel named-detector checks on Linux
+3.11/3.12/3.13 and Windows 3.11, without re-upload. Published Harness 1.6.0 does not contain it.
 [Contract and Python API](../../docs/garak-plan-connector.md).
 
 The same fixed public-synthetic plan reaches the actual garak detector and the separate
