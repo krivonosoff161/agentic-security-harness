@@ -1,16 +1,23 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The package is published as `1.6.0` on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.6.0/). This page documents the
-manual, environment-gated OIDC promotion path used for that release and required for
-future releases. See the gates in [release-checklist.md](release-checklist.md).
+The current package is published as `1.7.0` on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.7.0/). This page documents the
+manual, environment-gated OIDC promotion path and the retained initial smoke
+failures. See the gates in [release-checklist.md](release-checklist.md).
 
 Release `v1.6.0` completed the exact tag, attested release build, TestPyPI review,
 explicitly approved conditional PyPI promotion, and post-publication verification gates. Future
 versions must repeat those gates; repository metadata alone never authorizes publication.
-The [v1.7.0 release candidate](releases/v1.7.0.md) is not published. Its added
-garak adapter is checked with a source-pinned named detector from the exact
-candidate, tag-built, staged and production wheels on Linux and Windows. This
+The [v1.7.0 release](releases/v1.7.0.md) passed the attested tag build
+and exact-wheel TestPyPI staging on Linux and Windows. The initial staging dispatch
+failed before upload because the tag was absent from the protected environment's
+allowlist; only that tag was added before the successful reviewed run. The
+exact-subject PyPI upload succeeded, with official index hashes matching the
+attested wheel and sdist. Linux 3.11 and Windows 3.11 smokes passed; Linux
+3.12/3.13 failed before garak because the PyYAML 6.0.3 smoke lock omitted
+their wheel hashes. Initial read-only run `36305620644` retained the same
+failure; a reviewed policy correction and read-only rerun remain pending. No
+upload was repeated. The named-detector check
 does not imply a released garak distribution or NVIDIA/garak endorsement.
 
 ## Packaging facts (current)
@@ -99,7 +106,7 @@ derive the exact universal-wheel SHA-256 from the official package-index JSON re
 and require that hash during a `--no-deps` package install. TestPyPI is not used as an
 extra dependency index.
 
-### Current published release: v1.6.0
+### Historical published release: v1.6.0
 
 Exact release source is `0796fc60020ced318ad67fecb29de60234e707df`; attested build
 [35602050427](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/35602050427)

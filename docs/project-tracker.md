@@ -1,12 +1,20 @@
 # Project tracker
 
+The published package is **1.7.0**. Production upload and exact PyPI wheel/sdist
+hash equality are verified; the corrected read-only matrix remains pending.
+
 ## Generalization and experimental connector release / #308
 
 [Issue #308](https://github.com/krivonosoff161/agentic-security-harness/issues/308)
 tracks one new finite public-synthetic local-model matrix and the separately gated
-1.7.0 candidate. Model conformance does not substitute for package tests. The candidate
-does not mean publication; exact-head CI, reviewed diff, tag provenance, TestPyPI,
-post-staging owner approval and read-only published verification remain required.
+1.7.0 release. Model conformance does not substitute for package tests. Exact-head
+CI, reviewed diff, tag provenance and TestPyPI Linux/Windows staging passed.
+Production promotion received its separate post-staging owner approval. The
+exact-subject PyPI upload job succeeded and official index hashes match the
+attested wheel and sdist. Linux/Windows 3.11 production smokes passed; Linux
+3.12/3.13 stopped before garak on absent PyYAML 6.0.3 wheel hashes. The initial
+read-only run retained the same failures. Corrected read-only verification is
+pending; neither overall failed workflow is reported as PASS.
 The prior model campaigns and published 1.6.0 artifacts are immutable.
 
 The [sixteen-call observation](proposal-generalization-20260927.md) is sealed:
@@ -21,7 +29,7 @@ The [source-only adapter and example](garak-plan-connector.md) separate detector
 observation from Quarantine admission, Gateway authorization and synthetic execution.
 Acceptance requires malformed/authority-shaped regression cases, actual pinned
 source-detector compatibility, independent artifact checking and Linux/Windows CI.
-The feature is unreleased; no NVIDIA affiliation, upstream acceptance, full garak
+The API is published in Harness 1.7.0; no NVIDIA affiliation, upstream acceptance, full garak
 distribution support, model campaign or independent human review is claimed.
 
 ## Proposal-contract compatibility follow-up
@@ -179,8 +187,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.6.0` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.6.0/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.7.0` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.7.0/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are

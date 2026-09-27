@@ -8,7 +8,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [1.7.0] - 2026-09-27
 
-Release candidate; no tag, package-index upload, or publication is claimed here.
+The exact v1.7.0 tag build and TestPyPI staging passed. The same attested wheel
+and sdist were published to PyPI. Initial production and read-only workflows
+retain Python 3.12/3.13 dependency-lock failures before the garak step;
+corrected read-only verification is a separate pending result.
 
 ### Added
 
@@ -22,8 +25,9 @@ Release candidate; no tag, package-index upload, or publication is claimed here.
 ### Repository updates since 1.6.0
 
 The preceding repository-only changes below were delivered in Git after 1.6.0.
-Published 1.6.0 artifacts remain immutable. The adapter above enters the 1.7.0
-candidate wheel only after the separate release gates pass.
+Published 1.6.0 artifacts remain immutable. The adapter above is included in
+the attested 1.7.0 wheel staged on TestPyPI and published to PyPI after separate
+owner approval. The existing companion pins are unchanged.
 
 - Add the 16-case installed-ecosystem functional chain and separate verifier,
   with exact published/candidate wheel checks on Linux and Windows

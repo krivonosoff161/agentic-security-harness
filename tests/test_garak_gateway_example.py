@@ -96,7 +96,8 @@ def test_manifest_pins_corpus_and_modules() -> None:
 def test_documented_source_only_and_non_affiliation_boundary() -> None:
     doc = (ROOT / "docs" / "garak-plan-connector.md").read_text(encoding="utf-8")
     assert "not included in published Harness 1.6.0" in doc
-    assert "Harness 1.7.0 release candidate API" in doc
+    assert "Harness 1.7.0" in doc and "published" in doc
+    assert "release candidate API" not in doc
     assert "not an official NVIDIA component" in doc
     assert "unmerged at selection" in doc
     assert "not an OS sandbox" in doc

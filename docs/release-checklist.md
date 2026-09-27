@@ -24,8 +24,11 @@ on Linux/Windows. This checklist remains the required
 procedure for subsequent releases. The broader readiness map is
 [v1-readiness.md](v1-readiness.md).
 
-The [v1.7.0 candidate](releases/v1.7.0.md) adds a source-pinned experimental garak
-plan adapter. Before tagging, require the candidate wheel's four-case detector,
+The [v1.7.0 release](releases/v1.7.0.md) adds a source-pinned experimental garak
+plan adapter. Its tag build, staging and exact-subject PyPI upload succeeded.
+Initial Linux 3.12/3.13 production and read-only smokes failed at incomplete
+PyYAML wheel hash coverage before garak; corrected read-only verification remains
+pending without re-upload. Before future tagging, require the candidate wheel's four-case detector,
 Quarantine and Gateway check on both Linux and Windows. The tag workflow must run
 the same check from its exact release wheel on both platforms. TestPyPI and PyPI
 smokes must install the exact index wheel before this check; staging needs both

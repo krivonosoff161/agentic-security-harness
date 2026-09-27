@@ -56,10 +56,11 @@ def test_versioned_onboarding_pin_matches_readme_and_source_version() -> None:
     readme = re.search(pattern, (ROOT / "README.md").read_text(encoding="utf-8"))
     onboarding = re.search(pattern, (ROOT / "docs/getting-started.md").read_text(encoding="utf-8"))
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
-    assert readme and onboarding and readme.group(1) == onboarding.group(1) == "1.6.0"
+    assert readme and onboarding and readme.group(1) == onboarding.group(1) == "1.7.0"
     assert project["version"] == "1.7.0"
     notes = (ROOT / "docs/releases/v1.7.0.md").read_text(encoding="utf-8")
-    assert "release candidate; not published" in notes
+    assert "release candidate; not published" not in notes
+    assert "https://pypi.org/project/agentic-security-harness/1.7.0/" in notes
 
 
 def test_example_configs_are_canonical_and_authority_free() -> None:
@@ -149,3 +150,23 @@ def test_v160_publication_docs_retain_initial_failures_and_evidence_limits() -> 
     example = (EXAMPLE.parent / "README.md").read_text(encoding="utf-8")
     assert "--no-compile --only-binary=:all: --require-hashes" in example
     assert "-r examples/installed-ecosystem/core-release.txt" in example
+
+
+def test_v170_pilot_lock_binds_new_subject_without_rewriting_historical_lock() -> None:
+    lock = (EXAMPLE.parent / "core-release-v1.7.0.txt").read_text(encoding="utf-8")
+    rows = [line.strip() for line in lock.splitlines() if line and not line.startswith("#")]
+    assert rows == [
+        "agentic-security-harness @ https://files.pythonhosted.org/packages/95/44/"
+        "213b49f6fd6a62223d05559373fb7f89f1bce8e45cb7f323c8a286f8b220/"
+        "agentic_security_harness-1.7.0-py3-none-any.whl \\",
+        "--hash=sha256:87210392f1596477008bd78fdc71229047b863f42b3a459c6f9222508043a6eb",
+    ]
+    assert "index-url" not in lock
+    assert lock.count("https://files.pythonhosted.org/") == 1
+    example = (EXAMPLE.parent / "README.md").read_text(encoding="utf-8")
+    assert "-r examples/installed-ecosystem/core-release-v1.7.0.txt" in example
+    assert "Historical published 1.6.0" in example
+    assert "It expects two synthetic executions" in example
+    pilot = (ROOT / "docs/external-pilot.md").read_text(encoding="utf-8")
+    assert "published 1.7.0" in pilot
+    assert pilot.count("--core-version 1.7.0") == 3

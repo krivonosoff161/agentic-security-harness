@@ -1,6 +1,9 @@
 # Experimental garak plan connector
 
-Status: **Harness 1.7.0 release candidate API**, not included in published Harness 1.6.0.
+Status: **Harness 1.7.0 API, published on PyPI**. Linux/Windows 3.11 production
+smokes passed; Linux 3.12/3.13 stopped at a dependency hash lock before this
+example ran, with corrected read-only verification pending. This API is
+not included in published Harness 1.6.0.
 This is an independent Harness integration, not an official NVIDIA component or an
 integration endorsed by garak maintainers. It adds no garak dependency to Harness.
 

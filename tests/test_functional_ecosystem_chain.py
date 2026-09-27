@@ -210,7 +210,11 @@ def test_ci_runs_functional_chain_and_separate_verifier_for_published_wheels() -
     assert "published-functional-chain:" in workflow
     assert "examples/installed-ecosystem/chain.py" in workflow
     assert "examples/installed-ecosystem/verify_chain.py" in workflow
-    assert "-r examples/installed-ecosystem/core-release.txt" in workflow
+    assert "-r examples/installed-ecosystem/core-release-v1.7.0.txt" in workflow
+    published = workflow.split("  published-functional-chain:\n", 1)[1].split(
+        "  installed-ecosystem:\n", 1
+    )[0]
+    assert published.count("--core-version 1.7.0") == 3
     assert "os: [ubuntu-latest, windows-latest]" in workflow
     assert workflow.count("examples/installed-ecosystem/check_supplied_input.py --out") == 2
 

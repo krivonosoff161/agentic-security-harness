@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/public_research_release-v1.6.0-blue)
+![Status](https://img.shields.io/badge/public_research_release-v1.7.0-blue)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -46,37 +46,42 @@ estimate, an autonomous-agent demonstration or an independent human audit.
 - **Delivery:** [merged PR #303](https://github.com/krivonosoff161/agentic-security-harness/pull/303).
   The earlier eight-call result is preserved separately in the report.
 
-**Package versus repository:** the published package remains **1.6.0**. This newer
-prompt helper, corpus, observations and tests are repository-owned; they are not a
-new installed package API. See [release and package status](#release-and-package-status)
-and [current state](docs/current-state.md) for the exact boundary.
+**Package versus research evidence:** the study used exact installed **1.6.0**
+subjects, while the current published package is **1.7.0**. The prompt helper,
+corpus and observations are repository-owned evidence, not evidence that the
+1.7.0 wheel was used in those model calls. See
+[release and package status](#release-and-package-status) and
+[current state](docs/current-state.md) for the exact boundary.
 
-## Experimental garak connection (unreleased)
+## Experimental garak connection
 
-The **1.7.0 release candidate** packages this opt-in adapter; it is not yet a
-published package. [Candidate notes and gates](docs/releases/v1.7.0.md) keep staging,
-publication and the prior 1.6.0 release evidence separate.
+The published **1.7.0** wheel packages this opt-in adapter. Its attested tag
+build and exact-wheel TestPyPI staging passed on Linux and Windows; the PyPI
+upload matches those subjects. Initial Python 3.12/3.13 smokes stopped at a
+missing same-version PyYAML wheel hash before garak; corrected read-only
+verification is pending. [Release evidence and gates](docs/releases/v1.7.0.md) keep
+the prior 1.6.0 evidence separate.
 
 The [garak plan connector](docs/garak-plan-connector.md) translates one strictly
 validated JSON plan into the existing Quarantine/Gateway path, without granting
 authority from a detector score. A [four-case example](examples/garak-gateway/README.md)
 keeps detection, admission, policy denial and synthetic execution separate. This is
 an independent Harness integration, not an official NVIDIA/garak component. It is
-new source functionality, **not included in published 1.6.0**; its optional detector
+new in the 1.7.0 package, **not included in published 1.6.0**; its optional detector
 compatibility lane pins an unmerged upstream PR rather than claiming release support.
 
 ## Quickstart
 
-Published [v1.6.0](docs/releases/v1.6.0.md): the native Ollama proposal
-adapter and an explicit installed-ecosystem pilot, retaining the Gateway lookup-key
-type guard and Router 0.2.1. The linked release notes distinguish source, staging and
-published evidence; a checkout or green CI alone is not proof of publication.
+Published [v1.7.0](docs/releases/v1.7.0.md) adds the opt-in garak plan adapter
+to the existing native Ollama proposal adapter and installed-ecosystem pilot.
+The Gateway lookup-key type guard and Router 0.2.1 remain. Release notes
+distinguish package availability from retained post-upload smoke failures.
 
 Install the exact package version from
-[PyPI](https://pypi.org/project/agentic-security-harness/1.6.0/):
+[PyPI](https://pypi.org/project/agentic-security-harness/1.7.0/):
 
 ```bash
-python -m pip install agentic-security-harness==1.6.0
+python -m pip install agentic-security-harness==1.7.0
 ash quickstart --out reports/quickstart
 ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
@@ -135,12 +140,12 @@ facts. The Harness generates only the cross-project roadmap and compatibility vi
 - [Documentation crosswalk](docs/documentation-map.md)
 - [`component.yaml`](component.yaml) and [`ecosystem/roadmap.yaml`](ecosystem/roadmap.yaml)
 
-Runtime Guard remains private and `contract_only`. Harness version `v1.6.0`
+Runtime Guard remains private and `contract_only`. Harness version `v1.7.0`
 contains the closed [Extension SDK V1](docs/extension-sdk.md) and public passive extras for
 validated observation-to-finding dataflow. It does not auto-load installed packages;
 companion repositories remain optional, separately versioned distributions.
 
-Version `v1.6.0` retains the closed optional-dependency groups introduced in `v1.4.0`:
+Version `v1.7.0` retains the closed optional-dependency groups introduced in `v1.4.0`:
 
 | Extra | Exact companion distributions | Automatic activation |
 |---|---|---|
@@ -155,8 +160,8 @@ The generic PyPI coordinate `llm-router` is intentionally absent because it belo
 another project. CI builds all eight exact wheels from pinned Git SHAs and installs the
 closed local wheelhouse without loading either extension entry point. The public install
 commands are
-`pip install "agentic-security-harness[router]==1.6.0"` or
-`pip install "agentic-security-harness[all]==1.6.0"`. Other companion pins are unchanged;
+`pip install "agentic-security-harness[router]==1.7.0"` or
+`pip install "agentic-security-harness[all]==1.7.0"`. Other companion pins are unchanged;
 installation remains separate from module activation.
 
 For explicit installed extension binding, follow the fresh `--no-compile` environment
@@ -420,20 +425,21 @@ approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install the
 
 ## Release and package status
 
-Release [v1.6.0](docs/releases/v1.6.0.md#publication-evidence) is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.6.0/) and
-[GitHub Releases](https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.6.0).
-Its native adapter is now in the installed wheel; the
-[installed-ecosystem example](examples/installed-ecosystem/README.md) provides a
-hash-locked public-package route with positive and negative controls.
+Release [v1.7.0](docs/releases/v1.7.0.md#publication-evidence) is available on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.7.0/) with wheel and
+sdist hashes matching the attested tag build and TestPyPI. Its new garak plan
+adapter is explicit and optional. The initial production/read-only workflows
+retain Python 3.12/3.13 dependency-lock failures; no second upload occurred.
+The
+[installed-ecosystem example](examples/installed-ecosystem/README.md) provides
+version-specific hash-locked routes with positive and negative controls.
 
-The current repository adds a 16-case functional chain, caller-input checks and the
-twelve-call proposal-contract evidence above. These examples and documentation are
-newer than the immutable release; use the current checkout to inspect or run them.
-`pip install agentic-security-harness==1.6.0` installs the released runtime, not these
-repository files. No packaged runtime, dependency or public API changed in this
-follow-up, so it does not require a new wheel. The existing release artifacts and
-their embedded documentation remain unchanged; current guidance lives here.
+The repository also contains the 16-case functional chain, caller-input checks
+and bounded local-model evidence above. Those observations retain their exact
+1.6.0 installed-subject commitments; publishing 1.7.0 does not rerun or rewrite
+them. The example scripts and reports remain repository-owned, with the current
+hash-locked install routes documented in their README. Published 1.6.0 subjects
+and their embedded documentation remain immutable.
 
 The following prior release evidence is retained without rewriting its outcomes.
 

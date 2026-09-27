@@ -1,9 +1,14 @@
 # Roadmap
 
 Current bounded work: [#308](https://github.com/krivonosoff161/agentic-security-harness/issues/308)
-adds fresh task/operation generalization observations and prepares the experimental
-connector's [1.7.0 release](releases/v1.7.0.md). Corpus size is not a claim of general
-safety; package promotion remains separate from model observations.
+adds fresh task/operation generalization observations and the experimental
+connector's [1.7.0 release](releases/v1.7.0.md). The exact tag build and TestPyPI
+Linux/Windows staging passed; the exact subjects are now on PyPI. Initial
+Linux 3.12/3.13 production and read-only smokes stopped at an incomplete
+same-version PyYAML hash lock before garak. Corrected read-only verification
+remains a separate pending result; no upload is repeated.
+Corpus size is not a claim of general safety; package promotion remains separate
+from model observations.
 
 That [sixteen-call batch](proposal-generalization-20260927.md) now distinguishes
 permission from task correctness: one allowed hash used the wrong argument. The next
@@ -12,7 +17,7 @@ or more retries. The present batch must not be repeated to improve its score.
 
 Current bounded addition: [experimental garak plan connector](garak-plan-connector.md)
 ([#306](https://github.com/krivonosoff161/agentic-security-harness/issues/306)). Keep
-the source-pinned compatibility example separate from published 1.6.0 and from any
+the source-pinned compatibility example separate from historical 1.6.0 model evidence and any
 future live-model campaign. Broader/multi-call protocols require separate contracts;
 do not silently expand the single-plan adapter into a generic executor.
 

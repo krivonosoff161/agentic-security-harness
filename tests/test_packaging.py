@@ -124,7 +124,7 @@ def test_current_release_source_metadata_is_synchronized() -> None:
     assert project["version"] == package_version.group(1) == "1.7.0"
     assert 'Development Status :: 4 - Beta' in project["classifiers"]
     assert 'version: "1.7.0"' in citation
-    assert "date-released:" not in citation
+    assert 'date-released: "2026-09-27"' in citation
     assert "## [1.7.0] - 2026-09-27" in changelog
     assert "Agentic Security Harness v1.7.0" in release_notes
     assert "release source" in release_notes
