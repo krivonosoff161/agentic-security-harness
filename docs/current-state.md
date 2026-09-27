@@ -1,5 +1,9 @@
 # Current state
 
+The published package is **1.7.0**. Its PyPI wheel and sdist match the attested
+tag subjects; corrected read-only verification is pending after retained
+Python 3.12/3.13 dependency-lock failures.
+
 ## Bounded generalization observation — 2026-09-27
 
 The [sixteen-call report](proposal-generalization-20260927.md) adds four exact useful
@@ -8,29 +12,32 @@ proposals and eight intended negative stops. Five pure completions must not be
 reported as five correct tasks. Model evidence remains bound to installed 1.6.0;
 the 1.7.0 release and its garak checks are separate. No real effects or raw retention.
 
-## Experimental garak plan connector (unreleased source)
+## Experimental garak plan connector (published opt-in API)
 
-The [1.7.0 release candidate](releases/v1.7.0.md) now includes this adapter in its
-build metadata. Published package **1.6.0** remains the installable baseline until
-the exact new subjects pass staging and publication verification. The candidate
-adds installed-wheel garak checks to tag, staging and published verification on
-Linux/Windows; those gates are requirements, not yet publication results.
+The [1.7.0 release](releases/v1.7.0.md) includes this adapter in its attested
+wheel. Exact tag build and TestPyPI staging passed installed-wheel garak checks
+on Linux and Windows. PyPI now exposes the same wheel and sdist hashes; the
+production upload succeeded. Initial production and read-only runs passed
+Linux/Windows 3.11 but Linux 3.12/3.13 stopped before garak at missing
+PyYAML 6.0.3 wheel hashes. Both overall workflows remain failed; corrected
+read-only verification is pending without re-upload.
 
 [Issue #306](https://github.com/krivonosoff161/agentic-security-harness/issues/306)
 adds a pure opt-in [plan connector](garak-plan-connector.md) and a four-case
 synthetic example with separate detector, normalization, Gateway and execution
 observations. No garak dependency is added to the base package. The named detector
 compatibility pin is an unmerged upstream PR, not a released or endorsed integration.
-This new source API is not in published 1.6.0. Model/provider calls and production
+This API is not in published 1.6.0. Model/provider calls and production
 claims are outside this increment; previous sealed observations remain unchanged.
 
 ## Executable ecosystem acceptance
 
-**Release boundary:** published package **1.6.0** is unchanged. The newer chain,
-prompt helper, corpus and observations below are repository-owned examples and
-evidence, not a new wheel or installed package API. They are public in
+**Evidence boundary:** the chain, prompt helper, corpus and observations below
+are repository-owned examples and evidence bound to their declared 1.6.0
+installed subjects. The 1.7.0 package publication does not convert those prior
+model observations into 1.7.0 results. They are public in
 [PR #303](https://github.com/krivonosoff161/agentic-security-harness/pull/303) and its
-predecessors; see the [post-release changelog](../CHANGELOG.md#unreleased).
+predecessors; see the [changelog](../CHANGELOG.md).
 
 The [proposal-contract follow-up](ollama-quarantine-adapter.md#proposal-contract-follow-up-2026-09-26)
 now records **three real-model proposals completing all seven boundaries**, with
@@ -86,13 +93,17 @@ repository's `component.yaml`. The older `2026.08.02-r4-trajectory-containment` 
 Portfolio projection remains preserved as historical research evidence; it is not the
 current ecosystem product roadmap. Operational authority remains `none`.
 
-> Last reviewed: 2026-09-26 against merged proposal-contract evidence commit
-> `94d6f7062d4d4569d4993df5f63a9474e4e74114` and exact released Harness commit
-> `0796fc60020ced318ad67fecb29de60234e707df`, historical Security Portfolio projection
+> Last reviewed: 2026-09-27 against the `v1.7.0` tag source
+> `9284c1292fe15f5fa2c3581abd3a18aab2358b5b`, historical merged
+> proposal-contract evidence commit `94d6f7062d4d4569d4993df5f63a9474e4e74114`,
+> released Harness 1.6.0 commit `0796fc60020ced318ad67fecb29de60234e707df`,
+> historical Security Portfolio projection
 > `2026.08.02-r4-trajectory-containment`, the historical `v1.0.0` release commit
-> `71295922b8053a188431d0f510f1e9146435c742`, and verified published release `v1.6.0`.
+> `71295922b8053a188431d0f510f1e9146435c742`, and the published
+> `v1.7.0` package subjects with retained initial post-upload smoke failures.
 >
-> Scope: current repository evidence and separately published release `1.6.0`.
+> Scope: current repository evidence, current published release `1.7.0`, and
+> preserved 1.6.0 historical evidence.
 > This page is a reviewer-facing status
 > snapshot, not a roadmap promise or publication claim.
 
@@ -106,7 +117,7 @@ activation. The [v1.5.0 release](releases/v1.5.0.md) also includes the opt-in Qu
 Connector and its pure Gateway composition. Exact-subject publication and clean-install
 evidence is linked below; old v1.4.0 artifacts remain unchanged.
 
-Agentic Security Harness is a **published v1.6.0 public defensive benchmark/toolkit**: a working
+Agentic Security Harness is a **published v1.7.0 public defensive benchmark/toolkit**: a working
 trace-first defensive benchmark for agentic AI boundary failures with committed
 deterministic examples, bounded local-swarm evidence, evidence-campaign metrics, and
 sanitized local-model semantic-drift / propagation probes, plus a bounded local Runtime
@@ -131,7 +142,8 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 
 | Area | Status | Evidence |
 |---|---|---|
-| Package identity | v1.6.0 published to PyPI, TestPyPI, and GitHub Releases | Exact tag source `0796fc60020ced318ad67fecb29de60234e707df`; build `35602050427`; staging `35602400245`; production upload `35602644448`. Initial production Linux 3.12 lookup failed before runtime; read-only `35602999743` passed all six subject/provenance/index/install jobs without republishing. [Full evidence](releases/v1.6.0.md#publication-evidence). |
+| Package identity | v1.7.0 published to PyPI and staged on TestPyPI; corrected verification pending | Exact tag source `9284c1292fe15f5fa2c3581abd3a18aab2358b5b`; build `36304199032`; successful staging `36304457074` after retained pre-upload admission failure `36304383233`. Production upload job `36305471109` succeeded and PyPI JSON matches attested wheel/sdist hashes, but Linux 3.12/3.13 failed before garak on missing PyYAML wheel hashes. Initial read-only `36305620644` retained the same failures; corrected read-only verification is pending. [Full evidence](releases/v1.7.0.md#publication-evidence). |
+| Prior package identity | v1.6.0, immutable historical evidence | Exact tag source `0796fc60020ced318ad67fecb29de60234e707df`; build `35602050427`; staging `35602400245`; production upload `35602644448`. Initial production Linux 3.12 lookup failed before runtime; read-only `35602999743` passed all six subject/provenance/index/install jobs without republishing. [Full evidence](releases/v1.6.0.md#publication-evidence). |
 | Prior package identity | v1.5.1, immutable historical evidence | Exact tag `v1.5.1` resolves to `86b15716a57d5ffc6a85ebb408d62da0559d4ab7`. Build `35514250035` attested the closed subjects. TestPyPI upload `35514377652` succeeded but its initial lookup failed; staging recovery `35515454773` passed. PyPI upload `35516245065` succeeded; initial Windows lookup failed while Linux smokes passed. Read-only verification `35516400380` passed all six jobs, exact hashes and Linux/Windows installation, without republishing. [Full evidence](releases/v1.5.1.md#publication-evidence). |
 | Passive companion extras | Published in v1.4.0 | `transfer`, `handoff`, `playbooks`, `router`, `filter`, and `all` resolve exact public package versions from PyPI. Fresh PyPI-only resolver smokes passed for each extra and `all`; installation does not discover, approve, bind, configure, invoke, or activate modules. Runtime Guard remains private and absent. |
 | Local deterministic corpus | Shipped stable v1 contract | Corpus 1.0.0 freezes 24 ordered sanitized seed ids and fields in a closed committed manifest/schema; new traces bind its canonical semantic digest. |
@@ -185,7 +197,7 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 | Evidence pack format | Shipped docs slice | `docs/evidence-pack-format.md` defines how future local research becomes sanitized public evidence with private/public boundaries, hashes, claim rows, tests, and validation commands. |
 | Local real-model swarm probes | Unverified maintainer declaration | Historical documentation declares two full 15-scenario runs and complete hash-field coverage. No versioned public result projection or reconciliation receipt is present, so the repository cannot verify that the runs occurred or bind the aggregates to retained bytes. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
-| Public project process | v1.6.0 released with verified provenance | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, and a tag-only release workflow bind tag/package/CHANGELOG version and rerun the repository gates. The release workflow reproducibly builds and smoke-installs wheel/sdist subjects, publishes checksums plus an exact-subject CycloneDX SBOM, creates GitHub/Sigstore attestations, and independently verifies repository/workflow/tag/source/builder/predicate policy. The retained `v0.15.0` tag is transparent failed-gate evidence and has no GitHub Release. |
+| Public project process | v1.7.0 published with verified build provenance; post-upload checks incomplete | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, and a tag-only release workflow bind tag/package/CHANGELOG version and rerun repository gates. The release workflow reproducibly builds wheel/sdist subjects, emits checksums and an exact-subject CycloneDX SBOM, creates GitHub/Sigstore attestations, and independently verifies provenance policy. The initial 1.7.0 production/read-only Python 3.12/3.13 smoke failures remain visible above; build provenance does not turn those failures into PASS. The retained `v0.15.0` tag is transparent failed-gate evidence and has no GitHub Release. |
 | Container definitions | Shipped source definitions; images unpublished | The root Dockerfile packages the source-layout CLI and runs the offline doctor as a non-root user. `Dockerfile.gateway` and `compose.gateway.yml` build the synthetic gateway locally with loopback-only publication, read-only root filesystem, dropped capabilities, and no-new-privileges. The fail-closed `.dockerignore` excludes local/private descendants. No public image is published and the source definitions do not attest production network isolation. |
 | Runtime Guard product foundation | Shipped bounded executable specification | Metadata-only action, capability, consent, handoff, provider, budget, decision, and evidence contracts plus a pure deterministic evaluator and synthetic adversarial tests were merged through PR #162. No proxy, executor, credential broker, durable ledger, IAM integration, deployment, or production protection is shipped. |
 | Runtime Gateway local synthetic contour | Shipped in v1.2.0 | A loopback-first HTTP service applies a closed pre-dispatch policy to two deterministic synthetic tools, exposes bounded OpenAI-compatible and stateless MCP 2026-07-28 endpoints, writes a privacy-minimized single-writer hash-chain audit, and normalizes four retained provider/tool envelope families through the same policy. Docker Compose publishes host loopback only. It has no live provider transport, real credential path, arbitrary executor, authenticated approval service, IAM, production deployment, independent effectiveness evidence, or operational authority. See [runtime-gateway.md](runtime-gateway.md) and [provider-tool-adapters.md](provider-tool-adapters.md). |

@@ -364,12 +364,40 @@ jobs:
             fi
           fi
 
+      - name: Select version-bound garak smoke lock
+        id: garak-lock
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ needs.verify-subjects.outputs.version }}
+        run: |
+          python - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+
+          selected = Path("release-example/examples/garak-gateway/requirements-smoke.txt")
+          if os.environ["RELEASE_VERSION"] == "1.7.0":
+              corrected = Path("verification-policy/requirements/verification/garak-v1.7.0.txt")
+              expected = {
+                  selected: "17ba5d65707a935fdf8f78b4321a7f1bd5b682b0cdde1f96bd9d190c97e9b6c9",
+                  corrected: "9439032ca986b7b20f196507b92200fbb09a3af935457a2931af3561eb8b8ac1",
+              }
+              for path, digest in expected.items():
+                  if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+                      raise SystemExit("version-bound garak smoke lock mismatch")
+              selected = corrected
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write("path=" + selected.as_posix() + "\n")
+          PY
+
       - name: Verify pinned garak detector for releases declaring the example
         shell: bash
+        env:
+          GARAK_SMOKE_LOCK: ${{ steps.garak-lock.outputs.path }}
         run: |
           set -euo pipefail
           if [ -f release-example/examples/garak-gateway/check.py ]; then
-            python -m pip --isolated install --only-binary=:all: --require-hashes -r release-example/examples/garak-gateway/requirements-smoke.txt
+            python -m pip --isolated install --only-binary=:all: --require-hashes -r "$GARAK_SMOKE_LOCK"
             python -I -B release-example/examples/garak-gateway/prepare_source.py --out upstream-source
             python -I -B release-example/examples/garak-gateway/check.py --out garak-observation.json --garak-source upstream-source/garak-ac4c5567f0c17834aace52b14788c1ca3548738b
             python -I -B release-example/examples/garak-gateway/verify.py garak-observation.json --require-detector

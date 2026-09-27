@@ -46,31 +46,30 @@ def test_latest_proposal_evidence_is_visible_from_public_entry_points() -> None:
 
 def test_current_onboarding_separates_published_runtime_from_repository_evidence() -> None:
     source_version = tomllib.loads(_read("pyproject.toml"))["project"]["version"]
-    # A release candidate must not fabricate publication to satisfy a version test.
-    version = "1.6.0"
+    # Publication is separate from immutable model evidence collected on 1.6.0.
+    version = "1.7.0"
     assert source_version == "1.7.0"
-    assert "1.7.0 release candidate" in _read("README.md")
-    assert "release candidate; not published" in _read("docs/releases/v1.7.0.md")
+    assert "published public research release" in _read("docs/releases/v1.7.0.md")
     readme = _read("README.md")
-    assert f"Native Ollama adapter (published in {version})" in readme
+    assert "Native Ollama adapter (published in 1.6.0)" in readme
     assert "unreleased source" not in readme
     connect = " ".join(_read("docs/connect-models.md").split())
-    assert f"path published in **{version}** from **native Ollama proposals**" in connect
+    assert "path published in **1.6.0** from **native Ollama proposals**" in connect
     assert "unreleased source path" not in connect
     assert "This prompt-based benchmark path applies" in connect
     assert "Every model-evidence path applies the same" not in connect
     for path in ("README.md", "docs/current-state.md", "docs/project-tracker.md"):
         text = " ".join(_read(path).split())
         assert re.search(
-            rf"published package (?:remains )?\*\*{re.escape(version)}\*\*", text.lower()
+            rf"published package (?:is |remains )?\*\*{re.escape(version)}\*\*", text.lower()
         ), path
         assert "repository-owned" in text, path
     status = _read("docs/current-state.md")
-    assert f"v{version} released with verified provenance" in status
-    assert "Last reviewed: 2026-09-26" in status
-    assert "94d6f7062d4d4569d4993df5f63a9474e4e74114" in status
+    assert f"v{version} published with verified build provenance" in status
+    assert "Last reviewed: 2026-09-27" in status
+    assert "9284c1292fe15f5fa2c3581abd3a18aab2358b5b" in status
     changelog = _read("CHANGELOG.md").split("## [1.7.0] - 2026-09-27\n", 1)[1].split(
-        f"## [{version}]", 1
+        "## [1.6.0]", 1
     )[0]
     assert "delivered in Git after 1.6.0" in changelog
     assert "artifacts remain immutable" in changelog
@@ -1259,7 +1258,7 @@ def test_artifact_authenticity_design_separates_trust_domains_and_non_claims() -
     assert "slsa.dev/spec/v1.0" not in design
     assert "artifact-authenticity-design.md" in project_map
     assert "Historical releases and examples remain unsigned" in current_state
-    assert "v1.6.0 released with verified provenance" in current_state
+    assert "v1.7.0 published with verified build provenance" in current_state
     assert "retained `v0.15.0` tag is transparent failed-gate evidence" in current_state
     assert "authentication_state=unverified" in _read("docs/evidence-classes.md")
     assert "precision/recall claims are forbidden" in _read("docs/benchmark-semantics.md")
@@ -1399,10 +1398,10 @@ def test_v151_publication_docs_bind_current_release_and_preserve_failures() -> N
         assert marker in notes
     readme = _read("README.md")
     assert any(status in readme for status in (
-        "release_source-v1.6.0-blue", "public_research_release-v1.6.0-blue"
+        "release_source-v1.7.0-blue", "public_research_release-v1.7.0-blue"
     ))
-    assert "agentic-security-harness==1.6.0" in readme
-    assert "agentic-security-harness[all]==1.6.0" in readme
+    assert "agentic-security-harness==1.7.0" in readme
+    assert "agentic-security-harness[all]==1.7.0" in readme
     assert "agentic-llm-router==0.2.1" in readme
     assert "agentic-llm-router==0.2.0" not in readme
     assert "source tree prepares" not in readme

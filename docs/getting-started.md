@@ -10,13 +10,15 @@ with no API keys and no network.
 
 ## 1. Install
 
-These commands use the published [1.6.0 package](https://pypi.org/project/agentic-security-harness/1.6.0/).
+These commands use the published [1.7.0 package](https://pypi.org/project/agentic-security-harness/1.7.0/).
+The attested wheel/sdist hashes and retained initial post-upload smoke failures
+are recorded in the [release evidence](releases/v1.7.0.md#publication-evidence).
 For exact companion binding and negative controls, use the separate
 [hash-locked installed example](../examples/installed-ecosystem/README.md).
 Installation does not automatically activate companions or grant action authority.
 
 ```bash
-python -m pip install agentic-security-harness==1.6.0
+python -m pip install agentic-security-harness==1.7.0
 ash --help
 ```
 

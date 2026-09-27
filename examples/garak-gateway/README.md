@@ -1,8 +1,11 @@
 # garak plan → Harness Gateway example
 
 An independent, experimental Harness connector example. **Not an official NVIDIA/garak
-integration.** The adapter is in the Harness 1.7.0 release candidate; published
-Harness 1.6.0 does not contain it. [Contract and Python API](../../docs/garak-plan-connector.md).
+integration.** The adapter is in the attested Harness 1.7.0 wheel staged on
+TestPyPI and published on PyPI. Linux/Windows 3.11 production smokes passed;
+Linux 3.12/3.13 stopped at missing PyYAML wheel hashes before garak execution.
+Corrected read-only verification is pending. Published Harness 1.6.0 does not contain it.
+[Contract and Python API](../../docs/garak-plan-connector.md).
 
 The same fixed public-synthetic plan reaches the actual garak detector and the separate
 strict Harness adapter/Connector/Gateway. No model, provider, real tool, listener or
