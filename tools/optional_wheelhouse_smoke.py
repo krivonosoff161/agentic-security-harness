@@ -8,10 +8,17 @@ import importlib.metadata as metadata
 import subprocess
 import sys
 import tempfile
+import tomllib
 from pathlib import Path
 
+PROJECT_VERSION = tomllib.loads(
+    (Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(encoding="utf-8")
+)["project"]["version"]
 EXPECTED = {
-    "agentic-security-harness": ("1.7.0", "agentic_security_harness-1.7.0-py3-none-any.whl"),
+    "agentic-security-harness": (
+        PROJECT_VERSION,
+        f"agentic_security_harness-{PROJECT_VERSION}-py3-none-any.whl",
+    ),
     "agentic-transfer-verifier": ("0.2.1", "agentic_transfer_verifier-0.2.1-py3-none-any.whl"),
     "agentic-transfer-verifier-harness-extension": (
         "1.0.1",

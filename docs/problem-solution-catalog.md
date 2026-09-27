@@ -10,6 +10,10 @@
 
 ## Format
 
+The [foundation matrix](foundation-matrix.md) maps all 17 questions to conditional
+arguments, code, tests, companion owners and unresolved obligations. A catalog entry
+is a research question, not by itself a mathematical proof or completed coverage.
+
 Each entry follows the same shape:
 
 - **What goes wrong** - **Defensive scenario** - **Detection signals** -

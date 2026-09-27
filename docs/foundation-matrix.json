@@ -1,0 +1,503 @@
+{
+  "schema_version": "foundation-matrix-v1",
+  "reviewed_on": "2026-09-27",
+  "scope": "Source baseline and local candidate; package versions are declarations, not release-build attestations.",
+  "contract_document": "docs/theory/foundation-obligations.md",
+  "evidence_classes": [
+    "bounded_code",
+    "partial_model",
+    "scripted_control",
+    "planned"
+  ],
+  "components": {
+    "core": {
+      "repository": "krivonosoff161/agentic-security-harness",
+      "source_commit": "7779e6d2ee715d7462b2f1a1942174733757a76b",
+      "package_version": "1.7.0",
+      "role": "benchmark, boundary predicates and no-op Gateway; local candidate changes not a release"
+    },
+    "transfer": {
+      "repository": "krivonosoff161/agentic-transfer-verifier",
+      "source_commit": "847f62d0d68d8f76b98f704283c185ed2c85186b",
+      "package_version": "0.2.1",
+      "role": "structural transfer verifier and risk report, not authenticated ancestry"
+    },
+    "handoff": {
+      "repository": "krivonosoff161/ai-agent-handoff",
+      "source_commit": "46aba8284dd1a006bf9739edaa1c9d3212b7e735",
+      "package_version": "0.3.0",
+      "role": "handoff bytes/adjacent metadata projection, not a global replay ledger"
+    },
+    "router": {
+      "repository": "krivonosoff161/llm-router",
+      "source_commit": "2a743af4518985f7d8c51a8870a53f7290886b23",
+      "package_version": "0.2.1",
+      "role": "routing/retry/accounting receipts, not authority or invoice attestation"
+    },
+    "filter": {
+      "repository": "krivonosoff161/llm-cheap-filter",
+      "source_commit": "17f13fd3986a2869686e59ca62123340fd56178b",
+      "package_version": "0.2.0",
+      "role": "triage and authority-free receipt, not a security decision"
+    },
+    "playbooks": {
+      "repository": "krivonosoff161/llm-safety-playbooks",
+      "source_commit": "190769a15a44f5a5af790b33fc37724e6417c27f",
+      "package_version": "0.1.0",
+      "role": "data-only packaged pack; source-owned evaluator is advisory"
+    }
+  },
+  "questions": [
+    {
+      "id": 1,
+      "title": "Shared-chat data boundaries",
+      "pattern_ids": [
+        "data_boundary_recipient_confusion",
+        "memory_poisoning_sanitized"
+      ],
+      "obligations": [
+        "L1",
+        "L4"
+      ],
+      "owners": [
+        "core",
+        "router",
+        "filter",
+        "playbooks"
+      ],
+      "core_code": [
+        "src/agentic_security_harness/models.py",
+        "src/agentic_security_harness/envelope_policy.py",
+        "src/agentic_security_harness/protected_demo_agent.py"
+      ],
+      "core_tests": [
+        "tests/test_protected.py",
+        "tests/test_memory_governance.py"
+      ],
+      "evidence_class": "partial_model",
+      "property": "Actual recipient must belong to the preserved allow-set; storage requires can_store.",
+      "next_question": "Authenticate initial labels and actual shared-chat recipient identity."
+    },
+    {
+      "id": 2,
+      "title": "Delayed instructions",
+      "pattern_ids": [
+        "sleeping_prompt.delayed_activation"
+      ],
+      "obligations": [
+        "L2",
+        "L4"
+      ],
+      "owners": [
+        "core",
+        "handoff",
+        "playbooks"
+      ],
+      "core_code": [
+        "src/agentic_security_harness/memory_governance.py",
+        "src/agentic_security_harness/protected_demo_agent.py"
+      ],
+      "core_tests": [
+        "tests/test_protected.py",
+        "tests/test_memory_governance.py"
+      ],
+      "evidence_class": "scripted_control",
+      "property": "Retrieved content cannot itself create an action grant; expiry uses a fixed epoch.",
+      "next_question": "Test semantic delayed activation beyond the scripted rejection branch."
+    },
+    {
+      "id": 3,
+      "title": "Reclassification",
+      "pattern_ids": [
+        "data_boundary_classification_mutation"
+      ],
+      "obligations": [
+        "L1",
+        "L4"
+      ],
+      "owners": [
+        "core",
+        "transfer",
+        "filter"
+      ],
+      "core_code": [
+        "src/agentic_security_harness/envelope_policy.py",
+        "src/agentic_security_harness/quarantine_connector.py"
+      ],
+      "core_tests": [
+        "tests/test_envelope_policy.py",
+        "tests/test_quarantine_connector.py"
+      ],
+      "evidence_class": "bounded_code",
+      "property": "Sensitivity cannot decrease and classification-source identity cannot self-promote.",
+      "next_question": "Authenticated initial classification is outside label comparison."
+    },
+    {
+      "id": 4,
+      "title": "Recipient confusion",
+      "pattern_ids": [
+        "data_boundary_recipient_confusion"
+      ],
+      "obligations": [
+        "L1",
+        "L4"
+      ],
+      "owners": [
+        "core",
+        "transfer",
+        "router"
+      ],
+      "core_code": [
+        "src/agentic_security_harness/envelope_policy.py",
+        "src/agentic_security_harness/protected_demo_agent.py",
+        "src/agentic_security_harness/runtime_gateway.py"
+      ],
+      "core_tests": [
+        "tests/test_protected.py",
+        "tests/test_runtime_gateway.py"
+      ],
+      "evidence_class": "bounded_code",
+      "property": "An actual recipient must satisfy the preserved restriction at dispatch.",
+      "next_question": "Reconcile empty-list semantics and bind real recipient identity at every adapter."
+    },
+    {
+      "id": 5,
+      "title": "Memory poisoning",
+      "pattern_ids": [
+        "memory_poisoning_sanitized"
+      ],
+      "obligations": [
+        "L1",
+        "L2",
+        "L4"
+      ],
+      "owners": [
+        "core",
+        "handoff",
+        "playbooks"
+      ],
+      "core_code": [
+        "src/agentic_security_harness/memory_governance.py"
+      ],
+      "core_tests": [
+        "tests/test_memory_governance.py",
+        "tests/test_protected.py"
+      ],
+      "evidence_class": "partial_model",
+      "property": "No-store and read-time restrictions survive the write/store/read path.",
+      "next_question": "Semantic poisoning and forgotten provenance are not solved by TTL."
+    },
+    {
+      "id": 6,
+      "title": "Tool permissions",
+      "pattern_ids": [
+        "tool_permission_abuse_sanitized"
+      ],
+      "obligations": [
+        "L1",
+        "L4"
+      ],
+      "owners": [
+        "core",
+        "filter",
+        "playbooks"
+      ],
+      "core_code": [
+        "src/agentic_security_harness/runtime_gateway.py",
+        "src/agentic_security_harness/quarantine_connector.py",
+        "src/agentic_security_harness/protected_demo_agent.py"
+      ],
+      "core_tests": [
+        "tests/test_runtime_gateway.py",
+        "tests/test_quarantine_gateway_composition.py"
+      ],
+      "evidence_class": "bounded_code",
+      "property": "Only a policy-bound exact action may reach the no-op executor.",
+      "next_question": "Prove complete mediation for any future real executor separately."
+    },
+    {
+      "id": 7,
+      "title": "Cross-agent contamination",
+      "pattern_ids": [
+        "data_boundary_handoff_label_stripping"
+      ],
+      "obligations": [
+        "L1",
+        "L3",
+        "L5"
+      ],
+      "owners": [
+        "core",
+        "transfer",
+        "handoff"
+      ],
+      "core_code": [
+        "src/agentic_security_harness/handoff_integrity.py",
+        "src/agentic_security_harness/toy_adapters.py"
+      ],
+      "core_tests": [
+        "tests/test_handoff_integrity.py",
+        "tests/test_toy_multi_agent.py"
+      ],
+      "evidence_class": "partial_model",
+      "property": "Required parent labels are retained; payload commitment matches supplied bytes.",
+      "next_question": "Parent authenticity, complete ancestry and a global replay ledger remain separate."
+    },
+    {
+      "id": 8,
+      "title": "Multimodal channel confusion",
+      "pattern_ids": [
+        "perception_boundary.sensor_command_confusion"
+      ],
+      "obligations": [
+        "L4"
+      ],
+      "owners": [
+        "core",
+        "transfer",
+        "playbooks"
+      ],
+      "core_code": [
+        "src/agentic_security_harness/protected_demo_agent.py"
+      ],
+      "core_tests": [
+        "tests/test_protected.py",
+        "tests/test_demo_agent.py"
+      ],
+      "evidence_class": "scripted_control",
+      "property": "A perception transcript is data and cannot itself grant action authority.",
+      "next_question": "No raw image/audio/sensor or arbitrary decoder enforcement is exercised."
+    },
+    {
+      "id": 9,
+      "title": "Approval laundering",
+      "pattern_ids": [
+        "approval_laundering.underjustified_confirmation"
+      ],
+      "obligations": [
+        "L4",
+        "L5"
+      ],
+      "owners": [
+        "core",
+        "transfer",
+        "playbooks"
+      ],
+      "core_code": [
+        "src/agentic_security_harness/runtime_gateway.py",
+        "src/agentic_security_harness/protected_demo_agent.py"
+      ],
+      "core_tests": [
+        "tests/test_runtime_gateway.py",
+        "tests/test_protected.py"
+      ],
+      "evidence_class": "partial_model",
+      "property": "Approval must bind the exact action/context; display text alone is not a grant.",
+      "next_question": "Human comprehension and authenticated consent are not established by a summary."
+    },
+    {
+      "id": 10,
+      "title": "Loops and budgets",
+      "pattern_ids": [
+        "budget.loop_abuse"
+      ],
+      "obligations": [
+        "L6"
+      ],
+      "owners": [
+        "core",
+        "router",
+        "filter"
+      ],
+      "core_code": [
+        "src/agentic_security_harness/protected_demo_agent.py",
+        "src/agentic_security_harness/receipt_auditors.py"
+      ],
+      "core_tests": [
+        "tests/test_protected.py",
+        "tests/test_receipt_auditors.py"
+      ],
+      "evidence_class": "bounded_code",
+      "property": "A counted local loop cannot exceed its bound; receipt arithmetic must reconcile.",
+      "next_question": "No global atomic budget reservation or truthful provider-usage guarantee."
+    },
+    {
+      "id": 11,
+      "title": "Audit suppression",
+      "pattern_ids": [
+        "audit.spam_label_abuse"
+      ],
+      "obligations": [
+        "L4",
+        "L5"
+      ],
+      "owners": [
+        "core",
+        "handoff",
+        "playbooks"
+      ],
+      "core_code": [
+        "src/agentic_security_harness/protected_demo_agent.py",
+        "src/agentic_security_harness/validation.py"
+      ],
+      "core_tests": [
+        "tests/test_protected.py",
+        "tests/test_foundation_contracts.py"
+      ],
+      "evidence_class": "partial_model",
+      "property": "Untrusted labels cannot suppress the local audit append operation.",
+      "next_question": "Producer completeness and omission-resistant external anchoring are not supplied."
+    },
+    {
+      "id": 12,
+      "title": "Provider boundary leakage",
+      "pattern_ids": [
+        "provider_boundary_leakage_sanitized"
+      ],
+      "obligations": [
+        "L1",
+        "L4"
+      ],
+      "owners": [
+        "core",
+        "router",
+        "filter"
+      ],
+      "core_code": [
+        "src/agentic_security_harness/protected_demo_agent.py",
+        "src/agentic_security_harness/provider_tool_adapters.py",
+        "src/agentic_security_harness/receipt_auditors.py"
+      ],
+      "core_tests": [
+        "tests/test_protected.py",
+        "tests/test_provider_tool_adapters.py",
+        "tests/test_receipt_auditors.py"
+      ],
+      "evidence_class": "partial_model",
+      "property": "No-forward metadata must prevent the declared egress path.",
+      "next_question": "Provider retention, hidden routing and out-of-path sends need separate evidence."
+    },
+    {
+      "id": 13,
+      "title": "Delegation drift",
+      "pattern_ids": [
+        "capability.delegation_chain_drift"
+      ],
+      "obligations": [
+        "L3"
+      ],
+      "owners": [
+        "core",
+        "transfer",
+        "handoff"
+      ],
+      "core_code": [
+        "src/agentic_security_harness/handoff_integrity.py"
+      ],
+      "core_tests": [
+        "tests/test_handoff_integrity.py",
+        "tests/test_foundation_contracts.py"
+      ],
+      "evidence_class": "bounded_code",
+      "property": "Child scope is a subset of every supplied parent scope, including empty scope.",
+      "next_question": "Child depth ceiling is self-declared; authenticated parent depth/revocation is absent."
+    },
+    {
+      "id": 14,
+      "title": "Tool schema deception",
+      "pattern_ids": [
+        "mcp.tool_schema_deception"
+      ],
+      "obligations": [
+        "L4",
+        "L5"
+      ],
+      "owners": [
+        "core",
+        "playbooks"
+      ],
+      "core_code": [
+        "src/agentic_security_harness/protected_demo_agent.py",
+        "src/agentic_security_harness/runtime_gateway.py"
+      ],
+      "core_tests": [
+        "tests/test_protected.py",
+        "tests/test_runtime_gateway.py"
+      ],
+      "evidence_class": "partial_model",
+      "property": "A changed schema digest cannot satisfy the trusted exact schema pin.",
+      "next_question": "Schema semantics, trusted pin distribution and real MCP execution are separate."
+    },
+    {
+      "id": 15,
+      "title": "Audit chain tampering",
+      "pattern_ids": [
+        "audit.hash_chain_tamper"
+      ],
+      "obligations": [
+        "L5"
+      ],
+      "owners": [
+        "core",
+        "handoff"
+      ],
+      "core_code": [
+        "src/agentic_security_harness/protected_demo_agent.py",
+        "src/agentic_security_harness/validation.py"
+      ],
+      "core_tests": [
+        "tests/test_protected.py",
+        "tests/test_foundation_contracts.py"
+      ],
+      "evidence_class": "partial_model",
+      "property": "Changed interior data cannot match a trusted later commitment under hash assumptions.",
+      "next_question": "A re-rooted or truncated self-consistent history needs independent head/length binding."
+    },
+    {
+      "id": 16,
+      "title": "Trust gate without recovery",
+      "pattern_ids": [],
+      "obligations": [
+        "L4",
+        "L8"
+      ],
+      "owners": [
+        "core",
+        "handoff",
+        "playbooks"
+      ],
+      "core_code": [],
+      "core_tests": [],
+      "evidence_class": "planned",
+      "property": "Safe bounded recovery needs both non-expansion and progress to an approved terminal state.",
+      "next_question": "No shipped recovery.trust_gate_no_path scenario proves this; a gate can deny forever."
+    },
+    {
+      "id": 17,
+      "title": "Read-time envelope drift",
+      "pattern_ids": [
+        "data_boundary_memory_envelope_drift"
+      ],
+      "obligations": [
+        "L1",
+        "L2"
+      ],
+      "owners": [
+        "core",
+        "handoff"
+      ],
+      "core_code": [
+        "src/agentic_security_harness/envelope_policy.py",
+        "src/agentic_security_harness/memory_governance.py"
+      ],
+      "core_tests": [
+        "tests/test_envelope_policy.py",
+        "tests/test_memory_governance.py",
+        "tests/test_foundation_contracts.py"
+      ],
+      "evidence_class": "bounded_code",
+      "property": "Stored <= write, read <= stored, elapsed <= earliest finite deadline from original write.",
+      "next_question": "Clock trust, omitted elapsed time and deletion/retention remain outside this predicate."
+    }
+  ]
+}

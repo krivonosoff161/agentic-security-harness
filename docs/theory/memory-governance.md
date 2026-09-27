@@ -2,7 +2,7 @@
 
 > Status: executable invariant with synthetic validation.
 >
-> Last reviewed: 2026-06-21.
+> Last reviewed: 2026-09-27 (foundation reconciliation candidate).
 
 ## 1. Claim
 
@@ -34,12 +34,34 @@ memory behavior without exposing sensitive text.
 | Time direction | read step is not before write step | `read_before_write` |
 | Minimum trust | `rank(record.trust_level) >= rank(request.min_trust_level)` | `trust_too_low` |
 | Envelope preservation | stored/read envelopes are equal or more restrictive than write/stored envelopes | `stored:*` / `read:*` envelope violations |
-| TTL from write time | `read_at_step - written_at_step <= write_envelope.ttl_seconds` | `read:ttl_expired_from_write_time` |
+| TTL from write time | `read_at_step - written_at_step <= min(finite write/stored/read TTLs)` | `read:ttl_expired_from_write_time` |
 | Trust precedence | lower-trust record cannot override a higher-trust same-key/same-scope record | `trust_precedence_violation` |
 
 Envelope preservation reuses `validate_memory_read_envelope()` from
 `src/agentic_security_harness/envelope_policy.py`. This prevents a second source of
 truth for data-boundary math.
+
+### One time origin and narrowing
+
+All three TTLs refer to the original `written_at_step`; in this synthetic clock one
+step represents one elapsed second. They are not independent leases starting at each
+handoff/read. Let `F` be the set of finite TTLs and `w` the write time. If `F` is
+nonempty, the effective deadline is `D = w + min(F)` and a read at `t` requires
+`w <= t <= D`. If every TTL is `None`, no deadline is supplied by this metadata.
+
+For every `f` in `F`, `min(F) <= f`, so `t <= w + min(F)` implies `t <= w + f`:
+an admitted read respects every finite deadline. Adding a stricter finite TTL can
+only decrease the minimum. This is the preservation argument under a common clock
+and write origin, not a proof that an external memory store uses a trustworthy clock.
+
+For example, write TTL 60 narrowed to stored/read TTL 1 must reject a read 30 seconds
+after writing. Equality at the deadline is accepted; zero TTL permits only the write
+instant. The lower-level envelope helper accepts an omitted elapsed time for
+metadata-only comparisons; that mode is not freshness evidence. The governed-read
+API always supplies elapsed time and independently rejects read-before-write.
+
+Compatibility: enforcing downstream narrowing rejects some reads the previous
+write-TTL-only implementation accepted. Existing violation codes remain unchanged.
 
 ## 4. Code Mapping
 

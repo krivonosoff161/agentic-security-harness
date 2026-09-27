@@ -59,6 +59,10 @@ E_out <= E_in
 
 The relation is field-specific:
 
+The implementation below has no override/exception argument. Any authenticated policy
+change mentioned in the table is a separate transition with a new trusted baseline;
+untrusted content cannot invoke it by claiming that permission exists.
+
 | Field | Non-expansion / non-weakening rule |
 |---|---|
 | `allowed_recipients` | `set(E_out.allowed_recipients) subseteq set(E_in.allowed_recipients)` unless an explicit policy grants a new recipient. |
@@ -66,12 +70,28 @@ The relation is field-specific:
 | `data_class` | `rank(E_out.data_class) >= rank(E_in.data_class)` under a declared classification ordering, for example `public < internal < confidential < restricted`. |
 | `can_store` | `False <= True`; a boundary may change `True -> False`, but not `False -> True` without explicit policy evidence. |
 | `can_forward` | `False <= True`; a boundary may change `True -> False`, but not `False -> True` without explicit policy evidence. |
-| `ttl_seconds` | If both TTL values exist, `E_out.ttl_seconds <= E_in.ttl_seconds`; use must also satisfy `t_use <= t_created + ttl_seconds`. |
+| `ttl_seconds` | If both TTL values exist, `E_out.ttl_seconds <= E_in.ttl_seconds`; memory use must satisfy every finite write/stored/read TTL measured from the same original write time. |
 | `requires_confirmation` | `True` is more restrictive than `False`; a boundary may require confirmation, but not remove it without trace evidence. |
-| `classification_source` | Source may stay the same or move to a more trusted source under a trusted-source policy; it must not silently become unknown/untrusted. |
+| `classification_source` | Source identity must stay identical in this relation. Authenticated reclassification is a separate transition, not a self-selected higher trust label. |
 | `classification_mutable` | `False` is more restrictive than `True`; a boundary may freeze classification, but not make an immutable label mutable without policy evidence. |
 
-This is a partial order, not a universal security proof. The ordering for `data_class`, trusted source rank, and recipient identity must be supplied by policy. Without that policy context, the verifier can compare fields but must not claim semantic completeness.
+This is a partial order on normalized values (recipient/purpose sets, not list order
+or duplicates), not a universal security proof. Known `data_class` labels use the
+declared rank table; unknown labels must stay identical. Recipient and source
+identities must have externally supplied meanings. The code compares identities,
+not their authenticity or the truth of the initial classification.
+
+Reflexivity and transitivity follow componentwise from set inclusion, the declared
+rank order, Boolean restriction order, equal source identity and non-increasing
+finite TTL (`None` acts as no finite bound). Antisymmetry applies to these normalized
+values, not arbitrary raw list representations. Thus a chain of accepted metadata
+restrictions cannot widen the first envelope, assuming every transition is checked
+and no caller replaces the trusted baseline. This does not prove complete mediation.
+
+For memory, temporal validity is separate from this metadata order: the effective
+deadline is original write time plus the minimum of all finite write/stored/read
+TTLs. A new read cannot restart that clock. See [memory-governance.md](memory-governance.md)
+for the proof, boundary cases and metadata-only mode.
 
 | # | Invariant | Check |
 |---|---|---|

@@ -48,7 +48,10 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
     source_version = tomllib.loads(_read("pyproject.toml"))["project"]["version"]
     # Publication is separate from immutable model evidence collected on 1.6.0.
     version = "1.7.0"
-    assert source_version == "1.7.0"
+    assert source_version == "1.7.1"
+    preparation = _read("docs/releases/v1.7.1.md")
+    assert "release preparation" in preparation.lower()
+    assert "not published" in preparation.lower()
     assert "published public research release" in _read("docs/releases/v1.7.0.md")
     readme = _read("README.md")
     assert "Native Ollama adapter (published in 1.6.0)" in readme
@@ -924,7 +927,10 @@ def test_authority_delegation_theory_links_axes_and_nonclaims() -> None:
     theory = _read("docs/theory/authority-delegation.md")
 
     for phrase in (
-        "issuer, scope, purpose, TTL, or delegation depth",
+        "issuer, scope, purpose and TTL when the corresponding parent arguments are supplied",
+        "not an authenticated parent maximum",
+        "parent_authority_scope=[]",
+        "parent_authority_scope=None",
         "child.issuer == parent.issuer",
         "set(child.scope) subseteq set(parent.scope)",
         "child.ttl_seconds <= parent.ttl_seconds",
@@ -991,8 +997,11 @@ def test_data_boundary_theory_separates_primary_adjacent_and_gaps() -> None:
         "E_out <= E_in",
         "set(E_out.allowed_recipients) subseteq set(E_in.allowed_recipients)",
         "rank(E_out.data_class) >= rank(E_in.data_class)",
-        "t_use <= t_created + ttl_seconds",
-        "This is a partial order, not a universal security proof",
+        "minimum of all finite write/stored/read",
+        "A new read cannot restart that clock",
+        "This is a partial order on normalized values",
+        "not a universal security proof",
+        "Source identity must stay identical",
         "individual patterns do not themselves prove the whole 24 -> 0 result",
         "Memory write/read envelope drift",
         "Missing envelope recovery",

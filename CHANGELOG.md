@@ -6,6 +6,16 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.7.1] - 2026-09-27
+
+Release preparation for the scoped foundation contract repair. The source now
+rejects a nonempty child authority scope when the supplied parent scope is
+known empty, and memory TTL narrowing retains the original write epoch and
+the minimum finite write, stored and read TTL. Positive and negative local
+regressions accompany the repair. This section records candidate source, not
+a published package or completed release gates; 1.7.0 remains the latest
+published release until exact-subject staging and production verification.
+
 ## [1.7.0] - 2026-09-27
 
 The exact v1.7.0 tag build and TestPyPI staging passed. The same attested wheel

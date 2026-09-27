@@ -8,6 +8,10 @@
 
 ## Claim maturity/status definitions
 
+The [foundation matrix](foundation-matrix.md) provides the separate 17-question
+proof/code/test crosswalk. It preserves conditional assumptions and unresolved
+obligations; no entry is promoted by documentation or by a finite test alone.
+
 This human table mixes research maturity and publication workflow labels for historical
 compatibility; its `Status` column is not the machine lifecycle or evidence class. Public
 showcase components map to independent machine fields through

@@ -67,6 +67,26 @@ def test_memory_read_rejects_expired_ttl_from_write_time() -> None:
     assert decision.violations == ("read:ttl_expired_from_write_time",)
 
 
+def test_memory_read_respects_shortened_stored_deadline() -> None:
+    record = _record(stored_envelope=_env(ttl_seconds=1))
+    request = _request(read_envelope=_env(ttl_seconds=1), read_at_step=40)
+
+    decision = validate_memory_read(record, request)
+
+    assert decision.ok is False
+    assert decision.violations == ("read:ttl_expired_from_write_time",)
+
+
+def test_memory_read_respects_shortened_read_deadline() -> None:
+    record = _record()
+    request = _request(read_envelope=_env(ttl_seconds=1), read_at_step=12)
+
+    decision = validate_memory_read(record, request)
+
+    assert decision.ok is False
+    assert decision.violations == ("read:ttl_expired_from_write_time",)
+
+
 def test_memory_read_rejects_scope_mismatch() -> None:
     decision = validate_memory_read(_record(scope_id="user_a"), _request(reader_scope_id="user_b"))
 

@@ -11,6 +11,10 @@ outside the claim boundary.
 
 ## Claim
 
+For the complete original question list and companion ownership, use the
+[ecosystem foundation matrix](foundation-matrix.md). Counts below describe declared
+variation rows, not complete mathematical proofs of their parent research questions.
+
 The project has executable local invariant tests for a declared synthetic variation
 matrix across three boundary layers:
 

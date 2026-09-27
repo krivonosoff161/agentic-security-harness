@@ -1,13 +1,18 @@
 """Static fail-closed contract for the release-facing GitHub Actions workflow."""
 
 import re
+import runpy
 import textwrap
+import tomllib
 from pathlib import Path
 
 import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 WORKFLOW = ROOT / ".github" / "workflows" / "release.yml"
+PROJECT_VERSION = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
+    "project"
+]["version"]
 
 
 def _workflow() -> str:
@@ -46,7 +51,7 @@ def test_release_identity_script_accepts_current_canonical_tag(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.chdir(ROOT)
-    monkeypatch.setenv("RELEASE_TAG", "v1.7.0")
+    monkeypatch.setenv("RELEASE_TAG", f"v{PROJECT_VERSION}")
 
     exec(compile(_identity_script(), str(WORKFLOW), "exec"), {})
 
@@ -100,13 +105,39 @@ def test_release_runs_pinned_garak_detector_from_exact_wheel_on_both_platforms()
     assert "pip --isolated install --no-compile --only-binary=:all: --require-hashes" in gate
     assert (
         "--no-index --no-deps --no-compile "
-        "dist/agentic_security_harness-1.7.0-py3-none-any.whl" in gate
+        f"dist/agentic_security_harness-{PROJECT_VERSION}-py3-none-any.whl" in gate
     )
     assert "--garak-source upstream-source/garak-ac4c5567f0c17834aace52b14788c1ca3548738b" in gate
     assert "garak-observation.json --require-detector" in gate
     assert (
         "examples/installed-ecosystem/check.py --out release-ecosystem-result.json "
-        "--core-version 1.7.0" in gate
+        f"--core-version {PROJECT_VERSION}" in gate
+    )
+
+
+def test_candidate_workflows_install_the_current_source_version() -> None:
+    for name in ("garak-connector.yml", "ecosystem-integration.yml"):
+        workflow = (ROOT / ".github" / "workflows" / name).read_text(encoding="utf-8")
+        candidate_wheels = re.findall(
+            r"dist/agentic_security_harness-([0-9]+\.[0-9]+\.[0-9]+)-py3-none-any\.whl",
+            workflow,
+        )
+        assert candidate_wheels and set(candidate_wheels) == {PROJECT_VERSION}, name
+    ecosystem = (ROOT / ".github" / "workflows" / "ecosystem-integration.yml").read_text(
+        encoding="utf-8"
+    )
+    candidate = ecosystem.split("  installed-ecosystem:\n", 1)[1]
+    candidate_versions = re.findall(r"--core-version ([0-9]+\.[0-9]+\.[0-9]+)", candidate)
+    assert candidate_versions and set(candidate_versions) == {PROJECT_VERSION}
+    assert "core-release-v1.7.0.txt" in ecosystem.split("  installed-ecosystem:\n", 1)[0]
+
+
+def test_optional_wheelhouse_uses_source_version_without_running_installer() -> None:
+    # Loading declarations does not invoke main(), pip, or extension entry points.
+    declarations = runpy.run_path(str(ROOT / "tools/optional_wheelhouse_smoke.py"))
+    assert declarations["EXPECTED"]["agentic-security-harness"] == (
+        PROJECT_VERSION,
+        f"agentic_security_harness-{PROJECT_VERSION}-py3-none-any.whl",
     )
 
 
