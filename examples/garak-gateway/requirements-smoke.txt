@@ -1,0 +1,9 @@
+# Named source detector only; not a complete garak distribution install.
+# Python 3.11, Linux x86_64 or Windows AMD64. Do not install GPU/model packages.
+colorama==0.4.6 \
+    --hash=sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
+PyYAML==6.0.3 \
+    --hash=sha256:b8bb0864c5a28024fac8a632c443c87c5aa6f215c0b126c449ae1a150412f31d \
+    --hash=sha256:9f3bfb4965eb874431221a3ff3fdcddc7e74e3b07799e0e84ca4a0f867d449bf
+xdg-base-dirs==6.0.3 \
+    --hash=sha256:c80886a8f4e369d6148fdebd7abf182bf053ce6c744f7b7eec5853fec835ff44

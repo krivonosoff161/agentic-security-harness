@@ -1,0 +1,28 @@
+{
+  "schema": "GarakGatewayExperimentManifest.v1",
+  "data_class": "public_synthetic",
+  "max_cases": 4,
+  "max_model_calls": 0,
+  "max_real_tool_dispatches": 0,
+  "subject_process_network": "audit_deny",
+  "subject_file_access": "runtime_and_source_read; fresh_scratch_and_report_write",
+  "os_sandbox_claim": false,
+  "adapter_max_input_bytes": 16384,
+  "adapter_max_depth": 8,
+  "registry_sha256": "2f11ab8012ff29a3bb6a5b993d31d6fb56b037f00225d5fdebcb5e9bd3926dc5",
+  "policy_sha256": "373c568f6dab98b4ca8e464e1867d035715a4baa6c4981a0142c3a72f3f27705",
+  "harness_module_sha256": {
+    "garak_plan_adapter": "6ee93be5f253caabbca6734cc05bda63e4c2153f0c4bf40070c6937628ec77cf",
+    "quarantine_connector": "93fb6ad9ab34385f42860823a4385bfd450d1f4f49884c7b7190ac82ea03e98d",
+    "runtime_gateway": "149adec615933437a297ea399c8c433c3ddc0b0a990b603157bb8eef5fb6aa50"
+  },
+  "corpus_sha256": "12f4fe12e4885627ae32a11b2c58e4123a2cbe6ef82b5e8dbd359a544db9ab99",
+  "garak_source_sha": "ac4c5567f0c17834aace52b14788c1ca3548738b",
+  "garak_archive_url": "https://codeload.github.com/NVIDIA/garak/zip/ac4c5567f0c17834aace52b14788c1ca3548738b",
+  "garak_archive_sha256": "46388188e579285927fdbb0c8720f5cacbf29ff16cf150a50a57007301ae7a36",
+  "inert_archive_link_members": ["garak-ac4c5567f0c17834aace52b14788c1ca3548738b/garak/data/calibration/calibration.json"],
+  "garak_package_tree_sha256": "e1981065bf96cd5771de50723b4de3adc4de0b3b84d8c1680aba48cc7a2163af",
+  "garak_status_at_selection": "unmerged_pr_2224",
+  "garak_test_surface": "named_source_detector_not_full_distribution",
+  "garak_dependencies": {"colorama": "0.4.6", "PyYAML": "6.0.3", "xdg-base-dirs": "6.0.3"}
+}

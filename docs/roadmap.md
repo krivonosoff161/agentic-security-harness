@@ -1,5 +1,11 @@
 # Roadmap
 
+Current bounded addition: [experimental garak plan connector](garak-plan-connector.md)
+([#306](https://github.com/krivonosoff161/agentic-security-harness/issues/306)). Keep
+the source-pinned compatibility example separate from published 1.6.0 and from any
+future live-model campaign. Broader/multi-call protocols require separate contracts;
+do not silently expand the single-plan adapter into a generic executor.
+
 Current technical baseline: [executable ecosystem acceptance](expert-readiness.md),
 beyond installation-only checks. The 16-case fixed chain exercises all six public
 components. The subsequent [twelve-call local-model follow-up](ollama-quarantine-adapter.md#proposal-contract-follow-up-2026-09-26)

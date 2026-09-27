@@ -1,5 +1,15 @@
 # Current state
 
+## Experimental garak plan connector (unreleased source)
+
+[Issue #306](https://github.com/krivonosoff161/agentic-security-harness/issues/306)
+adds a pure opt-in [plan connector](garak-plan-connector.md) and a four-case
+synthetic example with separate detector, normalization, Gateway and execution
+observations. No garak dependency is added to the base package. The named detector
+compatibility pin is an unmerged upstream PR, not a released or endorsed integration.
+This new source API is not in published 1.6.0. Model/provider calls and production
+claims are outside this increment; previous sealed observations remain unchanged.
+
 ## Executable ecosystem acceptance
 
 **Release boundary:** published package **1.6.0** is unchanged. The newer chain,
