@@ -1,0 +1,61 @@
+name: Experimental garak connector
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/garak-connector.yml"
+      - "examples/garak-gateway/**"
+      - "src/**"
+      - "tests/test_garak*"
+      - "requirements/**"
+      - "pyproject.toml"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/garak-connector.yml"
+      - "examples/garak-gateway/**"
+      - "src/**"
+      - "tests/test_garak*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  installed-source-detector:
+    name: garak connector (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+      - name: Install hash-locked build and named-detector dependencies
+        run: |
+          python -m pip --isolated install --only-binary=:all: --require-hashes -r requirements/build.txt -r requirements/runtime.txt -r examples/garak-gateway/requirements-smoke.txt
+          python -m build --no-isolation --wheel --outdir dist
+          python -m pip --isolated install --no-index --no-deps --no-compile dist/agentic_security_harness-1.6.0-py3-none-any.whl
+          python -m pip check
+      - name: Prepare pinned public source (setup only; no model weights)
+        run: python -I -B examples/garak-gateway/prepare_source.py --out upstream-source
+      - name: Run actual named detector and installed Harness under audit deny
+        run: python -I -B examples/garak-gateway/check.py --out garak-observation.json --garak-source upstream-source/garak-ac4c5567f0c17834aace52b14788c1ca3548738b
+      - name: Independently verify content-free observations
+        run: python -I -B examples/garak-gateway/verify.py garak-observation.json --require-detector
+      - name: Preserve observation (never scratch logs)
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: garak-observation-${{ matrix.os }}
+          path: garak-observation.json
+          if-no-files-found: warn
+          retention-days: 30

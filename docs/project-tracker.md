@@ -1,5 +1,14 @@
 # Project tracker
 
+## Experimental garak plan connector / #306
+
+The [source-only adapter and example](garak-plan-connector.md) separate detector
+observation from Quarantine admission, Gateway authorization and synthetic execution.
+Acceptance requires malformed/authority-shaped regression cases, actual pinned
+source-detector compatibility, independent artifact checking and Linux/Windows CI.
+The feature is unreleased; no NVIDIA affiliation, upstream acceptance, full garak
+distribution support, model campaign or independent human review is claimed.
+
 ## Proposal-contract compatibility follow-up
 
 Delivered by [PR #303](https://github.com/krivonosoff161/agentic-security-harness/pull/303)

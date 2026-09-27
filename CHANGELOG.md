@@ -6,10 +6,20 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added — source candidate, not published in 1.6.0
+
+- Add an opt-in strict garak JSON-plan normalizer with application-owned bindings,
+  no garak base dependency, no transport and no dispatch. Add a separately pinned
+  actual source-detector/Gateway example, independent observation checker and
+  Linux/Windows CI. Detection, malformed input, policy denial and built-in synthetic
+  execution remain separate. No upstream endorsement or production-security claim.
+  See [the contract](docs/garak-plan-connector.md) and issue #306.
+
 ### Repository updates after 1.6.0
 
-These changes are delivered in Git, not a new package release. The packaged runtime,
-dependencies and public API remain those of 1.6.0; release artifacts are immutable.
+The preceding repository-only changes below were delivered in Git, not a new package release.
+Published runtime, dependencies and public API remain those of 1.6.0;
+release artifacts are immutable. The new source adapter above is separately unreleased.
 
 - Add the 16-case installed-ecosystem functional chain and separate verifier,
   with exact published/candidate wheel checks on Linux and Windows

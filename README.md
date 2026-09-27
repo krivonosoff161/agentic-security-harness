@@ -41,6 +41,16 @@ prompt helper, corpus, observations and tests are repository-owned; they are not
 new installed package API. See [release and package status](#release-and-package-status)
 and [current state](docs/current-state.md) for the exact boundary.
 
+## Experimental garak connection (unreleased)
+
+The [garak plan connector](docs/garak-plan-connector.md) translates one strictly
+validated JSON plan into the existing Quarantine/Gateway path, without granting
+authority from a detector score. A [four-case example](examples/garak-gateway/README.md)
+keeps detection, admission, policy denial and synthetic execution separate. This is
+an independent Harness integration, not an official NVIDIA/garak component. It is
+new source functionality, **not included in published 1.6.0**; its optional detector
+compatibility lane pins an unmerged upstream PR rather than claiming release support.
+
 ## Quickstart
 
 Published [v1.6.0](docs/releases/v1.6.0.md): the native Ollama proposal
