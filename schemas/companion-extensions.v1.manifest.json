@@ -56,7 +56,7 @@
     },
     "wheelhouse_smoke": {
       "path": "tools/optional_wheelhouse_smoke.py",
-      "sha256": "4a485a4cbdc464955c2229b43c9b116e3ff7e3995a6664a05497bd4c45cdd45f"
+      "sha256": "f2e55f883000413e8f9aaf57cdb64252f1ec95a6bb48cf35781ecb4fafd38a50"
     },
     "workflow": {
       "path": ".github/workflows/ecosystem-integration.yml",

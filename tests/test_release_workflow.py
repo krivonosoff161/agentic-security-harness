@@ -1,6 +1,7 @@
 """Static fail-closed contract for the release-facing GitHub Actions workflow."""
 
 import re
+import runpy
 import textwrap
 import tomllib
 from pathlib import Path
@@ -129,6 +130,15 @@ def test_candidate_workflows_install_the_current_source_version() -> None:
     candidate_versions = re.findall(r"--core-version ([0-9]+\.[0-9]+\.[0-9]+)", candidate)
     assert candidate_versions and set(candidate_versions) == {PROJECT_VERSION}
     assert "core-release-v1.7.0.txt" in ecosystem.split("  installed-ecosystem:\n", 1)[0]
+
+
+def test_optional_wheelhouse_uses_source_version_without_running_installer() -> None:
+    # Loading declarations does not invoke main(), pip, or extension entry points.
+    declarations = runpy.run_path(str(ROOT / "tools/optional_wheelhouse_smoke.py"))
+    assert declarations["EXPECTED"]["agentic-security-harness"] == (
+        PROJECT_VERSION,
+        f"agentic_security_harness-{PROJECT_VERSION}-py3-none-any.whl",
+    )
 
 
 def test_release_workflow_scopes_attestation_authority_and_verifies_provenance() -> None:
