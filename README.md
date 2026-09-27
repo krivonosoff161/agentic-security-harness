@@ -58,8 +58,9 @@ corpus and observations are repository-owned evidence, not evidence that the
 The published **1.7.0** wheel packages this opt-in adapter. Its attested tag
 build and exact-wheel TestPyPI staging passed on Linux and Windows; the PyPI
 upload matches those subjects. Initial Python 3.12/3.13 smokes stopped at a
-missing same-version PyYAML wheel hash before garak; corrected read-only
-verification is pending. [Release evidence and gates](docs/releases/v1.7.0.md) keep
+missing same-version PyYAML wheel hash before garak. The
+[corrected read-only verification](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36306894913)
+passed all seven jobs without a new upload. [Release evidence and gates](docs/releases/v1.7.0.md) keep
 the prior 1.6.0 evidence separate.
 
 The [garak plan connector](docs/garak-plan-connector.md) translates one strictly
@@ -75,7 +76,8 @@ compatibility lane pins an unmerged upstream PR rather than claiming release sup
 Published [v1.7.0](docs/releases/v1.7.0.md) adds the opt-in garak plan adapter
 to the existing native Ollama proposal adapter and installed-ecosystem pilot.
 The Gateway lookup-key type guard and Router 0.2.1 remain. Release notes
-distinguish package availability from retained post-upload smoke failures.
+distinguish package availability, retained initial smoke failures, and successful
+read-only verification.
 
 Install the exact package version from
 [PyPI](https://pypi.org/project/agentic-security-harness/1.7.0/):
@@ -429,8 +431,9 @@ Release [v1.7.0](docs/releases/v1.7.0.md#publication-evidence) is available on
 [PyPI](https://pypi.org/project/agentic-security-harness/1.7.0/) with wheel and
 sdist hashes matching the attested tag build and TestPyPI. Its new garak plan
 adapter is explicit and optional. The initial production/read-only workflows
-retain Python 3.12/3.13 dependency-lock failures; no second upload occurred.
-The
+retain Python 3.12/3.13 dependency-lock failures. A separately corrected
+[read-only run](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36306894913)
+passed all seven jobs without a second upload. The
 [installed-ecosystem example](examples/installed-ecosystem/README.md) provides
 version-specific hash-locked routes with positive and negative controls.
 

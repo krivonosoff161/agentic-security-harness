@@ -1,7 +1,9 @@
 # Project tracker
 
 The published package is **1.7.0**. Production upload and exact PyPI wheel/sdist
-hash equality are verified; the corrected read-only matrix remains pending.
+hash equality are verified. The
+[corrected read-only matrix](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36306894913)
+passed all seven jobs without re-upload.
 
 ## Generalization and experimental connector release / #308
 
@@ -13,15 +15,19 @@ Production promotion received its separate post-staging owner approval. The
 exact-subject PyPI upload job succeeded and official index hashes match the
 attested wheel and sdist. Linux/Windows 3.11 production smokes passed; Linux
 3.12/3.13 stopped before garak on absent PyYAML 6.0.3 wheel hashes. The initial
-read-only run retained the same failures. Corrected read-only verification is
-pending; neither overall failed workflow is reported as PASS.
+read-only run retained the same failures. After
+[PR #310](https://github.com/krivonosoff161/agentic-security-harness/pull/310)
+merged, corrected read-only run `36306894913` passed all seven exact-subject,
+index/provenance and Linux/Windows installed-wheel jobs. Neither initial failed
+workflow is rewritten as PASS.
 The prior model campaigns and published 1.6.0 artifacts are immutable.
 
 The [sixteen-call observation](proposal-generalization-20260927.md) is sealed:
 four exact useful tasks, one permitted but wrong argument, three rejected proposals,
 eight intended negative stops, zero real effects. An initial offline Unicode hash
 checker mismatch is preserved; the corrective manifest made all sixteen model
-calls exactly once. No enforcement source violation observed. Release gates remain.
+calls exactly once. No enforcement source violation observed. The scoped release
+gates are complete; semantic task correctness is a separate research question.
 
 ## Experimental garak plan connector / #306
 

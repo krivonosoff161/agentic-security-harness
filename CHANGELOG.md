@@ -10,8 +10,9 @@ All notable changes to this project are documented here. The format follows
 
 The exact v1.7.0 tag build and TestPyPI staging passed. The same attested wheel
 and sdist were published to PyPI. Initial production and read-only workflows
-retain Python 3.12/3.13 dependency-lock failures before the garak step;
-corrected read-only verification is a separate pending result.
+retain Python 3.12/3.13 dependency-lock failures before the garak step. A
+separate corrected read-only verification passed all seven jobs without a
+second upload or changed release subjects.
 
 ### Added
 

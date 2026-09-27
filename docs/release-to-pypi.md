@@ -16,8 +16,10 @@ exact-subject PyPI upload succeeded, with official index hashes matching the
 attested wheel and sdist. Linux 3.11 and Windows 3.11 smokes passed; Linux
 3.12/3.13 failed before garak because the PyYAML 6.0.3 smoke lock omitted
 their wheel hashes. Initial read-only run `36305620644` retained the same
-failure; a reviewed policy correction and read-only rerun remain pending. No
-upload was repeated. The named-detector check
+failure. After reviewed [PR #310](https://github.com/krivonosoff161/agentic-security-harness/pull/310)
+merged, [corrected read-only run 36306894913](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36306894913)
+passed all seven subject/index/provenance and Linux/Windows installed-wheel
+jobs. No upload was repeated. The named-detector check
 does not imply a released garak distribution or NVIDIA/garak endorsement.
 
 ## Packaging facts (current)
