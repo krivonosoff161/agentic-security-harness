@@ -71,7 +71,9 @@ def decode(payload: bytes) -> Any:
     return json.loads(payload, object_pairs_hook=closed_pairs, parse_constant=reject_constant)
 
 
-def verify(result: dict[str, Any], fixtures: bytes) -> dict[str, Any]:
+def verify(
+    result: dict[str, Any], fixtures: bytes, *, core_version: str = "1.6.0"
+) -> dict[str, Any]:
     """No producer import, package import, model, provider or callable execution."""
     check(
         set(result)
@@ -102,7 +104,8 @@ def verify(result: dict[str, Any], fixtures: bytes) -> dict[str, Any]:
         result["runner_sha256"] == sha(Path(__file__).with_name("chain.py").read_bytes()),
         "runner binding",
     )
-    check(result["versions"] == PINS, "package pins")
+    check(core_version in {"1.6.0", "1.7.0"}, "declared core version")
+    check(result["versions"] == {**PINS, "agentic-security-harness": core_version}, "package pins")
     check(result["operational_authority"] == "none", "authority")
     check(result["non_claims"] == NON_CLAIMS, "evidence limits")
     for field in ("real_model_calls", "real_provider_calls", "real_effects"):
@@ -192,12 +195,14 @@ def verify(result: dict[str, Any], fixtures: bytes) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("result", type=Path)
+    parser.add_argument("--core-version", choices=("1.6.0", "1.7.0"), default="1.6.0")
     args = parser.parse_args()
     try:
         result = decode(args.result.read_bytes())
         print(
             json.dumps(
-                verify(result, Path(__file__).with_name("chain-cases.json").read_bytes()),
+                verify(result, Path(__file__).with_name("chain-cases.json").read_bytes(),
+                       core_version=args.core_version),
                 sort_keys=True,
             )
         )

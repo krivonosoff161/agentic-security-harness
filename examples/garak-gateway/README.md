@@ -1,8 +1,8 @@
 # garak plan → Harness Gateway example
 
 An independent, experimental Harness connector example. **Not an official NVIDIA/garak
-integration.** Source candidate only: published Harness 1.6.0 does not contain the new
-adapter. [Contract and Python API](../../docs/garak-plan-connector.md).
+integration.** The adapter is in the Harness 1.7.0 release candidate; published
+Harness 1.6.0 does not contain it. [Contract and Python API](../../docs/garak-plan-connector.md).
 
 The same fixed public-synthetic plan reaches the actual garak detector and the separate
 strict Harness adapter/Connector/Gateway. No model, provider, real tool, listener or
@@ -17,14 +17,15 @@ Create/activate a fresh venv in a checkout of this source candidate, then:
 ```text
 python -m pip --isolated install --only-binary=:all: --require-hashes -r requirements/build.txt -r requirements/runtime.txt -r examples/garak-gateway/requirements-smoke.txt
 python -m build --no-isolation --wheel --outdir dist
-python -m pip --isolated install --no-index --no-deps --no-compile dist/agentic_security_harness-1.6.0-py3-none-any.whl
+python -m pip --isolated install --no-index --no-deps --no-compile dist/agentic_security_harness-1.7.0-py3-none-any.whl
 python -I -B examples/garak-gateway/prepare_source.py --out upstream-source
 python -I -B examples/garak-gateway/check.py --out garak-observation.json --garak-source upstream-source/garak-ac4c5567f0c17834aace52b14788c1ca3548738b
 python -I -B examples/garak-gateway/verify.py garak-observation.json --require-detector
 ```
 
 The locally built wheel is a **candidate with the repository's current version**, not
-a replacement for the published 1.6.0 artifact. Do not upload it. Output and sibling
+a replacement for the published 1.6.0 artifact. Do not upload this local build;
+release promotion uses only the exact attested tag-workflow subjects. Output and sibling
 scratch paths must be new; failed evidence is not overwritten. Keep source archives,
 scratch logs and generated files outside commits. Omitting `--garak-source` runs only
 the Harness path and records `detector_status=not_run`; it is not garak compatibility.

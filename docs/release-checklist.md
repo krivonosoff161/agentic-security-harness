@@ -24,6 +24,14 @@ on Linux/Windows. This checklist remains the required
 procedure for subsequent releases. The broader readiness map is
 [v1-readiness.md](v1-readiness.md).
 
+The [v1.7.0 candidate](releases/v1.7.0.md) adds a source-pinned experimental garak
+plan adapter. Before tagging, require the candidate wheel's four-case detector,
+Quarantine and Gateway check on both Linux and Windows. The tag workflow must run
+the same check from its exact release wheel on both platforms. TestPyPI and PyPI
+smokes must install the exact index wheel before this check; staging needs both
+Linux and Windows green. A named detector check is not full garak distribution
+support, model evidence or an official NVIDIA/garak integration.
+
 ## Every release
 
 Run all of these green before tagging:
@@ -40,6 +48,8 @@ Then verify by hand:
 
 - [ ] `pyproject.toml` `version`, `__version__`, and the top `CHANGELOG.md` entry agree.
 - [ ] `CITATION.cff` version agrees; add `date-released` only in the exact release commit.
+- [ ] For 1.7.0, the garak source pin, fixed corpus, module hashes and named detector
+      check remain aligned with the candidate wheel on Linux and Windows.
 - [ ] `CHANGELOG.md` has a dated section for this version (move items out of `Unreleased`).
 - [ ] GitHub release notes are drafted from `CHANGELOG.md`; no future feature is listed as
       shipped.
@@ -76,6 +86,10 @@ Then verify by hand:
       and both package indexes have exact-repository Trusted Publishers configured.
 - [ ] The manual package promotion workflow is dispatched only at the exact successful tag,
       first to TestPyPI and then, after evidence review and separate approval, to PyPI.
+- [ ] For 1.7.0, both TestPyPI Linux/Windows exact-wheel garak smokes pass before
+      requesting the separate production owner decision. The PyPI Linux/Windows
+      smokes and read-only post-publication verification must use the exact
+      published wheel and preserve any failed index lookup as failed evidence.
 - [ ] Package-index smoke jobs install hash-locked runtime dependencies separately and
       require the exact published universal-wheel SHA-256 with `--no-deps`.
 - [ ] If an upload succeeded but a post-upload observation failed, use the main-only,

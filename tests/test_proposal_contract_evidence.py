@@ -28,7 +28,12 @@ def test_proposal_contract_observation_and_exact_matches() -> None:
         canonical({k: v for k, v in report.items() if k != "result_sha256"})
     )
     assert report["corpus_sha256"] == sha(corpus_bytes)
-    assert report["chain_sha256"] == sha((EXAMPLE / "chain.py").read_bytes())
+    # Historical observation binds the pre-generalization runner, not mutable HEAD.
+    assert report["chain_sha256"] == (
+        "2397ae1ac450840b58e2ed9a891f92c3746af6ac5b2f01fe3c8900fe46e8d0c2"
+    )
+    documentation = (ROOT / "docs/ollama-quarantine-adapter.md").read_text(encoding="utf-8")
+    assert report["chain_sha256"] in documentation
     assert report["model_calls"] == report["network_connects"] == len(cases) == 12
     assert report["real_effects"] == 0 and report["raw_retained"] is False
     assert report["operational_authority"] == "none"

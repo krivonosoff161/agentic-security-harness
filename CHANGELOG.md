@@ -6,7 +6,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
-### Added — source candidate, not published in 1.6.0
+## [1.7.0] - 2026-09-27
+
+Release candidate; no tag, package-index upload, or publication is claimed here.
+
+### Added
 
 - Add an opt-in strict garak JSON-plan normalizer with application-owned bindings,
   no garak base dependency, no transport and no dispatch. Add a separately pinned
@@ -15,11 +19,11 @@ All notable changes to this project are documented here. The format follows
   execution remain separate. No upstream endorsement or production-security claim.
   See [the contract](docs/garak-plan-connector.md) and issue #306.
 
-### Repository updates after 1.6.0
+### Repository updates since 1.6.0
 
-The preceding repository-only changes below were delivered in Git, not a new package release.
-Published runtime, dependencies and public API remain those of 1.6.0;
-release artifacts are immutable. The new source adapter above is separately unreleased.
+The preceding repository-only changes below were delivered in Git after 1.6.0.
+Published 1.6.0 artifacts remain immutable. The adapter above enters the 1.7.0
+candidate wheel only after the separate release gates pass.
 
 - Add the 16-case installed-ecosystem functional chain and separate verifier,
   with exact published/candidate wheel checks on Linux and Windows

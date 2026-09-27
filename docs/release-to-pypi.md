@@ -8,6 +8,10 @@ future releases. See the gates in [release-checklist.md](release-checklist.md).
 Release `v1.6.0` completed the exact tag, attested release build, TestPyPI review,
 explicitly approved conditional PyPI promotion, and post-publication verification gates. Future
 versions must repeat those gates; repository metadata alone never authorizes publication.
+The [v1.7.0 release candidate](releases/v1.7.0.md) is not published. Its added
+garak adapter is checked with a source-pinned named detector from the exact
+candidate, tag-built, staged and production wheels on Linux and Windows. This
+does not imply a released garak distribution or NVIDIA/garak endorsement.
 
 ## Packaging facts (current)
 
@@ -68,6 +72,9 @@ bytes during promotion.
   `ash --help`, and artifact validation;
 - record the TestPyPI project URL, exact file hashes, install command/result, and rollback
   decision. A failed or ambiguous smoke blocks PyPI; it never triggers an automatic retry.
+- for 1.7.0, require both Linux and Windows source-pinned garak checks from the
+  exact staged wheel before the separate production owner decision; the TestPyPI
+  core install uses only the TestPyPI index, the verified hash and `--no-deps`.
 
 ### PyPI promotion gate
 
@@ -80,6 +87,8 @@ bytes during promotion.
   provenance evidence;
 - package indexes are immutable: a bad upload is corrected only by a new version. Never
   overwrite, delete-and-reuse, or silently rebuild the same version.
+- for 1.7.0, run the pinned detector and Harness path from the exact PyPI wheel
+  on Linux and Windows, then repeat via the read-only verification workflow.
 
 The production branch of the workflow reads TestPyPI's official JSON metadata and requires
 exact filename/SHA-256 equality with the attested wheel and sdist before requesting a PyPI

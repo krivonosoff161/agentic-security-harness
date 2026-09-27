@@ -75,7 +75,7 @@ def test_verification_workflow_rechecks_attestations_and_both_indexes() -> None:
 def test_verification_workflow_runs_bounded_cross_platform_smokes() -> None:
     text = _workflow()
 
-    assert text.count('"index": "testpypi"') == 1
+    assert text.count('"index": "testpypi"') == 2
     assert text.count('"index": "pypi"') == 4
     assert '"os": "windows-latest"' in text
     for version in ('"python": "3.11"', '"python": "3.12"', '"python": "3.13"'):
@@ -97,6 +97,10 @@ def test_verification_workflow_runs_bounded_cross_platform_smokes() -> None:
     assert "ash --help" in text
     assert "ash quickstart" in text
     assert "ash validate" in text
+    assert "release-example/examples/garak-gateway/check.py" in text
+    assert "garak-observation.json --require-detector" in text
+    assert 'if [ "$RELEASE_VERSION" = "1.6.0" ]; then' in text
+    assert '--core-version "$RELEASE_VERSION"' in text
     for reference in re.findall(r"(?m)^\s*uses:\s*([^\s#]+)", text):
         assert re.fullmatch(r"[^@\s]+@[0-9a-f]{40}", reference), reference
 
@@ -118,13 +122,16 @@ def test_scope_selector_preserves_staging_and_production_matrix(
     values = dict(line.split("=", 1) for line in output.read_text().splitlines())
     hosts = json.loads(values["hosts"])
     matrix = json.loads(values["matrix"])["include"]
-    staging = {"index": "testpypi", "os": "ubuntu-latest", "python": "3.11"}
+    staging = [
+        {"index": "testpypi", "os": os, "python": "3.11"}
+        for os in ("ubuntu-latest", "windows-latest")
+    ]
     if target == "testpypi":
         assert hosts == ["test.pypi.org"]
-        assert matrix == [staging]
+        assert matrix == staging
     else:
         assert hosts == ["test.pypi.org", "pypi.org"]
-        assert matrix == [staging] + [
+        assert matrix == staging + [
             {"index": "pypi", "os": "ubuntu-latest", "python": version}
             for version in ("3.11", "3.12", "3.13")
         ] + [{"index": "pypi", "os": "windows-latest", "python": "3.11"}]

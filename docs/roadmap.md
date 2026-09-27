@@ -1,5 +1,15 @@
 # Roadmap
 
+Current bounded work: [#308](https://github.com/krivonosoff161/agentic-security-harness/issues/308)
+adds fresh task/operation generalization observations and prepares the experimental
+connector's [1.7.0 release](releases/v1.7.0.md). Corpus size is not a claim of general
+safety; package promotion remains separate from model observations.
+
+That [sixteen-call batch](proposal-generalization-20260927.md) now distinguishes
+permission from task correctness: one allowed hash used the wrong argument. The next
+research hypothesis is a caller-owned task-result contract, not a looser allowlist
+or more retries. The present batch must not be repeated to improve its score.
+
 Current bounded addition: [experimental garak plan connector](garak-plan-connector.md)
 ([#306](https://github.com/krivonosoff161/agentic-security-harness/issues/306)). Keep
 the source-pinned compatibility example separate from published 1.6.0 and from any
