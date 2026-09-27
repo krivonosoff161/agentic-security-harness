@@ -18,7 +18,17 @@ one.
 In plain English: it turns “the agent behaved unsafely” into evidence you can replay,
 validate, compare, and review.
 
-## Latest verified result — 2026-09-26
+## Latest observation — 2026-09-27
+
+The [sixteen-call generalization study](docs/proposal-generalization-20260927.md)
+records **four exact useful tasks**, one permitted but semantically wrong hash
+operation, three rejected useful-task proposals and eight negative controls stopped
+at their declared boundaries. Five pure operations are not five correct tasks.
+The local Prometheus model was real; downstream Router transport and adversarial
+receipt mutations were declared fixtures. Real effects were zero; there was no
+response repair or retry. This is separate from the garak package-release gates.
+
+## Previous verified result — 2026-09-26
 
 The [twelve-call local-model follow-up](docs/ollama-quarantine-adapter.md#proposal-contract-follow-up-2026-09-26)
 records **three real-model proposals completing all seven boundaries** of the
@@ -42,6 +52,10 @@ new installed package API. See [release and package status](#release-and-package
 and [current state](docs/current-state.md) for the exact boundary.
 
 ## Experimental garak connection (unreleased)
+
+The **1.7.0 release candidate** packages this opt-in adapter; it is not yet a
+published package. [Candidate notes and gates](docs/releases/v1.7.0.md) keep staging,
+publication and the prior 1.6.0 release evidence separate.
 
 The [garak plan connector](docs/garak-plan-connector.md) translates one strictly
 validated JSON plan into the existing Quarantine/Gateway path, without granting

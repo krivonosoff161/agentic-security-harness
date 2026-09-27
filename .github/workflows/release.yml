@@ -193,3 +193,45 @@ jobs:
               --source-ref "$GITHUB_REF" \
               --source-digest "$GITHUB_SHA"
           done
+
+  garak-exact-wheel:
+    name: Pinned garak detector with exact release wheel (${{ matrix.os }})
+    needs: build
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    permissions:
+      actions: read
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Check out exact release source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+      - name: Download exact release subjects
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-dist-${{ github.ref_name }}
+          path: dist
+      - name: Install attested wheel and pinned detector dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd dist && sha256sum --check SHA256SUMS)
+          python -m pip --isolated install --no-compile --only-binary=:all: --require-hashes -r requirements/runtime.txt -r requirements/companions.txt -r examples/garak-gateway/requirements-smoke.txt
+          python -m pip --isolated install --no-index --no-deps --no-compile dist/agentic_security_harness-1.7.0-py3-none-any.whl
+          python -m pip check
+      - name: Run pinned source detector with installed release wheel
+        run: |
+          python -I -B examples/garak-gateway/prepare_source.py --out upstream-source
+          python -I -B examples/garak-gateway/check.py --out garak-observation.json --garak-source upstream-source/garak-ac4c5567f0c17834aace52b14788c1ca3548738b
+          python -I -B examples/garak-gateway/verify.py garak-observation.json --require-detector
+          python -I -B examples/installed-ecosystem/check.py --out release-ecosystem-result.json --core-version 1.7.0

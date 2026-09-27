@@ -207,10 +207,14 @@ jobs:
           PY
 
   smoke-testpypi:
-    name: Smoke TestPyPI package
+    name: Smoke TestPyPI package (${{ matrix.os }})
     if: inputs.target == 'testpypi'
     needs: publish
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     permissions:
       contents: read
@@ -224,6 +228,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install and validate exact TestPyPI version
+        shell: bash
         env:
           RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
@@ -270,10 +275,22 @@ jobs:
           ash validate "$RUNNER_TEMP/quickstart"
 
       - name: Verify installed ecosystem from exact staged subjects
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
+          set -euo pipefail
           python -m pip install --no-compile --only-binary=:all: --require-hashes -r requirements/companions.txt
           python -m pip check
-          python -I -B examples/installed-ecosystem/check.py --out staged-ecosystem-result.json
+          python -I -B examples/installed-ecosystem/check.py --out staged-ecosystem-result.json --core-version "${RELEASE_TAG#v}"
+
+      - name: Verify pinned garak detector from exact staged wheel
+        shell: bash
+        run: |
+          python -m pip --isolated install --only-binary=:all: --require-hashes -r examples/garak-gateway/requirements-smoke.txt
+          python -I -B examples/garak-gateway/prepare_source.py --out upstream-source
+          python -I -B examples/garak-gateway/check.py --out garak-observation.json --garak-source upstream-source/garak-ac4c5567f0c17834aace52b14788c1ca3548738b
+          python -I -B examples/garak-gateway/verify.py garak-observation.json --require-detector
 
   smoke-pypi:
     name: Smoke PyPI (${{ matrix.os }}, Python ${{ matrix.python }})
@@ -344,7 +361,18 @@ jobs:
           ash validate "$RUNNER_TEMP/quickstart"
 
       - name: Verify installed ecosystem from exact published subjects
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
+          set -euo pipefail
           python -m pip install --no-compile --only-binary=:all: --require-hashes -r requirements/companions.txt
           python -m pip check
-          python -I -B examples/installed-ecosystem/check.py --out published-ecosystem-result.json
+          python -I -B examples/installed-ecosystem/check.py --out published-ecosystem-result.json --core-version "${RELEASE_TAG#v}"
+
+      - name: Verify pinned garak detector from exact published wheel
+        run: |
+          python -m pip --isolated install --only-binary=:all: --require-hashes -r examples/garak-gateway/requirements-smoke.txt
+          python -I -B examples/garak-gateway/prepare_source.py --out upstream-source
+          python -I -B examples/garak-gateway/check.py --out garak-observation.json --garak-source upstream-source/garak-ac4c5567f0c17834aace52b14788c1ca3548738b
+          python -I -B examples/garak-gateway/verify.py garak-observation.json --require-detector

@@ -46,7 +46,7 @@ def test_release_identity_script_accepts_current_canonical_tag(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.chdir(ROOT)
-    monkeypatch.setenv("RELEASE_TAG", "v1.6.0")
+    monkeypatch.setenv("RELEASE_TAG", "v1.7.0")
 
     exec(compile(_identity_script(), str(WORKFLOW), "exec"), {})
 
@@ -88,6 +88,26 @@ def test_release_workflow_enforces_repository_and_built_package_gates() -> None:
         "if-no-files-found: error",
     ):
         assert command in text
+
+
+def test_release_runs_pinned_garak_detector_from_exact_wheel_on_both_platforms() -> None:
+    text = _workflow()
+    gate = text.split("  garak-exact-wheel:\n", 1)[1]
+    assert "needs: build" in gate
+    assert "os: [ubuntu-latest, windows-latest]" in gate
+    assert "name: release-dist-${{ github.ref_name }}" in gate
+    assert "sha256sum --check SHA256SUMS" in gate
+    assert "pip --isolated install --no-compile --only-binary=:all: --require-hashes" in gate
+    assert (
+        "--no-index --no-deps --no-compile "
+        "dist/agentic_security_harness-1.7.0-py3-none-any.whl" in gate
+    )
+    assert "--garak-source upstream-source/garak-ac4c5567f0c17834aace52b14788c1ca3548738b" in gate
+    assert "garak-observation.json --require-detector" in gate
+    assert (
+        "examples/installed-ecosystem/check.py --out release-ecosystem-result.json "
+        "--core-version 1.7.0" in gate
+    )
 
 
 def test_release_workflow_scopes_attestation_authority_and_verifies_provenance() -> None:

@@ -122,6 +122,19 @@ def test_independent_verifier_accepts_its_structural_reference() -> None:
     assert verdict["verdict"] == "PASS" and verdict["full_paths"] == 2
 
 
+def test_candidate_version_is_explicit_and_cannot_be_inferred_from_report() -> None:
+    checker = module("verify_chain")
+    fixtures = (EXAMPLE / "chain-cases.json").read_bytes()
+    report = reference_report()
+    report["versions"]["agentic-security-harness"] = "1.7.0"
+    report = signed(report)
+    with pytest.raises(ValueError):
+        checker.verify(report, fixtures)
+    assert checker.verify(report, fixtures, core_version="1.7.0")["verdict"] == "PASS"
+    with pytest.raises(ValueError):
+        checker.verify(report, fixtures, core_version="0.0.0")
+
+
 @pytest.mark.parametrize(
     "mutation",
     [

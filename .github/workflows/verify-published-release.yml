@@ -53,7 +53,10 @@ jobs:
           target = os.environ["VERIFY_TARGET"]
           if target not in {"both", "testpypi"}:
               raise SystemExit("unsupported read-only verification scope")
-          matrix = [{"index": "testpypi", "os": "ubuntu-latest", "python": "3.11"}]
+          matrix = [
+              {"index": "testpypi", "os": "ubuntu-latest", "python": "3.11"},
+              {"index": "testpypi", "os": "windows-latest", "python": "3.11"},
+          ]
           hosts = ["test.pypi.org"]
           if target == "both":
               hosts.append("pypi.org")
@@ -347,10 +350,27 @@ jobs:
 
       - name: Verify installed ecosystem for releases declaring the example
         shell: bash
+        env:
+          RELEASE_VERSION: ${{ needs.verify-subjects.outputs.version }}
         run: |
           set -euo pipefail
           if [ -f release-example/examples/installed-ecosystem/check.py ]; then
             python -m pip install --no-compile --only-binary=:all: --require-hashes -r release-example/requirements/companions.txt
             python -m pip check
-            python -I -B release-example/examples/installed-ecosystem/check.py --out verified-ecosystem-result.json
+            if [ "$RELEASE_VERSION" = "1.6.0" ]; then
+              python -I -B release-example/examples/installed-ecosystem/check.py --out verified-ecosystem-result.json
+            else
+              python -I -B release-example/examples/installed-ecosystem/check.py --out verified-ecosystem-result.json --core-version "$RELEASE_VERSION"
+            fi
+          fi
+
+      - name: Verify pinned garak detector for releases declaring the example
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f release-example/examples/garak-gateway/check.py ]; then
+            python -m pip --isolated install --only-binary=:all: --require-hashes -r release-example/examples/garak-gateway/requirements-smoke.txt
+            python -I -B release-example/examples/garak-gateway/prepare_source.py --out upstream-source
+            python -I -B release-example/examples/garak-gateway/check.py --out garak-observation.json --garak-source upstream-source/garak-ac4c5567f0c17834aace52b14788c1ca3548738b
+            python -I -B release-example/examples/garak-gateway/verify.py garak-observation.json --require-detector
           fi

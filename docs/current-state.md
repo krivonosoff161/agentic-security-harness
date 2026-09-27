@@ -1,6 +1,20 @@
 # Current state
 
+## Bounded generalization observation — 2026-09-27
+
+The [sixteen-call report](proposal-generalization-20260927.md) adds four exact useful
+tasks, one allowed but semantically wrong operation, three rejected useful-task
+proposals and eight intended negative stops. Five pure completions must not be
+reported as five correct tasks. Model evidence remains bound to installed 1.6.0;
+the 1.7.0 release and its garak checks are separate. No real effects or raw retention.
+
 ## Experimental garak plan connector (unreleased source)
+
+The [1.7.0 release candidate](releases/v1.7.0.md) now includes this adapter in its
+build metadata. Published package **1.6.0** remains the installable baseline until
+the exact new subjects pass staging and publication verification. The candidate
+adds installed-wheel garak checks to tag, staging and published verification on
+Linux/Windows; those gates are requirements, not yet publication results.
 
 [Issue #306](https://github.com/krivonosoff161/agentic-security-harness/issues/306)
 adds a pure opt-in [plan connector](garak-plan-connector.md) and a four-case

@@ -1,6 +1,6 @@
 # Experimental garak plan connector
 
-Status: **unreleased Harness source API**, not included in published Harness 1.6.0.
+Status: **Harness 1.7.0 release candidate API**, not included in published Harness 1.6.0.
 This is an independent Harness integration, not an official NVIDIA component or an
 integration endorsed by garak maintainers. It adds no garak dependency to Harness.
 

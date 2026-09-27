@@ -81,3 +81,25 @@ def test_publish_action_is_commit_pinned_and_post_publish_smokes_are_bounded() -
     assert "sleep 15" in text
     for reference in re.findall(r"(?m)^\s*uses:\s*([^\s#]+)", text):
         assert re.fullmatch(r"[^@\s]+@[0-9a-f]{40}", reference), reference
+
+
+def test_promotion_checks_pinned_garak_from_exact_index_wheels() -> None:
+    text = _workflow()
+    staging = text.split("  smoke-testpypi:\n", 1)[1].split("  smoke-pypi:\n", 1)[0]
+    production = text.split("  smoke-pypi:\n", 1)[1]
+    assert "os: [ubuntu-latest, windows-latest]" in staging
+    assert "--index-url https://test.pypi.org/simple/" in staging
+    assert "--require-hashes --no-deps -r \"$requirement_file\"" in staging
+    assert "--extra-index-url" not in staging
+    assert '--core-version "${RELEASE_TAG#v}"' in staging
+    assert "os: windows-latest" in production
+    assert "https://pypi.org/pypi/agentic-security-harness/{version}/json" in production
+    assert '--core-version "${RELEASE_TAG#v}"' in production
+    for smoke in (staging, production):
+        assert "examples/garak-gateway/requirements-smoke.txt" in smoke
+        assert "examples/garak-gateway/prepare_source.py" in smoke
+        assert (
+            "--garak-source upstream-source/garak-ac4c5567f0c17834aace52b14788c1ca3548738b"
+            in smoke
+        )
+        assert "garak-observation.json --require-detector" in smoke

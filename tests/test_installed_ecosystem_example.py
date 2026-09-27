@@ -40,8 +40,10 @@ def test_example_denies_effect_events(event: str) -> None:
 def test_example_version_set_matches_declared_extras() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
     expected = dict(item.split("==") for item in project["optional-dependencies"]["all"])
-    expected[project["name"]] = project["version"]
+    # Historical published-wheel contour stays pinned independently of a candidate.
+    expected[project["name"]] = "1.6.0"
     assert _module().EXPECTED == expected
+    assert project["version"] == "1.7.0"
 
 
 def test_example_fails_closed_on_contract_mismatch() -> None:
@@ -54,7 +56,10 @@ def test_versioned_onboarding_pin_matches_readme_and_source_version() -> None:
     readme = re.search(pattern, (ROOT / "README.md").read_text(encoding="utf-8"))
     onboarding = re.search(pattern, (ROOT / "docs/getting-started.md").read_text(encoding="utf-8"))
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
-    assert readme and onboarding and readme.group(1) == onboarding.group(1) == project["version"]
+    assert readme and onboarding and readme.group(1) == onboarding.group(1) == "1.6.0"
+    assert project["version"] == "1.7.0"
+    notes = (ROOT / "docs/releases/v1.7.0.md").read_text(encoding="utf-8")
+    assert "release candidate; not published" in notes
 
 
 def test_example_configs_are_canonical_and_authority_free() -> None:

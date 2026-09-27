@@ -226,9 +226,10 @@ def exercise_native_adapter() -> list[dict[str, str | None]]:
     return rows
 
 
-def run() -> dict[str, Any]:
+def run(*, core_version: str = "1.6.0") -> dict[str, Any]:
     versions = {name: metadata.version(name) for name in EXPECTED}
-    require(versions == EXPECTED)
+    require(core_version in {"1.6.0", "1.7.0"})
+    require(versions == {**EXPECTED, "agentic-security-harness": core_version})
     # Explicit operator-selected passive surfaces. Transfer/Handoff are first loaded
     # only after their distribution inspection and approval below.
     for module_name, distribution_name in (
@@ -270,13 +271,14 @@ def run() -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--core-version", choices=("1.6.0", "1.7.0"), default="1.6.0")
     args = parser.parse_args()
     if args.out.exists():
         parser.error("output already exists")
     sys.dont_write_bytecode = True
     sys.addaudithook(deny_effects)
     try:
-        result = run()
+        result = run(core_version=args.core_version)
     except (ValueError, OSError, ImportError, metadata.PackageNotFoundError) as exc:
         print(json.dumps({"ok": False, "error_type": type(exc).__name__}))
         return 1

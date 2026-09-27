@@ -4,6 +4,17 @@ This directory is an explicit, offline operator example, not package auto-discov
 Use this fixed 1.6.0 example and its locks in a fresh environment.
 The scripts use installed distributions, not `src/`, and require no API key or model.
 
+For a separately built **1.7.0 candidate**, pass `--core-version 1.7.0` explicitly
+to check.py, chain.py, verify_chain.py and check_supplied_input.py. The default and
+core-release.txt remain the immutable published 1.6.0 contour; a reported version
+never selects its own verification policy. The caller-input regression also checks
+that bounded.digest is unavailable by default and can be explicitly mapped only
+to the Gateway's existing pure SHA-256 operation. Model bytes cannot enable it.
+
+The [2026-09-27 generalization report](../../docs/proposal-generalization-20260927.md)
+distinguishes four exact useful model proposals from one permitted but semantically
+wrong operation, three rejected useful-task proposals and eight negative controls.
+
 For **published 1.6.0**, start at the repository root with
 Python 3.11. Create a fresh environment using `python -m venv .venv`. Activate it
 with `.venv\Scripts\Activate.ps1` in PowerShell or `source .venv/bin/activate` in Bash.

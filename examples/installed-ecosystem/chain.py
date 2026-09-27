@@ -177,11 +177,15 @@ def router_with_in_memory_transport(role: str, payload: bytes) -> tuple[str, dic
     return text, usage, calls
 
 
-def run_case(case: dict[str, Any], *, canonical_input: bytes | None = None) -> dict[str, Any]:
+def run_case(
+    case: dict[str, Any], *, canonical_input: bytes | None = None, allow_digest: bool = False
+) -> dict[str, Any]:
     """Evaluate one closed chain; supplied bytes still pass normal Quarantine admission.
 
     The optional input is an in-memory seam for separately manifested research.
     It never adds transport, selects a provider, or changes the CLI fixture suite.
+    The caller may explicitly expose the Gateway's existing pure SHA-256 operation
+    for a separately declared corpus. Model bytes never select this option.
     """
     from agent_guard.handoff_metadata import (
         HandoffAdapterContext,
@@ -252,20 +256,32 @@ def run_case(case: dict[str, Any], *, canonical_input: bytes | None = None) -> d
         row["terminal_stage"] = row["stages"][-1]["stage"]
         return row
 
+    require(type(allow_digest) is bool)
+    bindings = (
+        QuarantineCapabilityBindingV1(
+            capability_id="bounded.lookup",
+            gateway_protocol="mcp",
+            gateway_tool_name="synthetic.lookup",
+            allowed_argument_keys=("key",),
+            required_argument_keys=("key",),
+        ),
+    )
+    if allow_digest:
+        bindings += (
+            QuarantineCapabilityBindingV1(
+                capability_id="bounded.digest",
+                gateway_protocol="mcp",
+                gateway_tool_name="synthetic.sha256",
+                allowed_argument_keys=("text",),
+                required_argument_keys=("text",),
+            ),
+        )
     registry = ProviderAdapterProfileRegistryV1(
         profiles=(
             ProviderAdapterProfileV1(
                 profile_id="example.chain",
                 profile_version="v1",
-                capabilities=(
-                    QuarantineCapabilityBindingV1(
-                        capability_id="bounded.lookup",
-                        gateway_protocol="mcp",
-                        gateway_tool_name="synthetic.lookup",
-                        allowed_argument_keys=("key",),
-                        required_argument_keys=("key",),
-                    ),
-                ),
+                capabilities=tuple(sorted(bindings, key=lambda item: item.capability_id)),
             ),
         )
     )
@@ -474,9 +490,10 @@ def run_case(case: dict[str, Any], *, canonical_input: bytes | None = None) -> d
     return finish("completed" if decision.execution_permitted else "denied")
 
 
-def run(cases_bytes: bytes) -> dict[str, Any]:
+def run(cases_bytes: bytes, *, core_version: str = "1.6.0") -> dict[str, Any]:
     versions = {name: metadata.version(name) for name in VERSIONS}
-    require(versions == VERSIONS)
+    require(core_version in {"1.6.0", "1.7.0"})
+    require(versions == {**VERSIONS, "agentic-security-harness": core_version})
     cases = json.loads(cases_bytes)["cases"]
     require(len(cases) == 16)
     rows = [run_case(case) for case in cases]
@@ -504,6 +521,7 @@ def run(cases_bytes: bytes) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--core-version", choices=("1.6.0", "1.7.0"), default="1.6.0")
     args = parser.parse_args()
     if args.out.exists():
         parser.error("output already exists")
@@ -511,7 +529,8 @@ def main() -> int:
     guard = EffectGuard(args.out)
     sys.addaudithook(guard)
     try:
-        result = run(Path(__file__).with_name("chain-cases.json").read_bytes())
+        result = run(Path(__file__).with_name("chain-cases.json").read_bytes(),
+                     core_version=args.core_version)
         result["effect_guard"] = guard.counts
         require(all(count == 0 for count in guard.counts.values()))
         result["result_sha256"] = digest(canonical(result))

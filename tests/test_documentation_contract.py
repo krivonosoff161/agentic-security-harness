@@ -12,7 +12,7 @@ def _read(path: str) -> str:
 
 def test_latest_proposal_evidence_is_visible_from_public_entry_points() -> None:
     readme = _read("README.md")
-    overview = readme.split("## Latest verified result — 2026-09-26\n", 1)[1].split(
+    overview = readme.split("## Previous verified result — 2026-09-26\n", 1)[1].split(
         "## Quickstart", 1
     )[0]
     report = json.loads(_read("examples/installed-ecosystem/proposal-contract-observation.json"))
@@ -45,7 +45,12 @@ def test_latest_proposal_evidence_is_visible_from_public_entry_points() -> None:
 
 
 def test_current_onboarding_separates_published_runtime_from_repository_evidence() -> None:
-    version = tomllib.loads(_read("pyproject.toml"))["project"]["version"]
+    source_version = tomllib.loads(_read("pyproject.toml"))["project"]["version"]
+    # A release candidate must not fabricate publication to satisfy a version test.
+    version = "1.6.0"
+    assert source_version == "1.7.0"
+    assert "1.7.0 release candidate" in _read("README.md")
+    assert "release candidate; not published" in _read("docs/releases/v1.7.0.md")
     readme = _read("README.md")
     assert f"Native Ollama adapter (published in {version})" in readme
     assert "unreleased source" not in readme
@@ -64,11 +69,11 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
     assert f"v{version} released with verified provenance" in status
     assert "Last reviewed: 2026-09-26" in status
     assert "94d6f7062d4d4569d4993df5f63a9474e4e74114" in status
-    changelog = _read("CHANGELOG.md").split("## [Unreleased]\n", 1)[1].split(
+    changelog = _read("CHANGELOG.md").split("## [1.7.0] - 2026-09-27\n", 1)[1].split(
         f"## [{version}]", 1
     )[0]
-    assert "delivered in Git, not a new package release" in changelog
-    assert "release artifacts are immutable" in changelog
+    assert "delivered in Git after 1.6.0" in changelog
+    assert "artifacts remain immutable" in changelog
     for number in (300, 301, 303):
         assert f"/pull/{number}" in changelog
 

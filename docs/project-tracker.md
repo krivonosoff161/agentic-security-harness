@@ -1,5 +1,20 @@
 # Project tracker
 
+## Generalization and experimental connector release / #308
+
+[Issue #308](https://github.com/krivonosoff161/agentic-security-harness/issues/308)
+tracks one new finite public-synthetic local-model matrix and the separately gated
+1.7.0 candidate. Model conformance does not substitute for package tests. The candidate
+does not mean publication; exact-head CI, reviewed diff, tag provenance, TestPyPI,
+post-staging owner approval and read-only published verification remain required.
+The prior model campaigns and published 1.6.0 artifacts are immutable.
+
+The [sixteen-call observation](proposal-generalization-20260927.md) is sealed:
+four exact useful tasks, one permitted but wrong argument, three rejected proposals,
+eight intended negative stops, zero real effects. An initial offline Unicode hash
+checker mismatch is preserved; the corrective manifest made all sixteen model
+calls exactly once. No enforcement source violation observed. Release gates remain.
+
 ## Experimental garak plan connector / #306
 
 The [source-only adapter and example](garak-plan-connector.md) separate detector
