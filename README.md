@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/public_research_release-v1.7.0-blue)
+![Status](https://img.shields.io/badge/public_research_release-v1.7.1-blue)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -47,9 +47,9 @@ estimate, an autonomous-agent demonstration or an independent human audit.
   The earlier eight-call result is preserved separately in the report.
 
 **Package versus research evidence:** the study used exact installed **1.6.0**
-subjects, while the current published package is **1.7.0**. The prompt helper,
+subjects, while the current published package is **1.7.1**. The prompt helper,
 corpus and observations are repository-owned evidence, not evidence that the
-1.7.0 wheel was used in those model calls. See
+1.7.0 or 1.7.1 wheel was used in those model calls. See
 [release and package status](#release-and-package-status) and
 [current state](docs/current-state.md) for the exact boundary.
 
@@ -73,17 +73,18 @@ compatibility lane pins an unmerged upstream PR rather than claiming release sup
 
 ## Quickstart
 
-Published [v1.7.0](docs/releases/v1.7.0.md) adds the opt-in garak plan adapter
-to the existing native Ollama proposal adapter and installed-ecosystem pilot.
-The Gateway lookup-key type guard and Router 0.2.1 remain. Release notes
-distinguish package availability, retained initial smoke failures, and successful
-read-only verification.
+Published [v1.7.1](docs/releases/v1.7.1.md#publication-evidence) repairs
+known-empty parent authority scope and memory TTL narrowing. The opt-in garak
+plan adapter, native Ollama proposal adapter, installed-ecosystem pilot,
+Gateway lookup-key type guard and Router 0.2.1 remain. Release notes distinguish
+package availability, retained initial smoke failures, and successful read-only
+verification.
 
 Install the exact package version from
-[PyPI](https://pypi.org/project/agentic-security-harness/1.7.0/):
+[PyPI](https://pypi.org/project/agentic-security-harness/1.7.1/):
 
 ```bash
-python -m pip install agentic-security-harness==1.7.0
+python -m pip install agentic-security-harness==1.7.1
 ash quickstart --out reports/quickstart
 ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
@@ -142,12 +143,12 @@ facts. The Harness generates only the cross-project roadmap and compatibility vi
 - [Documentation crosswalk](docs/documentation-map.md)
 - [`component.yaml`](component.yaml) and [`ecosystem/roadmap.yaml`](ecosystem/roadmap.yaml)
 
-Runtime Guard remains private and `contract_only`. Harness version `v1.7.0`
+Runtime Guard remains private and `contract_only`. Harness version `v1.7.1`
 contains the closed [Extension SDK V1](docs/extension-sdk.md) and public passive extras for
 validated observation-to-finding dataflow. It does not auto-load installed packages;
 companion repositories remain optional, separately versioned distributions.
 
-Version `v1.7.0` retains the closed optional-dependency groups introduced in `v1.4.0`:
+Version `v1.7.1` retains the closed optional-dependency groups introduced in `v1.4.0`:
 
 | Extra | Exact companion distributions | Automatic activation |
 |---|---|---|
@@ -162,8 +163,8 @@ The generic PyPI coordinate `llm-router` is intentionally absent because it belo
 another project. CI builds all eight exact wheels from pinned Git SHAs and installs the
 closed local wheelhouse without loading either extension entry point. The public install
 commands are
-`pip install "agentic-security-harness[router]==1.7.0"` or
-`pip install "agentic-security-harness[all]==1.7.0"`. Other companion pins are unchanged;
+`pip install "agentic-security-harness[router]==1.7.1"` or
+`pip install "agentic-security-harness[all]==1.7.1"`. Other companion pins are unchanged;
 installation remains separate from module activation.
 
 For explicit installed extension binding, follow the fresh `--no-compile` environment
@@ -426,6 +427,15 @@ builds the optional Transfer and Handoff extension wheels and exercises their ex
 approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install them.
 
 ## Release and package status
+
+Release [v1.7.1](docs/releases/v1.7.1.md#publication-evidence) is available on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.7.1/). Its wheel and
+sdist match the attested tag build and TestPyPI. Initial TestPyPI Windows and
+PyPI Linux 3.11–3.13 simple-index lookups failed after successful uploads;
+the [read-only verification](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36371342801)
+passed all seven subject and cross-platform install jobs without another upload.
+This patch does not turn the five open foundation research questions into shipped
+features or general security proofs.
 
 Release [v1.7.0](docs/releases/v1.7.0.md#publication-evidence) is available on
 [PyPI](https://pypi.org/project/agentic-security-harness/1.7.0/) with wheel and

@@ -1,9 +1,15 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The current package is published as `1.7.0` on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.7.0/). This page documents the
+The current package is published as `1.7.1` on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.7.1/). This page documents the
 manual, environment-gated OIDC promotion path and the retained initial smoke
 failures. See the gates in [release-checklist.md](release-checklist.md).
+
+The [v1.7.1 patch](releases/v1.7.1.md#publication-evidence) completed its attested
+build, read-only TestPyPI recovery, protected production promotion and
+[seven-job final verification](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36371342801).
+Initial index-lookup failures remain failed historical runs; neither upload was
+repeated. The release adds no new model experiment or deeper research feature.
 
 Release `v1.6.0` completed the exact tag, attested release build, TestPyPI review,
 explicitly approved conditional PyPI promotion, and post-publication verification gates. Future

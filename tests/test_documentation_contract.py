@@ -47,11 +47,11 @@ def test_latest_proposal_evidence_is_visible_from_public_entry_points() -> None:
 def test_current_onboarding_separates_published_runtime_from_repository_evidence() -> None:
     source_version = tomllib.loads(_read("pyproject.toml"))["project"]["version"]
     # Publication is separate from immutable model evidence collected on 1.6.0.
-    version = "1.7.0"
+    version = "1.7.1"
     assert source_version == "1.7.1"
-    preparation = _read("docs/releases/v1.7.1.md")
-    assert "release preparation" in preparation.lower()
-    assert "not published" in preparation.lower()
+    publication = _read("docs/releases/v1.7.1.md")
+    assert "published public research release" in publication.lower()
+    assert "not published" not in publication.lower()
     assert "published public research release" in _read("docs/releases/v1.7.0.md")
     readme = _read("README.md")
     assert "Native Ollama adapter (published in 1.6.0)" in readme
@@ -72,7 +72,8 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
         f"v{version} published with verified build provenance and read-only install matrix"
         in status
     )
-    assert "Last reviewed: 2026-09-27" in status
+    assert "Last reviewed: 2026-09-28" in status
+    assert "6afc350dee665d7f29b05d08e3d9e1650aa8571e" in status
     assert "9284c1292fe15f5fa2c3581abd3a18aab2358b5b" in status
     changelog = _read("CHANGELOG.md").split("## [1.7.0] - 2026-09-27\n", 1)[1].split(
         "## [1.6.0]", 1
@@ -99,6 +100,26 @@ def test_v170_publication_confirmation_preserves_failed_runs_and_exact_subjects(
     for path in ("README.md", "docs/current-state.md", "docs/project-tracker.md"):
         assert "36306894913" in _read(path), path
     assert "| Corrected read-only verification | Pending |" not in notes
+
+
+def test_v171_publication_binds_exact_subjects_and_retains_failed_runs() -> None:
+    notes = _read("docs/releases/v1.7.1.md")
+    for marker in (
+        "6afc350dee665d7f29b05d08e3d9e1650aa8571e",
+        "36370646791", "36370855421", "36371070484", "36371191225",
+        "36371342801",
+        "3cf26abd2adc79e860d77969112e47aaeb1a50c03a3aed459b2830116d6bc110",
+        "e815198e330404387ef9413243e6a2abbf726f5ff08651a7b046c730a7cf1a53",
+        "7018c62f8857a56bd975d83fc3e916671dd1ac79c098494b4178d0e4021e0644",
+        "2615bfb08baf473594a483ecd870bc3eab1b7db77cf367ee70b389929124e14f",
+        "Windows simple-index", "Linux 3.11, 3.12 and 3.13",
+        "workflow remains failed", "no release asset was replaced",
+        "passed all seven jobs", "Neither upload was repeated",
+        "not additional features", "No real target, provider, model, tool dispatch",
+    ):
+        assert marker in notes
+    assert "source candidate, not published" not in notes
+    assert "36306894913" in _read("docs/current-state.md")
 
 
 def test_readme_links_methodology_docs() -> None:
@@ -1289,7 +1310,7 @@ def test_artifact_authenticity_design_separates_trust_domains_and_non_claims() -
     assert "artifact-authenticity-design.md" in project_map
     assert "Historical releases and examples remain unsigned" in current_state
     assert (
-        "v1.7.0 published with verified build provenance and read-only install matrix"
+        "v1.7.1 published with verified build provenance and read-only install matrix"
         in current_state
     )
     assert "retained `v0.15.0` tag is transparent failed-gate evidence" in current_state
@@ -1431,10 +1452,10 @@ def test_v151_publication_docs_bind_current_release_and_preserve_failures() -> N
         assert marker in notes
     readme = _read("README.md")
     assert any(status in readme for status in (
-        "release_source-v1.7.0-blue", "public_research_release-v1.7.0-blue"
+        "release_source-v1.7.1-blue", "public_research_release-v1.7.1-blue"
     ))
-    assert "agentic-security-harness==1.7.0" in readme
-    assert "agentic-security-harness[all]==1.7.0" in readme
+    assert "agentic-security-harness==1.7.1" in readme
+    assert "agentic-security-harness[all]==1.7.1" in readme
     assert "agentic-llm-router==0.2.1" in readme
     assert "agentic-llm-router==0.2.0" not in readme
     assert "source tree prepares" not in readme
