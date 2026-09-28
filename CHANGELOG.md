@@ -6,7 +6,7 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
-## [1.7.1] - 2026-09-27
+## [1.7.1] - 2026-09-28
 
 Release preparation for the scoped foundation contract repair. The source now
 rejects a nonempty child authority scope when the supplied parent scope is
