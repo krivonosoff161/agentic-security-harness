@@ -14,7 +14,7 @@ scope and the remaining independent-human gates.
 
 No credentials, customer data, private repositories, model access, real tools or
 production targets are required. Use a fresh Python 3.11 environment and the exact
-release's fixed example and locks. The current published 1.7.0 baseline is documented in
+release's fixed example and locks. The current published 1.7.1 baseline is documented in
 [Getting started](getting-started.md); its installed example is at
 [examples/installed-ecosystem](../examples/installed-ecosystem/README.md).
 That page provides a hash-locked PyPI route with no local package build required.
@@ -34,8 +34,8 @@ public command and result expectations live with the example rather than in priv
 2. After the exact-wheel setup above, run the functional chain and its separate verifier:
 
    ```bash
-   python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json --core-version 1.7.0
-   python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json --core-version 1.7.0
+   python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json --core-version 1.7.1
+   python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json --core-version 1.7.1
    ```
 
    Expect 16 cases: two full paths with two built-in constant lookups in total,
@@ -47,7 +47,7 @@ public command and result expectations live with the example rather than in priv
    Playbooks tampering/unknown evidence, and Gateway denial. A missing dependency
    or failed import is not a successful negative control.
 4. Optionally run
-   `python -I -B examples/installed-ecosystem/check.py --out installation-baseline.json --core-version 1.7.0`.
+   `python -I -B examples/installed-ecosystem/check.py --out installation-baseline.json --core-version 1.7.1`.
    This separate eight-case installation baseline explicitly
    inspects, approves and binds Transfer/Handoff extensions; installation alone does
    none of this. Missing Handoff artifact binding is a finding and incomplete

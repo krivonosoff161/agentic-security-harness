@@ -1,5 +1,12 @@
 # Roadmap
 
+Published bounded patch: [v1.7.1](releases/v1.7.1.md#publication-evidence)
+repairs known-empty parent authority scope and memory TTL narrowing. The
+read-only cross-index verification passed all seven jobs after retained initial
+post-upload lookup failures; no upload was repeated. Five deeper foundation
+questions remain open in issues #314–318, not shipped features or new work in
+this patch. Private working derivations remain outside public Git.
+
 Completed bounded delivery: [#308](https://github.com/krivonosoff161/agentic-security-harness/issues/308)
 records fresh task/operation generalization observations and the experimental
 connector's [1.7.0 release](releases/v1.7.0.md). The tag build, TestPyPI

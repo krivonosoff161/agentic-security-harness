@@ -1,25 +1,28 @@
 # Project tracker
 
-The published package is **1.7.0**. Production upload and exact PyPI wheel/sdist
-hash equality are verified. The
-[corrected read-only matrix](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36306894913)
-passed all seven jobs without re-upload.
+The published package is **1.7.1**. Exact GitHub Release, TestPyPI and PyPI
+wheel/sdist hash equality is verified. The
+[read-only matrix](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36371342801)
+passed all seven jobs without re-upload; initial post-upload index lookup
+failures remain failed historical runs.
 
-## Foundation reconciliation — local candidate, not published
+## Foundation reconciliation — v1.7.1 published patch
 
 Tracked by [issue #312](https://github.com/krivonosoff161/agentic-security-harness/issues/312).
-The [1.7.1 patch preparation](releases/v1.7.1.md) is not yet a published package;
-candidate-wheel CI is separate from the immutable published 1.7.0 lane.
+The [1.7.1 patch](releases/v1.7.1.md#publication-evidence) is published with
+exact-subject staging and read-only verification. Historical published 1.7.0
+subjects and their retained failures remain immutable.
 
 The owner-requested [ecosystem foundation matrix](foundation-matrix.md) now maps the
 17 original questions to mathematical obligations, source-owned modules, code/tests
-and residual questions. Candidate fixes cover known-empty delegation scope and a
-narrowed memory deadline. Do not count this matrix as 17 completed proofs or promote
-the unchanged published 1.7.0 package on the strength of local tests.
+and residual questions. The patch fixes known-empty delegation scope and a
+narrowed memory deadline. Do not count this matrix as 17 completed proofs or
+the five open questions #314–318 as shipped features.
 
-The next depth work is authenticated ancestry/replay context, causal trace omission
-detection and bounded recovery/progress, with companion-owned changes kept outside
-Core. Private Runtime Guard and private mathematical archives remain private.
+Open questions #314–318 include authenticated ancestry/replay context, causal
+trace omission detection and bounded recovery/progress. Further research is
+tracked separately; companion-owned changes stay outside Core. Private Runtime
+Guard and private mathematical archives remain private.
 
 ## Generalization and experimental connector release / #308
 
@@ -209,8 +212,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.7.0` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.7.0/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.7.1` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.7.1/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are

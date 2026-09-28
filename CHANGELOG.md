@@ -8,13 +8,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [1.7.1] - 2026-09-28
 
-Release preparation for the scoped foundation contract repair. The source now
+Published patch for the scoped foundation contract repair. The source now
 rejects a nonempty child authority scope when the supplied parent scope is
 known empty, and memory TTL narrowing retains the original write epoch and
 the minimum finite write, stored and read TTL. Positive and negative local
-regressions accompany the repair. This section records candidate source, not
-a published package or completed release gates; 1.7.0 remains the latest
-published release until exact-subject staging and production verification.
+regressions accompany the repair. The exact-subject tag build, TestPyPI and
+PyPI uploads, and subsequent read-only verification completed on 2026-09-28.
+Initial post-upload index lookup failures remain failed historical runs; no
+upload was repeated. The five deeper foundation questions remain open research,
+not new package features or completed security proofs.
 
 ## [1.7.0] - 2026-09-27
 
