@@ -132,6 +132,23 @@ def test_candidate_workflows_install_the_current_source_version() -> None:
     assert "core-release-v1.7.0.txt" in ecosystem.split("  installed-ecosystem:\n", 1)[0]
 
 
+def test_ancestry_checks_cover_candidate_release_staging_and_published_wheels() -> None:
+    directory = ROOT / ".github" / "workflows"
+    command = "examples/installed-ecosystem/check_ancestry.py"
+    for name in ("release.yml", "ecosystem-integration.yml"):
+        text = (directory / name).read_text(encoding="utf-8")
+        lines = [line for line in text.splitlines() if command in line]
+        assert len(lines) == 1
+        assert f"--core-version {PROJECT_VERSION}" in lines[0]
+    promotion = (directory / "publish-pypi.yml").read_text(encoding="utf-8")
+    lines = [line for line in promotion.splitlines() if command in line]
+    assert len(lines) == 2
+    assert all('--core-version "${RELEASE_TAG#v}"' in line for line in lines)
+    verification = (directory / "verify-published-release.yml").read_text(encoding="utf-8")
+    assert f'if [ -f release-example/{command} ]; then' in verification
+    assert '--out verified-ancestry-result.json --core-version "$RELEASE_VERSION"' in verification
+
+
 def test_optional_wheelhouse_uses_source_version_without_running_installer() -> None:
     # Loading declarations does not invoke main(), pip, or extension entry points.
     declarations = runpy.run_path(str(ROOT / "tools/optional_wheelhouse_smoke.py"))

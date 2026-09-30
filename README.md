@@ -71,6 +71,15 @@ an independent Harness integration, not an official NVIDIA/garak component. It i
 new in the 1.7.0 package, **not included in published 1.6.0**; its optional detector
 compatibility lane pins an unmerged upstream PR rather than claiming release support.
 
+## Retained ancestry — 1.8.0 preparation
+
+[PR #324](https://github.com/krivonosoff161/agentic-security-harness/pull/324)
+adds an opt-in [retained ancestry store](docs/ancestry-store.md): trusted root
+admission, exact retained parent history, scope narrowing and local crash recovery.
+Ancestry acceptance cannot override Gateway policy. The source candidate is being
+prepared for 1.8.0; [release status](docs/releases/v1.8.0.md) distinguishes source
+readiness from actual publication. Published 1.7.1 remains unchanged.
+
 ## Quickstart
 
 Published [v1.7.1](docs/releases/v1.7.1.md#publication-evidence) repairs

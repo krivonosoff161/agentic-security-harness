@@ -283,6 +283,7 @@ jobs:
           python -m pip install --no-compile --only-binary=:all: --require-hashes -r requirements/companions.txt
           python -m pip check
           python -I -B examples/installed-ecosystem/check.py --out staged-ecosystem-result.json --core-version "${RELEASE_TAG#v}"
+          python -I -B examples/installed-ecosystem/check_ancestry.py --out staged-ancestry-result.json --core-version "${RELEASE_TAG#v}"
 
       - name: Verify pinned garak detector from exact staged wheel
         shell: bash
@@ -369,6 +370,7 @@ jobs:
           python -m pip install --no-compile --only-binary=:all: --require-hashes -r requirements/companions.txt
           python -m pip check
           python -I -B examples/installed-ecosystem/check.py --out published-ecosystem-result.json --core-version "${RELEASE_TAG#v}"
+          python -I -B examples/installed-ecosystem/check_ancestry.py --out published-ancestry-result.json --core-version "${RELEASE_TAG#v}"
 
       - name: Verify pinned garak detector from exact published wheel
         run: |

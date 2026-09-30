@@ -4,10 +4,33 @@ This opt-in local reference implementation preserves exact captured bytes and
 their declared ancestry before an application passes them to adapters. It is
 not enabled automatically, a remote-provider authenticator, or an action permit.
 
-This is a source candidate, not part of the published 1.7.1 package. A separate
-release decision is required before an installed public package can provide it.
+This API is prepared for 1.8.0, not part of the immutable published 1.7.1 package.
+See [release status and evidence](releases/v1.8.0.md) before selecting an installed
+package; source version metadata alone does not establish publication.
+
+## Acceptance map for issue #315
+
+| Obligation | Implementation and public checks |
+|---|---|
+| Trusted root and prior state | Explicit `create` / `open` contract; expected context/root and an existing witness are required, with no bootstrap from an untrusted DB. |
+| Exact identity, bytes and parents | Frozen records and `snapshot`; `verify_candidate` requires the retained ordered ancestor closure, not a self-consistent caller replacement. |
+| Cycle, rebinding and scope resistance | Only admitted parents may be referenced; duplicate identifiers and expanding scopes are rejected. Parent-before-child admission makes this store a DAG. |
+| Local event / recovery join | Each admitted record is bound to the checked event chain and separately retained witness; pending local appends are finalized or aborted only when their exact states match. |
+| No authority promotion | Valid ancestry may still receive a Gateway denial; rejected candidates reach zero synthetic executions. |
+
+Public regression entry points are `tests/test_ancestry_store.py`,
+`tests/test_ancestry_store_integrity.py`, and `tests/test_ancestry_chain.py`.
+The installed-wheel check is `examples/installed-ecosystem/check_ancestry.py`.
+This acceptance map does not close the separately linked #316 / #317 obligations.
 
 ## Ownership and persistence
+
+Issue [#315](https://github.com/krivonosoff161/agentic-security-harness/issues/315)
+is evaluated against this captured-local-history contract. The caller owns initial
+root admission and the trusted capture boundary. Independent expectations for
+uncaptured host events remain [#316](https://github.com/krivonosoff161/agentic-security-harness/issues/316);
+spent permission and ambiguous action outcomes remain [#317](https://github.com/krivonosoff161/agentic-security-harness/issues/317).
+Local database/witness recovery below is not closure of either broader question.
 
 The trusted caller explicitly creates one root, context and scope label set.
 It owns three stable paths: the SQLite database, a separately retained JSON

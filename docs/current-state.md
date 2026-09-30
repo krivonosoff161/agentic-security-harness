@@ -1,5 +1,15 @@
 # Current state
 
+## Retained ancestry — 1.8.0 preparation
+
+[PR #324](https://github.com/krivonosoff161/agentic-security-harness/pull/324)
+adds the [local retained ancestry contract](ancestry-store.md) for issue #315.
+Exact parent closure, byte/context binding, narrowing scopes, checkpoint consistency
+and local append recovery are checked before component observations are consumed.
+The source API grants no action authority. Independent event coverage and ambiguous
+action recovery remain issues #316/#317. See [release status](releases/v1.8.0.md);
+1.8.0 is not yet published and prior model observations are not relabelled.
+
 ## Foundation reconciliation patch
 
 The [17-question ecosystem matrix](foundation-matrix.md) separates mathematical
