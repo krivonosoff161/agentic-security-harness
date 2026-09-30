@@ -147,6 +147,14 @@ def test_ancestry_checks_cover_candidate_release_staging_and_published_wheels() 
     verification = (directory / "verify-published-release.yml").read_text(encoding="utf-8")
     assert f'if [ -f release-example/{command} ]; then' in verification
     assert '--out verified-ancestry-result.json --core-version "$RELEASE_VERSION"' in verification
+    ecosystem = (directory / "ecosystem-integration.yml").read_text(encoding="utf-8")
+    step = ecosystem.split(
+        "      - name: Exercise installed positive and negative paths without source imports\n", 1
+    )[1].split("      - name:", 1)[0]
+    assert "shell: bash" in step
+    assert "set -euo pipefail" in step
+    artifact = ecosystem.split("      - name: Preserve content-free candidate-wheel evidence", 1)[1]
+    assert "            candidate-ancestry-result.json" in artifact
 
 
 def test_optional_wheelhouse_uses_source_version_without_running_installer() -> None:
