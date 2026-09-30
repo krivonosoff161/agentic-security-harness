@@ -11,6 +11,11 @@ the topology page is the methodology map.
 
 ## Targets and modes
 
+The opt-in [retained ancestry API](ancestry-store.md), prepared for
+[1.8.0](releases/v1.8.0.md), is a local integrity/admission boundary, not a new
+benchmark target or action permit. Its synthetic installed-chain checks do not
+authenticate remote producers or prove all-host event coverage.
+
 | Mode | Command | Network (default) | Uses a model/provider | Determinism | Corpus scope | Repeats | Scenario variants | Writes `run_index.json` | `ash validate` |
 |---|---|---|---|---|---|---|---|---|---|
 | First-user quickstart | `quickstart --out <dir>` | offline | no | deterministic | full (24), baseline vs protected | no | no | yes | runs automatically |

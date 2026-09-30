@@ -1,5 +1,14 @@
 # Project tracker
 
+## Retained ancestry delivery — #315 / #324
+
+The [ancestry contract](ancestry-store.md) and
+[PR #324](https://github.com/krivonosoff161/agentic-security-harness/pull/324)
+are prepared for [1.8.0](releases/v1.8.0.md). Publication and issue #315 closure
+remain gated by final-source checks and exact installed package verification.
+This is local captured-history admission; independent coverage expectations #316
+and ambiguous action-outcome recovery #317 remain separate research obligations.
+
 The published package is **1.7.1**. Exact GitHub Release, TestPyPI and PyPI
 wheel/sdist hash equality is verified. The
 [read-only matrix](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36371342801)

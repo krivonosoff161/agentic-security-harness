@@ -364,6 +364,16 @@ jobs:
             fi
           fi
 
+      - name: Verify retained ancestry for releases declaring the example
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ needs.verify-subjects.outputs.version }}
+        run: |
+          set -euo pipefail
+          if [ -f release-example/examples/installed-ecosystem/check_ancestry.py ]; then
+            python -I -B release-example/examples/installed-ecosystem/check_ancestry.py --out verified-ancestry-result.json --core-version "$RELEASE_VERSION"
+          fi
+
       - name: Select version-bound garak smoke lock
         id: garak-lock
         shell: bash

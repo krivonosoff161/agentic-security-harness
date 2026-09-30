@@ -6,6 +6,23 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-09-30
+
+### Added
+
+- Opt-in retained ancestry API with exact-byte/context/root binding, admitted-parent
+  DAGs, scope narrowing, immutable snapshots and stale-checkpoint refusal.
+- Cross-process serialization and separate checkpoint witness with fail-closed
+  validation and recovery of interrupted local appends.
+- Synthetic installed-ecosystem ancestry composition and required Linux/Windows
+  checks, including positive execution and negative zero-execution controls.
+
+This additive minor release does not grant action authority or authenticate a
+remote producer. Trusted capture and protected store/witness paths are assumptions;
+joint rollback, uncaptured host events and whole-machine power loss are not covered.
+See [the contract](docs/ancestry-store.md) and [release status](docs/releases/v1.8.0.md).
+Historical model observations are unchanged, not new 1.8.0 effectiveness evidence.
+
 ## [1.7.1] - 2026-09-28
 
 Published patch for the scoped foundation contract repair. The source now

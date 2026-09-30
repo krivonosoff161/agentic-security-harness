@@ -1,5 +1,10 @@
 # Roadmap
 
+Current delivery: the [retained ancestry contract](ancestry-store.md), tracked by
+issue #315 and PR#324, is prepared for [1.8.0](releases/v1.8.0.md). Exact retained
+parent closure and local recovery do not close independent event completeness #316,
+action-outcome recovery #317, or the other foundation questions. Publication pending.
+
 Published bounded patch: [v1.7.1](releases/v1.7.1.md#publication-evidence)
 repairs known-empty parent authority scope and memory TTL narrowing. The
 read-only cross-index verification passed all seven jobs after retained initial

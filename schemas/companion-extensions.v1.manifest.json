@@ -36,7 +36,7 @@
     },
     "compatibility": {
       "path": "ecosystem/compatibility.json",
-      "sha256": "b510f54ee47796393c9ae7f6013679268eacd9c046d25a9a93001c4a45a6368d"
+      "sha256": "48a3ffdb641d0b6d79a1ae1eeed6c59cdcee659776c785843c22a3f69a7ec724"
     },
     "development_requirements_in": {
       "path": "requirements/dev.in",
@@ -52,7 +52,7 @@
     },
     "test": {
       "path": "tests/test_ecosystem_integration_candidate.py",
-      "sha256": "91082c211998c48bc9a46e45f0ba4aa5e195b1f2f529aaa0c78cb67449da7b82"
+      "sha256": "76b901e3b5cd7d086a1b64aef944fff340e5e16ce46be21ebc5ecb07aa5e99d7"
     },
     "wheelhouse_smoke": {
       "path": "tools/optional_wheelhouse_smoke.py",
@@ -60,7 +60,7 @@
     },
     "workflow": {
       "path": ".github/workflows/ecosystem-integration.yml",
-      "sha256": "0854dd223f8fc22d7a9778ed260279fd94a3c42087f90cbdc3b6d513476e99a8"
+      "sha256": "5fa20a6dc8d4649c410b8396c15e41fac3224f7fdd5d378795ce9812181e1314"
     }
   },
   "integration_model": "explicit_normalized_digest_bound_outputs",

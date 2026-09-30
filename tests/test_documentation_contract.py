@@ -48,7 +48,7 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
     source_version = tomllib.loads(_read("pyproject.toml"))["project"]["version"]
     # Publication is separate from immutable model evidence collected on 1.6.0.
     version = "1.7.1"
-    assert source_version == "1.7.1"
+    assert source_version == "1.8.0"
     publication = _read("docs/releases/v1.7.1.md")
     assert "published public research release" in publication.lower()
     assert "not published" not in publication.lower()
@@ -100,6 +100,16 @@ def test_v170_publication_confirmation_preserves_failed_runs_and_exact_subjects(
     for path in ("README.md", "docs/current-state.md", "docs/project-tracker.md"):
         assert "36306894913" in _read(path), path
     assert "| Corrected read-only verification | Pending |" not in notes
+
+
+def test_v180_preparation_keeps_ancestry_limits_and_publication_gate_explicit() -> None:
+    notes = _read("docs/releases/v1.8.0.md")
+    for marker in ("release preparation", "not yet published", "issue #315",
+                   "Trusted capture", "#316", "#317", "installed wheel"):
+        assert marker in notes
+    for path in ("README.md", "docs/current-state.md", "docs/project-tracker.md",
+                 "docs/roadmap.md", "docs/capability-matrix.md"):
+        assert "ancestry-store.md" in _read(path)
 
 
 def test_v171_publication_binds_exact_subjects_and_retains_failed_runs() -> None:

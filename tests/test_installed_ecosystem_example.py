@@ -1,5 +1,6 @@
 """Example/control-plane checks; no package download, provider or real target."""
 
+import ast
 import importlib.util
 import json
 import re
@@ -43,12 +44,25 @@ def test_example_version_set_matches_declared_extras() -> None:
     # Historical published-wheel contour stays pinned independently of a candidate.
     expected[project["name"]] = "1.6.0"
     assert _module().EXPECTED == expected
-    assert project["version"] == "1.7.1"
+    assert project["version"] == "1.8.0"
 
 
 def test_example_fails_closed_on_contract_mismatch() -> None:
     with pytest.raises(ValueError):
         _module().require(False)
+
+
+@pytest.mark.parametrize("name", [
+    "check.py", "chain.py", "verify_chain.py", "check_supplied_input.py",
+])
+def test_all_example_version_gates_accept_current_release(name: str) -> None:
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    current = project["version"]
+    source = EXAMPLE.with_name(name).read_text(encoding="utf-8")
+    gates = re.findall(r"(?:choices=|core_version in )([({][^)}]+[)}])", source)
+    assert gates, "example must declare its accepted versions"
+    for gate in gates:
+        assert {"1.6.0", "1.7.0", "1.7.1", current} <= set(ast.literal_eval(gate))
 
 
 def test_versioned_onboarding_pin_matches_latest_published_version() -> None:
@@ -57,7 +71,7 @@ def test_versioned_onboarding_pin_matches_latest_published_version() -> None:
     onboarding = re.search(pattern, (ROOT / "docs/getting-started.md").read_text(encoding="utf-8"))
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
     assert readme and onboarding and readme.group(1) == onboarding.group(1) == "1.7.1"
-    assert project["version"] == "1.7.1"
+    assert project["version"] == "1.8.0"
     notes = (ROOT / "docs/releases/v1.7.1.md").read_text(encoding="utf-8")
     assert "release candidate; not published" not in notes
     assert "https://pypi.org/project/agentic-security-harness/1.7.1/" in notes

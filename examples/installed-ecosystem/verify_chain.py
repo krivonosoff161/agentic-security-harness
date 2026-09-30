@@ -104,7 +104,7 @@ def verify(
         result["runner_sha256"] == sha(Path(__file__).with_name("chain.py").read_bytes()),
         "runner binding",
     )
-    check(core_version in {"1.6.0", "1.7.0", "1.7.1"}, "declared core version")
+    check(core_version in {"1.6.0", "1.7.0", "1.7.1", "1.8.0"}, "declared core version")
     check(result["versions"] == {**PINS, "agentic-security-harness": core_version}, "package pins")
     check(result["operational_authority"] == "none", "authority")
     check(result["non_claims"] == NON_CLAIMS, "evidence limits")
@@ -195,7 +195,8 @@ def verify(
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("result", type=Path)
-    parser.add_argument("--core-version", choices=("1.6.0", "1.7.0", "1.7.1"), default="1.6.0")
+    parser.add_argument("--core-version", choices=("1.6.0", "1.7.0", "1.7.1", "1.8.0"),
+                        default="1.6.0")
     args = parser.parse_args()
     try:
         result = decode(args.result.read_bytes())

@@ -1,0 +1,68 @@
+name: Ancestry readiness
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  required-runtime:
+    name: Required ancestry and filesystem checks (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            posix-node: tests/test_extension_distribution.py::test_posix_stable_read_retains_path_descriptor_identity_binding
+          - os: windows-latest
+            posix-node: ""
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYDANTIC_DISABLE_PLUGINS: __all__
+    steps:
+      - name: Check out exact candidate head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+      - name: Install locked test and companion dependencies
+        run: |
+          python -m pip install --require-hashes -r requirements/dev.txt
+          python -m pip --isolated install --index-url https://pypi.org/simple --no-compile --only-binary=:all: --require-hashes -r requirements/runtime.txt -r requirements/companions.txt
+          python -m pip check
+      - name: Execute all store and composition tests plus required platform cases
+        shell: bash
+        run: |
+          python -B -m pytest -q -rs -p no:cacheprovider --junitxml=ancestry-readiness.xml \
+            tests/test_ancestry_store.py tests/test_ancestry_store_integrity.py tests/test_ancestry_chain.py \
+            tests/test_agent_host_adapter.py::test_reader_rejects_links_and_accepts_stable_regular_file \
+            tests/test_agent_host_workflow.py::test_bundle_symlinked_recording_directory_fails_before_read \
+            tests/test_corpus_packs.py::test_directory_loader_rejects_symlink_when_supported \
+            tests/test_run_manifest.py::test_validate_rejects_manifested_symbolic_link \
+            tests/test_run_manifest.py::test_validate_rejects_unmanifested_directory_link \
+            tests/test_safe_io.py::test_write_text_artifact_refuses_existing_symlink \
+            tests/test_safe_io.py::test_write_text_artifact_refuses_symlink_parent \
+            tests/test_trading_bot_stand.py::test_private_writer_rejects_parent_link_escape \
+            ${{ matrix.posix-node }}
+      - name: Refuse missing or skipped required tests
+        run: python tools/check_readiness_junit.py ancestry-readiness.xml --out ancestry-readiness.json
+      - name: Preserve exact-run test evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: ancestry-readiness-${{ matrix.os }}
+          path: |
+            ancestry-readiness.xml
+            ancestry-readiness.json
+          if-no-files-found: error
+          retention-days: 30
