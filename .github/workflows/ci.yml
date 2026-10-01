@@ -139,6 +139,33 @@ jobs:
           ash gateway-check --config gateway.toml
           test ! -e .internal/runtime-gateway
 
+  controlled-file-installed:
+    name: Controlled file installed / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+      - name: Build and install exact candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --require-hashes -r requirements/build.txt -r requirements/runtime.txt
+          python -m build --no-isolation --wheel --outdir dist
+          python -c "import pathlib,subprocess,sys; w=list(pathlib.Path('dist').glob('*.whl')); assert len(w)==1; subprocess.run([sys.executable,'-m','pip','install','--no-deps','--force-reinstall',str(w[0])],check=True)"
+      - name: Exercise real synthetic writes outside checkout
+        run: |
+          python -c "import os,subprocess,tempfile; d=tempfile.mkdtemp(prefix='ash-file-installed-'); e=dict(os.environ); e.pop('PYTHONPATH',None); subprocess.run(['ash','controlled-file-workflow','--out','result'],cwd=d,env=e,check=True); subprocess.run(['ash','controlled-file-verify','--out','result'],cwd=d,env=e,check=True)"
+
   runtime-gateway-container:
     name: Runtime Gateway container smoke
     runs-on: ubuntu-latest

@@ -1,5 +1,15 @@
 # Current state
 
+## Controlled file workflow — candidate
+
+The opt-in [controlled file workflow](controlled-file-workflow.md) adds actual
+writes to exclusively created synthetic fixtures, report-only Guard enforcement,
+a same-proposal guarded/ablated control and a separate disk/history verifier.
+This task-branch candidate is not part of the published 1.8.0 wheel. The
+[fresh eight-call observation](controlled-file-observation-20261001.md) records
+four forbidden proposals denied and four actual report writes, of which two were
+correct. Exact-head release gates are separate; prior Lab results are not relabelled.
+
 ## Retained ancestry — published in 1.8.0
 
 [PR #324](https://github.com/krivonosoff161/agentic-security-harness/pull/324)

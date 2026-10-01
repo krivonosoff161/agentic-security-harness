@@ -374,6 +374,15 @@ jobs:
             python -I -B release-example/examples/installed-ecosystem/check_ancestry.py --out verified-ancestry-result.json --core-version "$RELEASE_VERSION"
           fi
 
+      - name: Verify controlled files for releases declaring the implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f release-example/src/agentic_security_harness/controlled_file_workflow.py ]; then
+            python -I -B -m agentic_security_harness.cli controlled-file-workflow --out verified-controlled-files
+            python -I -B -m agentic_security_harness.cli controlled-file-verify --out verified-controlled-files
+          fi
+
       - name: Select version-bound garak smoke lock
         id: garak-lock
         shell: bash

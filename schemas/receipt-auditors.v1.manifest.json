@@ -14,7 +14,7 @@
   },
   "extension_sdk_contract": {
     "path": "schemas/extension-sdk.v1.manifest.json",
-    "sha256": "27d500a7ed165d43b85d456cec906225bd70a557654697eb0794aa5bb9c06f91"
+    "sha256": "e897bee1999c876e884bd33c4ec395829539112f089425e244b616c3023c0fcd"
   },
   "generator": {
     "path": "tools/receipt_auditor_contracts.py",

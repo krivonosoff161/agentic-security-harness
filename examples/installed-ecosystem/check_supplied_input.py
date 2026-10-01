@@ -14,7 +14,7 @@ from typing import Any
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--core-version", choices=("1.6.0", "1.7.0", "1.7.1", "1.8.0"),
+    parser.add_argument("--core-version", choices=("1.6.0", "1.7.0", "1.7.1", "1.8.0", "1.9.0"),
                         default="1.6.0")
     args = parser.parse_args()
     if args.out.exists():
