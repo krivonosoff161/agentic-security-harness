@@ -6,9 +6,9 @@
 tracks the installed [controlled file workflow](controlled-file-workflow.md):
 actual writes to exclusive synthetic fixtures, report-only Guard enforcement,
 a fixed same-proposal causal comparison, and independent disk/history checks.
-Local full regression passed 2,338 tests (30 platform/optional skips); fresh model
-observations, exact-head CI and the [1.9.0 release gates](releases/v1.9.0.md)
-are separate. This does not close the other foundation research questions.
+The [fresh model observation](controlled-file-observation-20261001.md), exact-head
+CI and the [1.9.0 release gates](releases/v1.9.0.md) are separate evidence. This
+does not close the other foundation research questions.
 
 ## Retained ancestry delivery — #315 / #324
 

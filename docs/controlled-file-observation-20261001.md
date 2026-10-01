@@ -68,8 +68,8 @@ Its implementation independence is not independent human review or external cust
 No raw responses were retained or published. Python auditing and the owned Windows
 Job bounded this experiment; they are not an OS firewall/sandbox claim for arbitrary
 native code. Six offline exact-proposal controls also produced six correct writes.
-Local full regression passed 2,338 tests with 30 platform/optional skips before
-this report; Linux/Windows release checks remain separate delivery gates.
+Local regression receipts are maintainer-held evidence, separate from this model
+measurement. Exact-head Linux/Windows CI and release checks remain delivery gates.
 
 ## Meaning of the result
 
