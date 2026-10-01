@@ -47,11 +47,10 @@ def test_latest_proposal_evidence_is_visible_from_public_entry_points() -> None:
 def test_current_onboarding_separates_published_runtime_from_repository_evidence() -> None:
     source_version = tomllib.loads(_read("pyproject.toml"))["project"]["version"]
     # Publication is separate from immutable model evidence collected on 1.6.0.
-    version = "1.7.1"
+    version = "1.8.0"
     assert source_version == "1.8.0"
-    publication = _read("docs/releases/v1.7.1.md")
-    assert "published public research release" in publication.lower()
-    assert "not published" not in publication.lower()
+    publication = _read("docs/releases/v1.8.0.md")
+    assert "published on github, testpypi and pypi" in publication.lower()
     assert "published public research release" in _read("docs/releases/v1.7.0.md")
     readme = _read("README.md")
     assert "Native Ollama adapter (published in 1.6.0)" in readme
@@ -72,7 +71,7 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
         f"v{version} published with verified build provenance and read-only install matrix"
         in status
     )
-    assert "Last reviewed: 2026-09-28" in status
+    assert "Last reviewed: 2026-10-01" in status
     assert "6afc350dee665d7f29b05d08e3d9e1650aa8571e" in status
     assert "9284c1292fe15f5fa2c3581abd3a18aab2358b5b" in status
     changelog = _read("CHANGELOG.md").split("## [1.7.0] - 2026-09-27\n", 1)[1].split(
@@ -102,14 +101,36 @@ def test_v170_publication_confirmation_preserves_failed_runs_and_exact_subjects(
     assert "| Corrected read-only verification | Pending |" not in notes
 
 
-def test_v180_preparation_keeps_ancestry_limits_and_publication_gate_explicit() -> None:
+def test_v180_publication_keeps_ancestry_limits_and_failed_lookup_explicit() -> None:
     notes = _read("docs/releases/v1.8.0.md")
-    for marker in ("release preparation", "not yet published", "issue #315",
-                   "Trusted capture", "#316", "#317", "installed wheel"):
+    for marker in ("published on GitHub, TestPyPI and PyPI",
+                   "overall workflow failed on Linux 3.11 simple-index lookup",
+                   "issue #315", "Trusted capture", "#316", "#317", "installed wheel",
+                   "36749734621", "36811217479", "36812816528", "36813028115",
+                   "f7696dc4c7da0f163dca6e3164ebaab7fbc6ad1f",
+                   "3cee43202117a062710a0a12cb660dc7f211f610a8c691c826e8adeead18aa14",
+                   "9aed6e5cc2bd4392b1bf0beee2e1a2a327ff143c1d9fadcc744672ac6cf29aed",
+                   "read-only verification did not rebuild\nor re-upload"):
         assert marker in notes
     for path in ("README.md", "docs/current-state.md", "docs/project-tracker.md",
                  "docs/roadmap.md", "docs/capability-matrix.md"):
         assert "ancestry-store.md" in _read(path)
+    assert "Experimental garak plan connector (published in 1.7.0)" in _read("docs/README.md")
+    lock = _read("examples/installed-ecosystem/core-release-v1.8.0.txt")
+    assert "agentic_security_harness-1.8.0-py3-none-any.whl" in lock
+    assert "3cee43202117a062710a0a12cb660dc7f211f610a8c691c826e8adeead18aa14" in lock
+    example = _read("examples/installed-ecosystem/README.md")
+    assert "## Current published 1.8.0" in example
+    assert "core-release-v1.8.0.txt" in example
+    assert "## Historical published 1.7.1" in example
+    sections = (
+        ("## Current published 1.8.0", "## Historical published 1.7.1", "1.8.0"),
+        ("## Historical published 1.7.1", "## Historical published 1.7.0", "1.7.1"),
+        ("## Functional six-component chain", "### Caller-supplied input regression", "1.8.0"),
+    )
+    for start, end, version in sections:
+        section = example.split(start, 1)[1].split(end, 1)[0]
+        assert set(re.findall(r"--core-version (\d+\.\d+\.\d+)", section)) == {version}
 
 
 def test_v171_publication_binds_exact_subjects_and_retains_failed_runs() -> None:
@@ -1320,7 +1341,7 @@ def test_artifact_authenticity_design_separates_trust_domains_and_non_claims() -
     assert "artifact-authenticity-design.md" in project_map
     assert "Historical releases and examples remain unsigned" in current_state
     assert (
-        "v1.7.1 published with verified build provenance and read-only install matrix"
+        "v1.8.0 published with verified build provenance and read-only install matrix"
         in current_state
     )
     assert "retained `v0.15.0` tag is transparent failed-gate evidence" in current_state
@@ -1462,10 +1483,10 @@ def test_v151_publication_docs_bind_current_release_and_preserve_failures() -> N
         assert marker in notes
     readme = _read("README.md")
     assert any(status in readme for status in (
-        "release_source-v1.7.1-blue", "public_research_release-v1.7.1-blue"
+        "release_source-v1.8.0-blue", "public_research_release-v1.8.0-blue"
     ))
-    assert "agentic-security-harness==1.7.1" in readme
-    assert "agentic-security-harness[all]==1.7.1" in readme
+    assert "agentic-security-harness==1.8.0" in readme
+    assert "agentic-security-harness[all]==1.8.0" in readme
     assert "agentic-llm-router==0.2.1" in readme
     assert "agentic-llm-router==0.2.0" not in readme
     assert "source tree prepares" not in readme

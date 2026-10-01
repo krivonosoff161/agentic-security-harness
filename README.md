@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/public_research_release-v1.7.1-blue)
+![Status](https://img.shields.io/badge/public_research_release-v1.8.0-blue)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -47,9 +47,9 @@ estimate, an autonomous-agent demonstration or an independent human audit.
   The earlier eight-call result is preserved separately in the report.
 
 **Package versus research evidence:** the study used exact installed **1.6.0**
-subjects, while the current published package is **1.7.1**. The prompt helper,
+subjects, while the current published package is **1.8.0**. The prompt helper,
 corpus and observations are repository-owned evidence, not evidence that the
-1.7.0 or 1.7.1 wheel was used in those model calls. See
+1.7.0, 1.7.1 or 1.8.0 wheel was used in those model calls. See
 [release and package status](#release-and-package-status) and
 [current state](docs/current-state.md) for the exact boundary.
 
@@ -71,18 +71,20 @@ an independent Harness integration, not an official NVIDIA/garak component. It i
 new in the 1.7.0 package, **not included in published 1.6.0**; its optional detector
 compatibility lane pins an unmerged upstream PR rather than claiming release support.
 
-## Retained ancestry — 1.8.0 preparation
+## Retained ancestry — published in 1.8.0
 
 [PR #324](https://github.com/krivonosoff161/agentic-security-harness/pull/324)
 adds an opt-in [retained ancestry store](docs/ancestry-store.md): trusted root
 admission, exact retained parent history, scope narrowing and local crash recovery.
-Ancestry acceptance cannot override Gateway policy. The source candidate is being
-prepared for 1.8.0; [release status](docs/releases/v1.8.0.md) distinguishes source
-readiness from actual publication. Published 1.7.1 remains unchanged.
+Ancestry acceptance cannot override Gateway policy. The exact release subjects are
+on GitHub, TestPyPI and PyPI; a separate read-only run passed all seven cross-index
+jobs after the initial production Linux 3.11 index lookup failed before application
+checks. [Release status](docs/releases/v1.8.0.md) binds the source, hashes and limits.
 
 ## Quickstart
 
-Published [v1.7.1](docs/releases/v1.7.1.md#publication-evidence) repairs
+Published [v1.8.0](docs/releases/v1.8.0.md) adds opt-in retained ancestry admission.
+The prior [v1.7.1 patch](docs/releases/v1.7.1.md#publication-evidence) repairs
 known-empty parent authority scope and memory TTL narrowing. The opt-in garak
 plan adapter, native Ollama proposal adapter, installed-ecosystem pilot,
 Gateway lookup-key type guard and Router 0.2.1 remain. Release notes distinguish
@@ -90,10 +92,10 @@ package availability, retained initial smoke failures, and successful read-only
 verification.
 
 Install the exact package version from
-[PyPI](https://pypi.org/project/agentic-security-harness/1.7.1/):
+[PyPI](https://pypi.org/project/agentic-security-harness/1.8.0/):
 
 ```bash
-python -m pip install agentic-security-harness==1.7.1
+python -m pip install agentic-security-harness==1.8.0
 ash quickstart --out reports/quickstart
 ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
@@ -152,12 +154,12 @@ facts. The Harness generates only the cross-project roadmap and compatibility vi
 - [Documentation crosswalk](docs/documentation-map.md)
 - [`component.yaml`](component.yaml) and [`ecosystem/roadmap.yaml`](ecosystem/roadmap.yaml)
 
-Runtime Guard remains private and `contract_only`. Harness version `v1.7.1`
+Runtime Guard remains private and `contract_only`. Harness version `v1.8.0`
 contains the closed [Extension SDK V1](docs/extension-sdk.md) and public passive extras for
 validated observation-to-finding dataflow. It does not auto-load installed packages;
 companion repositories remain optional, separately versioned distributions.
 
-Version `v1.7.1` retains the closed optional-dependency groups introduced in `v1.4.0`:
+Version `v1.8.0` retains the closed optional-dependency groups introduced in `v1.4.0`:
 
 | Extra | Exact companion distributions | Automatic activation |
 |---|---|---|
@@ -172,8 +174,8 @@ The generic PyPI coordinate `llm-router` is intentionally absent because it belo
 another project. CI builds all eight exact wheels from pinned Git SHAs and installs the
 closed local wheelhouse without loading either extension entry point. The public install
 commands are
-`pip install "agentic-security-harness[router]==1.7.1"` or
-`pip install "agentic-security-harness[all]==1.7.1"`. Other companion pins are unchanged;
+`pip install "agentic-security-harness[router]==1.8.0"` or
+`pip install "agentic-security-harness[all]==1.8.0"`. Other companion pins are unchanged;
 installation remains separate from module activation.
 
 For explicit installed extension binding, follow the fresh `--no-compile` environment
@@ -436,6 +438,16 @@ builds the optional Transfer and Handoff extension wheels and exercises their ex
 approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install them.
 
 ## Release and package status
+
+Release [v1.8.0](docs/releases/v1.8.0.md) is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.8.0/). Its wheel and
+sdist match the attested tag build and TestPyPI. The owner-approved production
+upload succeeded; Linux 3.12/3.13 and Windows 3.11 passed, but the initial
+Linux 3.11 simple-index lookup failed before application checks. The separate
+[read-only verification](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36813028115)
+passed all seven cross-index jobs without another upload. This delivers bounded
+retained ancestry admission; independent coverage, recovery and the other
+foundation questions remain open.
 
 Release [v1.7.1](docs/releases/v1.7.1.md#publication-evidence) is available on
 [PyPI](https://pypi.org/project/agentic-security-harness/1.7.1/). Its wheel and

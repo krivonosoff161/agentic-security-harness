@@ -70,11 +70,15 @@ def test_versioned_onboarding_pin_matches_latest_published_version() -> None:
     readme = re.search(pattern, (ROOT / "README.md").read_text(encoding="utf-8"))
     onboarding = re.search(pattern, (ROOT / "docs/getting-started.md").read_text(encoding="utf-8"))
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
-    assert readme and onboarding and readme.group(1) == onboarding.group(1) == "1.7.1"
+    assert readme and onboarding and readme.group(1) == onboarding.group(1) == "1.8.0"
     assert project["version"] == "1.8.0"
-    notes = (ROOT / "docs/releases/v1.7.1.md").read_text(encoding="utf-8")
+    notes = (ROOT / "docs/releases/v1.8.0.md").read_text(encoding="utf-8")
     assert "release candidate; not published" not in notes
-    assert "https://pypi.org/project/agentic-security-harness/1.7.1/" in notes
+    assert "https://pypi.org/project/agentic-security-harness/1.8.0/" in notes
+    pilot = (ROOT / "docs/external-pilot.md").read_text(encoding="utf-8")
+    assert "current published 1.8.0" in pilot
+    assert pilot.count("--core-version 1.8.0") == 3
+    assert "--core-version 1.7.1" not in pilot
 
 
 def test_example_configs_are_canonical_and_authority_free() -> None:
@@ -183,7 +187,7 @@ def test_v170_pilot_lock_binds_new_subject_without_rewriting_historical_lock() -
     assert "It expects two synthetic executions" in example
 
 
-def test_v171_pilot_lock_and_current_docs_bind_exact_published_subject() -> None:
+def test_v171_historical_pilot_lock_retains_exact_published_subject() -> None:
     lock = (EXAMPLE.parent / "core-release-v1.7.1.txt").read_text(encoding="utf-8")
     rows = [line.strip() for line in lock.splitlines() if line and not line.startswith("#")]
     assert rows == [
@@ -195,9 +199,6 @@ def test_v171_pilot_lock_and_current_docs_bind_exact_published_subject() -> None
     assert "index-url" not in lock
     assert lock.count("https://files.pythonhosted.org/") == 1
     example = (EXAMPLE.parent / "README.md").read_text(encoding="utf-8")
-    assert "Current published 1.7.1" in example
+    assert "Historical published 1.7.1" in example
     assert "Historical published 1.7.0" in example
     assert "-r examples/installed-ecosystem/core-release-v1.7.1.txt" in example
-    pilot = (ROOT / "docs/external-pilot.md").read_text(encoding="utf-8")
-    assert "published 1.7.1" in pilot
-    assert pilot.count("--core-version 1.7.1") == 3
