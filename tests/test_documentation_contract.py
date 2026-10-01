@@ -47,9 +47,9 @@ def test_latest_proposal_evidence_is_visible_from_public_entry_points() -> None:
 def test_current_onboarding_separates_published_runtime_from_repository_evidence() -> None:
     source_version = tomllib.loads(_read("pyproject.toml"))["project"]["version"]
     # Publication is separate from immutable model evidence collected on 1.6.0.
-    version = "1.8.0"
+    version = "1.9.0"
     assert source_version == "1.9.0"
-    publication = _read("docs/releases/v1.8.0.md")
+    publication = _read("docs/releases/v1.9.0.md")
     assert "published on github, testpypi and pypi" in publication.lower()
     assert "published public research release" in _read("docs/releases/v1.7.0.md")
     readme = _read("README.md")
@@ -72,6 +72,9 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
         in status
     )
     assert "Last reviewed: 2026-10-01" in status
+    assert "f29513879904520e38deb6d8c732e9b93e6acb40" in status
+    assert "36836152323" in status
+    assert "36835835700" in status
     assert "6afc350dee665d7f29b05d08e3d9e1650aa8571e" in status
     assert "9284c1292fe15f5fa2c3581abd3a18aab2358b5b" in status
     changelog = _read("CHANGELOG.md").split("## [1.7.0] - 2026-09-27\n", 1)[1].split(
@@ -120,17 +123,52 @@ def test_v180_publication_keeps_ancestry_limits_and_failed_lookup_explicit() -> 
     assert "agentic_security_harness-1.8.0-py3-none-any.whl" in lock
     assert "3cee43202117a062710a0a12cb660dc7f211f610a8c691c826e8adeead18aa14" in lock
     example = _read("examples/installed-ecosystem/README.md")
-    assert "## Current published 1.8.0" in example
+    assert "## Current published 1.9.0" in example
+    assert "core-release-v1.9.0.txt" in example
+    assert "## Historical published 1.8.0" in example
     assert "core-release-v1.8.0.txt" in example
     assert "## Historical published 1.7.1" in example
     sections = (
-        ("## Current published 1.8.0", "## Historical published 1.7.1", "1.8.0"),
+        ("## Current published 1.9.0", "## Historical published 1.8.0", "1.9.0"),
+        ("## Historical published 1.8.0", "## Historical published 1.7.1", "1.8.0"),
         ("## Historical published 1.7.1", "## Historical published 1.7.0", "1.7.1"),
-        ("## Functional six-component chain", "### Caller-supplied input regression", "1.8.0"),
+        ("## Functional six-component chain", "### Caller-supplied input regression", "1.9.0"),
     )
     for start, end, version in sections:
         section = example.split(start, 1)[1].split(end, 1)[0]
         assert set(re.findall(r"--core-version (\d+\.\d+\.\d+)", section)) == {version}
+
+
+def test_current_v190_installed_lock_and_historical_default_are_separate() -> None:
+    current_lock = _read("examples/installed-ecosystem/core-release-v1.9.0.txt")
+    assert "agentic_security_harness-1.9.0-py3-none-any.whl" in current_lock
+    assert "8b13b88f12d0e052e86152f646b8666fed1db3bcb77469b010f2eb8dde379ac4" in current_lock
+    assert "agentic_security_harness-1.6.0-py3-none-any.whl" in _read(
+        "examples/installed-ecosystem/core-release.txt"
+    )
+    example = _read("examples/installed-ecosystem/README.md")
+    assert "## Current published 1.9.0" in example
+    assert "## Historical published 1.8.0" in example
+
+
+def test_v190_receipt_preserves_failed_gate_and_candidate_distinction() -> None:
+    notes = _read("docs/releases/v1.9.0.md")
+    assert "published on GitHub, TestPyPI and PyPI" in notes
+    for marker in (
+        "36822223422",
+        "36822717685",
+        "36835520567",
+        "36835835700",
+        "36836152323",
+        "8b13b88f12d0e052e86152f646b8666fed1db3bcb77469b010f2eb8dde379ac4",
+        "9f4fdad37f11b1eafb46bf0fa36487c6d29892a5b22993e1a735d043bfd1d6b6",
+        "overall workflow failed on Linux 3.11 simple-index lookup before application checks",
+        "not relabelled as the final release subject",
+    ):
+        assert marker in notes
+    assert "No upload was repeated" in notes
+    assert "passed all seven jobs" in notes
+    assert "overall workflow failed on Linux 3.11 simple-index lookup" in notes
 
 
 def test_v171_publication_binds_exact_subjects_and_retains_failed_runs() -> None:
@@ -1341,7 +1379,7 @@ def test_artifact_authenticity_design_separates_trust_domains_and_non_claims() -
     assert "artifact-authenticity-design.md" in project_map
     assert "Historical releases and examples remain unsigned" in current_state
     assert (
-        "v1.8.0 published with verified build provenance and read-only install matrix"
+        "v1.9.0 published with verified build provenance and read-only install matrix"
         in current_state
     )
     assert "retained `v0.15.0` tag is transparent failed-gate evidence" in current_state
@@ -1483,10 +1521,10 @@ def test_v151_publication_docs_bind_current_release_and_preserve_failures() -> N
         assert marker in notes
     readme = _read("README.md")
     assert any(status in readme for status in (
-        "release_source-v1.8.0-blue", "public_research_release-v1.8.0-blue"
+        "release_source-v1.9.0-blue", "public_research_release-v1.9.0-blue"
     ))
-    assert "agentic-security-harness==1.8.0" in readme
-    assert "agentic-security-harness[all]==1.8.0" in readme
+    assert "agentic-security-harness==1.9.0" in readme
+    assert "agentic-security-harness[all]==1.9.0" in readme
     assert "agentic-llm-router==0.2.1" in readme
     assert "agentic-llm-router==0.2.0" not in readme
     assert "source tree prepares" not in readme

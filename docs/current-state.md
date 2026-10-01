@@ -1,12 +1,12 @@
 # Current state
 
-## Controlled file workflow — candidate
+## Controlled file workflow — published in 1.9.0
 
 The opt-in [controlled file workflow](controlled-file-workflow.md) adds actual
 writes to exclusively created synthetic fixtures, report-only Guard enforcement,
 a same-proposal guarded/ablated control and a separate disk/history verifier.
-This task-branch candidate is not part of the published 1.8.0 wheel. The
-[fresh eight-call observation](controlled-file-observation-20261001.md) records
+The [1.9.0 release](releases/v1.9.0.md) binds the package delivery separately from
+the installed-candidate [fresh eight-call observation](controlled-file-observation-20261001.md), which records
 four forbidden proposals denied and four actual report writes, of which two were
 correct. Exact-head release gates are separate; prior Lab results are not relabelled.
 
@@ -32,9 +32,15 @@ or imply that all questions have complete proofs. See
 [contract conclusions and evidence limits](theory/foundation-obligations.md) and the
 associated regressions. Complete working derivations remain outside public Git.
 
-The published package is **1.8.0**. Its PyPI wheel and sdist match the attested
-tag subjects. Read-only verification passed all seven jobs after the retained
-initial PyPI Linux 3.11 simple-index lookup failure. Prior 1.7.1 publication
+The published package is **1.9.0**, built from exact tag source
+`f29513879904520e38deb6d8c732e9b93e6acb40`; its attested build
+`36822223422` passed four jobs. The initial production workflow
+`36835835700` failed on a Linux 3.11 simple-index lookup after upload; separate
+read-only cross-index verification `36836152323` passed all seven jobs without
+rebuild or re-upload. Its exact publication and verification receipt is in the
+[1.9.0 release record](releases/v1.9.0.md). The historical 1.8.0 PyPI wheel
+and sdist match its attested tag subjects. Its read-only verification passed all
+seven jobs after the retained initial PyPI Linux 3.11 simple-index lookup failure. Prior 1.7.1 publication
 and its failed lookup runs remain separately recorded.
 
 ## Bounded generalization observation — 2026-09-27
@@ -127,7 +133,9 @@ repository's `component.yaml`. The older `2026.08.02-r4-trajectory-containment` 
 Portfolio projection remains preserved as historical research evidence; it is not the
 current ecosystem product roadmap. Operational authority remains `none`.
 
-> Last reviewed: 2026-10-01 against the `v1.8.0` tag source
+> Last reviewed: 2026-10-01 against the `v1.9.0` tag source
+> `f29513879904520e38deb6d8c732e9b93e6acb40` and
+> [release evidence](releases/v1.9.0.md), with historical `v1.8.0` tag source
 > `f7696dc4c7da0f163dca6e3164ebaab7fbc6ad1f`, historical `v1.7.1` source
 > `6afc350dee665d7f29b05d08e3d9e1650aa8571e`, historical `v1.7.0` source
 > `9284c1292fe15f5fa2c3581abd3a18aab2358b5b`, historical merged
@@ -138,10 +146,13 @@ current ecosystem product roadmap. Operational authority remains `none`.
 > `71295922b8053a188431d0f510f1e9146435c742`, and the published
 > `v1.7.0` package subjects, retained initial post-upload smoke failures,
 > and successful corrected read-only verification `36306894913`; historical
-> `v1.7.1` publication and read-only verification `36371342801`; current
-> `v1.8.0` production upload `36812816528` and read-only verification `36813028115`.
+> `v1.7.1` publication and read-only verification `36371342801`; historical
+> `v1.8.0` production upload `36812816528` and read-only verification `36813028115`;
+> current `v1.9.0` failed pre-upload staging admission `36822717685`, successful
+> staging `36835520567`, production upload with retained Linux 3.11 lookup failure
+> `36835835700`, and seven-job read-only verification `36836152323`.
 >
-> Scope: current repository evidence, current published release `1.8.0`, and
+> Scope: current repository evidence, current published release `1.9.0`, and
 > preserved 1.6.0 historical evidence.
 > This page is a reviewer-facing status
 > snapshot, not a roadmap promise or production-safety claim.
@@ -156,7 +167,7 @@ activation. The [v1.5.0 release](releases/v1.5.0.md) also includes the opt-in Qu
 Connector and its pure Gateway composition. Exact-subject publication and clean-install
 evidence is linked below; old v1.4.0 artifacts remain unchanged.
 
-Agentic Security Harness is a **published v1.8.0 public defensive benchmark/toolkit**: a working
+Agentic Security Harness is a **published v1.9.0 public defensive benchmark/toolkit**: a working
 trace-first defensive benchmark for agentic AI boundary failures with committed
 deterministic examples, bounded local-swarm evidence, evidence-campaign metrics, and
 sanitized local-model semantic-drift / propagation probes, plus a bounded local Runtime
@@ -181,7 +192,8 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 
 | Area | Status | Evidence |
 |---|---|---|
-| Package identity | v1.8.0 published to PyPI and staged on TestPyPI; read-only verification passed | Exact tag source `f7696dc4c7da0f163dca6e3164ebaab7fbc6ad1f`; build `36749734621` passed four jobs; TestPyPI `36811217479` passed three. Owner-approved production upload `36812816528` succeeded with Linux 3.12/3.13 and Windows 3.11 smokes; its Linux 3.11 simple-index lookup failed before application checks, leaving that workflow failed. Read-only `36813028115` passed all seven subject, index, provenance and installed-wheel jobs without rebuild or re-upload. [Exact hashes and limits](releases/v1.8.0.md). |
+| Package identity | v1.9.0 published with verified build provenance and read-only install matrix | Exact tag source `f29513879904520e38deb6d8c732e9b93e6acb40`; attested build `36822223422` passed four jobs. Initial staging admission `36822717685` failed before upload; corrected TestPyPI `36835520567` passed. Production `36835835700` uploaded successfully but failed overall at Linux 3.11 simple-index lookup before application checks. Separate read-only `36836152323` passed all seven cross-index jobs without rebuild or re-upload. [Exact subjects and limits](releases/v1.9.0.md); installed-candidate model observations are not published-wheel model evidence. |
+| Prior package identity | v1.8.0 published to PyPI and staged on TestPyPI; read-only verification passed | Exact tag source `f7696dc4c7da0f163dca6e3164ebaab7fbc6ad1f`; build `36749734621` passed four jobs; TestPyPI `36811217479` passed three. Owner-approved production upload `36812816528` succeeded with Linux 3.12/3.13 and Windows 3.11 smokes; its Linux 3.11 simple-index lookup failed before application checks, leaving that workflow failed. Read-only `36813028115` passed all seven subject, index, provenance and installed-wheel jobs without rebuild or re-upload. [Exact hashes and limits](releases/v1.8.0.md). |
 | Prior package identity | v1.7.1, immutable historical evidence | Exact tag source `6afc350dee665d7f29b05d08e3d9e1650aa8571e`; build `36370646791` passed four jobs. TestPyPI upload `36370855421` succeeded but Windows index lookup failed; read-only staging `36371070484` passed all three jobs. PyPI upload `36371191225` succeeded but Linux 3.11–3.13 index lookups failed; final read-only `36371342801` passed all seven subject, index, provenance and installed-wheel jobs. Neither upload was repeated. [Exact hashes and retained failures](releases/v1.7.1.md#publication-evidence). |
 | Prior package identity | v1.7.0, immutable historical evidence | Exact tag source `9284c1292fe15f5fa2c3581abd3a18aab2358b5b`; build `36304199032`; staging `36304457074` passed after retained pre-upload admission failure `36304383233`. Production upload `36305471109` succeeded, but its Linux 3.12/3.13 smokes failed before garak on missing PyYAML hashes; initial read-only `36305620644` retained those failures. [Corrected read-only run 36306894913](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36306894913) passed all seven exact-subject, index/provenance and Linux/Windows installed-wheel jobs without re-upload. [Full evidence](releases/v1.7.0.md#publication-evidence). |
 | Prior package identity | v1.6.0, immutable historical evidence | Exact tag source `0796fc60020ced318ad67fecb29de60234e707df`; build `35602050427`; staging `35602400245`; production upload `35602644448`. Initial production Linux 3.12 lookup failed before runtime; read-only `35602999743` passed all six subject/provenance/index/install jobs without republishing. [Full evidence](releases/v1.6.0.md#publication-evidence). |
@@ -238,7 +250,7 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 | Evidence pack format | Shipped docs slice | `docs/evidence-pack-format.md` defines how future local research becomes sanitized public evidence with private/public boundaries, hashes, claim rows, tests, and validation commands. |
 | Local real-model swarm probes | Unverified maintainer declaration | Historical documentation declares two full 15-scenario runs and complete hash-field coverage. No versioned public result projection or reconciliation receipt is present, so the repository cannot verify that the runs occurred or bind the aggregates to retained bytes. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
-| Public project process | v1.8.0 published with verified build provenance and read-only install matrix | Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, and a tag-only release workflow bind tag/package/CHANGELOG version and rerun repository gates. The release workflow reproducibly builds wheel/sdist subjects, emits checksums and an exact-subject CycloneDX SBOM, creates GitHub/Sigstore attestations, and independently verifies provenance policy. Initial v1.8.0 production Linux 3.11 index lookup remains a failed historical job; read-only `36813028115` passed all seven jobs without re-upload. Initial v1.7.1 TestPyPI Windows and PyPI Linux index lookups remain failed historical runs; read-only `36371342801` passed all seven jobs. The initial 1.7.0 production/read-only Python 3.12/3.13 smoke failures also remain failed; corrected read-only `36306894913` passed all seven jobs. The retained `v0.15.0` tag is transparent failed-gate evidence and has no GitHub Release. |
+| Public project process | v1.9.0 published with verified build provenance and read-only install matrix | [Current release evidence](releases/v1.9.0.md) binds its exact subjects and gates; `36836152323` passed all seven jobs after the retained failed production Linux 3.11 lookup in `36835835700`. Governance, security policy, issue templates, PR template, CI, CodeQL, Scorecard, and a tag-only release workflow bind tag/package/CHANGELOG version and rerun repository gates. The release workflow reproducibly builds wheel/sdist subjects, emits checksums and an exact-subject CycloneDX SBOM, creates GitHub/Sigstore attestations, and independently verifies provenance policy. Initial v1.8.0 production Linux 3.11 index lookup remains a failed historical job; read-only `36813028115` passed all seven jobs without re-upload. Initial v1.7.1 TestPyPI Windows and PyPI Linux index lookups remain failed historical runs; read-only `36371342801` passed all seven jobs. The initial 1.7.0 production/read-only Python 3.12/3.13 smoke failures also remain failed; corrected read-only `36306894913` passed all seven jobs. The retained `v0.15.0` tag is transparent failed-gate evidence and has no GitHub Release. |
 | Container definitions | Shipped source definitions; images unpublished | The root Dockerfile packages the source-layout CLI and runs the offline doctor as a non-root user. `Dockerfile.gateway` and `compose.gateway.yml` build the synthetic gateway locally with loopback-only publication, read-only root filesystem, dropped capabilities, and no-new-privileges. The fail-closed `.dockerignore` excludes local/private descendants. No public image is published and the source definitions do not attest production network isolation. |
 | Runtime Guard product foundation | Shipped bounded executable specification | Metadata-only action, capability, consent, handoff, provider, budget, decision, and evidence contracts plus a pure deterministic evaluator and synthetic adversarial tests were merged through PR #162. No proxy, executor, credential broker, durable ledger, IAM integration, deployment, or production protection is shipped. |
 | Runtime Gateway local synthetic contour | Shipped in v1.2.0 | A loopback-first HTTP service applies a closed pre-dispatch policy to two deterministic synthetic tools, exposes bounded OpenAI-compatible and stateless MCP 2026-07-28 endpoints, writes a privacy-minimized single-writer hash-chain audit, and normalizes four retained provider/tool envelope families through the same policy. Docker Compose publishes host loopback only. It has no live provider transport, real credential path, arbitrary executor, authenticated approval service, IAM, production deployment, independent effectiveness evidence, or operational authority. See [runtime-gateway.md](runtime-gateway.md) and [provider-tool-adapters.md](provider-tool-adapters.md). |

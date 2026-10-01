@@ -8,7 +8,7 @@ All notable changes to this project are documented here. The format follows
 
 ## [1.9.0] - 2026-10-01
 
-Release candidate; not published. Adds the opt-in controlled file workflow:
+Published release. Adds the opt-in controlled file workflow:
 fresh synthetic files, actual guarded writes, exact same-proposal causal controls,
 independent file/history verification and bounded native-local-model opt-in.
 Permission and report accuracy remain separate measurements. This is not a hostile
