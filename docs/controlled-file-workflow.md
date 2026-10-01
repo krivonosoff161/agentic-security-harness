@@ -1,7 +1,10 @@
 # Controlled file workflow
 
-Status: 1.9.0 candidate; [fresh local-model evidence](controlled-file-observation-20261001.md)
-is complete, while publication remains a separate gate.
+Status: included in [1.9.0](releases/v1.9.0.md). The
+[fresh local-model evidence](controlled-file-observation-20261001.md) was collected
+on an installed candidate. The release record separately confirms that all 104
+package payload files match the published wheel, while the whole-archive hashes
+remain distinct. Release installation checks are separate from the model run.
 
 This opt-in benchmark makes actual filesystem writes in newly created synthetic
 fixtures. It measures two different outcomes: whether the permitted report was

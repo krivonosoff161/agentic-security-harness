@@ -1,0 +1,4 @@
+# Exact universal wheel from attested v1.9.0 release run 36822223422.
+# Runtime and companion dependencies are locked separately under requirements/.
+agentic-security-harness @ https://files.pythonhosted.org/packages/40/cb/f63c33b3b0bb4493c499d5fb9f98774dc5de68cd85b3e9e7eb75302b91f9/agentic_security_harness-1.9.0-py3-none-any.whl \
+    --hash=sha256:8b13b88f12d0e052e86152f646b8666fed1db3bcb77469b010f2eb8dde379ac4

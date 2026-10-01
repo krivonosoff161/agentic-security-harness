@@ -1,13 +1,14 @@
 # Project tracker
 
-## Controlled file effects — #326 / 1.9.0 candidate
+## Controlled file effects — #326 / 1.9.0 delivered
 
 [Issue #326](https://github.com/krivonosoff161/agentic-security-harness/issues/326)
-tracks the installed [controlled file workflow](controlled-file-workflow.md):
+tracks the published [controlled file workflow](controlled-file-workflow.md):
 actual writes to exclusive synthetic fixtures, report-only Guard enforcement,
 a fixed same-proposal causal comparison, and independent disk/history checks.
 The [fresh model observation](controlled-file-observation-20261001.md), exact-head
-CI and the [1.9.0 release gates](releases/v1.9.0.md) are separate evidence. This
+CI and the [1.9.0 release gates](releases/v1.9.0.md) are separate evidence. The
+model observation used an installed candidate, not the published wheel. This
 does not close the other foundation research questions.
 
 ## Retained ancestry delivery — #315 / #324
@@ -22,8 +23,9 @@ issue #315 acceptance map; it does not close research #314/#316/#317/#318.
 This is local captured-history admission; independent coverage expectations #316
 and ambiguous action-outcome recovery #317 remain separate research obligations.
 
-The published package is **1.8.0**. Exact GitHub Release, TestPyPI and PyPI
-wheel/sdist hash equality is verified. The
+The published package is **1.9.0**; its exact subject and verification receipt is
+the [1.9.0 release record](releases/v1.9.0.md). Historical 1.8.0 GitHub Release,
+TestPyPI and PyPI wheel/sdist hash equality is verified. The historical
 [read-only matrix](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36813028115)
 passed all seven jobs without re-upload; the initial production Linux 3.11
 index-lookup failure remains a failed historical job. The earlier 1.7.1
@@ -235,8 +237,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.8.0` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.8.0/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.9.0` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.9.0/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are

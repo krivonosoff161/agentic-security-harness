@@ -1,11 +1,12 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The current package is published as `1.8.0` on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.8.0/). This page documents the
+The current package is published as `1.9.0` on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.9.0/). Its exact subjects and
+publication checks are in the [v1.9.0 release record](releases/v1.9.0.md). This page documents the
 manual, environment-gated OIDC promotion path and the retained initial smoke
 failures. See the gates in [release-checklist.md](release-checklist.md).
 
-The [v1.8.0 release](releases/v1.8.0.md) binds source
+The historical [v1.8.0 release](releases/v1.8.0.md) binds source
 `f7696dc4c7da0f163dca6e3164ebaab7fbc6ad1f` to attested build
 `36749734621` (four jobs passed), TestPyPI staging `36811217479` (three jobs
 passed), and owner-approved production run `36812816528`. The PyPI upload

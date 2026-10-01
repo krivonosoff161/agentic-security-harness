@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/public_research_release-v1.8.0-blue)
+![Status](https://img.shields.io/badge/public_research_release-v1.9.0-blue)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -18,16 +18,16 @@ one.
 In plain English: it turns “the agent behaved unsafely” into evidence you can replay,
 validate, compare, and review.
 
-## In development — controlled file effects
+## Controlled file effects — published in 1.9.0
 
 [Issue #326](https://github.com/krivonosoff161/agentic-security-harness/issues/326)
-tracks a [1.9.0 candidate](docs/controlled-file-workflow.md) with actual writes to
+tracks the [1.9.0 controlled file workflow](docs/controlled-file-workflow.md) with actual writes to
 fresh synthetic files, report-only Guard enforcement and independent disk checks.
-It is not in the published 1.8.0 package. Its [fresh eight-call model observation](docs/controlled-file-observation-20261001.md)
+Its separate [fresh eight-call installed-candidate model observation](docs/controlled-file-observation-20261001.md)
 recorded four forbidden writes denied, four allowed reports written and two correct
-reports. Release checks are separate; the historical observations below are unchanged.
+reports. [Release checks](docs/releases/v1.9.0.md) are separate; the historical observations below are unchanged.
 
-## Latest observation — 2026-09-27
+## Previous observation — 2026-09-27
 
 The [sixteen-call generalization study](docs/proposal-generalization-20260927.md)
 records **four exact useful tasks**, one permitted but semantically wrong hash
@@ -56,9 +56,9 @@ estimate, an autonomous-agent demonstration or an independent human audit.
   The earlier eight-call result is preserved separately in the report.
 
 **Package versus research evidence:** the study used exact installed **1.6.0**
-subjects, while the current published package is **1.8.0**. The prompt helper,
+subjects, while the current published package is **1.9.0**. The prompt helper,
 corpus and observations are repository-owned evidence, not evidence that the
-1.7.0, 1.7.1 or 1.8.0 wheel was used in those model calls. See
+1.7.0, 1.7.1, 1.8.0 or 1.9.0 wheel was used in those model calls. See
 [release and package status](#release-and-package-status) and
 [current state](docs/current-state.md) for the exact boundary.
 
@@ -92,7 +92,8 @@ checks. [Release status](docs/releases/v1.8.0.md) binds the source, hashes and l
 
 ## Quickstart
 
-Published [v1.8.0](docs/releases/v1.8.0.md) adds opt-in retained ancestry admission.
+Published [v1.9.0](docs/releases/v1.9.0.md) adds opt-in controlled file effects to the
+retained ancestry admission delivered in [v1.8.0](docs/releases/v1.8.0.md).
 The prior [v1.7.1 patch](docs/releases/v1.7.1.md#publication-evidence) repairs
 known-empty parent authority scope and memory TTL narrowing. The opt-in garak
 plan adapter, native Ollama proposal adapter, installed-ecosystem pilot,
@@ -101,10 +102,10 @@ package availability, retained initial smoke failures, and successful read-only
 verification.
 
 Install the exact package version from
-[PyPI](https://pypi.org/project/agentic-security-harness/1.8.0/):
+[PyPI](https://pypi.org/project/agentic-security-harness/1.9.0/):
 
 ```bash
-python -m pip install agentic-security-harness==1.8.0
+python -m pip install agentic-security-harness==1.9.0
 ash quickstart --out reports/quickstart
 ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
@@ -163,12 +164,12 @@ facts. The Harness generates only the cross-project roadmap and compatibility vi
 - [Documentation crosswalk](docs/documentation-map.md)
 - [`component.yaml`](component.yaml) and [`ecosystem/roadmap.yaml`](ecosystem/roadmap.yaml)
 
-Runtime Guard remains private and `contract_only`. Harness version `v1.8.0`
+Runtime Guard remains private and `contract_only`. Harness version `v1.9.0`
 contains the closed [Extension SDK V1](docs/extension-sdk.md) and public passive extras for
 validated observation-to-finding dataflow. It does not auto-load installed packages;
 companion repositories remain optional, separately versioned distributions.
 
-Version `v1.8.0` retains the closed optional-dependency groups introduced in `v1.4.0`:
+Version `v1.9.0` retains the closed optional-dependency groups introduced in `v1.4.0`:
 
 | Extra | Exact companion distributions | Automatic activation |
 |---|---|---|
@@ -183,8 +184,8 @@ The generic PyPI coordinate `llm-router` is intentionally absent because it belo
 another project. CI builds all eight exact wheels from pinned Git SHAs and installs the
 closed local wheelhouse without loading either extension entry point. The public install
 commands are
-`pip install "agentic-security-harness[router]==1.8.0"` or
-`pip install "agentic-security-harness[all]==1.8.0"`. Other companion pins are unchanged;
+`pip install "agentic-security-harness[router]==1.9.0"` or
+`pip install "agentic-security-harness[all]==1.9.0"`. Other companion pins are unchanged;
 installation remains separate from module activation.
 
 For explicit installed extension binding, follow the fresh `--no-compile` environment
@@ -448,7 +449,13 @@ approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install the
 
 ## Release and package status
 
-Release [v1.8.0](docs/releases/v1.8.0.md) is published on
+Release [v1.9.0](docs/releases/v1.9.0.md) is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.9.0/). Its exact
+publication and verification receipts are recorded in the release note. The
+controlled-file workflow is opt-in and limited to fresh synthetic fixtures;
+the installed-candidate model observation is separate from release verification.
+
+Historical [v1.8.0](docs/releases/v1.8.0.md) is published on
 [PyPI](https://pypi.org/project/agentic-security-harness/1.8.0/). Its wheel and
 sdist match the attested tag build and TestPyPI. The owner-approved production
 upload succeeded; Linux 3.12/3.13 and Windows 3.11 passed, but the initial

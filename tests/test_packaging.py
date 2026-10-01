@@ -127,8 +127,9 @@ def test_current_release_source_metadata_is_synchronized() -> None:
     assert 'date-released: "2026-10-01"' in citation
     assert "## [1.9.0] - 2026-10-01" in changelog
     assert "Agentic Security Harness v1.9.0" in release_notes
-    assert "release candidate; not published" in release_notes
-    # The last published immutable release retains its independent evidence.
+    assert "release candidate; not published" not in release_notes
+    assert "https://pypi.org/project/agentic-security-harness/1.9.0/" in release_notes
+    # The prior published immutable release retains its independent evidence.
     release_notes = (ROOT / "docs/releases/v1.8.0.md").read_text(encoding="utf-8")
     assert "## [1.8.0] - 2026-09-30" in changelog
     assert "Agentic Security Harness v1.8.0" in release_notes

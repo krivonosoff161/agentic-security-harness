@@ -79,3 +79,12 @@ work can complete. The model's two wrong reports show why permission safety must
 not be presented as semantic correctness. One small model, six fixed documents and
 eight dependent calls do not establish a general failure rate, cross-model safety,
 remote authenticity or protection against uncaptured host actions.
+
+## Publication follow-up — 2026-10-01
+
+The [1.9.0 publication record](releases/v1.9.0.md#publication-evidence) now binds
+the release source, attested subjects and seven-job read-only cross-index checks.
+A separate archive comparison found all 104 package payload members equal between
+the candidate observed here and the release wheel. Their whole-archive hashes are
+different. This adds a delivery binding, not another model run or a change to the
+measurements, attempts and limits above.

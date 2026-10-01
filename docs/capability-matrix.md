@@ -11,6 +11,15 @@ the topology page is the methodology map.
 
 ## Targets and modes
 
+The opt-in [controlled file workflow](controlled-file-workflow.md) in
+[1.9.0](releases/v1.9.0.md) is a separate bounded effect path:
+`ash controlled-file-workflow --out <new-dir>` writes only fresh synthetic fixtures,
+and `ash controlled-file-verify --out <dir>` checks disk/history read-only.
+Default operation is offline; `--model` explicitly selects an existing local model.
+It uses its own evidence bundle, not `run_index.json` or `ash validate`.
+Permission enforcement and report accuracy are separate measurements; this does
+not grant arbitrary filesystem access or native-code containment.
+
 The opt-in [retained ancestry API](ancestry-store.md), published on PyPI in
 [1.8.0](releases/v1.8.0.md), is a local integrity/admission boundary, not a new
 benchmark target or action permit. Its synthetic installed-chain checks do not

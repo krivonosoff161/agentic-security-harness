@@ -1,11 +1,11 @@
 # Installed ecosystem compatibility example
 
 This directory is an explicit, offline operator example, not package auto-discovery.
-Use the current 1.8.0 route below in a fresh environment; the historical 1.7.1,
-1.7.0 and 1.6.0 routes and their immutable locks are retained separately.
+Use the current 1.9.0 route below in a fresh environment; the historical 1.8.0,
+1.7.1, 1.7.0 and 1.6.0 routes and their immutable locks are retained separately.
 The scripts use installed distributions, not `src/`, and require no API key or model.
 
-For **published 1.8.0**, pass `--core-version 1.8.0` explicitly
+For **published 1.9.0**, pass `--core-version 1.9.0` explicitly
 to check.py, chain.py, verify_chain.py and check_supplied_input.py. The default and
 core-release.txt remain the immutable published 1.6.0 contour; a reported version
 never selects its own verification policy. The caller-input regression also checks
@@ -16,7 +16,47 @@ The [2026-09-27 generalization report](../../docs/proposal-generalization-202609
 distinguishes four exact useful model proposals from one permitted but semantically
 wrong operation, three rejected useful-task proposals and eight negative controls.
 
-## Current published 1.8.0
+## Current published 1.9.0
+
+Create a fresh Python 3.11 environment with `python -m venv .venv-v190`.
+Activate `.venv-v190\Scripts\Activate.ps1` in PowerShell or
+`source .venv-v190/bin/activate` in Bash. From the repository root, install
+the exact published wheel with hash-locked dependencies, then run the fixed
+public-synthetic installed checks without a model or real effects:
+
+```bash
+python -m pip --isolated install --index-url https://pypi.org/simple --no-compile --only-binary=:all: --require-hashes -r requirements/runtime.txt -r requirements/companions.txt -r examples/installed-ecosystem/core-release-v1.9.0.txt
+python -m pip check
+python -I -B examples/installed-ecosystem/check.py --out result.json --core-version 1.9.0
+python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json --core-version 1.9.0
+python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json --core-version 1.9.0
+python -I -B examples/installed-ecosystem/check_supplied_input.py --out supplied-input.json --core-version 1.9.0
+ash quickstart --out installed-quickstart
+ash validate installed-quickstart
+```
+
+[Publication evidence](../../docs/releases/v1.9.0.md) binds the exact wheel,
+source and index subjects. This compatibility route does not replay the historical
+1.6.0 model study or the separate 1.9.0 installed-candidate observation. The
+default and `core-release.txt` remain pinned to the immutable 1.6.0 contour.
+
+### Optional actual file-effect benchmark
+
+The compatibility checks above have no real file effects beyond their named output
+artifacts. Separately, the 1.9.0 controlled-file workflow deliberately writes an
+allowed report in a newly created public-synthetic fixture. Run it only with a
+fresh output directory whose parent already exists, then verify disk/history data:
+
+```bash
+ash controlled-file-workflow --out fresh-file-run
+ash controlled-file-verify --out fresh-file-run
+```
+
+This is not part of the no-effect compatibility baseline; the verifier measures
+report correctness and protected-file integrity separately. See the
+[workflow contract](../../docs/controlled-file-workflow.md).
+
+## Historical published 1.8.0
 
 Create a fresh Python 3.11 environment with `python -m venv .venv-v180`.
 Activate `.venv-v180\Scripts\Activate.ps1` in PowerShell or
@@ -147,11 +187,11 @@ separate `chain.py` exercises actual installed APIs in a single causally linked
 public-synthetic flow, not just passive imports:
 
 ```bash
-python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json --core-version 1.8.0
-python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json --core-version 1.8.0
+python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json --core-version 1.9.0
+python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json --core-version 1.9.0
 ```
 
-Run these after the current 1.8.0 exact-wheel installation above; use fresh output
+Run these after the current 1.9.0 exact-wheel installation above; use fresh output
 paths if you already ran that section. For the historical 1.6.0 environment, omit
 `--core-version` (its default stays 1.6.0). The example itself is
 repository-owned and version-bound; it is not a new wheel or a change to the
@@ -200,7 +240,7 @@ admission and are committed into the case digest; they cannot replace the regist
 policy or component bindings. The default 16-case CLI remains unchanged.
 
 ```bash
-python -I -B examples/installed-ecosystem/check_supplied_input.py --out supplied-input.json --core-version 1.8.0
+python -I -B examples/installed-ecosystem/check_supplied_input.py --out supplied-input.json --core-version 1.9.0
 ```
 
 This separate eight-case offline installed check covers a valid key, an unknown key,
