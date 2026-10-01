@@ -1,9 +1,12 @@
 # Roadmap
 
 Current delivery: the [retained ancestry contract](ancestry-store.md), tracked by
-issue #315 and PR#324, is prepared for [1.8.0](releases/v1.8.0.md). Exact retained
+issue #315 and PR #324, is published as
+[1.8.0](releases/v1.8.0.md). The initial production Linux 3.11 index lookup failed;
+the separate seven-job read-only cross-index verification passed without re-upload.
+Exact retained
 parent closure and local recovery do not close independent event completeness #316,
-action-outcome recovery #317, or the other foundation questions. Publication pending.
+action-outcome recovery #317, or the other foundation questions #314 and #318.
 
 Published bounded patch: [v1.7.1](releases/v1.7.1.md#publication-evidence)
 repairs known-empty parent authority scope and memory TTL narrowing. The

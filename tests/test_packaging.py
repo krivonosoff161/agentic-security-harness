@@ -127,7 +127,8 @@ def test_current_release_source_metadata_is_synchronized() -> None:
     assert 'date-released: "2026-09-30"' in citation
     assert "## [1.8.0] - 2026-09-30" in changelog
     assert "Agentic Security Harness v1.8.0" in release_notes
-    assert "release preparation; not yet published" in release_notes
+    assert "published on GitHub, TestPyPI and PyPI" in release_notes
+    assert "36813028115" in release_notes
     assert "no new model-success" in release_notes
 
 

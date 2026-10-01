@@ -13,6 +13,11 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # aiohttp 3.14.3 requires multidict <7. Review this cap with aiohttp upgrades.
+      - dependency-name: "multidict"
+        versions:
+          - ">=7"
     labels:
       - "dependencies"
       - "python"

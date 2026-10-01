@@ -1,9 +1,21 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The current package is published as `1.7.1` on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.7.1/). This page documents the
+The current package is published as `1.8.0` on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.8.0/). This page documents the
 manual, environment-gated OIDC promotion path and the retained initial smoke
 failures. See the gates in [release-checklist.md](release-checklist.md).
+
+The [v1.8.0 release](releases/v1.8.0.md) binds source
+`f7696dc4c7da0f163dca6e3164ebaab7fbc6ad1f` to attested build
+`36749734621` (four jobs passed), TestPyPI staging `36811217479` (three jobs
+passed), and owner-approved production run `36812816528`. The PyPI upload
+succeeded; Linux 3.12/3.13 and Windows 3.11 smokes passed, while Linux 3.11
+failed at simple-index lookup before application checks. The separate read-only
+[cross-index run 36813028115](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36813028115)
+passed all seven jobs against the published subjects and both indexes. The wheel
+and sdist hashes match the attested tag build; neither build nor upload was
+repeated. This publication adds bounded opt-in ancestry admission, not a
+production-safety or independent-review claim.
 
 The [v1.7.1 patch](releases/v1.7.1.md#publication-evidence) completed its attested
 build, read-only TestPyPI recovery, protected production promotion and

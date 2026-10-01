@@ -8,8 +8,9 @@ research and contract files.
 | Goal | Document |
 |---|---|
 | Install and reproduce the first local report | [Getting started](getting-started.md) |
+| Install the current 1.8.0 release with exact subjects | [Release evidence](releases/v1.8.0.md) and [installed ecosystem route](../examples/installed-ecosystem/README.md#current-published-180) |
 | Prepare one bounded external reproduction | [External pilot](external-pilot.md) |
-| Connect a declared garak JSON plan to Quarantine/Gateway | [Experimental garak plan connector (unreleased)](garak-plan-connector.md) |
+| Connect a declared garak JSON plan to Quarantine/Gateway | [Experimental garak plan connector (published in 1.7.0)](garak-plan-connector.md) |
 | Understand what is shipped versus planned | [Current state](current-state.md) |
 | Inspect the latest real-model chain result and its limits | [Twelve-call proposal-contract follow-up](ollama-quarantine-adapter.md#proposal-contract-follow-up-2026-09-26) |
 | Use the repository-owned prompt helper with the published native adapter | [Explicit proposal protocol](../examples/installed-ecosystem/README.md#explicit-proposal-protocol-and-real-model-follow-up) |

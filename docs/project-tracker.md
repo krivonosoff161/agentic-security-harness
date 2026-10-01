@@ -4,16 +4,20 @@
 
 The [ancestry contract](ancestry-store.md) and
 [PR #324](https://github.com/krivonosoff161/agentic-security-harness/pull/324)
-are prepared for [1.8.0](releases/v1.8.0.md). Publication and issue #315 closure
-remain gated by final-source checks and exact installed package verification.
+are published as [1.8.0](releases/v1.8.0.md). The owner-approved PyPI upload
+succeeded, but the initial Linux 3.11 index lookup failed before application
+checks. Separate read-only run `36813028115` passed all seven cross-index jobs
+without re-upload. This completes the package-delivery gate for the bounded
+issue #315 acceptance map; it does not close research #314/#316/#317/#318.
 This is local captured-history admission; independent coverage expectations #316
 and ambiguous action-outcome recovery #317 remain separate research obligations.
 
-The published package is **1.7.1**. Exact GitHub Release, TestPyPI and PyPI
+The published package is **1.8.0**. Exact GitHub Release, TestPyPI and PyPI
 wheel/sdist hash equality is verified. The
-[read-only matrix](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36371342801)
-passed all seven jobs without re-upload; initial post-upload index lookup
-failures remain failed historical runs.
+[read-only matrix](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36813028115)
+passed all seven jobs without re-upload; the initial production Linux 3.11
+index-lookup failure remains a failed historical job. The earlier 1.7.1
+publication and its retained failures remain [separate evidence](releases/v1.7.1.md).
 
 ## Foundation reconciliation — v1.7.1 published patch
 
@@ -221,8 +225,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.7.1` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.7.1/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.8.0` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.8.0/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are
