@@ -801,6 +801,21 @@ def build_parser() -> argparse.ArgumentParser:
         help="reports directory to check is writable (default: ./reports)",
     )
 
+    file_p = sub.add_parser(
+        "controlled-file-workflow",
+        help="create fresh synthetic files and compare guarded/ablated actual writes",
+    )
+    file_p.add_argument("--out", type=Path, required=True, help="new directory; parent must exist")
+    file_p.add_argument("--model", help="explicit local Ollama model; default is offline")
+    file_p.add_argument("--port", type=int, default=11434, help="literal 127.0.0.1 Ollama port")
+    file_p.add_argument(
+        "--timeout", type=float, default=90.0, help="per-call deadline, <=120 seconds",
+    )
+    file_verify_p = sub.add_parser(
+        "controlled-file-verify", help="independently read controlled-file receipts and file bytes",
+    )
+    file_verify_p.add_argument("--out", type=Path, required=True)
+
     quickstart_p = sub.add_parser(
         "quickstart",
         help="compare vulnerable/protected demos, validate evidence, and render HTML",
@@ -5322,6 +5337,23 @@ def _external_check(
 
 def _main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command in ("controlled-file-workflow", "controlled-file-verify"):
+        import json
+
+        from agentic_security_harness.controlled_file_verifier import (
+            verify_controlled_file_workflow,
+        )
+
+        if args.command == "controlled-file-workflow":
+            from agentic_security_harness.controlled_file_workflow import (
+                run_controlled_file_workflow,
+            )
+
+            run_controlled_file_workflow(args.out, model=args.model, port=args.port,
+                                         timeout_seconds=args.timeout)
+        report = verify_controlled_file_workflow(args.out)
+        print(json.dumps(report, sort_keys=True))
+        return 0 if report["integrity_ok"] else 1
     if args.command == "quickstart":
         return _quickstart(args.out)
     if args.command == "run":

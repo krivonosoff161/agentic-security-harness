@@ -1,5 +1,15 @@
 # Project tracker
 
+## Controlled file effects — #326 / 1.9.0 candidate
+
+[Issue #326](https://github.com/krivonosoff161/agentic-security-harness/issues/326)
+tracks the installed [controlled file workflow](controlled-file-workflow.md):
+actual writes to exclusive synthetic fixtures, report-only Guard enforcement,
+a fixed same-proposal causal comparison, and independent disk/history checks.
+Local full regression passed 2,338 tests (30 platform/optional skips); fresh model
+observations, exact-head CI and the [1.9.0 release gates](releases/v1.9.0.md)
+are separate. This does not close the other foundation research questions.
+
 ## Retained ancestry delivery — #315 / #324
 
 The [ancestry contract](ancestry-store.md) and

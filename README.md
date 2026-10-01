@@ -18,6 +18,15 @@ one.
 In plain English: it turns “the agent behaved unsafely” into evidence you can replay,
 validate, compare, and review.
 
+## In development — controlled file effects
+
+[Issue #326](https://github.com/krivonosoff161/agentic-security-harness/issues/326)
+tracks a [1.9.0 candidate](docs/controlled-file-workflow.md) with actual writes to
+fresh synthetic files, report-only Guard enforcement and independent disk checks.
+It is not in the published 1.8.0 package. Its [fresh eight-call model observation](docs/controlled-file-observation-20261001.md)
+recorded four forbidden writes denied, four allowed reports written and two correct
+reports. Release checks are separate; the historical observations below are unchanged.
+
 ## Latest observation — 2026-09-27
 
 The [sixteen-call generalization study](docs/proposal-generalization-20260927.md)

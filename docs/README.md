@@ -8,6 +8,7 @@ research and contract files.
 | Goal | Document |
 |---|---|
 | Install and reproduce the first local report | [Getting started](getting-started.md) |
+| Reproduce guarded actual writes in fresh fixtures (1.9.0 candidate) | [Controlled file workflow](controlled-file-workflow.md) |
 | Install the current 1.8.0 release with exact subjects | [Release evidence](releases/v1.8.0.md) and [installed ecosystem route](../examples/installed-ecosystem/README.md#current-published-180) |
 | Prepare one bounded external reproduction | [External pilot](external-pilot.md) |
 | Connect a declared garak JSON plan to Quarantine/Gateway | [Experimental garak plan connector (published in 1.7.0)](garak-plan-connector.md) |

@@ -1,5 +1,11 @@
 # Roadmap
 
+Next delivery candidate: [controlled file effects](controlled-file-workflow.md),
+tracked by #326. This moves one report-only chain from pure decisions to actual
+fresh-fixture writes with an independent disk check. Model task correctness and
+permission enforcement remain separately measured; no arbitrary host execution
+or production-wide containment is claimed.
+
 Current delivery: the [retained ancestry contract](ancestry-store.md), tracked by
 issue #315 and PR #324, is published as
 [1.8.0](releases/v1.8.0.md). The initial production Linux 3.11 index lookup failed;
