@@ -237,6 +237,7 @@ def test_document_registry_covers_every_current_document() -> None:
     registered = {entry["path"] for entry in entries}
     expected = {
         "README.md",
+        "PACKAGE_README.md",
         "CHANGELOG.md",
         "GOVERNANCE.md",
         *{

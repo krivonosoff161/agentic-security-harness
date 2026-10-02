@@ -48,7 +48,8 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
     source_version = tomllib.loads(_read("pyproject.toml"))["project"]["version"]
     # Publication is separate from immutable model evidence collected on 1.6.0.
     version = "1.9.0"
-    assert source_version == "1.9.0"
+    # Source packaging patch is not evidence that its index promotion completed.
+    assert source_version == "1.9.1"
     publication = _read("docs/releases/v1.9.0.md")
     assert "published on github, testpypi and pypi" in publication.lower()
     assert "published public research release" in _read("docs/releases/v1.7.0.md")

@@ -1,8 +1,7 @@
 cff-version: 1.2.0
 message: "If you use Agentic Security Harness in research or public analysis, please cite it."
 title: "Agentic Security Harness"
-version: "1.9.0"
-date-released: "2026-10-01"
+version: "1.9.1"
 authors:
   - family-names: "Krivonosov"
     given-names: "Dmitry"

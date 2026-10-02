@@ -20,6 +20,11 @@ validate, compare, and review.
 
 ## Controlled file effects — published in 1.9.0
 
+Packaging note: 1.9.0 is available, but its PyPI description retains an older
+README snapshot recommending 1.8.0. The install command below is current.
+The [1.9.1 documentation patch](docs/releases/v1.9.1.md) is prepared separately;
+it is not a new protection feature or a new model result.
+
 [Issue #326](https://github.com/krivonosoff161/agentic-security-harness/issues/326)
 tracks the [1.9.0 controlled file workflow](docs/controlled-file-workflow.md) with actual writes to
 fresh synthetic files, report-only Guard enforcement and independent disk checks.

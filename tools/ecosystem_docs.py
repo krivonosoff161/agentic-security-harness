@@ -553,7 +553,10 @@ def _classify_document(path: str, policy: dict[str, object]) -> dict[str, object
 def build_document_registry() -> dict[str, object]:
     policy = load_contract(ECOSYSTEM / "document-policy.json")
     assert isinstance(policy, dict)
-    candidates = [ROOT / "README.md", ROOT / "CHANGELOG.md", ROOT / "GOVERNANCE.md"]
+    candidates = [
+        ROOT / "README.md", ROOT / "PACKAGE_README.md",
+        ROOT / "CHANGELOG.md", ROOT / "GOVERNANCE.md",
+    ]
     candidates.extend(
         path
         for path in (ROOT / "docs").rglob("*")

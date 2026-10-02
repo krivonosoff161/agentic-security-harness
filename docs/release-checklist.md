@@ -51,6 +51,11 @@ python -m build --wheel        # optional locally; CI builds and smoke-installs 
 Then verify by hand:
 
 - [ ] `pyproject.toml` `version`, `__version__`, and the top `CHANGELOG.md` entry agree.
+- [ ] `PACKAGE_README.md` describes that exact distribution, pins its install command
+      to the same version, uses absolute links and contains no changing publication
+      status. Do not embed the repository's live README in release metadata.
+- [ ] After building, run `python tools/check_package_description.py dist/*.whl dist/*.tar.gz`.
+      Inspect both distribution descriptions, not only the GitHub source page.
 - [ ] `CITATION.cff` version agrees; add `date-released` only in the exact release commit.
 - [ ] For 1.7.0, the garak source pin, fixed corpus, module hashes and named detector
       check remain aligned with the candidate wheel on Linux and Windows.
@@ -96,6 +101,10 @@ Then verify by hand:
       published wheel and preserve any failed index lookup as failed evidence.
 - [ ] Package-index smoke jobs install hash-locked runtime dependencies separately and
       require the exact published universal-wheel SHA-256 with `--no-deps`.
+- [ ] After promotion, compare the official TestPyPI/PyPI JSON `info.description`
+      and `description_content_type` with the attested wheel metadata. A later
+      README commit does not update already uploaded release metadata. A stale
+      description requires a new version, never delete-and-reuse or re-upload.
 - [ ] If an upload succeeded but a post-upload observation failed, use the main-only,
       read-only `verify-published-release.yml` workflow; never retry or overwrite the
       immutable package version merely to change historical CI status.

@@ -10,7 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Copy the project and install locked runtime dependencies only.
-COPY pyproject.toml README.md LICENSE NOTICE ./
+COPY pyproject.toml README.md PACKAGE_README.md LICENSE NOTICE ./
 COPY requirements/runtime.txt ./requirements/runtime.txt
 COPY src ./src
 COPY examples ./examples
