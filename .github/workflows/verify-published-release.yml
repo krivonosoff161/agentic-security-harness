@@ -220,6 +220,9 @@ jobs:
           import time
           import urllib.error
           import urllib.request
+          import zipfile
+          from email.parser import BytesParser
+          from email.policy import default
           from pathlib import Path
 
           version = os.environ["RELEASE_TAG"].removeprefix("v")
@@ -228,6 +231,13 @@ jobs:
               for path in sorted(Path("dist").iterdir())
               if path.suffix == ".whl" or path.name.endswith(".tar.gz")
           }
+          with zipfile.ZipFile(next(Path("dist").glob("*.whl"))) as archive:
+              names = [n for n in archive.namelist() if n.endswith(".dist-info/METADATA")]
+              if len(names) != 1:
+                  raise SystemExit("wheel must contain exactly one METADATA")
+              metadata = BytesParser(policy=default).parsebytes(archive.read(names[0]))
+          description = metadata.get_payload(decode=True).decode("utf-8")
+          normalize = lambda value: value.replace("\r\n", "\n").rstrip("\n")
           for host in json.loads(os.environ["INDEX_HOSTS"]):
               url = f"https://{host}/pypi/agentic-security-harness/{version}/json"
               observed = None
@@ -252,7 +262,13 @@ jobs:
                       f"{host} subject mismatch: expected={sorted(expected)}, "
                       f"observed={sorted(observed or {})}"
                   )
-              print(f"verified {host}: {sorted(observed)}")
+              info = payload.get("info", {})
+              if (info.get("name") != metadata["Name"]
+                      or info.get("version") != version
+                      or info.get("description_content_type") != metadata["Description-Content-Type"]
+                      or normalize(info.get("description", "")) != normalize(description)):
+                  raise SystemExit(f"{host} description metadata differs from attested wheel")
+              print(f"verified {host}: {sorted(observed)}; description matches attested wheel")
           PY
           wheel_sha256="$(sha256sum dist/*.whl | awk '{print $1}')"
           echo "wheel_sha256=$wheel_sha256" >> "$GITHUB_OUTPUT"

@@ -6,6 +6,18 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.9.1] - 2026-10-02
+
+Prepared documentation/packaging patch; publication remains gated by
+[the release record](docs/releases/v1.9.1.md).
+
+- Separate the immutable distribution description (`PACKAGE_README.md`) from the
+  changing repository README, with exact-version installation and absolute links.
+- Check both wheel and sdist descriptions before publication, including version,
+  content type and equality with the reviewed package description.
+- Keep 1.9.0 artifacts and historical model observations unchanged. No runtime
+  behavior, authority, dependency pin or model experiment changes.
+
 ## [1.9.0] - 2026-10-01
 
 Published release. Adds the opt-in controlled file workflow:

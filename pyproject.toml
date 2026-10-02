@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentic-security-harness"
-version = "1.9.0"
+version = "1.9.1"
 description = "Open-source defensive harness and learning lab for reproducing and measuring agentic AI failure modes with portable traces, attack graphs, scorecards, and data-boundary tests."
-readme = "README.md"
+readme = "PACKAGE_README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]

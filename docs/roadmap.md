@@ -1,5 +1,9 @@
 # Roadmap
 
+Packaging follow-up: [1.9.1](releases/v1.9.1.md) is prepared to correct the PyPI
+description without changing protection behavior or repeating model experiments.
+It is not published until its own release gates are recorded.
+
 Current delivery: [controlled file effects](controlled-file-workflow.md),
 tracked by #326 and [released in 1.9.0](releases/v1.9.0.md). This moves one report-only chain from pure decisions to actual
 fresh-fixture writes with an independent disk check. Model task correctness and

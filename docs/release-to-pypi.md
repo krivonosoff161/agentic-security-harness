@@ -43,6 +43,12 @@ does not imply a released garak distribution or NVIDIA/garak endorsement.
 
 ## Packaging facts (current)
 
+- Distribution descriptions come from `PACKAGE_README.md`, not the live repository
+  README. PyPI stores first-upload metadata; subsequent README changes do not edit
+  old release pages. See the [API contract](https://docs.pypi.org/api/json/#get-a-project).
+  The 1.9.0 binaries are published, but their embedded description recommends
+  1.8.0; [the 1.9.1 patch](releases/v1.9.1.md) addresses this without replacing
+  old artifacts. Keep publication status separate from the package description.
 - `pyproject.toml`: name `agentic-security-harness`, Apache-2.0, `requires-python >=3.11`,
   one required runtime dependency (`pydantic`) plus passive exact-version companion
   extras, `Operating System :: OS Independent`, typed (`py.typed` shipped in the wheel).
@@ -54,6 +60,7 @@ does not imply a released garak distribution or NVIDIA/garak endorsement.
 ```bash
 python -m pip install --require-hashes -r requirements/build.txt
 python -m build --no-isolation  # builds sdist + wheel in dist/
+python tools/check_package_description.py dist/*.whl dist/*.tar.gz
 # smoke-install the wheel in a clean env:
 python -m pip install --force-reinstall dist/*.whl
 ash --help

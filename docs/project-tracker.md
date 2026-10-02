@@ -1,5 +1,12 @@
 # Project tracker
 
+## Package-description correction — prepared, not published
+
+[1.9.1](releases/v1.9.1.md) fixes the stale README embedded in PyPI 1.9.0 metadata.
+Dedicated package text and wheel/sdist description checks prevent that mismatch
+in future builds. Current source is a patch candidate; package availability and
+promotion are separate gates. Runtime and historical evidence are unchanged.
+
 ## Controlled file effects — #326 / 1.9.0 delivered
 
 [Issue #326](https://github.com/krivonosoff161/agentic-security-harness/issues/326)

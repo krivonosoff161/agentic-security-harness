@@ -5,6 +5,7 @@
 !Dockerfile.gateway
 !pyproject.toml
 !README.md
+!PACKAGE_README.md
 !LICENSE
 !NOTICE
 !requirements/

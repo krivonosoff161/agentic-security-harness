@@ -1,5 +1,13 @@
 # Current state
 
+## Package-description correction — 1.9.1 prepared
+
+The published 1.9.0 wheel is available; its PyPI description still contains the
+older pre-publication README. [Patch 1.9.1](releases/v1.9.1.md) separates the
+distribution description and checks both built archives before upload. Until its
+publication gates complete, the verified install version below remains 1.9.0.
+This changes presentation and packaging checks, not protection behavior.
+
 ## Controlled file workflow — published in 1.9.0
 
 The opt-in [controlled file workflow](controlled-file-workflow.md) adds actual
