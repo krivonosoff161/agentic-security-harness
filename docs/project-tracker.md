@@ -1,11 +1,14 @@
 # Project tracker
 
-## Package-description correction — prepared, not published
+## Package-description correction — 1.9.1 published
 
-[1.9.1](releases/v1.9.1.md) fixes the stale README embedded in PyPI 1.9.0 metadata.
-Dedicated package text and wheel/sdist description checks prevent that mismatch
-in future builds. Current source is a patch candidate; package availability and
-promotion are separate gates. Runtime and historical evidence are unchanged.
+[1.9.1](releases/v1.9.1.md) supplies a corrected distribution description while
+historical PyPI 1.9.0 metadata stays immutable. Dedicated package text and
+wheel/sdist description checks prevent that mismatch in future builds. Both
+indexes expose the exact attested subjects and description; final read-only
+verification `36960689808` passed all seven jobs. The initial TestPyPI Windows
+and PyPI Linux 3.12 simple-index lookup failures remain failed workflow results.
+Runtime and historical model evidence are unchanged.
 
 ## Controlled file effects — #326 / 1.9.0 delivered
 
@@ -30,8 +33,10 @@ issue #315 acceptance map; it does not close research #314/#316/#317/#318.
 This is local captured-history admission; independent coverage expectations #316
 and ambiguous action-outcome recovery #317 remain separate research obligations.
 
-The published package is **1.9.0**; its exact subject and verification receipt is
-the [1.9.0 release record](releases/v1.9.0.md). Historical 1.8.0 GitHub Release,
+The published package is **1.9.1**; its exact subjects and verification receipt are
+in the [1.9.1 release record](releases/v1.9.1.md). The historical
+[1.9.0 release record](releases/v1.9.0.md) retains its independent publication
+evidence and initial failed lookup. Historical 1.8.0 GitHub Release,
 TestPyPI and PyPI wheel/sdist hash equality is verified. The historical
 [read-only matrix](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36813028115)
 passed all seven jobs without re-upload; the initial production Linux 3.11
@@ -244,8 +249,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.9.0` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.9.0/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.9.1` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.9.1/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are

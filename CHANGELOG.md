@@ -8,8 +8,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [1.9.1] - 2026-10-02
 
-Prepared documentation/packaging patch; publication remains gated by
-[the release record](docs/releases/v1.9.1.md).
+Published documentation/packaging patch. Exact index subjects and retained
+initial smoke failures are in [the release record](docs/releases/v1.9.1.md).
 
 - Separate the immutable distribution description (`PACKAGE_README.md`) from the
   changing repository README, with exact-version installation and absolute links.

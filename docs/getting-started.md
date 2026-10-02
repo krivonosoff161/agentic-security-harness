@@ -10,16 +10,16 @@ with no API keys and no network.
 
 ## 1. Install
 
-These commands use the published [1.9.0 package](https://pypi.org/project/agentic-security-harness/1.9.0/).
+These commands use the published [1.9.1 package](https://pypi.org/project/agentic-security-harness/1.9.1/).
 The exact subjects and final verification are recorded in the
-[release evidence](releases/v1.9.0.md). The prior 1.8.0 release and its retained
+[release evidence](releases/v1.9.1.md). The prior 1.8.0 release and its retained
 initial production Linux 3.11 index-lookup failure remain [historical evidence](releases/v1.8.0.md).
 For exact companion binding and negative controls, use the separate
 [hash-locked installed example](../examples/installed-ecosystem/README.md).
 Installation does not automatically activate companions or grant action authority.
 
 ```bash
-python -m pip install agentic-security-harness==1.9.0
+python -m pip install agentic-security-harness==1.9.1
 ash --help
 ```
 
