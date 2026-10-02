@@ -1,10 +1,19 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The current package is published as `1.9.0` on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.9.0/). Its exact subjects and
-publication checks are in the [v1.9.0 release record](releases/v1.9.0.md). This page documents the
+The current package is published as `1.9.1` on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.9.1/). Its exact subjects and
+publication checks are in the [v1.9.1 release record](releases/v1.9.1.md). This page documents the
 manual, environment-gated OIDC promotion path and the retained initial smoke
 failures. See the gates in [release-checklist.md](release-checklist.md).
+
+The 1.9.1 staging upload `36960125615` succeeded, but its Windows 3.11 simple-index
+lookup failed before package code; read-only staging `36960405439` passed all
+three jobs. Production `36960546310` uploaded the exact subjects but remained
+failed overall after a Linux 3.12 index lookup stopped before package execution.
+The [read-only cross-index run 36960689808](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36960689808)
+passed all seven subject, provenance, description and installed-wheel jobs on
+TestPyPI Linux/Windows 3.11 and PyPI Linux 3.11–3.13/Windows 3.11. Neither
+build nor upload was repeated.
 
 The historical [v1.8.0 release](releases/v1.8.0.md) binds source
 `f7696dc4c7da0f163dca6e3164ebaab7fbc6ad1f` to attested build
@@ -46,9 +55,10 @@ does not imply a released garak distribution or NVIDIA/garak endorsement.
 - Distribution descriptions come from `PACKAGE_README.md`, not the live repository
   README. PyPI stores first-upload metadata; subsequent README changes do not edit
   old release pages. See the [API contract](https://docs.pypi.org/api/json/#get-a-project).
-  The 1.9.0 binaries are published, but their embedded description recommends
-  1.8.0; [the 1.9.1 patch](releases/v1.9.1.md) addresses this without replacing
-  old artifacts. Keep publication status separate from the package description.
+  The historical 1.9.0 binaries remain published with their original description
+  recommending 1.8.0; [the 1.9.1 patch](releases/v1.9.1.md) supplies the corrected
+  description without replacing old artifacts. Keep publication status separate
+  from the package description.
 - `pyproject.toml`: name `agentic-security-harness`, Apache-2.0, `requires-python >=3.11`,
   one required runtime dependency (`pydantic`) plus passive exact-version companion
   extras, `Operating System :: OS Independent`, typed (`py.typed` shipped in the wheel).

@@ -70,14 +70,14 @@ def test_versioned_onboarding_pin_matches_latest_published_version() -> None:
     readme = re.search(pattern, (ROOT / "README.md").read_text(encoding="utf-8"))
     onboarding = re.search(pattern, (ROOT / "docs/getting-started.md").read_text(encoding="utf-8"))
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
-    assert readme and onboarding and readme.group(1) == onboarding.group(1) == "1.9.0"
+    assert readme and onboarding and readme.group(1) == onboarding.group(1) == "1.9.1"
     assert project["version"] == "1.9.1"
-    notes = (ROOT / "docs/releases/v1.9.0.md").read_text(encoding="utf-8")
+    notes = (ROOT / "docs/releases/v1.9.1.md").read_text(encoding="utf-8")
     assert "release candidate; not published" not in notes
-    assert "https://pypi.org/project/agentic-security-harness/1.9.0/" in notes
+    assert "https://pypi.org/project/agentic-security-harness/1.9.1/" in notes
     pilot = (ROOT / "docs/external-pilot.md").read_text(encoding="utf-8")
-    assert "current published 1.9.0" in pilot
-    assert pilot.count("--core-version 1.9.0") == 3
+    assert "current published 1.9.1" in pilot
+    assert pilot.count("--core-version 1.9.1") == 3
     assert "--core-version 1.7.1" not in pilot
 
 
