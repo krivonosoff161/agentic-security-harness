@@ -1,0 +1,8 @@
+{
+  "schema_version": "ash.workspace-write.v1",
+  "output_dir": "output",
+  "outputs": {"draft": "summary.md"},
+  "max_bytes": 8192,
+  "max_proposals": 4,
+  "data_class": "public"
+}
