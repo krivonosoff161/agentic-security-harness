@@ -60,6 +60,11 @@ def read_json(path: Path) -> Any:
     return json.loads(path.read_bytes(), object_pairs_hook=_no_duplicates)
 
 
+def _absolute_without_resolving(path: Path) -> Path:
+    """Give SQLite an absolute URI path while retaining link components for checks."""
+    return path if path.is_absolute() else Path.cwd() / path
+
+
 def fixed_cases() -> tuple[dict[str, Any], ...]:
     tree = ast.parse(EXAMPLE.read_text(encoding="utf-8"), filename=EXAMPLE.name)
     assignments = [node for node in tree.body if isinstance(node, ast.AnnAssign)
@@ -178,6 +183,7 @@ def verify_dataset(
 
 def verify_capture(capture: Path, cases: tuple[dict[str, Any], ...] | None = None
                    ) -> tuple[list[dict[str, Any]], str]:
+    capture = _absolute_without_resolving(capture)
     cases = fixed_cases() if cases is None else cases
     manifest = read_json(capture / "manifest.json")
     receipt = read_json(capture / "verification.json")
@@ -236,6 +242,7 @@ def verify_capture(capture: Path, cases: tuple[dict[str, Any], ...] | None = Non
 def export(capture: Path, out: Path) -> dict[str, Any]:
     from agentic_security_harness.safe_io import require_atomic_output_destination
 
+    out = _absolute_without_resolving(out)
     cases = fixed_cases()
     rows, manifest_sha = verify_capture(capture, cases)
     dataset = build_dataset(cases, rows, manifest_sha)

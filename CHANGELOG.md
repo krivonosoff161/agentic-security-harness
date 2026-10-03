@@ -6,9 +6,16 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.10.1] - 2026-10-03
+
+Source candidate for [issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332). The published package remains 1.9.1 until this candidate completes its own exact-head build, staging, production and postpublication gates.
+
+- Carry forward the four bounded tracks from the unpublishable 1.10.0 tag: content-free ancestry storage/doctor diagnostics; public fresh-fixture `ControlledFileSession` and optional Pydantic AI tool example; label-authority and latency measurements; and eight author-authored known seed cases with verified export. No new runtime authority, base Pydantic AI dependency or model observation is introduced.
+- Resolve the tagged exporter failure when a completed capture is passed as a relative path: normalize the capture path before constructing its file URI. The 1.10.0 tag remains immutable failed-gate evidence and was never uploaded to TestPyPI or PyPI.
+
 ## [1.10.0] - 2026-10-03
 
-Source candidate for [issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332); publication and exact-head release checks are pending. The currently published package remains 1.9.1.
+Unpublished failed tag for [issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332). Tag workflow `37100128101` built and passed provenance, garak and eight-case capture checks on Linux and Windows, then failed at exporter `Path.as_uri()` on a relative capture path. No index upload occurred. The currently published package remains 1.9.1; this tag is not a release success.
 
 - Add a narrow `ControlledFileSession` hook for trusted applications to submit bounded proposal bytes into Quarantine, retained ancestry, report-only Guard and the fresh-fixture writer. A public-synthetic Pydantic AI example is optional and does not add a base dependency or grant the model paths, labels or authority.
 - Make ancestry storage/integrity failures content-free, terminal and visible to the caller; preserve incomplete evidence and prior completed effects for inspection. Extend installed `doctor` and fault coverage.

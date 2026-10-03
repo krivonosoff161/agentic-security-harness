@@ -130,7 +130,8 @@ def test_export_refuses_symlink_output_parent(
     assert not (real / "seed.json").exists()
 
 
-def test_exclusive_export_and_capture_readback_with_optional_framework(tmp_path: Path) -> None:
+@pytest.fixture(scope="module")
+def pinned_capture(tmp_path_factory: pytest.TempPathFactory) -> Path:
     try:
         installed = version("pydantic-ai-slim")
     except PackageNotFoundError:
@@ -143,7 +144,7 @@ def test_exclusive_export_and_capture_readback_with_optional_framework(tmp_path:
     example = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(example)
 
-    capture = tmp_path / "capture"
+    capture = tmp_path_factory.mktemp("boundary-seed") / "capture"
     capture.mkdir()
     result = example.run_example(capture / "run-01")
     cases = seed.fixed_cases()
@@ -169,10 +170,40 @@ def test_exclusive_export_and_capture_readback_with_optional_framework(tmp_path:
         "manifest_sha256": seed.sha(seed.canonical(manifest)),
     }
     (capture / "verification.json").write_bytes(seed.canonical(receipt) + b"\n")
-    out = tmp_path / "seed.json"
+    return capture
+
+
+def test_exclusive_export_and_capture_readback_with_optional_framework(
+    pinned_capture: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    capture = pinned_capture
+    out = capture.parent / "seed.json"
     exported = seed.export(capture, out)
     assert seed.read_json(out) == exported
     seed.verify_dataset(exported)
     assert seed.main(["--check", str(out), "--capture", str(capture)]) == 0
     with pytest.raises((ValueError, FileExistsError)):
         seed.export(capture, out)
+
+    # The release workflow passes relative paths; SQLite's read-only URI requires
+    # an absolute database path, without resolving links before evidence checks.
+    monkeypatch.chdir(capture.parent)
+    relative_capture = Path("capture")
+    relative_out = Path("seed-relative.json")
+    assert seed.main(["--capture", str(relative_capture), "--out", str(relative_out)]) == 0
+    assert seed.read_json(relative_out) == exported
+    assert seed.main(["--check", str(relative_out), "--capture", str(relative_capture)]) == 0
+    with pytest.raises((ValueError, FileExistsError)):
+        seed.export(relative_capture, relative_out)
+
+
+def test_linked_capture_is_rejected_with_optional_framework(
+    pinned_capture: Path, tmp_path: Path,
+) -> None:
+    linked_capture = tmp_path / "capture-link"
+    try:
+        linked_capture.symlink_to(pinned_capture, target_is_directory=True)
+    except (OSError, NotImplementedError):
+        pytest.skip("directory symlink is unavailable")
+    with pytest.raises(ValueError, match="link/reparse evidence rejected"):
+        seed.verify_capture(linked_capture)

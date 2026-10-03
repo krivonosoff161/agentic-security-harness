@@ -228,7 +228,9 @@ def exercise_native_adapter() -> list[dict[str, str | None]]:
 
 def run(*, core_version: str = "1.6.0") -> dict[str, Any]:
     versions = {name: metadata.version(name) for name in EXPECTED}
-    require(core_version in {"1.6.0", "1.7.0", "1.7.1", "1.8.0", "1.9.0", "1.9.1", "1.10.0"})
+    require(core_version in {
+        "1.6.0", "1.7.0", "1.7.1", "1.8.0", "1.9.0", "1.9.1", "1.10.0", "1.10.1",
+    })
     require(versions == {**EXPECTED, "agentic-security-harness": core_version})
     # Explicit operator-selected passive surfaces. Transfer/Handoff are first loaded
     # only after their distribution inspection and approval below.
@@ -273,7 +275,7 @@ def main() -> int:
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument(
         "--core-version",
-        choices=("1.6.0", "1.7.0", "1.7.1", "1.8.0", "1.9.0", "1.9.1", "1.10.0"),
+        choices=("1.6.0", "1.7.0", "1.7.1", "1.8.0", "1.9.0", "1.9.1", "1.10.0", "1.10.1"),
         default="1.6.0",
     )
     args = parser.parse_args()

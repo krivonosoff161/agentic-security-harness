@@ -47,7 +47,7 @@ jobs:
         run: |
           python -m pip --isolated install --only-binary=:all: --require-hashes -r requirements/build.txt -r requirements/runtime.txt -r examples/garak-gateway/requirements-smoke.txt
           python -m build --no-isolation --wheel --outdir dist
-          python -m pip --isolated install --no-index --no-deps --no-compile dist/agentic_security_harness-1.10.0-py3-none-any.whl
+          python -m pip --isolated install --no-index --no-deps --no-compile dist/agentic_security_harness-1.10.1-py3-none-any.whl
           python -m pip check
       - name: Prepare pinned public source (setup only; no model weights)
         run: python -I -B examples/garak-gateway/prepare_source.py --out upstream-source

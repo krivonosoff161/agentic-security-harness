@@ -1,6 +1,6 @@
 # Agentic Security Harness
 
-Distribution version: **1.10.0**. Python 3.11 or newer. Apache-2.0.
+Distribution version: **1.10.1**. Python 3.11 or newer. Apache-2.0.
 
 A local defensive benchmark and toolkit for testing agent boundary failures:
 untrusted input, authority confusion, retained history and controlled file actions.
@@ -14,7 +14,7 @@ and [current project state](https://github.com/krivonosoff161/agentic-security-h
 ## Install this version
 
 ```bash
-python -m pip install agentic-security-harness==1.10.0
+python -m pip install agentic-security-harness==1.10.1
 ash quickstart --out reports/quickstart
 ```
 
@@ -35,7 +35,7 @@ history. Model output cannot supply a filesystem path or executable code.
 The default run is offline. An existing local Ollama model can be selected
 explicitly using the documented options; installing this package starts no model.
 
-[Versioned instructions and limits](https://github.com/krivonosoff161/agentic-security-harness/blob/v1.10.0/docs/controlled-file-workflow.md)
+[Versioned instructions and limits](https://github.com/krivonosoff161/agentic-security-harness/blob/v1.10.1/docs/controlled-file-workflow.md)
 explain the guarded/ablated fixed control separately from model observations.
 Permission enforcement and correctness of the generated report are different
 measurements. This is not an arbitrary tool executor or a hostile-code sandbox.
@@ -70,7 +70,7 @@ The eight fixed seed cases and separate offline timing runs are different eviden
 classes. None establishes cross-model reliability or production containment.
 
 [Historical observation](https://github.com/krivonosoff161/agentic-security-harness/blob/v1.9.0/docs/controlled-file-observation-20261001.md)
-and [methodology](https://github.com/krivonosoff161/agentic-security-harness/blob/v1.10.0/docs/benchmark-semantics.md)
+and [methodology](https://github.com/krivonosoff161/agentic-security-harness/blob/v1.10.1/docs/benchmark-semantics.md)
 separate controlled evidence from broader claims. Production-wide containment,
 arbitrary host protection and independent human review are not established.
 

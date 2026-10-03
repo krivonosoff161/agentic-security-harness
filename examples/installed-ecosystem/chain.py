@@ -492,7 +492,9 @@ def run_case(
 
 def run(cases_bytes: bytes, *, core_version: str = "1.6.0") -> dict[str, Any]:
     versions = {name: metadata.version(name) for name in VERSIONS}
-    require(core_version in {"1.6.0", "1.7.0", "1.7.1", "1.8.0", "1.9.0", "1.9.1", "1.10.0"})
+    require(core_version in {
+        "1.6.0", "1.7.0", "1.7.1", "1.8.0", "1.9.0", "1.9.1", "1.10.0", "1.10.1",
+    })
     require(versions == {**VERSIONS, "agentic-security-harness": core_version})
     cases = json.loads(cases_bytes)["cases"]
     require(len(cases) == 16)
@@ -523,7 +525,7 @@ def main() -> int:
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument(
         "--core-version",
-        choices=("1.6.0", "1.7.0", "1.7.1", "1.8.0", "1.9.0", "1.9.1", "1.10.0"),
+        choices=("1.6.0", "1.7.0", "1.7.1", "1.8.0", "1.9.0", "1.9.1", "1.10.0", "1.10.1"),
         default="1.6.0",
     )
     args = parser.parse_args()

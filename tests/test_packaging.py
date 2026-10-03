@@ -121,14 +121,19 @@ def test_current_release_source_metadata_is_synchronized() -> None:
 
     package_version = re.search(r'^__version__ = "([^"]+)"$', version_text, re.MULTILINE)
     assert package_version is not None
-    assert project["version"] == package_version.group(1) == "1.10.0"
+    assert project["version"] == package_version.group(1) == "1.10.1"
     assert 'Development Status :: 4 - Beta' in project["classifiers"]
-    assert 'version: "1.10.0"' in citation
-    assert "## [1.10.0] - 2026-10-03" in changelog
-    assert "Agentic Security Harness v1.10.0" in release_notes
+    assert 'version: "1.10.1"' in citation
+    assert 'date-released: "2026-10-03"' in citation
+    assert "## [1.10.1] - 2026-10-03" in changelog
+    assert "Agentic Security Harness v1.10.1" in release_notes
     assert "Status: source candidate" in release_notes
     assert "PACKAGE_README.md" in release_notes
     assert project["readme"] == "PACKAGE_README.md"
+    failed_tag = (ROOT / "docs/releases/v1.10.0.md").read_text(encoding="utf-8")
+    assert "## [1.10.0] - 2026-10-03" in changelog
+    assert "immutable failed tag" in failed_tag
+    assert "No TestPyPI or PyPI upload occurred" in failed_tag
     prior = (ROOT / "docs/releases/v1.9.1.md").read_text(encoding="utf-8")
     assert "## [1.9.1] - 2026-10-02" in changelog
     assert "Status: published on GitHub, TestPyPI and PyPI" in prior
