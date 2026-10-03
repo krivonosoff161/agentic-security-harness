@@ -437,3 +437,16 @@ jobs:
             python -I -B release-example/examples/garak-gateway/check.py --out garak-observation.json --garak-source upstream-source/garak-ac4c5567f0c17834aace52b14788c1ca3548738b
             python -I -B release-example/examples/garak-gateway/verify.py garak-observation.json --require-detector
           fi
+
+      - name: Verify optional embedded boundary from the selected installed release
+        if: matrix.python == '3.11'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f release-example/requirements/verification/pydantic-ai-ci-py311.txt ]; then
+            python -m pip --isolated install --only-binary=:all: --require-hashes -r release-example/requirements/verification/pydantic-ai-ci-py311.txt
+            python -m pip check
+            python -I -B release-example/tools/check_pydantic_ai_guarded_files.py --out verified-embedded-boundary --repetitions 1
+            python -I -B release-example/tools/export_boundary_seed.py --capture verified-embedded-boundary --out verified-boundary-seed.json
+            python -I -B release-example/tools/export_boundary_seed.py --check verified-boundary-seed.json --capture verified-embedded-boundary
+          fi

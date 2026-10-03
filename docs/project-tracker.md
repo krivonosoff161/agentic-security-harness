@@ -1,5 +1,16 @@
 # Project tracker
 
+## Embedded boundary candidate — #332 / 1.10.0 source
+
+[Issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332)
+tracks the [1.10.0 source candidate](releases/v1.10.0.md): a public
+`ControlledFileSession` for fresh synthetic fixtures, storage/doctor diagnostics,
+an optional Pydantic AI tool example and eight fixed known seed cases. The six
+Qwen2.5 1.5B calls, 80 offline integration calls and 30 timing rows have distinct
+methods and limits in the [workflow record](controlled-file-workflow.md).
+Exact-head CI, reviewed diff and release/publication evidence remain separate gates.
+The published package is **1.9.1**.
+
 ## Package-description correction — 1.9.1 published
 
 [1.9.1](releases/v1.9.1.md) supplies a corrected distribution description while

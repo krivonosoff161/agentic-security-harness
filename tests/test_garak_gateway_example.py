@@ -55,7 +55,15 @@ def test_harness_control_routes_and_independent_checker() -> None:
 
 def test_committed_actual_detector_observation_is_independently_consistent() -> None:
     result = json.loads((EXAMPLE / "observation.windows.json").read_bytes())
-    _load("verify").verify(result, require_detector=True)
+    checker = _load("verify")
+    checker.verify(result, require_detector=True, historical_windows=True)
+    with pytest.raises(ValueError):
+        checker.verify(result, require_detector=True)
+
+
+def test_current_observation_cannot_be_relabelled_as_historical() -> None:
+    with pytest.raises(ValueError):
+        _load("verify").verify(_observation(), historical_windows=True)
 
 
 @pytest.mark.parametrize(("field", "bad"), [

@@ -14,7 +14,7 @@
   "harness_module_sha256": {
     "garak_plan_adapter": "6ee93be5f253caabbca6734cc05bda63e4c2153f0c4bf40070c6937628ec77cf",
     "quarantine_connector": "93fb6ad9ab34385f42860823a4385bfd450d1f4f49884c7b7190ac82ea03e98d",
-    "runtime_gateway": "d339b83d7f415a33e982c652b45ccbb7ffee59bcff240c0417611de5c2486dc9"
+    "runtime_gateway": "149adec615933437a297ea399c8c433c3ddc0b0a990b603157bb8eef5fb6aa50"
   },
   "corpus_sha256": "12f4fe12e4885627ae32a11b2c58e4123a2cbe6ef82b5e8dbd359a544db9ab99",
   "garak_source_sha": "ac4c5567f0c17834aace52b14788c1ca3548738b",

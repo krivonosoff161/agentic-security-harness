@@ -778,6 +778,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     doctor_p.add_argument("--json", action="store_true", help="emit a machine-readable JSON report")
     doctor_p.add_argument(
+        "--source-assets", action="store_true",
+        help="also require checkout-only examples and the example fake server",
+    )
+    doctor_p.add_argument(
         "--live-local",
         action="store_true",
         help="make one request to a LOCAL endpoint to verify connectivity",
@@ -3335,6 +3339,7 @@ def _doctor(
     base_url: str,
     credential_env_var: str,
     reports_root: Path | None,
+    source_assets: bool = False,
 ) -> int:
     import json as _json
 
@@ -3349,6 +3354,7 @@ def _doctor(
         live_local=live_local,
         base_url=base_url,
         credential_env_var=credential_env_var,
+        include_source_assets=source_assets,
     )
     if as_json:
         print(_json.dumps(report.model_dump(mode="json"), indent=2))
@@ -5345,12 +5351,37 @@ def _main(argv: list[str] | None = None) -> int:
         )
 
         if args.command == "controlled-file-workflow":
+            from agentic_security_harness.ancestry_store import IntegrityError, StorageError
             from agentic_security_harness.controlled_file_workflow import (
                 run_controlled_file_workflow,
             )
 
-            run_controlled_file_workflow(args.out, model=args.model, port=args.port,
-                                         timeout_seconds=args.timeout)
+            try:
+                run_controlled_file_workflow(args.out, model=args.model, port=args.port,
+                                             timeout_seconds=args.timeout)
+            except StorageError as exc:
+                print(json.dumps({
+                    "integrity_ok": False,
+                    "reason": "ancestry_storage_unavailable",
+                    "stage": exc.stage,
+                    "sqlite_errorcode": exc.sqlite_errorcode,
+                    "os_errno": exc.os_errno,
+                    "cleanup_stages": list(exc.cleanup_stages),
+                    "partial_evidence": "preserved_no_resume_no_overwrite",
+                    "completed_effects": "unknown_inspect_retained_evidence",
+                    "next_step": "inspect_storage_then_use_a_new_output_directory",
+                }, sort_keys=True))
+                return 1
+            except IntegrityError as exc:
+                print(json.dumps({
+                    "integrity_ok": False,
+                    "reason": "ancestry_integrity_failure",
+                    "cleanup_stages": list(exc.cleanup_stages),
+                    "partial_evidence": "preserved_no_resume_no_overwrite",
+                    "completed_effects": "unknown_inspect_retained_evidence",
+                    "next_step": "inspect_retained_evidence_do_not_resume",
+                }, sort_keys=True))
+                return 1
         report = verify_controlled_file_workflow(args.out)
         print(json.dumps(report, sort_keys=True))
         return 0 if report["integrity_ok"] else 1
@@ -5686,6 +5717,7 @@ def _main(argv: list[str] | None = None) -> int:
             args.base_url,
             args.credential_env_var,
             args.reports_root,
+            args.source_assets,
         )
     return 1
 

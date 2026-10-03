@@ -48,7 +48,7 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
     source_version = tomllib.loads(_read("pyproject.toml"))["project"]["version"]
     # Publication is separate from immutable model evidence collected on 1.6.0.
     version = "1.9.1"
-    assert source_version == "1.9.1"
+    assert source_version == "1.10.0"
     publication = _read("docs/releases/v1.9.1.md")
     assert "published on github, testpypi and pypi" in publication.lower()
     assert "published public research release" in _read("docs/releases/v1.7.0.md")
@@ -86,6 +86,19 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
     assert "artifacts remain immutable" in changelog
     for number in (300, 301, 303):
         assert f"/pull/{number}" in changelog
+
+
+def test_v110_candidate_does_not_promote_published_install_instructions() -> None:
+    candidate = _read("docs/releases/v1.10.0.md")
+    description = _read("PACKAGE_README.md")
+    assert "Status: source candidate" in candidate
+    assert "currently published version is 1.9.1" in candidate
+    assert "exact-head GitHub Actions result" in candidate
+    assert "Distribution version: **1.10.0**" in description
+    assert "ControlledFileSession" in description
+    for path in ("README.md", "docs/getting-started.md"):
+        assert "python -m pip install agentic-security-harness==1.9.1" in _read(path)
+        assert "python -m pip install agentic-security-harness==1.10.0" not in _read(path)
 
 
 def test_v170_publication_confirmation_preserves_failed_runs_and_exact_subjects() -> None:

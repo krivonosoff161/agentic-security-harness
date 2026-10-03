@@ -38,8 +38,13 @@ def domain_digest(domain: str, value: Any) -> str:
     return digest(domain.encode("ascii") + b"\0" + canonical(value))
 
 
-def verify(result: dict[str, Any], *, require_detector: bool = False) -> None:
-    manifest_bytes = (HERE / "manifest.json").read_bytes()
+def verify(result: dict[str, Any], *, require_detector: bool = False,
+           historical_windows: bool = False) -> None:
+    name = "manifest.windows-original.json" if historical_windows else "manifest.json"
+    manifest_bytes = (HERE / name).read_bytes()
+    if historical_windows:
+        require(digest(manifest_bytes) ==
+                "3d94f9cc1637f559247acf8b1ef6edb684789712a6470ecacfdfeab275696523")
     manifest = json.loads(manifest_bytes)
     corpus_bytes = (HERE / "cases.json").read_bytes()
     corpus = json.loads(corpus_bytes)
@@ -153,14 +158,18 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("result", type=Path)
     parser.add_argument("--require-detector", action="store_true")
+    parser.add_argument("--historical-windows", action="store_true",
+                        help="verify against the immutable 2026-09-27 manifest, not current code")
     args = parser.parse_args()
     try:
         raw = args.result.read_bytes()
         require(len(raw) <= 65_536)
-        verify(json.loads(raw, object_pairs_hook=_unique), require_detector=args.require_detector)
+        verify(json.loads(raw, object_pairs_hook=_unique), require_detector=args.require_detector,
+               historical_windows=args.historical_windows)
     except (KeyError, TypeError, ValueError, RecursionError, OSError):
         raise SystemExit("garak evidence verification FAILED") from None
-    print("garak evidence verification PASS")
+    scope = "historical Windows manifest" if args.historical_windows else "current manifest"
+    print(f"garak evidence verification PASS ({scope})")
 
 
 def _unique(pairs: list[tuple[str, Any]]) -> dict[str, Any]:

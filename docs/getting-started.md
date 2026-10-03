@@ -38,7 +38,11 @@ ash quickstart --out reports/quickstart
 This single no-network command performs an installed-package preflight, compares the
 vulnerable and protected local demos on the same 24-pattern corpus, validates the evidence,
 and writes `reports/quickstart/report.html`.
-Use `ash doctor` for the fuller source-checkout and optional local-endpoint diagnostics.
+In the local candidate, `ash doctor` checks installed-package readiness without
+requiring a source checkout. Use `ash doctor --source-assets` to additionally
+require checkout examples and the example fake server. Network remains opt-in
+with `--live-local`. The new flag/default are not in the immutable 1.9.1 package;
+that version's `doctor` still reports absent source assets on pip-only installs.
 
 To exercise the provider-neutral owned-workflow contour shipped in v1.1.0, run:
 

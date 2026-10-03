@@ -1,7 +1,7 @@
 {
   "cli": {
     "path": "src/agentic_security_harness/cli.py",
-    "sha256": "dd8e6922ebc4e3cb80d604364d8e65e54647b2e6a12a04fea1c3f3bf96f2b1fe"
+    "sha256": "9f2ebe918d5becd4979184649c5bd32dbb04a3b2b55db88e46a252fe226ea9d9"
   },
   "code_auto_discovery": false,
   "contract_id": "harness-extension-sdk-v1.0",

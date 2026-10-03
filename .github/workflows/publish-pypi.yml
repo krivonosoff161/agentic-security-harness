@@ -295,6 +295,16 @@ jobs:
           python -I -B examples/garak-gateway/check.py --out garak-observation.json --garak-source upstream-source/garak-ac4c5567f0c17834aace52b14788c1ca3548738b
           python -I -B examples/garak-gateway/verify.py garak-observation.json --require-detector
 
+      - name: Verify staged embedded boundary with the optional pinned agent loop
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip --isolated install --only-binary=:all: --require-hashes -r requirements/verification/pydantic-ai-ci-py311.txt
+          python -m pip check
+          python -I -B tools/check_pydantic_ai_guarded_files.py --out staged-embedded-boundary --repetitions 1
+          python -I -B tools/export_boundary_seed.py --capture staged-embedded-boundary --out staged-boundary-seed.json
+          python -I -B tools/export_boundary_seed.py --check staged-boundary-seed.json --capture staged-embedded-boundary
+
   smoke-pypi:
     name: Smoke PyPI (${{ matrix.os }}, Python ${{ matrix.python }})
     if: inputs.target == 'pypi'
@@ -382,3 +392,14 @@ jobs:
           python -I -B examples/garak-gateway/prepare_source.py --out upstream-source
           python -I -B examples/garak-gateway/check.py --out garak-observation.json --garak-source upstream-source/garak-ac4c5567f0c17834aace52b14788c1ca3548738b
           python -I -B examples/garak-gateway/verify.py garak-observation.json --require-detector
+
+      - name: Verify published embedded boundary with the optional pinned agent loop
+        if: matrix.python == '3.11'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip --isolated install --only-binary=:all: --require-hashes -r requirements/verification/pydantic-ai-ci-py311.txt
+          python -m pip check
+          python -I -B tools/check_pydantic_ai_guarded_files.py --out published-embedded-boundary --repetitions 1
+          python -I -B tools/export_boundary_seed.py --capture published-embedded-boundary --out published-boundary-seed.json
+          python -I -B tools/export_boundary_seed.py --check published-boundary-seed.json --capture published-embedded-boundary

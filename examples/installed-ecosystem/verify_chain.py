@@ -105,7 +105,7 @@ def verify(
         "runner binding",
     )
     check(
-        core_version in {"1.6.0", "1.7.0", "1.7.1", "1.8.0", "1.9.0", "1.9.1"},
+        core_version in {"1.6.0", "1.7.0", "1.7.1", "1.8.0", "1.9.0", "1.9.1", "1.10.0"},
         "declared core version",
     )
     check(result["versions"] == {**PINS, "agentic-security-harness": core_version}, "package pins")
@@ -200,7 +200,7 @@ def main() -> int:
     parser.add_argument("result", type=Path)
     parser.add_argument(
         "--core-version",
-        choices=("1.6.0", "1.7.0", "1.7.1", "1.8.0", "1.9.0", "1.9.1"),
+        choices=("1.6.0", "1.7.0", "1.7.1", "1.8.0", "1.9.0", "1.9.1", "1.10.0"),
         default="1.6.0",
     )
     args = parser.parse_args()

@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-10-03
+
+Source candidate for [issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332); publication and exact-head release checks are pending. The currently published package remains 1.9.1.
+
+- Add a narrow `ControlledFileSession` hook for trusted applications to submit bounded proposal bytes into Quarantine, retained ancestry, report-only Guard and the fresh-fixture writer. A public-synthetic Pydantic AI example is optional and does not add a base dependency or grant the model paths, labels or authority.
+- Make ancestry storage/integrity failures content-free, terminal and visible to the caller; preserve incomplete evidence and prior completed effects for inspection. Extend installed `doctor` and fault coverage.
+- Add eight fixed, author-authored boundary seed cases and a read-only verified export route. Reserved cases are known to the author; this is neither a blind evaluation nor a trained classifier.
+- Keep the six local Qwen2.5 1.5B observations (four reports written, two correct, two protected denials), the separate 80 offline tool calls and 30 timing rows as distinct evidence classes. These are bounded local observations, not production efficacy or independent review.
+
 ## [1.9.1] - 2026-10-02
 
 Published documentation/packaging patch. Exact index subjects and retained
