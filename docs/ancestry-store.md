@@ -4,7 +4,7 @@ This opt-in local reference implementation preserves exact captured bytes and
 their declared ancestry before an application passes them to adapters. It is
 not enabled automatically, a remote-provider authenticator, or an action permit.
 
-This API is prepared for 1.8.0, not part of the immutable published 1.7.1 package.
+This API was introduced in 1.8.0, not in the immutable published 1.7.1 package.
 See [release status and evidence](releases/v1.8.0.md) before selecting an installed
 package; source version metadata alone does not establish publication.
 
@@ -81,6 +81,45 @@ an fsynced temporary witness replaced atomically. Process-crash tests are not
 whole-machine power-loss tests. Filesystem, flush and atomic-replacement
 assumptions must be assessed for the deployment platform.
 
+### Storage and integrity failures (local candidate)
+
+The local candidate classifies OS/SQLite creation failures as `StorageError`, an
+`IntegrityError` subclass, with a fixed stage and numeric error codes. It omits
+the underlying error text, which may contain paths. `controlled-file-workflow`
+reports this as `ancestry_storage_unavailable` and exits nonzero; it does not
+continue to a model call or report write when initial store creation fails.
+Post-create reads, append preparation, commit, verification, witness finalization
+and lock operations also stop on storage failure. Their fixed `stage` identifies
+the failed operation. Extended SQLite availability codes preserve their numeric
+value; database corruption/schema errors and invalid witness contents remain
+integrity failures rather than being diagnosed as a bad filesystem.
+
+The CLI reports `ancestry_integrity_failure` separately. Neither failure response
+includes the underlying exception text. If cleanup fails during an existing
+failure, the first failure remains primary and fixed `cleanup_stages` identify
+secondary errors. Closing a handle must not hide an ambiguous commit failure.
+These changes are not in the immutable 1.9.1 package.
+
+The partial database, witness, lock and run manifest are retained. A failed
+commit is not proof of rollback: commit may have completed before an I/O error
+was returned. Do not delete that evidence, silently retry, resume the same output
+directory, weaken `synchronous=FULL`, or switch to an in-memory store. Inspect
+the storage environment and choose a new output directory for a separately
+recorded attempt. An incomplete run is not a passing verification.
+
+All ancestry operations for a controlled-file proposal precede Guard and the
+file writer. A failure there blocks that proposal's effect. A later case can
+still fail after earlier cases completed: the diagnostic explicitly leaves
+`completed_effects` unknown until retained evidence is inspected. It does not
+claim that the whole run wrote nothing. Explicit data recovery can reconcile
+a pending witness with an already committed record; it does not replay an action.
+
+Injected read, pre/post-commit, pre/post-witness-replacement, cleanup and recovery
+failures are regression
+checks. They do not reproduce an external reporter's unidentified filesystem
+or certify operation on all filesystems; no filesystem diagnosis is inferred
+from the text `disk I/O error` alone.
+
 ## Composition example
 
 `examples/installed-ecosystem/ancestry_chain.py` demonstrates the opt-in path:
@@ -112,7 +151,7 @@ input handling, lost-witness rejection and lock contention. The separate local
 research campaign checks real process termination, concurrent processes and
 installed-component composition. Neither test class proves universal safety,
 semantic correctness of model output, or authenticity of a remote model's
-internal reasoning. Publication and release of this candidate are separate gates.
+internal reasoning. New changes still require separate publication/release gates.
 
 The `Ancestry readiness` CI workflow runs the store and installed-companion
 composition tests on Linux and Windows, together with the filesystem link

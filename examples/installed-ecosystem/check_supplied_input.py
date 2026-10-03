@@ -16,7 +16,7 @@ def main() -> int:
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument(
         "--core-version",
-        choices=("1.6.0", "1.7.0", "1.7.1", "1.8.0", "1.9.0", "1.9.1"),
+        choices=("1.6.0", "1.7.0", "1.7.1", "1.8.0", "1.9.0", "1.9.1", "1.10.0"),
         default="1.6.0",
     )
     args = parser.parse_args()

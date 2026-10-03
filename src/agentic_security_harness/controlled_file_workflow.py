@@ -8,8 +8,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import threading
 from datetime import UTC, datetime
 from pathlib import Path
+from types import TracebackType
 from typing import Any
 
 from agentic_security_harness import ollama_quarantine_adapter as _ollama
@@ -204,6 +206,117 @@ def _store(area: Path, context: str, document: str) -> AncestryStore:
             ("fixture",),
         ),
     )
+
+
+class ControlledFileSession:
+    """Embed the report-only benchmark boundary in a trusted agent tool closure.
+
+    Creates fresh synthetic files only. This is not access to a user's workspace
+    or a sandbox for hostile code in this Python process. The caller owns the
+    output directory, capture context and finite proposal budget; the untrusted
+    tool supplies bytes, never paths, call IDs, labels or a Guard override.
+    """
+
+    def __init__(self, area: Path, context: str, files: FixtureFiles,
+                 store: AncestryStore, max_proposals: int) -> None:
+        self._area, self._context = area, context
+        self._files, self._store = files, store
+        self._max_proposals = max_proposals
+        self._attempts = 0
+        self._closed = self._failed = False
+        self._lock = threading.RLock()
+
+    @classmethod
+    def create(cls, out: Path, *, context: str, document: str,
+               max_proposals: int = 1) -> ControlledFileSession:
+        """Open one new fixture; existing or partial directories cannot resume."""
+        if type(document) is not str or len(document.encode("utf-8")) > 65_536:
+            raise ValueError("document must be bounded public-synthetic text")
+        if type(max_proposals) is not int or not 1 <= max_proposals <= 32:
+            raise ValueError("max_proposals must be an integer from 1 to 32")
+        # Validate caller context before creating any file, using the same
+        # contract as the eventual retained root (not a second label grammar).
+        AncestryRecord("root", context, b"", (), ("fixture",))
+        area = Path(out).absolute()
+        require_atomic_output_destination(area)
+        if not area.parent.is_dir():
+            raise ValueError("output parent must already exist")
+        area.mkdir(mode=0o700)
+        _new_json(area / "session.json", {
+            "schema": "ControlledFileSession.v1", "context": context,
+            "document_sha256": _sha(document.encode("utf-8")),
+            "max_proposals": max_proposals, "data_class": "public_synthetic",
+            "authority": "fresh_fixture_report_only", "guarded": True,
+            "recovery": "no_resume_no_overwrite",
+        })
+        files = FixtureFiles.create(area / "files")
+        try:
+            store = _store(area, context, document)
+            return cls(area, context, files, store, max_proposals)
+        except BaseException as primary:
+            try:
+                files.close()
+            except OSError:
+                primary.add_note("fixture cleanup also failed")
+            raise
+
+    def _check_active(self) -> None:
+        if self._closed or self._failed:
+            raise ValueError("session closed or failed; cannot resume")
+
+    def submit(self, proposal: bytes) -> dict[str, Any]:
+        """Record one attempt and enforce Guard before any fixture action.
+
+        IDs are generated here. Invalid JSON consumes an attempt like any other
+        proposal; errors during persistence/effect handling poison the session.
+        An exception after a write is not an assertion that the write rolled back.
+        """
+        if type(proposal) is not bytes or not 0 < len(proposal) <= 4096:
+            raise ValueError("proposal must be 1 to 4096 bytes")
+        with self._lock:
+            self._check_active()
+            if self._attempts >= self._max_proposals:
+                raise ValueError("session proposal budget exhausted")
+            self._attempts += 1
+            call_id = f"proposal-{self._attempts}"
+            try:
+                _new_json(self._area / f"{call_id}-intent.json", {
+                    "attempt": self._attempts, "call_id": call_id,
+                    "proposal_sha256": _sha(proposal), "status": "started",
+                })
+                result = _apply(self._files, self._store, proposal,
+                                call_id=call_id, context=self._context)
+                _new_json(self._area / f"{call_id}-result.json", result)
+                return result
+            except BaseException:
+                self._failed = True
+                raise
+
+    def snapshot(self) -> dict[str, dict[str, str | int]]:
+        """Read current fixture hashes; this is not a new action permission."""
+        with self._lock:
+            self._check_active()
+            return self._files.snapshot()
+
+    def close(self) -> None:
+        with self._lock:
+            if not self._closed:
+                self._closed = True
+                self._files.close()
+
+    def __enter__(self) -> ControlledFileSession:
+        with self._lock:
+            self._check_active()
+            return self
+
+    def __exit__(self, exc_type: type[BaseException] | None, exc_value: BaseException | None,
+                 traceback: TracebackType | None) -> None:
+        try:
+            self.close()
+        except OSError:
+            if exc_value is None:
+                raise
+            exc_value.add_note("fixture cleanup also failed")
 
 
 def _model_proposal(

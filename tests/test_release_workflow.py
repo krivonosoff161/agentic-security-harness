@@ -15,6 +15,22 @@ PROJECT_VERSION = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="ut
 ]["version"]
 
 
+def test_release_staging_and_readback_cover_installed_optional_boundary() -> None:
+    for name, prefix in (
+        ("release.yml", ""),
+        ("publish-pypi.yml", ""),
+        ("verify-published-release.yml", "release-example/"),
+    ):
+        text = (ROOT / ".github/workflows" / name).read_text(encoding="utf-8")
+        assert f"-r {prefix}requirements/verification/pydantic-ai-ci-py311.txt" in text
+        assert f"python -I -B {prefix}tools/check_pydantic_ai_guarded_files.py" in text
+        assert f"python -I -B {prefix}tools/export_boundary_seed.py --capture" in text
+        assert f"python -I -B {prefix}tools/export_boundary_seed.py --check" in text
+    # Python 3.11 is the explicitly pinned optional integration environment.
+    publishing = (ROOT / ".github/workflows/publish-pypi.yml").read_text(encoding="utf-8")
+    assert "if: matrix.python == '3.11'" in publishing
+
+
 def _workflow() -> str:
     return WORKFLOW.read_text(encoding="utf-8")
 

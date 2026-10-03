@@ -121,13 +121,17 @@ def test_current_release_source_metadata_is_synchronized() -> None:
 
     package_version = re.search(r'^__version__ = "([^"]+)"$', version_text, re.MULTILINE)
     assert package_version is not None
-    assert project["version"] == package_version.group(1) == "1.9.1"
+    assert project["version"] == package_version.group(1) == "1.10.0"
     assert 'Development Status :: 4 - Beta' in project["classifiers"]
-    assert 'version: "1.9.1"' in citation
-    assert "## [1.9.1] - 2026-10-02" in changelog
-    assert "Agentic Security Harness v1.9.1" in release_notes
+    assert 'version: "1.10.0"' in citation
+    assert "## [1.10.0] - 2026-10-03" in changelog
+    assert "Agentic Security Harness v1.10.0" in release_notes
+    assert "Status: source candidate" in release_notes
     assert "PACKAGE_README.md" in release_notes
     assert project["readme"] == "PACKAGE_README.md"
+    prior = (ROOT / "docs/releases/v1.9.1.md").read_text(encoding="utf-8")
+    assert "## [1.9.1] - 2026-10-02" in changelog
+    assert "Status: published on GitHub, TestPyPI and PyPI" in prior
     # The prior published immutable release retains its independent evidence.
     release_notes = (ROOT / "docs/releases/v1.8.0.md").read_text(encoding="utf-8")
     assert "## [1.8.0] - 2026-09-30" in changelog

@@ -18,6 +18,22 @@ one.
 In plain English: it turns “the agent behaved unsafely” into evidence you can replay,
 validate, compare, and review.
 
+## Source candidate 1.10.0 — embedded file boundary
+
+[Issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332)
+tracks the [1.10.0 source candidate](docs/releases/v1.10.0.md). The new
+`ControlledFileSession` lets a trusted application submit bounded proposal bytes
+through Quarantine, retained ancestry and report-only Guard before a fresh synthetic
+file effect. An optional [Pydantic AI tool example](docs/controlled-file-workflow.md#pydantic-ai-integration-in-the-local-candidate)
+uses fixed offline controls and a separately pinned framework; it is not a base
+dependency. The [eight-case seed](examples/boundary-seed-v1.json) is author-authored
+known data, not independent blind evaluation.
+
+Six local Qwen2.5 1.5B calls through that example produced four report writes,
+two correct reports and two protected-write denials. Separate offline integration
+and timing runs are documented with their own limits. These candidate results do
+not establish cross-model reliability or change the published 1.9.1 artifacts.
+
 ## Controlled file effects — published in 1.9.0
 
 Packaging note: the [published 1.9.1 patch](docs/releases/v1.9.1.md) corrects the

@@ -88,6 +88,27 @@ def test_doctor_installed_package_profile_does_not_require_checkout_assets(
     assert report.ok is True
     assert "examples_dir" not in names
     assert "fake_server" not in names
+    assert report.next_commands == [
+        "ash quickstart --out reports/quickstart",
+        "ash targets",
+        "ash run --target demo-agent --out reports/demo",
+        "ash report --root reports/demo",
+    ]
+
+
+def test_doctor_source_assets_profile_keeps_checkout_diagnostics_and_demo(
+    tmp_path: Path,
+) -> None:
+    report = run_doctor(root=tmp_path, include_source_assets=True)
+    checks = {check.name: check for check in report.checks}
+
+    assert report.ok is False
+    assert checks["examples_dir"].ok is False
+    assert checks["fake_server"].ok is False
+    assert report.next_commands[-2:] == [
+        "python examples/fake_openai_server.py   # free local model demo",
+        "ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model",
+    ]
 
 
 def test_doctor_live_local_success(tmp_path: Path) -> None:

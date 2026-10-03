@@ -14,7 +14,7 @@
   "execution_model": "explicit_in_process_not_sandboxed",
   "extension_sdk_contract": {
     "path": "schemas/extension-sdk.v1.manifest.json",
-    "sha256": "e897bee1999c876e884bd33c4ec395829539112f089425e244b616c3023c0fcd"
+    "sha256": "29f292bd2b1fc0167c74901cfeaeec32c5b628c414e5c1a812fbf1ab830bb7c1"
   },
   "generator": {
     "path": "tools/companion_extension_contracts.py",
@@ -52,7 +52,7 @@
     },
     "test": {
       "path": "tests/test_ecosystem_integration_candidate.py",
-      "sha256": "b6bd91216c322003cec2b04f181688708a461109321a1c75f7b50e73a045f7c9"
+      "sha256": "6734cfcb0f4bac49134c00190e9e4e231aefc47d79a4d492b490813f741faab5"
     },
     "wheelhouse_smoke": {
       "path": "tools/optional_wheelhouse_smoke.py",
@@ -60,7 +60,7 @@
     },
     "workflow": {
       "path": ".github/workflows/ecosystem-integration.yml",
-      "sha256": "7015e0a2dcab657dbc54b55ace335d84ab8c13848116af57323c237dbf1e2a46"
+      "sha256": "b2aa2b04b18007edfce22021633dcbd0d43990b346e0486a0b625bb4eaebfb44"
     }
   },
   "integration_model": "explicit_normalized_digest_bound_outputs",

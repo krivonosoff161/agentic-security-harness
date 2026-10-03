@@ -1,5 +1,17 @@
 # Current state
 
+## Embedded boundary — 1.10.0 source candidate / #332
+
+The [1.10.0 candidate](releases/v1.10.0.md) adds public `ControlledFileSession`,
+an optional [Pydantic AI example](controlled-file-workflow.md#pydantic-ai-integration-in-the-local-candidate),
+content-free ancestry storage diagnostics, installed-doctor checks and an
+[eight-case known seed](../examples/boundary-seed-v1.json). The host owns fixture
+paths, capture labels and report-only authority; proposal text grants none. Six
+local Qwen2.5 1.5B calls produced four reports, two correct reports and two
+protected denials. Offline 80-call integration and 30-row timing runs are separate
+evidence. Local candidate checks do not imply an exact-head CI or publication pass.
+The published package remains **1.9.1** until its own 1.10.0 delivery gates complete.
+
 ## Package-description correction — 1.9.1 published
 
 The published 1.9.0 wheel remains available with its older pre-publication

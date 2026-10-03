@@ -846,6 +846,7 @@ class _GatewayRequestHandler(BaseHTTPRequestHandler):
         self._json_error(HTTPStatus.NOT_FOUND, "route_not_found", request_id)
 
     def do_POST(self) -> None:  # noqa: N802
+        self._request_body_consumed = False
         request_id = _request_id()
         if not self._headers_safe():
             self._json_error(HTTPStatus.BAD_REQUEST, "credential_headers_forbidden", request_id)
@@ -895,6 +896,7 @@ class _GatewayRequestHandler(BaseHTTPRequestHandler):
         if length < 0 or length > self.server.config.max_body_bytes:
             raise GatewayContractError("request_body_limit_exceeded")
         raw = self.rfile.read(length)
+        self._request_body_consumed = True
         if len(raw) != length:
             raise GatewayContractError("incomplete_request_body")
         return _strict_json_object(raw)
@@ -1223,6 +1225,44 @@ class _GatewayRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
         self.close_connection = True
+        if (self.command == "POST" and status >= HTTPStatus.BAD_REQUEST
+                and not getattr(self, "_request_body_consumed", False)):
+            self.wfile.flush()
+            self._discard_rejected_body()
+
+    def _discard_rejected_body(self) -> None:
+        """Discard a bounded rejected suffix after sending denial, never parse it.
+
+        Closing with unread POST bytes can abort the response on some TCP stacks.
+        This is response cleanup, not admission: no dispatch or audit payload is
+        reachable here. A hostile/incomplete stream still closes at the cap; its
+        receipt is not guaranteed. Both a byte budget and total deadline apply.
+        """
+        budget = min(self.server.config.max_body_bytes, 65_536)
+        length = self.headers.get("Content-Length", "")
+        if len(length) <= 10 and length.isascii() and length.isdigit():
+            budget = min(budget, int(length))
+        deadline = time.monotonic() + 0.1
+        previous_timeout = self.connection.gettimeout()
+        try:
+            while budget:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    break
+                self.connection.settimeout(remaining)
+                chunk = self.rfile.read1(min(budget, 8192))
+                if not chunk:
+                    break
+                budget -= len(chunk)
+        except OSError:
+            # A failed cleanup cannot turn the already emitted denial into an
+            # allow, and must not cause a retry or a second response.
+            pass
+        finally:
+            try:
+                self.connection.settimeout(previous_timeout)
+            except OSError:
+                pass
 
 
 def _validate_builtin_arguments(call: GatewayToolCallV1) -> str | None:

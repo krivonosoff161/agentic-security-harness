@@ -75,6 +75,13 @@ Authorization, cookie, and proxy-authorization headers are rejected in this cred
 mode. Streaming, chunked transfer, duplicate JSON keys, non-finite numbers, oversized
 bodies, and unknown request fields fail closed.
 
+In the local candidate, an early POST denial is sent before any rejected body is
+parsed or dispatched. Before closing, response cleanup discards at most 64 KiB
+(or the lower configured body cap) for at most 100 ms total. This reduces lost
+denial responses when a client is still sending its body. An incomplete or hostile
+stream still closes at that bound; receipt delivery is not guaranteed, and no
+request is retried or admitted by cleanup. This change is not in published 1.9.1.
+
 ## MCP 2026-07-28 development endpoint
 
 `POST /mcp` implements a deliberately narrow, stateless subset of MCP `2026-07-28`:

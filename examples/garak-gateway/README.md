@@ -55,10 +55,13 @@ Pre-existing bytecode/cache entries are rejected before import, not excluded fro
 
 The committed [Windows observation](observation.windows.json) records the actual four-case
 named-detector run on 2026-09-27, including ten scratch housekeeping write events and zero
-network/process attempts. Verify it without installing garak:
+network/process attempts. Its original manifest bytes remain in
+`manifest.windows-original.json`; this is not evidence of a detector run against
+later Harness edits. `manifest.json` pins current source for fresh runs. Verify
+the historical observation without installing garak:
 
 ```text
-python -I -B examples/garak-gateway/verify.py examples/garak-gateway/observation.windows.json --require-detector
+python -I -B examples/garak-gateway/verify.py examples/garak-gateway/observation.windows.json --require-detector --historical-windows
 ```
 
 Fresh Linux/Windows observations are also uploaded by the

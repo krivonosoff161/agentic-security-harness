@@ -17,7 +17,7 @@ import sys
 import tempfile
 import time
 from collections.abc import Iterator
-from contextlib import closing, contextmanager
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -36,6 +36,8 @@ _LOCK_TIMEOUT_SECONDS = 10.0
 class AncestryError(ValueError):
     """Invalid input or integrity failure; no positive result is available."""
 
+    cleanup_stages: tuple[str, ...] = ()
+
 
 class CheckpointConflict(AncestryError):
     """The caller's expected checkpoint is no longer current."""
@@ -43,6 +45,62 @@ class CheckpointConflict(AncestryError):
 
 class IntegrityError(AncestryError):
     """The database/witness pair cannot be trusted or recovered."""
+
+
+class StorageError(IntegrityError):
+    """Storage did not complete; partial state must not be treated as success.
+
+    Only a fixed stage and numeric OS/SQLite codes are exposed. The underlying
+    message can contain paths or other private data and is deliberately omitted.
+    This is not an assertion that a failed commit wrote nothing.
+    """
+
+    def __init__(self, stage: str, cause: OSError | sqlite3.Error) -> None:
+        self.stage = stage
+        self.sqlite_errorcode = getattr(cause, "sqlite_errorcode", None)
+        self.os_errno = getattr(cause, "errno", None)
+        self.cleanup_stages = getattr(cause, "_ancestry_cleanup_stages", ())
+        super().__init__(f"ancestry_storage_unavailable:{stage}")
+
+
+def _storage_failure(stage: str, cause: OSError | sqlite3.Error) -> IntegrityError:
+    if isinstance(cause, sqlite3.Error):
+        code = getattr(cause, "sqlite_errorcode", None)
+        # Extended SQLite codes retain the primary code in the low byte.
+        # Corrupt data, invalid schema and programming errors are not an I/O
+        # diagnosis. Both classes stop the caller, but remain distinguishable.
+        if type(code) is not int or code & 0xff not in {
+            sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED, sqlite3.SQLITE_READONLY,
+            sqlite3.SQLITE_IOERR, sqlite3.SQLITE_FULL, sqlite3.SQLITE_CANTOPEN,
+            sqlite3.SQLITE_NOMEM, sqlite3.SQLITE_PROTOCOL, sqlite3.SQLITE_PERM,
+        }:
+            failure = IntegrityError("database unavailable or corrupt")
+            failure.cleanup_stages = getattr(cause, "_ancestry_cleanup_stages", ())
+            return failure
+    return StorageError(stage, cause)
+
+
+@contextmanager
+def _storage_boundary(stage: str) -> Iterator[None]:
+    try:
+        yield
+    except (OSError, sqlite3.Error) as exc:
+        raise _storage_failure(stage, exc) from None
+
+
+@contextmanager
+def _cleanup_boundary(stage: str, primary: BaseException | None) -> Iterator[None]:
+    """Keep the first failure while recording a fixed secondary cleanup stage."""
+    try:
+        yield
+    except (OSError, sqlite3.Error) as exc:
+        if primary is None:
+            raise _storage_failure(stage, exc) from None
+        if isinstance(primary, AncestryError):
+            primary.cleanup_stages += (stage,)
+        else:
+            previous = getattr(primary, "_ancestry_cleanup_stages", ())
+            primary._ancestry_cleanup_stages = (*previous, stage)  # type: ignore[attr-defined]
 
 
 @dataclass(frozen=True)
@@ -171,21 +229,24 @@ class AncestryStore:
             raise IntegrityError("store already exists; create cannot overwrite it")
         # O_EXCL makes simultaneous creators fail. An interrupted creation is
         # intentionally unrecoverable without explicit owner handling.
-        fd = os.open(db, os.O_CREAT | os.O_EXCL | os.O_RDWR, 0o600)
-        os.close(fd)
-        # Reserve the second path exclusively too. A rival creator or an
-        # existing witness can never be replaced by bootstrap.
-        witness_fd = os.open(witness, os.O_CREAT | os.O_EXCL | os.O_RDWR, 0o600)
-        os.close(witness_fd)
-        lock_fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_RDWR, 0o600)
-        with os.fdopen(lock_fd, "wb") as lock_stream:
-            lock_stream.write(b"\0")
-            lock_stream.flush()
-            os.fsync(lock_stream.fileno())
         digest = _record_digest(root)
         store = cls(db, witness, context, digest)
+        stage = "reserve_database"
         try:
-            with closing(store._connection()) as conn:
+            fd = os.open(db, os.O_CREAT | os.O_EXCL | os.O_RDWR, 0o600)
+            os.close(fd)
+            # Reserve each path exclusively; never replace a rival's witness.
+            stage = "reserve_witness"
+            witness_fd = os.open(witness, os.O_CREAT | os.O_EXCL | os.O_RDWR, 0o600)
+            os.close(witness_fd)
+            stage = "reserve_lock"
+            lock_fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_RDWR, 0o600)
+            with os.fdopen(lock_fd, "wb") as lock_stream:
+                lock_stream.write(b"\0")
+                lock_stream.flush()
+                os.fsync(lock_stream.fileno())
+            stage = "initialize_database"
+            with store._database() as conn:
                 conn.executescript("""
                     CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
                     CREATE TABLE records (sequence INTEGER PRIMARY KEY,
@@ -200,11 +261,13 @@ class AncestryStore:
                 conn.execute("INSERT INTO meta VALUES ('root_digest', ?)", (digest,))
                 conn.execute("INSERT INTO meta VALUES ('version', ?)", (str(_VERSION),))
                 after = store._insert(conn, 1, _ZERO, root)
+                stage = "commit_database"
                 conn.commit()
+            stage = "write_witness"
             store._write_witness(Checkpoint(context, digest, _VERSION, 1, after), None)
-        except Exception:
+        except (OSError, sqlite3.Error) as exc:
             # Never erase ambiguous partial state automatically.
-            raise
+            raise StorageError(stage, exc) from None
         return store
 
     @classmethod
@@ -226,21 +289,40 @@ class AncestryStore:
             raise IntegrityError("database missing")
         conn = sqlite3.connect(f"{self.db_path.as_uri()}?mode=rw", uri=True,
                                timeout=10, isolation_level=None)
-        conn.setlimit(sqlite3.SQLITE_LIMIT_LENGTH, 1024 * 1024)
-        conn.execute("PRAGMA synchronous=FULL")
-        conn.execute("PRAGMA journal_mode=DELETE")
-        conn.execute("PRAGMA foreign_keys=ON")
+        try:
+            conn.setlimit(sqlite3.SQLITE_LIMIT_LENGTH, 1024 * 1024)
+            conn.execute("PRAGMA synchronous=FULL")
+            conn.execute("PRAGMA journal_mode=DELETE")
+            conn.execute("PRAGMA foreign_keys=ON")
+        except BaseException as primary:
+            with _cleanup_boundary("connection_setup_close", primary):
+                conn.close()
+            raise
         return conn
+
+    @contextmanager
+    def _database(self) -> Iterator[sqlite3.Connection]:
+        conn = self._connection()
+        primary: BaseException | None = None
+        try:
+            yield conn
+        except BaseException as exc:
+            primary = exc
+            raise
+        finally:
+            with _cleanup_boundary("database_close", primary):
+                conn.close()
 
     @contextmanager
     def _writer_guard(self) -> Iterator[None]:
         """Hold one stable OS lock across DB commit and witness finalization."""
         if not self.lock_path.is_file():
             raise IntegrityError("lock file missing")
+        primary: BaseException | None = None
         try:
             fd = os.open(self.lock_path, os.O_RDWR)
         except OSError as exc:
-            raise IntegrityError("lock unavailable") from exc
+            raise StorageError("lock_open", exc) from None
         try:
             if sys.platform == "win32":
                 import msvcrt
@@ -256,23 +338,33 @@ class AncestryStore:
                     break
                 except OSError as exc:
                     if exc.errno not in {errno.EACCES, errno.EAGAIN, errno.EDEADLK}:
-                        raise IntegrityError("lock unavailable") from exc
+                        raise StorageError("lock_acquire", exc) from None
                     if time.monotonic() >= deadline:
-                        raise IntegrityError("lock wait expired") from exc
+                        raise StorageError("lock_wait", exc) from None
                     time.sleep(0.01)
+            body_failure: BaseException | None = None
             try:
-                os.lseek(fd, 0, os.SEEK_SET)
-                if os.read(fd, 1) != b"\0":
-                    raise IntegrityError("lock file corrupt")
+                with _storage_boundary("lock_read"):
+                    os.lseek(fd, 0, os.SEEK_SET)
+                    if os.read(fd, 1) != b"\0":
+                        raise IntegrityError("lock file corrupt")
                 yield
+            except BaseException as exc:
+                body_failure = exc
+                raise
             finally:
-                os.lseek(fd, 0, os.SEEK_SET)
-                if sys.platform == "win32":
-                    msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
-                else:
-                    fcntl.flock(fd, fcntl.LOCK_UN)
+                with _cleanup_boundary("lock_release", body_failure):
+                    os.lseek(fd, 0, os.SEEK_SET)
+                    if sys.platform == "win32":
+                        msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+                    else:
+                        fcntl.flock(fd, fcntl.LOCK_UN)
+        except BaseException as exc:
+            primary = exc
+            raise
         finally:
-            os.close(fd)
+            with _cleanup_boundary("lock_close", primary):
+                os.close(fd)
 
     def _write_witness(self, committed: Checkpoint,
                        pending: tuple[Checkpoint, Checkpoint] | None) -> None:
@@ -283,6 +375,7 @@ class AncestryStore:
         if len(data) > _MAX_WITNESS:
             raise IntegrityError("witness too large")
         fd, temp = tempfile.mkstemp(prefix=".ancestry-", dir=self.witness_path.parent)
+        primary: BaseException | None = None
         try:
             with os.fdopen(fd, "wb") as stream:
                 stream.write(data)
@@ -291,13 +384,22 @@ class AncestryStore:
             os.replace(temp, self.witness_path)
             if os.name != "nt":
                 directory = os.open(self.witness_path.parent, os.O_RDONLY)
+                directory_failure: BaseException | None = None
                 try:
                     os.fsync(directory)
+                except BaseException as exc:
+                    directory_failure = exc
+                    raise
                 finally:
-                    os.close(directory)
+                    with _cleanup_boundary("witness_directory_close", directory_failure):
+                        os.close(directory)
+        except BaseException as exc:
+            primary = exc
+            raise
         finally:
-            if os.path.exists(temp):
-                os.unlink(temp)
+            with _cleanup_boundary("witness_temp_cleanup", primary):
+                if os.path.exists(temp):
+                    os.unlink(temp)
 
     def _read_witness(self) -> tuple[Checkpoint, tuple[Checkpoint, Checkpoint] | None]:
         try:
@@ -319,8 +421,10 @@ class AncestryStore:
                 pending = (_parse_checkpoint(pending_data["before"]),
                            _parse_checkpoint(pending_data["after"]))
             return committed, pending
-        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
-            raise IntegrityError("witness unavailable or corrupt") from exc
+        except OSError as exc:
+            raise StorageError("read_witness", exc) from None
+        except (UnicodeError, json.JSONDecodeError):
+            raise IntegrityError("witness unavailable or corrupt") from None
 
     def _insert(self, conn: sqlite3.Connection, sequence: int, before: str,
                 record: AncestryRecord) -> str:
@@ -467,24 +571,30 @@ class AncestryStore:
                     (db_cp.sequence - 1,)).fetchone()[0]
                 if before.sequence != db_cp.sequence - 1 or before.event_head != prior_head:
                     raise IntegrityError("pending before does not bind database prefix")
-            if db_cp == before:
-                self._write_witness(before, None)
-            elif db_cp == after:
-                self._write_witness(after, None)
-            else:
-                raise IntegrityError("pending transition cannot be recovered")
+            with _storage_boundary("recover_witness"):
+                if db_cp == before:
+                    self._write_witness(before, None)
+                elif db_cp == after:
+                    self._write_witness(after, None)
+                else:
+                    raise IntegrityError("pending transition cannot be recovered")
         return db_cp, records
 
     def _state(self) -> tuple[Checkpoint, tuple[AncestryRecord, ...]]:
+        stage = "state_open"
         try:
             with self._writer_guard():
-                with closing(self._connection()) as conn:
+                with self._database() as conn:
+                    stage = "state_begin"
                     conn.execute("BEGIN IMMEDIATE")
+                    stage = "state_read"
                     state = self._locked_state(conn)
+                    stage = "state_commit"
                     conn.commit()
+                    stage = "state_close"
                     return state
-        except sqlite3.Error as exc:
-            raise IntegrityError("database unavailable or corrupt") from exc
+        except (OSError, sqlite3.Error) as exc:
+            raise _storage_failure(stage, exc) from None
 
     def checkpoint(self) -> Checkpoint:
         """Return the fully verified current checkpoint, recovering a pending write."""
@@ -496,9 +606,12 @@ class AncestryStore:
             raise AncestryError("record and expected checkpoint required")
         if record.context != self.context or not record.parents:
             raise AncestryError("child needs context and at least one parent")
+        stage = "append_open"
         try:
-            with self._writer_guard(), closing(self._connection()) as conn:
+            with self._writer_guard(), self._database() as conn:
+                stage = "append_begin"
                 conn.execute("BEGIN IMMEDIATE")
+                stage = "append_read"
                 before, records = self._locked_state(conn)
                 if before != expected:
                     raise CheckpointConflict("stale expected checkpoint")
@@ -517,25 +630,32 @@ class AncestryStore:
                 after = Checkpoint(self.context, self.root_digest, _VERSION,
                                    before.sequence + 1,
                                    _head(before.sequence + 1, before.event_head, digest))
+                stage = "append_prepare_witness"
                 self._write_witness(before, (before, after))
                 _fault_point("after_prepare")
+                stage = "append_insert"
                 actual = self._insert(conn, after.sequence, before.event_head, record)
                 if actual != after.event_head:
                     raise IntegrityError("event commitment mismatch")
+                stage = "append_commit"
                 conn.commit()
                 _fault_point("after_db_commit")
                 # The append itself has committed. Reacquire the DB writer lock
                 # and verify every persisted row before reporting success.
+                stage = "append_verify"
                 conn.execute("BEGIN IMMEDIATE")
                 verified, _ = self._verify_db(conn)
                 if verified != after:
                     raise IntegrityError("committed append failed full verification")
+                stage = "append_finalize_witness"
                 self._write_witness(after, None)
                 _fault_point("after_finalize")
+                stage = "append_finalize_commit"
                 conn.commit()
+                stage = "append_close"
                 return after
-        except sqlite3.Error as exc:
-            raise IntegrityError("database unavailable or corrupt") from exc
+        except (OSError, sqlite3.Error) as exc:
+            raise _storage_failure(stage, exc) from None
 
     def snapshot(self, *, expected: Checkpoint) -> AncestrySnapshot:
         """Return immutable data only after exact checkpoint and full scan."""

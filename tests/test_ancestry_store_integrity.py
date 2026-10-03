@@ -80,5 +80,10 @@ def test_second_thread_lock_wait_expires_with_typed_error(
     with store._writer_guard():
         with ThreadPoolExecutor(max_workers=1) as pool:
             blocked = pool.submit(store.checkpoint)
-            with pytest.raises(IntegrityError, match="lock wait expired"):
+            with pytest.raises(
+                module.StorageError, match="ancestry_storage_unavailable:lock_wait"
+            ) as raised:
                 blocked.result(timeout=2)
+            assert raised.value.stage == "lock_wait"
+            assert type(raised.value.os_errno) is int
+            assert raised.value.cleanup_stages == ()

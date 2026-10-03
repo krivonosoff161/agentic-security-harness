@@ -1,6 +1,6 @@
 # Agentic Security Harness
 
-Distribution version: **1.9.1**. Python 3.11 or newer. Apache-2.0.
+Distribution version: **1.10.0**. Python 3.11 or newer. Apache-2.0.
 
 A local defensive benchmark and toolkit for testing agent boundary failures:
 untrusted input, authority confusion, retained history and controlled file actions.
@@ -14,7 +14,7 @@ and [current project state](https://github.com/krivonosoff161/agentic-security-h
 ## Install this version
 
 ```bash
-python -m pip install agentic-security-harness==1.9.1
+python -m pip install agentic-security-harness==1.10.0
 ash quickstart --out reports/quickstart
 ```
 
@@ -35,10 +35,17 @@ history. Model output cannot supply a filesystem path or executable code.
 The default run is offline. An existing local Ollama model can be selected
 explicitly using the documented options; installing this package starts no model.
 
-[Versioned instructions and limits](https://github.com/krivonosoff161/agentic-security-harness/blob/v1.9.1/docs/controlled-file-workflow.md)
+[Versioned instructions and limits](https://github.com/krivonosoff161/agentic-security-harness/blob/v1.10.0/docs/controlled-file-workflow.md)
 explain the guarded/ablated fixed control separately from model observations.
 Permission enforcement and correctness of the generated report are different
 measurements. This is not an arbitrary tool executor or a hostile-code sandbox.
+
+This version also includes `ControlledFileSession`, a narrow fresh-fixture hook for
+trusted applications to submit proposal bytes through the same boundary. An
+optional repository example connects that hook to a Pydantic AI tool callback;
+Pydantic AI is not a base dependency. The application owns context, labels and
+files, and the model supplies only proposal text. Storage failures retain an
+incomplete directory for inspection; they do not undo earlier completed writes.
 
 ## Other included surfaces
 
@@ -51,14 +58,19 @@ measurements. This is not an arbitrary tool executor or a hostile-code sandbox.
 
 ## Evidence and scope
 
-This patch changes package presentation and release checks, not protection
-behavior. It introduces no new model experiment or security-effectiveness claim.
+The earlier eight-call observation is historical, and this version does not
+turn it into a new package-specific security-effectiveness claim.
 The historical eight-call observation used a specific installed 1.9.0 candidate:
 four protected proposals were denied, four reports were written, and two reports
-were correct. It is not a measurement of this patch or a reliability estimate.
+were correct. It is not a measurement of this version or a reliability estimate.
+
+A separate six-call local Qwen2.5 1.5B integration observation for this hook wrote
+four reports, of which two had correct counts, and denied two protected writes.
+The eight fixed seed cases and separate offline timing runs are different evidence
+classes. None establishes cross-model reliability or production containment.
 
 [Historical observation](https://github.com/krivonosoff161/agentic-security-harness/blob/v1.9.0/docs/controlled-file-observation-20261001.md)
-and [methodology](https://github.com/krivonosoff161/agentic-security-harness/blob/v1.9.1/docs/benchmark-semantics.md)
+and [methodology](https://github.com/krivonosoff161/agentic-security-harness/blob/v1.10.0/docs/benchmark-semantics.md)
 separate controlled evidence from broader claims. Production-wide containment,
 arbitrary host protection and independent human review are not established.
 

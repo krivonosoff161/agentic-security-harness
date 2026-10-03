@@ -300,7 +300,12 @@ def run_doctor(
         "ash targets",
         "ash run --target demo-agent --out reports/demo",
         "ash report --root reports/demo",
-        "python examples/fake_openai_server.py   # free local model demo",
-        "ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model",
     ]
+    if include_source_assets:
+        next_commands.extend(
+            [
+                "python examples/fake_openai_server.py   # free local model demo",
+                "ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model",
+            ]
+        )
     return DoctorReport(ok=ok, checks=checks, next_commands=next_commands)
