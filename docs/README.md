@@ -8,9 +8,9 @@ research and contract files.
 | Goal | Document |
 |---|---|
 | Install and reproduce the first local report | [Getting started](getting-started.md) |
-| Prepare a configured text document with the 1.11.0 candidate | [Guarded workspace writer](guarded-workspace-writer.md) and [candidate release gates](releases/v1.11.0.md) |
+| Create a configured text document with 1.11.0 | [Guarded workspace writer](guarded-workspace-writer.md) and [release evidence](releases/v1.11.0.md) |
 | Reproduce guarded actual writes in fresh fixtures (1.9.0) | [Controlled file workflow](controlled-file-workflow.md) |
-| Install the current 1.10.1 release with exact subjects | [Release evidence](releases/v1.10.1.md) and [installed ecosystem route](../examples/installed-ecosystem/README.md#current-published-1101) |
+| Install the current 1.11.0 release with exact subjects | [Release evidence](releases/v1.11.0.md) and [installed ecosystem route](../examples/installed-ecosystem/README.md#current-published-1110) |
 | Prepare one bounded external reproduction | [External pilot](external-pilot.md) |
 | Connect a declared garak JSON plan to Quarantine/Gateway | [Experimental garak plan connector (published in 1.7.0)](garak-plan-connector.md) |
 | Understand what is shipped versus planned | [Current state](current-state.md) |

@@ -12,6 +12,12 @@ path published in **1.6.0** from **native Ollama proposals** to Quarantine and a
 Gateway decision, see [native Ollama adapter](ollama-quarantine-adapter.md). The
 two protocols and their evidence classes are not interchangeable.
 
+For a host-configured agent tool that creates a new local UTF-8 document from
+an untrusted text proposal, see the [guarded workspace writer](guarded-workspace-writer.md).
+Its optional one-request local Ollama path requires explicit `--execute`;
+the deterministic Guard makes the file permission decision. The published
+package and model-evidence status are in the [1.11.0 release record](releases/v1.11.0.md).
+
 The prompt-based benchmark path uses **`openai-compatible`**. It speaks the
 OpenAI Chat Completions wire format (`POST {base_url}/chat/completions`). Anything that
 exposes that format - a cloud API, a local server, or a gateway/proxy in front of

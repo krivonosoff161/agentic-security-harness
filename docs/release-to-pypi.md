@@ -1,10 +1,15 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The current package is published as `1.10.1` on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.10.1/). Its exact subjects and
-publication checks are in the [v1.10.1 release record](releases/v1.10.1.md). The tag
-build, staging, production and read-only cross-index checks passed. The earlier
-`v1.10.0` tag [remains a failed, unpublished gate](releases/v1.10.0.md).
+The current package is published as `1.11.0` on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.11.0/).
+The [v1.11.0 release record](releases/v1.11.0.md) binds attested subjects,
+passing TestPyPI staging and exact PyPI index hashes. The initial production
+workflow failed at Linux 3.11 simple-index lookup before package execution;
+its other platform smokes passed. Separate read-only cross-index verification
+`37119674840` passed all seven jobs without a repeated upload or build.
+Historical [v1.10.1](releases/v1.10.1.md) passed its own tag,
+staging, production and read-only checks. The earlier `v1.10.0` tag
+[remains a failed, unpublished gate](releases/v1.10.0.md).
 This page documents the manual, environment-gated OIDC promotion path and
 historical smoke failures. See [release-checklist.md](release-checklist.md).
 

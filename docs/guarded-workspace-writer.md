@@ -1,7 +1,7 @@
 # Save an agent's document through a configured file boundary
 
-**1.11.0 release candidate.** The currently published package is 1.10.1;
-verify the 1.11.0 release record before installing from an index.
+**Published in 1.11.0.** The [release record](releases/v1.11.0.md)
+binds the verified package subjects and checks.
 
 Use this when your application needs an agent to draft a summary, note or other
 UTF-8 text file. You choose the output directory and filenames. The agent can
@@ -16,11 +16,11 @@ be trusted. A permitted document may still contain false or malicious text.
 
 ## First useful output, without a model
 
-From the 1.11.0 candidate source checkout, install it in your own environment with
-`python -m pip install .`. No additional runtime dependencies are introduced.
-Alternatively build a wheel with the project's documented build process and
-install that local wheel. These commands are absent from the published PyPI
-1.10.1 wheel.
+Install the exact published package in your own environment with
+`python -m pip install agentic-security-harness==1.11.0`, or install from the
+v1.11.0 tag source with `python -m pip install .`. No additional runtime
+dependencies are introduced. These commands are absent from the historical
+PyPI 1.10.1 wheel.
 
 In an empty working directory create an `output` directory. Save `policy.json`:
 

@@ -10,9 +10,10 @@ with no API keys and no network.
 
 ## 1. Install
 
-These commands use the published [1.10.1 package](https://pypi.org/project/agentic-security-harness/1.10.1/).
-The exact subjects and final verification are recorded in the
-[release evidence](releases/v1.10.1.md). The failed, unpublished
+These commands use the published [1.11.0 package](https://pypi.org/project/agentic-security-harness/1.11.0/).
+The exact subjects, retained initial production lookup failure and passing
+read-only verification are recorded in the [release evidence](releases/v1.11.0.md).
+The failed, unpublished
 [1.10.0 tag](releases/v1.10.0.md) and prior 1.9.1 release retain their own records.
 The prior 1.8.0 release and its retained
 initial production Linux 3.11 index-lookup failure remain [historical evidence](releases/v1.8.0.md).
@@ -21,7 +22,7 @@ For exact companion binding and negative controls, use the separate
 Installation does not automatically activate companions or grant action authority.
 
 ```bash
-python -m pip install agentic-security-harness==1.10.1
+python -m pip install agentic-security-harness==1.11.0
 ash --help
 ```
 
@@ -40,7 +41,7 @@ ash quickstart --out reports/quickstart
 This single no-network command performs an installed-package preflight, compares the
 vulnerable and protected local demos on the same 24-pattern corpus, validates the evidence,
 and writes `reports/quickstart/report.html`.
-In 1.10.1, `ash doctor` checks installed-package readiness without
+Since 1.10.1, `ash doctor` checks installed-package readiness without
 requiring a source checkout. Use `ash doctor --source-assets` to additionally
 require checkout examples and the example fake server. Network remains opt-in
 with `--live-local`. The flag/default are absent from immutable 1.9.1;

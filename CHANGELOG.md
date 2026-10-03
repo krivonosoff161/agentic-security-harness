@@ -8,9 +8,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [1.11.0] - 2026-10-03
 
-Release candidate for the [guarded workspace writer](docs/guarded-workspace-writer.md).
-The [release record](docs/releases/v1.11.0.md) keeps local acceptance separate
-from pending exact-head CI, tag, staging and publication evidence.
+Published [guarded workspace writer](docs/guarded-workspace-writer.md).
+The [release record](docs/releases/v1.11.0.md) binds reviewed source,
+attested subjects, TestPyPI and PyPI publication. Initial production Linux
+3.11 index lookup failed before package execution; separate read-only
+cross-index verification passed all seven jobs. No upload was repeated.
 
 - Add host-configured output aliases for new UTF-8 documents. An untrusted
   `write_text` proposal supplies an alias and content; deterministic Runtime
