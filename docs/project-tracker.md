@@ -1,5 +1,14 @@
 # Project tracker
 
+## Configured document output — 1.11.0 candidate
+
+The [guarded workspace writer](guarded-workspace-writer.md) provides a
+host-configured alias-to-file path, proposal parsing, deterministic Guard,
+exclusive new-file creation, readback and receipts through Python and the
+installed CLI. [Candidate release evidence](releases/v1.11.0.md) records local
+acceptance and pending CI, tag and package-index gates. Published 1.10.1 and
+its model observations remain separate; this writer has no new real-model run.
+
 ## Embedded boundary delivery — #332 / 1.10.1 published
 
 [Issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332)

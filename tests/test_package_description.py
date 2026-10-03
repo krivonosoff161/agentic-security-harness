@@ -42,7 +42,7 @@ def _source(tmp_path: Path, description: str = DESCRIPTION) -> None:
 def test_current_distribution_description_is_version_bound() -> None:
     name, version, description = source_description(ROOT)
     assert name == NAME
-    assert version == "1.10.1"
+    assert version == "1.11.0"
     assert "not a measurement of this version" in description
     assert "ControlledFileSession" in description
 

@@ -1,6 +1,7 @@
 # Save an agent's document through a configured file boundary
 
-**Local source candidate; not included in the published 1.10.1 wheel.**
+**1.11.0 release candidate.** The currently published package is 1.10.1;
+verify the 1.11.0 release record before installing from an index.
 
 Use this when your application needs an agent to draft a summary, note or other
 UTF-8 text file. You choose the output directory and filenames. The agent can
@@ -15,10 +16,11 @@ be trusted. A permitted document may still contain false or malicious text.
 
 ## First useful output, without a model
 
-From this candidate's source checkout, install it in your own environment with
+From the 1.11.0 candidate source checkout, install it in your own environment with
 `python -m pip install .`. No additional runtime dependencies are introduced.
 Alternatively build a wheel with the project's documented build process and
-install that local wheel. Do not expect the commands below in PyPI 1.10.1 yet.
+install that local wheel. These commands are absent from the published PyPI
+1.10.1 wheel.
 
 In an empty working directory create an `output` directory. Save `policy.json`:
 
@@ -141,7 +143,7 @@ ancestry graph as evidence for arbitrary documents. The existing fixture-only
 
 The usable path is **config → real text proposal → Guard → create-only output →
 readback/receipt**. It does not require a model in the policy decision, extra
-connectors, a semantic labeler, training, a new release or a cloud subscription.
+connectors, a semantic labeler, training or a cloud subscription.
 Use the focused workspace tests and existing file/Guard regressions when changing
 it. Platform-specific checks require their actual platform; a skipped link test
 is not a pass.

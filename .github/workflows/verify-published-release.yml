@@ -398,6 +398,9 @@ jobs:
             python -I -B -m agentic_security_harness.cli controlled-file-workflow --out verified-controlled-files
             python -I -B -m agentic_security_harness.cli controlled-file-verify --out verified-controlled-files
           fi
+          if [ -f release-example/tools/check_workspace_writer.py ]; then
+            python -I -B release-example/tools/check_workspace_writer.py --out verified-workspace-writer
+          fi
 
       - name: Select version-bound garak smoke lock
         id: garak-lock

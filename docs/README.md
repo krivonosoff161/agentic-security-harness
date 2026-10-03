@@ -8,6 +8,7 @@ research and contract files.
 | Goal | Document |
 |---|---|
 | Install and reproduce the first local report | [Getting started](getting-started.md) |
+| Prepare a configured text document with the 1.11.0 candidate | [Guarded workspace writer](guarded-workspace-writer.md) and [candidate release gates](releases/v1.11.0.md) |
 | Reproduce guarded actual writes in fresh fixtures (1.9.0) | [Controlled file workflow](controlled-file-workflow.md) |
 | Install the current 1.10.1 release with exact subjects | [Release evidence](releases/v1.10.1.md) and [installed ecosystem route](../examples/installed-ecosystem/README.md#current-published-1101) |
 | Prepare one bounded external reproduction | [External pilot](external-pilot.md) |

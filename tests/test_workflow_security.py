@@ -101,3 +101,14 @@ def test_checkout_contract_handles_large_malformed_step_without_regex_backtracki
     )
 
     assert _checkout_credentials_states(malformed) == [False]
+
+
+def test_installed_workspace_acceptance_is_kept_in_every_delivery_stage() -> None:
+    workflows = _workflow_texts()
+    for name, count in (("ci.yml", 1), ("release.yml", 1),
+                        ("publish-pypi.yml", 2), ("verify-published-release.yml", 1)):
+        assert len(re.findall(r"python -I -B (?:release-example/)?tools/"
+                              r"check_workspace_writer.py --out", workflows[name])) == count
+    assert "if [ -f release-example/tools/check_workspace_writer.py ]; then" in workflows[
+        "verify-published-release.yml"
+    ]

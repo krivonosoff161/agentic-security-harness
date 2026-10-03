@@ -18,15 +18,16 @@ one.
 In plain English: it turns “the agent behaved unsafely” into evidence you can replay,
 validate, compare, and review.
 
-## Configured document output — source-only candidate
+## Configured document output — 1.11.0 release candidate
 
 The [guarded workspace writer](docs/guarded-workspace-writer.md) connects an
 application's agent to real UTF-8 document creation: host-owned configuration,
 named output aliases, deterministic Guard, no overwrite, and content-free receipts.
 It includes a reusable Python tool, stdin/file CLI and an explicit one-call local
-Ollama path. No model is used for the permission decision. This development work
-is **not in the published 1.10.1 wheel** and is not an OS sandbox or a text-accuracy
-checker. The guide includes a complete first-output example.
+Ollama path. No model is used for the permission decision. The
+[1.11.0 release record](docs/releases/v1.11.0.md) tracks the candidate's gates;
+the published package remains 1.10.1. This tool is not an OS sandbox or a
+text-accuracy checker. The guide includes a complete first-output example.
 
 ## Embedded file boundary — published in 1.10.1
 
