@@ -127,7 +127,10 @@ def test_current_release_source_metadata_is_synchronized() -> None:
     assert 'date-released: "2026-10-03"' in citation
     assert "## [1.10.1] - 2026-10-03" in changelog
     assert "Agentic Security Harness v1.10.1" in release_notes
-    assert "Status: source candidate" in release_notes
+    assert "Status: published on GitHub, TestPyPI and PyPI" in release_notes
+    for receipt in ("37101792230", "37102048175", "37102205673", "37102316728"):
+        assert receipt in release_notes
+    assert "c52dc59f64dfef31efb2ba3ac4a28b220d90a5e475d1443f5a56cf04b26fed16" in release_notes
     assert "PACKAGE_README.md" in release_notes
     assert project["readme"] == "PACKAGE_README.md"
     failed_tag = (ROOT / "docs/releases/v1.10.0.md").read_text(encoding="utf-8")

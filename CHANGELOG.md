@@ -8,7 +8,7 @@ All notable changes to this project are documented here. The format follows
 
 ## [1.10.1] - 2026-10-03
 
-Source candidate for [issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332). The published package remains 1.9.1 until this candidate completes its own exact-head build, staging, production and postpublication gates.
+Published release for [issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332). The [release record](docs/releases/v1.10.1.md) binds exact subjects, four-job tag build, three-job TestPyPI staging, five-job PyPI production and seven-job read-only cross-index verification. All initial 1.10.1 package gates passed without a repeated build or upload. The failed 1.10.0 tag remains separate evidence.
 
 - Carry forward the four bounded tracks from the unpublishable 1.10.0 tag: content-free ancestry storage/doctor diagnostics; public fresh-fixture `ControlledFileSession` and optional Pydantic AI tool example; label-authority and latency measurements; and eight author-authored known seed cases with verified export. No new runtime authority, base Pydantic AI dependency or model observation is introduced.
 - Resolve the tagged exporter failure when a completed capture is passed as a relative path: normalize the capture path before constructing its file URI. The 1.10.0 tag remains immutable failed-gate evidence and was never uploaded to TestPyPI or PyPI.

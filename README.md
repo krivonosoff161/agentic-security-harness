@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/public_research_release-v1.9.1-blue)
+![Status](https://img.shields.io/badge/public_research_release-v1.10.1-blue)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -18,24 +18,25 @@ one.
 In plain English: it turns “the agent behaved unsafely” into evidence you can replay,
 validate, compare, and review.
 
-## Source candidate 1.10.1 — embedded file boundary
+## Embedded file boundary — published in 1.10.1
 
 [Issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332)
-tracks the [1.10.1 source candidate](docs/releases/v1.10.1.md). The new
+tracks the [published 1.10.1 release](docs/releases/v1.10.1.md). The new
 `ControlledFileSession` lets a trusted application submit bounded proposal bytes
 through Quarantine, retained ancestry and report-only Guard before a fresh synthetic
-file effect. An optional [Pydantic AI tool example](docs/controlled-file-workflow.md#pydantic-ai-integration-in-the-local-candidate)
+file effect. An optional [Pydantic AI tool example](docs/controlled-file-workflow.md#pydantic-ai-integration-in-1101)
 uses fixed offline controls and a separately pinned framework; it is not a base
 dependency. The [eight-case seed](examples/boundary-seed-v1.json) is author-authored
 known data, not independent blind evaluation.
 
-Six local Qwen2.5 1.5B calls through that example produced four report writes,
-two correct reports and two protected-write denials. Separate offline integration
-and timing runs are documented with their own limits. These candidate results do
-not establish cross-model reliability or change the published 1.9.1 artifacts.
+Six earlier local Qwen2.5 1.5B calls through that example produced four report
+writes, two correct reports and two protected-write denials. Separate offline
+integration and timing runs are documented with their own limits. Published-wheel
+Linux/Windows checks used fixed examples, not a new model series. These observations
+do not establish cross-model reliability; published 1.9.1 artifacts remain immutable.
 The [1.10.0 tag](docs/releases/v1.10.0.md) remains an unpublished failed release
 gate after its relative-path exporter check failed; it was not uploaded to an index.
-The 1.10.1 candidate corrects that path handling without changing runtime authority.
+The 1.10.1 release corrects that path handling without changing runtime authority.
 
 ## Controlled file effects — published in 1.9.0
 
@@ -79,9 +80,9 @@ estimate, an autonomous-agent demonstration or an independent human audit.
   The earlier eight-call result is preserved separately in the report.
 
 **Package versus research evidence:** the study used exact installed **1.6.0**
-subjects, while the current published package is **1.9.1**. The prompt helper,
+subjects, while the current published package is **1.10.1**. The prompt helper,
 corpus and observations are repository-owned evidence, not evidence that the
-1.7.0, 1.7.1, 1.8.0, 1.9.0 or 1.9.1 wheel was used in those model calls. See
+1.7.0, 1.7.1, 1.8.0, 1.9.0, 1.9.1 or 1.10.1 wheel was used in those model calls. See
 [release and package status](#release-and-package-status) and
 [current state](docs/current-state.md) for the exact boundary.
 
@@ -115,8 +116,8 @@ checks. [Release status](docs/releases/v1.8.0.md) binds the source, hashes and l
 
 ## Quickstart
 
-Published [v1.9.1](docs/releases/v1.9.1.md) retains the opt-in controlled file
-effects from [v1.9.0](docs/releases/v1.9.0.md) and the ancestry admission
+Published [v1.10.1](docs/releases/v1.10.1.md) adds the embedded file boundary
+and retains the opt-in controlled file effects from [v1.9.0](docs/releases/v1.9.0.md) and the ancestry admission
 delivered in [v1.8.0](docs/releases/v1.8.0.md).
 The prior [v1.7.1 patch](docs/releases/v1.7.1.md#publication-evidence) repairs
 known-empty parent authority scope and memory TTL narrowing. The opt-in garak
@@ -126,10 +127,10 @@ package availability, retained initial smoke failures, and successful read-only
 verification.
 
 Install the exact package version from
-[PyPI](https://pypi.org/project/agentic-security-harness/1.9.1/):
+[PyPI](https://pypi.org/project/agentic-security-harness/1.10.1/):
 
 ```bash
-python -m pip install agentic-security-harness==1.9.1
+python -m pip install agentic-security-harness==1.10.1
 ash quickstart --out reports/quickstart
 ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
@@ -188,12 +189,12 @@ facts. The Harness generates only the cross-project roadmap and compatibility vi
 - [Documentation crosswalk](docs/documentation-map.md)
 - [`component.yaml`](component.yaml) and [`ecosystem/roadmap.yaml`](ecosystem/roadmap.yaml)
 
-Runtime Guard remains private and `contract_only`. Harness version `v1.9.1`
+Runtime Guard remains private and `contract_only`. Harness version `v1.10.1`
 contains the closed [Extension SDK V1](docs/extension-sdk.md) and public passive extras for
 validated observation-to-finding dataflow. It does not auto-load installed packages;
 companion repositories remain optional, separately versioned distributions.
 
-Version `v1.9.1` retains the closed optional-dependency groups introduced in `v1.4.0`:
+Version `v1.10.1` retains the closed optional-dependency groups introduced in `v1.4.0`:
 
 | Extra | Exact companion distributions | Automatic activation |
 |---|---|---|
@@ -208,8 +209,8 @@ The generic PyPI coordinate `llm-router` is intentionally absent because it belo
 another project. CI builds all eight exact wheels from pinned Git SHAs and installs the
 closed local wheelhouse without loading either extension entry point. The public install
 commands are
-`pip install "agentic-security-harness[router]==1.9.1"` or
-`pip install "agentic-security-harness[all]==1.9.1"`. Other companion pins are unchanged;
+`pip install "agentic-security-harness[router]==1.10.1"` or
+`pip install "agentic-security-harness[all]==1.10.1"`. Other companion pins are unchanged;
 installation remains separate from module activation.
 
 For explicit installed extension binding, follow the fresh `--no-compile` environment
@@ -473,11 +474,15 @@ approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install the
 
 ## Release and package status
 
-Release [v1.9.1](docs/releases/v1.9.1.md) is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.9.1/). Its exact
-subjects and corrected package description match both indexes. The initial
-TestPyPI Windows and PyPI Linux 3.12 lookup failures remain failed workflow
-results; final read-only cross-index verification passed all seven jobs. Historical
+Release [v1.10.1](docs/releases/v1.10.1.md) is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.10.1/). Its exact
+subjects and package description match both indexes. The tag build, staging and
+production workflows passed their applicable jobs; final read-only cross-index
+verification passed all seven jobs without another build or upload. The prior
+[v1.10.0 tag](docs/releases/v1.10.0.md) remains failed and unpublished.
+Historical [v1.9.1](docs/releases/v1.9.1.md) corrected the package description;
+its initial TestPyPI Windows and PyPI Linux 3.12 lookup failures remain failed
+workflow results. Historical
 [v1.9.0](docs/releases/v1.9.0.md) delivered the opt-in controlled-file workflow,
 limited to fresh synthetic fixtures. Its installed-candidate model observation
 is separate from either release verification.

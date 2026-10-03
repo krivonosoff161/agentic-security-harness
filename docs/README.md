@@ -9,7 +9,7 @@ research and contract files.
 |---|---|
 | Install and reproduce the first local report | [Getting started](getting-started.md) |
 | Reproduce guarded actual writes in fresh fixtures (1.9.0) | [Controlled file workflow](controlled-file-workflow.md) |
-| Install the current 1.9.0 release with exact subjects | [Release evidence](releases/v1.9.0.md) and [installed ecosystem route](../examples/installed-ecosystem/README.md#current-published-190) |
+| Install the current 1.10.1 release with exact subjects | [Release evidence](releases/v1.10.1.md) and [installed ecosystem route](../examples/installed-ecosystem/README.md#current-published-1101) |
 | Prepare one bounded external reproduction | [External pilot](external-pilot.md) |
 | Connect a declared garak JSON plan to Quarantine/Gateway | [Experimental garak plan connector (published in 1.7.0)](garak-plan-connector.md) |
 | Understand what is shipped versus planned | [Current state](current-state.md) |

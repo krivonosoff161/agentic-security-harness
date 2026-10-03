@@ -1,19 +1,21 @@
 # Project tracker
 
-## Embedded boundary candidate — #332 / 1.10.1 source
+## Embedded boundary delivery — #332 / 1.10.1 published
 
 [Issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332)
-tracks the [1.10.1 source candidate](releases/v1.10.1.md): a public
+tracks the [published 1.10.1 release](releases/v1.10.1.md): a public
 `ControlledFileSession` for fresh synthetic fixtures, storage/doctor diagnostics,
 an optional Pydantic AI tool example and eight fixed known seed cases. The six
 Qwen2.5 1.5B calls, 80 offline integration calls and 30 timing rows have distinct
 methods and limits in the [workflow record](controlled-file-workflow.md).
-Exact-head CI, reviewed diff and release/publication evidence remain separate gates.
+Exact-head CI, reviewed diff and release/publication evidence are separate gates.
 The [1.10.0 tag](releases/v1.10.0.md) passed build/provenance and named
 Linux/Windows checks but its overall workflow `37100128101` failed at the
-relative-path seed exporter. No index upload occurred. The 1.10.1 candidate
-corrects that path handling without new runtime authority. Its own gates remain
-pending; the published package is **1.9.1**.
+relative-path seed exporter. No index upload occurred. The 1.10.1 release
+corrects that path handling without new runtime authority. Its tag build,
+TestPyPI, PyPI and seven-job final read-only cross-index checks passed. Those
+installed-wheel checks used fixed examples, not new model calls. The published
+package is **1.10.1**.
 
 ## Package-description correction — 1.9.1 published
 
@@ -48,8 +50,10 @@ issue #315 acceptance map; it does not close research #314/#316/#317/#318.
 This is local captured-history admission; independent coverage expectations #316
 and ambiguous action-outcome recovery #317 remain separate research obligations.
 
-The published package is **1.9.1**; its exact subjects and verification receipt are
-in the [1.9.1 release record](releases/v1.9.1.md). The historical
+The published package is **1.10.1**; its exact subjects and verification receipt are
+in the [1.10.1 release record](releases/v1.10.1.md). The historical
+[1.9.1 release record](releases/v1.9.1.md) retains its own package subjects and
+initial failed index lookups. The historical
 [1.9.0 release record](releases/v1.9.0.md) retains its independent publication
 evidence and initial failed lookup. Historical 1.8.0 GitHub Release,
 TestPyPI and PyPI wheel/sdist hash equality is verified. The historical
@@ -264,8 +268,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.9.1` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.9.1/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.10.1` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.10.1/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are

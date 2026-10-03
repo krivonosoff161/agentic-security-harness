@@ -1,14 +1,16 @@
 # Roadmap
 
-Current candidate: [1.10.1 / #332](releases/v1.10.1.md) embeds the bounded
+Current delivery: [1.10.1 / #332](releases/v1.10.1.md) embeds the bounded
 controlled file boundary in a trusted application tool callback. It adds
 `ControlledFileSession`, storage/doctor diagnostics, optional Pydantic AI example
 and eight known seed cases. Six local model replies, an 80-call offline run and
 30 audited timing rows are separate evidence; none establishes a general classifier
 or production safety. The [1.10.0 tag](releases/v1.10.0.md) remains unpublished:
 its build and named checks passed, but `37100128101` failed on a relative-path
-exporter check before any index upload. The 1.10.1 candidate corrects that
-failure; published 1.9.1 remains current while its new gates are pending.
+exporter check before any index upload. The published 1.10.1 release corrects
+that failure; its initial build, staging, production and final read-only checks
+all passed. Installed-wheel examples are deterministic and do not replay the
+six earlier local model replies.
 
 Packaging follow-up: [1.9.1](releases/v1.9.1.md) is published with a corrected
 PyPI description, without changed protection behavior or repeated model experiments.
