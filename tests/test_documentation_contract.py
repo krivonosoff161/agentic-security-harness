@@ -48,7 +48,7 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
     source_version = tomllib.loads(_read("pyproject.toml"))["project"]["version"]
     # Publication is separate from immutable model evidence collected on 1.6.0.
     version = "1.10.1"
-    assert source_version == "1.10.1"
+    assert source_version == "1.11.0"
     publication = _read("docs/releases/v1.10.1.md")
     assert "published on github, testpypi and pypi" in publication.lower()
     assert "published public research release" in _read("docs/releases/v1.7.0.md")
@@ -100,7 +100,7 @@ def test_v1101_publication_preserves_failed_v110_tag_and_model_boundary() -> Non
     assert "not a replay of the six local model replies" in publication
     assert "immutable failed tag" in failed_tag
     assert "No TestPyPI or PyPI upload occurred" in failed_tag
-    assert "Distribution version: **1.10.1**" in description
+    assert "Distribution version: **1.11.0**" in description
     assert "ControlledFileSession" in description
     for path in ("README.md", "docs/getting-started.md"):
         assert "python -m pip install agentic-security-harness==1.10.1" in _read(path)

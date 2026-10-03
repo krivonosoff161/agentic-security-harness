@@ -286,6 +286,7 @@ jobs:
           python -I -B examples/installed-ecosystem/check_ancestry.py --out staged-ancestry-result.json --core-version "${RELEASE_TAG#v}"
           python -I -B -m agentic_security_harness.cli controlled-file-workflow --out staged-controlled-files
           python -I -B -m agentic_security_harness.cli controlled-file-verify --out staged-controlled-files
+          python -I -B tools/check_workspace_writer.py --out staged-workspace-writer
 
       - name: Verify pinned garak detector from exact staged wheel
         shell: bash
@@ -385,6 +386,7 @@ jobs:
           python -I -B examples/installed-ecosystem/check_ancestry.py --out published-ancestry-result.json --core-version "${RELEASE_TAG#v}"
           python -I -B -m agentic_security_harness.cli controlled-file-workflow --out published-controlled-files
           python -I -B -m agentic_security_harness.cli controlled-file-verify --out published-controlled-files
+          python -I -B tools/check_workspace_writer.py --out published-workspace-writer
 
       - name: Verify pinned garak detector from exact published wheel
         run: |

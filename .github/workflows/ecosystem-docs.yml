@@ -138,7 +138,9 @@ jobs:
         run: python -m pip install --require-hashes -r requirements/dev.txt
 
       - name: Validate generated contracts
+        shell: bash
         run: |
+          set -euo pipefail
           python tools/ecosystem_docs.py check
           python tools/extension_contracts.py check
           python tools/extension_distribution_contracts.py check

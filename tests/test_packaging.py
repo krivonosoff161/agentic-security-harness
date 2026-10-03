@@ -121,12 +121,14 @@ def test_current_release_source_metadata_is_synchronized() -> None:
 
     package_version = re.search(r'^__version__ = "([^"]+)"$', version_text, re.MULTILINE)
     assert package_version is not None
-    assert project["version"] == package_version.group(1) == "1.10.1"
+    assert project["version"] == package_version.group(1) == "1.11.0"
     assert 'Development Status :: 4 - Beta' in project["classifiers"]
-    assert 'version: "1.10.1"' in citation
-    assert 'date-released: "2026-10-03"' in citation
-    assert "## [1.10.1] - 2026-10-03" in changelog
-    assert "Agentic Security Harness v1.10.1" in release_notes
+    assert 'version: "1.11.0"' in citation
+    assert "## [1.11.0] - 2026-10-03" in changelog
+    assert "Agentic Security Harness v1.11.0" in release_notes
+    assert "GuardedWorkspace" in release_notes
+    assert "PACKAGE_README.md" in release_notes
+    release_notes = (ROOT / "docs/releases/v1.10.1.md").read_text(encoding="utf-8")
     assert "Status: published on GitHub, TestPyPI and PyPI" in release_notes
     for receipt in ("37101792230", "37102048175", "37102205673", "37102316728"):
         assert receipt in release_notes

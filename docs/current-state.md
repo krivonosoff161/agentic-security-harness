@@ -1,5 +1,15 @@
 # Current state
 
+## Guarded workspace writer — 1.11.0 release candidate
+
+The [configured writer](guarded-workspace-writer.md) takes host-owned output
+aliases, untrusted UTF-8 text proposals and a deterministic Guard decision to
+create and verify a new real document. The Python hook and installed CLI are
+in the [1.11.0 candidate](releases/v1.11.0.md). Local source and candidate-wheel
+checks passed as recorded there; exact-head CI and publication are pending.
+No new real-model result is attributed to this addition. The currently published
+package remains **1.10.1**.
+
 ## Embedded boundary — published in 1.10.1 / #332
 
 The [1.10.1 release](releases/v1.10.1.md) adds public `ControlledFileSession`,

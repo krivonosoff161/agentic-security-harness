@@ -805,6 +805,10 @@ def build_parser() -> argparse.ArgumentParser:
         help="reports directory to check is writable (default: ./reports)",
     )
 
+    from agentic_security_harness.workspace_cli import add_commands as add_workspace_commands
+
+    add_workspace_commands(sub)
+
     file_p = sub.add_parser(
         "controlled-file-workflow",
         help="create fresh synthetic files and compare guarded/ablated actual writes",
@@ -5343,6 +5347,10 @@ def _external_check(
 
 def _main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command in ("workspace-check", "workspace-write", "workspace-run", "workspace-verify"):
+        from agentic_security_harness.workspace_cli import run as run_workspace_command
+
+        return run_workspace_command(args)
     if args.command in ("controlled-file-workflow", "controlled-file-verify"):
         import json
 

@@ -1,6 +1,6 @@
 # Agentic Security Harness
 
-Distribution version: **1.10.1**. Python 3.11 or newer. Apache-2.0.
+Distribution version: **1.11.0**. Python 3.11 or newer. Apache-2.0.
 
 A local defensive benchmark and toolkit for testing agent boundary failures:
 untrusted input, authority confusion, retained history and controlled file actions.
@@ -14,7 +14,7 @@ and [current project state](https://github.com/krivonosoff161/agentic-security-h
 ## Install this version
 
 ```bash
-python -m pip install agentic-security-harness==1.10.1
+python -m pip install agentic-security-harness==1.11.0
 ash quickstart --out reports/quickstart
 ```
 
@@ -35,7 +35,7 @@ history. Model output cannot supply a filesystem path or executable code.
 The default run is offline. An existing local Ollama model can be selected
 explicitly using the documented options; installing this package starts no model.
 
-[Versioned instructions and limits](https://github.com/krivonosoff161/agentic-security-harness/blob/v1.10.1/docs/controlled-file-workflow.md)
+[Versioned instructions and limits](https://github.com/krivonosoff161/agentic-security-harness/blob/v1.11.0/docs/controlled-file-workflow.md)
 explain the guarded/ablated fixed control separately from model observations.
 Permission enforcement and correctness of the generated report are different
 measurements. This is not an arbitrary tool executor or a hostile-code sandbox.
@@ -46,6 +46,23 @@ optional repository example connects that hook to a Pydantic AI tool callback;
 Pydantic AI is not a base dependency. The application owns context, labels and
 files, and the model supplies only proposal text. Storage failures retain an
 incomplete directory for inspection; they do not undo earlier completed writes.
+
+## Save a configured text document
+
+The [guarded workspace writer](https://github.com/krivonosoff161/agentic-security-harness/blob/v1.11.0/docs/guarded-workspace-writer.md)
+lets a trusted host configure an output directory and aliases for new UTF-8 files.
+An agent proposes `write_text` with an alias and document content. The host's
+deterministic Runtime Guard decides whether the proposal may create that file.
+The create-only writer reads back the output and records content-free intent
+and result receipts; an existing file is preserved.
+
+Use `WorkspacePolicy` and `GuardedWorkspace` as an application tool, or the
+installed `ash workspace-check`, `ash workspace-write` and
+`ash workspace-verify` commands. The optional `ash workspace-run --execute`
+makes one request to an existing local Ollama service. No model call is needed
+for the Guard decision. The host owns paths, policy and classification; proposed
+text cannot select arbitrary paths or label its own sensitivity. This in-process
+tool is not an OS sandbox or a semantic checker of the saved document.
 
 ## Other included surfaces
 
@@ -70,7 +87,7 @@ The eight fixed seed cases and separate offline timing runs are different eviden
 classes. None establishes cross-model reliability or production containment.
 
 [Historical observation](https://github.com/krivonosoff161/agentic-security-harness/blob/v1.9.0/docs/controlled-file-observation-20261001.md)
-and [methodology](https://github.com/krivonosoff161/agentic-security-harness/blob/v1.10.1/docs/benchmark-semantics.md)
+and [methodology](https://github.com/krivonosoff161/agentic-security-harness/blob/v1.11.0/docs/benchmark-semantics.md)
 separate controlled evidence from broader claims. Production-wide containment,
 arbitrary host protection and independent human review are not established.
 

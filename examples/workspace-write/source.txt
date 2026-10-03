@@ -1,0 +1,4 @@
+This public example describes an application that drafts release briefings.
+The operator permits creation of one new Markdown document, using the alias draft.
+The agent is not given arbitrary filesystem access, a shell, or authority to
+change its output policy. Its text remains untrusted even after a permitted write.

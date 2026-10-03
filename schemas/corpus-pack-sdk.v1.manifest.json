@@ -12,7 +12,7 @@
   },
   "extension_sdk_contract": {
     "path": "schemas/extension-sdk.v1.manifest.json",
-    "sha256": "29f292bd2b1fc0167c74901cfeaeec32c5b628c414e5c1a812fbf1ab830bb7c1"
+    "sha256": "5b8f66c32975514ed4745c0fbd4381bf354f0999e2c921559735d57c7a07ffc4"
   },
   "generator": {
     "path": "tools/corpus_pack_contracts.py",
@@ -82,6 +82,6 @@
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "ccde672a44fafc627758b361bb17e7e550114062a25a7386ea9d20068842579d"
+    "sha256": "b11da73f407b9b71854f8df32779409d1d4e1361319405e76b3640a3494f4a71"
   }
 }

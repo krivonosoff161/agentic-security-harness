@@ -1,0 +1,5 @@
+{
+  "operation": "write_text",
+  "artifact": "draft",
+  "content": "# Release briefing\n\nThe application can now save a generated document into an explicitly permitted new file. Existing files are not overwritten. This document is untrusted text; a successful write does not establish its accuracy.\n"
+}

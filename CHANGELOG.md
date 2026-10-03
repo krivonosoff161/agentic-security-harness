@@ -6,6 +6,23 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-10-03
+
+Release candidate for the [guarded workspace writer](docs/guarded-workspace-writer.md).
+The [release record](docs/releases/v1.11.0.md) keeps local acceptance separate
+from pending exact-head CI, tag, staging and publication evidence.
+
+- Add host-configured output aliases for new UTF-8 documents. An untrusted
+  `write_text` proposal supplies an alias and content; deterministic Runtime
+  Guard decides before exclusive file creation, readback and content-free receipts.
+- Expose the reusable `WorkspacePolicy` / `GuardedWorkspace` Python hook and
+  installed `ash workspace-check`, `workspace-write`, `workspace-verify` CLI.
+  An optional `workspace-run --execute` makes one explicit request to an
+  existing local Ollama service; it adds no base dependency or model authority.
+- Keep path choice, classification and policy with the host. This is a
+  create-only tool boundary, not an OS sandbox, semantic labeler, arbitrary
+  filesystem API or new real-model effectiveness result.
+
 ## [1.10.1] - 2026-10-03
 
 Published release for [issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332). The [release record](docs/releases/v1.10.1.md) binds exact subjects, four-job tag build, three-job TestPyPI staging, five-job PyPI production and seven-job read-only cross-index verification. All initial 1.10.1 package gates passed without a repeated build or upload. The failed 1.10.0 tag remains separate evidence.

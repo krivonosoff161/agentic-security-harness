@@ -1,5 +1,12 @@
 # Roadmap
 
+Current candidate: [1.11.0 guarded workspace writer](releases/v1.11.0.md)
+adds configured real text-file creation through a host-owned alias, untrusted
+proposal, deterministic Guard and exclusive new-file writer. Local acceptance
+is complete; exact-head CI and release gates are pending. It does not grant
+arbitrary filesystem access or prove document accuracy. Published 1.10.1
+remains the available package until the candidate's release record is updated.
+
 Current delivery: [1.10.1 / #332](releases/v1.10.1.md) embeds the bounded
 controlled file boundary in a trusted application tool callback. It adds
 `ControlledFileSession`, storage/doctor diagnostics, optional Pydantic AI example
