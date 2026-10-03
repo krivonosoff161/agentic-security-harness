@@ -1,12 +1,14 @@
 # Project tracker
 
-## Configured document output — 1.11.0 candidate
+## Configured document output — 1.11.0 published
 
 The [guarded workspace writer](guarded-workspace-writer.md) provides a
 host-configured alias-to-file path, proposal parsing, deterministic Guard,
 exclusive new-file creation, readback and receipts through Python and the
-installed CLI. [Candidate release evidence](releases/v1.11.0.md) records local
-acceptance and pending CI, tag and package-index gates. Published 1.10.1 and
+installed CLI. [Release evidence](releases/v1.11.0.md) records reviewed source,
+tagged subjects, passing TestPyPI staging, PyPI upload, the retained initial
+Linux 3.11 index-lookup failure and a separate seven-job read-only PASS. The
+published package is **1.11.0**. Prior 1.10.1 and
 its model observations remain separate; this writer has no new real-model run.
 
 ## Embedded boundary delivery — #332 / 1.10.1 published
@@ -59,7 +61,7 @@ issue #315 acceptance map; it does not close research #314/#316/#317/#318.
 This is local captured-history admission; independent coverage expectations #316
 and ambiguous action-outcome recovery #317 remain separate research obligations.
 
-The published package is **1.10.1**; its exact subjects and verification receipt are
+The prior published package is **1.10.1**; its exact subjects and verification receipt are
 in the [1.10.1 release record](releases/v1.10.1.md). The historical
 [1.9.1 release record](releases/v1.9.1.md) retains its own package subjects and
 initial failed index lookups. The historical
@@ -277,8 +279,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.10.1` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.10.1/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.11.0` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.11.0/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are
