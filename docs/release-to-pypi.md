@@ -1,10 +1,12 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The current package is published as `1.9.1` on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.9.1/). Its exact subjects and
-publication checks are in the [v1.9.1 release record](releases/v1.9.1.md). This page documents the
-manual, environment-gated OIDC promotion path and the retained initial smoke
-failures. See the gates in [release-checklist.md](release-checklist.md).
+The current package is published as `1.10.1` on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.10.1/). Its exact subjects and
+publication checks are in the [v1.10.1 release record](releases/v1.10.1.md). The tag
+build, staging, production and read-only cross-index checks passed. The earlier
+`v1.10.0` tag [remains a failed, unpublished gate](releases/v1.10.0.md).
+This page documents the manual, environment-gated OIDC promotion path and
+historical smoke failures. See [release-checklist.md](release-checklist.md).
 
 The 1.9.1 staging upload `36960125615` succeeded, but its Windows 3.11 simple-index
 lookup failed before package code; read-only staging `36960405439` passed all

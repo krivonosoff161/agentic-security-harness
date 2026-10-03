@@ -72,7 +72,7 @@ synthetic data. `controlled-file-verify` returns integrity, applied-report and e
 report counts separately. A green integrity check does not mean every task succeeded.
 Missing, modified or partial evidence fails verification.
 
-The local candidate returns a content-free nonzero diagnostic for ancestry
+Release 1.10.1 returns a content-free nonzero diagnostic for ancestry
 storage or integrity failure, retaining the incomplete directory. The affected
 proposal does not reach Guard/write when ancestry fails, but writes from earlier
 completed cases can remain. Inspect their result records and actual file bytes;
@@ -94,14 +94,14 @@ coordinated database/witness rollback or completeness of uncaptured host events.
 Those remain the distinct research questions in #316/#317. No cross-model,
 production-wide safety or independent human-review conclusion follows from this demo.
 
-## Pydantic AI integration in the local candidate
+## Pydantic AI integration in 1.10.1
 
-The local candidate adds `examples/pydantic_ai_guarded_files.py`. It inserts the
+Release 1.10.1 adds `examples/pydantic_ai_guarded_files.py`. It inserts the
 existing Quarantine, ancestry and Guard path inside a real Pydantic AI tool
 callback, before the retained-handle writer. The `Agent` receives one tool whose
 only argument is proposal text; paths, capture labels, context and file handles
 belong to the trusted application closure. The example submits proposals through
-the candidate's public `ControlledFileSession` interface, not private effect
+the release's public `ControlledFileSession` interface, not private effect
 helpers. This is a fixture-only insertion point, not a general filesystem adapter.
 
 ```python
@@ -149,7 +149,7 @@ digests, decisions and timings, not raw response text. The default commands belo
 still use fixed controls and never start a model. A real model transport and its
 resource/network limits remain explicit responsibilities of the calling application.
 
-From a checkout, after installing the candidate Harness and optional locked
+From a checkout, after installing Harness 1.10.1 and optional locked
 dependencies into a fresh environment:
 
 ```console
@@ -186,7 +186,7 @@ are reviewable seed data; no classifier is trained and no generalization result
 is claimed. Never replace the fixed input strings with private traces and assume
 that retaining only a digest elsewhere makes those strings safe to publish.
 
-The local candidate includes a checked, path-free
+Release 1.10.1 includes a checked, path-free
 [`BoundaryEvaluationSeed.v1` seed](../examples/boundary-seed-v1.json): eight exact
 public inputs with input digests, versioned capture labels, independently declared
 expected outcomes, observed decisions and effect hashes. Four cases are development
@@ -253,7 +253,7 @@ representation, `authority: none` and public-synthetic data class. These observa
 are not grants. The report-only permission is issued separately by the fixture
 policy. Neither extra proposal fields claiming `authority`, `trusted`, `source`,
 `guarded`, `call_id`, `context` or a different schema, nor role-like text in the
-document can change that permission. The local candidate has 18 focused tests
+document can change that permission. The release source has 18 focused tests
 checking those boundaries, malformed counts, duplicate keys, retained file bytes
 and root-document/ancestry binding. This is a structured contract, not recognition
 of the meaning or true origin of arbitrary text or multimodal content.
@@ -279,12 +279,16 @@ are separate measurements: the hook includes durable storage work, not model
 generation. The separate audited decomposition above examines that cost and the
 label/authority contract; neither run establishes an instantaneous policy path.
 
-This example, checker and optional environment are part of the 1.10.1 source
-candidate for [issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332),
-not included in the published 1.9.1 distribution. The published release passed
-[GitHub Actions Linux/Windows verification](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36960689808).
+The public `ControlledFileSession` API ships in the published 1.10.1 wheel.
+The example, checker and optional environment are repository files at the
+[v1.10.1 tag](releases/v1.10.1.md) for
+[issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332);
+the commands above require a checkout and do not imply those tools are installed
+by the wheel. The 1.9.1 wheel remains immutable and lacks the new API. The
+1.10.1 release passed
+[Linux/Windows read-only cross-index verification](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/37102316728).
 The immutable [1.10.0 tag](releases/v1.10.0.md) built and passed named Linux/Windows
 checks but its overall release workflow failed at a relative-path seed export,
-before any index upload. The 1.10.1 source candidate corrects that failure and
-requires its own exact-head Linux/Windows checks and publication gates. A local
+before any index upload. The 1.10.1 release corrects that failure; its exact-head,
+staging, production and final publication checks passed. A local
 Linux VM is not required for that verification route.
