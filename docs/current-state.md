@@ -1,16 +1,20 @@
 # Current state
 
-## Embedded boundary — 1.10.0 source candidate / #332
+## Embedded boundary — 1.10.1 source candidate / #332
 
-The [1.10.0 candidate](releases/v1.10.0.md) adds public `ControlledFileSession`,
+The [1.10.1 candidate](releases/v1.10.1.md) adds public `ControlledFileSession`,
 an optional [Pydantic AI example](controlled-file-workflow.md#pydantic-ai-integration-in-the-local-candidate),
 content-free ancestry storage diagnostics, installed-doctor checks and an
 [eight-case known seed](../examples/boundary-seed-v1.json). The host owns fixture
 paths, capture labels and report-only authority; proposal text grants none. Six
 local Qwen2.5 1.5B calls produced four reports, two correct reports and two
 protected denials. Offline 80-call integration and 30-row timing runs are separate
-evidence. Local candidate checks do not imply an exact-head CI or publication pass.
-The published package remains **1.9.1** until its own 1.10.0 delivery gates complete.
+evidence. The [1.10.0 tag](releases/v1.10.0.md) is an immutable failed gate:
+`37100128101` built and passed provenance, garak and eight-case capture checks on
+both operating systems, then failed at exporter `Path.as_uri()` for a relative
+capture path. No index upload occurred. The 1.10.1 source fixes that path handling;
+its own exact-head and publication gates remain unverified. The published package
+remains **1.9.1**.
 
 ## Package-description correction — 1.9.1 published
 

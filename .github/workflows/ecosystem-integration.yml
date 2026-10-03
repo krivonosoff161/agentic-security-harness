@@ -83,17 +83,17 @@ jobs:
           python -m pip install --require-hashes -r requirements/build.txt
           python -m pip install --no-compile --only-binary=:all: --require-hashes -r requirements/runtime.txt -r requirements/companions.txt
           python -m build --no-isolation --wheel --outdir dist
-          python -m pip install --no-index --no-deps --no-compile dist/agentic_security_harness-1.10.0-py3-none-any.whl
+          python -m pip install --no-index --no-deps --no-compile dist/agentic_security_harness-1.10.1-py3-none-any.whl
           python -m pip check
       - name: Exercise installed positive and negative paths without source imports
         shell: bash
         run: |
           set -euo pipefail
-          python -I -B examples/installed-ecosystem/check.py --out installed-ecosystem-result.json --core-version 1.10.0
-          python -I -B examples/installed-ecosystem/chain.py --out candidate-functional-chain.json --core-version 1.10.0
-          python -I -B examples/installed-ecosystem/verify_chain.py candidate-functional-chain.json --core-version 1.10.0
-          python -I -B examples/installed-ecosystem/check_supplied_input.py --out candidate-supplied-input.json --core-version 1.10.0
-          python -I -B examples/installed-ecosystem/check_ancestry.py --out candidate-ancestry-result.json --core-version 1.10.0
+          python -I -B examples/installed-ecosystem/check.py --out installed-ecosystem-result.json --core-version 1.10.1
+          python -I -B examples/installed-ecosystem/chain.py --out candidate-functional-chain.json --core-version 1.10.1
+          python -I -B examples/installed-ecosystem/verify_chain.py candidate-functional-chain.json --core-version 1.10.1
+          python -I -B examples/installed-ecosystem/check_supplied_input.py --out candidate-supplied-input.json --core-version 1.10.1
+          python -I -B examples/installed-ecosystem/check_ancestry.py --out candidate-ancestry-result.json --core-version 1.10.1
           ash quickstart --out installed-quickstart
           ash validate installed-quickstart
       - name: Preserve content-free candidate-wheel evidence
@@ -269,7 +269,7 @@ jobs:
       - name: Build and smoke the Harness package
         run: |
           python -m build --no-isolation --wheel --outdir dist
-          python -m pip install --no-index --no-deps --force-reinstall dist/agentic_security_harness-1.10.0-py3-none-any.whl
+          python -m pip install --no-index --no-deps --force-reinstall dist/agentic_security_harness-1.10.1-py3-none-any.whl
           ash --help
 
   optional-pydantic:
@@ -304,9 +304,9 @@ jobs:
         run: |
           set -euo pipefail
           python -I -B tools/export_boundary_seed.py --check examples/boundary-seed-v1.json
-          python -I -B tools/check_pydantic_ai_guarded_files.py --out "$RUNNER_TEMP/optional-capture" --repetitions 1
-          python -I -B tools/export_boundary_seed.py --capture "$RUNNER_TEMP/optional-capture" --out "$RUNNER_TEMP/optional-seed.json"
-          python -I -B tools/export_boundary_seed.py --check "$RUNNER_TEMP/optional-seed.json" --capture "$RUNNER_TEMP/optional-capture"
+          python -I -B tools/check_pydantic_ai_guarded_files.py --out optional-capture --repetitions 1
+          python -I -B tools/export_boundary_seed.py --capture optional-capture --out optional-seed.json
+          python -I -B tools/export_boundary_seed.py --check optional-seed.json --capture optional-capture
       - name: Run optional boundary tests
         run: >-
           python -m pytest -q -rs --junitxml=optional-${{ matrix.os }}.xml

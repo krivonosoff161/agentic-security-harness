@@ -31,6 +31,13 @@ def test_release_staging_and_readback_cover_installed_optional_boundary() -> Non
     assert "if: matrix.python == '3.11'" in publishing
 
 
+def test_optional_candidate_gate_exercises_release_style_relative_paths() -> None:
+    text = (ROOT / ".github/workflows/ecosystem-integration.yml").read_text(encoding="utf-8")
+    assert "--out optional-capture --repetitions 1" in text
+    assert "--capture optional-capture --out optional-seed.json" in text
+    assert "--check optional-seed.json --capture optional-capture" in text
+
+
 def _workflow() -> str:
     return WORKFLOW.read_text(encoding="utf-8")
 

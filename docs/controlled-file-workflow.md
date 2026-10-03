@@ -279,10 +279,12 @@ are separate measurements: the hook includes durable storage work, not model
 generation. The separate audited decomposition above examines that cost and the
 label/authority contract; neither run establishes an instantaneous policy path.
 
-This example, checker and optional environment are part of the 1.10.0 source
+This example, checker and optional environment are part of the 1.10.1 source
 candidate for [issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332),
 not included in the published 1.9.1 distribution. The published release passed
 [GitHub Actions Linux/Windows verification](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/36960689808).
-The candidate requires its own exact-head Linux/Windows GitHub Actions checks,
-reviewed diff and publication gates; no such result is claimed here. A local
+The immutable [1.10.0 tag](releases/v1.10.0.md) built and passed named Linux/Windows
+checks but its overall release workflow failed at a relative-path seed export,
+before any index upload. The 1.10.1 source candidate corrects that failure and
+requires its own exact-head Linux/Windows checks and publication gates. A local
 Linux VM is not required for that verification route.

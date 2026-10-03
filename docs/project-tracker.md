@@ -1,15 +1,19 @@
 # Project tracker
 
-## Embedded boundary candidate — #332 / 1.10.0 source
+## Embedded boundary candidate — #332 / 1.10.1 source
 
 [Issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332)
-tracks the [1.10.0 source candidate](releases/v1.10.0.md): a public
+tracks the [1.10.1 source candidate](releases/v1.10.1.md): a public
 `ControlledFileSession` for fresh synthetic fixtures, storage/doctor diagnostics,
 an optional Pydantic AI tool example and eight fixed known seed cases. The six
 Qwen2.5 1.5B calls, 80 offline integration calls and 30 timing rows have distinct
 methods and limits in the [workflow record](controlled-file-workflow.md).
 Exact-head CI, reviewed diff and release/publication evidence remain separate gates.
-The published package is **1.9.1**.
+The [1.10.0 tag](releases/v1.10.0.md) passed build/provenance and named
+Linux/Windows checks but its overall workflow `37100128101` failed at the
+relative-path seed exporter. No index upload occurred. The 1.10.1 candidate
+corrects that path handling without new runtime authority. Its own gates remain
+pending; the published package is **1.9.1**.
 
 ## Package-description correction — 1.9.1 published
 
