@@ -49,6 +49,12 @@ DIST_NAME = "lifecycle-extension"
 MODULE_NAME = "ash_lifecycle_extension"
 
 
+def test_lifecycle_generated_contracts_bind_current_runtime_and_gates() -> None:
+    from tools.extension_lifecycle_contracts import check
+
+    check()
+
+
 class _SyntheticExtension:
     def __init__(self, manifest: ExtensionManifestV1) -> None:
         self.manifest = manifest

@@ -112,3 +112,23 @@ def test_installed_workspace_acceptance_is_kept_in_every_delivery_stage() -> Non
     assert "if [ -f release-example/tools/check_workspace_writer.py ]; then" in workflows[
         "verify-published-release.yml"
     ]
+
+
+def test_multicommand_contract_and_full_gates_fail_on_first_error_on_both_platforms() -> None:
+    selected = {
+        "ecosystem-docs.yml": {"Validate generated contracts"},
+        "ecosystem-integration.yml": {
+            "Validate generated schemas manifests and documentation",
+            "Run full test and static analysis gates",
+        },
+    }
+    for filename, expected in selected.items():
+        workflow = yaml.safe_load((WORKFLOWS / filename).read_text("utf-8"))
+        found = set()
+        for job in workflow["jobs"].values():
+            for step in job["steps"]:
+                if step.get("name") in expected:
+                    found.add(step["name"])
+                    assert step.get("shell") == "bash"
+                    assert step["run"].startswith("set -euo pipefail\n")
+        assert found == expected

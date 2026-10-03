@@ -33,7 +33,7 @@
     },
     {
       "path": "src/agentic_security_harness/cli.py",
-      "sha256": "9f2ebe918d5becd4979184649c5bd32dbb04a3b2b55db88e46a252fe226ea9d9"
+      "sha256": "71d15370c8d67ad7181cb3674377abd6d91fc866455ebdcd41d2a63f1c794e79"
     },
     {
       "path": "src/agentic_security_harness/extension_distribution.py",
@@ -70,10 +70,10 @@
   ],
   "tests": {
     "path": "tests/test_extension_lifecycle.py",
-    "sha256": "cf74ca191cc01352cbe1885a95135da1751b9a153f5d2d6803db2a79c547a71f"
+    "sha256": "bc43e0f95988590c983630544f664bb37f24a3e173190751483931188d7523e5"
   },
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "ccde672a44fafc627758b361bb17e7e550114062a25a7386ea9d20068842579d"
+    "sha256": "b11da73f407b9b71854f8df32779409d1d4e1361319405e76b3640a3494f4a71"
   }
 }

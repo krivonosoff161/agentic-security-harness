@@ -100,6 +100,6 @@
   "verdict_semantics": "advisory_only_no_allow_or_enforcement",
   "workflow": {
     "path": ".github/workflows/ecosystem-docs.yml",
-    "sha256": "ccde672a44fafc627758b361bb17e7e550114062a25a7386ea9d20068842579d"
+    "sha256": "b11da73f407b9b71854f8df32779409d1d4e1361319405e76b3640a3494f4a71"
   }
 }
