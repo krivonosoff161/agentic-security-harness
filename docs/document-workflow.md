@@ -1,6 +1,7 @@
 # Document jobs: from your source text to a guarded new document
 
-Status: **1.12.0 release candidate**, not part of the published 1.11.0 wheel.
+Status: published in the **1.12.0** wheel. See the
+[release evidence](releases/v1.12.0.md) for exact subjects and verification gates.
 This is a usable workflow around the existing [workspace writer](guarded-workspace-writer.md),
 not a new executor. Its first use case is turning a host-selected UTF-8 document into
 a new summary, checklist or draft. The permission boundary is deterministic and uses
@@ -9,12 +10,11 @@ may read a verified earlier output as untrusted data under the same host policy.
 
 ## First job
 
-Install this candidate from its checkout (or install its locally built wheel in a
-virtual environment). After publication, pin `agentic-security-harness==1.12.0`.
+Install the exact published version in a virtual environment.
 The base workflow adds no model-framework dependency:
 
 ```sh
-python -m pip install /path/to/candidate-checkout
+python -m pip install agentic-security-harness==1.12.0
 ash document-init --dir my-documents --model YOUR_EXISTING_LOCAL_MODEL
 ash document-check --config my-documents/document.json --check-model
 ash document-run --config my-documents/document.json --input notes.txt --task "Make a short action checklist from these notes" --job first
@@ -141,11 +141,11 @@ host events were captured. Confirm that your local service itself does not forwa
 
 ## One optional framework, not another protection layer
 
-Install the candidate's `document-agent` extra (`pydantic-ai-slim==1.107.1`), then select it
+Install the published `document-agent` extra (`pydantic-ai-slim==1.107.1`), then select it
 when creating a **new** workspace:
 
 ```sh
-python -m pip install "/path/to/candidate-checkout[document-agent]"
+python -m pip install "agentic-security-harness[document-agent]==1.12.0"
 ash document-init --dir framework-documents --model YOUR_EXISTING_LOCAL_MODEL --engine pydantic-ai
 ```
 
