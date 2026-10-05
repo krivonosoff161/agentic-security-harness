@@ -25,7 +25,9 @@ def test_optional_dependency_groups_are_exact_and_closed() -> None:
         "project"
     ]
     optional = project["optional-dependencies"]
-    assert set(optional) == {*EXPECTED, "all", "dev"}
+    assert set(optional) == {*EXPECTED, "all", "dev", "document-agent"}
+    # Framework integration remains a separate opt-in, not an owned companion.
+    assert optional["document-agent"] == ["pydantic-ai-slim==1.107.1"]
     for name, requirements in EXPECTED.items():
         assert set(optional[name]) == requirements
         assert len(optional[name]) == len(requirements)

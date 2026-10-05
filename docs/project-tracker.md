@@ -1,5 +1,13 @@
 # Project tracker
 
+## In development: usable document jobs
+
+The five owner-approved product items are implemented together around the existing
+writer: one optional framework, configuration/preflight, separate jobs/read-only restart
+inspection, content-free outcomes/timings, and installed acceptance. See the
+[operator guide](document-workflow.md). New publication requires its own reviewed gates.
+Full ambiguous recovery, semantic classification and external adoption remain separate.
+
 ## Configured document output — 1.11.0 published
 
 The [guarded workspace writer](guarded-workspace-writer.md) provides a

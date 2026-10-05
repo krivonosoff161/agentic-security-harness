@@ -13,6 +13,7 @@ from agentic_security_harness.cli import build_parser
 ROOT = Path(__file__).resolve().parent.parent
 
 READ_ONLY_COMMANDS = {
+    "document-status",
     "workspace-check",
     "workspace-verify",
     "controlled-file-verify",
@@ -33,6 +34,7 @@ READ_ONLY_COMMANDS = {
     "list-runs",
 }
 COMMAND_AUTHORIZES_BOUNDED_WRITES = {
+    "document-init",
     "workspace-write",
     "controlled-file-workflow",
     "agent-host-quickstart",
@@ -69,6 +71,13 @@ def test_sensitive_cli_actions_are_disabled_by_default() -> None:
     parser = build_parser()
     assert parser.parse_args(["controlled-file-workflow", "--out", "fresh"]).model is None
     cases = {
+        "document-check": (
+            ["document-check", "--config", "host.json"], ("check_model",),
+        ),
+        "document-run": (
+            ["document-run", "--config", "host.json", "--input", "source.txt",
+             "--task", "Summarize", "--job", "first"], ("execute",),
+        ),
         "workspace-run": (
             ["workspace-run", "--config", "host.json", "--input", "document.txt",
              "--task", "Summarize", "--artifact", "draft", "--model", "local"],

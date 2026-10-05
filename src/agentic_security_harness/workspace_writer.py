@@ -13,6 +13,7 @@ import os
 import re
 import stat
 import threading
+import time
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -235,8 +236,14 @@ class GuardedWorkspace:
     def submit(self, proposal: bytes) -> dict[str, Any]:
         """Validate one untrusted JSON proposal; return a content-free tool result."""
         with self._lock:
+            started = time.perf_counter()
+            self._policy_ms = 0.0
             try:
-                return self._submit(proposal)
+                result = self._submit(proposal)
+                total = (time.perf_counter() - started) * 1000
+                # Observation only: not part of the authorization/receipt contract.
+                return {**result, "timing_ms": {"boundary": total,
+                        "policy": self._policy_ms, "storage": max(0.0, total - self._policy_ms)}}
             except BaseException:
                 # An interrupt can arrive after an effect and before its receipt.
                 # Preserve evidence and never allow continuation on this instance.
@@ -261,6 +268,7 @@ class GuardedWorkspace:
                 "receipt_complete": False,
             }
             content = b""
+            policy_started = time.perf_counter()
             try:
                 value = _json(proposal, self.policy.max_bytes * 6 + 1024)
                 if (set(value) != {"operation", "artifact", "content"}
@@ -279,6 +287,7 @@ class GuardedWorkspace:
                 may_write = decision.disposition == "allow"
             except (ValueError, TypeError, UnicodeError, RecursionError):
                 may_write = False
+            self._policy_ms = (time.perf_counter() - policy_started) * 1000
             try:
                 # Durable intent precedes every attempted effect, including denials.
                 self._audit.write_once(f"intent{index}", _canonical({

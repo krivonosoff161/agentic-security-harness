@@ -1,5 +1,13 @@
 # Current state
 
+## Document workflow — local candidate, five-part implementation
+
+[Document jobs](document-workflow.md) wrap the existing writer with setup/check/run/status,
+exclusive job IDs, one source text, optional Pydantic AI integration and content-free
+human/JSON results. This is local development, not a new published release. Acceptance
+distinguishes scripted installed transport from a real local model; no adoption or
+production reliability claim is implied. The published package remains 1.11.0.
+
 ## Guarded workspace writer — published in 1.11.0
 
 The [configured writer](guarded-workspace-writer.md) takes host-owned output

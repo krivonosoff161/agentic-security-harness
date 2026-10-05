@@ -808,6 +808,9 @@ def build_parser() -> argparse.ArgumentParser:
     from agentic_security_harness.workspace_cli import add_commands as add_workspace_commands
 
     add_workspace_commands(sub)
+    from agentic_security_harness.document_cli import add_commands as add_document_commands
+
+    add_document_commands(sub)
 
     file_p = sub.add_parser(
         "controlled-file-workflow",
@@ -5347,6 +5350,10 @@ def _external_check(
 
 def _main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command in ("document-init", "document-check", "document-run", "document-status"):
+        from agentic_security_harness.document_cli import run as run_document_command
+
+        return run_document_command(args)
     if args.command in ("workspace-check", "workspace-write", "workspace-run", "workspace-verify"):
         from agentic_security_harness.workspace_cli import run as run_workspace_command
 

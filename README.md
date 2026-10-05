@@ -20,6 +20,11 @@ validate, compare, and review.
 
 ## Configured document output — published in 1.11.0
 
+Local development: [document jobs](docs/document-workflow.md) add workspace setup,
+permission preview, separate jobs, restart inspection, readable results and an optional
+Pydantic AI bridge around the writer. These new commands are **not yet published**;
+the linked guide describes installing the local candidate, not the 1.11.0 wheel.
+
 The [guarded workspace writer](docs/guarded-workspace-writer.md) connects an
 application's agent to real UTF-8 document creation: host-owned configuration,
 named output aliases, deterministic Guard, no overwrite, and content-free receipts.

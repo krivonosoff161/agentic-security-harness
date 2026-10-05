@@ -311,12 +311,16 @@ jobs:
           python -I -B tools/check_pydantic_ai_guarded_files.py --out optional-capture --repetitions 1
           python -I -B tools/export_boundary_seed.py --capture optional-capture --out optional-seed.json
           python -I -B tools/export_boundary_seed.py --check optional-seed.json --capture optional-capture
+          python -I -B tools/check_document_workflow.py --out document-acceptance --engine pydantic-ai
       - name: Run optional boundary tests
         run: >-
           python -m pytest -q -rs --junitxml=optional-${{ matrix.os }}.xml
           tests/test_pydantic_ai_guarded_files.py
           tests/test_boundary_seed_export.py
           tests/test_label_authority_boundary.py
+          tests/test_document_workflow.py
+          tests/test_workspace_pydantic.py
+          tests/test_document_workflow_acceptance.py
       - name: Preserve optional test report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
