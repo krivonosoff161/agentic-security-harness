@@ -44,7 +44,7 @@ def test_example_version_set_matches_declared_extras() -> None:
     # Historical published-wheel contour stays pinned independently of a candidate.
     expected[project["name"]] = "1.6.0"
     assert _module().EXPECTED == expected
-    assert project["version"] == "1.12.0"  # Candidate; published example stays pinned.
+    assert project["version"] == "1.12.0"  # Historical default stays pinned.
 
 
 def test_example_fails_closed_on_contract_mismatch() -> None:
@@ -70,14 +70,14 @@ def test_versioned_onboarding_pin_matches_latest_published_version() -> None:
     readme = re.search(pattern, (ROOT / "README.md").read_text(encoding="utf-8"))
     onboarding = re.search(pattern, (ROOT / "docs/getting-started.md").read_text(encoding="utf-8"))
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
-    assert readme and onboarding and readme.group(1) == onboarding.group(1) == "1.11.0"
-    assert project["version"] == "1.12.0"  # Source candidate differs from PyPI.
-    notes = (ROOT / "docs/releases/v1.11.0.md").read_text(encoding="utf-8")
-    assert "release candidate; not published" not in notes
-    assert "https://pypi.org/project/agentic-security-harness/1.11.0/" in notes
+    assert readme and onboarding and readme.group(1) == onboarding.group(1) == "1.12.0"
+    assert project["version"] == "1.12.0"
+    notes = (ROOT / "docs/releases/v1.12.0.md").read_text(encoding="utf-8")
+    assert "Status: published on GitHub, TestPyPI and PyPI" in notes
+    assert "https://pypi.org/project/agentic-security-harness/1.12.0/" in notes
     pilot = (ROOT / "docs/external-pilot.md").read_text(encoding="utf-8")
-    assert "current published 1.11.0" in pilot
-    assert pilot.count("--core-version 1.11.0") == 3
+    assert "current published 1.12.0" in pilot
+    assert pilot.count("--core-version 1.12.0") == 3
     assert "--core-version 1.7.1" not in pilot
 
 
