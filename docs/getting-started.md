@@ -10,9 +10,10 @@ with no API keys and no network.
 
 ## 1. Install
 
-These commands use the published [1.11.0 package](https://pypi.org/project/agentic-security-harness/1.11.0/).
-The exact subjects, retained initial production lookup failure and passing
-read-only verification are recorded in the [release evidence](releases/v1.11.0.md).
+These commands use the published [1.12.0 package](https://pypi.org/project/agentic-security-harness/1.12.0/).
+Its exact subjects and publication gates are recorded in the
+[release evidence](releases/v1.12.0.md). The 1.11.0 release retains its initial
+production lookup failure and passing read-only verification in its own record.
 The failed, unpublished
 [1.10.0 tag](releases/v1.10.0.md) and prior 1.9.1 release retain their own records.
 The prior 1.8.0 release and its retained
@@ -22,7 +23,7 @@ For exact companion binding and negative controls, use the separate
 Installation does not automatically activate companions or grant action authority.
 
 ```bash
-python -m pip install agentic-security-harness==1.11.0
+python -m pip install agentic-security-harness==1.12.0
 ash --help
 ```
 

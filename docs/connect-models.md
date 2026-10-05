@@ -16,7 +16,9 @@ For a host-configured agent tool that creates a new local UTF-8 document from
 an untrusted text proposal, see the [guarded workspace writer](guarded-workspace-writer.md).
 Its optional one-request local Ollama path requires explicit `--execute`;
 the deterministic Guard makes the file permission decision. The published
-package and model-evidence status are in the [1.11.0 release record](releases/v1.11.0.md).
+writer's original publication and model-evidence status are in the
+[1.11.0 release record](releases/v1.11.0.md). The current 1.12.0 package adds
+[document jobs](document-workflow.md) with separate release evidence.
 
 The prompt-based benchmark path uses **`openai-compatible`**. It speaks the
 OpenAI Chat Completions wire format (`POST {base_url}/chat/completions`). Anything that

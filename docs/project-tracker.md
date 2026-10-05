@@ -1,15 +1,15 @@
 # Project tracker
 
-## Release candidate: usable document jobs / 1.12.0
+## Published usable document jobs / 1.12.0
 
 The five owner-approved product items are implemented together around the existing
 writer: one optional framework, configuration/preflight, separate jobs/read-only restart
-inspection, content-free outcomes/timings, and installed acceptance. The candidate
+inspection, content-free outcomes/timings, and installed acceptance. The release
 adds same-config prior-job reuse as untrusted data and host-owned deterministic
 requirements; failed-quality drafts cannot chain, while `checked` is not a
 semantic truth judgment. See the [operator guide](document-workflow.md) and
-[candidate release record](releases/v1.12.0.md). New publication requires its
-own reviewed gates; the published package remains **1.11.0**.
+[release record](releases/v1.12.0.md). The attested build, staging, production
+and seven-job read-only cross-index checks passed. The published package is **1.12.0**.
 Full ambiguous recovery, semantic classification and external adoption remain separate.
 
 ## Configured document output — 1.11.0 published
@@ -20,7 +20,7 @@ exclusive new-file creation, readback and receipts through Python and the
 installed CLI. [Release evidence](releases/v1.11.0.md) records reviewed source,
 tagged subjects, passing TestPyPI staging, PyPI upload, the retained initial
 Linux 3.11 index-lookup failure and a separate seven-job read-only PASS. The
-published package is **1.11.0**. Prior 1.10.1 and
+historical package is **1.11.0**. Prior 1.10.1 and
 its model observations remain separate; this writer has no new real-model run.
 
 ## Embedded boundary delivery — #332 / 1.10.1 published
@@ -291,8 +291,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.11.0` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.11.0/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.12.0` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.12.0/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are

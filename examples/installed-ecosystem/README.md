@@ -1,11 +1,11 @@
 # Installed ecosystem compatibility example
 
 This directory is an explicit, offline operator example, not package auto-discovery.
-Use the current 1.11.0 route below in a fresh environment; historical 1.10.1, 1.9.1,
+Use the current 1.12.0 route below in a fresh environment; historical 1.11.0, 1.10.1, 1.9.1,
 1.9.0, 1.8.0, 1.7.1, 1.7.0 and 1.6.0 routes and their immutable locks are retained separately.
 The scripts use installed distributions, not `src/`, and require no API key or model.
 
-For **published 1.11.0**, pass `--core-version 1.11.0` explicitly
+For **published 1.12.0**, pass `--core-version 1.12.0` explicitly
 to check.py, chain.py, verify_chain.py and check_supplied_input.py. The default and
 core-release.txt remain the immutable published 1.6.0 contour; a reported version
 never selects its own verification policy. The caller-input regression also checks
@@ -16,7 +16,31 @@ The [2026-09-27 generalization report](../../docs/proposal-generalization-202609
 distinguishes four exact useful model proposals from one permitted but semantically
 wrong operation, three rejected useful-task proposals and eight negative controls.
 
-## Current published 1.11.0
+## Current published 1.12.0
+
+Create a fresh Python 3.11 environment with `python -m venv .venv-v1120`.
+Activate `.venv-v1120\Scripts\Activate.ps1` in PowerShell or
+`source .venv-v1120/bin/activate` in Bash. From the repository root, install
+the exact PyPI wheel with hash-locked dependencies, then run the fixed offline
+installed checks:
+
+```bash
+python -m pip --isolated install --index-url https://pypi.org/simple --no-compile --only-binary=:all: --require-hashes -r requirements/runtime.txt -r requirements/companions.txt -r examples/installed-ecosystem/core-release-v1.12.0.txt
+python -m pip check
+python -I -B examples/installed-ecosystem/check.py --out result.json --core-version 1.12.0
+python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json --core-version 1.12.0
+python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json --core-version 1.12.0
+python -I -B examples/installed-ecosystem/check_supplied_input.py --out supplied-input.json --core-version 1.12.0
+ash quickstart --out installed-quickstart
+ash validate installed-quickstart
+```
+
+[Publication evidence](../../docs/releases/v1.12.0.md) binds the reviewed
+source, attested subjects and seven-job read-only cross-index installation
+matrix. These deterministic examples make no new model-reliability claim.
+For the new document workflow, follow the [first-job guide](../../docs/document-workflow.md#first-job).
+
+## Historical published 1.11.0
 
 Create a fresh Python 3.11 environment with `python -m venv .venv-v1110`.
 Activate `.venv-v1110\Scripts\Activate.ps1` in PowerShell or
@@ -35,7 +59,7 @@ ash quickstart --out installed-quickstart
 ash validate installed-quickstart
 ```
 
-[Publication evidence](../../docs/releases/v1.11.0.md) binds the tag,
+[Historical publication evidence](../../docs/releases/v1.11.0.md) binds the tag,
 wheel, index descriptions and the separate seven-job read-only installation
 matrix. The initial production Linux 3.11 index lookup failed before package
 execution; no build or upload was repeated. These deterministic examples make
@@ -302,11 +326,11 @@ separate `chain.py` exercises actual installed APIs in a single causally linked
 public-synthetic flow, not just passive imports:
 
 ```bash
-python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json --core-version 1.11.0
-python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json --core-version 1.11.0
+python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json --core-version 1.12.0
+python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json --core-version 1.12.0
 ```
 
-Run these after the current 1.11.0 exact-wheel installation above; use fresh output
+Run these after the current 1.12.0 exact-wheel installation above; use fresh output
 paths if you already ran that section. For the historical 1.6.0 environment, omit
 `--core-version` (its default stays 1.6.0). The example itself is
 repository-owned and version-bound; it is not a new wheel or a change to the
@@ -355,7 +379,7 @@ admission and are committed into the case digest; they cannot replace the regist
 policy or component bindings. The default 16-case CLI remains unchanged.
 
 ```bash
-python -I -B examples/installed-ecosystem/check_supplied_input.py --out supplied-input.json --core-version 1.11.0
+python -I -B examples/installed-ecosystem/check_supplied_input.py --out supplied-input.json --core-version 1.12.0
 ```
 
 This separate eight-case offline installed check covers a valid key, an unknown key,

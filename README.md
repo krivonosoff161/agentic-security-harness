@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/public_research_release-v1.11.0-blue)
+![Status](https://img.shields.io/badge/public_research_release-v1.12.0-blue)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -18,15 +18,15 @@ one.
 In plain English: it turns “the agent behaved unsafely” into evidence you can replay,
 validate, compare, and review.
 
-## Document workflow — 1.12.0 release candidate
+## Document workflow — published in 1.12.0
 
 The [document jobs guide](docs/document-workflow.md) covers workspace setup,
 permission preview, separate jobs, restart inspection, content-free quality
 status and an optional Pydantic AI bridge around the writer. A verified first
 document can feed a second job only as untrusted data under unchanged host
 policy. Exact host-declared criteria are not a claim of factual correctness.
-These commands are **not yet published**; the current PyPI wheel remains 1.11.0.
-See the [1.12.0 candidate record](docs/releases/v1.12.0.md) for pending gates.
+The 1.12.0 package is on PyPI. See the [release record](docs/releases/v1.12.0.md)
+for exact subjects and passed post-publication verification.
 
 The [guarded workspace writer](docs/guarded-workspace-writer.md) connects an
 application's agent to real UTF-8 document creation: host-owned configuration,
@@ -99,9 +99,9 @@ estimate, an autonomous-agent demonstration or an independent human audit.
   The earlier eight-call result is preserved separately in the report.
 
 **Package versus research evidence:** the study used exact installed **1.6.0**
-subjects, while the current published package is **1.11.0**. The prompt helper,
+subjects, while the current published package is **1.12.0**. The prompt helper,
 corpus and observations are repository-owned evidence, not evidence that the
-1.7.0, 1.7.1, 1.8.0, 1.9.0, 1.9.1, 1.10.1 or 1.11.0 wheel was used in those model calls. See
+1.7.0, 1.7.1, 1.8.0, 1.9.0, 1.9.1, 1.10.1, 1.11.0 or 1.12.0 wheel was used in those model calls. See
 [release and package status](#release-and-package-status) and
 [current state](docs/current-state.md) for the exact boundary.
 
@@ -135,7 +135,7 @@ checks. [Release status](docs/releases/v1.8.0.md) binds the source, hashes and l
 
 ## Quickstart
 
-Published [v1.11.0](docs/releases/v1.11.0.md) adds the guarded workspace writer,
+Published [v1.12.0](docs/releases/v1.12.0.md) adds document jobs around the guarded workspace writer,
 retains the [v1.10.1](docs/releases/v1.10.1.md) embedded file boundary
 and retains the opt-in controlled file effects from [v1.9.0](docs/releases/v1.9.0.md) and the ancestry admission
 delivered in [v1.8.0](docs/releases/v1.8.0.md).
@@ -147,10 +147,10 @@ package availability, retained initial smoke failures, and successful read-only
 verification.
 
 Install the exact package version from
-[PyPI](https://pypi.org/project/agentic-security-harness/1.11.0/):
+[PyPI](https://pypi.org/project/agentic-security-harness/1.12.0/):
 
 ```bash
-python -m pip install agentic-security-harness==1.11.0
+python -m pip install agentic-security-harness==1.12.0
 ash quickstart --out reports/quickstart
 ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
@@ -209,12 +209,12 @@ facts. The Harness generates only the cross-project roadmap and compatibility vi
 - [Documentation crosswalk](docs/documentation-map.md)
 - [`component.yaml`](component.yaml) and [`ecosystem/roadmap.yaml`](ecosystem/roadmap.yaml)
 
-Runtime Guard remains private and `contract_only`. Harness version `v1.11.0`
+Runtime Guard remains private and `contract_only`. Harness version `v1.12.0`
 contains the closed [Extension SDK V1](docs/extension-sdk.md) and public passive extras for
 validated observation-to-finding dataflow. It does not auto-load installed packages;
 companion repositories remain optional, separately versioned distributions.
 
-Version `v1.11.0` retains the closed optional-dependency groups introduced in `v1.4.0`:
+Version `v1.12.0` retains the closed optional-dependency groups introduced in `v1.4.0`:
 
 | Extra | Exact companion distributions | Automatic activation |
 |---|---|---|
@@ -229,8 +229,8 @@ The generic PyPI coordinate `llm-router` is intentionally absent because it belo
 another project. CI builds all eight exact wheels from pinned Git SHAs and installs the
 closed local wheelhouse without loading either extension entry point. The public install
 commands are
-`pip install "agentic-security-harness[router]==1.11.0"` or
-`pip install "agentic-security-harness[all]==1.11.0"`. Other companion pins are unchanged;
+`pip install "agentic-security-harness[router]==1.12.0"` or
+`pip install "agentic-security-harness[all]==1.12.0"`. Other companion pins are unchanged;
 installation remains separate from module activation.
 
 For explicit installed extension binding, follow the fresh `--no-compile` environment
@@ -494,14 +494,14 @@ approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install the
 
 ## Release and package status
 
-Release [v1.11.0](docs/releases/v1.11.0.md) is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.11.0/). Its exact
-subjects and package description match both indexes. The tag build and staging
-passed. The PyPI upload succeeded, while the overall production workflow failed
-when Linux 3.11 could not find the new version at index lookup; other platform
-smokes passed. Separate read-only cross-index verification passed all seven jobs
-without rebuilding or re-uploading. The prior
+Release [v1.12.0](docs/releases/v1.12.0.md) is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.12.0/). Its exact
+subjects and package description match both indexes; the tag build, staging,
+production platform checks and seven-job read-only cross-index verification
+passed. The prior
 [v1.10.0 tag](docs/releases/v1.10.0.md) remains failed and unpublished.
+Historical [v1.11.0](docs/releases/v1.11.0.md) retains its initial production
+Linux 3.11 index-lookup failure and later seven-job read-only pass.
 Historical [v1.10.1](docs/releases/v1.10.1.md) passed its own publication and
 read-only checks; its subjects were not replaced.
 Historical [v1.9.1](docs/releases/v1.9.1.md) corrected the package description;

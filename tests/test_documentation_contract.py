@@ -47,9 +47,9 @@ def test_latest_proposal_evidence_is_visible_from_public_entry_points() -> None:
 def test_current_onboarding_separates_published_runtime_from_repository_evidence() -> None:
     source_version = tomllib.loads(_read("pyproject.toml"))["project"]["version"]
     # Publication is separate from immutable model evidence collected on 1.6.0.
-    version = "1.11.0"
-    assert source_version == "1.12.0"  # Candidate source; PyPI remains 1.11.0.
-    publication = _read("docs/releases/v1.11.0.md")
+    version = "1.12.0"
+    assert source_version == version
+    publication = _read("docs/releases/v1.12.0.md")
     assert "status: published on" in publication.lower()
     assert "published public research release" in _read("docs/releases/v1.7.0.md")
     readme = _read("README.md")
@@ -71,7 +71,7 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
         f"v{version} published with verified build provenance and read-only install matrix"
         in status
     )
-    assert "Last reviewed: 2026-10-03" in status
+    assert "Last reviewed: 2026-10-05" in status
     assert "46d38200e404ee1106f2f012a753c3d6a11150fc" in status
     assert "37102316728" in status
     assert "dc8c8e74caf4735724ece8abd840edfd68819fc4" in status
@@ -103,7 +103,7 @@ def test_v1101_publication_preserves_failed_v110_tag_and_model_boundary() -> Non
     assert "Distribution version: **1.12.0**" in description
     assert "ControlledFileSession" in description
     for path in ("README.md", "docs/getting-started.md"):
-        assert "python -m pip install agentic-security-harness==1.11.0" in _read(path)
+        assert "python -m pip install agentic-security-harness==1.12.0" in _read(path)
 
 
 def test_v1110_publication_binds_subjects_and_retains_initial_failure() -> None:
@@ -126,13 +126,19 @@ def test_v1110_publication_binds_subjects_and_retains_initial_failure() -> None:
     assert "No build or\nupload was repeated" in notes
 
 
-def test_v1120_candidate_does_not_claim_publication_or_semantic_quality() -> None:
+def test_v1120_publication_binds_subjects_without_semantic_overclaim() -> None:
     notes = _read("docs/releases/v1.12.0.md")
     guide = _read("docs/document-workflow.md")
     description = _read("PACKAGE_README.md")
-    assert "Status: candidate source only" in notes
-    assert "currently published distribution is" in notes
-    assert "v1.12.0 has no claimed GitHub release" in notes
+    assert "Status: published on GitHub, TestPyPI and PyPI" in notes
+    for marker in (
+        "575627f01979c5a492c3eca3bf9a931ce3f68433",
+        "37272733600", "37276842884", "37277235870", "37277593132",
+        "26b69cf181cd405648b7e7591a89045563304a22876e45a402dbcab8b3743696",
+        "a790caeb9658418e0df330f30afd47cb8535632affb7f122ac980ee26d85b78a",
+        "passed all seven jobs", "No build or", "not a claim",
+    ):
+        assert marker in notes
     for marker in ("--from-job", "--requirements", "review_required", "checked",
                    "exits 2", "untrusted data", "same unchanged configuration"):
         assert marker in guide
@@ -144,7 +150,16 @@ def test_v1120_candidate_does_not_claim_publication_or_semantic_quality() -> Non
         "blob/v1.12.0/docs/document-workflow.md"
     )
     assert document_link in description
-    assert "not yet published" in _read("README.md")
+    assert "python -m pip install agentic-security-harness==1.12.0" in guide
+    assert 'pip install "agentic-security-harness[document-agent]==1.12.0"' in guide
+    assert "/path/to/candidate-checkout" not in guide
+    for location in (
+        "https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.12.0",
+        "https://test.pypi.org/project/agentic-security-harness/1.12.0/",
+        "https://pypi.org/project/agentic-security-harness/1.12.0/",
+    ):
+        assert location in notes
+    assert "not yet published" not in _read("README.md")
 
 
 def test_v170_publication_confirmation_preserves_failed_runs_and_exact_subjects() -> None:
@@ -184,7 +199,8 @@ def test_v180_publication_keeps_ancestry_limits_and_failed_lookup_explicit() -> 
     assert "agentic_security_harness-1.8.0-py3-none-any.whl" in lock
     assert "3cee43202117a062710a0a12cb660dc7f211f610a8c691c826e8adeead18aa14" in lock
     example = _read("examples/installed-ecosystem/README.md")
-    assert "## Current published 1.11.0" in example
+    assert "## Current published 1.12.0" in example
+    assert "## Historical published 1.11.0" in example
     assert "## Historical published 1.10.1" in example
     assert "core-release-v1.10.1.txt" in example
     assert "## Historical published 1.9.1" in example
@@ -195,23 +211,30 @@ def test_v180_publication_keeps_ancestry_limits_and_failed_lookup_explicit() -> 
     assert "core-release-v1.8.0.txt" in example
     assert "## Historical published 1.7.1" in example
     sections = (
-        ("## Current published 1.11.0", "## Historical published 1.10.1", "1.11.0"),
+        ("## Current published 1.12.0", "## Historical published 1.11.0", "1.12.0"),
+        ("## Historical published 1.11.0", "## Historical published 1.10.1", "1.11.0"),
         ("## Historical published 1.10.1", "## Historical published 1.9.1", "1.10.1"),
         ("## Historical published 1.9.1", "## Historical published 1.9.0", "1.9.1"),
         ("## Historical published 1.9.0", "## Historical published 1.8.0", "1.9.0"),
         ("## Historical published 1.8.0", "## Historical published 1.7.1", "1.8.0"),
         ("## Historical published 1.7.1", "## Historical published 1.7.0", "1.7.1"),
-        ("## Functional six-component chain", "### Caller-supplied input regression", "1.11.0"),
+        ("## Functional six-component chain", "### Caller-supplied input regression", "1.12.0"),
     )
     for start, end, version in sections:
         section = example.split(start, 1)[1].split(end, 1)[0]
         assert set(re.findall(r"--core-version (\d+\.\d+\.\d+)", section)) == {version}
 
 
-def test_current_v1110_installed_lock_and_historical_defaults_are_separate() -> None:
-    current_lock = _read("examples/installed-ecosystem/core-release-v1.11.0.txt")
-    assert "agentic_security_harness-1.11.0-py3-none-any.whl" in current_lock
-    assert "60b19114971ced89c778efe4ef84444a37026d4228ce2400cf1b475dd5ad485f" in current_lock
+def test_current_v1120_installed_lock_and_historical_defaults_are_separate() -> None:
+    current_lock = _read("examples/installed-ecosystem/core-release-v1.12.0.txt")
+    assert "agentic_security_harness-1.12.0-py3-none-any.whl" in current_lock
+    assert "26b69cf181cd405648b7e7591a89045563304a22876e45a402dbcab8b3743696" in current_lock
+    previous_release_lock = _read("examples/installed-ecosystem/core-release-v1.11.0.txt")
+    assert "agentic_security_harness-1.11.0-py3-none-any.whl" in previous_release_lock
+    assert (
+        "60b19114971ced89c778efe4ef84444a37026d4228ce2400cf1b475dd5ad485f"
+        in previous_release_lock
+    )
     previous_lock = _read("examples/installed-ecosystem/core-release-v1.10.1.txt")
     assert "c52dc59f64dfef31efb2ba3ac4a28b220d90a5e475d1443f5a56cf04b26fed16" in previous_lock
     prior_lock = _read("examples/installed-ecosystem/core-release-v1.9.1.txt")
@@ -224,7 +247,8 @@ def test_current_v1110_installed_lock_and_historical_defaults_are_separate() -> 
         "examples/installed-ecosystem/core-release.txt"
     )
     example = _read("examples/installed-ecosystem/README.md")
-    assert "## Current published 1.11.0" in example
+    assert "## Current published 1.12.0" in example
+    assert "## Historical published 1.11.0" in example
     assert "## Historical published 1.10.1" in example
     assert "## Historical published 1.9.1" in example
     assert "## Historical published 1.9.0" in example
@@ -1477,7 +1501,7 @@ def test_artifact_authenticity_design_separates_trust_domains_and_non_claims() -
     assert "artifact-authenticity-design.md" in project_map
     assert "Historical releases and examples remain unsigned" in current_state
     assert (
-        "v1.11.0 published with verified build provenance and read-only install matrix"
+        "v1.12.0 published with verified build provenance and read-only install matrix"
         in current_state
     )
     assert "retained `v0.15.0` tag is transparent failed-gate evidence" in current_state
@@ -1619,10 +1643,10 @@ def test_v151_publication_docs_bind_current_release_and_preserve_failures() -> N
         assert marker in notes
     readme = _read("README.md")
     assert any(status in readme for status in (
-        "release_source-v1.11.0-blue", "public_research_release-v1.11.0-blue"
+        "release_source-v1.12.0-blue", "public_research_release-v1.12.0-blue"
     ))
-    assert "agentic-security-harness==1.11.0" in readme
-    assert "agentic-security-harness[all]==1.11.0" in readme
+    assert "agentic-security-harness==1.12.0" in readme
+    assert "agentic-security-harness[all]==1.12.0" in readme
     assert "agentic-llm-router==0.2.1" in readme
     assert "agentic-llm-router==0.2.0" not in readme
     assert "source tree prepares" not in readme

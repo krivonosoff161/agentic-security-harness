@@ -8,10 +8,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [1.12.0] - 2026-10-05
 
-Candidate additive [document workflow issue #338](https://github.com/krivonosoff161/agentic-security-harness/issues/338).
-Publication and exact release gates are pending;
-the currently published package remains 1.11.0. See the
-[candidate release record](docs/releases/v1.12.0.md).
+Published additive [document workflow issue #338](https://github.com/krivonosoff161/agentic-security-harness/issues/338).
+The exact attested subjects are on GitHub, TestPyPI and PyPI. Production platform
+checks and seven-job read-only verification passed, as recorded in the
+[release record](docs/releases/v1.12.0.md).
 
 - Add host-configured document jobs with preview, one explicit generation,
   create-only GuardedWorkspace output, content-free status, and restart inspection.

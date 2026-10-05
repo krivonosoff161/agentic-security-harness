@@ -1,14 +1,13 @@
 # Roadmap
 
-Candidate [v1.12.0 document jobs](releases/v1.12.0.md) turn the published
+Published [v1.12.0 document jobs](releases/v1.12.0.md) turn the published
 writer into a host-configured preview/execute/status workflow. A subsequent
 job can consume a verified output as untrusted data; host-declared format
 checks keep failed drafts separate from review-required and exactly checked
-criteria. This is not a published wheel or a general document-quality claim.
-Exact-head and release gates are pending; the current published release is
-v1.11.0.
+criteria. This is not a general document-quality claim. Exact-head, tag,
+staging, production and seven-job read-only cross-index gates passed.
 
-Current release: [1.11.0 guarded workspace writer](releases/v1.11.0.md)
+Prior release: [1.11.0 guarded workspace writer](releases/v1.11.0.md)
 adds configured real text-file creation through a host-owned alias, untrusted
 proposal, deterministic Guard and exclusive new-file writer. Local acceptance
 and TestPyPI Linux/Windows checks passed. PyPI has the exact subjects; the
