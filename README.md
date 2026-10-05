@@ -18,12 +18,15 @@ one.
 In plain English: it turns “the agent behaved unsafely” into evidence you can replay,
 validate, compare, and review.
 
-## Configured document output — published in 1.11.0
+## Document workflow — 1.12.0 release candidate
 
-Local development: [document jobs](docs/document-workflow.md) add workspace setup,
-permission preview, separate jobs, restart inspection, readable results and an optional
-Pydantic AI bridge around the writer. These new commands are **not yet published**;
-the linked guide describes installing the local candidate, not the 1.11.0 wheel.
+The [document jobs guide](docs/document-workflow.md) covers workspace setup,
+permission preview, separate jobs, restart inspection, content-free quality
+status and an optional Pydantic AI bridge around the writer. A verified first
+document can feed a second job only as untrusted data under unchanged host
+policy. Exact host-declared criteria are not a claim of factual correctness.
+These commands are **not yet published**; the current PyPI wheel remains 1.11.0.
+See the [1.12.0 candidate record](docs/releases/v1.12.0.md) for pending gates.
 
 The [guarded workspace writer](docs/guarded-workspace-writer.md) connects an
 application's agent to real UTF-8 document creation: host-owned configuration,

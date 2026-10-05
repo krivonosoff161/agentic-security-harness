@@ -6,6 +6,26 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-10-05
+
+Candidate additive [document workflow issue #338](https://github.com/krivonosoff161/agentic-security-harness/issues/338).
+Publication and exact release gates are pending;
+the currently published package remains 1.11.0. See the
+[candidate release record](docs/releases/v1.12.0.md).
+
+- Add host-configured document jobs with preview, one explicit generation,
+  create-only GuardedWorkspace output, content-free status, and restart inspection.
+- Permit a later job to read a verified earlier document as **untrusted data** under
+  the same configuration; the earlier result grants no action authority. Jobs do
+  not replay under the same ID.
+- Add host-owned exact JSON or bounded checklist requirements. Invalid format is
+  saved as a draft with failed quality and cannot be chained; a structurally
+  acceptable unchecked draft still requires human review. `checked` means only
+  that the declared deterministic criteria matched, not factual correctness.
+- Gate installed native acceptance on Linux and Windows at candidate, tag,
+  TestPyPI, PyPI and read-only verification stages. The optional pinned Pydantic
+  AI lane remains separate. Scripted transport is not real-model evidence.
+
 ## [1.11.0] - 2026-10-03
 
 Published [guarded workspace writer](docs/guarded-workspace-writer.md).

@@ -8,6 +8,9 @@ from pathlib import Path
 from typing import Any
 
 from agentic_security_harness import document_workflow as workflow
+from agentic_security_harness.document_quality import DocumentRequirements
+from agentic_security_harness.ollama_quarantine_adapter import _json
+from agentic_security_harness.workspace_writer import _read_file
 
 COMMANDS = ("document-init", "document-check", "document-run", "document-status")
 
@@ -45,8 +48,14 @@ def add_commands(sub: Any) -> None:
                 "--job", required=True, help="unique lowercase job ID; never resumed"
             )
         if command == "document-run":
+            source = parser.add_mutually_exclusive_group(required=True)
+            source.add_argument("--input", type=Path, help="host-selected UTF-8 file")
+            source.add_argument(
+                "--from-job", help="verified saved job in this workspace, reused as untrusted data"
+            )
             parser.add_argument(
-                "--input", type=Path, required=True, help="host-selected UTF-8 file"
+                "--requirements", type=Path,
+                help="host-owned JSON output requirements; does not grant action authority",
             )
             parser.add_argument("--task", required=True, help="host-selected writing instruction")
             parser.add_argument(
@@ -69,8 +78,15 @@ def run(args: argparse.Namespace) -> int:
                 result = workflow.inspect_job(config, args.job)
             else:
                 phase = "input_or_job"
+                requirements = (
+                    DocumentRequirements.from_record(
+                        _json(_read_file(args.requirements, 8192), 8192)
+                    )
+                    if args.requirements is not None else None
+                )
                 result = workflow.run_job(
-                    config, args.input, args.task, args.job, execute=args.execute
+                    config, args.input, args.task, args.job, execute=args.execute,
+                    source_job=args.from_job, requirements=requirements,
                 )
     except FileExistsError:
         result = {
@@ -97,4 +113,6 @@ def run(args: argparse.Namespace) -> int:
             "next_step": "check_config_limits_utf8_and_job_id_inspect_partial_state",
         }
     print(json.dumps(result, sort_keys=True) if args.json else workflow.human_report(result))
+    if result.get("state") == "saved" and (result.get("quality") or {}).get("status") == "failed":
+        return 2  # File saved, declared requirements failed; never silently treat as ready.
     return 0 if result.get("state") in {"initialized", "ready", "preview", "saved"} else 1

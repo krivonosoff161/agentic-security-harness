@@ -392,6 +392,8 @@ jobs:
 
       - name: Verify controlled files for releases declaring the implementation
         shell: bash
+        env:
+          RELEASE_VERSION: ${{ needs.verify-subjects.outputs.version }}
         run: |
           set -euo pipefail
           if [ -f release-example/src/agentic_security_harness/controlled_file_workflow.py ]; then
@@ -400,6 +402,10 @@ jobs:
           fi
           if [ -f release-example/tools/check_workspace_writer.py ]; then
             python -I -B release-example/tools/check_workspace_writer.py --out verified-workspace-writer
+          fi
+          if python -c 'import os,sys; sys.exit(tuple(map(int,os.environ["RELEASE_VERSION"].split("."))) < (1,12,0))'; then
+            test -f release-example/tools/check_document_workflow.py
+            python -I -B release-example/tools/check_document_workflow.py --out verified-document-workflow --engine native
           fi
 
       - name: Select version-bound garak smoke lock
@@ -444,12 +450,21 @@ jobs:
       - name: Verify optional embedded boundary from the selected installed release
         if: matrix.python == '3.11'
         shell: bash
+        env:
+          RELEASE_VERSION: ${{ needs.verify-subjects.outputs.version }}
         run: |
           set -euo pipefail
+          if python -c 'import os,sys; sys.exit(tuple(map(int,os.environ["RELEASE_VERSION"].split("."))) < (1,12,0))'; then
+            test -f release-example/requirements/verification/pydantic-ai-ci-py311.txt
+            test -f release-example/tools/check_document_workflow.py
+          fi
           if [ -f release-example/requirements/verification/pydantic-ai-ci-py311.txt ]; then
             python -m pip --isolated install --only-binary=:all: --require-hashes -r release-example/requirements/verification/pydantic-ai-ci-py311.txt
             python -m pip check
             python -I -B release-example/tools/check_pydantic_ai_guarded_files.py --out verified-embedded-boundary --repetitions 1
+            if python -c 'import os,sys; sys.exit(tuple(map(int,os.environ["RELEASE_VERSION"].split("."))) < (1,12,0))'; then
+              python -I -B release-example/tools/check_document_workflow.py --out verified-document-framework --engine pydantic-ai
+            fi
             python -I -B release-example/tools/export_boundary_seed.py --capture verified-embedded-boundary --out verified-boundary-seed.json
             python -I -B release-example/tools/export_boundary_seed.py --check verified-boundary-seed.json --capture verified-embedded-boundary
           fi

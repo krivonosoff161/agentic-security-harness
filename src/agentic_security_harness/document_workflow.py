@@ -13,12 +13,13 @@ import importlib.metadata
 import os
 import re
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 from agentic_security_harness._fixture_files import _checked_directory, _identity
 from agentic_security_harness._workspace_files import WorkspaceFiles, _validate_filename
+from agentic_security_harness.document_quality import DocumentRequirements, evaluate_document
 from agentic_security_harness.ollama_quarantine_adapter import (
     _MODEL_ID,
     OllamaQuarantineConfigV1,
@@ -85,6 +86,85 @@ def _save(path: Path, value: dict[str, Any]) -> None:
         written = files.write_once("record", raw)
         if files.readback_sha("record") != written:
             raise ValueError("record readback failed")
+
+
+@dataclass(frozen=True)
+class DocumentInput:
+    """Captured bytes for data use only, never a policy or an executable instruction.
+
+    Construct via ``read_job_document`` to bind an existing job's verified bytes.
+    Local configuration/bookkeeping remain trusted host state, not remote attestations.
+    """
+
+    content: bytes = field(repr=False)
+    source_job: str
+    data_class: str
+
+    def record(self) -> dict[str, Any]:
+        return {
+            "kind": "generated_document",
+            "source_job": self.source_job,
+            "content_sha256": _sha(self.content),
+            "trust": "untrusted",
+            "authority": "none",
+            "data_class": self.data_class,
+        }
+
+
+def read_job_document(config: DocumentConfig, job_id: str) -> DocumentInput:
+    """Read a saved job as data; refuse failed quality, changed or incomplete output.
+
+    The destination job still obtains its permissions exclusively from its host config.
+    No model call, file write, resume, approval or execution is performed here.
+    """
+    status = inspect_job(config, job_id)
+    if status.get("state") != "saved" or status.get("quality", {}).get("status") == "failed":
+        raise ValueError("source job is not eligible as document data")
+    raw = _read_file(config.jobs_dir / _job_name(job_id) / "document.md", 16384)
+    # Bind the bytes actually returned, not a path validated before a later read.
+    if _sha(raw) != status.get("document_sha256"):
+        raise ValueError("source changed during capture")
+    return DocumentInput(raw, job_id, config.data_class)
+
+
+def _next_step(state: str, quality: dict[str, Any] | None) -> str:
+    if state == "saved" and quality is not None and quality["status"] == "failed":
+        return "review_failed_document_requirements_do_not_chain"
+    return _NEXT[state]
+
+
+def _checked_quality(value: Any, digest: str, requirements_digest: str | None) -> dict[str, Any]:
+    """Validate content-free stored findings without echoing arbitrary stored fields."""
+    reasons = {
+        "checked": {"declared_json_match", "declared_checklist_match"},
+        "review_required": {"human_review_required", "structure_only_review_required"},
+        "failed": {
+            "document_too_large", "invalid_utf8", "empty_document", "control_character",
+            "json_invalid", "json_mismatch", "unclosed_fence",
+            "checklist_count_mismatch", "checklist_terms_mismatch",
+        },
+    }
+    if (
+        type(value) is not dict
+        or set(value) != {
+            "status", "reason", "requirements_sha256", "content_sha256",
+            "authority", "semantics_verified",
+        }
+        or type(value["status"]) is not str or value["status"] not in reasons
+        or type(value["reason"]) is not str
+        or value["reason"] not in reasons[value["status"]]
+        or (value["status"] == "checked" and requirements_digest is None)
+        or value["authority"] != "none"
+        or value["semantics_verified"] is not False
+        or value["content_sha256"] != digest
+        or value["requirements_sha256"] != requirements_digest
+        or (requirements_digest is not None and (
+            type(requirements_digest) is not str
+            or not re.fullmatch(r"[a-f0-9]{64}", requirements_digest)
+        ))
+    ):
+        raise ValueError("invalid document quality record")
+    return dict(value)
 
 
 @dataclass(frozen=True)
@@ -254,7 +334,9 @@ def check(config: DocumentConfig, *, check_model: bool = False) -> dict[str, Any
 
 
 def run_job(
-    config: DocumentConfig, source_path: Path, task: str, job_id: str, *, execute: bool = False
+    config: DocumentConfig, source_path: Path | None, task: str, job_id: str, *,
+    execute: bool = False, source_job: str | None = None,
+    requirements: DocumentRequirements | None = None,
 ) -> dict[str, Any]:
     """Preview by default; an explicit execute reserves the job before any model call."""
     started_at = time.perf_counter()
@@ -270,7 +352,24 @@ def run_job(
             "effect": "none",
             "next_step": "inspect_existing_job_do_not_retry",
         }
-    source = _read_file(source_path, 16384)
+    if (source_path is None) == (source_job is None):
+        raise ValueError("select exactly one source file or saved source job")
+    if requirements is not None and type(requirements) is not DocumentRequirements:
+        raise ValueError("invalid host document requirements")
+    requirements_digest = (
+        _sha(_canonical(requirements.record())) if requirements is not None else None
+    )
+    if source_job is not None:
+        captured = read_job_document(config, source_job)
+        source, provenance = captured.content, captured.record()
+    else:
+        assert source_path is not None
+        source = _read_file(source_path, 16384)
+        provenance = {
+            "kind": "host_selected_file", "source_job": None,
+            "content_sha256": _sha(source), "trust": "untrusted",
+            "authority": "none", "data_class": config.data_class,
+        }
     args = argparse.Namespace(
         model=config.model,
         artifact="document",
@@ -288,6 +387,8 @@ def run_job(
             "job_id": job_id,
             "reason": "preview_only",
             "input_sha256": preview["input_sha256"],
+            "input_provenance": provenance,
+            "requirements_sha256": requirements_digest,
             "effect": "none",
         }
     _new_directory(job)
@@ -298,6 +399,8 @@ def run_job(
         "configuration_sha256": config.sha256,
         "policy_sha256": policy.sha256,
         "input_sha256": _sha(source),
+        "input_provenance": provenance,
+        "requirements_sha256": requirements_digest,
         "task_sha256": _sha(task.encode("utf-8")),
         "engine": config.engine,
         "state": "started",
@@ -345,11 +448,19 @@ def run_job(
         # Raw exceptions may contain source or provider output. Preserve only phase.
         failure = "boundary_interrupted" if submitted else "agent_or_storage_unavailable"
     state = "needs_inspection" if submitted else "error"
+    quality: dict[str, Any] | None = None
     if result is not None:
         if result.get("applied") and result.get("receipt_complete"):
             verified = verify_workspace_output(policy, job / result["receipt"])
             if verified["integrity_ok"]:
-                state = "saved"
+                try:
+                    raw = _read_file(job / "document.md", policy.max_bytes)
+                    if _sha(raw) == verified["sha256"]:
+                        quality = evaluate_document(raw, requirements)
+                        _save(job / "quality.json", quality)
+                        state = "saved"
+                except (OSError, ValueError):
+                    pass  # A write may exist; preserve needs_inspection, never retry.
         elif (
             result.get("reason") in {"guard_rejected", "proposal_rejected"}
             and result.get("receipt_complete")
@@ -377,7 +488,10 @@ def run_job(
             "total": (time.perf_counter() - started_at) * 1000,
             **(result.get("timing_ms", {}) if result else {}),
         },
-        "next_step": _NEXT[state],
+        "quality": quality,
+        "output_trust": "untrusted",
+        "output_authority": "none",
+        "next_step": _next_step(state, quality),
         "meaning_checked": False,
     }
     try:
@@ -423,6 +537,25 @@ def inspect_job(config: DocumentConfig, job_id: str) -> dict[str, Any]:
         ):
             return problem
         decision = summary.get("decision")
+        quality = None
+        output_digest = None
+        provenance = initial.get("input_provenance")
+        if provenance is not None and (
+            type(provenance) is not dict
+            or set(provenance) != {
+                "kind", "source_job", "content_sha256", "trust", "authority", "data_class",
+            }
+            or provenance["kind"] not in {"host_selected_file", "generated_document"}
+            or provenance["trust"] != "untrusted" or provenance["authority"] != "none"
+            or provenance["data_class"] != config.data_class
+            or provenance["content_sha256"] != initial.get("input_sha256")
+            or (provenance["kind"] == "host_selected_file" and provenance["source_job"] is not None)
+            or (provenance["kind"] == "generated_document" and (
+                type(provenance["source_job"]) is not str
+                or _job_name(provenance["source_job"]) == job_id
+            ))
+        ):
+            return problem
         if type(decision) is dict:
             receipt = decision.get("receipt")
             if summary["state"] in {"saved", "denied"}:
@@ -453,8 +586,28 @@ def inspect_job(config: DocumentConfig, job_id: str) -> dict[str, Any]:
             receipt = decision["receipt"]
             if not re.fullmatch(r"\.ash-[a-f0-9]{32}-[0-9]{2}-result\.json", receipt):
                 return problem
-            if not verify_workspace_output(policy, job / receipt)["integrity_ok"]:
+            verified = verify_workspace_output(policy, job / receipt)
+            if not verified["integrity_ok"]:
                 return problem
+            output_digest = verified["sha256"]
+            raw = _read_file(job / "document.md", policy.max_bytes)
+            if _sha(raw) != output_digest:
+                return problem
+            basic_quality = evaluate_document(raw)
+            if "quality" in summary:
+                quality = _checked_quality(
+                    summary["quality"], output_digest, initial.get("requirements_sha256")
+                )
+                if _json(_read_file(job / "quality.json", 8192), 8192) != quality:
+                    return problem
+                if initial.get("requirements_sha256") is None and quality != basic_quality:
+                    return problem
+                if basic_quality["status"] == "failed" and quality["status"] != "failed":
+                    return problem
+            else:
+                if provenance is not None or initial.get("requirements_sha256") is not None:
+                    return problem
+                quality = basic_quality  # Legacy local jobs were never semantic approvals.
         elif summary["state"] in {"error", "denied"}:
             if (job / "document.md").exists() or (job / "document.md").is_symlink():
                 return problem
@@ -472,7 +625,11 @@ def inspect_job(config: DocumentConfig, job_id: str) -> dict[str, Any]:
                 key: summary[key]
                 for key in ("schema_version", "job_id", "state", "reason", "effect")
             },
-            "next_step": _NEXT[summary["state"]],
+            "document_sha256": output_digest,
+            "quality": quality,
+            "output_trust": "untrusted",
+            "output_authority": "none",
+            "next_step": _next_step(summary["state"], quality),
             "writes_performed": False,
         }
     except (OSError, ValueError, KeyError, TypeError):
@@ -491,6 +648,10 @@ def human_report(result: dict[str, Any]) -> str:
         lines.append(f"Effect: {result['effect']}")
     if result.get("state") == "saved":
         lines.append("Document: jobs/<job-id>/document.md (review its accuracy)")
+        lines.append("Trust: untrusted data; grants no authority to another agent")
+        quality = result.get("quality")
+        if quality:
+            lines.append(f"Declared quality: {quality['status']} ({quality['reason']})")
     if "timing_ms" in result:
         timing = result["timing_ms"]
         lines.append(
