@@ -1,11 +1,11 @@
 {
   "cli": {
     "path": "src/agentic_security_harness/cli.py",
-    "sha256": "71d15370c8d67ad7181cb3674377abd6d91fc866455ebdcd41d2a63f1c794e79"
+    "sha256": "223998a2f64faffc94a1d6e383e6a4f58dd8c9308bc70815da67c30cd5d485b4"
   },
   "cli_authority_tests": {
     "path": "tests/test_cli_authority.py",
-    "sha256": "666d00797da9fd2872bdb4a59631f9ea33bb626ed0f3140bd7fcd5e501ab7233"
+    "sha256": "e1edf6364622af0d322a1b7a2fb78b6d18264afbde34a91e50d5a05ccf38c88e"
   },
   "code_auto_discovery": false,
   "companion_code_execution": false,
@@ -26,7 +26,7 @@
   },
   "extension_sdk_contract": {
     "path": "schemas/extension-sdk.v1.manifest.json",
-    "sha256": "5b8f66c32975514ed4745c0fbd4381bf354f0999e2c921559735d57c7a07ffc4"
+    "sha256": "2c27ff721306d541ab1fd887d2ce9015246352f9110570bc257c333ab6f12ad7"
   },
   "generator": {
     "path": "tools/policy_pack_extension_contracts.py",

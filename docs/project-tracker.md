@@ -1,5 +1,17 @@
 # Project tracker
 
+## Release candidate: usable document jobs / 1.12.0
+
+The five owner-approved product items are implemented together around the existing
+writer: one optional framework, configuration/preflight, separate jobs/read-only restart
+inspection, content-free outcomes/timings, and installed acceptance. The candidate
+adds same-config prior-job reuse as untrusted data and host-owned deterministic
+requirements; failed-quality drafts cannot chain, while `checked` is not a
+semantic truth judgment. See the [operator guide](document-workflow.md) and
+[candidate release record](releases/v1.12.0.md). New publication requires its
+own reviewed gates; the published package remains **1.11.0**.
+Full ambiguous recovery, semantic classification and external adoption remain separate.
+
 ## Configured document output — 1.11.0 published
 
 The [guarded workspace writer](guarded-workspace-writer.md) provides a

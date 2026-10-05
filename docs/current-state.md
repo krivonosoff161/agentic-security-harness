@@ -1,5 +1,17 @@
 # Current state
 
+## Document workflow — 1.12.0 release candidate
+
+[Document jobs](document-workflow.md) wrap the existing writer with setup/check/run/status,
+exclusive job IDs, optional Pydantic AI integration and content-free human/JSON
+results. A second job may use verified earlier output as untrusted source text,
+never inherited authority; host-owned exact JSON/checklist requirements distinguish
+failed, review-required and declared-criteria-checked drafts. This is candidate
+source, not a new published release. Current exact-head, Linux, installed-wheel and
+publication gates remain pending. Scripted transport and local-model observations
+are distinct evidence; neither proves adoption or production reliability. The
+published package remains **1.11.0**. See [candidate gates](releases/v1.12.0.md).
+
 ## Guarded workspace writer — published in 1.11.0
 
 The [configured writer](guarded-workspace-writer.md) takes host-owned output

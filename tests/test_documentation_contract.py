@@ -48,7 +48,7 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
     source_version = tomllib.loads(_read("pyproject.toml"))["project"]["version"]
     # Publication is separate from immutable model evidence collected on 1.6.0.
     version = "1.11.0"
-    assert source_version == "1.11.0"
+    assert source_version == "1.12.0"  # Candidate source; PyPI remains 1.11.0.
     publication = _read("docs/releases/v1.11.0.md")
     assert "status: published on" in publication.lower()
     assert "published public research release" in _read("docs/releases/v1.7.0.md")
@@ -100,7 +100,7 @@ def test_v1101_publication_preserves_failed_v110_tag_and_model_boundary() -> Non
     assert "not a replay of the six local model replies" in publication
     assert "immutable failed tag" in failed_tag
     assert "No TestPyPI or PyPI upload occurred" in failed_tag
-    assert "Distribution version: **1.11.0**" in description
+    assert "Distribution version: **1.12.0**" in description
     assert "ControlledFileSession" in description
     for path in ("README.md", "docs/getting-started.md"):
         assert "python -m pip install agentic-security-harness==1.11.0" in _read(path)
@@ -124,6 +124,27 @@ def test_v1110_publication_binds_subjects_and_retains_initial_failure() -> None:
     assert "overall result is **failed**" in notes
     assert "passed all seven jobs" in notes
     assert "No build or\nupload was repeated" in notes
+
+
+def test_v1120_candidate_does_not_claim_publication_or_semantic_quality() -> None:
+    notes = _read("docs/releases/v1.12.0.md")
+    guide = _read("docs/document-workflow.md")
+    description = _read("PACKAGE_README.md")
+    assert "Status: candidate source only" in notes
+    assert "currently published distribution is" in notes
+    assert "v1.12.0 has no claimed GitHub release" in notes
+    for marker in ("--from-job", "--requirements", "review_required", "checked",
+                   "exits 2", "untrusted data", "same unchanged configuration"):
+        assert marker in guide
+    assert "checked` never proves semantic correctness" in guide
+    assert "Distribution version: **1.12.0**" in description
+    assert "agentic-security-harness==1.12.0" in description
+    document_link = (
+        "https://github.com/krivonosoff161/agentic-security-harness/"
+        "blob/v1.12.0/docs/document-workflow.md"
+    )
+    assert document_link in description
+    assert "not yet published" in _read("README.md")
 
 
 def test_v170_publication_confirmation_preserves_failed_runs_and_exact_subjects() -> None:

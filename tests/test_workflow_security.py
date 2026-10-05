@@ -114,6 +114,19 @@ def test_installed_workspace_acceptance_is_kept_in_every_delivery_stage() -> Non
     ]
 
 
+def test_installed_document_acceptance_is_required_for_new_release() -> None:
+    workflows = _workflow_texts()
+    for name, count in (("ci.yml", 1), ("release.yml", 2),
+                        ("publish-pypi.yml", 4), ("verify-published-release.yml", 2)):
+        assert len(re.findall(r"python -I -B (?:release-example/)?tools/"
+                              r"check_document_workflow.py --out", workflows[name])) == count
+    verifier = workflows["verify-published-release.yml"]
+    assert 'os.environ["RELEASE_VERSION"].split(".")' in verifier
+    assert "test -f release-example/tools/check_document_workflow.py" in verifier
+    assert "--engine native" in verifier
+    assert "--engine pydantic-ai" in verifier
+
+
 def test_multicommand_contract_and_full_gates_fail_on_first_error_on_both_platforms() -> None:
     selected = {
         "ecosystem-docs.yml": {"Validate generated contracts"},
