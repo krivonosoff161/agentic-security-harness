@@ -328,20 +328,22 @@ jobs:
         run: |
           set -euo pipefail
           python -I -B -c "import pathlib,agentic_security_harness as ash; p=pathlib.Path(ash.__file__).resolve(); assert pathlib.Path('src').resolve() not in p.parents; print(p)"
-          python -I -B -m pytest -q --noconftest -p no:cacheprovider --junitxml=installed-document-integration.xml \
+          python -I -B -m pytest -q --noconftest -p no:cacheprovider --junitxml=installed-document-integration-${{ matrix.os }}.xml \
             tests/test_document_restrictions.py tests/test_document_source_restrictions.py \
             tests/test_document_expectations.py tests/test_document_coverage.py \
             tests/test_workspace_session_closure.py tests/test_document_recovery.py \
             tests/test_document_recovered_handoff.py tests/test_workspace_bound_tool.py \
             tests/test_document_generation.py tests/test_document_workflow.py
-          python -I -B -c "from xml.etree import ElementTree as E; r=E.parse('installed-document-integration.xml').getroot(); assert not list(r.iter('skipped')), 'installed integration must not skip optional tests'"
+          python -I -B -c "from xml.etree import ElementTree as E; r=E.parse('installed-document-integration-${{ matrix.os }}.xml').getroot(); assert not list(r.iter('skipped')), 'installed integration must not skip optional tests'"
       - name: Preserve optional test report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: optional-${{ matrix.os }}
-          path: optional-${{ matrix.os }}.xml
-          if-no-files-found: warn
+          path: |
+            optional-${{ matrix.os }}.xml
+            installed-document-integration-${{ matrix.os }}.xml
+          if-no-files-found: error
           retention-days: 30
 
   aggregate-test-coverage:
@@ -361,5 +363,5 @@ jobs:
           pattern: "*-*-latest"
           path: test-reports
           merge-multiple: true
-      - name: Require all four reports and complete passing union
+      - name: Require all six reports and complete passing union
         run: python tools/check_test_coverage.py test-reports --tests-root tests
