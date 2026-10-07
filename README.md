@@ -20,6 +20,12 @@ validate, compare, and review.
 
 ## Document workflow — published in 1.12.0
 
+Source development for [#343](https://github.com/krivonosoff161/agentic-security-harness/issues/343)
+adds a [host-bound text tool](docs/document-workflow.md#development-contract-host-bound-text-tool),
+inherited source restrictions, expected-job coverage and reviewed recovery of
+existing document bytes. These are **unreleased candidate APIs**, not features of
+the 1.12.0 install below. They retain the same guarded create-only writer.
+
 The [document jobs guide](docs/document-workflow.md) covers workspace setup,
 permission preview, separate jobs, restart inspection, content-free quality
 status and an optional Pydantic AI bridge around the writer. A verified first

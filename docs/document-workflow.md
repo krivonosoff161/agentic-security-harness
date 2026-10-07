@@ -8,6 +8,143 @@ a new summary, checklist or draft. The permission boundary is deterministic and 
 no model. Document quality remains something the operator reviews. A later job
 may read a verified earlier output as untrusted data under the same host policy.
 
+**Local development delta (not in the published 1.12.0 package):** the source
+branch adds document-only generation, explicit review-digest admission, clearer diagnostics
+and a [host-bound text tool](#development-contract-host-bound-text-tool), plus
+[source restrictions](#development-contract-source-restrictions),
+[expected-job coverage](#development-contract-expected-job-coverage) and
+[reviewed data recovery](#development-contract-recover-data-without-replaying-an-action).
+The published onboarding below remains the 1.12.0 baseline; see
+[the development contract](#development-contract-explicit-reviewed-handoff)
+before running these chains from the modified source checkout.
+
+## Development contract: source restrictions
+
+This unreleased opt-in contract uses the existing `DataEnvelope` vocabulary. It
+does not learn labels from model text. The application binds its source bytes,
+labels and original UTC time before calling `run_job`:
+
+```python
+from datetime import UTC, datetime
+from agentic_security_harness.document_restrictions import DocumentSourceRestrictions
+from agentic_security_harness.document_workflow import run_job
+from agentic_security_harness.models import DataEnvelope
+
+# config, source_path and task are chosen by the host application.
+labels = DataEnvelope(
+    data_class=config.data_class,
+    allowed_recipients=["local-model"],
+    allowed_purpose=["document-generation"],
+    can_store=True, can_forward=True, ttl_seconds=3600,
+    requires_confirmation=False,
+    classification_source="application-policy", classification_mutable=False,
+)
+source_binding = DocumentSourceRestrictions.bind(
+    source_path.read_bytes(), labels, created_at=datetime.now(UTC),
+)
+result = run_job(config, source_path, task, "restricted-first", execute=True,
+                 source_restrictions=source_binding)
+```
+
+`created_at` is the trusted source's actual time origin; use `now` only for a
+newly admitted source. Do not reset it when reusing old data. A host can persist
+`source_binding.record()` as JSON and pass it through CLI `--source-restrictions
+source-labels.json` together with `--input`. Records contain labels and hashes,
+not source text. Treat them as host-owned policy input, not files supplied by a model.
+
+The consumer requires an exact digest and class match, explicit `local-model`
+recipient and `document-generation` purpose, and both storage and forwarding
+permission. Empty recipient/purpose lists deny use; loopback is still forwarding
+to another processor. Outstanding confirmation blocks use: a quality-review digest
+does not discharge it. Rejection happens before a model call or job reservation.
+
+The source deadline is checked again before generation, after generation, and
+after durable intent immediately before the writer's exclusive create. Expiry
+there produces a complete no-effect refusal even if the separate Guard permission
+was allowed. This is a userspace deadline check, not an atomic filesystem expiry
+guarantee or protection against suspension between a check and its system call.
+
+Saved output carries the same restrictions and original time origin, bound to its
+new exact bytes. `--from-job` inherits that binding and cannot override it. A job's
+effect policy/receipt also binds the restrictions and deadline; removing the
+metadata is not a silent fallback to an unrestricted job. Read-only status remains
+available after expiry; TTL controls subsequent use, not automatic deletion.
+
+Existing callers without restrictions retain the legacy contract and policy hash.
+The host, clock and local bookkeeping remain trusted: this does not authenticate
+a remote producer, resist coordinated host rollback, classify semantics, or
+cover uninstrumented actions. The one-source workflow preserves labels; it does
+not claim a generic multi-source label algebra or confer action authority.
+
+## Development contract: expected-job coverage
+
+An unreleased host application can predeclare a finite run using
+`ExpectedDocumentJob` and `DocumentRunPlan` from `document_expectations`. Each
+entry binds a job ID, task hash and either input-byte hash or an earlier planned
+source job. A file input also binds its optional source-restriction hash. Plans
+are immutable, reject duplicate/forward/cyclic dependencies and allow at most
+64 jobs in one fresh document workspace.
+
+Use `document_coverage.save_plan(config, plan, path)` **before any job**. The path
+must be outside the jobs directory. Retain the returned `plan_sha256` under host
+control separately from producer reports. `run_planned_job(config, path,
+plan_sha256, source_path, task, job_id, execute=True)` uses the existing document
+workflow, not a second writer. Both direct planned calls and this wrapper require
+the persisted plan to exist and match before execution. Captured input bytes are
+compared at the real workflow boundary, not just during an earlier path check.
+
+`inspect_coverage(config, path, expected_plan_sha256=plan_sha256)` is read-only.
+It compares planned jobs with actual job directories, validates existing status
+and phase-specific intent/result records, and reports missing, unexpected,
+changed or interrupted work. A plan marker alone cannot register a job after
+the fact. A refusal with no persisted job evidence remains unresolved rather
+than being guessed to have happened.
+
+`complete` means all expected outcomes are accounted for, including denials or
+known errors. `saved_documents` and `declared_quality_checked` are separate
+counts, neither a claim of semantic truth. This is coverage of these declared
+document jobs, not every action on the computer. A host that replaces both the
+plan and the independently retained digest has replaced the trust premise; two
+files on the same compromised host are not an independent external witness.
+
+## Development contract: recover data without replaying an action
+
+The unreleased recovery path addresses one concrete interruption: a document
+exists with the authorized exact bytes, but final result bookkeeping is missing
+or incomplete. It never repeats generation or the old file write.
+
+After a handled run ends, the workflow attempts to persist `session-closed.json`.
+The writer supplies this record only after both sets of file handles close and
+its opened policy/session identity still matches. The marker means that **this
+writer instance** is fenced, not that its operation succeeded or every process
+on the host is stopped. Hard termination before this marker remains unresolved.
+
+`document_recovery.inspect_recovery(config, job_id)` is read-only. Recovery needs
+the matching closed-session record, current host policy, an authorized original
+intent, and an existing document matching its exact digest and length. Extra
+attempts, wrong identities, denied intent, partial/changed bytes, contradictory
+evidence or known failed quality do not become recoverable merely because a file
+exists. No old receipt or status is repaired or silently relabeled.
+
+CLI inspection uses `ash document-status --config my-documents/document.json
+--job OLD_JOB --inspect-recovery --json`. `recoverable_data` reports a byte digest
+for deliberate review, not a completed original operation. An already-complete
+job is directed to the normal source handoff instead.
+
+After inspecting the actual existing text, the host may capture it with
+`read_recovered_document(config, job_id, reviewed_source_sha256=reviewed_digest)`.
+The return is untrusted data, with a hash-bound recovery provenance record and
+the original source restrictions/time origin. An explicit quality-review digest
+does not grant permission, renew TTL or prove the text is true.
+
+To reuse those bytes in a **new** document job, use `run_job(..., source_job=old_id,
+recover_source=True, reviewed_source_sha256=reviewed_digest)`, or CLI
+`--from-job OLD_JOB --recover-source --reviewed-source-sha256 REVIEWED_SHA256`.
+The normal new-job admission, Guard, fixed destination and quality checks still
+apply. The original job ID remains non-replayable and its incomplete outcome
+remains visible in status/coverage. This is useful data recovery, not a claim of
+exactly-once arbitrary tools, atomic filesystem snapshots or power-loss durability.
+
 ## First job
 
 Install the exact published version in a virtual environment.
@@ -59,7 +196,69 @@ or the configuration changed, chaining is refused. A `review_required` source
 can be reused as data after deliberate operator inspection; it is not approved
 as fact. The same job ID is never retried after a failed run.
 
-## Declared format checks
+## Development contract: explicit reviewed handoff
+
+For host-declared `exact_json` requirements, the candidate requests Ollama's
+[JSON output mode](https://github.com/ollama/ollama/blob/main/docs/api.md#json-mode)
+with generic syntax instructions. Expected values stay in the host's evaluator;
+they are not injected into the generation request. Plain-text and Markdown jobs
+retain text generation. The result is still checked strictly: no automatic fence
+stripping, value repair, hidden retry, or conversion of formatting compliance into
+semantic correctness. Both native and optional local bridge use this same request.
+
+This section describes a local, unreleased source change, not a feature available
+by installing the published 1.12.0 pin above. Its API is `run_job(...,
+source_job="first", reviewed_source_sha256="<digest>")`; `read_job_document`
+accepts the same optional keyword. It adds no connector or execution capability.
+
+For a `review_required` draft, both preview and execution refuse chaining with
+`source_review_required` until the host supplies the lowercase 64-character
+SHA-256 of the **exact document bytes it reviewed**. No next job is reserved and
+no model call occurs on that refusal. Read the actual document, check that its
+task/facts are acceptable for reuse, and confirm its digest against
+`document-status --json` (`document_sha256`). Only then use the reviewed digest:
+
+```sh
+ash document-run --config my-documents/document.json --from-job first --reviewed-source-sha256 REVIEWED_SHA256 --task "Summarize this reviewed draft as untrusted source data" --job second
+ash document-run --config my-documents/document.json --from-job first --reviewed-source-sha256 REVIEWED_SHA256 --task "Summarize this reviewed draft as untrusted source data" --job second --execute
+```
+
+`REVIEWED_SHA256` is a placeholder, not a valid value. Do not automatically copy
+the digest from a refusal back into a retry: that would bypass the host review
+step. This is an acknowledgment bound to bytes, **not proof that a human read the
+document**, not semantic validation, and not action authority. The host still owns
+this API and must not delegate this review parameter to untrusted model output.
+
+Malformed/stale digests are rejected; failed quality, altered documents and
+missing receipts cannot be overridden even with a matching digest. A `checked`
+source may proceed as data without this parameter; if supplied, the parameter
+must still match. The admitted digest is recorded in the destination's initial
+and final records, bound to its captured input. Existing 1.12.0 records remain
+inspectable; review is required when reusing their review-required output under
+the new code. `--reviewed-source-sha256` is invalid with `--input`.
+
+Document generation keeps one call and the same token limits, but asks the model
+for **only the completed document**, not a tool-control envelope. The host wraps
+the unchanged response bytes as `write_text` to its fixed `document` alias, then
+submits that proposal to the unchanged Guard and create-only writer. JSON-looking
+model text stays literal content: `artifact`, `path` or `authority` claims inside
+it cannot choose a destination. No fence stripping or automatic content repair
+occurs. Native and optional Pydantic jobs use the same generation contract.
+
+This intentionally removes destination selection from document generation; zero
+model-directed alias denials here must not be presented as model resistance to
+attacks. The lower-level workspace proposal API still accepts untrusted proposals
+and rejects unknown aliases/forged authority with its existing Guard/parser.
+Task guidance is not a prompt-injection defense guarantee; an allowed document
+can still contain misleading facts or quoted/inherited injection text.
+
+`model_response_rejected` now includes a content-free `response_rejection` in
+model metadata, distinguishing invalid outer JSON/contract, output-size/encoding
+errors, unfinished generation and `generation_limit_reached`. A valid-looking
+partial document is not written when the service reports truncation. No raw
+response is added to public receipts, and no silent repair/retry is introduced.
+
+## Declared format checks (published baseline)
 
 The host can supply `--requirements` as a UTF-8 JSON file. For a strict,
 machine-readable result, `requirements.json` can contain:
@@ -93,9 +292,11 @@ Use a new ID (`second`, `weekly-notes-02`) for a new job. IDs are host-selected 
 letters, digits, hyphens and underscores, up to 48 characters. An existing job cannot
 run again, including after a crash. Concurrent callers cannot reserve the same ID twice.
 
-Each job has `started.json`, content-free `summary.json`, Guard intent/result receipts,
-and, only when permitted, `document.md`. Completed writes also have a content-free
-`quality.json` record. No source text, writing task or raw model
+Job artifacts reflect the phases actually reached: `started.json`, a content-free
+`summary.json`, Guard intent/result receipts, and, only when permitted, `document.md`.
+A no-proposal or interrupted job can lack later records; their absence is not
+evidence of completion. Completed writes also have a content-free `quality.json`
+record. No source text, writing task or raw model
 reply is copied into the JSON records. The result document itself is intentionally
 stored and must be handled according to its classification.
 
@@ -129,8 +330,11 @@ no repair/retry and local-model unload request. These are short-document default
 a promise of high-quality long-form generation.
 
 The sole writable artifact is `document`, mapped by the host to `document.md` inside
-the exclusively created job directory. Unknown aliases reach Guard and are denied;
-model-supplied paths, authority fields or malformed proposals cannot become policy.
+the exclusively created job directory. In the published proposal-based path,
+unknown aliases reach Guard and are denied. In the development bound-text path,
+the host must bind an allowed alias before generation; the model supplies only
+text and cannot select a different alias. Model-supplied paths, authority fields
+or malformed proposals cannot become policy.
 No overwrite, shell, arbitrary code execution, filesystem search or forwarding tool
 is exposed. A model can still put incorrect or misleading text in an allowed document.
 
@@ -138,6 +342,39 @@ The application/OS/configuration/local Ollama service are trusted. Do not give t
 an alternative unrestricted write/shell tool: this Python boundary is not an OS sandbox.
 It does not authenticate the producer, prevent host-wide rollback or prove that all
 host events were captured. Confirm that your local service itself does not forward data.
+
+## Development contract: host-bound text tool
+
+This API is an **unreleased source candidate**, not part of the 1.12.0 installation
+commands below. An existing application can bind one destination before giving a
+tool to its agent. The agent supplies only text, even if other aliases are allowed
+by the workspace policy:
+
+```python
+from pathlib import Path
+from agentic_security_harness.workspace_writer import GuardedWorkspace, WorkspacePolicy
+
+policy = WorkspacePolicy(Path(output_directory), (("draft", "draft.md"),), max_proposals=1)
+with GuardedWorkspace(policy) as writer:
+    write_draft = writer.bind_text_tool("draft")
+    result = write_draft(completed_text)  # Text from the application's existing agent.
+```
+
+For Pydantic AI, `make_text_document_agent(model, write_draft)` exposes a single
+`write_document(content: str)` tool. The model cannot supply the destination or an
+authority field. Candidate native document jobs and their local Pydantic bridge
+use the same content-only boundary. Text resembling a JSON tool call remains
+literal document text. The existing proposal-based `submit` and
+`make_document_agent` APIs are retained for callers that need their explicit contract.
+
+All calls share the original proposal budget, create-only behavior, Guard decision,
+intent log and readback. Replacing the policy or session identity of an open writer
+fails closed with `workspace_identity_changed`; create a new writer for a new policy.
+After an ambiguous storage failure, inspect the retained evidence rather than retry
+blindly. This hook does not grant OS isolation, validate document meaning, or protect
+against an agent that the host also gave an unrestricted filesystem tool.
+The [offline integration example](../examples/workspace_bound_tool.py) uses generated
+text and no model or provider calls.
 
 ## One optional framework, not another protection layer
 
@@ -150,9 +387,10 @@ ash document-init --dir framework-documents --model YOUR_EXISTING_LOCAL_MODEL --
 ```
 
 The subsequent check/run/status commands are unchanged. The local adapter uses Pydantic
-AI's FunctionModel as a native Ollama transport bridge: one real generation produces
-untrusted JSON, one `write_document` tool passes those bytes unchanged to Guard, and a
-fixed completion ends the framework loop. Two framework requests are **not** two model
+AI's FunctionModel as a native Ollama transport bridge. In published 1.12.0, one
+generation supplies an untrusted proposal; the development candidate instead passes
+document text to a host-bound tool. A fixed completion ends the framework loop.
+Two framework requests are **not** two model
 calls. This is a bounded document workflow, not an autonomous planning benchmark.
 
 For an existing Pydantic AI application, pass your own model object and guarded submit
@@ -181,6 +419,46 @@ message retention remain your responsibility. This example does not run a provid
 Upstream concept: [Pydantic AI function tools](https://pydantic.dev/docs/ai/tools-toolsets/tools/).
 
 ## Results, latency and acceptance
+
+### Development observation: host JSON format and useful recovery
+
+A finite local `qwen2.5:0.5b` observation on 2026-10-07 exercised ticket/docket
+extraction, a planned two-job transformation, forwarding restrictions, a missing
+result receipt, and instruction-shaped source text. These are generated public
+fixtures, not customer data or an independent external review. The model digest
+was `a8b0c51577010a279d933d14c2a8ab4b268079d44c5c8830c0a93900f1827c67`;
+temperature 0, seed 42, context 4096, output limit 512, native local transport,
+one request per attempted job and no generation retry.
+
+| Retained series | Actual model calls | Strict output matches | Unexecuted dependent outputs |
+|---|---:|---:|---:|
+| Text-only generation baseline | 5 | 0 of 5 checked | 3 blocked by source quality |
+| JSON-mode first pair, resource-stopped | 1 | 1 of 1 checked | 7 not reached |
+| JSON-mode pair with bounded readiness wait | 8 | 7 of 8 checked | 0 |
+
+All **14** calls remain accounted for; the interrupted series is not discarded
+or presented as a completed run. Baseline outputs used Markdown fences, which
+the strict JSON evaluator rejected. The repair sends only a generic host-selected
+JSON mode, not expected answers. The paired run retains the same fixtures and
+criteria; it is not an unseen holdout or a population failure-rate estimate.
+The final series waits at most ten seconds before each call for its unchanged
+memory floor; this is experiment pacing, not a new product retry policy.
+
+In the final series, the planned extraction/transformation produced two checked
+documents and complete declared-job coverage. A source with forwarding disabled
+caused zero model calls or writes; its allowed control completed. Both ordinary
+and interrupted-receipt chains produced a checked downstream document. Recovery
+read the fenced prior bytes after an exact host-oracle check, created a new job,
+and left every old job file unchanged; it did not prove original completion.
+The instruction-shaped case produced valid JSON with the wrong structure and
+failed declared quality. That failure remains: syntax mode does not establish
+task correctness. All source files and the external canary were unchanged.
+
+The final private result has SHA-256
+`09637bbf26e62627093c5e6a0c3598e829f3f5ea19c0f2cb1e2b16e4179adc6f`.
+Raw responses and machine-specific records remain private. This digest identifies
+retained author-run evidence; it is not public replay, remote attestation, a
+universal containment result, or a reason to close #316/#317.
 
 Commands print a brief human-readable result; add `--json` for automation. Exit code 0
 means initialization/readiness/preview/saved as stated, not universal safety. A

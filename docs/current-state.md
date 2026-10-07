@@ -1,5 +1,34 @@
 # Current state
 
+## Local candidate — useful document output and reviewed handoff
+
+Unreleased source work keeps the published **1.12.0** unchanged. Document jobs
+now ask the model for document text only; the host wraps it for the same fixed
+destination and Guard. Review-required sources need an explicit exact-byte host
+review digest before a new job or model call. Generation errors have content-free
+diagnostic categories. See the [development contract](document-workflow.md#development-contract-explicit-reviewed-handoff).
+These changes do not establish semantic correctness or a learned labeler.
+
+The same candidate adds `GuardedWorkspace.bind_text_tool(alias)` for an existing
+application's content-only tool and the optional `make_text_document_agent` bridge.
+Native document jobs use this bound path. Policy/session drift on an open writer
+is rejected before effects; the original proposal interface remains supported.
+See the [candidate integration contract](document-workflow.md#development-contract-host-bound-text-tool).
+
+The same unreleased source now accepts host-bound `DataEnvelope` restrictions on
+document input. Exact-byte/class, storage, forwarding, recipient, purpose and
+expiry checks precede use; the bound writer rechecks expiry after durable intent.
+Saved output and `from-job` preserve the original restrictions/time origin.
+This is a concrete opt-in local consumer, not semantic classification or remote
+source authentication. See the [contract](document-workflow.md#development-contract-source-restrictions).
+
+The candidate also compares actual jobs to a separately retained host plan and
+can hand exact reviewed bytes from a closed, interrupted writer to a **new** job.
+Recovery does not replay the old effect or change its unresolved outcome. These
+are document-workflow integrations, not closure of general completeness #316 or
+recovery #317. See [coverage](document-workflow.md#development-contract-expected-job-coverage)
+and [recovery](document-workflow.md#development-contract-recover-data-without-replaying-an-action).
+
 ## Document workflow — published in 1.12.0
 
 [Document jobs](document-workflow.md) wrap the existing writer with setup/check/run/status,
@@ -84,7 +113,7 @@ or imply that all questions have complete proofs. See
 [contract conclusions and evidence limits](theory/foundation-obligations.md) and the
 associated regressions. Complete working derivations remain outside public Git.
 
-The prior published package is **1.10.1**, built from exact tag source
+At the historical 1.10.1 checkpoint, the published package was **1.10.1**, built from exact tag source
 `46d38200e404ee1106f2f012a753c3d6a11150fc`; build `37101792230`
 passed four jobs, TestPyPI `37102048175` passed three, PyPI `37102205673`
 passed five, and final read-only cross-index `37102316728` passed all seven

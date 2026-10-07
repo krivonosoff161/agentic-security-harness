@@ -28,7 +28,7 @@ def test_scripted_native_acceptance_from_source(
     assert result["metadata_gets"] == 1
     assert result["generation_posts"] == 12
     assert result["protected_unchanged"] is True
-    assert result["checks"] == 27
+    assert result["checks"] == 31
     saved = json.loads((tmp_path / "fresh" / "acceptance.json").read_text(encoding="utf-8"))
     assert saved == result
     assert "PUBLIC_SOURCE_SENTINEL" not in json.dumps(saved)

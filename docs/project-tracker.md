@@ -1,5 +1,24 @@
 # Project tracker
 
+## Local document-result repair — no new connector or release
+
+Implemented and locally tested: document-only generation with host-owned write envelope, explicit
+review-digest admission for review-required prior outputs, typed diagnostics and
+same-task local before/after evaluation. Published 1.12.0 and its evidence remain
+unchanged. More successful file writes are not counted as semantic task success.
+Semantic task acceptance remains open; this is not a release-readiness declaration.
+The [development contract](document-workflow.md#development-contract-explicit-reviewed-handoff)
+describes the intended API and its trusted-host review boundary.
+
+Issue #343 also tracks the host-bound text tool and source-restriction integration:
+input admission, effect-time expiry recheck and retained restrictions through
+document chaining. They remain source candidates; platform/installed verification,
+history completeness (#316), recovery (#317) and the final PR gate are separate
+program obligations, not closed by this implementation. The current candidate
+implements expected-job/phase accounting against a host-retained plan and a
+read-only recovery-to-new-job path for exact bytes left by a closed writer.
+These bounded integrations do not close the broader #316/#317 questions.
+
 ## Published usable document jobs / 1.12.0
 
 The five owner-approved product items are implemented together around the existing

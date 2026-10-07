@@ -14,12 +14,14 @@ import os
 import re
 import time
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from agentic_security_harness._fixture_files import _checked_directory, _identity
 from agentic_security_harness._workspace_files import WorkspaceFiles, _validate_filename
 from agentic_security_harness.document_quality import DocumentRequirements, evaluate_document
+from agentic_security_harness.document_restrictions import DocumentSourceRestrictions
 from agentic_security_harness.ollama_quarantine_adapter import (
     _MODEL_ID,
     OllamaQuarantineConfigV1,
@@ -56,6 +58,21 @@ _REASONS = {
     "target_already_exists",
     "session_unavailable",
     "proposal_budget_exhausted",
+    "workspace_identity_changed",
+    "source_clock_invalid",
+    "source_digest_mismatch",
+    "source_class_mismatch",
+    "source_storage_forbidden",
+    "source_forwarding_forbidden",
+    "source_recipient_forbidden",
+    "source_purpose_forbidden",
+    "source_confirmation_required",
+    "source_expired",
+}
+_RESPONSE_REJECTIONS = {
+    "outer_json_invalid", "outer_contract_invalid", "generation_limit_reached",
+    "generation_not_completed", "proposal_encoding_invalid", "proposal_size_invalid",
+    "proposal_json_invalid",
 }
 _NEXT = {
     "saved": "read_document_and_review_accuracy",
@@ -99,23 +116,39 @@ class DocumentInput:
     content: bytes = field(repr=False)
     source_job: str
     data_class: str
+    restrictions: DocumentSourceRestrictions | None = None
+    recovery_sha256: str | None = None
 
     def record(self) -> dict[str, Any]:
         return {
-            "kind": "generated_document",
+            "kind": ("recovered_document" if self.recovery_sha256 is not None
+                     else "generated_document"),
             "source_job": self.source_job,
             "content_sha256": _sha(self.content),
             "trust": "untrusted",
             "authority": "none",
             "data_class": self.data_class,
+            **({"recovery_evidence_sha256": self.recovery_sha256}
+               if self.recovery_sha256 is not None else {}),
         }
 
 
-def read_job_document(config: DocumentConfig, job_id: str) -> DocumentInput:
+class SourceReviewBlocked(ValueError):
+    """Content-free reason for a source whose exact bytes need host review."""
+
+    def __init__(self, reason: str, source_sha256: str) -> None:
+        super().__init__(reason)
+        self.reason = reason
+        self.source_sha256 = source_sha256
+
+
+def read_job_document(
+    config: DocumentConfig, job_id: str, *, reviewed_source_sha256: str | None = None,
+) -> DocumentInput:
     """Read a saved job as data; refuse failed quality, changed or incomplete output.
 
     The destination job still obtains its permissions exclusively from its host config.
-    No model call, file write, resume, approval or execution is performed here.
+    A host digest acknowledges review of these exact bytes; it grants no authority.
     """
     status = inspect_job(config, job_id)
     if status.get("state") != "saved" or status.get("quality", {}).get("status") == "failed":
@@ -124,12 +157,28 @@ def read_job_document(config: DocumentConfig, job_id: str) -> DocumentInput:
     # Bind the bytes actually returned, not a path validated before a later read.
     if _sha(raw) != status.get("document_sha256"):
         raise ValueError("source changed during capture")
-    return DocumentInput(raw, job_id, config.data_class)
+    digest = _sha(raw)
+    if reviewed_source_sha256 is not None and (
+        type(reviewed_source_sha256) is not str
+        or re.fullmatch(r"[a-f0-9]{64}", reviewed_source_sha256) is None
+    ):
+        raise SourceReviewBlocked("source_review_digest_invalid", digest)
+    if reviewed_source_sha256 is not None and reviewed_source_sha256 != digest:
+        raise SourceReviewBlocked("source_review_digest_mismatch", digest)
+    if status["quality"]["status"] == "review_required" and reviewed_source_sha256 is None:
+        raise SourceReviewBlocked("source_review_required", digest)
+    restrictions = (
+        DocumentSourceRestrictions.from_record(status["output_restrictions"])
+        if status.get("output_restrictions") is not None else None
+    )
+    return DocumentInput(raw, job_id, config.data_class, restrictions)
 
 
 def _next_step(state: str, quality: dict[str, Any] | None) -> str:
     if state == "saved" and quality is not None and quality["status"] == "failed":
         return "review_failed_document_requirements_do_not_chain"
+    if state == "saved" and quality is not None and quality["status"] == "review_required":
+        return "review_document_then_supply_exact_sha256_for_chaining"
     return _NEXT[state]
 
 
@@ -192,13 +241,18 @@ class DocumentConfig:
         OllamaQuarantineConfigV1(port=self.port, timeout_seconds=self.timeout)
         self.policy(self.jobs_dir)  # Shared limit/classification validation.
 
-    def policy(self, root: Path) -> WorkspacePolicy:
+    def policy(
+        self, root: Path, *, source_restrictions_sha256: str | None = None,
+        source_expires_at: datetime | None = None,
+    ) -> WorkspacePolicy:
         return WorkspacePolicy(
             root,
             (("document", "document.md"),),
             self.max_bytes,
             max_proposals=1,
             data_class=self.data_class,
+            source_restrictions_sha256=source_restrictions_sha256,
+            source_expires_at=source_expires_at,
         )
 
     def record(self) -> dict[str, Any]:
@@ -337,6 +391,12 @@ def run_job(
     config: DocumentConfig, source_path: Path | None, task: str, job_id: str, *,
     execute: bool = False, source_job: str | None = None,
     requirements: DocumentRequirements | None = None,
+    reviewed_source_sha256: str | None = None,
+    source_restrictions: DocumentSourceRestrictions | None = None,
+    expected_input_sha256: str | None = None,
+    run_plan_sha256: str | None = None,
+    run_plan_path: Path | None = None,
+    recover_source: bool = False,
 ) -> dict[str, Any]:
     """Preview by default; an explicit execute reserves the job before any model call."""
     started_at = time.perf_counter()
@@ -354,14 +414,74 @@ def run_job(
         }
     if (source_path is None) == (source_job is None):
         raise ValueError("select exactly one source file or saved source job")
+    if reviewed_source_sha256 is not None and source_job is None:
+        raise ValueError("reviewed source digest requires a source job")
+    if type(recover_source) is not bool or (recover_source and source_job is None):
+        raise ValueError("source recovery requires a source job")
+    if recover_source and reviewed_source_sha256 is None:
+        return {"state": "error", "job_id": job_id, "effect": "none",
+                "reason": "source_recovery_review_required",
+                "next_step": "inspect_recovery_and_review_exact_bytes_before_new_job"}
     if requirements is not None and type(requirements) is not DocumentRequirements:
         raise ValueError("invalid host document requirements")
+    if (source_restrictions is not None
+            and type(source_restrictions) is not DocumentSourceRestrictions):
+        raise ValueError("invalid host source restrictions")
+    if source_job is not None and source_restrictions is not None:
+        raise ValueError("source job restrictions cannot be overridden")
+    for digest in (expected_input_sha256, run_plan_sha256):
+        if digest is not None and (
+            type(digest) is not str or re.fullmatch(r"[a-f0-9]{64}", digest) is None
+        ):
+            raise ValueError("invalid host expectation digest")
+    if (run_plan_path is None) != (run_plan_sha256 is None):
+        raise ValueError("plan path and retained digest must be supplied together")
+    expected_job = None
+    if run_plan_path is not None:
+        # Lazy import avoids a module cycle; coverage uses this actual workflow.
+        from agentic_security_harness.document_coverage import load_plan
+
+        assert run_plan_sha256 is not None
+        plan = load_plan(run_plan_path, expected_sha256=run_plan_sha256)
+        if plan.configuration_sha256 != config.sha256:
+            raise ValueError("plan configuration mismatch")
+        expected_job = plan.for_job(job_id)
+        if type(task) is not str or _sha(task.encode("utf-8")) != expected_job.task_sha256:
+            raise ValueError("task differs from host expectation")
+        if source_job != expected_job.source_job:
+            raise ValueError("source job differs from host expectation")
+        if (expected_input_sha256 is not None
+                and expected_input_sha256 != expected_job.input_sha256):
+            raise ValueError("input expectation cannot override plan")
+        expected_input_sha256 = expected_job.input_sha256
+        restriction_digest = source_restrictions.sha256 if source_restrictions is not None else None
+        if source_job is None and restriction_digest != expected_job.source_restrictions_sha256:
+            raise ValueError("source restrictions differ from host expectation")
     requirements_digest = (
         _sha(_canonical(requirements.record())) if requirements is not None else None
     )
+    generation_json = requirements is not None and requirements.mode == "exact_json"
     if source_job is not None:
-        captured = read_job_document(config, source_job)
+        try:
+            if recover_source:
+                from agentic_security_harness.document_recovery import read_recovered_document
+
+                assert reviewed_source_sha256 is not None
+                captured = read_recovered_document(
+                    config, source_job, reviewed_source_sha256=reviewed_source_sha256,
+                )
+            else:
+                captured = read_job_document(
+                    config, source_job, reviewed_source_sha256=reviewed_source_sha256
+                )
+        except SourceReviewBlocked as exc:
+            return {
+                "state": "error", "job_id": job_id, "reason": exc.reason,
+                "source_sha256": exc.source_sha256, "effect": "none",
+                "next_step": "inspect_source_and_review_exact_bytes_before_new_job",
+            }
         source, provenance = captured.content, captured.record()
+        source_restrictions = captured.restrictions
     else:
         assert source_path is not None
         source = _read_file(source_path, 16384)
@@ -370,6 +490,34 @@ def run_job(
             "content_sha256": _sha(source), "trust": "untrusted",
             "authority": "none", "data_class": config.data_class,
         }
+
+    if expected_input_sha256 is not None and _sha(source) != expected_input_sha256:
+        raise ValueError("captured input differs from host expectation")
+
+    def source_reason() -> str | None:
+        return source_restrictions.admission_reason(
+            source, data_class=config.data_class, now=datetime.now(UTC)
+        ) if source_restrictions is not None else None
+
+    reason = source_reason()
+    if reason is not None:
+        return {
+            "state": "error", "job_id": job_id, "reason": reason, "effect": "none",
+            "model": {"transport_attempts": 0},
+            "next_step": "review_host_source_restrictions_before_new_job",
+        }
+    restriction_fields = {
+        "source_restrictions": source_restrictions.record(),
+        "source_restrictions_sha256": source_restrictions.sha256,
+    } if source_restrictions is not None else {}
+    policy = config.policy(
+        job, source_restrictions_sha256=(
+            source_restrictions.sha256 if source_restrictions is not None else None
+        ),
+        source_expires_at=(
+            source_restrictions.expires_at if source_restrictions is not None else None
+        ),
+    )
     args = argparse.Namespace(
         model=config.model,
         artifact="document",
@@ -379,7 +527,9 @@ def run_job(
         timeout=config.timeout,
         execute=False,
     )
-    _, preview = _generate(args, config.policy(job), source=source)
+    _, preview = _generate(
+        args, policy, source=source, document_content=True, generation_json=generation_json,
+    )
     if not execute:
         return {
             **preflight,
@@ -389,10 +539,11 @@ def run_job(
             "input_sha256": preview["input_sha256"],
             "input_provenance": provenance,
             "requirements_sha256": requirements_digest,
+            "reviewed_source_sha256": reviewed_source_sha256,
             "effect": "none",
+            **restriction_fields,
         }
     _new_directory(job)
-    policy = config.policy(job)
     initial = {
         "schema_version": VERSION,
         "job_id": job_id,
@@ -400,10 +551,13 @@ def run_job(
         "policy_sha256": policy.sha256,
         "input_sha256": _sha(source),
         "input_provenance": provenance,
+        "reviewed_source_sha256": reviewed_source_sha256,
         "requirements_sha256": requirements_digest,
         "task_sha256": _sha(task.encode("utf-8")),
         "engine": config.engine,
         "state": "started",
+        **restriction_fields,
+        **({"run_plan_sha256": run_plan_sha256} if run_plan_sha256 is not None else {}),
     }
     _save(job / "started.json", initial)
     args.execute = True
@@ -413,14 +567,22 @@ def run_job(
     submitted = False
     framework_requests = 0
     failure = "no_proposal"
+    writer: GuardedWorkspace | None = None
 
     def generate() -> bytes | None:
-        nonlocal model_ms, metadata
+        nonlocal model_ms, metadata, failure
+        # TTL may have elapsed while reserving/opening the local job. Recheck
+        # before sending any bytes, not only at the earlier preview boundary.
+        reason = source_reason()
+        if reason is not None:
+            failure = reason
+            return None
         clock = time.perf_counter()
         metadata = {"transport_attempts": 1}
         try:
             proposal, metadata = _generate(
-                args, policy, source=source, require_requested_artifact=False
+                args, policy, source=source, document_content=True,
+                generation_json=generation_json,
             )
             return proposal
         finally:
@@ -428,27 +590,35 @@ def run_job(
 
     try:
         with GuardedWorkspace(policy) as writer:
+            write_text = writer.bind_text_tool("document")
 
-            def submit(proposal: bytes) -> dict[str, Any]:
-                nonlocal submitted, result
+            def submit(content: str) -> dict[str, Any]:
+                nonlocal submitted, result, failure
+                reason = source_reason()
+                if reason is not None:
+                    failure = reason
+                    return {"applied": False, "reason": reason, "effect": "none"}
                 submitted = True
-                result = writer.submit(proposal)
+                result = write_text(content)
                 return result
 
             if config.engine == "pydantic-ai":
-                from agentic_security_harness.workspace_pydantic import run_local_document_agent
+                from agentic_security_harness.workspace_pydantic import (
+                    run_local_text_document_agent,
+                )
 
-                framework = run_local_document_agent(generate, submit)
+                framework = run_local_text_document_agent(generate, submit)
                 framework_requests = framework["framework_requests"]
             else:
                 proposal = generate()
                 if proposal is not None:
-                    submit(proposal)
+                    submit(proposal.decode("utf-8"))
     except Exception:
         # Raw exceptions may contain source or provider output. Preserve only phase.
         failure = "boundary_interrupted" if submitted else "agent_or_storage_unavailable"
     state = "needs_inspection" if submitted else "error"
     quality: dict[str, Any] | None = None
+    output_restrictions = None
     if result is not None:
         if result.get("applied") and result.get("receipt_complete"):
             verified = verify_workspace_output(policy, job / result["receipt"])
@@ -458,11 +628,13 @@ def run_job(
                     if _sha(raw) == verified["sha256"]:
                         quality = evaluate_document(raw, requirements)
                         _save(job / "quality.json", quality)
+                        if source_restrictions is not None:
+                            output_restrictions = source_restrictions.for_output(raw).record()
                         state = "saved"
                 except (OSError, ValueError):
                     pass  # A write may exist; preserve needs_inspection, never retry.
         elif (
-            result.get("reason") in {"guard_rejected", "proposal_rejected"}
+            result.get("reason") in {"guard_rejected", "proposal_rejected", "source_expired"}
             and result.get("receipt_complete")
             and result.get("effect") == "none"
         ):
@@ -491,18 +663,31 @@ def run_job(
         "quality": quality,
         "output_trust": "untrusted",
         "output_authority": "none",
-        "next_step": _next_step(state, quality),
+        **({"output_restrictions": output_restrictions} if restriction_fields else {}),
+        "next_step": (
+            "choose_new_job_with_shorter_task_or_smaller_source"
+            if state == "error" and metadata.get("response_rejection") == "generation_limit_reached"
+            else _next_step(state, quality)
+        ),
         "meaning_checked": False,
     }
     try:
         _save(job / "summary.json", summary)
     except (OSError, ValueError):
-        return {
+        summary = {
             **summary,
             "state": "needs_inspection",
             "reason": "summary_storage_unavailable",
             "next_step": "inspect_job_do_not_replay",
         }
+    # Persist only after this job has finished all ordinary bookkeeping. A
+    # process killed before here has no fence and cannot be assumed stopped.
+    # Failure does not invent a fence or repeat an already attempted effect.
+    if writer is not None:
+        try:
+            _save(job / "session-closed.json", writer.closure_record())
+        except (OSError, ValueError):
+            pass
     return summary
 
 
@@ -524,7 +709,26 @@ def inspect_job(config: DocumentConfig, job_id: str) -> dict[str, Any]:
         _checked_directory(job)
         initial = _json(_read_file(job / "started.json", 65536), 65536)
         summary = _json(_read_file(job / "summary.json", 65536), 65536)
-        policy = config.policy(job)
+        source_restrictions = None
+        if "source_restrictions" in initial or "source_restrictions_sha256" in initial:
+            source_restrictions = DocumentSourceRestrictions.from_record(
+                initial["source_restrictions"]
+            )
+            restriction_record = source_restrictions.record()
+            if (
+                source_restrictions.sha256 != initial.get("source_restrictions_sha256")
+                or restriction_record["content_sha256"] != initial.get("input_sha256")
+                or restriction_record["envelope"]["data_class"] != config.data_class
+            ):
+                return problem
+        policy = config.policy(
+            job, source_restrictions_sha256=(
+                source_restrictions.sha256 if source_restrictions is not None else None
+            ),
+            source_expires_at=(
+                source_restrictions.expires_at if source_restrictions is not None else None
+            ),
+        )
         if (
             initial.get("job_id") != job_id
             or initial.get("configuration_sha256") != config.sha256
@@ -537,20 +741,48 @@ def inspect_job(config: DocumentConfig, job_id: str) -> dict[str, Any]:
         ):
             return problem
         decision = summary.get("decision")
+        model = summary.get("model")
+        response_rejection = None
+        if type(model) is not dict:
+            return problem
+        if "response_rejection" in model:
+            response_rejection = model["response_rejection"]
+            if (type(response_rejection) is not str
+                    or response_rejection not in _RESPONSE_REJECTIONS
+                    or summary["state"] != "error"
+                    or summary["reason"] != "model_response_rejected"):
+                return problem
         quality = None
         output_digest = None
+        output_restrictions = None
         provenance = initial.get("input_provenance")
+        reviewed_digest = initial.get("reviewed_source_sha256")
+        if ("reviewed_source_sha256" in initial and reviewed_digest is not None and (
+            type(reviewed_digest) is not str
+            or re.fullmatch(r"[a-f0-9]{64}", reviewed_digest) is None
+            or reviewed_digest != initial.get("input_sha256")
+            or type(provenance) is not dict
+            or provenance.get("kind") not in {"generated_document", "recovered_document"}
+        )):
+            return problem
         if provenance is not None and (
             type(provenance) is not dict
             or set(provenance) != {
                 "kind", "source_job", "content_sha256", "trust", "authority", "data_class",
+            } | ({"recovery_evidence_sha256"} if provenance.get("kind") == "recovered_document"
+                 else set())
+            or provenance["kind"] not in {
+                "host_selected_file", "generated_document", "recovered_document",
             }
-            or provenance["kind"] not in {"host_selected_file", "generated_document"}
+            or (provenance["kind"] == "recovered_document" and (
+                type(provenance.get("recovery_evidence_sha256")) is not str
+                or re.fullmatch(r"[a-f0-9]{64}", provenance["recovery_evidence_sha256"]) is None
+            ))
             or provenance["trust"] != "untrusted" or provenance["authority"] != "none"
             or provenance["data_class"] != config.data_class
             or provenance["content_sha256"] != initial.get("input_sha256")
             or (provenance["kind"] == "host_selected_file" and provenance["source_job"] is not None)
-            or (provenance["kind"] == "generated_document" and (
+            or (provenance["kind"] in {"generated_document", "recovered_document"} and (
                 type(provenance["source_job"]) is not str
                 or _job_name(provenance["source_job"]) == job_id
             ))
@@ -593,6 +825,10 @@ def inspect_job(config: DocumentConfig, job_id: str) -> dict[str, Any]:
             raw = _read_file(job / "document.md", policy.max_bytes)
             if _sha(raw) != output_digest:
                 return problem
+            if source_restrictions is not None:
+                output_restrictions = source_restrictions.for_output(raw).record()
+            if summary.get("output_restrictions") != output_restrictions:
+                return problem
             basic_quality = evaluate_document(raw)
             if "quality" in summary:
                 quality = _checked_quality(
@@ -615,7 +851,9 @@ def inspect_job(config: DocumentConfig, job_id: str) -> dict[str, Any]:
                 return problem
             if summary["state"] == "denied" and (
                 type(decision) is not dict
-                or decision.get("reason") not in {"proposal_rejected", "guard_rejected"}
+                or decision.get("reason") not in {
+                    "proposal_rejected", "guard_rejected", "source_expired",
+                }
                 or decision.get("applied") is not False
             ):
                 return problem
@@ -629,7 +867,15 @@ def inspect_job(config: DocumentConfig, job_id: str) -> dict[str, Any]:
             "quality": quality,
             "output_trust": "untrusted",
             "output_authority": "none",
-            "next_step": _next_step(summary["state"], quality),
+            **({"output_restrictions": output_restrictions}
+               if source_restrictions is not None else {}),
+            **({"response_rejection": response_rejection}
+               if response_rejection is not None else {}),
+            "next_step": (
+                "choose_new_job_with_shorter_task_or_smaller_source"
+                if response_rejection == "generation_limit_reached"
+                else _next_step(summary["state"], quality)
+            ),
             "writes_performed": False,
         }
     except (OSError, ValueError, KeyError, TypeError):
@@ -646,12 +892,31 @@ def human_report(result: dict[str, Any]) -> str:
         lines.append(f"Job: {result['job_id']}")
     if "effect" in result:
         lines.append(f"Effect: {result['effect']}")
+    source_sha256 = result.get("source_sha256")
+    if (result.get("reason") in {
+        "source_review_required", "source_review_digest_invalid", "source_review_digest_mismatch"
+    } and type(source_sha256) is str
+            and re.fullmatch(r"[a-f0-9]{64}", source_sha256)):
+        lines.append(f"Source SHA-256: {source_sha256}")
+    model = result.get("model")
+    response_rejection = (
+        model.get("response_rejection") if type(model) is dict
+        else result.get("response_rejection")
+    )
+    if type(response_rejection) is str and response_rejection in _RESPONSE_REJECTIONS:
+        lines.append(f"Generation: {response_rejection}")
     if result.get("state") == "saved":
         lines.append("Document: jobs/<job-id>/document.md (review its accuracy)")
         lines.append("Trust: untrusted data; grants no authority to another agent")
         quality = result.get("quality")
         if quality:
             lines.append(f"Declared quality: {quality['status']} ({quality['reason']})")
+    if result.get("state") == "recoverable_data":
+        lines.append("Recovery: existing bytes only; original outcome remains unresolved")
+        lines.append("Next job requires exact-byte review; the original action cannot be replayed")
+        document_digest = result.get("document_sha256")
+        if type(document_digest) is str and re.fullmatch(r"[a-f0-9]{64}", document_digest):
+            lines.append(f"Document SHA-256: {document_digest}")
     if "timing_ms" in result:
         timing = result["timing_ms"]
         lines.append(

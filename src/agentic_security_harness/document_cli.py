@@ -9,6 +9,7 @@ from typing import Any
 
 from agentic_security_harness import document_workflow as workflow
 from agentic_security_harness.document_quality import DocumentRequirements
+from agentic_security_harness.document_restrictions import DocumentSourceRestrictions
 from agentic_security_harness.ollama_quarantine_adapter import _json
 from agentic_security_harness.workspace_writer import _read_file
 
@@ -47,11 +48,26 @@ def add_commands(sub: Any) -> None:
             parser.add_argument(
                 "--job", required=True, help="unique lowercase job ID; never resumed"
             )
+        if command == "document-status":
+            parser.add_argument("--inspect-recovery", action="store_true",
+                                help="read-only assessment of fenced existing document bytes")
         if command == "document-run":
             source = parser.add_mutually_exclusive_group(required=True)
             source.add_argument("--input", type=Path, help="host-selected UTF-8 file")
             source.add_argument(
                 "--from-job", help="verified saved job in this workspace, reused as untrusted data"
+            )
+            parser.add_argument(
+                "--reviewed-source-sha256",
+                help="host-reviewed SHA-256 of exact prior document bytes; requires --from-job",
+            )
+            parser.add_argument(
+                "--recover-source", action="store_true",
+                help="reuse fenced existing bytes after source interruption; requires exact review",
+            )
+            parser.add_argument(
+                "--source-restrictions", type=Path,
+                help="host-bound restrictions JSON for --input; --from-job inherits its binding",
             )
             parser.add_argument(
                 "--requirements", type=Path,
@@ -75,7 +91,12 @@ def run(args: argparse.Namespace) -> int:
             if args.command == "document-check":
                 result = workflow.check(config, check_model=args.check_model)
             elif args.command == "document-status":
-                result = workflow.inspect_job(config, args.job)
+                if args.inspect_recovery:
+                    from agentic_security_harness.document_recovery import inspect_recovery
+
+                    result = inspect_recovery(config, args.job)
+                else:
+                    result = workflow.inspect_job(config, args.job)
             else:
                 phase = "input_or_job"
                 requirements = (
@@ -87,6 +108,13 @@ def run(args: argparse.Namespace) -> int:
                 result = workflow.run_job(
                     config, args.input, args.task, args.job, execute=args.execute,
                     source_job=args.from_job, requirements=requirements,
+                    reviewed_source_sha256=args.reviewed_source_sha256,
+                    recover_source=args.recover_source,
+                    source_restrictions=(
+                        DocumentSourceRestrictions.from_record(
+                            _json(_read_file(args.source_restrictions, 8192), 8192)
+                        ) if args.source_restrictions is not None else None
+                    ),
                 )
     except FileExistsError:
         result = {
@@ -115,4 +143,6 @@ def run(args: argparse.Namespace) -> int:
     print(json.dumps(result, sort_keys=True) if args.json else workflow.human_report(result))
     if result.get("state") == "saved" and (result.get("quality") or {}).get("status") == "failed":
         return 2  # File saved, declared requirements failed; never silently treat as ready.
-    return 0 if result.get("state") in {"initialized", "ready", "preview", "saved"} else 1
+    return 0 if result.get("state") in {
+        "initialized", "ready", "preview", "saved", "recoverable_data", "already_complete",
+    } else 1

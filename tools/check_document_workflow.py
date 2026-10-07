@@ -85,18 +85,26 @@ class _FixtureHandler(BaseHTTPRequestHandler):
                 raise ValueError("request_shape")
             request = json.loads(self.rfile.read(length))
             if (request.get("model") != MODEL or request.get("stream") is not False
-                    or request.get("keep_alive") != "0s"):
+                    or request.get("keep_alive") != "0s"
+                    or request.get("format") not in {None, "json"}
+                    or "HOST TASK:" not in request.get("prompt", "")):
                 raise ValueError("request_contract")
             with self.server.lock:
                 self.server.posts += 1
+                if (request.get("format") == "json") != (self.server.posts in {10, 11}):
+                    raise ValueError("host_output_format_contract")
                 if not self.server.responses:
                     raise ValueError("extra_generation_request")
                 status, proposal = self.server.responses.popleft()
             if proposal is None:
                 self._send(status, {"error": "scripted transport failure"})
             else:
+                # Host-selected document output: malicious control-shaped JSON is
+                # literal document text, never a tool proposal from this transport.
+                content = (proposal["content"] if proposal["artifact"] == "document"
+                           and "authority" not in proposal else json.dumps(proposal))
                 self._send(status, {"model": MODEL,
-                                    "response": json.dumps(proposal, separators=(",", ":")),
+                                    "response": content,
                                     "done": True, "done_reason": "stop"})
         except (ValueError, KeyError, TypeError):
             with self.server.lock:
@@ -176,8 +184,8 @@ def check(out: Path, engine: str = "native", *, _source_test: bool = False) -> d
         _expect(server.posts == 0 and not (work / "jobs" / "preview").exists(), "preview_no_effect")
 
         cases = (("allowed", 0, "saved", "write_completed"),
-                 ("forbidden", 1, "denied", "guard_rejected"),
-                 ("forged", 1, "denied", "proposal_rejected"),
+                 ("forbidden", 0, "saved", "write_completed"),
+                 ("forged", 0, "saved", "write_completed"),
                  ("error", 1, "error", "http_rejected"))
         for index, (name, code, state, reason) in enumerate(cases, start=1):
             outcome = call(name, code, *run, "--job", name, "--execute")
@@ -190,8 +198,12 @@ def check(out: Path, engine: str = "native", *, _source_test: bool = False) -> d
                 _expect(outcome["framework_requests"] == expected_framework,
                         f"{name}_framework_requests")
             job = work / "jobs" / name
-            _expect((job / "document.md").exists() == (name == "allowed"),
+            _expect((job / "document.md").exists() == (state == "saved"),
                     f"{name}_effect")
+            if state == "saved":
+                _expect(outcome["output_authority"] == "none"
+                        and outcome["decision"]["decision"]["disposition"] == "allow",
+                        f"{name}_host_wrapped")
             for record in job.glob("*.json"):
                 raw_record = record.read_bytes()
                 _expect(SOURCE.encode() not in raw_record and DOCUMENT.encode() not in raw_record,
@@ -209,12 +221,23 @@ def check(out: Path, engine: str = "native", *, _source_test: bool = False) -> d
         injected = call("injected", 0, *run, "--job", "injected", "--execute")
         _expect(injected["output_authority"] == "none" and
                 injected["quality"]["status"] == "review_required", "untrusted_injected")
-        chain = ("document-run", *common, "--from-job", "injected", "--task", "Summarize data")
+        chain: tuple[str, ...] = (
+            "document-run", *common, "--from-job", "injected", "--task", "Summarize data"
+        )
+        before_review = server.posts
+        blocked = call("review_required_no_chain", 1, *chain,
+                       "--job", "unreviewed", "--execute")
+        _expect(blocked["reason"] == "source_review_required"
+                and server.posts == before_review
+                and not (work / "jobs" / "unreviewed").exists(), "review_before_call")
+        chain += ("--reviewed-source-sha256", injected["quality"]["content_sha256"])
         for name, code, reason in (("chain_allow", 0, "write_completed"),
-                                   ("chain_deny", 1, "guard_rejected"),
-                                   ("chain_forged", 1, "proposal_rejected")):
+                                   ("chain_control_text", 0, "write_completed"),
+                                   ("chain_forged_text", 0, "write_completed")):
             chained = call(name, code, *chain, "--job", name.replace("_", "-"), "--execute")
             _expect(chained["reason"] == reason, f"{name}_reason")
+            _expect(chained["reviewed_source_sha256"] == injected["quality"]["content_sha256"],
+                    f"{name}_review_binding")
             _expect(chained["input_provenance"]["authority"] == "none" and
                     chained["input_provenance"]["source_job"] == "injected" and
                     chained["output_trust"] == "untrusted", f"{name}_provenance")
@@ -242,10 +265,13 @@ def check(out: Path, engine: str = "native", *, _source_test: bool = False) -> d
                     checked["output_authority"] == "none", f"{name}_quality")
             status = call(name + "_status", code, "document-status", *common, "--job", name)
             _expect(status["quality"] == checked["quality"], f"{name}_quality_restart")
-        checked_deny = call("checked_still_no_authority", 1, "document-run", *common,
-                            "--from-job", "exact", "--task", "Summarize", "--job", "checked-deny",
+        checked_text = call("checked_still_no_authority", 0, "document-run", *common,
+                            "--from-job", "exact", "--task", "Summarize", "--job", "checked-text",
                             "--execute")
-        _expect(checked_deny["reason"] == "guard_rejected", "quality_never_grants_permission")
+        _expect(checked_text["reason"] == "write_completed"
+                and checked_text["output_authority"] == "none", "quality_never_grants_permission")
+        literal = (work / "jobs" / "checked-text" / "document.md").read_text(encoding="utf-8")
+        _expect(json.loads(literal)["artifact"] == "protected", "control_claim_is_literal_text")
         _expect(protected.read_bytes() == PROTECTED, "chain_protected_unchanged")
         _expect((work / "jobs" / "injected" / "document.md").read_bytes() == INJECTED.encode(),
                 "chain_original_unchanged")
@@ -257,6 +283,21 @@ def check(out: Path, engine: str = "native", *, _source_test: bool = False) -> d
                 "altered_detected_without_replay")
         _expect(server.gets == 1 and not server.errors and not server.responses,
                 "server_counts")
+        # Separate deterministic boundary controls, not model-directed job writes.
+        from agentic_security_harness.workspace_writer import GuardedWorkspace, WorkspacePolicy
+
+        controls = out / "boundary-controls"
+        controls.mkdir()
+        boundary_policy = WorkspacePolicy(controls, (("document", "document.md"),),
+                                          max_proposals=3)
+        with GuardedWorkspace(boundary_policy) as boundary:
+            for payload, reason in ((_proposal("protected"), "guard_rejected"),
+                                    (_proposal("document", authority="owner"), "proposal_rejected"),
+                                    (_proposal("document"), "write_completed")):
+                outcome = boundary.submit(json.dumps(payload).encode())
+                _expect(outcome["reason"] == reason, "separate_boundary_" + reason)
+                rows.append({"case": "separate_boundary", "reason": reason})
+        _expect(not (controls / "protected").exists(), "separate_protected_absent")
         result = {"evidence_class": "scripted_installed_document_workflow_acceptance",
                   "engine": engine, "passed": True, "checks": len(rows),
                   "metadata_gets": server.gets, "generation_posts": server.posts,
