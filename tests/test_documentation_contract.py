@@ -54,7 +54,12 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
     assert "published public research release" in _read("docs/releases/v1.7.0.md")
     readme = _read("README.md")
     assert "Native Ollama adapter (published in 1.6.0)" in readme
-    assert "unreleased source" not in readme
+    # This gate concerns the published Ollama adapter, not unrelated later
+    # candidates that must truthfully remain labelled as unreleased.
+    adapter = readme.split("Native Ollama adapter (published in 1.6.0)", 1)[1].split(
+        "\n##", 1
+    )[0]
+    assert "unreleased source" not in adapter
     connect = " ".join(_read("docs/connect-models.md").split())
     assert "path published in **1.6.0** from **native Ollama proposals**" in connect
     assert "unreleased source path" not in connect

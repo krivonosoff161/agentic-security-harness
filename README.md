@@ -26,6 +26,12 @@ inherited source restrictions, expected-job coverage and reviewed recovery of
 existing document bytes. These are **unreleased candidate APIs**, not features of
 the 1.12.0 install below. They retain the same guarded create-only writer.
 
+The follow-up [planned CLI recipe](docs/document-workflow.md#development-contract-planned-jobs-from-the-cli)
+lets a host prepare a finite job plan, execute its jobs and inspect missing work
+without custom Python glue. It pins input, task, restrictions and declared output
+checks; exact-byte review happens when the generated document is available. This
+is also unreleased source work, not a new published package.
+
 The [document jobs guide](docs/document-workflow.md) covers workspace setup,
 permission preview, separate jobs, restart inspection, content-free quality
 status and an optional Pydantic AI bridge around the writer. A verified first

@@ -12,13 +12,22 @@ import pytest
 from agentic_security_harness import document_coverage as coverage
 from agentic_security_harness import document_workflow as doc
 from agentic_security_harness import workspace_writer as writer
-from agentic_security_harness.document_expectations import DocumentRunPlan, ExpectedDocumentJob
+from agentic_security_harness.document_expectations import (
+    DocumentRunPlan,
+    ExpectedDocumentJob,
+    execution_sha256,
+)
 from agentic_security_harness.document_quality import DocumentRequirements
 from test_document_workflow import reply, setup
 
 
 def digest(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
+
+
+def requirements_digest(spec: DocumentRequirements) -> str:
+    return digest(json.dumps(spec.record(), sort_keys=True, ensure_ascii=True,
+                             allow_nan=False, separators=(",", ":")).encode("ascii"))
 
 
 def plan_for(config: doc.DocumentConfig, source: Path, *, chain: bool = False) -> DocumentRunPlan:
@@ -231,3 +240,107 @@ def test_direct_call_cannot_precede_retained_plan(
         doc.run_job(config, source, "Summarize", "first", execute=True,
                     run_plan_sha256=plan.sha256, run_plan_path=path)
     assert not calls and not list(config.jobs_dir.iterdir())
+
+
+@pytest.mark.parametrize("change", ["removed", "changed"])
+def test_bound_quality_criteria_mismatch_stops_before_job_or_model(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, change: str,
+) -> None:
+    config, source, _ = setup(tmp_path)
+    spec = DocumentRequirements("exact_json", expected_json={"ok": True})
+    binding = execution_sha256(requirements_sha256=requirements_digest(spec))
+    plan = DocumentRunPlan(config.sha256, (
+        ExpectedDocumentJob("first", digest(b"Summarize"),
+                            input_sha256=digest(source.read_bytes()),
+                            execution_sha256=binding),
+    ))
+    path = tmp_path / "plan.json"
+    coverage.save_plan(config, plan, path)
+    calls = reply(monkeypatch, '{"ok":true}')
+    actual = None if change == "removed" else DocumentRequirements(
+        "exact_json", expected_json={"ok": False},
+    )
+    with pytest.raises(ValueError, match="execution differs"):
+        coverage.run_planned_job(config, path, plan.sha256, source, "Summarize", "first",
+                                 execute=True, requirements=actual)
+    assert not calls and not list(config.jobs_dir.iterdir())
+    result = coverage.run_planned_job(config, path, plan.sha256, source, "Summarize", "first",
+                                      execute=True, requirements=spec)
+    assert result["state"] == "saved" and result["quality"]["status"] == "checked"
+    assert len(calls) == 1
+    assert coverage.inspect_coverage(config, path, expected_plan_sha256=plan.sha256)["complete"]
+
+
+def test_bound_recovery_choice_and_independent_review_validation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, source, _ = setup(tmp_path)
+    response = b'{"ok":true}'
+    reviewed = digest(response)
+    plan = DocumentRunPlan(config.sha256, (
+        ExpectedDocumentJob("first", digest(b"Summarize"),
+                            input_sha256=digest(source.read_bytes())),
+        ExpectedDocumentJob("second", digest(b"Summarize"), source_job="first",
+                            execution_sha256=execution_sha256(
+                                requirements_sha256=None, recover_source=False,
+                            )),
+    ))
+    path = tmp_path / "plan.json"
+    coverage.save_plan(config, plan, path)
+    calls = reply(monkeypatch, response.decode())
+    first = coverage.run_planned_job(config, path, plan.sha256, source, "Summarize", "first",
+                                     execute=True)
+    assert first["state"] == "saved" and len(calls) == 1
+    with pytest.raises(ValueError, match="execution differs"):
+        coverage.run_planned_job(
+            config, path, plan.sha256, None, "Summarize", "second", execute=True,
+            source_job="first", reviewed_source_sha256=reviewed, recover_source=True,
+        )
+    assert len(calls) == 1 and not (config.jobs_dir / "second").exists()
+    wrong_review = coverage.run_planned_job(
+        config, path, plan.sha256, None, "Summarize", "second", execute=True,
+        source_job="first", reviewed_source_sha256="e" * 64,
+    )
+    assert wrong_review["reason"] == "source_review_digest_mismatch"
+    assert len(calls) == 1 and not (config.jobs_dir / "second").exists()
+    second = coverage.run_planned_job(
+        config, path, plan.sha256, None, "Summarize", "second", execute=True,
+        source_job="first", reviewed_source_sha256=reviewed,
+    )
+    assert second["state"] == "saved" and len(calls) == 2
+    assert coverage.inspect_coverage(config, path, expected_plan_sha256=plan.sha256)["complete"]
+
+
+def test_posthoc_quality_digest_edit_does_not_satisfy_bound_coverage(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, source, _ = setup(tmp_path)
+    spec = DocumentRequirements("exact_json", expected_json={"ok": True})
+    planned_digest = requirements_digest(spec)
+    plan = DocumentRunPlan(config.sha256, (
+        ExpectedDocumentJob("first", digest(b"Summarize"),
+                            input_sha256=digest(source.read_bytes()),
+                            execution_sha256=execution_sha256(
+                                requirements_sha256=planned_digest,
+                            )),
+    ))
+    path = tmp_path / "plan.json"
+    coverage.save_plan(config, plan, path)
+    reply(monkeypatch, '{"ok":true}')
+    result = coverage.run_planned_job(config, path, plan.sha256, source, "Summarize", "first",
+                                      execute=True, requirements=spec)
+    assert result["state"] == "saved"
+    other_digest = requirements_digest(DocumentRequirements(
+        "exact_json", expected_json={"ok": False},
+    ))
+    root = config.jobs_dir / "first"
+    for name in ("started.json", "summary.json", "quality.json"):
+        file = root / name
+        value = json.loads(file.read_text(encoding="utf-8"))
+        value["requirements_sha256"] = other_digest
+        if name == "summary.json":
+            value["quality"]["requirements_sha256"] = other_digest
+        file.write_text(json.dumps(value), encoding="utf-8")
+    assert doc.inspect_job(config, "first")["state"] == "saved"
+    observed = coverage.inspect_coverage(config, path, expected_plan_sha256=plan.sha256)
+    assert not observed["complete"] and observed["jobs"][0]["state"] == "expectation_mismatch"

@@ -20,6 +20,7 @@ from typing import Any
 
 from agentic_security_harness._fixture_files import _checked_directory, _identity
 from agentic_security_harness._workspace_files import WorkspaceFiles, _validate_filename
+from agentic_security_harness.document_expectations import execution_sha256
 from agentic_security_harness.document_quality import DocumentRequirements, evaluate_document
 from agentic_security_harness.document_restrictions import DocumentSourceRestrictions
 from agentic_security_harness.ollama_quarantine_adapter import (
@@ -142,6 +143,10 @@ class SourceReviewBlocked(ValueError):
         self.source_sha256 = source_sha256
 
 
+class SourceQualityBlocked(ValueError):
+    """A verified saved document failed its declared checks; review cannot override it."""
+
+
 def read_job_document(
     config: DocumentConfig, job_id: str, *, reviewed_source_sha256: str | None = None,
 ) -> DocumentInput:
@@ -151,8 +156,10 @@ def read_job_document(
     A host digest acknowledges review of these exact bytes; it grants no authority.
     """
     status = inspect_job(config, job_id)
-    if status.get("state") != "saved" or status.get("quality", {}).get("status") == "failed":
+    if status.get("state") != "saved":
         raise ValueError("source job is not eligible as document data")
+    if status.get("quality", {}).get("status") == "failed":
+        raise SourceQualityBlocked("source job is not eligible as document data")
     raw = _read_file(config.jobs_dir / _job_name(job_id) / "document.md", 16384)
     # Bind the bytes actually returned, not a path validated before a later read.
     if _sha(raw) != status.get("document_sha256"):
@@ -460,6 +467,12 @@ def run_job(
     requirements_digest = (
         _sha(_canonical(requirements.record())) if requirements is not None else None
     )
+    if (expected_job is not None and expected_job.execution_sha256 is not None
+            and execution_sha256(
+                requirements_sha256=requirements_digest,
+                recover_source=recover_source,
+            ) != expected_job.execution_sha256):
+        raise ValueError("execution differs from host expectation")
     generation_json = requirements is not None and requirements.mode == "exact_json"
     if source_job is not None:
         try:

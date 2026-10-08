@@ -1,5 +1,15 @@
 # Current state
 
+## Local candidate follow-up — planned CLI operations / #345
+
+On top of the preserved #344 candidate, source work exposes `document-plan`,
+`document-run --spec` with a separately retained plan digest, and read-only
+`document-coverage`. The compiler binds the exact output-check requirements and
+recovery choice as well as the existing task/input/restriction expectations.
+Review remains an explicit acknowledgment of actual bytes at source-use time.
+See the [operator recipe](document-workflow.md#development-contract-planned-jobs-from-the-cli).
+This does not change published 1.12.0, or close general research #316/#317.
+
 ## Local candidate — useful document output and reviewed handoff
 
 Unreleased source work keeps the published **1.12.0** unchanged. Document jobs

@@ -18,6 +18,85 @@ The published onboarding below remains the 1.12.0 baseline; see
 [the development contract](#development-contract-explicit-reviewed-handoff)
 before running these chains from the modified source checkout.
 
+## Development contract: planned jobs from the CLI
+
+This **unreleased source candidate**, tracked in #345, exposes the existing plan
+and coverage APIs without requiring a Python integration. A plan is an expectation,
+not permission: jobs still use the same source admission and guarded writer.
+
+The [two-step recipe](../examples/document-plan/jobs.json) extracts owner/day
+fields from a public note and passes the verified first document to a second job.
+Its exact JSON requirements are host-side checks, not answers sent to the model.
+Use an installed candidate built from this source; published 1.12.0 does not have
+these commands. From the checkout root, choose a new workspace and an exact
+already-installed local Ollama model:
+
+```text
+ash document-init --dir my-planned-documents --model YOUR_LOCAL_MODEL
+ash document-check --config my-planned-documents/document.json --check-model
+ash document-plan --config my-planned-documents/document.json --spec examples/document-plan/jobs.json --out my-planned-documents/plan.json --json
+ash document-plan --config my-planned-documents/document.json --spec examples/document-plan/jobs.json --out my-planned-documents/plan.json --execute --json
+```
+
+The first `document-plan` only previews: no write or model call. Its `--execute`
+variant saves a create-only plan, still without running any job. Save the returned
+`plan_sha256` separately under host control. In the following commands replace
+`RETAINED_PLAN_SHA256` with that actual value, not a digest supplied by a model:
+
+```text
+ash document-run --config my-planned-documents/document.json --spec examples/document-plan/jobs.json --job extract --plan my-planned-documents/plan.json --plan-sha256 RETAINED_PLAN_SHA256 --execute --json
+ash document-run --config my-planned-documents/document.json --spec examples/document-plan/jobs.json --job handoff --plan my-planned-documents/plan.json --plan-sha256 RETAINED_PLAN_SHA256 --execute --json
+ash document-coverage --config my-planned-documents/document.json --plan my-planned-documents/plan.json --plan-sha256 RETAINED_PLAN_SHA256 --json
+```
+
+Each executed job makes at most one local generation attempt, with no automatic
+retry. Omit `--execute` on `document-run` to preview that job. A dependent preview
+needs its source job to exist and be eligible. A failed-quality first document
+blocks the second job; do not change its expected answer to make it pass.
+The CLI reports `source_quality_failed` with zero transport attempts for this
+handoff refusal. Supplying a review digest does not override failed quality.
+
+The host-owned recipe is closed JSON with `schema_version` equal to
+`ash.document-plan-spec.v1` and `jobs` containing 1..64 entries. Each entry has
+`job_id`, `task`, and exactly one of `input` or `from_job`. Optional `requirements`
+and `source_restrictions` name existing JSON files; all file paths are relative
+to the recipe, independent of the working directory. Source restrictions are
+allowed only with `input`; dependent jobs inherit them. Keep the recipe and each
+job's input/check files unchanged until that job runs. Execution reads only the
+selected job's input and checks: a dependent job does not need the original raw
+input again once its saved source document is verified. Relative paths may include
+`..`; this is host-selected input, not a recipe-directory sandbox. Do not accept
+recipes from model output.
+
+Plans made by this compiler additionally bind the requirements digest and the
+`recover_source` choice. Dropping a check or switching to recovery is not the same
+planned operation. Existing API plans without `execution_sha256` retain their
+older, narrower contract and digest; they do not claim this extra binding.
+
+For review-required data, inspect the actual document and supply
+`--reviewed-source-sha256 REVIEWED_DOCUMENT_SHA256` when executing the dependent
+job. This is the only argument allowed to supplement `--spec`: task, requirements,
+restrictions and recovery cannot be overridden. The review digest is checked
+against actual source bytes at use time; it is deliberately **not** predicted
+at planning time or generated as automatic approval.
+
+If a planned recovery route is needed, its recipe entry uses `from_job` and
+`recover_source: true`. Inspect the interrupted source with `document-status
+--inspect-recovery`, review its exact bytes, then run the new planned job with
+the review digest. It remains a new job, not a retry. The old interrupted job
+remains unresolved, so coverage does not incorrectly report all work complete.
+
+The API can also use `document-run --input ... --task ...` with `--plan` and
+`--plan-sha256` supplied together. Unplanned legacy calls remain supported; an
+application that requires planned work must expose only its planned entrypoint.
+Plan compilation does not grant permission or guarantee that a future TTL check
+will pass. Plan/recipe/anchor and local state remain trusted host configuration.
+
+`document-coverage` is read-only. Exit 0 means complete history, **not** correct
+documents: inspect `declared_quality_checked` and per-job `quality` separately.
+Missing, extra or interrupted jobs produce incomplete coverage and exit 1.
+`document-run` retains exit 2 for saved documents failing declared quality.
+
 ## Development contract: source restrictions
 
 This unreleased opt-in contract uses the existing `DataEnvelope` vocabulary. It

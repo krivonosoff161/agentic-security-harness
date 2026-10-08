@@ -8,7 +8,11 @@ from typing import Any
 
 import pytest
 
-from agentic_security_harness.document_expectations import DocumentRunPlan, ExpectedDocumentJob
+from agentic_security_harness.document_expectations import (
+    DocumentRunPlan,
+    ExpectedDocumentJob,
+    execution_sha256,
+)
 
 CONFIG = "a" * 64
 TASK = "b" * 64
@@ -41,6 +45,45 @@ def test_ordered_roundtrip_lookup_and_digest() -> None:
     assert "source_restrictions_sha256" in encoded
     with pytest.raises(FrozenInstanceError):
         plan.configuration_sha256 = INPUT  # type: ignore[misc]
+
+
+def test_legacy_plan_record_and_digest_remain_byte_compatible() -> None:
+    plan = _chain()
+    assert all("execution_sha256" not in job for job in plan.record()["jobs"])
+    assert plan.sha256 == "0255636dafabb4e4983a7eba5a2163d0a7560807a749eefd8e9a19dfcd24aeb7"
+    assert DocumentRunPlan.from_record(plan.record()).sha256 == plan.sha256
+
+
+def test_execution_binding_is_closed_domain_separated_and_optional() -> None:
+    baseline = execution_sha256(requirements_sha256=None)
+    assert len(baseline) == 64
+    assert len({
+        baseline,
+        execution_sha256(requirements_sha256=RESTRICTIONS),
+        execution_sha256(requirements_sha256=None, recover_source=True),
+    }) == 3
+    bound = _input(execution_sha256=baseline)
+    assert bound.record()["execution_sha256"] == baseline
+    assert ExpectedDocumentJob.from_record(bound.record()) == bound
+    assert DocumentRunPlan(CONFIG, (bound,)).sha256 != DocumentRunPlan(CONFIG, (_input(),)).sha256
+    malformed = bound.record()
+    malformed["execution_sha256"] = None
+    with pytest.raises(ValueError, match="execution digest"):
+        ExpectedDocumentJob.from_record(malformed)
+    malformed["execution_sha256"] = baseline
+    malformed["authority"] = "owner"
+    with pytest.raises(ValueError, match="closed"):
+        ExpectedDocumentJob.from_record(malformed)
+
+
+@pytest.mark.parametrize("kwargs", [
+    {"requirements_sha256": True},
+    {"requirements_sha256": "A" * 64},
+    {"requirements_sha256": None, "recover_source": 1},
+])
+def test_execution_binding_rejects_malformed_host_criteria(kwargs: dict[str, Any]) -> None:
+    with pytest.raises(ValueError):
+        execution_sha256(**kwargs)
 
 
 def test_record_list_mutation_cannot_change_frozen_plan() -> None:

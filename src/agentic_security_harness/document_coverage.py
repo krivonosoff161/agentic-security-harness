@@ -15,7 +15,7 @@ from typing import Any
 
 from agentic_security_harness import document_workflow as workflow
 from agentic_security_harness._fixture_files import _checked_directory
-from agentic_security_harness.document_expectations import DocumentRunPlan
+from agentic_security_harness.document_expectations import DocumentRunPlan, execution_sha256
 from agentic_security_harness.document_quality import DocumentRequirements
 from agentic_security_harness.document_restrictions import DocumentSourceRestrictions
 from agentic_security_harness.ollama_quarantine_adapter import _json
@@ -143,6 +143,11 @@ def inspect_coverage(
                     matches = (matches and initial.get("input_sha256") == expected.input_sha256
                                and initial.get("source_restrictions_sha256")
                                == expected.source_restrictions_sha256)
+                if expected.execution_sha256 is not None:
+                    matches = matches and execution_sha256(
+                        requirements_sha256=initial.get("requirements_sha256"),
+                        recover_source=provenance.get("kind") == "recovered_document",
+                    ) == expected.execution_sha256
                 if not matches:
                     state = "expectation_mismatch"
                 elif not _terminal_inventory(config.jobs_dir / expected.job_id, state):

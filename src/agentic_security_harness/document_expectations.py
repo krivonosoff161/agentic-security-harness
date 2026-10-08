@@ -22,6 +22,7 @@ _JOB_FIELDS = frozenset({
     "schema_version", "job_id", "task_sha256", "input_sha256", "source_job",
     "source_restrictions_sha256",
 })
+_JOB_BOUND_FIELDS = _JOB_FIELDS | {"execution_sha256"}
 _PLAN_FIELDS = frozenset({"schema_version", "configuration_sha256", "jobs"})
 
 
@@ -44,6 +45,20 @@ def _canonical(value: dict[str, Any]) -> bytes:
                       separators=(",", ":")).encode("ascii")
 
 
+def execution_sha256(*, requirements_sha256: str | None,
+                     recover_source: bool = False) -> str:
+    """Bind advance-known host criteria, not a later source-output digest."""
+    if requirements_sha256 is not None and not _digest(requirements_sha256):
+        raise ValueError("requirements digest required")
+    if type(recover_source) is not bool:
+        raise ValueError("recovery flag must be boolean")
+    criteria = {
+        "requirements_sha256": requirements_sha256,
+        "recover_source": recover_source,
+    }
+    return hashlib.sha256(b"ash-document-execution-v1\0" + _canonical(criteria)).hexdigest()
+
+
 @dataclass(frozen=True)
 class ExpectedDocumentJob:
     job_id: str
@@ -51,6 +66,7 @@ class ExpectedDocumentJob:
     input_sha256: str | None = None
     source_job: str | None = None
     source_restrictions_sha256: str | None = None
+    execution_sha256: str | None = None
 
     def __post_init__(self) -> None:
         if not _job_id(self.job_id):
@@ -69,9 +85,11 @@ class ExpectedDocumentJob:
             self.source_restrictions_sha256
         ):
             raise ValueError("source restrictions digest required")
+        if self.execution_sha256 is not None and not _digest(self.execution_sha256):
+            raise ValueError("execution digest required")
 
     def record(self) -> dict[str, Any]:
-        return {
+        record = {
             "schema_version": _JOB_VERSION,
             "job_id": self.job_id,
             "task_sha256": self.task_sha256,
@@ -79,17 +97,23 @@ class ExpectedDocumentJob:
             "source_job": self.source_job,
             "source_restrictions_sha256": self.source_restrictions_sha256,
         }
+        if self.execution_sha256 is not None:
+            record["execution_sha256"] = self.execution_sha256
+        return record
 
     @classmethod
     def from_record(cls, value: object) -> ExpectedDocumentJob:
-        if type(value) is not dict or set(value) != _JOB_FIELDS:
+        if type(value) is not dict or frozenset(value) not in {_JOB_FIELDS, _JOB_BOUND_FIELDS}:
             raise ValueError("closed expected job record required")
         if value["schema_version"] != _JOB_VERSION:
             raise ValueError("unsupported expected job version")
+        if "execution_sha256" in value and not _digest(value["execution_sha256"]):
+            raise ValueError("execution digest required")
         return cls(
             job_id=value["job_id"], task_sha256=value["task_sha256"],
             input_sha256=value["input_sha256"], source_job=value["source_job"],
             source_restrictions_sha256=value["source_restrictions_sha256"],
+            execution_sha256=value.get("execution_sha256"),
         )
 
 

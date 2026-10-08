@@ -333,7 +333,9 @@ jobs:
             tests/test_document_expectations.py tests/test_document_coverage.py \
             tests/test_workspace_session_closure.py tests/test_document_recovery.py \
             tests/test_document_recovered_handoff.py tests/test_workspace_bound_tool.py \
-            tests/test_document_generation.py tests/test_document_workflow.py
+            tests/test_document_generation.py tests/test_document_workflow.py \
+            tests/test_document_plan.py tests/test_document_plan_cli.py \
+            tests/test_document_plan_safety.py
           python -I -B -c "from xml.etree import ElementTree as E; r=E.parse('installed-document-integration-${{ matrix.os }}.xml').getroot(); assert not list(r.iter('skipped')), 'installed integration must not skip optional tests'"
       - name: Preserve optional test report
         if: always()

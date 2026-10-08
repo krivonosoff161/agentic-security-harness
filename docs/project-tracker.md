@@ -1,5 +1,14 @@
 # Project tracker
 
+## Active planned-operations usability / #345
+
+[Issue #345](https://github.com/krivonosoff161/agentic-security-harness/issues/345)
+extends the verified #344 candidate without merging it: host recipe compilation,
+CLI planned execution and coverage, and exact output-check/recovery-route binding.
+The [operator recipe](document-workflow.md#development-contract-planned-jobs-from-the-cli)
+uses the existing create-only writer. Source, installed and real-model acceptance
+are separate evidence; no publication or broad research closure is implied.
+
 ## Local document-result repair — no new connector or release
 
 Implemented and locally tested: document-only generation with host-owned write envelope, explicit
