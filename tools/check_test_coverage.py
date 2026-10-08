@@ -1,4 +1,4 @@
-"""Require complete, passing union coverage from four exact-candidate JUnit reports."""
+"""Require complete, passing union coverage from six exact-candidate JUnit reports."""
 
 from __future__ import annotations
 
@@ -11,6 +11,8 @@ REPORTS = (
     "full-windows-latest.xml",
     "optional-ubuntu-latest.xml",
     "optional-windows-latest.xml",
+    "installed-document-integration-ubuntu-latest.xml",
+    "installed-document-integration-windows-latest.xml",
 )
 
 

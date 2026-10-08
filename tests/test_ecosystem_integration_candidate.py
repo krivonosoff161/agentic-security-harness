@@ -52,6 +52,20 @@ COMPANION_MODULE_PREFIXES = (
 )
 
 
+@pytest.mark.parametrize("module_name", [
+    "extension_contracts", "extension_distribution_contracts",
+    "extension_lifecycle_contracts", "companion_extension_contracts",
+    "security_intelligence_contracts", "receipt_auditor_contracts",
+    "corpus_pack_contracts", "controlled_local_adapter_contracts",
+    "policy_pack_extension_contracts",
+])
+def test_generated_extension_contracts_are_current_without_companion_checkouts(
+    module_name: str,
+) -> None:
+    # Catch indirect manifest-digest drift in the normal local suite as well as CI.
+    importlib.import_module(f"tools.{module_name}").check()
+
+
 def _source_root(name: str) -> Path:
     value = os.environ.get(name)
     if value is None:
@@ -438,7 +452,7 @@ def test_integration_workflow_installs_only_the_built_local_wheel() -> None:
     assert any(
         line.strip()
         == "python -m pip install --no-index --no-deps --force-reinstall "
-        "dist/agentic_security_harness-1.12.0-py3-none-any.whl"
+        "dist/agentic_security_harness-1.13.0-py3-none-any.whl"
         for line in workflow.splitlines()
     )
     assert "--find-links dist agentic-security-harness==" not in workflow

@@ -173,6 +173,25 @@ jobs:
       - name: Exercise native document jobs from the installed package
         run: python -I -B tools/check_document_workflow.py --out installed-document-workflow --engine native
 
+      - name: Install locked test dependencies for installed document integration
+        run: python -m pip install --require-hashes -r requirements/dev.txt
+
+      - name: Verify installed restrictions, coverage and recovery without source injection
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -I -B -c "import pathlib,agentic_security_harness as ash; p=pathlib.Path(ash.__file__).resolve(); assert pathlib.Path('src').resolve() not in p.parents; print(p)"
+          python -I -B -m pytest -q --noconftest -p no:cacheprovider \
+            tests/test_document_restrictions.py tests/test_document_source_restrictions.py \
+            tests/test_document_expectations.py tests/test_document_coverage.py \
+            tests/test_workspace_session_closure.py tests/test_document_recovery.py \
+            tests/test_document_recovered_handoff.py tests/test_workspace_bound_tool.py \
+            tests/test_document_generation.py tests/test_document_workflow.py \
+            tests/test_document_admissions.py tests/test_document_admissions_cli.py \
+            tests/test_document_dynamic.py tests/test_document_multisource.py \
+            tests/test_document_multisource_workflow.py tests/test_document_supervisor.py \
+            tests/test_document_supervised_recovery.py
+
   runtime-gateway-container:
     name: Runtime Gateway container smoke
     runs-on: ubuntu-latest

@@ -1,0 +1,5 @@
+{
+  "schema_version": "ash.document-requirements.v1",
+  "mode": "exact_json",
+  "expected_json": {"owner": "Mira", "day": "Tuesday"}
+}

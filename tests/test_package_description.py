@@ -42,9 +42,11 @@ def _source(tmp_path: Path, description: str = DESCRIPTION) -> None:
 def test_current_distribution_description_is_version_bound() -> None:
     name, version, description = source_description(ROOT)
     assert name == NAME
-    assert version == "1.12.0"
+    assert version == "1.13.0"
     assert "not a measurement of this version" in description
     assert "ControlledFileSession" in description
+    assert "coverage reports whether declared history is accounted for" in description
+    assert "the original job remains unresolved and cannot be replayed" in description
 
 
 @pytest.mark.parametrize("description", [

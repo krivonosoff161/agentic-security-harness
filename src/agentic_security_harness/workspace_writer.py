@@ -15,6 +15,7 @@ import stat
 import threading
 import time
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -91,6 +92,8 @@ class WorkspacePolicy:
     max_bytes: int = 65536
     max_proposals: int = 8
     data_class: str = "private"
+    source_restrictions_sha256: str | None = None
+    source_expires_at: datetime | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.output_dir, Path) or not self.output_dir.is_absolute():
@@ -112,6 +115,18 @@ class WorkspacePolicy:
             raise ValueError("max_proposals must be 1..32")
         if self.data_class not in _DATA_CLASSES:
             raise ValueError("unsupported host data classification")
+        if self.source_restrictions_sha256 is not None and (
+            type(self.source_restrictions_sha256) is not str
+            or re.fullmatch(r"[a-f0-9]{64}", self.source_restrictions_sha256) is None
+        ):
+            raise ValueError("invalid source restrictions binding")
+        if self.source_expires_at is not None:
+            if (type(self.source_expires_at) is not datetime
+                    or self.source_expires_at.tzinfo is None
+                    or self.source_expires_at.utcoffset() is None
+                    or self.source_restrictions_sha256 is None):
+                raise ValueError("bound aware source expiry required")
+            object.__setattr__(self, "source_expires_at", self.source_expires_at.astimezone(UTC))
 
     @classmethod
     def load(cls, path: Path) -> WorkspacePolicy:
@@ -132,10 +147,16 @@ class WorkspacePolicy:
 
     @property
     def sha256(self) -> str:
-        return _sha(_canonical({"schema_version": _VERSION, "output_dir": str(self.output_dir),
-                                "outputs": dict(self.outputs), "max_bytes": self.max_bytes,
-                                "max_proposals": self.max_proposals,
-                                "data_class": self.data_class}))
+        record = {"schema_version": _VERSION, "output_dir": str(self.output_dir),
+                  "outputs": dict(self.outputs), "max_bytes": self.max_bytes,
+                  "max_proposals": self.max_proposals, "data_class": self.data_class}
+        # Preserve legacy policy digests; a restricted job binds the additional
+        # host-owned admission contract into its existing effect receipt.
+        if self.source_restrictions_sha256 is not None:
+            record["source_restrictions_sha256"] = self.source_restrictions_sha256
+        if self.source_expires_at is not None:
+            record["source_expires_at"] = self.source_expires_at.isoformat()
+        return _sha(_canonical(record))
 
     def check(self) -> None:
         """Read-only validation; never creates a directory or output file."""
@@ -218,6 +239,9 @@ class GuardedWorkspace:
     def __init__(self, policy: WorkspacePolicy) -> None:
         self.policy = policy
         self.session_id = uuid.uuid4().hex
+        self._opened_policy = policy
+        self._opened_policy_sha256 = policy.sha256
+        self._opened_session_id = self.session_id
         self._files = WorkspaceFiles.open(policy.output_dir, dict(policy.outputs), policy.max_bytes)
         self._audit_names = {
             f"{phase}{index}": f".ash-{self.session_id}-{index:02d}-{phase}.json"
@@ -231,7 +255,37 @@ class GuardedWorkspace:
         self._lock = threading.RLock()
         self._attempts = 0
         self._closed = False
+        self._fenced = False
         self._failed = False
+
+    def bind_text_tool(self, artifact: str) -> Callable[[str], dict[str, Any]]:
+        """Give an agent a text-only tool for one host-selected output alias."""
+        with self._lock:
+            if type(artifact) is not str or artifact not in dict(self._opened_policy.outputs):
+                raise ValueError("artifact is not in host policy")
+            if self._closed or self._failed:
+                raise ValueError("workspace is unavailable")
+            if not self._identity_matches_open_files():
+                self._failed = True
+                raise ValueError("workspace_identity_changed")
+
+        def write_text(content: str) -> dict[str, Any]:
+            # Non-text values are recorded as rejected proposals without serializing
+            # an arbitrary object or letting it supply paths or policy fields.
+            try:
+                proposal = (_canonical({"operation": "write_text", "artifact": artifact,
+                                        "content": content}) if type(content) is str
+                            and len(content) <= self._opened_policy.max_bytes else b"")
+            except UnicodeError:
+                proposal = b""
+            return self.submit(proposal)
+
+        return write_text
+
+    def _identity_matches_open_files(self) -> bool:
+        return (self.policy is self._opened_policy
+                and self.policy.sha256 == self._opened_policy_sha256
+                and self.session_id == self._opened_session_id)
 
     def submit(self, proposal: bytes) -> dict[str, Any]:
         """Validate one untrusted JSON proposal; return a content-free tool result."""
@@ -254,6 +308,9 @@ class GuardedWorkspace:
         with self._lock:
             if self._closed or self._failed:
                 return {"applied": False, "reason": "session_unavailable", "effect": "none"}
+            if not self._identity_matches_open_files():
+                self._failed = True
+                return {"applied": False, "reason": "workspace_identity_changed", "effect": "none"}
             if self._attempts >= self.policy.max_proposals:
                 return {"applied": False, "reason": "proposal_budget_exhausted", "effect": "none"}
             self._attempts += 1
@@ -296,6 +353,12 @@ class GuardedWorkspace:
             except (OSError, ValueError):
                 self._failed = True
                 return {**result, "reason": "intent_storage_unavailable"}
+            # Durable intent can be slow. Check again at the last userspace
+            # checkpoint before exclusive create; this is not an atomic OS TTL.
+            if (may_write and self.policy.source_expires_at is not None
+                    and datetime.now(UTC) >= self.policy.source_expires_at):
+                may_write = False
+                result["reason"] = "source_expired"
             if may_write:
                 try:
                     written = self._files.write_once(result["artifact"], content)
@@ -326,6 +389,24 @@ class GuardedWorkspace:
                     self._files.close()
                 finally:
                     self._audit.close()
+                self._fenced = True
+
+    def closure_record(self) -> dict[str, Any]:
+        """Describe a successfully closed instance without reopening or persisting it."""
+        with self._lock:
+            if (not self._closed or not self._fenced
+                    or not self._identity_matches_open_files()
+                    or type(self._attempts) is not int
+                    or not 0 <= self._attempts <= self._opened_policy.max_proposals):
+                raise ValueError("workspace closure is not fenced")
+            return {
+                "schema_version": "ash.workspace-session-closed.v1",
+                "session_id": self._opened_session_id,
+                "policy_sha256": self._opened_policy_sha256,
+                "attempts": self._attempts,
+                "closed": True,
+                "replay_allowed": False,
+            }
 
     def __enter__(self) -> GuardedWorkspace:
         return self

@@ -83,17 +83,17 @@ jobs:
           python -m pip install --require-hashes -r requirements/build.txt
           python -m pip install --no-compile --only-binary=:all: --require-hashes -r requirements/runtime.txt -r requirements/companions.txt
           python -m build --no-isolation --wheel --outdir dist
-          python -m pip install --no-index --no-deps --no-compile dist/agentic_security_harness-1.12.0-py3-none-any.whl
+          python -m pip install --no-index --no-deps --no-compile dist/agentic_security_harness-1.13.0-py3-none-any.whl
           python -m pip check
       - name: Exercise installed positive and negative paths without source imports
         shell: bash
         run: |
           set -euo pipefail
-          python -I -B examples/installed-ecosystem/check.py --out installed-ecosystem-result.json --core-version 1.12.0
-          python -I -B examples/installed-ecosystem/chain.py --out candidate-functional-chain.json --core-version 1.12.0
-          python -I -B examples/installed-ecosystem/verify_chain.py candidate-functional-chain.json --core-version 1.12.0
-          python -I -B examples/installed-ecosystem/check_supplied_input.py --out candidate-supplied-input.json --core-version 1.12.0
-          python -I -B examples/installed-ecosystem/check_ancestry.py --out candidate-ancestry-result.json --core-version 1.12.0
+          python -I -B examples/installed-ecosystem/check.py --out installed-ecosystem-result.json --core-version 1.13.0
+          python -I -B examples/installed-ecosystem/chain.py --out candidate-functional-chain.json --core-version 1.13.0
+          python -I -B examples/installed-ecosystem/verify_chain.py candidate-functional-chain.json --core-version 1.13.0
+          python -I -B examples/installed-ecosystem/check_supplied_input.py --out candidate-supplied-input.json --core-version 1.13.0
+          python -I -B examples/installed-ecosystem/check_ancestry.py --out candidate-ancestry-result.json --core-version 1.13.0
           ash quickstart --out installed-quickstart
           ash validate installed-quickstart
       - name: Preserve content-free candidate-wheel evidence
@@ -273,7 +273,7 @@ jobs:
       - name: Build and smoke the Harness package
         run: |
           python -m build --no-isolation --wheel --outdir dist
-          python -m pip install --no-index --no-deps --force-reinstall dist/agentic_security_harness-1.12.0-py3-none-any.whl
+          python -m pip install --no-index --no-deps --force-reinstall dist/agentic_security_harness-1.13.0-py3-none-any.whl
           ash --help
 
   optional-pydantic:
@@ -323,13 +323,33 @@ jobs:
           tests/test_document_quality.py
           tests/test_workspace_pydantic.py
           tests/test_document_workflow_acceptance.py
+      - name: Verify installed document integration with the optional dependency present
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -I -B -c "import pathlib,agentic_security_harness as ash; p=pathlib.Path(ash.__file__).resolve(); assert pathlib.Path('src').resolve() not in p.parents; print(p)"
+          python -I -B -m pytest -q --noconftest -p no:cacheprovider --junitxml=installed-document-integration-${{ matrix.os }}.xml \
+            tests/test_document_restrictions.py tests/test_document_source_restrictions.py \
+            tests/test_document_expectations.py tests/test_document_coverage.py \
+            tests/test_workspace_session_closure.py tests/test_document_recovery.py \
+            tests/test_document_recovered_handoff.py tests/test_workspace_bound_tool.py \
+            tests/test_document_generation.py tests/test_document_workflow.py \
+            tests/test_document_plan.py tests/test_document_plan_cli.py \
+            tests/test_document_plan_safety.py \
+            tests/test_document_admissions.py tests/test_document_admissions_cli.py \
+            tests/test_document_dynamic.py tests/test_document_multisource.py \
+            tests/test_document_multisource_workflow.py tests/test_document_supervisor.py \
+            tests/test_document_supervised_recovery.py
+          python -I -B -c "from xml.etree import ElementTree as E; r=E.parse('installed-document-integration-${{ matrix.os }}.xml').getroot(); assert not list(r.iter('skipped')), 'installed integration must not skip optional tests'"
       - name: Preserve optional test report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: optional-${{ matrix.os }}
-          path: optional-${{ matrix.os }}.xml
-          if-no-files-found: warn
+          path: |
+            optional-${{ matrix.os }}.xml
+            installed-document-integration-${{ matrix.os }}.xml
+          if-no-files-found: error
           retention-days: 30
 
   aggregate-test-coverage:
@@ -349,5 +369,5 @@ jobs:
           pattern: "*-*-latest"
           path: test-reports
           merge-multiple: true
-      - name: Require all four reports and complete passing union
+      - name: Require all six reports and complete passing union
         run: python tools/check_test_coverage.py test-reports --tests-root tests

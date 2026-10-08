@@ -44,7 +44,7 @@ def test_example_version_set_matches_declared_extras() -> None:
     # Historical published-wheel contour stays pinned independently of a candidate.
     expected[project["name"]] = "1.6.0"
     assert _module().EXPECTED == expected
-    assert project["version"] == "1.12.0"  # Historical default stays pinned.
+    assert project["version"] == "1.13.0"  # Historical default stays pinned.
 
 
 def test_example_fails_closed_on_contract_mismatch() -> None:
@@ -71,7 +71,7 @@ def test_versioned_onboarding_pin_matches_latest_published_version() -> None:
     onboarding = re.search(pattern, (ROOT / "docs/getting-started.md").read_text(encoding="utf-8"))
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
     assert readme and onboarding and readme.group(1) == onboarding.group(1) == "1.12.0"
-    assert project["version"] == "1.12.0"
+    assert project["version"] == "1.13.0"  # The published onboarding pin is separate.
     notes = (ROOT / "docs/releases/v1.12.0.md").read_text(encoding="utf-8")
     assert "Status: published on GitHub, TestPyPI and PyPI" in notes
     assert "https://pypi.org/project/agentic-security-harness/1.12.0/" in notes

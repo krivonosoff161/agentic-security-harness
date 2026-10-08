@@ -18,7 +18,25 @@ one.
 In plain English: it turns “the agent behaved unsafely” into evidence you can replay,
 validate, compare, and review.
 
-## Document workflow — published in 1.12.0
+## Document workflow — preparing 1.13.0
+
+The [1.13.0 release candidate](docs/releases/v1.13.0.md) consolidates host-bound
+document tools, planned and dynamic jobs, retained source restrictions and fenced
+recovery into one operator workflow. Use the [step-by-step guide](docs/document-workflow.md).
+Publication is pending the exact-tag and package-index checks; the currently
+published installation below remains 1.12.0 until those checks finish.
+
+Source development for [#343](https://github.com/krivonosoff161/agentic-security-harness/issues/343)
+adds a [host-bound text tool](docs/document-workflow.md#development-contract-host-bound-text-tool),
+inherited source restrictions, expected-job coverage and reviewed recovery of
+existing document bytes. These are **unreleased candidate APIs**, not features of
+the 1.12.0 install below. They retain the same guarded create-only writer.
+
+The follow-up [planned CLI recipe](docs/document-workflow.md#development-contract-planned-jobs-from-the-cli)
+lets a host prepare a finite job plan, execute its jobs and inspect missing work
+without custom Python glue. It pins input, task, restrictions and declared output
+checks; exact-byte review happens when the generated document is available. This
+is also unreleased source work, not a new published package.
 
 The [document jobs guide](docs/document-workflow.md) covers workspace setup,
 permission preview, separate jobs, restart inspection, content-free quality
