@@ -8,9 +8,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [1.13.0] - 2026-10-08
 
-Prepared additive document-workflow release candidate consolidating PR #347 and
-its preceding #344/#346 work. Tag, staging and production publication remain
-separate gates; see the [candidate release record](docs/releases/v1.13.0.md).
+Published the additive document-workflow release consolidated in merged PR #347,
+including the preceding #344/#346 work. The attested tag build, TestPyPI gate,
+and exact-subject PyPI publication are recorded separately in the
+[release record](docs/releases/v1.13.0.md). The production run passed its five
+applicable upload and Linux/Windows platform jobs. Separate read-only run
+`37764340666` passed all seven cross-index jobs with zero skips.
 
 - Bind document generation to the host-selected `document` text tool. The model
   supplies content, not an alias, path or authority field; the existing Guard,

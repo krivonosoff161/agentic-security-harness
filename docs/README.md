@@ -8,10 +8,10 @@ research and contract files.
 | Goal | Document |
 |---|---|
 | Install and reproduce the first local report | [Getting started](getting-started.md) |
-| Create a document job with 1.12.0 | [Document workflow](document-workflow.md) and [release evidence](releases/v1.12.0.md) |
+| Create a guarded document job with 1.13.0 | [Document workflow](document-workflow.md), [clean-install replay](document-workflow-replay.md) and [release evidence](releases/v1.13.0.md) |
 | Use the earlier configured writer (1.11.0) | [Guarded workspace writer](guarded-workspace-writer.md) and [historical release evidence](releases/v1.11.0.md) |
 | Reproduce guarded actual writes in fresh fixtures (1.9.0) | [Controlled file workflow](controlled-file-workflow.md) |
-| Install the current 1.12.0 release with exact subjects | [Release evidence](releases/v1.12.0.md) and [installed ecosystem route](../examples/installed-ecosystem/README.md#current-published-1120) |
+| Install the current 1.13.0 release with exact subjects | [Release evidence](releases/v1.13.0.md) and [installed ecosystem route](../examples/installed-ecosystem/README.md#current-published-1130) |
 | Prepare one bounded external reproduction | [External pilot](external-pilot.md) |
 | Connect a declared garak JSON plan to Quarantine/Gateway | [Experimental garak plan connector (published in 1.7.0)](garak-plan-connector.md) |
 | Understand what is shipped versus planned | [Current state](current-state.md) |

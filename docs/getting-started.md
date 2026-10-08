@@ -10,9 +10,11 @@ with no API keys and no network.
 
 ## 1. Install
 
-These commands use the published [1.12.0 package](https://pypi.org/project/agentic-security-harness/1.12.0/).
-Its exact subjects and publication gates are recorded in the
-[release evidence](releases/v1.12.0.md). The 1.11.0 release retains its initial
+These commands use the published [1.13.0 package](https://pypi.org/project/agentic-security-harness/1.13.0/).
+Its exact subjects and verification status are recorded in the
+[release evidence](releases/v1.13.0.md). The prior
+[1.12.0 release](releases/v1.12.0.md) retains its own verified subjects.
+The 1.11.0 release retains its initial
 production lookup failure and passing read-only verification in its own record.
 The failed, unpublished
 [1.10.0 tag](releases/v1.10.0.md) and prior 1.9.1 release retain their own records.
@@ -23,11 +25,15 @@ For exact companion binding and negative controls, use the separate
 Installation does not automatically activate companions or grant action authority.
 
 ```bash
-python -m pip install agentic-security-harness==1.12.0
+python -m pip install agentic-security-harness==1.13.0
 ash --help
 ```
 
 For source development, clone the repository and use `python -m pip install -e .[dev]`.
+
+To create a guarded short document from your own UTF-8 source after installation,
+follow the [document-workflow operator guide](document-workflow.md). Its preview,
+host-owned output policy and exact-byte review are separate from benchmark quickstart.
 
 Requires Python 3.11+. Pure Python; the only runtime dependency is `pydantic`.
 Ubuntu/Linux is the primary clean-install and first-user contour; Windows remains an
