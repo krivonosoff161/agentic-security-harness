@@ -5352,7 +5352,7 @@ def _main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command in (
         "document-init", "document-check", "document-run", "document-status",
-        "document-plan", "document-coverage",
+        "document-plan", "document-coverage", "document-admissions",
     ):
         from agentic_security_harness.document_cli import run as run_document_command
 

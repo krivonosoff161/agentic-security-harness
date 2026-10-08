@@ -11,9 +11,12 @@ import json
 import re
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from agentic_security_harness.models import DataEnvelope
+
+if TYPE_CHECKING:
+    from agentic_security_harness.document_multisource import DocumentMultiSourceRestrictions
 
 _VERSION = "ash.document-source-restrictions.v1"
 _TOKEN = re.compile(r"[A-Za-z][A-Za-z0-9_.-]{0,63}\Z", re.ASCII)
@@ -143,6 +146,10 @@ class DocumentSourceRestrictions:
         return hashlib.sha256(b"ash-document-source-restrictions-v1\0"
                               + _canonical(self.record())).hexdigest()
 
+    @property
+    def data_class(self) -> str:
+        return str(json.loads(self._envelope_bytes)["data_class"])
+
     def for_output(self, content: bytes) -> DocumentSourceRestrictions:
         return type(self)(_content_digest(content), self._envelope_bytes, self._created_at)
 
@@ -180,3 +187,19 @@ class DocumentSourceRestrictions:
         if ttl is not None and current >= self._created_at + timedelta(seconds=ttl):
             return "source_expired"
         return None
+
+
+def parse_source_restrictions(
+    value: object,
+) -> DocumentSourceRestrictions | DocumentMultiSourceRestrictions:
+    """Parse only the two closed, host-owned document restriction records."""
+    from agentic_security_harness.document_multisource import DocumentMultiSourceRestrictions
+
+    if type(value) is not dict:
+        raise ValueError("closed source restrictions record required")
+    schema = value.get("schema_version")
+    if schema == _VERSION:
+        return DocumentSourceRestrictions.from_record(value)
+    if schema == "ash.document-multisource-restrictions.v1":
+        return DocumentMultiSourceRestrictions.from_record(value)
+    raise ValueError("unsupported source restrictions version")

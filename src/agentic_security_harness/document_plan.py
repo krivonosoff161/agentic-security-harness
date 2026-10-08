@@ -17,7 +17,7 @@ from agentic_security_harness.document_expectations import (
     execution_sha256,
 )
 from agentic_security_harness.document_quality import DocumentRequirements
-from agentic_security_harness.document_restrictions import DocumentSourceRestrictions
+from agentic_security_harness.document_restrictions import parse_source_restrictions
 from agentic_security_harness.document_workflow import DocumentConfig, _job_name
 from agentic_security_harness.ollama_quarantine_adapter import _json
 from agentic_security_harness.workspace_writer import _canonical, _read_file
@@ -106,7 +106,7 @@ def _compile_job(
         if "source_restrictions" in row else None
     )
     restrictions = (
-        DocumentSourceRestrictions.from_record(restrictions_record)
+        parse_source_restrictions(restrictions_record)
         if restrictions_record is not None else None
     )
     source_path = _path(parent, row["input"]) if "input" in row else None
@@ -117,7 +117,7 @@ def _compile_job(
         bound = restrictions.record()
         if bound["content_sha256"] != _sha(raw):
             raise ValueError("source restriction digest mismatch")
-        if bound["envelope"]["data_class"] != config.data_class:
+        if restrictions.data_class != config.data_class:
             raise ValueError("source restriction class mismatch")
 
     requirements_sha = (

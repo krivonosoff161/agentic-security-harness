@@ -186,7 +186,11 @@ jobs:
             tests/test_document_expectations.py tests/test_document_coverage.py \
             tests/test_workspace_session_closure.py tests/test_document_recovery.py \
             tests/test_document_recovered_handoff.py tests/test_workspace_bound_tool.py \
-            tests/test_document_generation.py tests/test_document_workflow.py
+            tests/test_document_generation.py tests/test_document_workflow.py \
+            tests/test_document_admissions.py tests/test_document_admissions_cli.py \
+            tests/test_document_dynamic.py tests/test_document_multisource.py \
+            tests/test_document_multisource_workflow.py tests/test_document_supervisor.py \
+            tests/test_document_supervised_recovery.py
 
   runtime-gateway-container:
     name: Runtime Gateway container smoke

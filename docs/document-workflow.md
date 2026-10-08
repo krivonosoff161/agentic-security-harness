@@ -14,6 +14,10 @@ and a [host-bound text tool](#development-contract-host-bound-text-tool), plus
 [source restrictions](#development-contract-source-restrictions),
 [expected-job coverage](#development-contract-expected-job-coverage) and
 [reviewed data recovery](#development-contract-recover-data-without-replaying-an-action).
+The newer [runtime-decision operator path](#development-operator-path-runtime-decisions)
+is also source-branch work, not part of published 1.12.0.
+For a clean-install replay and its evidence limits, see the
+[development replay protocol](document-workflow-replay.md).
 The published onboarding below remains the 1.12.0 baseline; see
 [the development contract](#development-contract-explicit-reviewed-handoff)
 before running these chains from the modified source checkout.
@@ -97,6 +101,91 @@ documents: inspect `declared_quality_checked` and per-job `quality` separately.
 Missing, extra or interrupted jobs produce incomplete coverage and exit 1.
 `document-run` retains exit 2 for saved documents failing declared quality.
 
+## Development operator path: runtime decisions
+
+Use this **development-branch** route when the host cannot choose every follow-up
+job before the first document exists. Start with a fixed, host-owned root spec;
+for example, put `root-jobs.json` beside `source.txt`:
+
+```json
+{"schema_version":"ash.document-plan-spec.v1","jobs":[{"job_id":"first","task":"Summarize this public note.","input":"source.txt"}]}
+```
+
+Create a fresh workspace and save the root plan before any job. Retain the
+returned `plan_sha256` separately under host control; replace the placeholders
+below with actual returned digests. `--pending-decision` names a host decision,
+not a model instruction:
+
+```sh
+ash document-init --dir branch-documents --model YOUR_EXISTING_LOCAL_MODEL
+ash document-plan --config branch-documents/document.json --spec root-jobs.json --out branch-documents/root-plan.json --execute --json
+ash document-admissions --config branch-documents/document.json --action init --ledger branch-documents/admissions --plan branch-documents/root-plan.json --plan-sha256 RETAINED_PLAN_SHA256 --pending-decision next-step --execute --json
+ash document-coverage --config branch-documents/document.json --admissions branch-documents/admissions --admissions-sha256 RETAINED_HEAD_0 --json
+ash document-run --config branch-documents/document.json --admissions branch-documents/admissions --admissions-sha256 RETAINED_HEAD_0 --input source.txt --task "Summarize this public note." --job first --supervise-timeout 20 --json
+ash document-run --config branch-documents/document.json --admissions branch-documents/admissions --admissions-sha256 RETAINED_HEAD_0 --input source.txt --task "Summarize this public note." --job first --supervise-timeout 20 --execute --json
+ash document-status --config branch-documents/document.json --job first --json
+```
+
+The first `document-run` is a preview and starts no child. With `--execute`,
+`--supervise-timeout` runs one owned child and bounds how long the caller waits;
+it does not add a generation retry. Inspect the actual document before reusing
+it. The initial coverage call exits 1 because `next-step` is pending; even after
+the first job is saved, coverage remains incomplete until the decision is
+resolved and the ledger is sealed. Retain each new `admission_head_sha256`
+separately; a stale head is rejected before a later job call.
+
+To admit a follow-up, have the host create a closed job record with the library,
+not a model-supplied or hand-edited digest. This example's task must match the
+later `--task` byte-for-byte after UTF-8 encoding:
+
+```python
+import hashlib
+import json
+from pathlib import Path
+from agentic_security_harness.document_expectations import ExpectedDocumentJob, execution_sha256
+
+task = "Summarize the reviewed first note."
+job = ExpectedDocumentJob(
+    job_id="second", task_sha256=hashlib.sha256(task.encode("utf-8")).hexdigest(),
+    source_job="first", execution_sha256=execution_sha256(requirements_sha256=None),
+)
+Path("second-job.json").write_text(json.dumps(job.record()), encoding="utf-8")
+```
+
+After checking `first/document.md` and confirming its exact bytes against
+`document-status --json` (`document_sha256`), use that digest as
+`REVIEWED_FIRST_SHA256`. The digest acknowledges the host's review; it is not
+semantic proof. Resolve the pending choice, retain the new head, then execute
+the newly admitted job under that head:
+
+```sh
+ash document-admissions --config branch-documents/document.json --action resolve-job --ledger branch-documents/admissions --head-sha256 RETAINED_HEAD_0 --decision next-step --job-record second-job.json --execute --json
+ash document-run --config branch-documents/document.json --admissions branch-documents/admissions --admissions-sha256 RETAINED_HEAD_1 --from-job first --reviewed-source-sha256 REVIEWED_FIRST_SHA256 --task "Summarize the reviewed first note." --job second --execute --json
+ash document-coverage --config branch-documents/document.json --admissions branch-documents/admissions --admissions-sha256 RETAINED_HEAD_1 --json
+ash document-admissions --config branch-documents/document.json --action seal --ledger branch-documents/admissions --head-sha256 RETAINED_HEAD_1 --execute --json
+ash document-coverage --config branch-documents/document.json --admissions branch-documents/admissions --admissions-sha256 RETAINED_HEAD_2 --json
+```
+
+The unsealed coverage call exits 1 even when both jobs are accounted for.
+If no follow-up is chosen, resolve that choice to a no-job reason instead of
+creating `second-job.json` or running `second`:
+
+```sh
+ash document-admissions --config branch-documents/document.json --action resolve-stop --ledger branch-documents/admissions --head-sha256 RETAINED_HEAD_0 --decision next-step --reason no_followup --execute --json
+```
+
+Retain its new head and seal under that head. After an admitted job, a later
+host choice can be introduced with:
+
+```sh
+ash document-admissions --config branch-documents/document.json --action declare --ledger branch-documents/admissions --head-sha256 CURRENT_HEAD --parent-job first --decision later --execute --json
+```
+
+Its admitted child must name `first` as `source_job`.
+Mutating admission commands preview without `--execute`; `status` is always
+read-only. A sealed ledger closes decisions, not document correctness or every
+host action.
+
 ## Development contract: source restrictions
 
 This unreleased opt-in contract uses the existing `DataEnvelope` vocabulary. It
@@ -152,8 +241,37 @@ available after expiry; TTL controls subsequent use, not automatic deletion.
 Existing callers without restrictions retain the legacy contract and policy hash.
 The host, clock and local bookkeeping remain trusted: this does not authenticate
 a remote producer, resist coordinated host rollback, classify semantics, or
-cover uninstrumented actions. The one-source workflow preserves labels; it does
-not claim a generic multi-source label algebra or confer action authority.
+cover uninstrumented actions. For multiple sources, the host can compose
+bounded, individually bound UTF-8 parts and write the **exact returned bytes**:
+
+```python
+import json
+from pathlib import Path
+from agentic_security_harness.document_multisource import DocumentMultiSourceRestrictions
+from agentic_security_harness.document_restrictions import DocumentSourceRestrictions
+
+# original_epoch_a/b are trusted UTC datetimes retained when each source arrived;
+# labels is a host-selected DataEnvelope as above, not derived from model text.
+first, second = Path("first.txt").read_bytes(), Path("second.txt").read_bytes()
+assembled, combined = DocumentMultiSourceRestrictions.compose((
+    ("first", first, DocumentSourceRestrictions.bind(first, labels, created_at=original_epoch_a)),
+    ("second", second, DocumentSourceRestrictions.bind(second, labels, created_at=original_epoch_b)),
+))
+Path("combined.txt").write_bytes(assembled)
+Path("combined-restrictions.json").write_text(
+    json.dumps(combined.record()), encoding="utf-8",
+)
+```
+
+Pass `--input combined.txt --source-restrictions combined-restrictions.json`
+to `document-run`, or name those files in a root plan spec. The CLI uses
+`parse_source_restrictions` for either the single-source or multi-source closed
+record. Do not reformat `assembled`: its byte digest is part of admission.
+The combined policy intersects recipients and purposes, requires every source
+to permit storage/forwarding, and uses the earliest original expiry. Saved
+output and reviewed `--from-job` continuations preserve original leaf labels
+and epochs. This is bounded document-source composition, not semantic
+classification, general declassification, or permission to perform another action.
 
 ## Development contract: expected-job coverage
 
@@ -196,10 +314,15 @@ After a handled run ends, the workflow attempts to persist `session-closed.json`
 The writer supplies this record only after both sets of file handles close and
 its opened policy/session identity still matches. The marker means that **this
 writer instance** is fenced, not that its operation succeeded or every process
-on the host is stopped. Hard termination before this marker remains unresolved.
+on the host is stopped. An unsupervised hard termination before this marker
+remains unresolved. The development `--supervise-timeout` path owns one child;
+after abnormal exit it may save a bound `supervisor-fence.json` only after
+confirming that child is no longer alive. A missing or invalid fence does not
+make interrupted bytes recoverable.
 
 `document_recovery.inspect_recovery(config, job_id)` is read-only. Recovery needs
-the matching closed-session record, current host policy, an authorized original
+one matching closed-session record or validated owned-child supervisor fence,
+the current host policy, an authorized original
 intent, and an existing document matching its exact digest and length. Extra
 attempts, wrong identities, denied intent, partial/changed bytes, contradictory
 evidence or known failed quality do not become recoverable merely because a file
@@ -221,7 +344,12 @@ recover_source=True, reviewed_source_sha256=reviewed_digest)`, or CLI
 `--from-job OLD_JOB --recover-source --reviewed-source-sha256 REVIEWED_SHA256`.
 The normal new-job admission, Guard, fixed destination and quality checks still
 apply. The original job ID remains non-replayable and its incomplete outcome
-remains visible in status/coverage. This is useful data recovery, not a claim of
+remains visible in status/coverage. Even with a supervisor fence, inspect
+`--inspect-recovery` and review exact bytes before a **new** job ID; never
+rerun the interrupted ID. A dynamically admitted recovery job must have a
+host-recorded `execution_sha256(requirements_sha256=..., recover_source=True)`;
+the ordinary route cannot be silently switched to recovery. This is useful
+data recovery, not a claim of
 exactly-once arbitrary tools, atomic filesystem snapshots or power-loss durability.
 
 ## First job

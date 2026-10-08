@@ -79,6 +79,11 @@ def test_sensitive_cli_actions_are_disabled_by_default() -> None:
             ["document-plan", "--config", "host.json", "--spec", "jobs.json",
              "--out", "plan.json"], ("execute",),
         ),
+        "document-admissions": (
+            ["document-admissions", "--config", "host.json", "--ledger", "ledger",
+             "--action", "init", "--plan", "plan.json",
+             "--plan-sha256", "a" * 64], ("execute",),
+        ),
         "document-run": (
             ["document-run", "--config", "host.json", "--input", "source.txt",
              "--task", "Summarize", "--job", "first"], ("execute",),

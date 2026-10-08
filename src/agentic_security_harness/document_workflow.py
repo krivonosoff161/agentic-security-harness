@@ -20,9 +20,13 @@ from typing import Any
 
 from agentic_security_harness._fixture_files import _checked_directory, _identity
 from agentic_security_harness._workspace_files import WorkspaceFiles, _validate_filename
-from agentic_security_harness.document_expectations import execution_sha256
+from agentic_security_harness.document_expectations import DocumentRunPlan, execution_sha256
+from agentic_security_harness.document_multisource import DocumentMultiSourceRestrictions
 from agentic_security_harness.document_quality import DocumentRequirements, evaluate_document
-from agentic_security_harness.document_restrictions import DocumentSourceRestrictions
+from agentic_security_harness.document_restrictions import (
+    DocumentSourceRestrictions,
+    parse_source_restrictions,
+)
 from agentic_security_harness.ollama_quarantine_adapter import (
     _MODEL_ID,
     OllamaQuarantineConfigV1,
@@ -117,7 +121,7 @@ class DocumentInput:
     content: bytes = field(repr=False)
     source_job: str
     data_class: str
-    restrictions: DocumentSourceRestrictions | None = None
+    restrictions: DocumentSourceRestrictions | DocumentMultiSourceRestrictions | None = None
     recovery_sha256: str | None = None
 
     def record(self) -> dict[str, Any]:
@@ -175,7 +179,7 @@ def read_job_document(
     if status["quality"]["status"] == "review_required" and reviewed_source_sha256 is None:
         raise SourceReviewBlocked("source_review_required", digest)
     restrictions = (
-        DocumentSourceRestrictions.from_record(status["output_restrictions"])
+        parse_source_restrictions(status["output_restrictions"])
         if status.get("output_restrictions") is not None else None
     )
     return DocumentInput(raw, job_id, config.data_class, restrictions)
@@ -399,10 +403,12 @@ def run_job(
     execute: bool = False, source_job: str | None = None,
     requirements: DocumentRequirements | None = None,
     reviewed_source_sha256: str | None = None,
-    source_restrictions: DocumentSourceRestrictions | None = None,
+    source_restrictions: DocumentSourceRestrictions | DocumentMultiSourceRestrictions | None = None,
     expected_input_sha256: str | None = None,
     run_plan_sha256: str | None = None,
     run_plan_path: Path | None = None,
+    run_plan: DocumentRunPlan | None = None,
+    supervisor_nonce: str | None = None,
     recover_source: bool = False,
 ) -> dict[str, Any]:
     """Preview by default; an explicit execute reserves the job before any model call."""
@@ -432,7 +438,8 @@ def run_job(
     if requirements is not None and type(requirements) is not DocumentRequirements:
         raise ValueError("invalid host document requirements")
     if (source_restrictions is not None
-            and type(source_restrictions) is not DocumentSourceRestrictions):
+            and type(source_restrictions) not in (
+                DocumentSourceRestrictions, DocumentMultiSourceRestrictions)):
         raise ValueError("invalid host source restrictions")
     if source_job is not None and source_restrictions is not None:
         raise ValueError("source job restrictions cannot be overridden")
@@ -441,15 +448,27 @@ def run_job(
             type(digest) is not str or re.fullmatch(r"[a-f0-9]{64}", digest) is None
         ):
             raise ValueError("invalid host expectation digest")
-    if (run_plan_path is None) != (run_plan_sha256 is None):
-        raise ValueError("plan path and retained digest must be supplied together")
+    if supervisor_nonce is not None and (
+        type(supervisor_nonce) is not str or re.fullmatch(r"[a-f0-9]{32}", supervisor_nonce) is None
+    ):
+        raise ValueError("host supervisor nonce required")
+    if run_plan_path is not None and run_plan is not None:
+        raise ValueError("select one plan path or admitted plan")
+    if (run_plan_path is None and run_plan is None) != (run_plan_sha256 is None):
+        raise ValueError("plan and retained digest must be supplied together")
+    if run_plan is not None and (
+        type(run_plan) is not DocumentRunPlan or run_plan.sha256 != run_plan_sha256
+    ):
+        raise ValueError("admitted plan differs from retained digest")
     expected_job = None
+    plan = run_plan
     if run_plan_path is not None:
         # Lazy import avoids a module cycle; coverage uses this actual workflow.
         from agentic_security_harness.document_coverage import load_plan
 
         assert run_plan_sha256 is not None
         plan = load_plan(run_plan_path, expected_sha256=run_plan_sha256)
+    if plan is not None:
         if plan.configuration_sha256 != config.sha256:
             raise ValueError("plan configuration mismatch")
         expected_job = plan.for_job(job_id)
@@ -571,6 +590,7 @@ def run_job(
         "state": "started",
         **restriction_fields,
         **({"run_plan_sha256": run_plan_sha256} if run_plan_sha256 is not None else {}),
+        **({"supervisor_nonce": supervisor_nonce} if supervisor_nonce is not None else {}),
     }
     _save(job / "started.json", initial)
     args.execute = True
@@ -724,14 +744,14 @@ def inspect_job(config: DocumentConfig, job_id: str) -> dict[str, Any]:
         summary = _json(_read_file(job / "summary.json", 65536), 65536)
         source_restrictions = None
         if "source_restrictions" in initial or "source_restrictions_sha256" in initial:
-            source_restrictions = DocumentSourceRestrictions.from_record(
+            source_restrictions = parse_source_restrictions(
                 initial["source_restrictions"]
             )
             restriction_record = source_restrictions.record()
             if (
                 source_restrictions.sha256 != initial.get("source_restrictions_sha256")
                 or restriction_record["content_sha256"] != initial.get("input_sha256")
-                or restriction_record["envelope"]["data_class"] != config.data_class
+                or source_restrictions.data_class != config.data_class
             ):
                 return problem
         policy = config.policy(
@@ -752,6 +772,11 @@ def inspect_job(config: DocumentConfig, job_id: str) -> dict[str, Any]:
             or summary.get("effect") not in {"none", "created", "unknown_inspect_output"}
             or any(summary.get(key) != value for key, value in initial.items() if key != "state")
         ):
+            return problem
+        # A supervisor fence records an interrupted worker, never ordinary
+        # completion. Do not allow a saved summary written just before child
+        # exit to outrun the post-exit fence.
+        if (job / "supervisor-fence.json").exists() or (job / "supervisor-fence.json").is_symlink():
             return problem
         decision = summary.get("decision")
         model = summary.get("model")
@@ -831,6 +856,25 @@ def inspect_job(config: DocumentConfig, job_id: str) -> dict[str, Any]:
             receipt = decision["receipt"]
             if not re.fullmatch(r"\.ash-[a-f0-9]{32}-[0-9]{2}-result\.json", receipt):
                 return problem
+            if "supervisor_nonce" in initial:
+                nonce = initial["supervisor_nonce"]
+                session = re.fullmatch(r"\.ash-([a-f0-9]{32})-01-result\.json", receipt)
+                if (type(nonce) is not str
+                        or re.fullmatch(r"[a-f0-9]{32}", nonce) is None
+                        or session is None):
+                    return problem
+                closure = _json(_read_file(job / "session-closed.json", 16384), 16384)
+                if (type(closure) is not dict
+                        or set(closure) != {"schema_version", "session_id", "policy_sha256",
+                                            "attempts", "closed", "replay_allowed"}
+                        or closure["schema_version"] != "ash.workspace-session-closed.v1"
+                        or closure["session_id"] != session.group(1)
+                        or closure["policy_sha256"] != policy.sha256
+                        or type(closure["attempts"]) is not int
+                        or closure["attempts"] != 1
+                        or closure["closed"] is not True
+                        or closure["replay_allowed"] is not False):
+                    return problem
             verified = verify_workspace_output(policy, job / receipt)
             if not verified["integrity_ok"]:
                 return problem

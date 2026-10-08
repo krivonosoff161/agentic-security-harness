@@ -12,7 +12,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from agentic_security_harness._fixture_files import _checked_directory
-from agentic_security_harness.document_restrictions import DocumentSourceRestrictions
+from agentic_security_harness.document_multisource import DocumentMultiSourceRestrictions
+from agentic_security_harness.document_restrictions import (
+    DocumentSourceRestrictions,
+    parse_source_restrictions,
+)
 from agentic_security_harness.ollama_quarantine_adapter import _json
 from agentic_security_harness.runtime_guard_foundation import GuardDecision
 from agentic_security_harness.workspace_writer import _canonical, _read_file, _sha
@@ -32,11 +36,16 @@ _STARTED_KEYS = {
     "requirements_sha256", "task_sha256", "engine", "state",
 }
 _OPTIONAL_STARTED_KEYS = {
-    "source_restrictions", "source_restrictions_sha256", "run_plan_sha256",
+    "source_restrictions", "source_restrictions_sha256", "run_plan_sha256", "supervisor_nonce",
 }
 _KNOWN_FILES = {
     "started.json", "session-closed.json", "document.md", "summary.json",
-    "quality.json",
+    "quality.json", "supervisor-fence.json",
+}
+_FENCE_KEYS = {
+    "schema_version", "supervisor_nonce", "job_id", "configuration_sha256",
+    "policy_sha256", "session_id", "started_sha256", "intent_sha256",
+    "worker_pid", "exitcode", "terminated", "writer_terminated", "replay_allowed",
 }
 _INTENT_KEYS = {
     "schema_version", "session_id", "call_id", "policy_sha256", "proposal_sha256",
@@ -61,27 +70,30 @@ def _record(path: Path, limit: int) -> tuple[dict[str, Any], str]:
     return value, _sha(raw)
 
 
-def _source_restrictions(initial: dict[str, Any]) -> DocumentSourceRestrictions | None:
+def _source_restrictions(
+    initial: dict[str, Any],
+) -> DocumentSourceRestrictions | DocumentMultiSourceRestrictions | None:
     if ("source_restrictions" in initial) != ("source_restrictions_sha256" in initial):
         raise ValueError("incomplete source restrictions")
     if "source_restrictions" not in initial:
         return None
-    restrictions = DocumentSourceRestrictions.from_record(initial["source_restrictions"])
+    restrictions = parse_source_restrictions(initial["source_restrictions"])
     if (restrictions.sha256 != initial["source_restrictions_sha256"]
             or restrictions.record()["content_sha256"] != initial["input_sha256"]):
         raise ValueError("source restrictions changed")
     return restrictions
 
 
-def _inventory(job: Path, session_id: str) -> set[str]:
+def _inventory(job: Path, session_id: str, closure_name: str) -> set[str]:
     entries = list(islice(job.iterdir(), 9))
     if len(entries) > 8:
         raise ValueError("unexpected job inventory")
     names = {entry.name for entry in entries}
     intent = f".ash-{session_id}-01-intent.json"
     result = f".ash-{session_id}-01-result.json"
-    if (len(names) != len(entries) or not {"started.json", "session-closed.json",
+    if (len(names) != len(entries) or not {"started.json", closure_name,
                                       "document.md", intent} <= names
+            or len(names & {"session-closed.json", "supervisor-fence.json"}) != 1
             or names - (_KNOWN_FILES | {intent, result})):
         raise ValueError("unexpected job inventory")
     return names
@@ -118,7 +130,10 @@ def inspect_recovery(config: DocumentConfig, job_id: str) -> dict[str, Any]:
                     or _HEX64.fullmatch(initial["requirements_sha256"]) is None))
                 or ("run_plan_sha256" in initial and (
                     type(initial["run_plan_sha256"]) is not str
-                    or _HEX64.fullmatch(initial["run_plan_sha256"]) is None))):
+                    or _HEX64.fullmatch(initial["run_plan_sha256"]) is None))
+                or ("supervisor_nonce" in initial and (
+                    type(initial["supervisor_nonce"]) is not str
+                    or _HEX32.fullmatch(initial["supervisor_nonce"]) is None))):
             return problem
         provenance = initial["input_provenance"]
         if (type(provenance) is not dict
@@ -149,7 +164,7 @@ def inspect_recovery(config: DocumentConfig, job_id: str) -> dict[str, Any]:
             return problem
         restrictions = _source_restrictions(initial)
         if (restrictions is not None
-                and restrictions.record()["envelope"]["data_class"] != config.data_class):
+                and restrictions.data_class != config.data_class):
             return problem
         policy = config.policy(
             job,
@@ -158,18 +173,39 @@ def inspect_recovery(config: DocumentConfig, job_id: str) -> dict[str, Any]:
         )
         if initial["policy_sha256"] != policy.sha256:
             return problem
-        closure, closure_sha = _record(job / "session-closed.json", 16384)
+        # Exactly one local host termination record is required. A supervisor
+        # fence never fabricates normal completion or permits replay.
+        closure_name = ("supervisor-fence.json" if (job / "supervisor-fence.json").exists()
+                        else "session-closed.json")
+        closure, closure_sha = _record(job / closure_name, 16384)
         session_id = closure.get("session_id")
-        if (set(closure) != _CLOSURE_KEYS
-                or closure["schema_version"] != "ash.workspace-session-closed.v1"
-                or type(session_id) is not str or _HEX32.fullmatch(session_id) is None
-                or closure["policy_sha256"] != initial["policy_sha256"]
-                or type(closure["attempts"]) is not int or closure["attempts"] != 1
-                or closure["closed"] is not True or closure["replay_allowed"] is not False):
+        if (type(session_id) is not str or _HEX32.fullmatch(session_id) is None
+                or closure.get("policy_sha256") != initial["policy_sha256"]
+                or closure.get("replay_allowed") is not False):
             return problem
-        names = _inventory(job, session_id)
+        if closure_name == "session-closed.json":
+            if (set(closure) != _CLOSURE_KEYS
+                    or closure["schema_version"] != "ash.workspace-session-closed.v1"
+                    or type(closure["attempts"]) is not int or closure["attempts"] != 1
+                    or closure["closed"] is not True):
+                return problem
+        elif (set(closure) != _FENCE_KEYS
+              or closure["schema_version"] != "ash.document-supervisor-fence.v1"
+              or "supervisor_nonce" not in initial
+              or closure["supervisor_nonce"] != initial["supervisor_nonce"]
+              or closure["job_id"] != job_id
+              or closure["configuration_sha256"] != config.sha256
+              or closure["started_sha256"] != initial_sha
+              or type(closure["worker_pid"]) is not int or closure["worker_pid"] <= 0
+              or type(closure["exitcode"]) is not int or closure["exitcode"] == 0
+              or type(closure["terminated"]) is not bool
+              or closure["writer_terminated"] is not True):
+            return problem
+        names = _inventory(job, session_id, closure_name)
         intent_name = f".ash-{session_id}-01-intent.json"
         intent, intent_sha = _record(job / intent_name, 16384)
+        if closure_name == "supervisor-fence.json" and closure["intent_sha256"] != intent_sha:
+            return problem
         decision = GuardDecision.model_validate(intent.get("decision"))
         if (set(intent) != _INTENT_KEYS
                 or intent.get("schema_version") != "ash.workspace-write.v1"
@@ -197,7 +233,7 @@ def inspect_recovery(config: DocumentConfig, job_id: str) -> dict[str, Any]:
         output_sha = _sha(raw)
         if len(raw) != intent["bytes"] or output_sha != intent["content_sha256"]:
             return problem
-        hashes = {"started.json": initial_sha, "session-closed.json": closure_sha,
+        hashes = {"started.json": initial_sha, closure_name: closure_sha,
                   intent_name: intent_sha, "document.md": output_sha}
         result_name = f".ash-{session_id}-01-result.json"
         if result_name in names:
@@ -251,6 +287,8 @@ def inspect_recovery(config: DocumentConfig, job_id: str) -> dict[str, Any]:
         return {
             "state": "recoverable_data", "job_id": job_id,
             "reason": "fenced_bytes_match_authorized_intent",
+            "fence_kind": ("owned_supervisor_exit" if closure_name == "supervisor-fence.json"
+                           else "normal_writer_close"),
             "document_sha256": output_sha, "recovery_evidence_sha256": evidence_sha,
             "output_restrictions": output_restrictions, "quality": quality,
             "replay_allowed": False, "original_completion_proven": False,
@@ -280,7 +318,7 @@ def read_recovered_document(
     if _sha(raw) != status["document_sha256"]:
         raise ValueError("recovered document changed during capture")
     restrictions = (
-        DocumentSourceRestrictions.from_record(status["output_restrictions"])
+        parse_source_restrictions(status["output_restrictions"])
         if status["output_restrictions"] is not None else None
     )
     return doc.DocumentInput(

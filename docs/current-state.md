@@ -1,5 +1,21 @@
 # Current state
 
+## Development continuation — dynamic jobs and interrupted-worker recovery
+
+The research branch adds a host-owned admission ledger for branches selected at
+runtime. Pending decisions and an unsealed ledger remain visibly incomplete;
+existing jobs retain their original task and output-check binding. The CLI exposes
+the same contract through `document-admissions` and the admissions options on
+`document-run` / `document-coverage`.
+
+Optional supervised execution can fence an owned worker after interruption. Exact
+complete bytes may then become explicitly reviewed data for a new job, without
+replaying or declaring the original action complete. Multi-source document inputs
+retain each original restriction record and absolute expiry across handoffs.
+See the [operator path](document-workflow.md#development-operator-path-runtime-decisions).
+These are unreleased changes; general host completeness, hostile-host rollback,
+power-loss durability and semantic classification remain separate obligations.
+
 ## Local candidate follow-up — planned CLI operations / #345
 
 On top of the preserved #344 candidate, source work exposes `document-plan`,

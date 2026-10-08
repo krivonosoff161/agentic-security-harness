@@ -52,6 +52,32 @@ def reply(
     return calls
 
 
+def test_supervised_saved_status_requires_normal_closure_without_fence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, source, _ = setup(tmp_path)
+    calls = reply(monkeypatch)
+    result = doc.run_job(config, source, "Make a checklist", "supervised", execute=True,
+                         supervisor_nonce="a" * 32)
+    assert result["state"] == "saved" and len(calls) == 1
+    job = config.jobs_dir / "supervised"
+    closure_path = job / "session-closed.json"
+    original = closure_path.read_bytes()
+    assert doc.inspect_job(config, "supervised")["state"] == "saved"
+    closure_path.unlink()
+    assert doc.inspect_job(config, "supervised")["state"] == "needs_inspection"
+    closure_path.write_bytes(original)
+    closure = json.loads(original)
+    closure["attempts"] = True
+    closure_path.write_text(json.dumps(closure), encoding="utf-8")
+    assert doc.inspect_job(config, "supervised")["state"] == "needs_inspection"
+    closure_path.write_bytes(original)
+    fence = job / "supervisor-fence.json"
+    fence.write_text("{}", encoding="utf-8")
+    assert doc.inspect_job(config, "supervised")["state"] == "needs_inspection"
+    assert len(calls) == 1
+
+
 def test_setup_preview_and_config_relative_to_file(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

@@ -8,11 +8,13 @@ Only the fresh output directory is written; no model or provider is contacted.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import subprocess
 import sys
 import threading
 from collections import deque
+from datetime import UTC, datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -45,6 +47,9 @@ class _FixtureServer(ThreadingHTTPServer):
             (200, _proposal("document", content='{"total":500,"paid":false}')),
             (200, _proposal("document", content='{"total":999,"paid":false}')),
             (200, _proposal("protected")),
+            # Dynamically admitted multi-source root and reviewed follow-up.
+            (200, _proposal("document")),
+            (200, _proposal("document")),
         ])
         self.gets = 0
         self.posts = 0
@@ -281,8 +286,155 @@ def check(out: Path, engine: str = "native", *, _source_test: bool = False) -> d
         changed = call("altered_status", 1, "document-status", *common, "--job", "allowed")
         _expect(changed["state"] == "needs_inspection" and server.posts == 12,
                 "altered_detected_without_replay")
+        _expect(server.gets == 1 and not server.errors and len(server.responses) == 2,
+                "original_server_counts")
+        # A second fresh workspace exercises the development-branch operator path.
+        # These are scripted transport responses, never observations of a model.
+        from agentic_security_harness.document_expectations import (
+            ExpectedDocumentJob,
+            execution_sha256,
+        )
+        from agentic_security_harness.document_multisource import DocumentMultiSourceRestrictions
+        from agentic_security_harness.document_restrictions import DocumentSourceRestrictions
+        from agentic_security_harness.models import DataEnvelope
+
+        dynamic_work = out / "dynamic-work"
+        dynamic_config = dynamic_work / "document.json"
+        dynamic_init = call("dynamic_init", 0, "document-init", "--dir", str(dynamic_work),
+                            "--model", MODEL, "--engine", engine)
+        _expect(dynamic_init["state"] == "initialized", "dynamic_initialized")
+        dynamic_settings = json.loads(dynamic_config.read_text(encoding="utf-8"))
+        dynamic_settings["port"] = server.server_port
+        dynamic_config.write_text(json.dumps(dynamic_settings, sort_keys=True), encoding="utf-8")
+        dynamic_common = ("--config", str(dynamic_config))
+        dynamic_protected = dynamic_work / "protected.txt"
+        dynamic_protected.write_bytes(PROTECTED)
+        origin = datetime.now(UTC) - timedelta(seconds=2)
+        envelope = DataEnvelope(
+            data_class="private", allowed_recipients=["local-model"],
+            allowed_purpose=["document-generation"], can_store=True,
+            can_forward=True, ttl_seconds=3600, requires_confirmation=False,
+            classification_source="host-config", classification_mutable=False,
+        )
+        first_part, second_part = b"Public agenda one", b"Public agenda two"
+        assembled, binding = DocumentMultiSourceRestrictions.compose((
+            ("one", first_part,
+             DocumentSourceRestrictions.bind(first_part, envelope, created_at=origin)),
+            ("two", second_part,
+             DocumentSourceRestrictions.bind(second_part, envelope,
+                                             created_at=origin - timedelta(seconds=1))),
+        ))
+        dynamic_source = out / "dynamic-source.txt"
+        dynamic_source.write_bytes(assembled)
+        binding_path = out / "multi-restrictions.json"
+        binding_path.write_text(json.dumps(binding.record(), sort_keys=True), encoding="utf-8")
+        task_first = "Summarize the two public agenda entries."
+        task_second = "Summarize the reviewed prior note."
+        dynamic_spec = out / "dynamic-spec.json"
+        dynamic_spec.write_text(json.dumps({
+            "schema_version": "ash.document-plan-spec.v1", "jobs": [{
+                "job_id": "dynamic-first", "task": task_first,
+                "input": dynamic_source.name,
+                "source_restrictions": binding_path.name,
+            }],
+        }, sort_keys=True), encoding="utf-8")
+        dynamic_plan = out / "dynamic-plan.json"
+        planned = call("dynamic_plan", 0, "document-plan", *dynamic_common,
+                       "--spec", str(dynamic_spec), "--out", str(dynamic_plan), "--execute")
+        _expect(planned["state"] == "planned" and server.posts == 12,
+                "dynamic_plan_without_generation")
+        ledger = out / "dynamic-admissions"
+        admission_base = ("document-admissions", *dynamic_common, "--ledger", str(ledger))
+        root_args = (*admission_base, "--action", "init", "--plan", str(dynamic_plan),
+                     "--plan-sha256", planned["plan_sha256"],
+                     "--pending-decision", "route")
+        root_preview = call("admissions_init_preview", 0, *root_args)
+        _expect(root_preview["state"] == "preview" and not ledger.exists()
+                and server.posts == 12, "admissions_preview_no_effect")
+        admitted = call("admissions_init", 0, *root_args, "--execute")
+        head = admitted["admission_head_sha256"]
+        _expect(admitted["state"] == "admissions_updated"
+                and admitted["pending_decisions"] == ["route"], "admissions_root")
+        dynamic_coverage = ("document-coverage", *dynamic_common, "--admissions",
+                            str(ledger), "--admissions-sha256", head)
+        pending = call("pending_coverage", 1, *dynamic_coverage)
+        _expect(not pending["complete"] and pending["pending_decisions"] == ["route"]
+                and pending["admissions_sealed"] is False, "pending_choice_visible")
+        first_run = ("document-run", *dynamic_common, "--admissions", str(ledger),
+                     "--admissions-sha256", head, "--input", str(dynamic_source),
+                     "--source-restrictions", str(binding_path), "--task", task_first,
+                     "--job", "dynamic-first", "--supervise-timeout", "20")
+        supervised_preview = call("supervised_preview", 0, *first_run)
+        _expect(supervised_preview["state"] == "preview" and server.posts == 12
+                and not (dynamic_work / "jobs" / "dynamic-first").exists(),
+                "supervised_preview_no_child_effect")
+        first_result = call("supervised_dynamic_first", 0, *first_run, "--execute")
+        _expect(first_result["state"] == "saved" and server.posts == 13
+                and first_result["output_restrictions"]["leaves"] == binding.record()["leaves"]
+                and first_result["output_authority"] == "none", "supervised_multisource")
+        first_job = dynamic_work / "jobs" / "dynamic-first"
+        first_started = json.loads((first_job / "started.json").read_text(encoding="utf-8"))
+        _expect(first_started["source_restrictions_sha256"] == binding.sha256
+                and (first_job / "document.md").read_bytes() == DOCUMENT.encode()
+                and (first_job / "session-closed.json").exists()
+                and not (first_job / "supervisor-fence.json").exists(),
+                "normal_supervisor_no_fence")
+        still_pending = call("pending_after_first", 1, *dynamic_coverage)
+        _expect(still_pending["job_history_complete"] is True
+                and still_pending["complete"] is False
+                and server.posts == 13, "pending_not_silently_complete")
+        second_job = ExpectedDocumentJob(
+            "dynamic-second", hashlib.sha256(task_second.encode()).hexdigest(),
+            source_job="dynamic-first",
+            execution_sha256=execution_sha256(requirements_sha256=None),
+        )
+        second_record = out / "dynamic-second-job.json"
+        second_record.write_text(json.dumps(second_job.record(), sort_keys=True), encoding="utf-8")
+        resolve_args = (*admission_base, "--action", "resolve-job", "--head-sha256", head,
+                        "--decision", "route", "--job-record", str(second_record))
+        before_resolve = sorted(path.name for path in ledger.iterdir())
+        resolve_preview = call("resolve_preview", 0, *resolve_args)
+        _expect(resolve_preview["state"] == "preview"
+                and sorted(path.name for path in ledger.iterdir()) == before_resolve,
+                "resolve_preview_no_append")
+        resolved = call("resolve_second", 0, *resolve_args, "--execute")
+        next_head = resolved["admission_head_sha256"]
+        _expect(resolved["pending_decisions"] == [] and next_head != head,
+                "resolved_head_advanced")
+        stale = call("stale_admission_head", 1, *admission_base, "--action", "status",
+                     "--head-sha256", head)
+        _expect(stale["state"] == "error" and server.posts == 13,
+                "stale_head_no_generation")
+        reviewed = first_result["quality"]["content_sha256"]
+        second_run = ("document-run", *dynamic_common, "--admissions", str(ledger),
+                      "--admissions-sha256", next_head, "--from-job", "dynamic-first",
+                      "--reviewed-source-sha256", reviewed, "--task", task_second,
+                      "--job", "dynamic-second")
+        second_result = call("dynamic_second", 0, *second_run, "--execute")
+        _expect(second_result["state"] == "saved" and server.posts == 14
+                and second_result["input_provenance"]["source_job"] == "dynamic-first"
+                and second_result["source_restrictions"]["leaves"] == binding.record()["leaves"],
+                "dynamic_restrictions_propagated")
+        unsealed = call("unsealed_coverage", 1, "document-coverage", *dynamic_common,
+                        "--admissions", str(ledger), "--admissions-sha256", next_head)
+        _expect(unsealed["job_history_complete"] is True and not unsealed["complete"],
+                "unsealed_not_complete")
+        seal_args = (*admission_base, "--action", "seal", "--head-sha256", next_head)
+        seal_preview = call("seal_preview", 0, *seal_args)
+        _expect(seal_preview["state"] == "preview" and server.posts == 14,
+                "seal_preview_no_effect")
+        sealed = call("seal", 0, *seal_args, "--execute")
+        complete = call("sealed_coverage", 0, "document-coverage", *dynamic_common,
+                        "--admissions", str(ledger), "--admissions-sha256",
+                        sealed["admission_head_sha256"])
+        _expect(complete["complete"] is True and complete["admissions_sealed"] is True
+                and complete["saved_documents"] == 2 and server.posts == 14,
+                "sealed_dynamic_complete")
+        _expect(dynamic_protected.read_bytes() == PROTECTED
+                and not (dynamic_work / "outside.md").exists(),
+                "dynamic_protected_unchanged")
         _expect(server.gets == 1 and not server.errors and not server.responses,
-                "server_counts")
+                "all_scripted_server_counts")
         # Separate deterministic boundary controls, not model-directed job writes.
         from agentic_security_harness.workspace_writer import GuardedWorkspace, WorkspacePolicy
 

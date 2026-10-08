@@ -16,6 +16,7 @@ from typing import Any
 from agentic_security_harness import document_workflow as workflow
 from agentic_security_harness._fixture_files import _checked_directory
 from agentic_security_harness.document_expectations import DocumentRunPlan, execution_sha256
+from agentic_security_harness.document_multisource import DocumentMultiSourceRestrictions
 from agentic_security_harness.document_quality import DocumentRequirements
 from agentic_security_harness.document_restrictions import DocumentSourceRestrictions
 from agentic_security_harness.ollama_quarantine_adapter import _json
@@ -60,7 +61,7 @@ def run_planned_job(
     source_path: Path | None, task: str, job_id: str, *, execute: bool = False,
     source_job: str | None = None, requirements: DocumentRequirements | None = None,
     reviewed_source_sha256: str | None = None,
-    source_restrictions: DocumentSourceRestrictions | None = None,
+    source_restrictions: DocumentSourceRestrictions | DocumentMultiSourceRestrictions | None = None,
     recover_source: bool = False,
 ) -> dict[str, Any]:
     """Use the real workflow, but admit only the previously planned task/input."""
@@ -94,8 +95,9 @@ def _terminal_inventory(root: Path, state: str) -> bool:
     return len(intents) == 1 and intents[0].replace("-intent.json", "-result.json") in receipts
 
 
-def inspect_coverage(
-    config: workflow.DocumentConfig, plan_path: Path, *, expected_plan_sha256: str,
+def _inspect_plan(
+    config: workflow.DocumentConfig, plan: DocumentRunPlan, *,
+    job_plan_sha256: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """Read actual job evidence without executing, repairing, or replaying anything.
 
@@ -106,8 +108,11 @@ def inspect_coverage(
     problem = {"state": "invalid", "reason": "coverage_evidence_unavailable_or_changed",
                "complete": False, "writes_performed": False, "authority": "none"}
     try:
-        plan = load_plan(plan_path, expected_sha256=expected_plan_sha256)
         _checked_plan(config, plan)
+        if job_plan_sha256 is not None and set(job_plan_sha256) != {
+            job.job_id for job in plan.jobs
+        }:
+            raise ValueError("every admitted job needs its original plan binding")
         _checked_directory(config.jobs_dir)
         entries = list(islice(config.jobs_dir.iterdir(), 65))
         if len(entries) > 64:
@@ -135,7 +140,10 @@ def inspect_coverage(
                 ), 65536)
                 provenance = initial.get("input_provenance", {})
                 matches = (
-                    initial.get("run_plan_sha256") == plan.sha256
+                    initial.get("run_plan_sha256") == (
+                        job_plan_sha256[expected.job_id] if job_plan_sha256 is not None
+                        else plan.sha256
+                    )
                     and initial.get("task_sha256") == expected.task_sha256
                     and provenance.get("source_job") == expected.source_job
                 )
@@ -173,3 +181,15 @@ def inspect_coverage(
         }
     except (OSError, ValueError, KeyError, TypeError, AttributeError):
         return problem
+
+
+def inspect_coverage(
+    config: workflow.DocumentConfig, plan_path: Path, *, expected_plan_sha256: str,
+) -> dict[str, Any]:
+    """Inspect the fixed host plan; this remains a read-only legacy entrypoint."""
+    try:
+        plan = load_plan(plan_path, expected_sha256=expected_plan_sha256)
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        return {"state": "invalid", "reason": "coverage_evidence_unavailable_or_changed",
+                "complete": False, "writes_performed": False, "authority": "none"}
+    return _inspect_plan(config, plan)
