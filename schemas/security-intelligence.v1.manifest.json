@@ -8,7 +8,7 @@
   "evidence_provenance": "external_unreviewed",
   "extension_sdk_contract": {
     "path": "schemas/extension-sdk.v1.manifest.json",
-    "sha256": "2c27ff721306d541ab1fd887d2ce9015246352f9110570bc257c333ab6f12ad7"
+    "sha256": "5fd9305352d567158174ab1456a14b3f93f40b09060a087d28b050cd275678b7"
   },
   "generator": {
     "path": "tools/security_intelligence_contracts.py",

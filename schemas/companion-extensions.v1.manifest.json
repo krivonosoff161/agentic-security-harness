@@ -52,7 +52,7 @@
     },
     "test": {
       "path": "tests/test_ecosystem_integration_candidate.py",
-      "sha256": "7c11c445923463c9f696f3c6635664eeac31416c044110afe82730d7aab09cd5"
+      "sha256": "87da6bc59922aff21156a5f5826b2902c5edfd063e401fab47563d5c2b60bfb9"
     },
     "wheelhouse_smoke": {
       "path": "tools/optional_wheelhouse_smoke.py",
