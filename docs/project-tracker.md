@@ -1,5 +1,14 @@
 # Project tracker
 
+## Consolidated document-workflow release / 1.13.0 candidate
+
+[PR #347](https://github.com/krivonosoff161/agentic-security-harness/pull/347)
+includes #344/#346 and is the single release route. The finite document contour
+has completed source and installed-platform checks; final versioned release gates
+are tracked in [v1.13.0](releases/v1.13.0.md). Earlier development entries below
+record progression, not separate releases. Broad completeness #316 and same-operation
+ambiguous recovery #317 remain open; new-job data recovery does not claim exactly-once retry.
+
 ## Active planned-operations usability / #345
 
 [Issue #345](https://github.com/krivonosoff161/agentic-security-harness/issues/345)

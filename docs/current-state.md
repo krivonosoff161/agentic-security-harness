@@ -1,5 +1,14 @@
 # Current state
 
+## Release consolidation — 1.13.0 candidate
+
+[PR #347](https://github.com/krivonosoff161/agentic-security-harness/pull/347)
+contains the earlier #344 and #346 work plus dynamic admissions and supervised
+recovery. [The release record](releases/v1.13.0.md) separates the verified research
+checkpoint from the final candidate, tag and package-index gates. The features
+below belong to this candidate; 1.12.0 remains the published package until promotion.
+General #316/#317 obligations are not closed by packaging the document-specific path.
+
 ## Development continuation — dynamic jobs and interrupted-worker recovery
 
 The research branch adds a host-owned admission ledger for branches selected at

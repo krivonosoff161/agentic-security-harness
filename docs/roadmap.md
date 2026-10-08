@@ -1,5 +1,10 @@
 # Roadmap
 
+The [1.13.0 candidate](releases/v1.13.0.md) consolidates planned/dynamic document
+jobs, original source restrictions and owned-worker-fenced recovery to a new job.
+This is one usable workflow release, not closure of broader #316/#317 research.
+Exact tag, staging and production verification remain publication gates.
+
 Published [v1.12.0 document jobs](releases/v1.12.0.md) turn the published
 writer into a host-configured preview/execute/status workflow. A subsequent
 job can consume a verified output as untrusted data; host-declared format

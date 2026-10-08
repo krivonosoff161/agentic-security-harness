@@ -6,6 +6,31 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.13.0] - 2026-10-08
+
+Prepared additive document-workflow release candidate consolidating PR #347 and
+its preceding #344/#346 work. Tag, staging and production publication remain
+separate gates; see the [candidate release record](docs/releases/v1.13.0.md).
+
+- Bind document generation to the host-selected `document` text tool. The model
+  supplies content, not an alias, path or authority field; the existing Guard,
+  create-only writer and proposal API remain available for their own contracts.
+- Require an exact-byte host review digest before reusing a review-required
+  document. Preserve failed-quality refusal and content-free generation errors;
+  strict JSON mode asks for syntax without sending the expected-value oracle.
+- Add opt-in source restrictions bound to exact bytes and original epochs.
+  Multi-source composition retains original leaves and applies the most
+  restrictive eligible forwarding/storage/expiry conditions across handoffs.
+- Add host-owned fixed plans and CLI coverage, then create-only dynamic
+  admissions with explicit pending decisions, separately retained heads and
+  sealing. Complete declared history is not proof of correct documents or
+  capture of every host action.
+- Add an optional owned-child supervisor and exact-data recovery to a **new**
+  job after validated closure/fencing and review. Interrupted IDs are not
+  replayed or relabeled as completed. Scripted installed acceptance and source
+  regressions cover these paths; they do not prove power-loss durability,
+  semantic correctness or general research issues #316/#317.
+
 ## [1.12.0] - 2026-10-05
 
 Published additive [document workflow issue #338](https://github.com/krivonosoff161/agentic-security-harness/issues/338).
@@ -54,7 +79,7 @@ Published release for [issue #332](https://github.com/krivonosoff161/agentic-sec
 
 ## [1.10.0] - 2026-10-03
 
-Unpublished failed tag for [issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332). Tag workflow `37100128101` built and passed provenance, garak and eight-case capture checks on Linux and Windows, then failed at exporter `Path.as_uri()` on a relative capture path. No index upload occurred. The currently published package remains 1.9.1; this tag is not a release success.
+Unpublished failed tag for [issue #332](https://github.com/krivonosoff161/agentic-security-harness/issues/332). Tag workflow `37100128101` built and passed provenance, garak and eight-case capture checks on Linux and Windows, then failed at exporter `Path.as_uri()` on a relative capture path. No index upload occurred. At that point the published package was 1.9.1; later 1.10.1 and subsequent releases superseded it. This tag is not a release success.
 
 - Add a narrow `ControlledFileSession` hook for trusted applications to submit bounded proposal bytes into Quarantine, retained ancestry, report-only Guard and the fresh-fixture writer. A public-synthetic Pydantic AI example is optional and does not add a base dependency or grant the model paths, labels or authority.
 - Make ancestry storage/integrity failures content-free, terminal and visible to the caller; preserve incomplete evidence and prior completed effects for inspection. Extend installed `doctor` and fault coverage.

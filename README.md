@@ -18,7 +18,13 @@ one.
 In plain English: it turns “the agent behaved unsafely” into evidence you can replay,
 validate, compare, and review.
 
-## Document workflow — published in 1.12.0
+## Document workflow — preparing 1.13.0
+
+The [1.13.0 release candidate](docs/releases/v1.13.0.md) consolidates host-bound
+document tools, planned and dynamic jobs, retained source restrictions and fenced
+recovery into one operator workflow. Use the [step-by-step guide](docs/document-workflow.md).
+Publication is pending the exact-tag and package-index checks; the currently
+published installation below remains 1.12.0 until those checks finish.
 
 Source development for [#343](https://github.com/krivonosoff161/agentic-security-harness/issues/343)
 adds a [host-bound text tool](docs/document-workflow.md#development-contract-host-bound-text-tool),
