@@ -1,43 +1,49 @@
 # Project tracker
 
-## Consolidated document-workflow release / 1.13.0 candidate
+## Published document-workflow release / 1.13.0
 
-[PR #347](https://github.com/krivonosoff161/agentic-security-harness/pull/347)
-includes #344/#346 and is the single release route. The finite document contour
-has completed source and installed-platform checks; final versioned release gates
-are tracked in [v1.13.0](releases/v1.13.0.md). Earlier development entries below
-record progression, not separate releases. Broad completeness #316 and same-operation
+The current published package is **1.13.0**.
+
+[Merged PR #347](https://github.com/krivonosoff161/agentic-security-harness/pull/347)
+includes the #344/#346 work; those PRs were closed as superseded with branches
+retained. The finite document contour completed source and installed-platform
+candidate checks. The attested build and TestPyPI gate passed, and exact-subject
+PyPI publication was verified; all five applicable production jobs passed.
+Separate [read-only run 37764340666](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/37764340666)
+passed all seven cross-index jobs with zero skips; exact evidence is in
+[v1.13.0](releases/v1.13.0.md). Earlier development entries below record
+progression, not separate releases. Broad completeness #316 and same-operation
 ambiguous recovery #317 remain open; new-job data recovery does not claim exactly-once retry.
 
-## Active planned-operations usability / #345
+## Completed planned-operations usability / #345
 
 [Issue #345](https://github.com/krivonosoff161/agentic-security-harness/issues/345)
-extends the verified #344 candidate without merging it: host recipe compilation,
-CLI planned execution and coverage, and exact output-check/recovery-route binding.
+was closed after merged PR #347 delivered host recipe compilation, CLI planned
+execution and coverage, and exact output-check/recovery-route binding.
 The [operator recipe](document-workflow.md#development-contract-planned-jobs-from-the-cli)
 uses the existing create-only writer. Source, installed and real-model acceptance
-are separate evidence; no publication or broad research closure is implied.
+are separate evidence; publication does not close broad research #316/#317.
 
-## Local document-result repair — no new connector or release
+## Document-result repair — shipped in 1.13.0
 
 Implemented and locally tested: document-only generation with host-owned write envelope, explicit
 review-digest admission for review-required prior outputs, typed diagnostics and
-same-task local before/after evaluation. Published 1.12.0 and its evidence remain
-unchanged. More successful file writes are not counted as semantic task success.
-Semantic task acceptance remains open; this is not a release-readiness declaration.
+same-task local before/after evaluation. Historical 1.12.0 subjects and evidence
+remain unchanged. More successful file writes are not counted as semantic task
+success. Semantic task acceptance remains open despite publication.
 The [development contract](document-workflow.md#development-contract-explicit-reviewed-handoff)
 describes the intended API and its trusted-host review boundary.
 
 Issue #343 also tracks the host-bound text tool and source-restriction integration:
 input admission, effect-time expiry recheck and retained restrictions through
-document chaining. They remain source candidates; platform/installed verification,
-history completeness (#316), recovery (#317) and the final PR gate are separate
-program obligations, not closed by this implementation. The current candidate
+document chaining. These are shipped document-workflow features; platform/installed
+verification, history completeness (#316) and recovery (#317) are separate
+program obligations, not closed by this implementation. The release
 implements expected-job/phase accounting against a host-retained plan and a
 read-only recovery-to-new-job path for exact bytes left by a closed writer.
 These bounded integrations do not close the broader #316/#317 questions.
 
-## Published usable document jobs / 1.12.0
+## Prior published usable document jobs / 1.12.0
 
 The five owner-approved product items are implemented together around the existing
 writer: one optional framework, configuration/preflight, separate jobs/read-only restart
@@ -46,7 +52,8 @@ adds same-config prior-job reuse as untrusted data and host-owned deterministic
 requirements; failed-quality drafts cannot chain, while `checked` is not a
 semantic truth judgment. See the [operator guide](document-workflow.md) and
 [release record](releases/v1.12.0.md). The attested build, staging, production
-and seven-job read-only cross-index checks passed. The published package is **1.12.0**.
+and seven-job read-only cross-index checks passed. These capabilities first
+shipped in **1.12.0**; the exact release record remains historical evidence.
 Full ambiguous recovery, semantic classification and external adoption remain separate.
 
 ## Configured document output — 1.11.0 published
@@ -328,8 +335,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.12.0` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.12.0/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.13.0` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.13.0/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are

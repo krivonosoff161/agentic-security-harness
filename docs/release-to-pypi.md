@@ -1,10 +1,18 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The current package is published as `1.12.0` on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.12.0/).
-The [v1.12.0 release record](releases/v1.12.0.md) binds reviewed source,
-attested subjects, passing TestPyPI and PyPI Linux/Windows checks, official
-index parity and seven-job read-only verification.
+The current package is published as `1.13.0` on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.13.0/).
+The [v1.13.0 release record](releases/v1.13.0.md) separates the passed
+attested build `37762455554`, passed TestPyPI staging `37763165054`, and
+PyPI production run `37763643090`. Its upload and four Linux 3.11–3.13 /
+Windows 3.11 platform jobs passed, all five applicable jobs. The TestPyPI-only
+matrix was not applicable in that production run. Official PyPI wheel/sdist
+hashes and description match the attested subjects. Separate
+[read-only run 37764340666](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/37764340666)
+passed all seven cross-index jobs with zero skips, without another build or upload.
+The historical [v1.12.0 release record](releases/v1.12.0.md) binds its own
+reviewed source, attested subjects, passing TestPyPI and PyPI Linux/Windows
+checks, official index parity and seven-job read-only verification.
 The historical [v1.11.0 release record](releases/v1.11.0.md) binds attested subjects,
 passing TestPyPI staging and exact PyPI index hashes. The initial production
 workflow failed at Linux 3.11 simple-index lookup before package execution;

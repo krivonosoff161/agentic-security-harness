@@ -1,11 +1,14 @@
 # Roadmap
 
-The [1.13.0 candidate](releases/v1.13.0.md) consolidates planned/dynamic document
-jobs, original source restrictions and owned-worker-fenced recovery to a new job.
-This is one usable workflow release, not closure of broader #316/#317 research.
-Exact tag, staging and production verification remain publication gates.
+The published [1.13.0 release](releases/v1.13.0.md) consolidates planned/dynamic
+document jobs, original source restrictions and owned-worker-fenced recovery to
+a new job. This is one usable workflow release, not closure of broader #316/#317
+research. Its attested tag build and TestPyPI gate passed; the PyPI upload and
+exact-subject parity were verified. All five applicable production jobs passed,
+including Linux 3.11–3.13 and Windows 3.11. Separate read-only run
+`37764340666` passed all seven cross-index jobs with zero skips.
 
-Published [v1.12.0 document jobs](releases/v1.12.0.md) turn the published
+Historical [v1.12.0 document jobs](releases/v1.12.0.md) turned the
 writer into a host-configured preview/execute/status workflow. A subsequent
 job can consume a verified output as untrusted data; host-declared format
 checks keep failed drafts separate from review-required and exactly checked

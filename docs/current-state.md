@@ -1,17 +1,24 @@
 # Current state
 
-## Release consolidation — 1.13.0 candidate
+## Current release — 1.13.0
 
-[PR #347](https://github.com/krivonosoff161/agentic-security-harness/pull/347)
+The current published package is **1.13.0**. Earlier release entries below
+retain their historical evidence rather than describing the current install.
+The retained `v0.15.0` tag is transparent failed-gate evidence and has no
+GitHub Release; later publication does not rewrite that result.
+
+[Merged PR #347](https://github.com/krivonosoff161/agentic-security-harness/pull/347)
 contains the earlier #344 and #346 work plus dynamic admissions and supervised
-recovery. [The release record](releases/v1.13.0.md) separates the verified research
-checkpoint from the final candidate, tag and package-index gates. The features
-below belong to this candidate; 1.12.0 remains the published package until promotion.
+recovery. The [v1.13.0 release record](releases/v1.13.0.md) separates the
+research checkpoint, passed attested build and staging, verified PyPI upload and
+index parity, five passed production jobs, and a separate seven-job read-only
+cross-index PASS. The features below ship in 1.13.0; these checks do not prove
+production safety or semantic correctness.
 General #316/#317 obligations are not closed by packaging the document-specific path.
 
-## Development continuation — dynamic jobs and interrupted-worker recovery
+## Shipped document workflow — dynamic jobs and interrupted-worker recovery
 
-The research branch adds a host-owned admission ledger for branches selected at
+The release adds a host-owned admission ledger for branches selected at
 runtime. Pending decisions and an unsealed ledger remain visibly incomplete;
 existing jobs retain their original task and output-check binding. The CLI exposes
 the same contract through `document-admissions` and the admissions options on
@@ -22,49 +29,48 @@ complete bytes may then become explicitly reviewed data for a new job, without
 replaying or declaring the original action complete. Multi-source document inputs
 retain each original restriction record and absolute expiry across handoffs.
 See the [operator path](document-workflow.md#development-operator-path-runtime-decisions).
-These are unreleased changes; general host completeness, hostile-host rollback,
+These are bounded shipped changes; general host completeness, hostile-host rollback,
 power-loss durability and semantic classification remain separate obligations.
 
-## Local candidate follow-up — planned CLI operations / #345
+## Planned CLI operations — shipped in 1.13.0 / #345
 
-On top of the preserved #344 candidate, source work exposes `document-plan`,
+The merged #345 work exposes `document-plan`,
 `document-run --spec` with a separately retained plan digest, and read-only
 `document-coverage`. The compiler binds the exact output-check requirements and
 recovery choice as well as the existing task/input/restriction expectations.
 Review remains an explicit acknowledgment of actual bytes at source-use time.
 See the [operator recipe](document-workflow.md#development-contract-planned-jobs-from-the-cli).
-This does not change published 1.12.0, or close general research #316/#317.
+Issue #345 was closed after the merged PR; this does not close general research #316/#317.
 
-## Local candidate — useful document output and reviewed handoff
+## Shipped document output and reviewed handoff
 
-Unreleased source work keeps the published **1.12.0** unchanged. Document jobs
-now ask the model for document text only; the host wraps it for the same fixed
+In 1.13.0, document jobs ask the model for document text only; the host wraps it for the same fixed
 destination and Guard. Review-required sources need an explicit exact-byte host
 review digest before a new job or model call. Generation errors have content-free
 diagnostic categories. See the [development contract](document-workflow.md#development-contract-explicit-reviewed-handoff).
 These changes do not establish semantic correctness or a learned labeler.
 
-The same candidate adds `GuardedWorkspace.bind_text_tool(alias)` for an existing
+The same release adds `GuardedWorkspace.bind_text_tool(alias)` for an existing
 application's content-only tool and the optional `make_text_document_agent` bridge.
 Native document jobs use this bound path. Policy/session drift on an open writer
 is rejected before effects; the original proposal interface remains supported.
-See the [candidate integration contract](document-workflow.md#development-contract-host-bound-text-tool).
+See the [integration contract](document-workflow.md#development-contract-host-bound-text-tool).
 
-The same unreleased source now accepts host-bound `DataEnvelope` restrictions on
+The same release accepts host-bound `DataEnvelope` restrictions on
 document input. Exact-byte/class, storage, forwarding, recipient, purpose and
 expiry checks precede use; the bound writer rechecks expiry after durable intent.
 Saved output and `from-job` preserve the original restrictions/time origin.
 This is a concrete opt-in local consumer, not semantic classification or remote
 source authentication. See the [contract](document-workflow.md#development-contract-source-restrictions).
 
-The candidate also compares actual jobs to a separately retained host plan and
+The release also compares actual jobs to a separately retained host plan and
 can hand exact reviewed bytes from a closed, interrupted writer to a **new** job.
 Recovery does not replay the old effect or change its unresolved outcome. These
 are document-workflow integrations, not closure of general completeness #316 or
 recovery #317. See [coverage](document-workflow.md#development-contract-expected-job-coverage)
 and [recovery](document-workflow.md#development-contract-recover-data-without-replaying-an-action).
 
-## Document workflow — published in 1.12.0
+## Prior document-workflow foundation — published in 1.12.0
 
 [Document jobs](document-workflow.md) wrap the existing writer with setup/check/run/status,
 exclusive job IDs, optional Pydantic AI integration and content-free human/JSON
@@ -73,8 +79,9 @@ never inherited authority; host-owned exact JSON/checklist requirements distingu
 failed, review-required and declared-criteria-checked drafts. Exact-head CI,
 tag build, TestPyPI and PyPI platform checks passed, as did the separate
 seven-job read-only cross-index gate. Scripted transport and local-model observations
-are distinct evidence; neither proves adoption or production reliability. The
-published package is **1.12.0**. See [release evidence](releases/v1.12.0.md).
+are distinct evidence; neither proves adoption or production reliability. These
+capabilities first shipped in **1.12.0**. See its historical
+[release evidence](releases/v1.12.0.md).
 
 ## Guarded workspace writer — published in 1.11.0
 
@@ -87,7 +94,7 @@ has matching subjects, but the initial production Linux 3.11 simple-index
 lookup failed before package execution. Separate seven-job read-only cross-index
 verification passed without rebuilding or re-uploading.
 No new real-model result is attributed to this earlier addition. Its historical
-published package is **1.11.0**.
+published package at that checkpoint was **1.11.0**.
 
 ## Embedded boundary — published in 1.10.1 / #332
 
@@ -260,7 +267,9 @@ repository's `component.yaml`. The older `2026.08.02-r4-trajectory-containment` 
 Portfolio projection remains preserved as historical research evidence; it is not the
 current ecosystem product roadmap. Operational authority remains `none`.
 
-> Last reviewed: 2026-10-05 against the `v1.12.0` tag source
+> Last reviewed: 2026-10-08 against the `v1.13.0` tag source
+> `c01b977372dec7a150edc11030577cd6bfba3e6e` and
+> [release evidence](releases/v1.13.0.md); historical `v1.12.0` tag source
 > `575627f01979c5a492c3eca3bf9a931ce3f68433` and
 > [release evidence](releases/v1.12.0.md); historical `v1.11.0` tag source
 > `616d63f42736576e7a454f84d14fcc019fb0c5b9` and
@@ -294,11 +303,16 @@ current ecosystem product roadmap. Operational authority remains `none`.
 > `37114956002` and TestPyPI `37119297238` passed; production upload
 > `37119445780` succeeded but the workflow failed at Linux 3.11 index lookup.
 > Read-only cross-index `37119674840` passed all seven jobs.
-> Current `v1.12.0` tag build `37272733600` passed four jobs, TestPyPI
+> Historical `v1.12.0` tag build `37272733600` passed four jobs, TestPyPI
 > `37276842884` passed three applicable jobs, and PyPI `37277235870` passed
 > five applicable jobs. Separate read-only `37277593132` passed all seven jobs.
+> Current `v1.13.0` tag build `37762455554` passed four jobs and TestPyPI
+> `37763165054` passed three. PyPI `37763643090` passed all five applicable
+> jobs: upload and Linux 3.11–3.13 / Windows 3.11 platform checks. Official
+> index hashes and description match the attested subjects. Separate read-only
+> `37764340666` passed all seven cross-index jobs with zero skips.
 >
-> Scope: current repository evidence, current published release `1.12.0`, and
+> Scope: current repository evidence, current published release `1.13.0`, and
 > preserved 1.6.0 historical evidence.
 > This page is a reviewer-facing status
 > snapshot, not a roadmap promise or production-safety claim.
@@ -313,7 +327,7 @@ activation. The [v1.5.0 release](releases/v1.5.0.md) also includes the opt-in Qu
 Connector and its pure Gateway composition. Exact-subject publication and clean-install
 evidence is linked below; old v1.4.0 artifacts remain unchanged.
 
-Agentic Security Harness is a **published v1.12.0 public defensive benchmark/toolkit**: a working
+Agentic Security Harness is a **published v1.13.0 public defensive benchmark/toolkit**: a working
 trace-first defensive benchmark for agentic AI boundary failures with committed
 deterministic examples, bounded local-swarm evidence, evidence-campaign metrics, and
 sanitized local-model semantic-drift / propagation probes, plus a bounded local Runtime
@@ -338,7 +352,8 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 
 | Area | Status | Evidence |
 |---|---|---|
-| Package identity | v1.12.0 published with verified build provenance and read-only install matrix | Exact merged/tag source `575627f01979c5a492c3eca3bf9a931ce3f68433`; attested build `37272733600` passed four jobs, TestPyPI `37276842884` passed three, PyPI `37277235870` passed five. Exact subjects and descriptions match both indexes. Read-only `37277593132` passed all seven cross-index jobs without rebuild or re-upload. [Exact subjects and limits](releases/v1.12.0.md). Candidate-wheel model observations are separate. |
+| Package identity | v1.13.0 published with verified build provenance and read-only install matrix | Exact merged/tag source `c01b977372dec7a150edc11030577cd6bfba3e6e`; attested build `37762455554` passed four jobs, TestPyPI `37763165054` passed three, and PyPI `37763643090` passed all five applicable upload and Linux/Windows platform jobs. Official wheel/sdist hashes and description match the attested subjects. Separate read-only `37764340666` passed all seven cross-index jobs with zero skips. [Exact subjects and limits](releases/v1.13.0.md). Internal model observations are not independent review. |
+| Prior package identity | v1.12.0 published with verified build provenance and read-only install matrix | Exact merged/tag source `575627f01979c5a492c3eca3bf9a931ce3f68433`; attested build `37272733600` passed four jobs, TestPyPI `37276842884` passed three, PyPI `37277235870` passed five. Exact subjects and descriptions match both indexes. Read-only `37277593132` passed all seven cross-index jobs without rebuild or re-upload. [Exact subjects and limits](releases/v1.12.0.md). Candidate-wheel model observations are separate. |
 | Prior package identity | v1.11.0 published with verified build provenance and read-only install matrix | Exact merged/tag source `616d63f42736576e7a454f84d14fcc019fb0c5b9`; attested build `37114956002` passed four jobs, TestPyPI `37119297238` passed three. PyPI upload in `37119445780` succeeded with exact subjects, but its Linux 3.11 index lookup failed before package execution, leaving the initial workflow failed. Separate read-only `37119674840` passed all seven cross-index jobs without rebuild or re-upload. [Exact subjects and limits](releases/v1.11.0.md). No new model observation. |
 | Prior package identity | v1.10.1 published with verified build provenance and read-only install matrix | Exact tag source `46d38200e404ee1106f2f012a753c3d6a11150fc`; build `37101792230` passed four jobs, TestPyPI `37102048175` passed three, PyPI `37102205673` passed five, and final read-only `37102316728` passed all seven cross-index jobs without rebuild or re-upload. Exact wheel/sdist hashes and descriptions match official indexes. [Exact subjects and limits](releases/v1.10.1.md); installed examples use fixed synthetic inputs, not the earlier six local model replies. |
 | Prior package identity | v1.9.1 published with verified build provenance and read-only install matrix | Exact tag source `dc8c8e74caf4735724ece8abd840edfd68819fc4`; attested build `36959589915` passed four jobs. Initial TestPyPI `36960125615` uploaded but failed at a Windows simple-index lookup; read-only staging `36960405439` passed all three jobs. Production `36960546310` uploaded but failed overall at Linux 3.12 simple-index lookup before package execution; other three platform smokes passed. Read-only `36960689808` passed all seven jobs without rebuild or re-upload. Official index hashes and description match the attested subjects. [Exact subjects and limits](releases/v1.9.1.md). |
@@ -400,7 +415,7 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 | Evidence pack format | Shipped docs slice | `docs/evidence-pack-format.md` defines how future local research becomes sanitized public evidence with private/public boundaries, hashes, claim rows, tests, and validation commands. |
 | Local real-model swarm probes | Unverified maintainer declaration | Historical documentation declares two full 15-scenario runs and complete hash-field coverage. No versioned public result projection or reconciliation receipt is present, so the repository cannot verify that the runs occurred or bind the aggregates to retained bytes. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
-| Public project process | v1.12.0 published with separate seven-job read-only verification | [Current release evidence](releases/v1.12.0.md) binds reviewed source, tag, staging and exact PyPI subjects. Production platform checks passed; read-only `37277593132` passed all seven jobs. Governance, security policy, CI, CodeQL, Scorecard and tag-only release gates remain in force; deterministic examples are not independent human or model review. Historical 1.11.0 production Linux 3.11 lookup failure and later read-only pass remain in its record, as do 1.10.1 and earlier receipts. The retained `v0.15.0` tag is transparent failed-gate evidence and has no GitHub Release. |
+| Public project process | v1.13.0 published with exact-subject index parity and seven-job read-only verification | [Current release evidence](releases/v1.13.0.md) binds reviewed source, tag, staging and exact PyPI subjects. Production `37763643090` passed upload and Linux 3.11–3.13 / Windows 3.11 checks; separate read-only `37764340666` passed all seven cross-index jobs with zero skips. Governance, security policy, CI, CodeQL, Scorecard and tag-only release gates remain in force; deterministic examples are not independent human or model review. Historical 1.12.0 production and seven-job read-only verification remain in its record, as do earlier receipts and the retained failed `v0.15.0` tag. |
 | Container definitions | Shipped source definitions; images unpublished | The root Dockerfile packages the source-layout CLI and runs the offline doctor as a non-root user. `Dockerfile.gateway` and `compose.gateway.yml` build the synthetic gateway locally with loopback-only publication, read-only root filesystem, dropped capabilities, and no-new-privileges. The fail-closed `.dockerignore` excludes local/private descendants. No public image is published and the source definitions do not attest production network isolation. |
 | Runtime Guard product foundation | Shipped bounded executable specification | Metadata-only action, capability, consent, handoff, provider, budget, decision, and evidence contracts plus a pure deterministic evaluator and synthetic adversarial tests were merged through PR #162. No proxy, executor, credential broker, durable ledger, IAM integration, deployment, or production protection is shipped. |
 | Runtime Gateway local synthetic contour | Shipped in v1.2.0 | A loopback-first HTTP service applies a closed pre-dispatch policy to two deterministic synthetic tools, exposes bounded OpenAI-compatible and stateless MCP 2026-07-28 endpoints, writes a privacy-minimized single-writer hash-chain audit, and normalizes four retained provider/tool envelope families through the same policy. Docker Compose publishes host loopback only. It has no live provider transport, real credential path, arbitrary executor, authenticated approval service, IAM, production deployment, independent effectiveness evidence, or operational authority. See [runtime-gateway.md](runtime-gateway.md) and [provider-tool-adapters.md](provider-tool-adapters.md). |
