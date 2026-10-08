@@ -157,8 +157,8 @@ def test_v1120_publication_binds_subjects_without_semantic_overclaim() -> None:
         "blob/v1.13.0/docs/document-workflow.md"
     )
     assert document_link in description
-    assert "python -m pip install agentic-security-harness==1.12.0" in guide
-    assert 'pip install "agentic-security-harness[document-agent]==1.12.0"' in guide
+    assert "python -m pip install agentic-security-harness==1.13.0" in guide
+    assert 'pip install "agentic-security-harness[document-agent]==1.13.0"' in guide
     assert "/path/to/candidate-checkout" not in guide
     for location in (
         "https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.12.0",

@@ -1,20 +1,24 @@
-# Replaying the development document workflow
+# Replaying the 1.13.0 document workflow
 
-This is a reproducibility protocol for the **development branch**, not a
-published-version claim or evidence that an outside operator has run it. Use
-only public synthetic inputs and a fresh, disposable workspace. The existing
+This is a reproducibility protocol for the **1.13.0 workflow**, not a claim
+that a wheel is already published or that an outside operator has run it. The
+[release record](releases/v1.13.0.md) reports actual publication and verification
+status separately. Use only public synthetic inputs and a fresh, disposable
+workspace. The existing
 [operator guide](document-workflow.md#development-operator-path-runtime-decisions)
 has the CLI sequence for a root plan, an admission decision, a reviewed
 follow-up, and sealing. No new API or runner is required here.
 
-## 1. Record the candidate and install it cleanly
+## 1. Record the exact version and install it cleanly
 
 Record the exact Git commit, dirty-tree status, Python/OS versions, wheel
-SHA-256, and lockfile hashes. Build from the chosen commit in a fresh Python
-3.11 virtual environment with the repository's hash-locked build and runtime
-requirements. Install **that wheel** without dependency resolution; do not
-substitute the already-published wheel just because the filename has the same
-version. For example, after activating the fresh environment:
+SHA-256, and lockfile hashes. For a source candidate, build from the chosen
+commit in a fresh Python 3.11 virtual environment with the repository's
+hash-locked build and runtime requirements. Install **that wheel** without
+dependency resolution; a matching filename alone does not bind its source.
+For a published 1.13.0 artifact, instead verify its index, provenance and
+hashes against the release record before installation. For a source build,
+after activating the fresh environment:
 
 ```sh
 python -m pip install --require-hashes -r requirements/build.txt -r requirements/runtime.txt
@@ -23,8 +27,8 @@ python -m pip install --no-index --no-deps EXACT_WHEEL_PATH
 python -I -B -c "import pathlib,sys,agentic_security_harness as ash; p=pathlib.Path(ash.__file__).resolve(); assert p.is_relative_to(pathlib.Path(sys.prefix).resolve()); print(p)"
 ```
 
-`EXACT_WHEEL_PATH` is the single wheel just built in `dist/`; record its digest
-before installing. Use a newly created output directory for each replay; the
+`EXACT_WHEEL_PATH` is the single 1.13.0 wheel just built in `dist/`; record
+its digest before installing. Use a newly created output directory for each replay; the
 acceptance tool refuses an existing one. Do not add the checkout's `src/` to
 `PYTHONPATH`. The `-I` checks and child CLI processes import the installed
 package, while the tool file itself remains in the checkout.
@@ -46,7 +50,7 @@ python -m pip --isolated install --index-url https://pypi.org/simple --no-compil
 python -I -B tools/check_document_workflow.py --out replay-pydantic --engine pydantic-ai
 ```
 
-Successful current-source fixture expectations are `passed=true`,
+Successful 1.13.0 scripted-fixture expectations are `passed=true`,
 `checks=47`, `metadata_gets=1`, and `generation_posts=14` **per engine**.
 Keep each `acceptance.json` and the exact wheel digest. Its rows are
 content-free case/state/reason summaries; source and document fixtures under

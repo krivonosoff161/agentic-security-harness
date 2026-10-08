@@ -1,39 +1,38 @@
 # Document jobs: from your source text to a guarded new document
 
-Status: published in the **1.12.0** wheel. See the
-[release evidence](releases/v1.12.0.md) for exact subjects and verification gates.
+This guide describes the **1.13.0** document-workflow contract. See the
+[versioned release record](releases/v1.13.0.md) for actual build, index and
+verification status; a source version or this guide alone does not prove publication.
 This is a usable workflow around the existing [workspace writer](guarded-workspace-writer.md),
 not a new executor. Its first use case is turning a host-selected UTF-8 document into
 a new summary, checklist or draft. The permission boundary is deterministic and uses
 no model. Document quality remains something the operator reviews. A later job
 may read a verified earlier output as untrusted data under the same host policy.
 
-**Local development delta (not in the published 1.12.0 package):** the source
-branch adds document-only generation, explicit review-digest admission, clearer diagnostics
-and a [host-bound text tool](#development-contract-host-bound-text-tool), plus
+The 1.13.0 contract includes document-only generation, explicit review-digest
+admission, clearer diagnostics and a
+[host-bound text tool](#development-contract-host-bound-text-tool), plus
 [source restrictions](#development-contract-source-restrictions),
 [expected-job coverage](#development-contract-expected-job-coverage) and
 [reviewed data recovery](#development-contract-recover-data-without-replaying-an-action).
-The newer [runtime-decision operator path](#development-operator-path-runtime-decisions)
-is also source-branch work, not part of published 1.12.0.
-For a clean-install replay and its evidence limits, see the
-[development replay protocol](document-workflow-replay.md).
-The published onboarding below remains the 1.12.0 baseline; see
-[the development contract](#development-contract-explicit-reviewed-handoff)
-before running these chains from the modified source checkout.
+The [runtime-decision operator path](#development-operator-path-runtime-decisions)
+is part of the same contract. For a clean-install replay and its evidence limits,
+see the [replay protocol](document-workflow-replay.md). Before chaining a
+review-required source, follow the
+[explicit reviewed-handoff contract](#development-contract-explicit-reviewed-handoff).
 
 ## Development contract: planned jobs from the CLI
 
-This **unreleased source candidate**, tracked in #345, exposes the existing plan
-and coverage APIs without requiring a Python integration. A plan is an expectation,
+The 1.13.0 workflow, tracked in #345, exposes the plan and coverage APIs
+without requiring a Python integration. A plan is an expectation,
 not permission: jobs still use the same source admission and guarded writer.
 
 The [two-step recipe](../examples/document-plan/jobs.json) extracts owner/day
 fields from a public note and passes the verified first document to a second job.
 Its exact JSON requirements are host-side checks, not answers sent to the model.
-Use an installed candidate built from this source; published 1.12.0 does not have
-these commands. From the checkout root, choose a new workspace and an exact
-already-installed local Ollama model:
+Use an exact 1.13.0 installation after checking the release record, or a
+candidate wheel built from the chosen source commit. From the checkout root,
+choose a new workspace and an exact already-installed local Ollama model:
 
 ```text
 ash document-init --dir my-planned-documents --model YOUR_LOCAL_MODEL
@@ -103,7 +102,7 @@ Missing, extra or interrupted jobs produce incomplete coverage and exit 1.
 
 ## Development operator path: runtime decisions
 
-Use this **development-branch** route when the host cannot choose every follow-up
+Use this route when the host cannot choose every follow-up
 job before the first document exists. Start with a fixed, host-owned root spec;
 for example, put `root-jobs.json` beside `source.txt`:
 
@@ -188,7 +187,7 @@ host action.
 
 ## Development contract: source restrictions
 
-This unreleased opt-in contract uses the existing `DataEnvelope` vocabulary. It
+This opt-in contract uses the existing `DataEnvelope` vocabulary. It
 does not learn labels from model text. The application binds its source bytes,
 labels and original UTC time before calling `run_job`:
 
@@ -275,7 +274,7 @@ classification, general declassification, or permission to perform another actio
 
 ## Development contract: expected-job coverage
 
-An unreleased host application can predeclare a finite run using
+A host application can predeclare a finite run using
 `ExpectedDocumentJob` and `DocumentRunPlan` from `document_expectations`. Each
 entry binds a job ID, task hash and either input-byte hash or an earlier planned
 source job. A file input also binds its optional source-restriction hash. Plans
@@ -306,7 +305,7 @@ files on the same compromised host are not an independent external witness.
 
 ## Development contract: recover data without replaying an action
 
-The unreleased recovery path addresses one concrete interruption: a document
+The recovery path addresses one concrete interruption: a document
 exists with the authorized exact bytes, but final result bookkeeping is missing
 or incomplete. It never repeats generation or the old file write.
 
@@ -315,7 +314,7 @@ The writer supplies this record only after both sets of file handles close and
 its opened policy/session identity still matches. The marker means that **this
 writer instance** is fenced, not that its operation succeeded or every process
 on the host is stopped. An unsupervised hard termination before this marker
-remains unresolved. The development `--supervise-timeout` path owns one child;
+remains unresolved. The optional `--supervise-timeout` path owns one child;
 after abnormal exit it may save a bound `supervisor-fence.json` only after
 confirming that child is no longer alive. A missing or invalid fence does not
 make interrupted bytes recoverable.
@@ -354,11 +353,13 @@ exactly-once arbitrary tools, atomic filesystem snapshots or power-loss durabili
 
 ## First job
 
-Install the exact published version in a virtual environment.
+Install the exact 1.13.0 distribution in a virtual environment when its
+[release record](releases/v1.13.0.md) confirms availability; before publication,
+use a wheel built from the chosen commit as in the replay protocol.
 The base workflow adds no model-framework dependency:
 
 ```sh
-python -m pip install agentic-security-harness==1.12.0
+python -m pip install agentic-security-harness==1.13.0
 ash document-init --dir my-documents --model YOUR_EXISTING_LOCAL_MODEL
 ash document-check --config my-documents/document.json --check-model
 ash document-run --config my-documents/document.json --input notes.txt --task "Make a short action checklist from these notes" --job first
@@ -405,7 +406,7 @@ as fact. The same job ID is never retried after a failed run.
 
 ## Development contract: explicit reviewed handoff
 
-For host-declared `exact_json` requirements, the candidate requests Ollama's
+For host-declared `exact_json` requirements, 1.13.0 requests Ollama's
 [JSON output mode](https://github.com/ollama/ollama/blob/main/docs/api.md#json-mode)
 with generic syntax instructions. Expected values stay in the host's evaluator;
 they are not injected into the generation request. Plain-text and Markdown jobs
@@ -413,8 +414,7 @@ retain text generation. The result is still checked strictly: no automatic fence
 stripping, value repair, hidden retry, or conversion of formatting compliance into
 semantic correctness. Both native and optional local bridge use this same request.
 
-This section describes a local, unreleased source change, not a feature available
-by installing the published 1.12.0 pin above. Its API is `run_job(...,
+The reviewed-handoff API is `run_job(...,
 source_job="first", reviewed_source_sha256="<digest>")`; `read_job_document`
 accepts the same optional keyword. It adds no connector or execution capability.
 
@@ -440,7 +440,7 @@ Malformed/stale digests are rejected; failed quality, altered documents and
 missing receipts cannot be overridden even with a matching digest. A `checked`
 source may proceed as data without this parameter; if supplied, the parameter
 must still match. The admitted digest is recorded in the destination's initial
-and final records, bound to its captured input. Existing 1.12.0 records remain
+and final records, bound to its captured input. Historical 1.12.0 records remain
 inspectable; review is required when reusing their review-required output under
 the new code. `--reviewed-source-sha256` is invalid with `--input`.
 
@@ -537,8 +537,8 @@ no repair/retry and local-model unload request. These are short-document default
 a promise of high-quality long-form generation.
 
 The sole writable artifact is `document`, mapped by the host to `document.md` inside
-the exclusively created job directory. In the published proposal-based path,
-unknown aliases reach Guard and are denied. In the development bound-text path,
+the exclusively created job directory. In the retained proposal-based path,
+unknown aliases reach Guard and are denied. In the bound-text path,
 the host must bind an allowed alias before generation; the model supplies only
 text and cannot select a different alias. Model-supplied paths, authority fields
 or malformed proposals cannot become policy.
@@ -552,8 +552,7 @@ host events were captured. Confirm that your local service itself does not forwa
 
 ## Development contract: host-bound text tool
 
-This API is an **unreleased source candidate**, not part of the 1.12.0 installation
-commands below. An existing application can bind one destination before giving a
+This 1.13.0 API lets an existing application bind one destination before giving a
 tool to its agent. The agent supplies only text, even if other aliases are allowed
 by the workspace policy:
 
@@ -569,7 +568,7 @@ with GuardedWorkspace(policy) as writer:
 
 For Pydantic AI, `make_text_document_agent(model, write_draft)` exposes a single
 `write_document(content: str)` tool. The model cannot supply the destination or an
-authority field. Candidate native document jobs and their local Pydantic bridge
+authority field. Native document jobs and their local Pydantic bridge
 use the same content-only boundary. Text resembling a JSON tool call remains
 literal document text. The existing proposal-based `submit` and
 `make_document_agent` APIs are retained for callers that need their explicit contract.
@@ -585,18 +584,18 @@ text and no model or provider calls.
 
 ## One optional framework, not another protection layer
 
-Install the published `document-agent` extra (`pydantic-ai-slim==1.107.1`), then select it
+Install the 1.13.0 `document-agent` extra (`pydantic-ai-slim==1.107.1`), then select it
 when creating a **new** workspace:
 
 ```sh
-python -m pip install "agentic-security-harness[document-agent]==1.12.0"
+python -m pip install "agentic-security-harness[document-agent]==1.13.0"
 ash document-init --dir framework-documents --model YOUR_EXISTING_LOCAL_MODEL --engine pydantic-ai
 ```
 
 The subsequent check/run/status commands are unchanged. The local adapter uses Pydantic
-AI's FunctionModel as a native Ollama transport bridge. In published 1.12.0, one
-generation supplies an untrusted proposal; the development candidate instead passes
-document text to a host-bound tool. A fixed completion ends the framework loop.
+AI's FunctionModel as a native Ollama transport bridge. This document job passes
+generated text to the host-bound tool; the retained lower-level factory can still
+submit an untrusted proposal. A fixed completion ends the framework loop.
 Two framework requests are **not** two model
 calls. This is a bounded document workflow, not an autonomous planning benchmark.
 
