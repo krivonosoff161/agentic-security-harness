@@ -1,8 +1,9 @@
 # Document jobs: from your source text to a guarded new document
 
-This guide describes the **1.13.0** document-workflow contract. See the
-[versioned release record](releases/v1.13.0.md) for actual build, index and
-verification status; a source version or this guide alone does not prove publication.
+This guide follows the **1.13.1** document-workflow package. The workflow first
+shipped in 1.13.0; see the [v1.13.1 release record](releases/v1.13.1.md) for
+actual build, index and verification status. A source version or this guide
+alone does not prove publication; v1.13.0 remains current until the patch is released.
 This is a usable workflow around the existing [workspace writer](guarded-workspace-writer.md),
 not a new executor. Its first use case is turning a host-selected UTF-8 document into
 a new summary, checklist or draft. The permission boundary is deterministic and uses
@@ -23,12 +24,13 @@ review-required source, follow the
 
 ## First job
 
-Install the published 1.13.0 distribution in a virtual environment. See the
-[release record](releases/v1.13.0.md) for its verification evidence.
+Before installing, verify the v1.13.1 release record and package index. Once
+the exact patch is available, install it in a virtual environment; before
+publication, use a wheel built from the chosen candidate source instead.
 The base workflow adds no model-framework dependency:
 
 ```sh
-python -m pip install agentic-security-harness==1.13.0
+python -m pip install agentic-security-harness==1.13.1
 ash document-init --dir my-documents --model YOUR_EXISTING_LOCAL_MODEL
 ash document-check --config my-documents/document.json --check-model
 ash document-run --config my-documents/document.json --input notes.txt --task "Make a short action checklist from these notes" --job first
@@ -93,7 +95,7 @@ not permission: jobs still use the same source admission and guarded writer.
 The [two-step recipe](../examples/document-plan/jobs.json) extracts owner/day
 fields from a public note and passes the verified first document to a second job.
 Its exact JSON requirements are host-side checks, not answers sent to the model.
-Use an exact 1.13.0 installation after checking the release record, or a
+Use an exact 1.13.1 installation after checking the release record, or a
 candidate wheel built from the chosen source commit. From the checkout root,
 choose a new workspace and an exact already-installed local Ollama model:
 
@@ -606,11 +608,11 @@ text and no model or provider calls.
 
 ## One optional framework, not another protection layer
 
-Install the 1.13.0 `document-agent` extra (`pydantic-ai-slim==1.107.1`), then select it
+Install the 1.13.1 `document-agent` extra (`pydantic-ai-slim==1.107.1`), then select it
 when creating a **new** workspace:
 
 ```sh
-python -m pip install "agentic-security-harness[document-agent]==1.13.0"
+python -m pip install "agentic-security-harness[document-agent]==1.13.1"
 ash document-init --dir framework-documents --model YOUR_EXISTING_LOCAL_MODEL --engine pydantic-ai
 ```
 

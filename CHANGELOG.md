@@ -6,6 +6,32 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.13.1] - 2026-10-09
+
+Patch stabilization of the existing published routes; no new connector, model
+transport, permission, or execution authority is added. Exact candidate and
+publication evidence belongs in the [release record](docs/releases/v1.13.1.md).
+
+- Make the installed-package first-run guide use only generated evidence paths;
+  move checkout-only fake-server and long-running Gateway examples to optional
+  routes. Complete the local custom-adapter tutorial through a nonempty synthetic
+  scorecard, manifest-bound evidence, validation, and derived HTML report.
+- Put the executable first document job and explicit reviewed-byte handoff before
+  advanced planning. A digest acknowledges exact bytes but does not prove human
+  review or document truth. Clarify shipped synthetic, experimental, and future
+  route status across the connection, extension, and Gateway guides.
+- Keep version-bound writer, document and replay instructions on the same
+  1.13.1 distribution instead of directing an installed user to older packages.
+- Return a content-free `job_already_exists` refusal for either same-ID document
+  race: output appears before preview or exclusive directory reservation loses.
+  Validation remains before reservation; no second model call or overwrite is
+  authorized.
+- Distinguish an offline configured model name from checked availability, give
+  fixed next-step guidance for invalid Gateway configuration, and return a
+  specific no-effect `workspace_output_already_exists` refusal before a repeat
+  workspace model call. Other configuration and I/O errors retain their generic
+  diagnostics.
+
 ## [1.13.0] - 2026-10-08
 
 Published the additive document-workflow release consolidated in merged PR #347,

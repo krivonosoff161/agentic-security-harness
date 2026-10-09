@@ -6,6 +6,11 @@ Development is focused on making the existing published routes usable end to end
 not adding connectors, new capabilities, or separate research tracks. The published
 version below is unchanged until a separately verified release completes.
 
+The patch is being prepared as [1.13.1](releases/v1.13.1.md) in
+[PR #349](https://github.com/krivonosoff161/agentic-security-harness/pull/349).
+Passing checks for earlier stabilization heads are retained separately from
+the versioned candidate, tag and package-index verification gates.
+
 The first repairs make the installed-package tutorial independent of checkout
 assets, put the first document job and reviewed handoff before advanced operations,
 and complete the custom-adapter example through HTML rendered from validated evidence. The adapter

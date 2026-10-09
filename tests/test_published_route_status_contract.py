@@ -15,7 +15,7 @@ def _read(relative: str) -> str:
 def test_current_model_guide_names_published_document_route() -> None:
     project = tomllib.loads(_read("pyproject.toml"))["project"]
     guide = _read("docs/connect-models.md")
-    assert project["version"] == "1.13.0"
+    assert project["version"] == "1.13.1"  # Candidate; guide names published 1.13.0.
     assert "current 1.13.0 package" in guide
     assert "releases/v1.13.0.md" in guide
     assert "current 1.12.0 package" not in guide
