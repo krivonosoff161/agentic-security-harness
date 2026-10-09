@@ -25,6 +25,12 @@ Deterministic interleaving tests require one model call and one saved job; inval
 previews still cannot reserve a job. This does not add retries or arbitrary-tool
 exactly-once guarantees.
 
+The candidate reports an already-existing configured workspace output explicitly,
+rather than suggesting an unrelated configuration or permission problem. The
+refusal remains content-free and occurs before generation; it neither replaces
+the file nor retries a model request. Other configuration/storage failures retain
+their separate generic diagnostic.
+
 Remaining acceptance covers all published route families, optional integrations,
 installed artifacts and the Linux/Windows verification union. This entry does not
 declare that full stabilization, publication, or the open research issues are done.

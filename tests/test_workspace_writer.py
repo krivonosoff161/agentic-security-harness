@@ -215,6 +215,7 @@ def test_cli_diagnostics_do_not_print_private_inputs(tmp_path: Path,
     config = config_file(tmp_path, output_dir="missing-private-path")
     assert cli.main(["workspace-check", "--config", str(config)]) == 1
     out = capsys.readouterr().out
+    assert json.loads(out)["reason"] == "workspace_configuration_or_input_unavailable"
     assert "missing-private-path" not in out and "Traceback" not in out
 
 
@@ -231,23 +232,34 @@ def test_parent_relative_config_has_stable_readback_identity(tmp_path: Path) -> 
     assert verify_workspace_output(loaded, output / result["receipt"])["integrity_ok"]
 
 
-def test_existing_output_rejected_before_model_call(tmp_path: Path,
-                                                   monkeypatch: pytest.MonkeyPatch) -> None:
+@pytest.mark.parametrize("execute", [False, True])
+def test_existing_output_rejected_before_model_call(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str], execute: bool,
+) -> None:
     from agentic_security_harness import workspace_cli
 
     config = config_file(tmp_path)
     target = tmp_path / "draft.md"
-    target.write_bytes(b"existing")
+    target.write_bytes(b"SYNTHETIC_EXISTING_CONTENT")
 
     def forbidden(*args: Any) -> None:
         pytest.fail("existing output must not spend a model call")
 
     monkeypatch.setattr(workspace_cli.ollama, "_post", forbidden)
     assert cli.main(["workspace-check", "--config", str(config)]) == 1
-    assert cli.main(["workspace-run", "--config", str(config), "--input", str(target),
-                     "--task", "Summarize", "--artifact", "draft", "--model", "test-model",
-                     "--execute"]) == 1
-    assert target.read_bytes() == b"existing"
+    checked = capsys.readouterr().out
+    assert json.loads(checked) == {
+        "applied": False, "effect": "none", "reason": "workspace_output_already_exists",
+        "next_step": "inspect_existing_output_or_choose_new_destination",
+    }
+    args = ["workspace-run", "--config", str(config), "--input", str(target),
+            "--task", "Summarize", "--artifact", "draft", "--model", "test-model"]
+    assert cli.main(args + (["--execute"] if execute else [])) == 1
+    output = capsys.readouterr().out
+    assert json.loads(output) == json.loads(checked)
+    assert str(target) not in output and "SYNTHETIC_EXISTING_CONTENT" not in output
+    assert target.read_bytes() == b"SYNTHETIC_EXISTING_CONTENT"
 
 
 def test_model_cannot_switch_to_other_allowed_artifact(tmp_path: Path,
@@ -296,6 +308,14 @@ def test_local_model_path_is_explicit_one_call_and_actual_write(
     assert result["applied"] is execute
     assert (tmp_path / "draft.md").exists() is execute
     if execute:
+        assert (tmp_path / "draft.md").read_bytes() == b"Generated draft"
+        assert cli.main(args + ["--execute"]) == 1
+        refused = json.loads(capsys.readouterr().out)
+        assert refused == {
+            "applied": False, "effect": "none", "reason": "workspace_output_already_exists",
+            "next_step": "inspect_existing_output_or_choose_new_destination",
+        }
+        assert len(calls) == 1
         assert (tmp_path / "draft.md").read_bytes() == b"Generated draft"
 
 
