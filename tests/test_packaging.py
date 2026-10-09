@@ -126,8 +126,10 @@ def test_current_release_source_metadata_is_synchronized() -> None:
     assert 'version: "1.13.1"' in citation
     assert "## [1.13.1] - 2026-10-09" in changelog
     assert "Agentic Security Harness v1.13.1" in release_notes
-    assert "Status: **candidate preparation**" in release_notes
-    assert "current published release" in release_notes
+    assert "Status: published on GitHub, TestPyPI and PyPI" in release_notes
+    assert "146a782362e0689c80817f733feb63a0c02bfe6a3485ea50946cfc90bdba6f5a" in release_notes
+    assert "8866b0019351cd0830422187b93f075f9a5d463160ad8d8cecd12af5ad11e657" in release_notes
+    assert "37966053148" in release_notes
     assert "v1.13.0" in release_notes
     assert "no-effect existing-job refusal" in release_notes
     prior_release_notes = (ROOT / "docs/releases/v1.13.0.md").read_text(encoding="utf-8")

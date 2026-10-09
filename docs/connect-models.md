@@ -17,9 +17,10 @@ an untrusted text proposal, see the [guarded workspace writer](guarded-workspace
 Its optional one-request local Ollama path requires explicit `--execute`;
 the deterministic Guard makes the file permission decision. The published
 writer's original publication and model-evidence status are in the
-[1.11.0 release record](releases/v1.11.0.md). The current 1.13.0 package adds
+[1.11.0 release record](releases/v1.11.0.md). The current 1.13.1 package retains
 the [document workflow](document-workflow.md) and its bounded host-owned
-handoffs; see the separate [release evidence](releases/v1.13.0.md).
+handoffs, first shipped in 1.13.0; see the current [release evidence](releases/v1.13.1.md)
+and the [original 1.13.0 record](releases/v1.13.0.md).
 
 The prompt-based benchmark path uses **`openai-compatible`**. It speaks the
 OpenAI Chat Completions wire format (`POST {base_url}/chat/completions`). Anything that

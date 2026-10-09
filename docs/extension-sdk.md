@@ -5,7 +5,7 @@ and optional security components. It lets an operator pass validated, privacy-mi
 `CanonicalObservationEventV1` records through explicitly registered checks and receive
 content-bound findings and receipts.
 
-Status: published in the `v1.3.0` Harness core. The current `v1.13.0` package
+Status: published in the `v1.3.0` Harness core. The current `v1.13.1` package
 declares exact, passive optional companion extras, first added in `v1.4.0`.
 Installing an extra does not discover, approve, bind, load, or activate its code;
 companion distributions remain separately versioned and operator-selected.

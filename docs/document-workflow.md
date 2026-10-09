@@ -3,7 +3,8 @@
 This guide follows the **1.13.1** document-workflow package. The workflow first
 shipped in 1.13.0; see the [v1.13.1 release record](releases/v1.13.1.md) for
 actual build, index and verification status. A source version or this guide
-alone does not prove publication; v1.13.0 remains current until the patch is released.
+alone does not prove publication. The patch is now published; the original
+[v1.13.0 record](releases/v1.13.0.md) remains historical evidence.
 This is a usable workflow around the existing [workspace writer](guarded-workspace-writer.md),
 not a new executor. Its first use case is turning a host-selected UTF-8 document into
 a new summary, checklist or draft. The permission boundary is deterministic and uses
@@ -24,9 +25,8 @@ review-required source, follow the
 
 ## First job
 
-Before installing, verify the v1.13.1 release record and package index. Once
-the exact patch is available, install it in a virtual environment; before
-publication, use a wheel built from the chosen candidate source instead.
+Before installing, verify the published v1.13.1 release record and package
+index, then install the exact patch in a virtual environment.
 The base workflow adds no model-framework dependency:
 
 ```sh
@@ -95,8 +95,7 @@ not permission: jobs still use the same source admission and guarded writer.
 The [two-step recipe](../examples/document-plan/jobs.json) extracts owner/day
 fields from a public note and passes the verified first document to a second job.
 Its exact JSON requirements are host-side checks, not answers sent to the model.
-Use an exact 1.13.1 installation after checking the release record, or a
-candidate wheel built from the chosen source commit. From the checkout root,
+Use an exact 1.13.1 installation after checking the release record. From the checkout root,
 choose a new workspace and an exact already-installed local Ollama model:
 
 ```text

@@ -58,7 +58,7 @@ def test_checkout_only_and_long_running_examples_are_separate() -> None:
     guide = GUIDE.read_text(encoding="utf-8")
     first_route, optional = guide.split("## Optional: test your own model", maxsplit=1)
 
-    assert "python -m pip install agentic-security-harness==1.13.0" in first_route
+    assert "python -m pip install agentic-security-harness==1.13.1" in first_route
     assert "ash validate examples/" not in first_route
     assert "python examples/fake_openai_server.py" not in first_route
     assert "ash gateway-serve" not in first_route

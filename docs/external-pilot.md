@@ -14,9 +14,9 @@ scope and the remaining independent-human gates.
 
 No credentials, customer data, private repositories, model access, real tools or
 production targets are required. Use a fresh Python 3.11 environment and the exact
-release's fixed example and locks. The current published 1.13.0 baseline is documented in
+release's fixed example and locks. The current published 1.13.1 baseline is documented in
 [Getting started](getting-started.md); its installed example is at
-[examples/installed-ecosystem](../examples/installed-ecosystem/README.md#current-published-1130).
+[examples/installed-ecosystem](../examples/installed-ecosystem/README.md#current-published-1131).
 That page provides a hash-locked PyPI route with no local package build required.
 For the explicit extension path, follow the example's `--no-compile` installation in
 a new environment. Ordinary pip bytecode entries are not accepted by the strict
@@ -34,8 +34,8 @@ public command and result expectations live with the example rather than in priv
 2. After the exact-wheel setup above, run the functional chain and its separate verifier:
 
    ```bash
-   python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json --core-version 1.13.0
-   python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json --core-version 1.13.0
+   python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json --core-version 1.13.1
+   python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json --core-version 1.13.1
    ```
 
    Expect 16 cases: two full paths with two built-in constant lookups in total,
@@ -47,7 +47,7 @@ public command and result expectations live with the example rather than in priv
    Playbooks tampering/unknown evidence, and Gateway denial. A missing dependency
    or failed import is not a successful negative control.
 4. Optionally run
-   `python -I -B examples/installed-ecosystem/check.py --out installation-baseline.json --core-version 1.13.0`.
+   `python -I -B examples/installed-ecosystem/check.py --out installation-baseline.json --core-version 1.13.1`.
    This separate eight-case installation baseline explicitly
    inspects, approves and binds Transfer/Handoff extensions; installation alone does
    none of this. Missing Handoff artifact binding is a finding and incomplete
@@ -63,7 +63,7 @@ universal runtime connector or production safety. Public example/code licenses a
 individual package licenses apply; no third-party private corpus is requested.
 
 For a separate document-workflow pilot, start with the
-[1.13.0 operator guide](document-workflow.md) and its
+[1.13.1 operator guide](document-workflow.md) and its
 [scripted clean-install replay](document-workflow-replay.md), then have the
 operator review the actual document bytes and task usefulness. The scripted
 transport is not an actual-model or independent-human result.

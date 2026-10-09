@@ -1,18 +1,20 @@
 # Current state
 
-## Current release — 1.13.0
+## Current release — 1.13.1
 
-The current published package is **1.13.0**. Earlier release entries below
+The current published package is **1.13.1**. Earlier release entries below
 retain their historical evidence rather than describing the current install.
 The retained `v0.15.0` tag is transparent failed-gate evidence and has no
 GitHub Release; later publication does not rewrite that result.
 
-[Merged PR #347](https://github.com/krivonosoff161/agentic-security-harness/pull/347)
-contains the earlier #344 and #346 work plus dynamic admissions and supervised
-recovery. The [v1.13.0 release record](releases/v1.13.0.md) separates the
-research checkpoint, passed attested build and staging, verified PyPI upload and
-index parity, five passed production jobs, and a separate seven-job read-only
-cross-index PASS. The features below ship in 1.13.0; these checks do not prove
+[Merged PR #349](https://github.com/krivonosoff161/agentic-security-harness/pull/349)
+stabilized first-run guides, document/workspace refusal diagnostics and same-job
+concurrency without adding capabilities. The [v1.13.1 release record](releases/v1.13.1.md)
+binds the merged source, four-job tag build, three-job staging, five-job
+production run and exact PyPI subjects. Separate read-only cross-index run
+`37966053148` passed all seven jobs. Historical [v1.13.0](releases/v1.13.0.md), from merged PR #347,
+first shipped dynamic admissions and supervised recovery and passed its own
+seven-job cross-index verification. These checks do not prove
 production safety or semantic correctness.
 General #316/#317 obligations are not closed by packaging the document-specific path.
 
@@ -267,7 +269,9 @@ repository's `component.yaml`. The older `2026.08.02-r4-trajectory-containment` 
 Portfolio projection remains preserved as historical research evidence; it is not the
 current ecosystem product roadmap. Operational authority remains `none`.
 
-> Last reviewed: 2026-10-08 against the `v1.13.0` tag source
+> Last reviewed: 2026-10-09 against the `v1.13.1` merged/tag source
+> `dfd773f8b77086b7df2cc0dc20aaa86ba84cd598` and
+> [release evidence](releases/v1.13.1.md); historical `v1.13.0` tag source
 > `c01b977372dec7a150edc11030577cd6bfba3e6e` and
 > [release evidence](releases/v1.13.0.md); historical `v1.12.0` tag source
 > `575627f01979c5a492c3eca3bf9a931ce3f68433` and
@@ -306,13 +310,18 @@ current ecosystem product roadmap. Operational authority remains `none`.
 > Historical `v1.12.0` tag build `37272733600` passed four jobs, TestPyPI
 > `37276842884` passed three applicable jobs, and PyPI `37277235870` passed
 > five applicable jobs. Separate read-only `37277593132` passed all seven jobs.
-> Current `v1.13.0` tag build `37762455554` passed four jobs and TestPyPI
+> Historical `v1.13.0` tag build `37762455554` passed four jobs and TestPyPI
 > `37763165054` passed three. PyPI `37763643090` passed all five applicable
 > jobs: upload and Linux 3.11–3.13 / Windows 3.11 platform checks. Official
 > index hashes and description match the attested subjects. Separate read-only
 > `37764340666` passed all seven cross-index jobs with zero skips.
+> Current `v1.13.1` tag build `37904553744` passed four jobs; TestPyPI
+> `37926491472` passed three applicable jobs. PyPI `37964360307` passed all
+> five applicable publication and Linux/Windows installed jobs. Official
+> non-yanked wheel/sdist digests match the built subjects. A separate read-only
+> cross-index `37966053148` passed all seven jobs without rebuild or re-upload.
 >
-> Scope: current repository evidence, current published release `1.13.0`, and
+> Scope: current repository evidence, current published release `1.13.1`, and
 > preserved 1.6.0 historical evidence.
 > This page is a reviewer-facing status
 > snapshot, not a roadmap promise or production-safety claim.
@@ -327,7 +336,7 @@ activation. The [v1.5.0 release](releases/v1.5.0.md) also includes the opt-in Qu
 Connector and its pure Gateway composition. Exact-subject publication and clean-install
 evidence is linked below; old v1.4.0 artifacts remain unchanged.
 
-Agentic Security Harness is a **published v1.13.0 public defensive benchmark/toolkit**: a working
+Agentic Security Harness is a **published v1.13.1 public defensive benchmark/toolkit**: a working
 trace-first defensive benchmark for agentic AI boundary failures with committed
 deterministic examples, bounded local-swarm evidence, evidence-campaign metrics, and
 sanitized local-model semantic-drift / propagation probes, plus a bounded local Runtime
@@ -352,7 +361,8 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 
 | Area | Status | Evidence |
 |---|---|---|
-| Package identity | v1.13.0 published with verified build provenance and read-only install matrix | Exact merged/tag source `c01b977372dec7a150edc11030577cd6bfba3e6e`; attested build `37762455554` passed four jobs, TestPyPI `37763165054` passed three, and PyPI `37763643090` passed all five applicable upload and Linux/Windows platform jobs. Official wheel/sdist hashes and description match the attested subjects. Separate read-only `37764340666` passed all seven cross-index jobs with zero skips. [Exact subjects and limits](releases/v1.13.0.md). Internal model observations are not independent review. |
+| Package identity | v1.13.1 published with verified build provenance and seven-job read-only install matrix | Merged/tag source `dfd773f8b77086b7df2cc0dc20aaa86ba84cd598`; tag build `37904553744` passed four jobs, TestPyPI `37926491472` passed three, and PyPI `37964360307` passed all five applicable publication and Linux/Windows jobs. Official non-yanked wheel/sdist SHA-256 digests match the built subjects. Separate read-only `37966053148` passed all seven cross-index jobs without rebuild or re-upload. [Exact subjects and limits](releases/v1.13.1.md). Internal model observations are not independent review. |
+| Prior package identity | v1.13.0 published with verified build provenance and read-only install matrix | Exact merged/tag source `c01b977372dec7a150edc11030577cd6bfba3e6e`; attested build `37762455554` passed four jobs, TestPyPI `37763165054` passed three, and PyPI `37763643090` passed all five applicable upload and Linux/Windows platform jobs. Official wheel/sdist hashes and description match the attested subjects. Separate read-only `37764340666` passed all seven cross-index jobs with zero skips. [Exact subjects and limits](releases/v1.13.0.md). Internal model observations are not independent review. |
 | Prior package identity | v1.12.0 published with verified build provenance and read-only install matrix | Exact merged/tag source `575627f01979c5a492c3eca3bf9a931ce3f68433`; attested build `37272733600` passed four jobs, TestPyPI `37276842884` passed three, PyPI `37277235870` passed five. Exact subjects and descriptions match both indexes. Read-only `37277593132` passed all seven cross-index jobs without rebuild or re-upload. [Exact subjects and limits](releases/v1.12.0.md). Candidate-wheel model observations are separate. |
 | Prior package identity | v1.11.0 published with verified build provenance and read-only install matrix | Exact merged/tag source `616d63f42736576e7a454f84d14fcc019fb0c5b9`; attested build `37114956002` passed four jobs, TestPyPI `37119297238` passed three. PyPI upload in `37119445780` succeeded with exact subjects, but its Linux 3.11 index lookup failed before package execution, leaving the initial workflow failed. Separate read-only `37119674840` passed all seven cross-index jobs without rebuild or re-upload. [Exact subjects and limits](releases/v1.11.0.md). No new model observation. |
 | Prior package identity | v1.10.1 published with verified build provenance and read-only install matrix | Exact tag source `46d38200e404ee1106f2f012a753c3d6a11150fc`; build `37101792230` passed four jobs, TestPyPI `37102048175` passed three, PyPI `37102205673` passed five, and final read-only `37102316728` passed all seven cross-index jobs without rebuild or re-upload. Exact wheel/sdist hashes and descriptions match official indexes. [Exact subjects and limits](releases/v1.10.1.md); installed examples use fixed synthetic inputs, not the earlier six local model replies. |
@@ -415,7 +425,7 @@ Detector-accuracy claims require independently reviewed labels and non-zero labe
 | Evidence pack format | Shipped docs slice | `docs/evidence-pack-format.md` defines how future local research becomes sanitized public evidence with private/public boundaries, hashes, claim rows, tests, and validation commands. |
 | Local real-model swarm probes | Unverified maintainer declaration | Historical documentation declares two full 15-scenario runs and complete hash-field coverage. No versioned public result projection or reconciliation receipt is present, so the repository cannot verify that the runs occurred or bind the aggregates to retained bytes. |
 | Standards-aware mapping | Partial | OWASP Agentic per pattern; OWASP LLM and NIST at category level; MITRE ATLAS verified for direct-fit categories and deferred where speculative. |
-| Public project process | v1.13.0 published with exact-subject index parity and seven-job read-only verification | [Current release evidence](releases/v1.13.0.md) binds reviewed source, tag, staging and exact PyPI subjects. Production `37763643090` passed upload and Linux 3.11–3.13 / Windows 3.11 checks; separate read-only `37764340666` passed all seven cross-index jobs with zero skips. Governance, security policy, CI, CodeQL, Scorecard and tag-only release gates remain in force; deterministic examples are not independent human or model review. Historical 1.12.0 production and seven-job read-only verification remain in its record, as do earlier receipts and the retained failed `v0.15.0` tag. |
+| Public project process | v1.13.1 published with exact-subject index parity and seven-job read-only verification | [Current release evidence](releases/v1.13.1.md) binds merged source, tag build, staging and exact PyPI subjects. Production `37964360307` passed publication and Linux 3.11–3.13 / Windows 3.11 checks; read-only `37966053148` passed all seven cross-index jobs. Historical 1.13.0 verification remains in its own record, as do earlier receipts and the retained failed `v0.15.0` tag. Governance, security policy, CI, CodeQL, Scorecard and tag-only release gates remain in force; deterministic examples are not independent human or model review. |
 | Container definitions | Shipped source definitions; images unpublished | The root Dockerfile packages the source-layout CLI and runs the offline doctor as a non-root user. `Dockerfile.gateway` and `compose.gateway.yml` build the synthetic gateway locally with loopback-only publication, read-only root filesystem, dropped capabilities, and no-new-privileges. The fail-closed `.dockerignore` excludes local/private descendants. No public image is published and the source definitions do not attest production network isolation. |
 | Runtime Guard product foundation | Shipped bounded executable specification | Metadata-only action, capability, consent, handoff, provider, budget, decision, and evidence contracts plus a pure deterministic evaluator and synthetic adversarial tests were merged through PR #162. No proxy, executor, credential broker, durable ledger, IAM integration, deployment, or production protection is shipped. |
 | Runtime Gateway local synthetic contour | Shipped in v1.2.0 | A loopback-first HTTP service applies a closed pre-dispatch policy to two deterministic synthetic tools, exposes bounded OpenAI-compatible and stateless MCP 2026-07-28 endpoints, writes a privacy-minimized single-writer hash-chain audit, and normalizes four retained provider/tool envelope families through the same policy. Docker Compose publishes host loopback only. It has no live provider transport, real credential path, arbitrary executor, authenticated approval service, IAM, production deployment, independent effectiveness evidence, or operational authority. See [runtime-gateway.md](runtime-gateway.md) and [provider-tool-adapters.md](provider-tool-adapters.md). |
