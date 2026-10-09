@@ -18,6 +18,13 @@ availability and give a next step after an invalid Gateway configuration. Exit c
 and permission checks are unchanged. Published, synthetic, experimental and future
 capabilities remain distinct in the connection, extension and capability guides.
 
+The candidate also makes concurrent submissions of the same document job return
+the existing `job_already_exists` refusal consistently, both when the competing
+job finishes during preview and when callers compete for the exclusive reservation.
+Deterministic interleaving tests require one model call and one saved job; invalid
+previews still cannot reserve a job. This does not add retries or arbitrary-tool
+exactly-once guarantees.
+
 Remaining acceptance covers all published route families, optional integrations,
 installed artifacts and the Linux/Windows verification union. This entry does not
 declare that full stabilization, publication, or the open research issues are done.

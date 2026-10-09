@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from threading import Barrier, Event, Lock
 from typing import Any
 
 import pytest
@@ -415,16 +416,105 @@ def test_same_job_concurrent_submit_one_model_call(
     config, source, _ = setup(tmp_path)
     calls = reply(monkeypatch)
 
-    def run() -> str:
-        try:
-            return str(doc.run_job(config, source, "Task", "race", execute=True)["state"])
-        except FileExistsError:
-            return "reserved_elsewhere"
+    def run() -> dict[str, Any]:
+        return doc.run_job(config, source, "Task", "race", execute=True)
 
     with ThreadPoolExecutor(max_workers=2) as pool:
         results = list(pool.map(lambda _: run(), range(2)))
-    assert results.count("saved") == 1 and len(calls) == 1
+    assert {result["state"] for result in results} == {"saved", "error"}
+    loser = next(result for result in results if result["state"] == "error")
+    assert loser["reason"] == "job_already_exists" and loser["effect"] == "none"
+    assert len(calls) == 1
     assert doc.inspect_job(config, "race")["state"] == "saved"
+
+
+def test_two_completed_previews_compete_for_one_exclusive_reservation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config, source, _ = setup(tmp_path)
+    calls = reply(monkeypatch)
+    both_previewed = Barrier(2)
+    original_generate = doc._generate
+
+    def gated_generate(*args: Any, **kwargs: Any) -> Any:
+        result = original_generate(*args, **kwargs)
+        if not args[0].execute:
+            both_previewed.wait(timeout=10)
+        return result
+
+    monkeypatch.setattr(doc, "_generate", gated_generate)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(
+            lambda _: doc.run_job(config, source, "Task", "race-reserve", execute=True),
+            range(2),
+        ))
+
+    assert {result["state"] for result in results} == {"saved", "error"}
+    loser = next(result for result in results if result["state"] == "error")
+    assert loser == {
+        "state": "error", "job_id": "race-reserve", "reason": "job_already_exists",
+        "effect": "none", "next_step": "inspect_existing_job_do_not_retry",
+    }
+    assert len(calls) == 1
+    assert (config.jobs_dir / "race-reserve" / "document.md").is_file()
+    assert doc.inspect_job(config, "race-reserve")["state"] == "saved"
+    assert len(list(config.jobs_dir.iterdir())) == 1
+
+
+def test_job_created_between_absence_check_and_preview_is_not_replayed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config, source, _ = setup(tmp_path)
+    calls = reply(monkeypatch)
+    entered_preview = Event()
+    release_preview = Event()
+    first_preview_lock = Lock()
+    first_preview_seen = False
+    original_generate = doc._generate
+
+    def gated_generate(*args: Any, **kwargs: Any) -> Any:
+        nonlocal first_preview_seen
+        if not args[0].execute:
+            with first_preview_lock:
+                first = not first_preview_seen
+                first_preview_seen = True
+            if first:
+                entered_preview.set()
+                assert release_preview.wait(10)
+        return original_generate(*args, **kwargs)
+
+    monkeypatch.setattr(doc, "_generate", gated_generate)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        loser_future = pool.submit(doc.run_job, config, source, "Task", "race-gap", execute=True)
+        assert entered_preview.wait(10)
+        winner_future = pool.submit(doc.run_job, config, source, "Task", "race-gap", execute=True)
+        try:
+            winner = winner_future.result(timeout=10)
+        finally:
+            release_preview.set()
+        loser = loser_future.result(timeout=10)
+
+    assert winner["state"] == "saved"
+    assert loser == {
+        "state": "error", "job_id": "race-gap", "reason": "job_already_exists",
+        "effect": "none", "next_step": "inspect_existing_job_do_not_retry",
+    }
+    assert len(calls) == 1
+    assert doc.inspect_job(config, "race-gap")["state"] == "saved"
+    assert len(list(config.jobs_dir.iterdir())) == 1
+
+
+def test_invalid_generation_preview_does_not_reserve_a_job(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config, source, _ = setup(tmp_path)
+    calls = reply(monkeypatch)
+
+    with pytest.raises(ValueError, match="task byte limit"):
+        doc.run_job(config, source, "x" * 4097, "invalid-preview", execute=True)
+
+    assert not list(config.jobs_dir.iterdir())
+    assert not calls
 
 
 def test_missing_denial_receipt_is_inspection_not_denied(
