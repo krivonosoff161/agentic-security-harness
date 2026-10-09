@@ -17,8 +17,9 @@ an untrusted text proposal, see the [guarded workspace writer](guarded-workspace
 Its optional one-request local Ollama path requires explicit `--execute`;
 the deterministic Guard makes the file permission decision. The published
 writer's original publication and model-evidence status are in the
-[1.11.0 release record](releases/v1.11.0.md). The current 1.12.0 package adds
-[document jobs](document-workflow.md) with separate release evidence.
+[1.11.0 release record](releases/v1.11.0.md). The current 1.13.0 package adds
+the [document workflow](document-workflow.md) and its bounded host-owned
+handoffs; see the separate [release evidence](releases/v1.13.0.md).
 
 The prompt-based benchmark path uses **`openai-compatible`**. It speaks the
 OpenAI Chat Completions wire format (`POST {base_url}/chat/completions`). Anything that
@@ -177,7 +178,8 @@ open external_report.md# read results + control recommendations
 | Generic OpenAI-compatible gateway | OpenAI-compatible | `https://YOUR-ENDPOINT/v1` | depends | provider model id | supported via OpenAI-compatible |
 | Ollama | OpenAI-compatible (native) | `http://localhost:11434/v1` | none | `llama3.1` | supported via OpenAI-compatible |
 | LM Studio | OpenAI-compatible (native) | `http://localhost:1234/v1` | none | loaded model id | supported via OpenAI-compatible |
-| Native provider SDKs / tool execution / streaming / agent hosts | - | - | - | - | future |
+| Agent Host owned-workflow quickstart | offline synthetic host observations | local files | none | built-in fixtures | shipped, not arbitrary host execution |
+| Native provider SDKs / arbitrary tool execution / streaming / live agent-host collectors | - | - | - | - | future |
 
 > Provider URLs change over time. Where a row shows a vendor host, treat it as a
 > starting point and confirm against the provider's current API docs. For anything
@@ -412,11 +414,13 @@ pattern in `external_results.json` (and counted in `error_patterns`), not a cras
 
 ## 14. What is not supported yet
 
-These are **future** tracks, intentionally not implemented:
+These are **future for this prompt-only external adapter**, not claims about
+the separately shipped synthetic Agent Host and local Gateway routes:
 
 - Native provider SDK adapters (Anthropic, OpenAI Responses, Google, etc.).
-- **Tool execution** / real agent-host integration (the external path evaluates model
-  decisions, it does not drive an agent that calls tools).
+- Arbitrary tool execution / live agent-host collection (the external path
+  evaluates model decisions; the shipped Agent Host owned-workflow quickstart
+  uses synthetic, caller-owned observations rather than driving a live host).
 - Streaming responses.
 - Multi-turn agent conversations.
 - Non-OpenAI wire formats without a compatible-mode gateway in front.

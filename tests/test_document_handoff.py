@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shlex
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,44 @@ from agentic_security_harness import document_workflow as doc
 from agentic_security_harness import workspace_writer as writer
 from agentic_security_harness.document_quality import DocumentRequirements
 from test_document_workflow import reply, setup
+
+
+def test_documented_first_handoff_commands_reuse_an_explicitly_reviewed_draft(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Run the first advertised handoff recipe, not a separately rewritten example."""
+    config, source, config_path = setup(tmp_path)
+    reviewed_text = "# Public draft\nAlice owns the Friday checklist.\n"
+    reply(monkeypatch, reviewed_text)
+    first = doc.run_job(config, source, "Draft a checklist", "first", execute=True)
+    assert first["quality"]["status"] == "review_required"
+    # This fixture explicitly checks the expected public bytes before acknowledging
+    # their digest. It is not a production auto-review mechanism or human evidence.
+    actual_bytes = (config.jobs_dir / "first" / "document.md").read_bytes()
+    assert actual_bytes == reviewed_text.encode("utf-8")
+    reviewed_digest = hashlib.sha256(actual_bytes).hexdigest()
+    guide = (Path(__file__).resolve().parents[1] / "docs/document-workflow.md").read_text(
+        encoding="utf-8"
+    )
+    section = guide.split("## Reuse a result as data, not authority\n", 1)[1].split("\n## ", 1)[0]
+    commands = [shlex.split(line) for line in section.splitlines() if line.startswith("ash ")]
+    assert commands
+    calls = reply(monkeypatch, "Reviewed source summary.")
+    for command in commands:
+        assert command[:2] in (["ash", "document-status"], ["ash", "document-run"])
+        args = [
+            str(config_path) if arg == "my-documents/document.json" else
+            reviewed_digest if arg == "REVIEWED_SHA256" else arg
+            for arg in command[1:]
+        ]
+        assert cli.main(args) == 0, capsys.readouterr().out
+    assert len(calls) == 1
+    second = doc.inspect_job(config, "second")
+    assert second["state"] == "saved"
+    for name in ("started.json", "summary.json"):
+        record = json.loads((config.jobs_dir / "second" / name).read_bytes())
+        assert record["reviewed_source_sha256"] == record["input_sha256"] == reviewed_digest
+    assert second["output_trust"] == "untrusted"
 
 
 @pytest.mark.parametrize("engine", ["native", "pydantic-ai"])

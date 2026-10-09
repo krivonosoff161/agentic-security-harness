@@ -2381,6 +2381,11 @@ def _gateway_check(config_path: Path) -> int:
         config = load_gateway_config_v1(config_path)
     except (GatewayContractError, OSError, ValueError):
         print("Error: Runtime Gateway config is invalid or unsafe")
+        print(
+            "Next: verify --config names an existing readable V1 TOML file. "
+            "For a new config, run ash gateway-init --out <new-path>, "
+            "review it, then rerun gateway-check."
+        )
         return 1
     print("Runtime Gateway config: valid V1")
     print(f"  Listener: http://{config.host}:{config.port}")
@@ -5208,7 +5213,10 @@ def _external_check(
     if not model:
         print("  Model: MISSING -- provide --model")
         return 1
-    print(f"  Model: {terminal_field(model)} -- OK")
+    print(
+        f"  Model: {terminal_field(model)} -- configured; "
+        "availability not checked without --live"
+    )
     print(
         "  Operator-declared response model alias: "
         f"{terminal_field(operator_declared_model_alias or model)} -- OK"

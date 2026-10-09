@@ -1,3 +1,3 @@
 """Package version leaf used by provenance records without import cycles."""
 
-__version__ = "1.13.0"
+__version__ = "1.13.1"

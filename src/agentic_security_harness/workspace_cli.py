@@ -20,6 +20,10 @@ from agentic_security_harness.workspace_writer import (
 )
 
 
+class _WorkspaceOutputExists(ValueError):
+    """One configured output is already present; no write or model call is allowed."""
+
+
 def add_commands(sub: Any) -> None:
     for command, help_text in (
         ("workspace-check", "validate host-owned output configuration without writes"),
@@ -62,7 +66,7 @@ def _generate(args: argparse.Namespace,
         raise ValueError("artifact is not in host policy")
     destination = policy.output_dir / dict(policy.outputs)[args.artifact]
     if destination.exists() or destination.is_symlink():
-        raise ValueError("selected output already exists")
+        raise _WorkspaceOutputExists("selected output already exists")
     if not 0 < len(args.task.encode("utf-8")) <= 4096:
         raise ValueError("task byte limit")
     config = ollama.OllamaQuarantineConfigV1(port=args.port, timeout_seconds=args.timeout)
@@ -173,7 +177,7 @@ def run(args: argparse.Namespace) -> int:
             for _, filename in policy.outputs:
                 target = policy.output_dir / filename
                 if target.exists() or target.is_symlink():
-                    raise ValueError("configured output already exists")
+                    raise _WorkspaceOutputExists("configured output already exists")
             result = {"configuration_valid": True, "configured_outputs_absent": True,
                       "write_permissions_probed": False, "policy_sha256": policy.sha256,
                       "artifacts": list(dict(policy.outputs)), "writes_performed": False}
@@ -198,6 +202,12 @@ def run(args: argparse.Namespace) -> int:
             code = 0 if result.get("applied") and result.get("receipt_complete") else 1
         print(json.dumps(result, sort_keys=True))
         return code
+    except _WorkspaceOutputExists:
+        print(json.dumps({"applied": False, "effect": "none",
+                          "reason": "workspace_output_already_exists",
+                          "next_step": "inspect_existing_output_or_choose_new_destination"},
+                         sort_keys=True))
+        return 1
     except (OSError, ValueError, TypeError, UnicodeError, RecursionError):
         print(json.dumps({"applied": False,
                           "reason": "workspace_configuration_or_input_unavailable",

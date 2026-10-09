@@ -1,8 +1,8 @@
-# Replaying the 1.13.0 document workflow
+# Replaying the 1.13.1 document workflow
 
-This is a reproducibility protocol for the **1.13.0 workflow**, not a claim
+This is a reproducibility protocol for the **1.13.1 workflow**, not a claim
 that a wheel is already published or that an outside operator has run it. The
-[release record](releases/v1.13.0.md) reports actual publication and verification
+[release record](releases/v1.13.1.md) reports actual publication and verification
 status separately. Use only public synthetic inputs and a fresh, disposable
 workspace. The existing
 [operator guide](document-workflow.md#development-operator-path-runtime-decisions)
@@ -16,8 +16,9 @@ SHA-256, and lockfile hashes. For a source candidate, build from the chosen
 commit in a fresh Python 3.11 virtual environment with the repository's
 hash-locked build and runtime requirements. Install **that wheel** without
 dependency resolution; a matching filename alone does not bind its source.
-For a published 1.13.0 artifact, instead verify its index, provenance and
-hashes against the release record before installation. For a source build,
+If a 1.13.1 artifact has been published, instead verify its index, provenance
+and hashes against the release record before installation. Until then,
+v1.13.0 remains the current published version. For a source build,
 after activating the fresh environment:
 
 ```sh
@@ -27,7 +28,7 @@ python -m pip install --no-index --no-deps EXACT_WHEEL_PATH
 python -I -B -c "import pathlib,sys,agentic_security_harness as ash; p=pathlib.Path(ash.__file__).resolve(); assert p.is_relative_to(pathlib.Path(sys.prefix).resolve()); print(p)"
 ```
 
-`EXACT_WHEEL_PATH` is the single 1.13.0 wheel just built in `dist/`; record
+`EXACT_WHEEL_PATH` is the single 1.13.1 wheel just built in `dist/`; record
 its digest before installing. Use a newly created output directory for each replay; the
 acceptance tool refuses an existing one. Do not add the checkout's `src/` to
 `PYTHONPATH`. The `-I` checks and child CLI processes import the installed
@@ -50,7 +51,7 @@ python -m pip --isolated install --index-url https://pypi.org/simple --no-compil
 python -I -B tools/check_document_workflow.py --out replay-pydantic --engine pydantic-ai
 ```
 
-Successful 1.13.0 scripted-fixture expectations are `passed=true`,
+Successful 1.13.1 scripted-fixture expectations are `passed=true`,
 `checks=47`, `metadata_gets=1`, and `generation_posts=14` **per engine**.
 Keep each `acceptance.json` and the exact wheel digest. Its rows are
 content-free case/state/reason summaries; source and document fixtures under

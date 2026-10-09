@@ -1,10 +1,11 @@
-# Runtime Gateway development contour
+# Runtime Gateway published local synthetic contour
 
 The Runtime Gateway is the first executable product layer above the benchmark. It accepts
 OpenAI-compatible chat requests and MCP JSON-RPC tool calls, applies a closed policy before
 dispatch, and records a privacy-minimized append-only decision trail.
 
-This initial contour is deliberately local and synthetic. It is useful for integration,
+This contour shipped in `v1.2.0` and remains deliberately local and synthetic.
+It is useful for integration,
 policy, audit, and operator testing, but it is **not** a production firewall and does not
 connect to OpenAI, Anthropic, Google, a remote MCP server, or arbitrary executors.
 
@@ -75,14 +76,15 @@ Authorization, cookie, and proxy-authorization headers are rejected in this cred
 mode. Streaming, chunked transfer, duplicate JSON keys, non-finite numbers, oversized
 bodies, and unknown request fields fail closed.
 
-In the local candidate, an early POST denial is sent before any rejected body is
+In the shipped local service, an early POST denial is sent before any rejected body is
 parsed or dispatched. Before closing, response cleanup discards at most 64 KiB
 (or the lower configured body cap) for at most 100 ms total. This reduces lost
 denial responses when a client is still sending its body. An incomplete or hostile
 stream still closes at that bound; receipt delivery is not guaranteed, and no
-request is retried or admitted by cleanup. This change is not in published 1.9.1.
+request is retried or admitted by cleanup. This behavior is present in the
+current `v1.13.0` package; it does not make denial delivery guaranteed.
 
-## MCP 2026-07-28 development endpoint
+## Bounded MCP 2026-07-28 endpoint
 
 `POST /mcp` implements a deliberately narrow, stateless subset of MCP `2026-07-28`:
 `server/discover`, `tools/list`, and `tools/call`. The removed legacy
@@ -147,7 +149,7 @@ upstream isolation, durable operator identity, policy bundles, and production de
 guidance. The current approval request digest is not an authenticated approval receipt and
 does not grant execution authority.
 
-The [Quarantine Connector V1 source contract](quarantine-connector.md) separately
+The [Quarantine Connector V1](quarantine-connector.md) separately
 provides an additive, opt-in admission boundary for bounded untrusted bytes before this
 Gateway. Its separate `quarantine_gateway_composition` source API can take an admitted
 capability request through `evaluate_gateway_tool_call()` and return a digest-linked
@@ -161,4 +163,5 @@ provides separate opt-in source APIs for authority-free Cheap Filter and Playboo
 including strict external Playbooks receipt-pair ingress. A caller-owned closed profile,
 not advisory text, owns the capability mapping. Each seam stops at this module's existing
 pure policy evaluator: no `GatewayEngine` call, audit, dispatch, or default behavior change.
-These APIs are source-only additions, not part of the published v1.4.0 artifacts.
+These opt-in APIs were added after `v1.4.0` and published in `v1.5.0`;
+they remain separate from this service's execution and audit path.

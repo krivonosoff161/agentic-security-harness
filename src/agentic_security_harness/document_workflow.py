@@ -417,7 +417,7 @@ def run_job(
     preflight = check(config)
     if preflight["state"] != "ready":
         return preflight
-    if job.exists() or job.is_symlink():
+    def existing_job() -> dict[str, Any]:
         return {
             "state": "error",
             "job_id": job_id,
@@ -425,6 +425,9 @@ def run_job(
             "effect": "none",
             "next_step": "inspect_existing_job_do_not_retry",
         }
+
+    if job.exists() or job.is_symlink():
+        return existing_job()
     if (source_path is None) == (source_job is None):
         raise ValueError("select exactly one source file or saved source job")
     if reviewed_source_sha256 is not None and source_job is None:
@@ -559,9 +562,19 @@ def run_job(
         timeout=config.timeout,
         execute=False,
     )
-    _, preview = _generate(
-        args, policy, source=source, document_content=True, generation_json=generation_json,
-    )
+    try:
+        _, preview = _generate(
+            args, policy, source=source, document_content=True, generation_json=generation_json,
+        )
+    except ValueError as exc:
+        # Another caller can reserve and finish this job after our first absence
+        # check but before the output-path check in _generate. Translate only
+        # that exact collision; malformed inputs still fail before reservation.
+        if exc.args == ("selected output already exists",) and (
+            job.exists() or job.is_symlink()
+        ):
+            return existing_job()
+        raise
     if not execute:
         return {
             **preflight,
@@ -575,7 +588,14 @@ def run_job(
             "effect": "none",
             **restriction_fields,
         }
-    _new_directory(job)
+    try:
+        _new_directory(job)
+    except FileExistsError:
+        # Exclusive mkdir is the final reservation boundary. A concurrent
+        # winner may have reserved this exact job after both previews passed.
+        if job.exists() or job.is_symlink():
+            return existing_job()
+        raise
     initial = {
         "schema_version": VERSION,
         "job_id": job_id,

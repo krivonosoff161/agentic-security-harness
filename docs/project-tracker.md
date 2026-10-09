@@ -1,5 +1,45 @@
 # Project tracker
 
+## Active stabilization of published routes
+
+Development is focused on making the existing published routes usable end to end,
+not adding connectors, new capabilities, or separate research tracks. The published
+version below is unchanged until a separately verified release completes.
+
+The patch is being prepared as [1.13.1](releases/v1.13.1.md) in
+[PR #349](https://github.com/krivonosoff161/agentic-security-harness/pull/349).
+Passing checks for earlier stabilization heads are retained separately from
+the versioned candidate, tag and package-index verification gates.
+
+The first repairs make the installed-package tutorial independent of checkout
+assets, put the first document job and reviewed handoff before advanced operations,
+and complete the custom-adapter example through HTML rendered from validated evidence. The adapter
+example now actually records its intended synthetic data-boundary findings.
+Literal-example regression tests exercise these instructions; they are not external
+user adoption or real-model effectiveness evidence.
+
+CLI diagnostics distinguish an offline configured model identifier from checked
+availability and give a next step after an invalid Gateway configuration. Exit codes
+and permission checks are unchanged. Published, synthetic, experimental and future
+capabilities remain distinct in the connection, extension and capability guides.
+
+The candidate also makes concurrent submissions of the same document job return
+the existing `job_already_exists` refusal consistently, both when the competing
+job finishes during preview and when callers compete for the exclusive reservation.
+Deterministic interleaving tests require one model call and one saved job; invalid
+previews still cannot reserve a job. This does not add retries or arbitrary-tool
+exactly-once guarantees.
+
+The candidate reports an already-existing configured workspace output explicitly,
+rather than suggesting an unrelated configuration or permission problem. The
+refusal remains content-free and occurs before generation; it neither replaces
+the file nor retries a model request. Other configuration/storage failures retain
+their separate generic diagnostic.
+
+Remaining acceptance covers all published route families, optional integrations,
+installed artifacts and the Linux/Windows verification union. This entry does not
+declare that full stabilization, publication, or the open research issues are done.
+
 ## Published document-workflow release / 1.13.0
 
 The current published package is **1.13.0**.
