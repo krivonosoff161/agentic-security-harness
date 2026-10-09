@@ -1,7 +1,7 @@
 # Getting started
 
-Goal: from a fresh clone to your first validated benchmark report in **10-30 minutes**,
-with no API keys and no network.
+Goal: from an installed package to your first validated benchmark report in
+**10-30 minutes**, with no API keys, model, or network after installation.
 
 > **What this is:** a defensive **benchmark / evaluation toolkit** that reproduces
 > agentic AI failure modes on synthetic targets and measures risk reduction.
@@ -29,6 +29,9 @@ python -m pip install agentic-security-harness==1.13.0
 ash --help
 ```
 
+Installing from PyPI needs package-index access unless you already have the exact
+wheel and dependencies locally. The first benchmark run below is offline.
+
 For source development, clone the repository and use `python -m pip install -e .[dev]`.
 
 To create a guarded short document from your own UTF-8 source after installation,
@@ -43,11 +46,13 @@ Confirm your environment is ready (no network):
 
 ```bash
 ash quickstart --out reports/quickstart
+ash validate reports/quickstart
 ```
 
-This single no-network command performs an installed-package preflight, compares the
+The quickstart command performs an installed-package preflight, compares the
 vulnerable and protected local demos on the same 24-pattern corpus, validates the evidence,
-and writes `reports/quickstart/report.html`.
+and writes `reports/quickstart/report.html`. The second command validates that
+generated bundle; it does not require checkout examples.
 Since 1.10.1, `ash doctor` checks installed-package readiness without
 requiring a source checkout. Use `ash doctor --source-assets` to additionally
 require checkout examples and the example fake server. Network remains opt-in
@@ -65,18 +70,6 @@ This no-network command drives the built-in synthetic workflow through explicit
 instrumentation, 48 canonical recordings/evaluations, atomic publication, and the common
 validator. It stores digest-only public evidence and does not load an external agent,
 credential, prompt, tool payload, or plugin.
-
-To exercise the new local policy gateway with synthetic OpenAI-compatible and MCP calls:
-
-```bash
-ash gateway-init --out gateway.toml
-ash gateway-check --config gateway.toml
-ash gateway-serve --config gateway.toml
-```
-
-Open <http://127.0.0.1:8787/dashboard>. This is a credential-free development contour
-with two fixed synthetic tools, not a live provider connection or production firewall.
-See [runtime-gateway.md](runtime-gateway.md) for HTTP examples and Docker Compose.
 
 ## 2. See what is available
 
@@ -118,38 +111,64 @@ ash run-matrix --target demo-agent --scenario data-boundary --max-variants 3 --o
 
 Open `reports/matrix/matrix.md` for the per-variant table and pattern stability.
 
-## 6. Test your own model (free, local, no key)
-
-The external path evaluates any authorized OpenAI-compatible endpoint. Try it for free
-against the bundled fake server:
+## 6. Validate generated reports
 
 ```bash
-# terminal 1
-python examples/fake_openai_server.py
-
-# terminal 2
-ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary
-ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --execute --out .internal/external-demo
-```
-
-On Windows PowerShell, start the fake server in a separate window (no trailing `&`) and
-use `` ` `` for line continuation - see [connect-models.md Section 5](connect-models.md) for the
-PowerShell recipes.
-
-Then point it at your own stack (vLLM, DeepSeek, Alibaba/Qwen, Ollama, LM Studio, or any
-gateway) using the recipes in [connect-models.md](connect-models.md). `run-external`
-refuses to exceed `--max-requests` (default 50), and the API key is read from an env var
-by name - never logged or stored.
-
-## 7. Validate any report
-
-```bash
+ash validate reports/quickstart
 ash validate reports/demo
-ash validate examples/      # the committed, curated examples
+ash validate reports/comparison
 ```
 
 Validation re-derives reports from the corpus and rejects malformed or tampered
 artifacts. It checks conformance, **not** real-world safety.
+
+## Optional: test your own model
+
+The external path evaluates an authorized OpenAI-compatible endpoint. It is not
+part of the offline first run. Follow [Connect your model](connect-models.md) for
+local or remote service setup, a no-request preview, a bounded executed run,
+credential handling, and its separate evidence limits. `run-external` refuses
+to exceed `--max-requests` (default 50); an API key is read from an environment
+variable by name, never logged or stored.
+
+### Source-checkout fake-server example
+
+This optional, keyless loopback example requires a **repository checkout**: the
+published wheel does not install `examples/fake_openai_server.py` or the curated
+`examples/` directory. From the checkout root, start the server in a separate
+terminal and leave it running only while you try the external path:
+
+```bash
+# terminal 1, from the repository checkout
+python examples/fake_openai_server.py
+
+# terminal 2, from the same checkout
+ash external-check --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary
+ash run-external --base-url http://127.0.0.1:8766/v1 --model fake-model --scenario data-boundary --execute --out .internal/external-demo
+ash validate .internal/external-demo
+ash validate examples/
+```
+
+Stop the server with Ctrl+C after the example. On Windows PowerShell, use a
+second terminal window rather than a trailing `&`; see the
+[PowerShell recipes](connect-models.md#5-windows-powershell-quickstart).
+
+## Optional: local synthetic Gateway
+
+The Gateway is a separate, long-running demonstration, not a prerequisite for
+the benchmark steps above. In a fresh working directory, run these commands in
+a separate terminal:
+
+```bash
+ash gateway-init --out gateway.toml
+ash gateway-check --config gateway.toml
+ash gateway-serve --config gateway.toml
+```
+
+While it is serving, open <http://127.0.0.1:8787/dashboard>; stop it with Ctrl+C
+before reusing that terminal. This credential-free development contour has only
+fixed synthetic tools, not a live provider connection or production firewall.
+See [runtime-gateway.md](runtime-gateway.md) for HTTP examples and Docker Compose.
 
 ## Run history
 

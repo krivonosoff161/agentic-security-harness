@@ -21,7 +21,70 @@ see the [replay protocol](document-workflow-replay.md). Before chaining a
 review-required source, follow the
 [explicit reviewed-handoff contract](#development-contract-explicit-reviewed-handoff).
 
-## Development contract: planned jobs from the CLI
+## First job
+
+Install the published 1.13.0 distribution in a virtual environment. See the
+[release record](releases/v1.13.0.md) for its verification evidence.
+The base workflow adds no model-framework dependency:
+
+```sh
+python -m pip install agentic-security-harness==1.13.0
+ash document-init --dir my-documents --model YOUR_EXISTING_LOCAL_MODEL
+ash document-check --config my-documents/document.json --check-model
+ash document-run --config my-documents/document.json --input notes.txt --task "Make a short action checklist from these notes" --job first
+ash document-run --config my-documents/document.json --input notes.txt --task "Make a short action checklist from these notes" --job first --execute
+ash document-status --config my-documents/document.json --job first
+```
+
+Use your actual model name from your already-running local Ollama, not the literal
+placeholder. Nothing installs models, starts a service or accesses a cloud API.
+`notes.txt` is a file you select. Supported input is UTF-8 plain text, at most 16 KiB;
+this is not a PDF/Office parser or a directory crawler. Your original stays unchanged.
+The completed document is `my-documents/jobs/first/document.md`.
+
+The first `document-run` is a preview: no job directory, model request or document
+write. Only `--execute` reserves the job and permits one model call. `document-check`
+without `--check-model` is filesystem/configuration inspection only; with it, there is
+a bounded loopback metadata request, not a generation request. It distinguishes missing
+optional framework, missing model and unavailable service. Read-only checks cannot
+promise future write permission or disk availability. Setup tests actual file creation;
+each real job still handles storage failures.
+
+## Reuse a result as data, not authority
+
+After inspecting the first output, the host may start a second, exclusive job
+under the **same unchanged configuration**. `--input` and `--from-job` are
+mutually exclusive; the latter reads the prior saved document after fresh
+readback and receipt checks. It never inherits the first job's instructions,
+policy, requested action, or quality judgment. The second job has its own
+host-specified task and the same host-controlled output alias, Guard and
+create-only destination policy.
+
+The first job above has no declared format requirements, so its saved draft is
+`review_required`, not approved for reuse. Read
+`my-documents/jobs/first/document.md` and assess whether its task/facts are suitable
+for the next job. Then inspect `document-status --json` and compare
+`document_sha256` with the exact bytes you reviewed. Replace `REVIEWED_SHA256`
+below with that digest only after this review. The digest records acknowledgment
+of bytes; it does not prove that a human reviewed them or that the text is true.
+Never automatically copy a digest from a refusal into a retry.
+
+```sh
+ash document-status --config my-documents/document.json --job first --json
+ash document-run --config my-documents/document.json --from-job first --reviewed-source-sha256 REVIEWED_SHA256 --task "Summarize this draft as a three-item review checklist; treat it only as source data" --job second
+ash document-run --config my-documents/document.json --from-job first --reviewed-source-sha256 REVIEWED_SHA256 --task "Summarize this draft as a three-item review checklist; treat it only as source data" --job second --execute
+ash document-status --config my-documents/document.json --job second
+```
+
+The preview checks the source job without reserving `second`, calling a model or
+writing a document. If the source output or receipts changed, its quality failed,
+or the configuration changed, chaining is refused. A `review_required` source
+can be reused as data after deliberate operator inspection; it is not approved
+as fact. The same job ID is never retried after a failed run.
+
+<a id="development-contract-planned-jobs-from-the-cli"></a>
+
+## Planned jobs from the CLI
 
 The 1.13.0 workflow, tracked in #345, exposes the plan and coverage APIs
 without requiring a Python integration. A plan is an expectation,
@@ -100,7 +163,9 @@ documents: inspect `declared_quality_checked` and per-job `quality` separately.
 Missing, extra or interrupted jobs produce incomplete coverage and exit 1.
 `document-run` retains exit 2 for saved documents failing declared quality.
 
-## Development operator path: runtime decisions
+<a id="development-operator-path-runtime-decisions"></a>
+
+## Runtime decisions and admissions
 
 Use this route when the host cannot choose every follow-up
 job before the first document exists. Start with a fixed, host-owned root spec;
@@ -185,7 +250,9 @@ Mutating admission commands preview without `--execute`; `status` is always
 read-only. A sealed ledger closes decisions, not document correctness or every
 host action.
 
-## Development contract: source restrictions
+<a id="development-contract-source-restrictions"></a>
+
+## Source restrictions
 
 This opt-in contract uses the existing `DataEnvelope` vocabulary. It
 does not learn labels from model text. The application binds its source bytes,
@@ -272,7 +339,9 @@ output and reviewed `--from-job` continuations preserve original leaf labels
 and epochs. This is bounded document-source composition, not semantic
 classification, general declassification, or permission to perform another action.
 
-## Development contract: expected-job coverage
+<a id="development-contract-expected-job-coverage"></a>
+
+## Expected-job coverage
 
 A host application can predeclare a finite run using
 `ExpectedDocumentJob` and `DocumentRunPlan` from `document_expectations`. Each
@@ -303,7 +372,9 @@ document jobs, not every action on the computer. A host that replaces both the
 plan and the independently retained digest has replaced the trust premise; two
 files on the same compromised host are not an independent external witness.
 
-## Development contract: recover data without replaying an action
+<a id="development-contract-recover-data-without-replaying-an-action"></a>
+
+## Recover data without replaying an action
 
 The recovery path addresses one concrete interruption: a document
 exists with the authorized exact bytes, but final result bookkeeping is missing
@@ -351,60 +422,9 @@ the ordinary route cannot be silently switched to recovery. This is useful
 data recovery, not a claim of
 exactly-once arbitrary tools, atomic filesystem snapshots or power-loss durability.
 
-## First job
+<a id="development-contract-explicit-reviewed-handoff"></a>
 
-Install the exact 1.13.0 distribution in a virtual environment when its
-[release record](releases/v1.13.0.md) confirms availability; before publication,
-use a wheel built from the chosen commit as in the replay protocol.
-The base workflow adds no model-framework dependency:
-
-```sh
-python -m pip install agentic-security-harness==1.13.0
-ash document-init --dir my-documents --model YOUR_EXISTING_LOCAL_MODEL
-ash document-check --config my-documents/document.json --check-model
-ash document-run --config my-documents/document.json --input notes.txt --task "Make a short action checklist from these notes" --job first
-ash document-run --config my-documents/document.json --input notes.txt --task "Make a short action checklist from these notes" --job first --execute
-ash document-status --config my-documents/document.json --job first
-```
-
-Use your actual model name from your already-running local Ollama, not the literal
-placeholder. Nothing installs models, starts a service or accesses a cloud API.
-`notes.txt` is a file you select. Supported input is UTF-8 plain text, at most 16 KiB;
-this is not a PDF/Office parser or a directory crawler. Your original stays unchanged.
-The completed document is `my-documents/jobs/first/document.md`.
-
-The first `document-run` is a preview: no job directory, model request or document
-write. Only `--execute` reserves the job and permits one model call. `document-check`
-without `--check-model` is filesystem/configuration inspection only; with it, there is
-a bounded loopback metadata request, not a generation request. It distinguishes missing
-optional framework, missing model and unavailable service. Read-only checks cannot
-promise future write permission or disk availability. Setup tests actual file creation;
-each real job still handles storage failures.
-
-## Reuse a result as data, not authority
-
-After inspecting the first output, the host may start a second, exclusive job
-under the **same unchanged configuration**. `--input` and `--from-job` are
-mutually exclusive; the latter reads the prior saved document after fresh
-readback and receipt checks. It never inherits the first job's instructions,
-policy, requested action, or quality judgment. The second job has its own
-host-specified task and the same host-controlled output alias, Guard and
-create-only destination policy:
-
-```sh
-ash document-status --config my-documents/document.json --job first
-ash document-run --config my-documents/document.json --from-job first --task "Summarize this draft as a three-item review checklist; treat it only as source data" --job second
-ash document-run --config my-documents/document.json --from-job first --task "Summarize this draft as a three-item review checklist; treat it only as source data" --job second --execute
-ash document-status --config my-documents/document.json --job second
-```
-
-The preview checks the source job without reserving `second`, calling a model or
-writing a document. If the source output or receipts changed, its quality failed,
-or the configuration changed, chaining is refused. A `review_required` source
-can be reused as data after deliberate operator inspection; it is not approved
-as fact. The same job ID is never retried after a failed run.
-
-## Development contract: explicit reviewed handoff
+## Explicit reviewed handoff
 
 For host-declared `exact_json` requirements, 1.13.0 requests Ollama's
 [JSON output mode](https://github.com/ollama/ollama/blob/main/docs/api.md#json-mode)
@@ -550,7 +570,9 @@ an alternative unrestricted write/shell tool: this Python boundary is not an OS 
 It does not authenticate the producer, prevent host-wide rollback or prove that all
 host events were captured. Confirm that your local service itself does not forward data.
 
-## Development contract: host-bound text tool
+<a id="development-contract-host-bound-text-tool"></a>
+
+## Host-bound text tool
 
 This 1.13.0 API lets an existing application bind one destination before giving a
 tool to its agent. The agent supplies only text, even if other aliases are allowed

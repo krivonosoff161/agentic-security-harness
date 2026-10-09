@@ -10,6 +10,29 @@ def _read(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
+def test_document_first_job_precedes_advanced_operator_contracts() -> None:
+    guide = _read("docs/document-workflow.md")
+    assert guide.index("## First job") < guide.index("## Planned jobs")
+    assert guide.index("## Reuse a result as data, not authority") < guide.index(
+        "## Runtime decisions and admissions"
+    )
+
+
+def test_published_document_contract_preserves_previous_heading_links() -> None:
+    guide = _read("docs/document-workflow.md")
+    assert not any(line.startswith("## Development") for line in guide.splitlines())
+    for anchor in (
+        "development-contract-planned-jobs-from-the-cli",
+        "development-operator-path-runtime-decisions",
+        "development-contract-source-restrictions",
+        "development-contract-expected-job-coverage",
+        "development-contract-recover-data-without-replaying-an-action",
+        "development-contract-explicit-reviewed-handoff",
+        "development-contract-host-bound-text-tool",
+    ):
+        assert f'<a id="{anchor}"></a>' in guide
+
+
 def test_latest_proposal_evidence_is_visible_from_public_entry_points() -> None:
     readme = _read("README.md")
     overview = readme.split("## Previous verified result — 2026-09-26\n", 1)[1].split(

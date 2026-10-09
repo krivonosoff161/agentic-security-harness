@@ -5,9 +5,10 @@ and optional security components. It lets an operator pass validated, privacy-mi
 `CanonicalObservationEventV1` records through explicitly registered checks and receive
 content-bound findings and receipts.
 
-Status: published in the `v1.3.0` Harness core. This core contract does not publish,
-install, discover, or activate any optional companion distribution; current source extras
-and companion artifacts remain separately unreleased.
+Status: published in the `v1.3.0` Harness core. The current `v1.13.0` package
+declares exact, passive optional companion extras, first added in `v1.4.0`.
+Installing an extra does not discover, approve, bind, load, or activate its code;
+companion distributions remain separately versioned and operator-selected.
 
 ## What the contract provides
 
@@ -73,14 +74,14 @@ V1 intentionally has no:
 - credential, secret, deployment, release, enforcement, or tool-execution authority.
 
 A malicious approved Python object still runs with the permissions of the Harness
-process. The stacked [Extension Distribution Discovery V1](extension-distribution-discovery.md)
-candidate closes the first metadata gap by verifying one explicitly selected installed
+process. The published [Extension Distribution Discovery V1](extension-distribution-discovery.md)
+contract closes the first metadata gap by verifying one explicitly selected installed
 distribution and issuing a no-code-load approval receipt. It still does not load code,
 prove signer identity, verify dependency provenance, or isolate the object.
 
 The V1 implementation and configuration digests are content pins supplied by the
 extension builder and bound into every result through the manifest digest. They are not a
-signature by themselves. The distribution discovery candidate verifies those pins against
+signature by themselves. The distribution discovery contract verifies those pins against
 installed `RECORD` bytes before registration, while deliberately leaving code construction
 to the operator.
 
@@ -97,21 +98,20 @@ tool payloads.
 
 ## Current and next integration state
 
-The SDK is the core contract slice. Transfer Verifier and AI Agent Handoff now expose
-exact-pinned, review-only `extension_candidate` source trees; other companions remain in
-their source-owned state until they have an adapter, synthetic conformance tests, and an
-exact compatibility row. The candidate label does not make a component released,
-auto-installed, authenticated, sandboxed, or trusted.
+The SDK is the core contract slice. The current package declares separately
+versioned Transfer Verifier, AI Agent Handoff, Playbooks, Router, and Filter
+extras. These pins and the published Harness-owned adapters do not make any
+companion auto-installed, authenticated, sandboxed, approved, or active.
 
 The reviewed slices are:
 
 1. Harness-owned adapters for transfer verification, handoff checks, and declarative
-   playbooks using this exact envelope (implemented in the current stacked candidate);
+   playbooks using this exact envelope (published as opt-in adapters);
 2. a pinned, operator-approved distribution discovery layer with no implicit code load;
 3. Linux and Windows cross-repository compatibility fixtures;
 4. a provider-neutral offline Security Intelligence reviewer whose external evidence
-   remains `external_unreviewed` and advisory-only (implemented in the current stacked
-   candidate). Live collection remains a separate future gate.
+   remains `external_unreviewed` and advisory-only (published as an opt-in API).
+   Live collection remains a separate future gate.
 
 Passing these synthetic tests does not establish independent detector effectiveness or
 production safety.
@@ -120,5 +120,5 @@ The exact source DAG and forward-compatibility test are recorded in
 [ecosystem-integration-candidate.md](ecosystem-integration-candidate.md). Transfer binds
 the Harness `6354635c...` ancestor baseline and Handoff binds the older `285d05ad...`
 ancestor baseline; the central Ubuntu/Windows E2E gate tests those sources against the
-current Harness candidate without pretending that companion and Harness heads can
+current Harness package without pretending that companion and Harness heads can
 mutually pin one another.

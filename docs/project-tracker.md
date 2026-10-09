@@ -1,5 +1,27 @@
 # Project tracker
 
+## Active stabilization of published routes
+
+Development is focused on making the existing published routes usable end to end,
+not adding connectors, new capabilities, or separate research tracks. The published
+version below is unchanged until a separately verified release completes.
+
+The first repairs make the installed-package tutorial independent of checkout
+assets, put the first document job and reviewed handoff before advanced operations,
+and complete the custom-adapter example through HTML rendered from validated evidence. The adapter
+example now actually records its intended synthetic data-boundary findings.
+Literal-example regression tests exercise these instructions; they are not external
+user adoption or real-model effectiveness evidence.
+
+CLI diagnostics distinguish an offline configured model identifier from checked
+availability and give a next step after an invalid Gateway configuration. Exit codes
+and permission checks are unchanged. Published, synthetic, experimental and future
+capabilities remain distinct in the connection, extension and capability guides.
+
+Remaining acceptance covers all published route families, optional integrations,
+installed artifacts and the Linux/Windows verification union. This entry does not
+declare that full stabilization, publication, or the open research issues are done.
+
 ## Published document-workflow release / 1.13.0
 
 The current published package is **1.13.0**.

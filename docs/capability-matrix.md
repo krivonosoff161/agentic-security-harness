@@ -41,7 +41,8 @@ read-only cross-index run passed after an initial Linux 3.11 index-lookup failur
 | Offline provider tool-envelope normalization | Python API | offline | no | deterministic | not a corpus run | no | four retained envelope families | privacy-minimized gateway audit | n/a |
 | Native local Ollama proposal adapter | explicit Python API | literal-loopback call only | operator-selected local model | stochastic possible | not a corpus run | no implicit retry | strict proposal/no-request | content-free return | n/a |
 | Arbitrary native remote-provider adapter | - | - | - | - | - | - | - | - | **future** |
-| Agent-host / tool-use adapter | - | - | - | - | - | - | - | - | **future** |
+| Agent Host owned-workflow V1 | `agent-host-quickstart --out <new-dir>` | offline | no | deterministic synthetic host | 24 patterns x baseline/protected | no | no | yes | yes |
+| Live agent-host collector / arbitrary tool-use adapter | - | - | - | - | - | - | - | - | **future** |
 | Runtime Gateway synthetic contour | `gateway-serve --config <toml>` | local listener | no | deterministic built-ins | not a corpus run | no | fixed policy paths | privacy-minimized audit chain | n/a |
 
 ## What each is good for / does not cover
