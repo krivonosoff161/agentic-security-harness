@@ -12,7 +12,7 @@
   },
   "extension_sdk_contract": {
     "path": "schemas/extension-sdk.v1.manifest.json",
-    "sha256": "3226e2f2e774dd9a8c0bf9594e43737859cbe40b39e0262c805eb49b6dd7f4c6"
+    "sha256": "183f64bcde056a2d5025f05879197adbac7470f55e3eece37b1516767e8b7992"
   },
   "generator": {
     "path": "tools/corpus_pack_contracts.py",

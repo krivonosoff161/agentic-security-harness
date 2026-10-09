@@ -33,7 +33,7 @@
     },
     {
       "path": "src/agentic_security_harness/cli.py",
-      "sha256": "0af4467248c15575a9ed561d93218b35ec309158178d19c5f4b20d3c7987c3da"
+      "sha256": "72146ac84a17220ee0ba47e5d9ef76758f1ce4fed65c6defb6ec2ce676daee02"
     },
     {
       "path": "src/agentic_security_harness/extension_distribution.py",
