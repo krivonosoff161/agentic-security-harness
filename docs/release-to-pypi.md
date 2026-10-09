@@ -1,8 +1,15 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The current package is published as `1.13.0` on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.13.0/).
-The [v1.13.0 release record](releases/v1.13.0.md) separates the passed
+The current package is published as `1.13.1` on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.13.1/).
+The [v1.13.1 release record](releases/v1.13.1.md) binds merged source
+`dfd773f8b77086b7df2cc0dc20aaa86ba84cd598`, passed tag build
+`37904553744`, TestPyPI `37926491472`, and production `37964360307`.
+All five applicable production jobs passed. Official non-yanked PyPI wheel
+and sdist SHA-256 digests match the built subjects. Separate
+[read-only run 37966053148](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/37966053148)
+passed all seven exact-subject cross-index jobs without rebuild or re-upload.
+Historical [v1.13.0](releases/v1.13.0.md) separates the passed
 attested build `37762455554`, passed TestPyPI staging `37763165054`, and
 PyPI production run `37763643090`. Its upload and four Linux 3.11–3.13 /
 Windows 3.11 platform jobs passed, all five applicable jobs. The TestPyPI-only

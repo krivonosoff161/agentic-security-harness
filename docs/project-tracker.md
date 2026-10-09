@@ -1,15 +1,19 @@
 # Project tracker
 
-## Active stabilization of published routes
+## Published-route stabilization / 1.13.1
 
 Development is focused on making the existing published routes usable end to end,
-not adding connectors, new capabilities, or separate research tracks. The published
-version below is unchanged until a separately verified release completes.
+not adding connectors, new capabilities, or separate research tracks. The current
+published stabilization patch is [v1.13.1](releases/v1.13.1.md).
+The current published package is **1.13.1**.
 
-The patch is being prepared as [1.13.1](releases/v1.13.1.md) in
-[PR #349](https://github.com/krivonosoff161/agentic-security-harness/pull/349).
-Passing checks for earlier stabilization heads are retained separately from
-the versioned candidate, tag and package-index verification gates.
+The patch was merged in
+[PR #349](https://github.com/krivonosoff161/agentic-security-harness/pull/349)
+at `dfd773f8b77086b7df2cc0dc20aaa86ba84cd598`. The 35 PR checks, 27
+post-merge checks, tag build `37904553744`, TestPyPI `37926491472`, and PyPI
+`37964360307` passed their applicable gates. Official non-yanked PyPI subjects
+match the built wheel and sdist. Separate read-only cross-index run
+`37966053148` passed all seven exact-subject jobs without another build/upload.
 
 The first repairs make the installed-package tutorial independent of checkout
 assets, put the first document job and reviewed handoff before advanced operations,
@@ -23,26 +27,31 @@ availability and give a next step after an invalid Gateway configuration. Exit c
 and permission checks are unchanged. Published, synthetic, experimental and future
 capabilities remain distinct in the connection, extension and capability guides.
 
-The candidate also makes concurrent submissions of the same document job return
+The patch also makes concurrent submissions of the same document job return
 the existing `job_already_exists` refusal consistently, both when the competing
 job finishes during preview and when callers compete for the exclusive reservation.
 Deterministic interleaving tests require one model call and one saved job; invalid
 previews still cannot reserve a job. This does not add retries or arbitrary-tool
 exactly-once guarantees.
 
-The candidate reports an already-existing configured workspace output explicitly,
+The patch reports an already-existing configured workspace output explicitly,
 rather than suggesting an unrelated configuration or permission problem. The
 refusal remains content-free and occurs before generation; it neither replaces
 the file nor retries a model request. Other configuration/storage failures retain
 their separate generic diagnostic.
 
-Remaining acceptance covers all published route families, optional integrations,
-installed artifacts and the Linux/Windows verification union. This entry does not
-declare that full stabilization, publication, or the open research issues are done.
+Post-publication checks exercised the declared installed first-run, validation,
+report, 48-case Agent Host and Gateway routes against the official PyPI wheel.
+Scripted transport acceptance passed the writer's eight, native document's 47
+and optional Pydantic document's 47 checks. Two separately accounted local-model
+jobs gave one task-quality pass and one failed-quality reviewed handoff; both
+remained review-required with verified readback and no automatic reuse. These
+bounded checks do not establish general model semantics, independent review,
+or closure of the open research issues.
 
-## Published document-workflow release / 1.13.0
+## Prior published document-workflow release / 1.13.0
 
-The current published package is **1.13.0**.
+The 1.13.0 package first shipped this workflow; 1.13.1 is the current patch.
 
 [Merged PR #347](https://github.com/krivonosoff161/agentic-security-harness/pull/347)
 includes the #344/#346 work; those PRs were closed as superseded with branches
@@ -375,8 +384,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.13.0` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.13.0/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.13.1` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.13.1/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are

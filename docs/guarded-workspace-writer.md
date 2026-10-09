@@ -16,12 +16,10 @@ be trusted. A permitted document may still contain false or malicious text.
 
 ## First useful output, without a model
 
-For this version-bound guide, first verify the
-[v1.13.1 release record](releases/v1.13.1.md) and package index. Once that
-release is available, install it in your own environment with
-`python -m pip install agentic-security-harness==1.13.1`. Before publication,
-use only an exact candidate wheel built from the chosen source; v1.13.0 remains
-the current published version. The writer first shipped in 1.11.0 and adds no
+For this version-bound guide, verify the published
+[v1.13.1 release record](releases/v1.13.1.md) and package index, then install
+`python -m pip install agentic-security-harness==1.13.1` in your own environment.
+The writer first shipped in 1.11.0 and adds no
 extra runtime dependency; it was absent from the historical PyPI 1.10.1 wheel.
 
 In an empty working directory create an `output` directory. Save `policy.json`:

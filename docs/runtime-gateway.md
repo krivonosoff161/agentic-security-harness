@@ -82,7 +82,7 @@ parsed or dispatched. Before closing, response cleanup discards at most 64 KiB
 denial responses when a client is still sending its body. An incomplete or hostile
 stream still closes at that bound; receipt delivery is not guaranteed, and no
 request is retried or admitted by cleanup. This behavior is present in the
-current `v1.13.0` package; it does not make denial delivery guaranteed.
+current `v1.13.1` package; it does not make denial delivery guaranteed.
 
 ## Bounded MCP 2026-07-28 endpoint
 

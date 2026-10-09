@@ -1,6 +1,12 @@
 # Roadmap
 
-The published [1.13.0 release](releases/v1.13.0.md) consolidates planned/dynamic
+The current published [1.13.1 stabilization patch](releases/v1.13.1.md)
+improves first-run instructions, document/workspace refusal diagnostics and
+same-job concurrency without adding capabilities. Its exact tag, staging and
+production gates passed; separate read-only cross-index run `37966053148`
+passed all seven exact-subject jobs.
+
+The published [1.13.0 release](releases/v1.13.0.md) first consolidated planned/dynamic
 document jobs, original source restrictions and owned-worker-fenced recovery to
 a new job. This is one usable workflow release, not closure of broader #316/#317
 research. Its attested tag build and TestPyPI gate passed; the PyPI upload and
@@ -23,7 +29,7 @@ initial production Linux 3.11 index lookup failed, and separate seven-job
 read-only verification passed. It does not grant arbitrary filesystem access
 or prove document accuracy.
 
-Current delivery: [1.10.1 / #332](releases/v1.10.1.md) embeds the bounded
+Earlier delivery: [1.10.1 / #332](releases/v1.10.1.md) embedded the bounded
 controlled file boundary in a trusted application tool callback. It adds
 `ControlledFileSession`, storage/doctor diagnostics, optional Pydantic AI example
 and eight known seed cases. Six local model replies, an 80-call offline run and
@@ -40,7 +46,7 @@ PyPI description, without changed protection behavior or repeated model experime
 Its initial TestPyPI Windows and PyPI Linux 3.12 lookup failures remain recorded;
 final read-only cross-index verification passed all seven jobs.
 
-Current delivery: [controlled file effects](controlled-file-workflow.md),
+Earlier delivery: [controlled file effects](controlled-file-workflow.md),
 tracked by #326 and [released in 1.9.0](releases/v1.9.0.md). This moves one report-only chain from pure decisions to actual
 fresh-fixture writes with an independent disk check. Model task correctness and
 permission enforcement remain separately measured; no arbitrary host execution

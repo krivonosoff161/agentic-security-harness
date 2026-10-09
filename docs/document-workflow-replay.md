@@ -1,7 +1,7 @@
 # Replaying the 1.13.1 document workflow
 
 This is a reproducibility protocol for the **1.13.1 workflow**, not a claim
-that a wheel is already published or that an outside operator has run it. The
+that an outside operator has run it. The published
 [release record](releases/v1.13.1.md) reports actual publication and verification
 status separately. Use only public synthetic inputs and a fresh, disposable
 workspace. The existing
@@ -16,9 +16,9 @@ SHA-256, and lockfile hashes. For a source candidate, build from the chosen
 commit in a fresh Python 3.11 virtual environment with the repository's
 hash-locked build and runtime requirements. Install **that wheel** without
 dependency resolution; a matching filename alone does not bind its source.
-If a 1.13.1 artifact has been published, instead verify its index, provenance
-and hashes against the release record before installation. Until then,
-v1.13.0 remains the current published version. For a source build,
+For the published 1.13.1 artifact, verify its index, provenance and hashes
+against the release record before installation. The original v1.13.0 release
+remains historical evidence. For a source build,
 after activating the fresh environment:
 
 ```sh
