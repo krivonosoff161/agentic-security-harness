@@ -145,3 +145,16 @@ def test_multicommand_contract_and_full_gates_fail_on_first_error_on_both_platfo
                     assert step.get("shell") == "bash"
                     assert step["run"].startswith("set -euo pipefail\n")
         assert found == expected
+
+
+def test_durable_operation_runs_against_installed_native_and_optional_packages() -> None:
+    for filename, job_name in (("ci.yml", "controlled-file-installed"),
+                               ("ecosystem-integration.yml", "optional-pydantic")):
+        workflow = yaml.safe_load((WORKFLOWS / filename).read_text("utf-8"))
+        job = workflow["jobs"][job_name]
+        assert set(job["strategy"]["matrix"]["os"]) == {"ubuntu-latest", "windows-latest"}
+        steps = [step for step in job["steps"]
+                 if "tests/test_workspace_operation.py" in step.get("run", "")]
+        assert len(steps) == 1
+        assert "python -I -B -m pytest" in steps[0]["run"]
+        assert "--noconftest" in steps[0]["run"]

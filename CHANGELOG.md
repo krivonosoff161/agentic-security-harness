@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+- Add a host-bound, create-only workspace operation coordinator with durable
+  spent permissions, serialized absence fencing and exact-byte reconciliation.
+  Preserve partial files and distinguish recovered postconditions from original
+  writer receipts. This #343/#317 candidate reuses the existing GuardedWorkspace;
+  it does not resume document jobs or close the broader integration obligations.
+
 - Normalize timezone-aware telemetry-window builder inputs to UTC so equivalent
   instants produce identical canonical bytes; supplied noncanonical manifests
   and windows that miss the trajectory horizon remain rejected (#316/#343).

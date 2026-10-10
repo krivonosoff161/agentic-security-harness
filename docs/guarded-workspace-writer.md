@@ -147,3 +147,63 @@ connectors, a semantic labeler, training or a cloud subscription.
 Use the focused workspace tests and existing file/Guard regressions when changing
 it. Platform-specific checks require their actual platform; a skipped link test
 is not a pass.
+
+## Development candidate: recover the same bound operation
+
+The unmerged #343/#317 candidate adds `workspace_operation.WorkspaceOperation` for
+an application that must retain one operation's spent permissions across a process
+interruption. It is not part of the published package described above. It wraps
+the existing writer; it does not change its create-only permission or content rules.
+
+The host chooses the original operation ID, policy, alias, exact text and total
+attempt budget. Keep those trusted inputs outside the candidate state: `open`
+requires them again and rejects changed inputs, root identity or budget. The model
+does not choose an operation database, output path, permission or recovery action.
+
+```python
+from pathlib import Path
+from agentic_security_harness.workspace_operation import WorkspaceOperation
+from agentic_security_harness.workspace_writer import WorkspacePolicy
+
+root = Path("output").absolute()  # Existing dedicated output directory.
+policy = WorkspacePolicy(root, (("draft", "summary.md"),), data_class="public")
+original = dict(operation_id="summary-001", artifact="draft",
+                content="# Summary\n\nDraft for review.\n", max_attempts=3)
+# Operator-owned state outside output; state and output files must not exist.
+state = Path("summary-001.sqlite").absolute()
+operation = WorkspaceOperation.create(state, policy, **original)
+permission = operation.authorize()  # Commits spend before attempting the file.
+result = operation.deliver(permission)
+```
+
+After a process interruption, use `WorkspaceOperation.open(state, policy,
+**original)`, not `create`, a changed operation ID or a new state file. Call
+`reconcile()` to distinguish an exact retained result from an unknown outcome:
+
+| State | Meaning and next step |
+| --- | --- |
+| `DELIVERED_RECEIPT` | Exact file and original persisted writer receipt still verify; no new write. |
+| `RECONCILED_POSTCONDITION` | Exact bound bytes recovered after prior spend; this does **not** prove the old call returned. No new write. |
+| `UNKNOWN` | Insufficient, partial or changed evidence; preserve it, do not overwrite or treat it as absence. |
+| `FENCED_ABSENT` | Only `fence()` returns this after serialized absence checking and invalidating older deliveries. The host may obtain a **new** permission under the same policy and remaining budget. |
+
+`reconcile()` may persist a recovered postcondition; it is not a read-only verifier.
+`fence()` shares the delivery lock: a delayed old-generation request cannot write
+after the fence; if a delivery completed first, the fence returns that result.
+The fresh permission still requires an existing Guard decision and unexpired source
+restriction. Fencing does not refund spent permissions or authorize an action.
+After an attempted delivery with no outcome, replay of the same permission refuses;
+a competing delivery may receive this refusal while the first is still finishing.
+Repeated delivery after a verified completion returns the retained result only.
+
+The SQLite coordinator and its parent directory are trusted operator state. Use one
+coordinator for a destination, with normal filesystem locking. All supported writes
+for that operation must use it. It does not control unrelated host writers, detect a
+coordinated rollback, make a document and SQLite commit atomic, or prove power-loss
+durability. Missing/corrupt/changed state is retained and refused, not recreated.
+Only hashes and permission metadata are stored in the coordinator, not document text.
+
+This is distinct from [document data recovery](document-workflow.md#development-contract-recover-data-without-replaying-an-action),
+which transfers reviewed recovered bytes into a **new** job without resuming the old
+action. Existing `document-run` behavior is unchanged. Broader trusted telemetry,
+source-path integration and model-workflow acceptance remain tracked in #343.

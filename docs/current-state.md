@@ -1,5 +1,15 @@
 # Current state
 
+## Development candidate — bounded workspace operation recovery
+
+The unmerged #343/#317 candidate retains one host-bound create-only operation and
+its spent permissions across process interruption. A serialized fence prevents
+old supported deliveries after confirmed absence; exact recovered bytes are a
+postcondition, not proof that an interrupted call returned. Partial output remains
+unknown and is not overwritten. See the [candidate API](guarded-workspace-writer.md#development-candidate-recover-the-same-bound-operation).
+Existing document-job recovery remains reviewed data transfer into a new job.
+Trusted telemetry and broader source/model integration acceptance are still open.
+
 ## Development candidate — checklist source-use review
 
 The #343 research work adds an exact-byte review requirement before chaining a
