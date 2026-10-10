@@ -73,24 +73,42 @@ def parts(**changes: Any) -> tuple[WorkspaceSource, ...]:
 def audit() -> AdapterAuditV1:
     return AdapterAuditV1(
         schema_version="portfolio-adapter-audit-v1.0",
-        source_model="runtime_guard.observation_event", target_model="portfolio-observation-v1.0",
-        completeness="partial", source_fields=("event_id", "effect", "authority_level"),
+        source_model="harness.workspace_source_capture", target_model="portfolio-observation-v1.0",
+        completeness="partial", source_fields=("event_id", "source_kind"),
         target_fields=tuple(CanonicalObservationEventV1.model_fields),
         mappings=(
             AdapterFieldMappingV1(source_fields=("event_id",), target_fields=("event_id",),
                                   transformation="identity", authority_effect="none"),
-            AdapterFieldMappingV1(source_fields=("effect",), target_fields=("activity",),
+            AdapterFieldMappingV1(source_fields=("source_kind",), target_fields=("activity",),
                                   transformation="derived", authority_effect="downgrade"),
         ),
-        dropped_source_fields=("authority_level",),
+        dropped_source_fields=(),
         context_target_fields=("project_id", "repository_id", "repository_sha", "occurred_at",
                                "producer_id_hash", "source_surface", "entity_refs",
                                "parent_event_ids", "data_envelope_ref", "telemetry_state"),
         constant_target_fields=("schema_version", "producer_attestation",
                                 "authority_envelope_ref", "operational_authority"),
-        authority_downgrade=True, reason_codes=("adapter.authority_dropped",),
+        authority_downgrade=True, reason_codes=("adapter.host_context_supplied",),
         operational_authority="none",
     )
+
+
+def test_host_capture_audit_has_no_runtime_or_action_authority() -> None:
+    value = audit()
+    assert value.source_model == "harness.workspace_source_capture"
+    assert value.operational_authority == "none"
+    assert value.authority_downgrade
+    assert "authority_envelope_ref" in value.constant_target_fields
+
+
+@pytest.mark.parametrize("changes", [
+    {"source_model": "unrecognized.remote_producer"},
+    {"operational_authority": "allow"},
+    {"authority_downgrade": False},
+])
+def test_host_capture_audit_does_not_relax_existing_validation(changes: dict[str, Any]) -> None:
+    with pytest.raises(ValueError):
+        AdapterAuditV1.model_validate(audit().model_dump() | changes)
 
 
 @dataclass
@@ -165,6 +183,7 @@ def host(tmp_path: Path, *, count: int = 4, **source_changes: Any) -> Host:
 
 def test_four_supported_source_paths_reach_real_guarded_write(tmp_path: Path) -> None:
     case = host(tmp_path)
+    assert case.admission.manifest.adapter_audit.source_model == "harness.workspace_source_capture"
     input_bytes = case.admission.sources.input_bytes(case.policy)
     assert len(json.loads(input_bytes)["sources"]) == 4
     assessment = case.admission.verify(operation_id=OPERATION, policy=case.policy)

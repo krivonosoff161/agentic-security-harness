@@ -237,6 +237,15 @@ to construct the host capture window. Do **not** turn a producer's supplied
 manifest into its own expected digest: the host must independently admit the
 expectation, checkpoint and manifest anchor.
 
+For local source capture, the adapter audit identifies its input model as
+`harness.workspace_source_capture`. It must describe the host's actual capture
+metadata and its projection into canonical observations, not relabel those records
+as Runtime Guard decisions or external producer events. This source-model name
+does not authenticate the host: observations remain unattested and authority-free.
+Older validators without this development source model reject it; they must not be
+worked around by substituting another producer label. Existing source models and
+their validation rules are unchanged.
+
 Complete, sealed, exactly matched **pre-action** history is required. Pending,
 incomplete, changed or unavailable history prevents a new write. This still does
 not authenticate a remote producer, prove unobserved host events were captured,

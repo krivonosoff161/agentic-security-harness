@@ -38,7 +38,7 @@
     {
       "contract_id": "portfolio-telemetry-manifest-v1.0",
       "schema_path": "schemas/portfolio-telemetry-manifest.v1.schema.json",
-      "schema_sha256": "1d1f317cffe7e9cf7a42a276e2a5456795e1a1b06be895891404e022d844c55c"
+      "schema_sha256": "fa57befeddb586f20a70a6257b5fbab6a541768b79307ab64c40f62f6ff1d43b"
     },
     {
       "contract_id": "portfolio-trajectory-accounting-v1.0",

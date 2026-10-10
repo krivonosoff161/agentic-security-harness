@@ -12,6 +12,7 @@
         "source_model": {
           "enum": [
             "harness.runtime_guard_foundation",
+            "harness.workspace_source_capture",
             "handoff.metadata_sidecar",
             "runtime_guard.observation_event",
             "transfer_verifier.transfer_envelope"
