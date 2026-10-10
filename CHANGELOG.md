@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+- Compose existing retained ancestry and telemetry contracts for host-bound
+  observation admission: compare exact captured events/channels with independently
+  supplied host expectations and checkpoint, and keep host pending separate from
+  event count. This #316 candidate grants no action authority and does not claim
+  remote authentication, coordinated rollback resistance or uncaptured event coverage.
+
 - Require exact-byte review before reusing checklist-matched document output,
   including older `checked` checklist records; partial term matches are not
   a whole-result correctness check. Preserve explicit JSON expectations,

@@ -10,6 +10,15 @@ automatic source admission, not general semantic correctness or content filterin
 See the [development contract](document-workflow.md#unreleased-correction-checklist-matches-still-need-source-review).
 This candidate is not merged or released; #316/#317/#343 remain open.
 
+## Development candidate — retained telemetry admission
+
+The working #316 candidate also composes retained ancestry with existing telemetry
+contracts. Host-admitted expectations/checkpoints are distinct from producer-supplied
+manifests; captured observations and channels must match, and host pending is
+independent of event count. This observational composition grants no effect authority.
+See the [candidate contract](ancestry-store.md#development-candidate-retained-telemetry-admission-316).
+It remains under development and is not included in the published package below.
+
 ## Current release — 1.13.1
 
 The current published package is **1.13.1**. Earlier release entries below
