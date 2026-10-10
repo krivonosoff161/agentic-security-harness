@@ -1,5 +1,7 @@
 """Repository-wide static security contract for GitHub Actions dependencies and checkout."""
 
+import hashlib
+import json
 import re
 from pathlib import Path
 
@@ -158,3 +160,12 @@ def test_durable_operation_runs_against_installed_native_and_optional_packages()
         assert len(steps) == 1
         assert "python -I -B -m pytest" in steps[0]["run"]
         assert "--noconftest" in steps[0]["run"]
+
+
+def test_integration_workflow_matches_its_companion_manifest_binding() -> None:
+    manifest = json.loads((ROOT / "schemas/companion-extensions.v1.manifest.json").read_text(
+        encoding="utf-8",
+    ))
+    bound = manifest["integration_candidate"]["workflow"]
+    assert bound["path"] == ".github/workflows/ecosystem-integration.yml"
+    assert bound["sha256"] == hashlib.sha256((ROOT / bound["path"]).read_bytes()).hexdigest()
