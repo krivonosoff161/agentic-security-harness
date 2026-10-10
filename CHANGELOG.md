@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+- Reconcile the optional Pydantic AI maintenance candidate at `1.107.7` across
+  package metadata, platform hash locks, availability checks and examples.
+  Align its `pydantic-graph` and `genai-prices` constraints and check pin agreement.
+  Published 1.13.1 artifacts remain unchanged; this is not a publication claim.
+- Update the development Ruff/mypy toolchain while preserving the explicit
+  Windows `colorama` requirement and regenerating source-bound contracts.
+  Maintenance evidence is tracked in issue #353, separately from #316/#317/#343.
+
 ## [1.13.1] - 2026-10-09
 
 Patch stabilization of the existing published routes; no new connector, model

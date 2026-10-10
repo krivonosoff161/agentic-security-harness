@@ -607,8 +607,11 @@ text and no model or provider calls.
 
 ## One optional framework, not another protection layer
 
-Install the 1.13.1 `document-agent` extra (`pydantic-ai-slim==1.107.1`), then select it
-when creating a **new** workspace:
+Published 1.13.1 has a `document-agent` extra pinned to `pydantic-ai-slim==1.107.1`.
+The unreleased maintenance candidate uses `1.107.7` and matching platform locks;
+validate that candidate with its matching checkout/environment, not the old wheel.
+The following install command is for **published 1.13.1 only**, not the
+maintenance candidate. Select the framework when creating a **new** workspace:
 
 ```sh
 python -m pip install "agentic-security-harness[document-agent]==1.13.1"

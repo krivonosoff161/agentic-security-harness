@@ -40,11 +40,11 @@
     },
     "development_requirements_in": {
       "path": "requirements/dev.in",
-      "sha256": "53ce93168a19fb5ff1b3851ec00a6dc7e3dc00c02f2dbefbc92290b7ab56ee04"
+      "sha256": "140502ee2c6dcda925fb2dd3ea036adb01132c1a82c99b25eef39dfd70eb24fe"
     },
     "development_requirements_lock": {
       "path": "requirements/dev.txt",
-      "sha256": "c5038b47da41a2273ec8db18c5eddd0fbef022c338dd18fd83da65ca8cea7d1e"
+      "sha256": "b3036f3c9a94a43d57406ebf391f4f592361498a3a9d034c7f04e575cbf08b0c"
     },
     "documentation": {
       "path": "docs/ecosystem-integration-candidate.md",
