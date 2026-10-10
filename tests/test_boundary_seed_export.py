@@ -19,6 +19,13 @@ def _synthetic_dataset() -> dict[str, Any]:
     return seed.build_dataset(cases, rows, "a" * 64)
 
 
+def test_committed_seed_matches_current_source_contract() -> None:
+    path = seed.ROOT / "examples/boundary-seed-v1.json"
+    dataset = seed.read_json(path)
+    seed.verify_dataset(dataset)
+    assert path.read_bytes() == seed.canonical(dataset) + b"\n"
+
+
 def test_literal_corpus_and_path_free_seed_validate_without_optional_framework() -> None:
     cases = seed.fixed_cases()
     assert len(cases) == 8
