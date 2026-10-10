@@ -160,6 +160,10 @@ def test_durable_operation_runs_against_installed_native_and_optional_packages()
         assert len(steps) == 1
         assert "python -I -B -m pytest" in steps[0]["run"]
         assert "--noconftest" in steps[0]["run"]
+        commands = steps[0]["run"].replace("\\\n", "").splitlines()
+        pytest_commands = [line for line in commands if "python -I -B -m pytest" in line]
+        assert len(pytest_commands) == 1
+        assert "tests/test_workspace_admission.py" in pytest_commands[0]
 
 
 def test_integration_workflow_matches_its_companion_manifest_binding() -> None:

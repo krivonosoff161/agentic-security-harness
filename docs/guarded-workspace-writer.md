@@ -205,5 +205,49 @@ Only hashes and permission metadata are stored in the coordinator, not document 
 
 This is distinct from [document data recovery](document-workflow.md#development-contract-recover-data-without-replaying-an-action),
 which transfers reviewed recovered bytes into a **new** job without resuming the old
-action. Existing `document-run` behavior is unchanged. Broader trusted telemetry,
-source-path integration and model-workflow acceptance remain tracked in #343.
+action. Existing `document-run` behavior is unchanged. Broader model-workflow
+acceptance remains tracked in #343.
+
+### Development candidate: require sources and pre-action history
+
+An application can additionally pass a host-created `WorkspaceAdmission` as the
+`admission=` argument to `WorkspaceOperation.create` and `open`. The coordinator
+binds that context to the original operation and checks it before issuing a grant
+and again before a new write. Omitting or replacing a previously bound context
+refuses; admission does not replace the writer's Runtime Guard decision.
+
+`WorkspaceSources.bind` accepts one to eight `WorkspaceSource` values with the
+closed host-selected kinds `input`, `tool_output`, `memory` and `handoff`. Each
+contains an ID, exact UTF-8 bytes and existing `DocumentSourceRestrictions` or
+`DocumentMultiSourceRestrictions`. Composition preserves all original leaf
+restrictions, binds kinds and bytes, and refuses ambiguous or duplicate leaves.
+`sources.bind_policy(policy)` binds the source restrictions and earliest expiry;
+`sources.input_bytes(bound_policy)` checks current restrictions before returning
+framed **untrusted data** to the application's existing model adapter. It neither
+calls a model nor turns text into instructions or permission. A derived handoff
+uses `sources.restrictions.for_output(exact_output_bytes)` without renewing TTL.
+
+The host supplies `WorkspaceAdmission` with that source bundle, an `AncestryStore`,
+`expected_checkpoint`, `expected_profile`, SHA-256 `logical_operation_id`, the
+bound `policy_sha256`, independently retained `expected_manifest_sha256`, host
+phase and candidate manifest. Unlike the optional-context-free example above,
+the operation ID must match the telemetry API's lowercase SHA-256 identity.
+Use the [retained telemetry contract](ancestry-store.md#development-candidate-retained-telemetry-admission-316)
+to construct the host capture window. Do **not** turn a producer's supplied
+manifest into its own expected digest: the host must independently admit the
+expectation, checkpoint and manifest anchor.
+
+Complete, sealed, exactly matched **pre-action** history is required. Pending,
+incomplete, changed or unavailable history prevents a new write. This still does
+not authenticate a remote producer, prove unobserved host events were captured,
+establish semantic truth or describe post-action completion. Source kinds are
+host assignments, not a semantic labeler. The returned telemetry assessment
+continues to have `operational_authority="none"`.
+
+Expiry after a grant prevents a new effect while keeping the permission spent.
+A completed operation can still be reopened and its retained result checked after
+source expiry; that path performs no new write. Snapshot assessment may perform
+the ancestry store's documented local witness recovery. Neither the host context
+nor the coordinator protects against coordinated rollback by its trusted operator.
+The additional composition is a development candidate, not whole-issue closure
+or evidence that generated content is accurate or injection-free.

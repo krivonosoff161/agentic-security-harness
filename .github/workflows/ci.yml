@@ -190,7 +190,8 @@ jobs:
             tests/test_document_admissions.py tests/test_document_admissions_cli.py \
             tests/test_document_dynamic.py tests/test_document_multisource.py \
             tests/test_document_multisource_workflow.py tests/test_document_supervisor.py \
-            tests/test_document_supervised_recovery.py tests/test_workspace_operation.py
+            tests/test_document_supervised_recovery.py tests/test_workspace_operation.py \
+            tests/test_workspace_admission.py
 
   runtime-gateway-container:
     name: Runtime Gateway container smoke

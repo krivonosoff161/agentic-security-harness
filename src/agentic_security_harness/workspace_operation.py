@@ -23,6 +23,7 @@ from typing import Any
 
 from agentic_security_harness._fixture_files import _checked_directory, _identity, _not_reparse
 from agentic_security_harness._workspace_files import _validate_filename
+from agentic_security_harness.workspace_admission import WorkspaceAdmission, WorkspaceAdmissionError
 from agentic_security_harness.workspace_writer import (
     GuardedWorkspace,
     WorkspacePolicy,
@@ -86,6 +87,7 @@ class _Binding:
     policy_sha256: str
     scope: str
     key: str
+    admission_sha256: str | None
 
 
 def _canonical(value: object) -> bytes:
@@ -114,7 +116,8 @@ class WorkspaceOperation:
     """
 
     def __init__(self, state_path: Path, policy: WorkspacePolicy, binding: _Binding,
-                 content: bytes, max_attempts: int, state_identity: tuple[int, int]):
+                 content: bytes, max_attempts: int, state_identity: tuple[int, int],
+                 admission: WorkspaceAdmission | None):
         self._state_path = state_path
         self._policy = policy
         self._binding = binding
@@ -123,10 +126,30 @@ class WorkspaceOperation:
         self._content = content
         self._max_attempts = max_attempts
         self._state_identity = state_identity
+        self._admission = admission
+
+    @staticmethod
+    def _admission_digest(admission: WorkspaceAdmission | None) -> str | None:
+        if admission is None:
+            return None
+        if type(admission) is not WorkspaceAdmission:
+            raise WorkspaceOperationError("invalid_admission_context")
+        try:
+            return admission.binding_sha256
+        except (TypeError, ValueError) as exc:
+            raise WorkspaceOperationError("invalid_admission_context") from exc
+
+    def _verify_admission(self) -> None:
+        if self._admission is not None:
+            try:
+                self._admission.verify(operation_id=self._binding.operation_id, policy=self._policy)
+            except WorkspaceAdmissionError as exc:
+                raise WorkspaceOperationError("source_or_history_not_admitted") from exc
 
     @classmethod
     def _inputs(cls, state_path: Path, policy: WorkspacePolicy, operation_id: str,
-                artifact: str, content: str, max_attempts: int
+                artifact: str, content: str, max_attempts: int,
+                admission: WorkspaceAdmission | None,
                 ) -> tuple[Path, _Binding, bytes]:
         if (not isinstance(state_path, Path) or not state_path.is_absolute()
                 or type(policy) is not WorkspacePolicy or type(operation_id) is not str
@@ -168,14 +191,16 @@ class WorkspaceOperation:
             filename=dict(policy.outputs)[artifact], artifact=artifact,
             policy_sha256=policy.sha256, scope="workspace:create",
             key=_sha(_canonical([operation_id, str(root), artifact])),
+            admission_sha256=cls._admission_digest(admission),
         )
         return state_path, binding, raw
 
     @classmethod
     def create(cls, state_path: Path, policy: WorkspacePolicy, *, operation_id: str,
-               artifact: str, content: str, max_attempts: int = 3) -> WorkspaceOperation:
+               artifact: str, content: str, max_attempts: int = 3,
+               admission: WorkspaceAdmission | None = None) -> WorkspaceOperation:
         path, binding, raw = cls._inputs(state_path, policy, operation_id, artifact,
-                                         content, max_attempts)
+                                         content, max_attempts, admission)
         if path.exists() or path.is_symlink():
             raise WorkspaceOperationError("state_already_exists")
         if cls._file_state_for(binding, policy) != "ABSENT":
@@ -186,7 +211,7 @@ class WorkspaceOperation:
             fd = os.open(path, flags, 0o600)
             os.close(fd)
             identity = _regular_unique(path)
-            instance = cls(path, policy, binding, raw, max_attempts, identity)
+            instance = cls(path, policy, binding, raw, max_attempts, identity, admission)
             with instance._connection() as connection:
                 connection.executescript(_SCHEMA)
                 connection.execute("INSERT INTO operation VALUES (1,?,?,?,1,0,NULL,NULL,NULL)",
@@ -199,12 +224,13 @@ class WorkspaceOperation:
 
     @classmethod
     def open(cls, state_path: Path, policy: WorkspacePolicy, *, operation_id: str,
-             artifact: str, content: str, max_attempts: int = 3) -> WorkspaceOperation:
+             artifact: str, content: str, max_attempts: int = 3,
+             admission: WorkspaceAdmission | None = None) -> WorkspaceOperation:
         path, binding, raw = cls._inputs(state_path, policy, operation_id, artifact,
-                                         content, max_attempts)
+                                         content, max_attempts, admission)
         try:
             identity = _regular_unique(path)
-            instance = cls(path, policy, binding, raw, max_attempts, identity)
+            instance = cls(path, policy, binding, raw, max_attempts, identity, admission)
             with instance._connection() as connection:
                 instance._validate(connection)
             return instance
@@ -282,6 +308,8 @@ class WorkspaceOperation:
 
     def _validate(self, connection: sqlite3.Connection) -> tuple[int, int, str | None,
                                                                   str | None, str | None]:
+        if self._admission_digest(self._admission) != self._binding.admission_sha256:
+            raise WorkspaceOperationError("admission_context_changed")
         try:
             tables = connection.execute(
                 "SELECT name,type,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'"
@@ -398,6 +426,7 @@ class WorkspaceOperation:
                         raise WorkspaceOperationError("fence_required")
                 if self._file_state() != "ABSENT":
                     raise WorkspaceOperationError("target_not_absent")
+                self._verify_admission()
                 session = self._binding_sha256[:32]
                 try:
                     decision = _decide(self._policy, self._binding.artifact, self._content,
@@ -479,6 +508,9 @@ class WorkspaceOperation:
                                         "exact_retained_postcondition_not_original_receipt")
                 if state != "ABSENT":
                     return self._result("UNKNOWN", spent, generation, "target_uncertain")
+                # History is an additional host-required precondition, never an
+                # execution grant. The existing writer still rechecks its Guard.
+                self._verify_admission()
                 proposal = _canonical({
                     "operation": "write_text", "artifact": self._binding.artifact,
                     "content": self._content.decode("utf-8"),

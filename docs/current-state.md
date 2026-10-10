@@ -8,7 +8,11 @@ old supported deliveries after confirmed absence; exact recovered bytes are a
 postcondition, not proof that an interrupted call returned. Partial output remains
 unknown and is not overwritten. See the [candidate API](guarded-workspace-writer.md#development-candidate-recover-the-same-bound-operation).
 Existing document-job recovery remains reviewed data transfer into a new job.
-Trusted telemetry and broader source/model integration acceptance are still open.
+The candidate now optionally requires exact source restrictions and independently
+host-admitted pre-action telemetry before grants and new effects, without making
+telemetry an execution authority. Input, tool-output, memory and handoff kinds
+retain their original restrictions. Broader useful model-chain acceptance remains
+open; this does not claim semantic truth or uncaptured host-event completeness.
 
 ## Development candidate — checklist source-use review
 
