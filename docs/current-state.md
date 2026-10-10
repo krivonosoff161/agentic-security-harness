@@ -1,5 +1,15 @@
 # Current state
 
+## Development candidate — checklist source-use review
+
+The #343 research work adds an exact-byte review requirement before chaining a
+checklist-matched draft, including historical `checked` checklist records.
+Literal term matching does not verify the surrounding statements or arithmetic.
+Whole-object host-declared JSON checks remain distinct. The correction addresses
+automatic source admission, not general semantic correctness or content filtering.
+See the [development contract](document-workflow.md#unreleased-correction-checklist-matches-still-need-source-review).
+This candidate is not merged or released; #316/#317/#343 remain open.
+
 ## Current release — 1.13.1
 
 The current published package is **1.13.1**. Earlier release entries below

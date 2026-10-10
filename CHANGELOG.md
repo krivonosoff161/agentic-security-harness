@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+- Require exact-byte review before reusing checklist-matched document output,
+  including older `checked` checklist records; partial term matches are not
+  a whole-result correctness check. Preserve explicit JSON expectations,
+  failed-quality refusal, existing stored evidence and file permissions.
+  This is a partial #343 source-use repair, not semantic filtering or closure
+  of the broader #316/#317 research questions.
+
 - Reconcile the optional Pydantic AI maintenance candidate at `1.107.7` across
   package metadata, platform hash locks, availability checks and examples.
   Align its `pydantic-graph` and `genai-prices` constraints and check pin agreement.

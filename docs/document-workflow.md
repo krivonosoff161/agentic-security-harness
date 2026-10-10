@@ -514,6 +514,28 @@ failed-quality document is still a saved draft, but the CLI exits 2 and it
 cannot be a `--from-job` source. `checked` never proves semantic correctness,
 source reliability or permission safety.
 
+### Unreleased correction: checklist matches still need source review
+
+The development candidate requires an exact-byte review digest before using a
+checklist-matched draft as `--from-job` data, even when its stored quality says
+`checked`. This also applies to older `declared_checklist_match` records. Matching
+the words `Alice` and `Friday` does not distinguish a correct assignment from
+"Alice is not responsible Friday", nor does it validate amounts or extra prose.
+`document-status` gives the review step without changing historical evidence.
+
+After inspecting the actual document, pass its exact SHA-256 through
+`--reviewed-source-sha256`. Missing or incorrect review acknowledgment prevents
+the next job and model request; failed quality remains ineligible even with a
+digest. A whole-object `exact_json` match remains eligible under the host's
+explicit expected-value contract. That expectation itself must be correct.
+
+This change blocks automatic reuse of partially checked content. It does not
+remove instructions from a saved draft, prove that a person reviewed it, or
+establish the truth of free-form text. Requested quotations remain data, not
+instructions to execute. The correction belongs to the work on issue #343;
+it does not close the wider task-faithfulness, #316 or #317 obligations and is
+not yet part of the published 1.13.1 package.
+
 ## Repeat use and restart
 
 Use a new ID (`second`, `weekly-notes-02`) for a new job. IDs are host-selected lowercase
