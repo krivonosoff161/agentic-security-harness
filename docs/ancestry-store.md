@@ -63,6 +63,52 @@ only the exact ordered ancestor closure for the requested target. It rejects
 missing, extra, reordered, rebound or cyclic candidate records. These are data
 integrity and ancestry checks; they do not establish the truth of payload claims.
 
+## Development candidate: retained telemetry admission (#316)
+
+The candidate `trajectory_admission` module composes this store with the existing
+coverage profile and telemetry manifest. It does not introduce another writer,
+executor, permission or logging service. It is not in the published 1.13.1 package.
+
+The host admits the coverage profile, logical operation and policy before accepting
+producer evidence. Data-only root/event builders bind those values, each captured
+observation and its channel to records appended through `AncestryStore`. The host
+retains the expected checkpoint and canonical manifest digest separately from the
+supplied candidate. The manifest anchor also covers verdict-driving metadata such
+as censoring, dropped/rejected counts, the observation window and adapter audit.
+`assess_retained_telemetry` revalidates the supplied contract objects, checks the
+manifest against `expected_manifest_sha256`, checks the snapshot against the
+checkpoint, and compares the manifest with the exact retained observations and
+channels. A self-consistent replacement manifest cannot select its own anchors.
+The host must admit the manifest from its capture/accounting process; hashing an
+untrusted incoming manifest and immediately passing that hash is not independent
+admission or producer authentication.
+
+This composition supports 1–4095 captured events plus its root. A root-only store
+cannot yet supply the existing trajectory contract, which requires an observation;
+do not fabricate an event to represent an unstarted run. Invalid inputs are refused
+before snapshot access. Snapshot access is observational with respect to actions,
+but is not strictly filesystem-read-only: the existing store may reconcile its
+pending witness during recovery. Typed storage/checkpoint failures propagate.
+
+| Result component | Meaning |
+|---|---|
+| Retained binding | The candidate matches the host-selected profile, context and retained bytes. |
+| Coverage | The declared event/channel requirements are met within the captured boundary. |
+| Host phase | Pending remains pending even when the expected number of events exists. |
+| Authority | Always none; completion is not a tool permission or evidence of successful effects. |
+
+The host owns both the choice of the latest checkpoint and the pending/sealed
+phase. Merely passing an old anchor, a generation number or a timestamp does not
+authenticate freshness. If an attacker can roll back both the history and every
+reference available to the verifier, the old consistent view is indistinguishable
+from a run that genuinely ended there. Events outside the configured capture
+boundary are likewise not discovered by hashing the events that were captured.
+Two files on the same writable host are not an independent witness.
+
+This is a bounded composition under explicit host-ownership assumptions, not remote
+producer authentication, whole-host completeness, or closure of #316/#317/#343.
+Research calculations and model transcripts are not part of this public contract.
+
 ## Recovery
 
 An append prepares a pending witness, commits the SQLite transaction, then

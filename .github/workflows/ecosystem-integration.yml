@@ -312,6 +312,7 @@ jobs:
           python -I -B tools/export_boundary_seed.py --capture optional-capture --out optional-seed.json
           python -I -B tools/export_boundary_seed.py --check optional-seed.json --capture optional-capture
           python -I -B tools/check_document_workflow.py --out document-acceptance --engine pydantic-ai
+          python -I -B examples/workspace_admitted_chain.py --out optional-admitted-chain --repository-sha "$(git rev-parse HEAD)" --engine pydantic
       - name: Run optional boundary tests
         run: >-
           python -m pytest -q -rs --junitxml=optional-${{ matrix.os }}.xml
@@ -339,7 +340,9 @@ jobs:
             tests/test_document_admissions.py tests/test_document_admissions_cli.py \
             tests/test_document_dynamic.py tests/test_document_multisource.py \
             tests/test_document_multisource_workflow.py tests/test_document_supervisor.py \
-            tests/test_document_supervised_recovery.py
+            tests/test_document_supervised_recovery.py tests/test_workspace_operation.py \
+            tests/test_workspace_admission.py tests/test_workspace_capture.py \
+            tests/test_workspace_admitted_example.py
           python -I -B -c "from xml.etree import ElementTree as E; r=E.parse('installed-document-integration-${{ matrix.os }}.xml').getroot(); assert not list(r.iter('skipped')), 'installed integration must not skip optional tests'"
       - name: Preserve optional test report
         if: always()

@@ -129,13 +129,13 @@ session: even if a write already happened, later calls cannot silently retry it.
 After closing or failing, the session cannot resume. Its result record describes
 authorization and effects, not the correctness of report counts.
 
-The optional framework pin is `pydantic-ai-slim==1.107.1`, with a separate
+The unreleased maintenance candidate pins `pydantic-ai-slim==1.107.7`, with a separate
 Windows x64 / Python 3.11 hash-locked environment in
 `requirements/verification/pydantic-ai-windows-py311.txt`. It is not a base Harness
 dependency. Pydantic AI is an independent project under the
-[MIT license](https://github.com/pydantic/pydantic-ai/blob/v1.107.1/LICENSE);
+[MIT license](https://github.com/pydantic/pydantic-ai/blob/v1.107.7/LICENSE);
 this example makes no affiliation or upstream-endorsement claim. Its
-[FunctionModel](https://github.com/pydantic/pydantic-ai/blob/v1.107.1/pydantic_ai_slim/pydantic_ai/models/function.py)
+[FunctionModel](https://github.com/pydantic/pydantic-ai/blob/v1.107.7/pydantic_ai_slim/pydantic_ai/models/function.py)
 supplies deterministic tool calls without an LLM or provider. Framework requests
 and provider calls are counted separately.
 
@@ -149,8 +149,13 @@ digests, decisions and timings, not raw response text. The default commands belo
 still use fixed controls and never start a model. A real model transport and its
 resource/network limits remain explicit responsibilities of the calling application.
 
-From a checkout, after installing Harness 1.10.1 and optional locked
-dependencies into a fresh environment:
+For the maintenance candidate, install the matching Harness checkout and optional
+locked dependencies into a fresh environment before using the current example.
+Published Harness 1.13.1 retains its original optional pin `1.107.1`; installing
+that release does not install this candidate repair. Do not combine the current
+checkout example with an older installed Harness/framework environment.
+
+From the matching checkout/environment:
 
 ```console
 python examples/pydantic_ai_guarded_files.py --out NEW_OUTPUT_DIRECTORY

@@ -122,7 +122,7 @@ def test_wrong_framework_version_stops_before_output_creation(
 ) -> None:
     monkeypatch.setattr(example, "version", lambda name: "1.107.0")
     out = tmp_path / "wrong-version"
-    with pytest.raises(RuntimeError, match="pydantic-ai-slim==1.107.1 is required"):
+    with pytest.raises(RuntimeError, match="pydantic-ai-slim==1.107.7 is required"):
         example.run_example(out)
     assert not out.exists()
 

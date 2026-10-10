@@ -147,3 +147,215 @@ connectors, a semantic labeler, training or a cloud subscription.
 Use the focused workspace tests and existing file/Guard regressions when changing
 it. Platform-specific checks require their actual platform; a skipped link test
 is not a pass.
+
+## Development candidate: recover the same bound operation
+
+The unmerged #343/#317 candidate adds `workspace_operation.WorkspaceOperation` for
+an application that must retain one operation's spent permissions across a process
+interruption. It is not part of the published package described above. It wraps
+the existing writer; it does not change its create-only permission or content rules.
+
+The host chooses the original operation ID, policy, alias, exact text and total
+attempt budget. Keep those trusted inputs outside the candidate state: `open`
+requires them again and rejects changed inputs, root identity or budget. The model
+does not choose an operation database, output path, permission or recovery action.
+
+```python
+from pathlib import Path
+from agentic_security_harness.workspace_operation import WorkspaceOperation
+from agentic_security_harness.workspace_writer import WorkspacePolicy
+
+root = Path("output").absolute()  # Existing dedicated output directory.
+policy = WorkspacePolicy(root, (("draft", "summary.md"),), data_class="public")
+original = dict(operation_id="summary-001", artifact="draft",
+                content="# Summary\n\nDraft for review.\n", max_attempts=3)
+# Operator-owned state outside output; state and output files must not exist.
+state = Path("summary-001.sqlite").absolute()
+operation = WorkspaceOperation.create(state, policy, **original)
+permission = operation.authorize()  # Commits spend before attempting the file.
+result = operation.deliver(permission)
+```
+
+After a process interruption, use `WorkspaceOperation.open(state, policy,
+**original)`, not `create`, a changed operation ID or a new state file. Call
+`reconcile()` to distinguish an exact retained result from an unknown outcome:
+
+| State | Meaning and next step |
+| --- | --- |
+| `DELIVERED_RECEIPT` | Exact file and original persisted writer receipt still verify; no new write. |
+| `RECONCILED_POSTCONDITION` | Exact bound bytes recovered after prior spend; this does **not** prove the old call returned. No new write. |
+| `UNKNOWN` | Insufficient, partial or changed evidence; preserve it, do not overwrite or treat it as absence. |
+| `FENCED_ABSENT` | Only `fence()` returns this after serialized absence checking and invalidating older deliveries. The host may obtain a **new** permission under the same policy and remaining budget. |
+
+`reconcile()` may persist a recovered postcondition; it is not a read-only verifier.
+`fence()` shares the delivery lock: a delayed old-generation request cannot write
+after the fence; if a delivery completed first, the fence returns that result.
+The fresh permission still requires an existing Guard decision and unexpired source
+restriction. Fencing does not refund spent permissions or authorize an action.
+After an attempted delivery with no outcome, replay of the same permission refuses;
+a competing delivery may receive this refusal while the first is still finishing.
+Repeated delivery after a verified completion returns the retained result only.
+
+The SQLite coordinator and its parent directory are trusted operator state. Use one
+coordinator for a destination, with normal filesystem locking. All supported writes
+for that operation must use it. It does not control unrelated host writers, detect a
+coordinated rollback, make a document and SQLite commit atomic, or prove power-loss
+durability. Missing/corrupt/changed state is retained and refused, not recreated.
+Only hashes and permission metadata are stored in the coordinator, not document text.
+
+This is distinct from [document data recovery](document-workflow.md#development-contract-recover-data-without-replaying-an-action),
+which transfers reviewed recovered bytes into a **new** job without resuming the old
+action. Existing `document-run` behavior is unchanged. Broader model-workflow
+acceptance remains tracked in #343.
+
+### Development candidate: require sources and pre-action history
+
+An application can additionally pass a host-created `WorkspaceAdmission` as the
+`admission=` argument to `WorkspaceOperation.create` and `open`. The coordinator
+binds that context to the original operation and checks it before issuing a grant
+and again before a new write. Omitting or replacing a previously bound context
+refuses; admission does not replace the writer's Runtime Guard decision.
+
+`WorkspaceSources.bind` accepts one to eight `WorkspaceSource` values with the
+closed host-selected kinds `input`, `tool_output`, `memory` and `handoff`. Each
+contains an ID, exact UTF-8 bytes and existing `DocumentSourceRestrictions` or
+`DocumentMultiSourceRestrictions`. Composition preserves all original leaf
+restrictions and binds each component's kind, bytes and restriction record.
+Component IDs must be unique. An original and its derived outputs may share a
+leaf ID **only when the entire validated original restriction record is identical**;
+that leaf is retained once, with every component's dependency on it retained.
+A repeated ID with different original bytes, labels or time bounds is refused.
+This corrects the development candidate's earlier blanket refusal of shared
+ancestry; it does not renew TTL, relax restrictions or allow duplicate components.
+`sources.bind_policy(policy)` binds the source restrictions and earliest expiry;
+`sources.input_bytes(bound_policy)` checks current restrictions before returning
+framed **untrusted data** to the application's existing model adapter. It neither
+calls a model nor turns text into instructions or permission. A derived handoff
+uses `sources.restrictions.for_output(exact_output_bytes)` without renewing TTL.
+
+Keep **captured components** separate from **unique original leaves**. For example,
+four inputs and two computations derived from those inputs are six captured
+components with four original leaves, not six independent sources. A host profile
+for this capture must expect six events; it must not lower that count to four.
+The existing eight-component and eight-unique-leaf limits still apply. Neither
+count authenticates real-world origins or proves uninstrumented activity absent.
+
+The host supplies `WorkspaceAdmission` with that source bundle, an `AncestryStore`,
+`expected_checkpoint`, `expected_profile`, SHA-256 `logical_operation_id`, the
+bound `policy_sha256`, independently retained `expected_manifest_sha256`, host
+phase and candidate manifest. Unlike the optional-context-free example above,
+the operation ID must match the telemetry API's lowercase SHA-256 identity.
+Use the [retained telemetry contract](ancestry-store.md#development-candidate-retained-telemetry-admission-316)
+to construct the host capture window. Do **not** turn a producer's supplied
+manifest into its own expected digest: the host must independently admit the
+expectation, checkpoint and manifest anchor.
+
+For local source capture, the adapter audit identifies its input model as
+`harness.workspace_source_capture`. It must describe the host's actual capture
+metadata and its projection into canonical observations, not relabel those records
+as Runtime Guard decisions or external producer events. This source-model name
+does not authenticate the host: observations remain unattested and authority-free.
+Older validators without this development source model reject it; they must not be
+worked around by substituting another producer label. Existing source models and
+their validation rules are unchanged.
+
+Complete, sealed, exactly matched **pre-action** history is required. Pending,
+incomplete, changed or unavailable history prevents a new write. This still does
+not authenticate a remote producer, prove unobserved host events were captured,
+establish semantic truth or describe post-action completion. Source kinds are
+host assignments, not a semantic labeler. The returned telemetry assessment
+continues to have `operational_authority="none"`.
+
+Expiry after a grant prevents a new effect while keeping the permission spent.
+A completed operation can still be reopened and its retained result checked after
+source expiry; that path performs no new write. Snapshot assessment may perform
+the ancestry store's documented local witness recovery. Neither the host context
+nor the coordinator protects against coordinated rollback by its trusted operator.
+The additional composition is a development candidate, not whole-issue closure
+or evidence that generated content is accurate or injection-free.
+
+### Development candidate: one capture call and a two-step application
+
+`workspace_capture.capture_workspace_sources` assembles the local source capture
+from existing contracts. The caller supplies `sources`, an already source-bound
+`policy`, an independently chosen `expected_profile`, a SHA-256 operation ID and
+fresh store/witness paths. Choose the required count and channels **before**
+capture; never reduce them to match a producer's incomplete manifest. Invalid
+inputs are refused before store creation. A storage failure after creation leaves
+partial evidence in place; there is no automatic overwrite or resume.
+
+The returned `WorkspaceCapture` contains canonical source observations and an
+`admission` ready for `WorkspaceOperation`. Observations identify actual local
+capture, remain unattested and carry no execution authority. Retain the original
+profile, checkpoint and manifest anchor under host control; a producer must not
+replace those expectations during verification. A process-local object is not
+durable independent retention or protection against coordinated host rollback.
+
+The runnable [two-step example](../examples/workspace_admitted_chain.py) composes
+all four source kinds, capture, admission, create-only operations, receipt reopen,
+exact output checks and an untrusted handoff. It changes only a fresh `--out`
+directory. From a checkout of this **unreleased candidate**, with that candidate
+wheel installed in an isolated environment, run:
+
+```bash
+python -I -B examples/workspace_admitted_chain.py --out admitted-example --repository-sha "$(git rev-parse HEAD)"
+python -I -B examples/workspace_admitted_chain.py --out admitted-negative --repository-sha "$(git rev-parse HEAD)" --negative-control
+```
+
+The first command performs two checked writes and exits 0. The negative control
+exits 1: the incorrect draft is saved at the permitted destination, but the next
+generator is never called. Each run requires a different, nonexistent output
+directory. The exact same example can use `--engine pydantic` when the candidate's
+optional Pydantic AI dependencies are installed. `-I` makes imports use the
+installed package, not a source-path override. The published 1.13.1 wheel does
+**not** contain this candidate API.
+
+The default command's generator is deterministic and makes **zero model or network
+calls**. For your application, pass an existing
+`generate(source_bytes, host_task) -> str` callback to `run_chain`; keep expected
+answers, paths, permissions and recovery decisions on the host. Replacing this
+callback does not establish that a model can solve the task. The example verifies
+declared JSON requirements after the write; it does not sanitize arbitrary text.
+It demonstrates receipt reopen, not host-process recovery. The original leaf
+restrictions and expiry survive the checked handoff without gaining authority.
+
+#### Optional local query planner
+
+The same candidate example can make at most two requests to an **already running,
+local Ollama model**, with explicit opt-in:
+
+```bash
+python -I -B examples/workspace_admitted_chain.py --out admitted-model --repository-sha "$(git rev-parse HEAD)" --model YOUR_EXISTING_LOCAL_MODEL --execute
+```
+
+This is a narrow arithmetic application, not free-text generation or a new agent
+framework. The model sees the host task and a closed query schema, **not the source
+text, expected answer, destination or permission**. It chooses a filter and an
+aggregation; host code computes the selected query on the captured data. The
+second task selects an operation on the checked report. Output still passes
+through capture, admission, the guarded create-only operation and exact quality
+checking. `--engine pydantic` changes the existing host-bound tool integration,
+not the model provider or its authority.
+
+The schema does not guarantee correct task selection. For example, selecting
+`all` instead of `open` can produce a valid but wrong total. That draft may be
+written to its permitted report, but failed quality prevents the next model call.
+An invalid or incomplete response is not repaired or retried. There is no
+deterministic fallback pretending to be a model result. The example never pulls
+models, starts services or reads provider credentials. It sends only to literal
+loopback and rejects known `:cloud` and `-cloud` model tags. The host must supply
+a local-only Ollama runtime: a model name or localhost URL cannot prove that an
+arbitrary server/alias will not forward requests elsewhere. See
+[Ollama's local/cloud configuration](https://docs.ollama.com/cloud).
+Use a new output directory for every explicit run; never replay a partial run.
+
+The CLI reports `transport_attempts` separately from `validated_plans`. An attempt
+is reserved before transport and may fail without reaching the model; a validated
+plan can still select the wrong query. Neither count is a successful-task count.
+
+This separation prevents source-only instruction text from entering this planner's
+request. It does **not** show that a model resisted an injection it read, validate
+the truth of source facts, or solve arbitrary document tasks. The existing generic
+`generate(source_bytes, host_task)` callback remains available for applications
+that actually need the model to read their data; it does not inherit this specific
+request-isolation property.

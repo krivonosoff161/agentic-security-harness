@@ -1,5 +1,55 @@
 # Current state
 
+## Development candidate — bounded workspace operation recovery
+
+The unmerged #343/#317 candidate retains one host-bound create-only operation and
+its spent permissions across process interruption. A serialized fence prevents
+old supported deliveries after confirmed absence; exact recovered bytes are a
+postcondition, not proof that an interrupted call returned. Partial output remains
+unknown and is not overwritten. See the [candidate API](guarded-workspace-writer.md#development-candidate-recover-the-same-bound-operation).
+Existing document-job recovery remains reviewed data transfer into a new job.
+The candidate now optionally requires exact source restrictions and independently
+host-admitted pre-action telemetry before grants and new effects, without making
+telemetry an execution authority. Input, tool-output, memory and handoff kinds
+retain their original restrictions. Broader useful model-chain acceptance remains
+open; this does not claim semantic truth or uncaptured host-event completeness.
+The candidate also provides one host-owned source-capture factory and a runnable
+[two-step installed-package example](guarded-workspace-writer.md#development-candidate-one-capture-call-and-a-two-step-application).
+It joins these APIs without manual telemetry assembly, with a failed-quality
+negative control that prevents the second task. The default generator remains
+deterministic (zero model calls). An explicit local-model option asks an existing
+Ollama model to select a closed query, then computes that query on the host. The
+planner does not receive source text or expected answers; wrong task selection
+still fails the existing quality gate. Attempt and valid-plan counters are distinct;
+known cloud tags refuse before sending, but local-only execution still requires a
+host-controlled runtime. This narrow arithmetic integration is not
+general document usefulness or a claim that a model resisted source text it read.
+Source composition now permits shared ancestry only for identical complete
+original restriction records, matching the existing multi-source contract. Each
+component remains separately bound and captured; six components can share four
+original leaves. Conflicting records still refuse, and no expiry or permission
+is renewed. This is an explicit correction to the unmerged candidate contract,
+not a new semantic guarantee or a change to the published package.
+
+## Development candidate — checklist source-use review
+
+The #343 research work adds an exact-byte review requirement before chaining a
+checklist-matched draft, including historical `checked` checklist records.
+Literal term matching does not verify the surrounding statements or arithmetic.
+Whole-object host-declared JSON checks remain distinct. The correction addresses
+automatic source admission, not general semantic correctness or content filtering.
+See the [development contract](document-workflow.md#unreleased-correction-checklist-matches-still-need-source-review).
+This candidate is not merged or released; #316/#317/#343 remain open.
+
+## Development candidate — retained telemetry admission
+
+The working #316 candidate also composes retained ancestry with existing telemetry
+contracts. Host-admitted expectations/checkpoints are distinct from producer-supplied
+manifests; captured observations and channels must match, and host pending is
+independent of event count. This observational composition grants no effect authority.
+See the [candidate contract](ancestry-store.md#development-candidate-retained-telemetry-admission-316).
+It remains under development and is not included in the published package below.
+
 ## Current release — 1.13.1
 
 The current published package is **1.13.1**. Earlier release entries below

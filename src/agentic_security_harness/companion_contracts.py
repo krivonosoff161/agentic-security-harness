@@ -1073,6 +1073,12 @@ def build_telemetry_manifest_v1(
         raise CompanionContractError("trajectory does not match the expectation profile")
     if trajectory.observed_event_count > profile.expected_event_count:
         raise CompanionContractError("trajectory exceeds the expectation profile")
+    # The builder accepts aware instants; the manifest wire contract remains UTC.
+    # Normalize here without relaxing validation of supplied manifest records.
+    if window_started_at.tzinfo is not None and window_started_at.utcoffset() is not None:
+        window_started_at = window_started_at.astimezone(UTC)
+    if window_ended_at.tzinfo is not None and window_ended_at.utcoffset() is not None:
+        window_ended_at = window_ended_at.astimezone(UTC)
     if (
         window_started_at.tzinfo is not None
         and window_started_at.utcoffset() is not None

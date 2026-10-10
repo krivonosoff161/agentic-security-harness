@@ -6,6 +6,37 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+- Add a host-bound, create-only workspace operation coordinator with durable
+  spent permissions, serialized absence fencing and exact-byte reconciliation.
+  Preserve partial files and distinguish recovered postconditions from original
+  writer receipts. This #343/#317 candidate reuses the existing GuardedWorkspace;
+  it does not resume document jobs or close the broader integration obligations.
+
+- Normalize timezone-aware telemetry-window builder inputs to UTC so equivalent
+  instants produce identical canonical bytes; supplied noncanonical manifests
+  and windows that miss the trajectory horizon remain rejected (#316/#343).
+
+- Compose existing retained ancestry and telemetry contracts for host-bound
+  observation admission: compare exact captured events/channels with independently
+  supplied host expectations and checkpoint, and keep host pending separate from
+  event count. This #316 candidate grants no action authority and does not claim
+  remote authentication, coordinated rollback resistance or uncaptured event coverage.
+
+- Require exact-byte review before reusing checklist-matched document output,
+  including older `checked` checklist records; partial term matches are not
+  a whole-result correctness check. Preserve explicit JSON expectations,
+  failed-quality refusal, existing stored evidence and file permissions.
+  This is a partial #343 source-use repair, not semantic filtering or closure
+  of the broader #316/#317 research questions.
+
+- Reconcile the optional Pydantic AI maintenance candidate at `1.107.7` across
+  package metadata, platform hash locks, availability checks and examples.
+  Align its `pydantic-graph` and `genai-prices` constraints and check pin agreement.
+  Published 1.13.1 artifacts remain unchanged; this is not a publication claim.
+- Update the development Ruff/mypy toolchain while preserving the explicit
+  Windows `colorama` requirement and regenerating source-bound contracts.
+  Maintenance evidence is tracked in issue #353, separately from #316/#317/#343.
+
 ## [1.13.1] - 2026-10-09
 
 Patch stabilization of the existing published routes; no new connector, model

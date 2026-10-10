@@ -2,7 +2,7 @@
 
 This is deterministic integration evidence, not a model evaluation. The scripted
 FunctionModel supplies untrusted proposal text; only the closure owns file handles.
-Requires the optional, separately pinned pydantic-ai 1.107.1 installation.
+Requires the optional, separately pinned pydantic-ai 1.107.7 installation.
 """
 
 from __future__ import annotations
@@ -50,9 +50,9 @@ def _require_pin() -> None:
     try:
         installed = version("pydantic-ai-slim")
     except PackageNotFoundError as exc:
-        raise RuntimeError("pydantic-ai-slim==1.107.1 is required") from exc
-    if installed != "1.107.1":
-        raise RuntimeError(f"pydantic-ai-slim==1.107.1 is required; found {installed}")
+        raise RuntimeError("pydantic-ai-slim==1.107.7 is required") from exc
+    if installed != "1.107.7":
+        raise RuntimeError(f"pydantic-ai-slim==1.107.7 is required; found {installed}")
 
 
 # Expected outcomes are fixed separately from the submitted proposal strings.

@@ -1,5 +1,7 @@
 """Repository-wide static security contract for GitHub Actions dependencies and checkout."""
 
+import hashlib
+import json
 import re
 from pathlib import Path
 
@@ -145,3 +147,29 @@ def test_multicommand_contract_and_full_gates_fail_on_first_error_on_both_platfo
                     assert step.get("shell") == "bash"
                     assert step["run"].startswith("set -euo pipefail\n")
         assert found == expected
+
+
+def test_durable_operation_runs_against_installed_native_and_optional_packages() -> None:
+    for filename, job_name in (("ci.yml", "controlled-file-installed"),
+                               ("ecosystem-integration.yml", "optional-pydantic")):
+        workflow = yaml.safe_load((WORKFLOWS / filename).read_text("utf-8"))
+        job = workflow["jobs"][job_name]
+        assert set(job["strategy"]["matrix"]["os"]) == {"ubuntu-latest", "windows-latest"}
+        steps = [step for step in job["steps"]
+                 if "tests/test_workspace_operation.py" in step.get("run", "")]
+        assert len(steps) == 1
+        assert "python -I -B -m pytest" in steps[0]["run"]
+        assert "--noconftest" in steps[0]["run"]
+        commands = steps[0]["run"].replace("\\\n", "").splitlines()
+        pytest_commands = [line for line in commands if "python -I -B -m pytest" in line]
+        assert len(pytest_commands) == 1
+        assert "tests/test_workspace_admission.py" in pytest_commands[0]
+
+
+def test_integration_workflow_matches_its_companion_manifest_binding() -> None:
+    manifest = json.loads((ROOT / "schemas/companion-extensions.v1.manifest.json").read_text(
+        encoding="utf-8",
+    ))
+    bound = manifest["integration_candidate"]["workflow"]
+    assert bound["path"] == ".github/workflows/ecosystem-integration.yml"
+    assert bound["sha256"] == hashlib.sha256((ROOT / bound["path"]).read_bytes()).hexdigest()
