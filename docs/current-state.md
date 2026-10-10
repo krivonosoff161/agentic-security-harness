@@ -13,6 +13,11 @@ host-admitted pre-action telemetry before grants and new effects, without making
 telemetry an execution authority. Input, tool-output, memory and handoff kinds
 retain their original restrictions. Broader useful model-chain acceptance remains
 open; this does not claim semantic truth or uncaptured host-event completeness.
+The candidate also provides one host-owned source-capture factory and a runnable
+[two-step installed-package example](guarded-workspace-writer.md#development-candidate-one-capture-call-and-a-two-step-application).
+It joins these APIs without manual telemetry assembly, with a failed-quality
+negative control that prevents the second task. Its generator is deterministic
+(zero model calls); this integration example does not resolve model usefulness.
 
 ## Development candidate — checklist source-use review
 

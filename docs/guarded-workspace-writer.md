@@ -260,3 +260,48 @@ the ancestry store's documented local witness recovery. Neither the host context
 nor the coordinator protects against coordinated rollback by its trusted operator.
 The additional composition is a development candidate, not whole-issue closure
 or evidence that generated content is accurate or injection-free.
+
+### Development candidate: one capture call and a two-step application
+
+`workspace_capture.capture_workspace_sources` assembles the local source capture
+from existing contracts. The caller supplies `sources`, an already source-bound
+`policy`, an independently chosen `expected_profile`, a SHA-256 operation ID and
+fresh store/witness paths. Choose the required count and channels **before**
+capture; never reduce them to match a producer's incomplete manifest. Invalid
+inputs are refused before store creation. A storage failure after creation leaves
+partial evidence in place; there is no automatic overwrite or resume.
+
+The returned `WorkspaceCapture` contains canonical source observations and an
+`admission` ready for `WorkspaceOperation`. Observations identify actual local
+capture, remain unattested and carry no execution authority. Retain the original
+profile, checkpoint and manifest anchor under host control; a producer must not
+replace those expectations during verification. A process-local object is not
+durable independent retention or protection against coordinated host rollback.
+
+The runnable [two-step example](../examples/workspace_admitted_chain.py) composes
+all four source kinds, capture, admission, create-only operations, receipt reopen,
+exact output checks and an untrusted handoff. It changes only a fresh `--out`
+directory. From a checkout of this **unreleased candidate**, with that candidate
+wheel installed in an isolated environment, run:
+
+```bash
+python -I -B examples/workspace_admitted_chain.py --out admitted-example --repository-sha "$(git rev-parse HEAD)"
+python -I -B examples/workspace_admitted_chain.py --out admitted-negative --repository-sha "$(git rev-parse HEAD)" --negative-control
+```
+
+The first command performs two checked writes and exits 0. The negative control
+exits 1: the incorrect draft is saved at the permitted destination, but the next
+generator is never called. Each run requires a different, nonexistent output
+directory. The exact same example can use `--engine pydantic` when the candidate's
+optional Pydantic AI dependencies are installed. `-I` makes imports use the
+installed package, not a source-path override. The published 1.13.1 wheel does
+**not** contain this candidate API.
+
+The command's generator is deterministic and makes **zero model or network
+calls**. For your application, pass an existing
+`generate(source_bytes, host_task) -> str` callback to `run_chain`; keep expected
+answers, paths, permissions and recovery decisions on the host. Replacing this
+callback does not establish that a model can solve the task. The example verifies
+declared JSON requirements after the write; it does not sanitize arbitrary text.
+It demonstrates receipt reopen, not host-process recovery. The original leaf
+restrictions and expiry survive the checked handoff without gaining authority.
