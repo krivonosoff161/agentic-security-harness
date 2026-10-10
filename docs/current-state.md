@@ -18,6 +18,12 @@ The candidate also provides one host-owned source-capture factory and a runnable
 It joins these APIs without manual telemetry assembly, with a failed-quality
 negative control that prevents the second task. Its generator is deterministic
 (zero model calls); this integration example does not resolve model usefulness.
+Source composition now permits shared ancestry only for identical complete
+original restriction records, matching the existing multi-source contract. Each
+component remains separately bound and captured; six components can share four
+original leaves. Conflicting records still refuse, and no expiry or permission
+is renewed. This is an explicit correction to the unmerged candidate contract,
+not a new semantic guarantee or a change to the published package.
 
 ## Development candidate — checklist source-use review
 

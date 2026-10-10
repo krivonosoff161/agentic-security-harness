@@ -132,6 +132,59 @@ def test_four_sources_commit_canonical_evidence_and_write(tmp_path: Path) -> Non
     assert (policy.output_dir / "report.md").read_text(encoding="utf-8") == "synthetic report"
 
 
+def test_six_captures_share_four_original_leaves_without_resetting_expiry(
+    tmp_path: Path,
+) -> None:
+    original, old_policy, four_profile = inputs(tmp_path)
+    query = b'{"status":"open","metric":"sum"}'
+    result_bytes = b'{"ticket_ids":["T1"],"value":41}'
+    sources = WorkspaceSources.bind((
+        *original.parts,
+        WorkspaceSource("input", "query", query, original.restrictions.for_output(query)),
+        WorkspaceSource(
+            "tool_output", "computed", result_bytes,
+            original.restrictions.for_output(result_bytes),
+        ),
+    ))
+    policy = sources.bind_policy(WorkspacePolicy(
+        old_policy.output_dir, old_policy.outputs,
+        data_class="synthetic", max_proposals=1,
+    ))
+    profile = build_coverage_expectation_profile_v1(
+        project_id=four_profile.project_id,
+        repository_id=four_profile.repository_id,
+        repository_sha=four_profile.repository_sha,
+        expected_channels=four_profile.expected_channels,
+        expected_event_count=6,
+        expectation_source_sha256=sha(b"host-fixed-six-components"),
+    )
+    wrong_db, wrong_witness = tmp_path / "wrong.db", tmp_path / "wrong.witness"
+    with pytest.raises(WorkspaceAdmissionError, match="capture_expectation_mismatch"):
+        capture_workspace_sources(
+            wrong_db, wrong_witness, sources=sources, policy=policy,
+            expected_profile=four_profile, logical_operation_id=OPERATION,
+        )
+    assert not wrong_db.exists() and not wrong_witness.exists()
+    lineage = sources.restrictions.record()
+    assert len(sources.parts) == len(lineage["components"]) == 6
+    assert len(lineage["leaves"]) == 4
+    assert sources.restrictions.expires_at == original.restrictions.expires_at
+    db, witness = paths(tmp_path)
+    capture = capture_workspace_sources(
+        db, witness, sources=sources, policy=policy,
+        expected_profile=profile, logical_operation_id=OPERATION,
+    )
+    assert len(capture.observations) == 6
+    assert capture.admission.expected_checkpoint.sequence == 7
+    assert capture.admission.verify(operation_id=OPERATION, policy=policy).completion == "complete"
+    operation = WorkspaceOperation.create(
+        tmp_path / "operation.db", policy, operation_id=OPERATION,
+        artifact="report", content="host-computed report", admission=capture.admission,
+    )
+    assert operation.deliver(operation.authorize())["state"] == "DELIVERED_RECEIPT"
+    assert (policy.output_dir / "report.md").read_text(encoding="utf-8") == "host-computed report"
+
+
 @pytest.mark.parametrize(
     "change", ["count", "channel", "forged", "forged_bundle", "unbound", "expired"],
 )

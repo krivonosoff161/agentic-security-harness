@@ -19,6 +19,7 @@ from agentic_security_harness.companion_contracts import (
     build_trajectory_accounting_v1,
     canonical_companion_digest,
 )
+from agentic_security_harness.document_multisource import DocumentMultiSourceRestrictions
 from agentic_security_harness.document_restrictions import DocumentSourceRestrictions
 from agentic_security_harness.models import DataEnvelope
 from agentic_security_harness.portfolio_contract import (
@@ -425,9 +426,72 @@ def test_source_input_limits_refuse_without_effects(mutation: str) -> None:
         WorkspaceSources.bind(candidates[mutation])
 
 
-def test_derived_handoff_cannot_duplicate_an_existing_leaf(tmp_path: Path) -> None:
+def test_derived_handoff_can_share_exact_original_lineage(tmp_path: Path) -> None:
     case = host(tmp_path)
     derived = WorkspaceSource("handoff", "draft", TEXT.encode(),
                               case.admission.sources.restrictions.for_output(TEXT.encode()))
+    shared = WorkspaceSources.bind((case.admission.sources.parts[0], derived))
+    record = shared.restrictions.record()
+    assert len(shared.parts) == 2
+    assert len(record["components"]) == 2
+    assert len(record["leaves"]) == 4
+    assert shared.restrictions.expires_at == case.admission.sources.restrictions.expires_at
+    assert record["components"][0]["source_ids"][0] in record["components"][1]["source_ids"]
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["bytes", "created_at", "ttl", "can_forward", "can_store", "confirmation",
+     "data_class", "classification_source", "classification_mutable",
+     "recipients", "purpose"],
+)
+@pytest.mark.parametrize("reverse", [False, True])
+def test_shared_leaf_requires_identical_full_original_record(
+    mutation: str, reverse: bool,
+) -> None:
+    original = parts()[0]
+    assert type(original.restrictions) is DocumentSourceRestrictions
+    raw = b"different original bytes" if mutation == "bytes" else original.content
+    mutation_fields: dict[str, dict[str, Any]] = {
+        "ttl": {"ttl_seconds": 120},
+        "can_forward": {"can_forward": False},
+        "can_store": {"can_store": False},
+        "confirmation": {"requires_confirmation": True},
+        "data_class": {"data_class": "private"},
+        "classification_source": {"classification_source": "other-host"},
+        "classification_mutable": {"classification_mutable": True},
+        "recipients": {"allowed_recipients": ["other-recipient"]},
+        "purpose": {"allowed_purpose": ["other-purpose"]},
+    }
+    changes = mutation_fields.get(mutation, {})
+    origin = datetime.fromisoformat(
+        original.restrictions.record()["created_at"].replace("Z", "+00:00")
+    )
+    if mutation == "created_at":
+        origin -= timedelta(seconds=9)
+    changed = DocumentSourceRestrictions.bind(
+        raw, envelope(**changes), created_at=origin,
+    )
+    _, bound = DocumentMultiSourceRestrictions.compose((("input-source0", raw, changed),))
+    output = b"derived content"
+    derived = WorkspaceSource("handoff", "derived", output, bound.for_output(output))
+    order = (derived, original) if reverse else (original, derived)
     with pytest.raises(WorkspaceAdmissionError, match="source_leaf_collision"):
-        WorkspaceSources.bind((case.admission.sources.parts[0], derived))
+        WorkspaceSources.bind(order)
+
+
+def test_stale_or_mutated_shared_derived_binding_refuses() -> None:
+    original = parts()[0]
+    assert type(original.restrictions) is DocumentSourceRestrictions
+    _, bound = DocumentMultiSourceRestrictions.compose((
+        ("input-source0", original.content, original.restrictions),
+    ))
+    output = b"derived content"
+    derived = WorkspaceSource("handoff", "derived", output, bound.for_output(output))
+    assert len(WorkspaceSources.bind((original, derived)).parts) == 2
+    with pytest.raises(WorkspaceAdmissionError):
+        WorkspaceSources.bind((original, replace(derived, content=b"stale changed bytes")))
+    forged = bound.for_output(output)
+    object.__setattr__(forged, "_record_bytes", b"{}")
+    with pytest.raises(WorkspaceAdmissionError):
+        WorkspaceSources.bind((original, replace(derived, restrictions=forged)))

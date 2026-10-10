@@ -91,7 +91,10 @@ class WorkspaceSources:
         ]] = []
         bound_parts: list[WorkspaceSource] = []
         component_ids: set[str] = set()
-        leaf_ids: set[str] = set()
+        # Repeated ancestry is permitted only when it names the exact same
+        # validated original record. Components remain distinct capture events;
+        # a shared leaf is not a new independent source.
+        leaves: dict[str, bytes] = {}
         for item in parts:
             if (type(item) is not WorkspaceSource or type(item.kind) is not str
                     or item.kind not in _KINDS or type(item.source_id) is not str
@@ -104,12 +107,18 @@ class WorkspaceSources:
             try:
                 checked = _checked_restrictions(item.restrictions)
                 current_leaves = (
-                    (component_id,) if type(checked) is DocumentSourceRestrictions else
-                    tuple(row["source_id"] for row in checked.record()["leaves"])
+                    ((component_id, checked.record()),)
+                    if type(checked) is DocumentSourceRestrictions else
+                    tuple((row["source_id"], row["restrictions"])
+                          for row in checked.record()["leaves"])
                 )
-                if leaf_ids.intersection(current_leaves):
-                    raise WorkspaceAdmissionError("source_leaf_collision")
-                leaf_ids.update(current_leaves)
+                for source_id, original in current_leaves:
+                    canonical = _canonical(
+                        DocumentSourceRestrictions.from_record(original).record()
+                    )
+                    if source_id in leaves and leaves[source_id] != canonical:
+                        raise WorkspaceAdmissionError("source_leaf_collision")
+                    leaves[source_id] = canonical
                 component_ids.add(component_id)
                 composition.append((component_id, item.content, checked))
                 bound_parts.append(WorkspaceSource(item.kind, item.source_id,

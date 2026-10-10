@@ -220,12 +220,25 @@ refuses; admission does not replace the writer's Runtime Guard decision.
 closed host-selected kinds `input`, `tool_output`, `memory` and `handoff`. Each
 contains an ID, exact UTF-8 bytes and existing `DocumentSourceRestrictions` or
 `DocumentMultiSourceRestrictions`. Composition preserves all original leaf
-restrictions, binds kinds and bytes, and refuses ambiguous or duplicate leaves.
+restrictions and binds each component's kind, bytes and restriction record.
+Component IDs must be unique. An original and its derived outputs may share a
+leaf ID **only when the entire validated original restriction record is identical**;
+that leaf is retained once, with every component's dependency on it retained.
+A repeated ID with different original bytes, labels or time bounds is refused.
+This corrects the development candidate's earlier blanket refusal of shared
+ancestry; it does not renew TTL, relax restrictions or allow duplicate components.
 `sources.bind_policy(policy)` binds the source restrictions and earliest expiry;
 `sources.input_bytes(bound_policy)` checks current restrictions before returning
 framed **untrusted data** to the application's existing model adapter. It neither
 calls a model nor turns text into instructions or permission. A derived handoff
 uses `sources.restrictions.for_output(exact_output_bytes)` without renewing TTL.
+
+Keep **captured components** separate from **unique original leaves**. For example,
+four inputs and two computations derived from those inputs are six captured
+components with four original leaves, not six independent sources. A host profile
+for this capture must expect six events; it must not lower that count to four.
+The existing eight-component and eight-unique-leaf limits still apply. Neither
+count authenticates real-world origins or proves uninstrumented activity absent.
 
 The host supplies `WorkspaceAdmission` with that source bundle, an `AncestryStore`,
 `expected_checkpoint`, `expected_profile`, SHA-256 `logical_operation_id`, the
