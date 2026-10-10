@@ -4,15 +4,19 @@ from __future__ import annotations
 
 import hashlib
 from datetime import UTC, datetime, timedelta, timezone
+from pathlib import Path
+from typing import TypedDict
 
 import pytest
 
 from agentic_security_harness.ancestry_store import (
     AncestryRecord,
     AncestryStore,
+    Checkpoint,
     CheckpointConflict,
 )
 from agentic_security_harness.companion_contracts import (
+    CoverageExpectationProfileV1,
     TelemetryManifestV1,
     TrajectoryObservationRefV1,
     build_coverage_expectation_profile_v1,
@@ -74,7 +78,19 @@ def _audit() -> AdapterAuditV1:
     )
 
 
-def _fixture(tmp_path, *, count: int = 3, channels: tuple[str, ...] = ("mcp", "runtime", "mcp")):
+class _AdmissionInputs(TypedDict):
+    expected_checkpoint: Checkpoint
+    expected_profile: CoverageExpectationProfileV1
+    logical_operation_id: str
+    policy_sha256: str
+    expected_manifest_sha256: str
+    manifest: TelemetryManifestV1
+
+
+def _fixture(
+    tmp_path: Path, *, count: int = 3,
+    channels: tuple[str, ...] = ("mcp", "runtime", "mcp"),
+) -> tuple[AncestryStore, _AdmissionInputs, tuple[TrajectoryObservationRefV1, ...]]:
     operation = _sha("operation")
     policy = _sha("policy")
     profile = build_coverage_expectation_profile_v1(
@@ -94,7 +110,7 @@ def _fixture(tmp_path, *, count: int = 3, channels: tuple[str, ...] = ("mcp", "r
         tmp_path / "store.db", tmp_path / "store.witness", context=context, root=root
     )
     checkpoint = store.checkpoint()
-    refs = []
+    refs: list[TrajectoryObservationRefV1] = []
     for index in range(1, count + 1):
         ref = TrajectoryObservationRefV1(
             event_id=_sha(f"event:{index}"),
@@ -132,7 +148,7 @@ def _fixture(tmp_path, *, count: int = 3, channels: tuple[str, ...] = ("mcp", "r
         window_started_at=datetime(2026, 8, 2, tzinfo=UTC),
         window_ended_at=datetime(2026, 8, 2, 0, 1, tzinfo=UTC),
     )
-    kwargs = dict(
+    kwargs: _AdmissionInputs = dict(
         expected_checkpoint=checkpoint, expected_profile=profile,
         logical_operation_id=operation, policy_sha256=policy,
         expected_manifest_sha256=canonical_companion_digest(manifest), manifest=manifest,
@@ -140,7 +156,7 @@ def _fixture(tmp_path, *, count: int = 3, channels: tuple[str, ...] = ("mcp", "r
     return store, kwargs, tuple(refs)
 
 
-def test_full_sealed_and_pending_are_distinct(tmp_path) -> None:
+def test_full_sealed_and_pending_are_distinct(tmp_path: Path) -> None:
     store, kwargs, _ = _fixture(tmp_path)
     before = store.snapshot(expected=kwargs["expected_checkpoint"])
     sealed = assess_retained_telemetry(store, host_phase="sealed", **kwargs)
@@ -155,7 +171,7 @@ def test_full_sealed_and_pending_are_distinct(tmp_path) -> None:
     assert sealed.may_authorize_effects is pending.may_authorize_effects is False
 
 
-def test_authentic_prefix_is_incomplete(tmp_path) -> None:
+def test_authentic_prefix_is_incomplete(tmp_path: Path) -> None:
     store, kwargs, _ = _fixture(tmp_path, count=2)
     result = assess_retained_telemetry(store, host_phase="sealed", **kwargs)
     assert (result.retained_binding, result.coverage_state, result.completion) == (
@@ -164,7 +180,7 @@ def test_authentic_prefix_is_incomplete(tmp_path) -> None:
 
 
 @pytest.mark.parametrize("mutation", ["profile", "manifest", "channels", "operation", "policy"])
-def test_host_and_manifest_mismatch_rejected(tmp_path, mutation: str) -> None:
+def test_host_and_manifest_mismatch_rejected(tmp_path: Path, mutation: str) -> None:
     store, kwargs, _ = _fixture(tmp_path)
     if mutation == "profile":
         kwargs["expected_profile"] = kwargs["expected_profile"].model_copy(
@@ -191,18 +207,22 @@ def test_host_and_manifest_mismatch_rejected(tmp_path, mutation: str) -> None:
         assert result.reason == "invalid_manifest"
 
 
-def test_invalid_inputs_are_rejected_before_store_snapshot(tmp_path, monkeypatch) -> None:
+def test_invalid_inputs_are_rejected_before_store_snapshot(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
     store, kwargs, _ = _fixture(tmp_path)
 
-    def unexpected_snapshot(*, expected):
+    def unexpected_snapshot(*, expected: Checkpoint) -> None:
         raise AssertionError("snapshot should not run for invalid inputs")
 
     monkeypatch.setattr(store, "snapshot", unexpected_snapshot)
     bad_profile = kwargs["expected_profile"].model_copy(
         update={"expected_channels": ("other",)}
     )
+    bad_profile_inputs = kwargs.copy()
+    bad_profile_inputs["expected_profile"] = bad_profile
     assert assess_retained_telemetry(
-        store, host_phase="sealed", **{**kwargs, "expected_profile": bad_profile}
+        store, host_phase="sealed", **bad_profile_inputs
     ).reason == "invalid_host_input"
     bad_nested = kwargs["manifest"].coverage_expectation_profile.model_copy(
         update={"expected_channels": ("other",)}
@@ -210,18 +230,23 @@ def test_invalid_inputs_are_rejected_before_store_snapshot(tmp_path, monkeypatch
     bad_manifest = kwargs["manifest"].model_copy(
         update={"coverage_expectation_profile": bad_nested}
     )
+    bad_manifest_inputs = kwargs.copy()
+    bad_manifest_inputs["manifest"] = bad_manifest
     assert assess_retained_telemetry(
-        store, host_phase="sealed", **{**kwargs, "manifest": bad_manifest}
+        store, host_phase="sealed", **bad_manifest_inputs
     ).reason == "invalid_manifest"
+    bad_digest_inputs = kwargs.copy()
+    bad_digest_inputs["expected_manifest_sha256"] = "not-a-digest"
     assert assess_retained_telemetry(
-        store, host_phase="sealed", **{**kwargs, "expected_manifest_sha256": "not-a-digest"}
+        store, host_phase="sealed", **bad_digest_inputs
     ).reason == "invalid_host_input"
+    bad_digest_inputs["expected_manifest_sha256"] = _sha("other")
     assert assess_retained_telemetry(
-        store, host_phase="sealed", **{**kwargs, "expected_manifest_sha256": _sha("other")}
+        store, host_phase="sealed", **bad_digest_inputs
     ).reason == "manifest_anchor_mismatch"
 
 
-def test_rejected_window_is_not_masked_by_pending_phase(tmp_path) -> None:
+def test_rejected_window_is_not_masked_by_pending_phase(tmp_path: Path) -> None:
     store, kwargs, _ = _fixture(tmp_path)
     east_one = timezone(timedelta(hours=1))
     kwargs["manifest"] = TelemetryManifestV1.model_validate(
@@ -241,15 +266,17 @@ def test_rejected_window_is_not_masked_by_pending_phase(tmp_path) -> None:
     )
 
 
-def test_manifest_encoding_failure_is_rejected_before_snapshot(tmp_path, monkeypatch) -> None:
+def test_manifest_encoding_failure_is_rejected_before_snapshot(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
     from agentic_security_harness import trajectory_admission
 
     store, kwargs, _ = _fixture(tmp_path)
 
-    def unavailable_encoding(_manifest):
+    def unavailable_encoding(_manifest: TelemetryManifestV1) -> str:
         raise ValueError("companion record exceeds the wire byte bound")
 
-    def unexpected_snapshot(*, expected):
+    def unexpected_snapshot(*, expected: Checkpoint) -> None:
         raise AssertionError("snapshot should not run for an unencodable manifest")
 
     monkeypatch.setattr(trajectory_admission, "canonical_companion_digest", unavailable_encoding)
@@ -257,7 +284,7 @@ def test_manifest_encoding_failure_is_rejected_before_snapshot(tmp_path, monkeyp
     assert assess_retained_telemetry(store, **kwargs).reason == "invalid_manifest"
 
 
-def test_rewritten_retained_observation_and_channel_cannot_match(tmp_path) -> None:
+def test_rewritten_retained_observation_and_channel_cannot_match(tmp_path: Path) -> None:
     store, kwargs, refs = _fixture(tmp_path)
     # The stored graph is immutable here; a copied manifest claiming different
     # event bytes or channel coverage cannot bind to its snapshot.
@@ -280,7 +307,7 @@ def test_rewritten_retained_observation_and_channel_cannot_match(tmp_path) -> No
     assert result.reason == "manifest_retained_mismatch"
 
 
-def test_manifest_anchor_blocks_verdict_field_rewrites(tmp_path) -> None:
+def test_manifest_anchor_blocks_verdict_field_rewrites(tmp_path: Path) -> None:
     store, kwargs, refs = _fixture(tmp_path)
     complete = kwargs["manifest"]
     trajectory = build_trajectory_accounting_v1(expected_event_count=3, observations=refs)
@@ -310,20 +337,20 @@ def test_manifest_anchor_blocks_verdict_field_rewrites(tmp_path) -> None:
         }
     )
     for host_admitted in (dropped, censored, rejected_window):
-        anchored = {
+        anchored: _AdmissionInputs = {
             **kwargs,
             "manifest": host_admitted,
             "expected_manifest_sha256": canonical_companion_digest(host_admitted),
         }
         admitted = assess_retained_telemetry(store, host_phase="sealed", **anchored)
         assert admitted.completion == host_admitted.telemetry_state
-        rewritten = {**anchored, "manifest": complete}
+        rewritten: _AdmissionInputs = {**anchored, "manifest": complete}
         refused = assess_retained_telemetry(store, host_phase="sealed", **rewritten)
         assert refused.reason == "manifest_anchor_mismatch"
         assert refused.completion == "rejected"
 
 
-def test_rebound_channel_manifest_is_rejected_even_when_self_consistent(tmp_path) -> None:
+def test_rebound_channel_manifest_is_rejected_even_when_self_consistent(tmp_path: Path) -> None:
     store, kwargs, refs = _fixture(tmp_path)
     kwargs["manifest"] = build_telemetry_manifest_v1(
         profile=kwargs["expected_profile"],
@@ -341,7 +368,7 @@ def test_rebound_channel_manifest_is_rejected_even_when_self_consistent(tmp_path
     assert result.completion == "rejected"
 
 
-def test_noncanonical_retained_event_layout_rejected(tmp_path) -> None:
+def test_noncanonical_retained_event_layout_rejected(tmp_path: Path) -> None:
     store, kwargs, _ = _fixture(tmp_path, count=2)
     next_checkpoint = store.append(
         AncestryRecord(
@@ -358,7 +385,7 @@ def test_noncanonical_retained_event_layout_rejected(tmp_path) -> None:
 
 
 @pytest.mark.parametrize("kind", ["deep_json", "wrong_sequence", "whitespace"])
-def test_hostile_or_noncanonical_payload_rejected(tmp_path, kind: str) -> None:
+def test_hostile_or_noncanonical_payload_rejected(tmp_path: Path, kind: str) -> None:
     store, kwargs, refs = _fixture(tmp_path, count=2)
     next_ref = TrajectoryObservationRefV1(
         **{
@@ -392,7 +419,7 @@ def test_hostile_or_noncanonical_payload_rejected(tmp_path, kind: str) -> None:
     assert result.reason == "event_binding_mismatch"
 
 
-def test_builder_capacity_and_invalid_inputs(tmp_path) -> None:
+def test_builder_capacity_and_invalid_inputs(tmp_path: Path) -> None:
     store, kwargs, refs = _fixture(tmp_path, count=2)
     assert store.snapshot(expected=kwargs["expected_checkpoint"]).records
     for sequence in (0, 4096, True):
@@ -421,7 +448,7 @@ def test_builder_capacity_and_invalid_inputs(tmp_path) -> None:
         )
 
 
-def test_wrong_root_and_stale_checkpoint(tmp_path) -> None:
+def test_wrong_root_and_stale_checkpoint(tmp_path: Path) -> None:
     store, kwargs, _ = _fixture(tmp_path)
     kwargs["expected_profile"] = build_coverage_expectation_profile_v1(
         project_id="agentic-security-harness",
@@ -435,7 +462,7 @@ def test_wrong_root_and_stale_checkpoint(tmp_path) -> None:
     assert (result.retained_binding, result.completion) == ("rejected", "rejected")
 
 
-def test_old_anchor_same_bytes_limitation_and_stale_after_extension(tmp_path) -> None:
+def test_old_anchor_same_bytes_limitation_and_stale_after_extension(tmp_path: Path) -> None:
     store, kwargs, refs = _fixture(tmp_path, count=2)
     old_checkpoint = kwargs["expected_checkpoint"]
     assert (
