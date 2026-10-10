@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+- Normalize timezone-aware telemetry-window builder inputs to UTC so equivalent
+  instants produce identical canonical bytes; supplied noncanonical manifests
+  and windows that miss the trajectory horizon remain rejected (#316/#343).
+
 - Compose existing retained ancestry and telemetry contracts for host-bound
   observation admission: compare exact captured events/channels with independently
   supplied host expectations and checkpoint, and keep host pending separate from

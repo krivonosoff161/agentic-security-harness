@@ -6,7 +6,7 @@
   "schema_role": "shape_only_semantic_validation_requires_python_validator_and_fixtures",
   "validator": {
     "path": "src/agentic_security_harness/companion_contracts.py",
-    "sha256": "d3cda08f3abf1370c1a15876bb30c0aff9c1c5114eaa695d67f7fd3ecd440c69"
+    "sha256": "17f04e65248a36c7fe7bff24c72644b26f8bdb65d210fd5f318cde8be0359ddc"
   },
   "fixtures": [
     {
@@ -17,7 +17,7 @@
   ],
   "fixture_runner": {
     "path": "tests/test_companion_contracts.py",
-    "sha256": "d9b7c6cdb32d93141c50dee8fc59a11fb4795a69f4657c5258f739de54b05eec"
+    "sha256": "2801a38f3ba5407dd4985773f8b3b63642326e53477f36686782ca2526067993"
   },
   "contracts": [
     {

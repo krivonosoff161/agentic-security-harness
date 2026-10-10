@@ -19,6 +19,7 @@ from agentic_security_harness.companion_contracts import (
     CompanionContractError,
     CoverageExpectationProfileV1,
     MCPRedactionReceiptV1,
+    TelemetryManifestV1,
     TrajectoryAccountingV1,
     TrajectoryObservationRefV1,
     build_coverage_expectation_profile_v1,
@@ -548,6 +549,34 @@ def test_telemetry_builder_binds_profile_audit_and_trajectory() -> None:
     assert value.trajectory_accounting_sha256 == canonical_companion_digest(trajectory)
     assert value.candidate_visibility == "evaluator_only"
     assert project_companion_for_candidate_v1(value) is None
+
+
+@pytest.mark.parametrize("offset_minutes", [180, -330])
+def test_telemetry_builder_normalizes_equivalent_window_instants(offset_minutes: int) -> None:
+    offset = timezone(timedelta(minutes=offset_minutes))
+    trajectory = accounting(refs())
+
+    def build(start: datetime, end: datetime) -> TelemetryManifestV1:
+        return build_telemetry_manifest_v1(
+            profile=profile(), observed_channels=("mcp", "runtime"),
+            dropped_record_count=0, rejected_record_count=0, adapter_audit=audit(),
+            trajectory=trajectory, window_started_at=start, window_ended_at=end,
+        )
+
+    utc_manifest = build(START, END)
+    offset_manifest = build(START.astimezone(offset), END.astimezone(offset))
+    assert encode_companion_record_v1(offset_manifest) == encode_companion_record_v1(utc_manifest)
+    assert canonical_companion_digest(offset_manifest) == canonical_companion_digest(utc_manifest)
+    assert offset_manifest.window_started_at.utcoffset() == timedelta(0)
+    assert offset_manifest.window_ended_at.utcoffset() == timedelta(0)
+    forged = utc_manifest.model_dump(mode="python")
+    forged["window_started_at"] = START.astimezone(offset)
+    forged["window_ended_at"] = END.astimezone(offset)
+    with pytest.raises(ValidationError):
+        TelemetryManifestV1.model_validate(forged)
+    with pytest.raises(CompanionContractError, match="does not contain"):
+        build((trajectory.observation_horizon_started_at + timedelta(seconds=1)).astimezone(offset),
+              END.astimezone(offset))
 
 
 def test_telemetry_missing_channel_profile_drift_and_invalid_trajectory_fail_closed() -> None:
