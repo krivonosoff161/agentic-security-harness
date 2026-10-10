@@ -310,7 +310,7 @@ optional Pydantic AI dependencies are installed. `-I` makes imports use the
 installed package, not a source-path override. The published 1.13.1 wheel does
 **not** contain this candidate API.
 
-The command's generator is deterministic and makes **zero model or network
+The default command's generator is deterministic and makes **zero model or network
 calls**. For your application, pass an existing
 `generate(source_bytes, host_task) -> str` callback to `run_chain`; keep expected
 answers, paths, permissions and recovery decisions on the host. Replacing this
@@ -318,3 +318,44 @@ callback does not establish that a model can solve the task. The example verifie
 declared JSON requirements after the write; it does not sanitize arbitrary text.
 It demonstrates receipt reopen, not host-process recovery. The original leaf
 restrictions and expiry survive the checked handoff without gaining authority.
+
+#### Optional local query planner
+
+The same candidate example can make at most two requests to an **already running,
+local Ollama model**, with explicit opt-in:
+
+```bash
+python -I -B examples/workspace_admitted_chain.py --out admitted-model --repository-sha "$(git rev-parse HEAD)" --model YOUR_EXISTING_LOCAL_MODEL --execute
+```
+
+This is a narrow arithmetic application, not free-text generation or a new agent
+framework. The model sees the host task and a closed query schema, **not the source
+text, expected answer, destination or permission**. It chooses a filter and an
+aggregation; host code computes the selected query on the captured data. The
+second task selects an operation on the checked report. Output still passes
+through capture, admission, the guarded create-only operation and exact quality
+checking. `--engine pydantic` changes the existing host-bound tool integration,
+not the model provider or its authority.
+
+The schema does not guarantee correct task selection. For example, selecting
+`all` instead of `open` can produce a valid but wrong total. That draft may be
+written to its permitted report, but failed quality prevents the next model call.
+An invalid or incomplete response is not repaired or retried. There is no
+deterministic fallback pretending to be a model result. The example never pulls
+models, starts services or reads provider credentials. It sends only to literal
+loopback and rejects known `:cloud` and `-cloud` model tags. The host must supply
+a local-only Ollama runtime: a model name or localhost URL cannot prove that an
+arbitrary server/alias will not forward requests elsewhere. See
+[Ollama's local/cloud configuration](https://docs.ollama.com/cloud).
+Use a new output directory for every explicit run; never replay a partial run.
+
+The CLI reports `transport_attempts` separately from `validated_plans`. An attempt
+is reserved before transport and may fail without reaching the model; a validated
+plan can still select the wrong query. Neither count is a successful-task count.
+
+This separation prevents source-only instruction text from entering this planner's
+request. It does **not** show that a model resisted an injection it read, validate
+the truth of source facts, or solve arbitrary document tasks. The existing generic
+`generate(source_bytes, host_task)` callback remains available for applications
+that actually need the model to read their data; it does not inherit this specific
+request-isolation property.

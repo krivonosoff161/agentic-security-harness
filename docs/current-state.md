@@ -16,8 +16,14 @@ open; this does not claim semantic truth or uncaptured host-event completeness.
 The candidate also provides one host-owned source-capture factory and a runnable
 [two-step installed-package example](guarded-workspace-writer.md#development-candidate-one-capture-call-and-a-two-step-application).
 It joins these APIs without manual telemetry assembly, with a failed-quality
-negative control that prevents the second task. Its generator is deterministic
-(zero model calls); this integration example does not resolve model usefulness.
+negative control that prevents the second task. The default generator remains
+deterministic (zero model calls). An explicit local-model option asks an existing
+Ollama model to select a closed query, then computes that query on the host. The
+planner does not receive source text or expected answers; wrong task selection
+still fails the existing quality gate. Attempt and valid-plan counters are distinct;
+known cloud tags refuse before sending, but local-only execution still requires a
+host-controlled runtime. This narrow arithmetic integration is not
+general document usefulness or a claim that a model resisted source text it read.
 Source composition now permits shared ancestry only for identical complete
 original restriction records, matching the existing multi-source contract. Each
 component remains separately bound and captured; six components can share four
