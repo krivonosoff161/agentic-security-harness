@@ -38,51 +38,61 @@ def _model_app(monkeypatch: pytest.MonkeyPatch,
     return app, requests
 
 
-def test_local_planner_two_stage_computation_and_task_only_requests(
+@pytest.mark.parametrize(("status", "metric", "computed"), [
+    ("open", "sum", 20),
+    ("open", "count", 2),
+    ("closed", "sum", 90),
+    ("closed", "count", 1),
+    ("all", "sum", 110),
+    ("all", "count", 3),
+])
+def test_local_planner_executes_each_valid_query_without_oracle_rewrite(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    status: str, metric: str, computed: int,
 ) -> None:
+    plan = {"status": status, "metric": metric}
     app, requests = _model_app(monkeypatch, [
-        {"status": "open", "metric": "sum"}, {"operation": "copy_value"},
+        plan, {"operation": "copy_value"},
     ])
     planner = app["OllamaPlanner"]("qwen2.5:0.5b")
-    result = app["run_chain"](tmp_path / "application", planner, repository_sha="a" * 40)
-    assert result["status"] == "complete" and planner.model_calls == 2
-    assert planner.validated_plans == 2
-    assert json.loads((tmp_path / "application/step-2/output/report.json").read_bytes()) == {
-        "approved_total": 20}
+    out = tmp_path / "application"
+    result = app["run_chain"](out, planner, repository_sha="a" * 40)
+    assert json.loads((out / "step-1/output/report.json").read_bytes()) == {
+        "total_units": computed, "report_date": "2030-04-12"}
+    assert result["stages"][0]["written"] is True
+    assert result["stages"][0]["effect_state"] == "DELIVERED_RECEIPT"
+    assert planner.observations[0]["plan"] == plan
+    assert planner.validated_plans == len(requests) == planner.model_calls
     assert [row["prompt"] for row in requests] == [
         "HOST DOCUMENT REQUEST (select a query; do not answer):\n" + task
-        for task in app["TASKS"]]
+        for task in app["TASKS"][:len(requests)]]
     assert all("host will read" in row["system"].lower()
                and "must not write the document" in row["system"] for row in requests)
     assert "sum aggregates the units" in requests[0]["system"]
     assert "count is the number of selected items" in requests[0]["system"]
-    assert "copy_value copies total_units" in requests[1]["system"]
-    assert "count_keys is the number of fields" in requests[1]["system"]
     assert all("\"sources\"" not in json.dumps(row).lower() for row in requests)
     assert all("2030-04-12" not in json.dumps(row) and "20" not in row["prompt"]
                for row in requests)
     assert all(row["format"]["additionalProperties"] is False for row in requests)
-    assert [row["format"]["properties"].keys() for row in requests] == [
-        {"status": {}, "metric": {}}.keys(), {"operation": {}}.keys()]
+    assert requests[0]["format"]["properties"].keys() == {"status": {}, "metric": {}}.keys()
     assert all("expected_json" not in json.dumps(row) for row in requests)
     assert all("content" not in row for row in planner.observations)
-    with pytest.raises(ValueError, match="call limit"):
-        planner(b"{}", app["TASKS"][0])
-    assert len(requests) == 2
-
-
-def test_wrong_valid_query_remains_wrong_and_blocks_handoff(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    app, requests = _model_app(monkeypatch, [{"status": "closed", "metric": "sum"}])
-    planner = app["OllamaPlanner"]("qwen2.5:0.5b")
-    out = tmp_path / "application"
-    result = app["run_chain"](out, planner, repository_sha="a" * 40)
-    assert result["status"] == "quality_blocked" and planner.model_calls == 1
-    assert planner.validated_plans == 1  # Valid query is not task correctness.
-    assert json.loads((out / "step-1/output/report.json").read_bytes())["total_units"] == 90
-    assert not (out / "step-2").exists() and len(requests) == 1
+    if plan == {"status": "open", "metric": "sum"}:
+        assert result["status"] == "complete" and planner.model_calls == 2
+        assert result["stages"][0]["quality"] == "checked"
+        assert json.loads((out / "step-2/output/report.json").read_bytes()) == {
+            "approved_total": 20}
+        assert planner.observations[1]["plan"] == {"operation": "copy_value"}
+        assert "copy_value copies total_units" in requests[1]["system"]
+        assert "count_keys is the number of fields" in requests[1]["system"]
+        assert requests[1]["format"]["properties"].keys() == {"operation": {}}.keys()
+        with pytest.raises(ValueError, match="call limit"):
+            planner(b"{}", app["TASKS"][0])
+    else:
+        assert result["status"] == "quality_blocked" and planner.model_calls == 1
+        assert planner.validated_plans == 1  # Schema-valid is not task-correct.
+        assert result["stages"][0]["quality"] != "checked"
+        assert not (out / "step-2").exists() and len(requests) == 1
 
 
 @pytest.mark.parametrize("body", [
