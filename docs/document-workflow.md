@@ -84,6 +84,26 @@ or the configuration changed, chaining is refused. A `review_required` source
 can be reused as data after deliberate operator inspection; it is not approved
 as fact. The same job ID is never retried after a failed run.
 
+### Reuse is not byte-for-byte copying
+
+`--from-job` verifies which source bytes enter a **new generation**. It does not
+require the model to reproduce those bytes: even a "copy exactly" task can add
+quotation marks, change a bullet or omit punctuation. Source-review approval
+does not remove this generative step or certify the resulting text.
+
+If the host needs an unchanged UTF-8 document, use `read_job_document` with its
+separately reviewed digest and pass the captured content directly to an existing
+host-bound [guarded writer](guarded-workspace-writer.md#connect-an-existing-agent-loop),
+without another model call. The destination still needs its own host policy.
+Preserve returned source restrictions when present; do not renew their original expiry.
+If the source has none, any new host restrictions apply only to the new context,
+not retroactively to the model run that produced the source. In the development branch,
+the [candidate admission composition](guarded-workspace-writer.md#development-candidate-require-sources-and-pre-action-history)
+binds source restrictions and a host capture checkpoint to a candidate operation;
+capturing existing bytes does not reconstruct missing history from an earlier run.
+Neither exact transport nor a successful write makes an incorrect original true
+or removes quoted instructions from it.
+
 <a id="development-contract-planned-jobs-from-the-cli"></a>
 
 ## Planned jobs from the CLI

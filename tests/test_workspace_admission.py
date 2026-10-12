@@ -4,7 +4,9 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
-from dataclasses import dataclass, replace
+import subprocess
+import sys
+from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -37,7 +39,11 @@ from agentic_security_harness.workspace_admission import (
     WorkspaceSource,
     WorkspaceSources,
 )
-from agentic_security_harness.workspace_operation import WorkspaceOperation, WorkspaceOperationError
+from agentic_security_harness.workspace_operation import (
+    WorkspaceOperation,
+    WorkspaceOperationError,
+    WorkspacePermission,
+)
 from agentic_security_harness.workspace_writer import WorkspacePolicy
 
 KINDS = ("input", "tool_output", "memory", "handoff")
@@ -320,6 +326,113 @@ def test_recovery_preserves_context_budget_and_single_effect(tmp_path: Path) -> 
     with pytest.raises(WorkspaceOperationError):
         case.reopen(admission=changed)
     assert case.reopen().reconcile()["state"] == "DELIVERED_RECEIPT"
+
+
+def test_admitted_child_crash_after_write_reconciles_without_second_effect(
+    tmp_path: Path,
+) -> None:
+    case = host(tmp_path)
+    case.operation()
+    admission = case.admission
+    host_inputs = {
+        "parts": [{
+            "kind": part.kind, "source_id": part.source_id,
+            "content_hex": part.content.hex(), "restrictions": part.restrictions.record(),
+        } for part in admission.sources.parts],
+        "checkpoint": asdict(admission.expected_checkpoint),
+        "profile": admission.expected_profile.model_dump(mode="json"),
+        "manifest": admission.manifest.model_dump(mode="json"),
+        "operation_id": OPERATION, "policy_sha256": case.policy.sha256,
+        "manifest_sha256": admission.expected_manifest_sha256,
+        "admission_sha256": admission.binding_sha256,
+    }
+    metadata = tmp_path / "child-host.json"
+    metadata.write_text(json.dumps(host_inputs), encoding="utf-8")
+    grant_path = tmp_path / "child-grant.json"
+    package_file = sys.modules[WorkspaceOperation.__module__].__file__
+    assert isinstance(package_file, str)
+    package_root = Path(package_file).parent.parent
+    code = """
+import json, os, sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+from agentic_security_harness.ancestry_store import AncestryStore, Checkpoint
+from agentic_security_harness.companion_contracts import (
+    CoverageExpectationProfileV1, TelemetryManifestV1,
+)
+from agentic_security_harness.document_restrictions import DocumentSourceRestrictions
+from agentic_security_harness.workspace_admission import (
+    WorkspaceAdmission, WorkspaceSource, WorkspaceSources,
+)
+from agentic_security_harness.workspace_operation import WorkspaceOperation
+from agentic_security_harness.workspace_writer import GuardedWorkspace, WorkspacePolicy
+root = Path(sys.argv[2])
+inputs = json.loads((root / "child-host.json").read_text(encoding="utf-8"))
+sources = WorkspaceSources.bind(tuple(WorkspaceSource(
+    item["kind"], item["source_id"], bytes.fromhex(item["content_hex"]),
+    DocumentSourceRestrictions.from_record(item["restrictions"]),
+) for item in inputs["parts"]))
+policy = sources.bind_policy(WorkspacePolicy(
+    root / "output", (("report", "summary.md"),), data_class="synthetic", max_proposals=1,
+))
+assert policy.sha256 == inputs["policy_sha256"]
+checkpoint = Checkpoint(**inputs["checkpoint"])
+store = AncestryStore.open(root / "history.db", root / "history.witness",
+                           context=checkpoint.context, root_digest=checkpoint.root_digest)
+admission = WorkspaceAdmission(
+    sources=sources, store=store, expected_checkpoint=checkpoint,
+    expected_profile=CoverageExpectationProfileV1.model_validate(inputs["profile"]),
+    logical_operation_id=inputs["operation_id"], policy_sha256=inputs["policy_sha256"],
+    expected_manifest_sha256=inputs["manifest_sha256"], host_phase="sealed",
+    manifest=TelemetryManifestV1.model_validate(inputs["manifest"]),
+)
+assert admission.binding_sha256 == inputs["admission_sha256"]
+op = WorkspaceOperation.open(root / "operation.db", policy,
+    operation_id=inputs["operation_id"], artifact="report", content=sys.argv[3],
+    admission=admission)
+grant = op.authorize()
+with (root / "child-grant.json").open("x", encoding="utf-8") as file:
+    json.dump(grant.__dict__, file)
+    file.flush()
+    os.fsync(file.fileno())
+original = GuardedWorkspace.submit
+def crash(self, proposal):
+    result = original(self, proposal)
+    if result.get("applied") is not True or result.get("receipt_complete") is not True:
+        raise AssertionError("guarded write did not complete")
+    os._exit(23)
+GuardedWorkspace.submit = crash
+op.deliver(grant)
+raise AssertionError("child did not exit")
+"""
+    child = subprocess.run(
+        [sys.executable, "-I", "-B", "-c", code, str(package_root), str(tmp_path), TEXT],
+        capture_output=True, timeout=30, check=False,
+    )
+    assert child.returncode == 23, child.stderr.decode("utf-8", errors="replace")
+    assert child.stdout == child.stderr == b""
+    old_grant = WorkspacePermission(**json.loads(grant_path.read_text(encoding="utf-8")))
+    target = case.policy.output_dir / "summary.md"
+    before = target.stat()
+    assert target.read_bytes() == TEXT.encode()
+    receipts = list(case.policy.output_dir.glob(".ash-*-result.json"))
+    assert len(receipts) == 1 and receipts[0].is_file()
+    with pytest.raises(WorkspaceOperationError, match="outcome_less_replay"):
+        case.reopen().deliver(old_grant)
+    with pytest.raises(WorkspaceOperationError):
+        case.reopen(admission=None)
+    changed = replace(admission, expected_manifest_sha256="b" * 64)
+    with pytest.raises(WorkspaceOperationError):
+        case.reopen(admission=changed)
+    result = case.reopen().reconcile()
+    after = target.stat()
+    assert result["state"] == "RECONCILED_POSTCONDITION"
+    assert result["attempts_spent"] == 1
+    assert (after.st_ino, after.st_mtime_ns) == (before.st_ino, before.st_mtime_ns)
+    assert target.read_bytes() == TEXT.encode()
+    assert (case.policy.output_dir / "protected.txt").read_text(encoding="utf-8") == "untouched"
+    with pytest.raises(WorkspaceOperationError, match="operation_completed"):
+        case.reopen().authorize()
 
 
 def test_derived_handoff_retains_every_leaf_and_original_expiry(tmp_path: Path) -> None:

@@ -56,7 +56,9 @@ def test_matching_checklist_requires_exact_byte_acknowledgment_before_reuse(
     assert blocked_source.value.reason == "source_review_required"
     assert blocked_source.value.source_sha256 == digest
 
-    second_calls = reply(monkeypatch, "# Reused public data\n")
+    # Review acknowledges these bytes; it does not sanitize them or promote
+    # a quoted instruction (or an incorrect claim) into source authority.
+    second_calls = reply(monkeypatch, content)
     for execute in (False, True):
         blocked = doc.run_job(config, None, "Use saved source", "second",
                               source_job="first", execute=execute)
@@ -83,6 +85,9 @@ def test_matching_checklist_requires_exact_byte_acknowledgment_before_reuse(
     assert admitted["state"] == "saved" and len(second_calls) == 1
     assert admitted["reviewed_source_sha256"] == admitted["input_sha256"] == digest
     assert admitted["input_provenance"]["authority"] == "none"
+    assert (config.jobs_dir / "first" / "document.md").read_bytes() == content.encode()
+    assert (config.jobs_dir / "second" / "document.md").read_bytes() == content.encode()
+    assert admitted["quality"]["semantics_verified"] is False
 
 
 def test_failed_checklist_count_cannot_be_acknowledged_into_source(

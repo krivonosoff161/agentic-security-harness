@@ -196,6 +196,14 @@ After an attempted delivery with no outcome, replay of the same permission refus
 a competing delivery may receive this refusal while the first is still finishing.
 Repeated delivery after a verified completion returns the retained result only.
 
+The [admission regression](../tests/test_workspace_admission.py) also exercises an
+actual child-process exit after the guarded file and receipt are written but
+before the coordinator records the outcome. It retains the four source kinds,
+host profile, checkpoint and manifest anchor. Reopening with those same anchors
+reconciles the postcondition without another file effect; omitting or rebinding
+admission refuses. This tests process interruption, not loss of power or recovery
+of a compromised host's anchors.
+
 The SQLite coordinator and its parent directory are trusted operator state. Use one
 coordinator for a destination, with normal filesystem locking. All supported writes
 for that operation must use it. It does not control unrelated host writers, detect a
