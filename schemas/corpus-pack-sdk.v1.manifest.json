@@ -49,7 +49,7 @@
     },
     {
       "path": "src/agentic_security_harness/portfolio_contract.py",
-      "sha256": "d4af2870e5545abc6d8a5d7861cc5e0f083b7cd3d3ba21c9f0079a3f2d4da0c9"
+      "sha256": "bc6c11ba8dedc91896e3cf18f6869eff72b887fd720791375bcfb7cbcde6fcbb"
     },
     {
       "path": "src/agentic_security_harness/safe_io.py",

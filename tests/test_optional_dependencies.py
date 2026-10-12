@@ -3,6 +3,9 @@ from __future__ import annotations
 import re
 import tomllib
 from pathlib import Path
+from unittest.mock import patch
+
+from agentic_security_harness import document_workflow
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED = {
@@ -27,7 +30,7 @@ def test_optional_dependency_groups_are_exact_and_closed() -> None:
     optional = project["optional-dependencies"]
     assert set(optional) == {*EXPECTED, "all", "dev", "document-agent"}
     # Framework integration remains a separate opt-in, not an owned companion.
-    assert optional["document-agent"] == ["pydantic-ai-slim==1.107.1"]
+    assert optional["document-agent"] == ["pydantic-ai-slim==1.107.7"]
     for name, requirements in EXPECTED.items():
         assert set(optional[name]) == requirements
         assert len(optional[name]) == len(requirements)
@@ -44,6 +47,30 @@ def test_optional_groups_pin_only_owned_unique_coordinates() -> None:
     assert "llm-router==0.2.0" not in declared
     assert all(" @ " not in requirement for requirement in declared)
     assert all("git+" not in requirement for requirement in declared)
+
+
+def test_document_agent_pin_matches_hashed_verification_locks() -> None:
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    document_agent_pin = project["optional-dependencies"]["document-agent"][0]
+    expected = {
+        document_agent_pin,
+        "pydantic-graph==1.107.7",
+        "genai-prices==0.0.73",
+    }
+    for name in ("pydantic-ai-ci-py311.txt", "pydantic-ai-windows-py311.txt"):
+        lock = (ROOT / "requirements" / "verification" / name).read_text(encoding="utf-8")
+        for requirement in expected:
+            assert re.search(
+                rf"^{re.escape(requirement)} --hash=sha256:[0-9a-f]{{64}}$",
+                lock,
+                re.M,
+            ), f"{requirement} missing from {name}"
+
+
+def test_document_agent_engine_requires_exact_supported_pin() -> None:
+    for version, available in (("1.107.7", True), ("1.107.1", False), ("2.0.0", False)):
+        with patch.object(document_workflow.importlib.metadata, "version", return_value=version):
+            assert document_workflow._engine_available("pydantic-ai") is available
 
 
 def test_windows_colorama_input_keeps_exact_hashed_lock() -> None:

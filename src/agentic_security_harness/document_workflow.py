@@ -176,7 +176,7 @@ def read_job_document(
         raise SourceReviewBlocked("source_review_digest_invalid", digest)
     if reviewed_source_sha256 is not None and reviewed_source_sha256 != digest:
         raise SourceReviewBlocked("source_review_digest_mismatch", digest)
-    if status["quality"]["status"] == "review_required" and reviewed_source_sha256 is None:
+    if _requires_source_review(status["quality"]) and reviewed_source_sha256 is None:
         raise SourceReviewBlocked("source_review_required", digest)
     restrictions = (
         parse_source_restrictions(status["output_restrictions"])
@@ -185,10 +185,15 @@ def read_job_document(
     return DocumentInput(raw, job_id, config.data_class, restrictions)
 
 
+def _requires_source_review(quality: dict[str, Any]) -> bool:
+    """Checklist term matches are structural, not approval to reuse their bytes."""
+    return quality["status"] == "review_required" or quality["reason"] == "declared_checklist_match"
+
+
 def _next_step(state: str, quality: dict[str, Any] | None) -> str:
     if state == "saved" and quality is not None and quality["status"] == "failed":
         return "review_failed_document_requirements_do_not_chain"
-    if state == "saved" and quality is not None and quality["status"] == "review_required":
+    if state == "saved" and quality is not None and _requires_source_review(quality):
         return "review_document_then_supply_exact_sha256_for_chaining"
     return _NEXT[state]
 
@@ -335,7 +340,7 @@ def _engine_available(engine: str) -> bool:
     if engine == "native":
         return True
     try:
-        return importlib.metadata.version("pydantic-ai-slim") == "1.107.1"
+        return importlib.metadata.version("pydantic-ai-slim") == "1.107.7"
     except importlib.metadata.PackageNotFoundError:
         return False
 

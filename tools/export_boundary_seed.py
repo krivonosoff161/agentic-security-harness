@@ -194,7 +194,7 @@ def verify_capture(capture: Path, cases: tuple[dict[str, Any], ...] | None = Non
             or type(manifest.get("cases_per_repetition")) is not int
             or manifest["cases_per_repetition"] != 8
             or type(manifest.get("model_calls")) is not int or manifest["model_calls"] != 0
-            or manifest.get("framework") != "pydantic-ai-slim==1.107.1"
+            or manifest.get("framework") != "pydantic-ai-slim==1.107.7"
             or manifest.get("example_sha256") != sha(EXAMPLE.read_bytes())
             or manifest.get("checker_sha256") != sha(CHECKER.read_bytes())
             or manifest.get("corpus_sha256") != sha(canonical(cases))
