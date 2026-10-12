@@ -1,5 +1,16 @@
 # Roadmap
 
+The [1.14.0 release candidate](releases/v1.14.0.md) is merged source from
+[PR #354](https://github.com/krivonosoff161/agentic-security-harness/pull/354),
+not yet a published package. It aligns the optional Pydantic AI 1.107.7 dependency,
+requires exact-byte review for checklist-matched source reuse, and adds bounded
+host-retained telemetry admission and same-operation file recovery. The installed
+two-step example composes these controls with original source restrictions.
+Conditional host, storage and task-correctness limits remain in the
+[acceptance map](project-tracker.md#research-closure-candidate--pr-354).
+Checked tag, TestPyPI and separately authorized PyPI gates must precede any
+publication or issue-closure claim; independent human review remains separate.
+
 The current published [1.13.1 stabilization patch](releases/v1.13.1.md)
 improves first-run instructions, document/workspace refusal diagnostics and
 same-job concurrency without adding capabilities. Its exact tag, staging and

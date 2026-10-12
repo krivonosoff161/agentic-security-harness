@@ -230,7 +230,7 @@ jobs:
           set -euo pipefail
           (cd dist && sha256sum --check SHA256SUMS)
           python -m pip --isolated install --no-compile --only-binary=:all: --require-hashes -r requirements/runtime.txt -r requirements/companions.txt -r examples/garak-gateway/requirements-smoke.txt
-          python -m pip --isolated install --no-index --no-deps --no-compile dist/agentic_security_harness-1.13.1-py3-none-any.whl
+          python -m pip --isolated install --no-index --no-deps --no-compile dist/agentic_security_harness-1.14.0-py3-none-any.whl
           python -m pip check
       - name: Run pinned source detector with installed release wheel
         shell: bash
@@ -239,12 +239,20 @@ jobs:
           python -I -B examples/garak-gateway/prepare_source.py --out upstream-source
           python -I -B examples/garak-gateway/check.py --out garak-observation.json --garak-source upstream-source/garak-ac4c5567f0c17834aace52b14788c1ca3548738b
           python -I -B examples/garak-gateway/verify.py garak-observation.json --require-detector
-          python -I -B examples/installed-ecosystem/check.py --out release-ecosystem-result.json --core-version 1.13.1
-          python -I -B examples/installed-ecosystem/check_ancestry.py --out release-ancestry-result.json --core-version 1.13.1
+          python -I -B examples/installed-ecosystem/check.py --out release-ecosystem-result.json --core-version 1.14.0
+          python -I -B examples/installed-ecosystem/check_ancestry.py --out release-ancestry-result.json --core-version 1.14.0
           python -I -B -m agentic_security_harness.cli controlled-file-workflow --out release-controlled-files
           python -I -B -m agentic_security_harness.cli controlled-file-verify --out release-controlled-files
           python -I -B tools/check_workspace_writer.py --out release-workspace-writer
           python -I -B tools/check_document_workflow.py --out release-document-workflow --engine native
+          app_sha="$(git rev-parse HEAD)"
+          python -I -B examples/workspace_admitted_chain.py --out release-admitted-native --repository-sha "$app_sha" > release-admitted-native.json
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="complete" and r["generator_calls"]==2 and len(r["stages"])==2 and r["protected_unchanged"] and r["transport_attempts"]==0' release-admitted-native.json
+          if python -I -B examples/workspace_admitted_chain.py --out release-admitted-native-negative --repository-sha "$app_sha" --negative-control > release-admitted-native-negative.json; then
+            echo "negative control unexpectedly completed" >&2
+            exit 1
+          fi
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="quality_blocked" and r["generator_calls"]==1 and len(r["stages"])==1 and r["stages"][0]["quality"]!="checked" and r["protected_unchanged"] and r["transport_attempts"]==0' release-admitted-native-negative.json
 
       - name: Verify optional embedded boundary against the exact release wheel
         shell: bash
@@ -254,5 +262,13 @@ jobs:
           python -m pip check
           python -I -B tools/check_pydantic_ai_guarded_files.py --out release-embedded-boundary --repetitions 1
           python -I -B tools/check_document_workflow.py --out release-document-framework --engine pydantic-ai
+          app_sha="$(git rev-parse HEAD)"
+          python -I -B examples/workspace_admitted_chain.py --out release-admitted-pydantic --repository-sha "$app_sha" --engine pydantic > release-admitted-pydantic.json
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="complete" and r["engine"]=="pydantic" and r["generator_calls"]==2 and len(r["stages"])==2 and r["protected_unchanged"] and r["transport_attempts"]==0' release-admitted-pydantic.json
+          if python -I -B examples/workspace_admitted_chain.py --out release-admitted-pydantic-negative --repository-sha "$app_sha" --engine pydantic --negative-control > release-admitted-pydantic-negative.json; then
+            echo "negative control unexpectedly completed" >&2
+            exit 1
+          fi
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="quality_blocked" and r["engine"]=="pydantic" and r["generator_calls"]==1 and len(r["stages"])==1 and r["stages"][0]["quality"]!="checked" and r["protected_unchanged"] and r["transport_attempts"]==0' release-admitted-pydantic-negative.json
           python -I -B tools/export_boundary_seed.py --capture release-embedded-boundary --out release-boundary-seed.json
           python -I -B tools/export_boundary_seed.py --check release-boundary-seed.json --capture release-embedded-boundary

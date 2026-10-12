@@ -408,6 +408,24 @@ jobs:
             python -I -B release-example/tools/check_document_workflow.py --out verified-document-workflow --engine native
           fi
 
+      - name: Verify admitted workspace application for releases since 1.14.0
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ needs.verify-subjects.outputs.version }}
+        run: |
+          set -euo pipefail
+          if python -c 'import os,sys; sys.exit(tuple(map(int,os.environ["RELEASE_VERSION"].split("."))) < (1,14,0))'; then
+            test -f release-example/examples/workspace_admitted_chain.py
+            app_sha="$(git -C release-example rev-parse HEAD)"
+            python -I -B release-example/examples/workspace_admitted_chain.py --out verified-admitted-native --repository-sha "$app_sha" > verified-admitted-native.json
+            python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="complete" and r["generator_calls"]==2 and len(r["stages"])==2 and r["protected_unchanged"] and r["transport_attempts"]==0' verified-admitted-native.json
+            if python -I -B release-example/examples/workspace_admitted_chain.py --out verified-admitted-native-negative --repository-sha "$app_sha" --negative-control > verified-admitted-native-negative.json; then
+              echo "negative control unexpectedly completed" >&2
+              exit 1
+            fi
+            python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="quality_blocked" and r["generator_calls"]==1 and len(r["stages"])==1 and r["stages"][0]["quality"]!="checked" and r["protected_unchanged"] and r["transport_attempts"]==0' verified-admitted-native-negative.json
+          fi
+
       - name: Select version-bound garak smoke lock
         id: garak-lock
         shell: bash
@@ -467,4 +485,15 @@ jobs:
             fi
             python -I -B release-example/tools/export_boundary_seed.py --capture verified-embedded-boundary --out verified-boundary-seed.json
             python -I -B release-example/tools/export_boundary_seed.py --check verified-boundary-seed.json --capture verified-embedded-boundary
+            if python -c 'import os,sys; sys.exit(tuple(map(int,os.environ["RELEASE_VERSION"].split("."))) < (1,14,0))'; then
+              test -f release-example/examples/workspace_admitted_chain.py
+              app_sha="$(git -C release-example rev-parse HEAD)"
+              python -I -B release-example/examples/workspace_admitted_chain.py --out verified-admitted-pydantic --repository-sha "$app_sha" --engine pydantic > verified-admitted-pydantic.json
+              python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="complete" and r["engine"]=="pydantic" and r["generator_calls"]==2 and len(r["stages"])==2 and r["protected_unchanged"] and r["transport_attempts"]==0' verified-admitted-pydantic.json
+              if python -I -B release-example/examples/workspace_admitted_chain.py --out verified-admitted-pydantic-negative --repository-sha "$app_sha" --engine pydantic --negative-control > verified-admitted-pydantic-negative.json; then
+                echo "negative control unexpectedly completed" >&2
+                exit 1
+              fi
+              python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="quality_blocked" and r["engine"]=="pydantic" and r["generator_calls"]==1 and len(r["stages"])==1 and r["stages"][0]["quality"]!="checked" and r["protected_unchanged"] and r["transport_attempts"]==0' verified-admitted-pydantic-negative.json
+            fi
           fi

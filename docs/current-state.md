@@ -1,31 +1,36 @@
 # Current state
 
-## Unmerged research-closure candidate / PR #354
+<a id="unmerged-research-closure-candidate--pr-354"></a>
+
+## Merged source / 1.14.0 release candidate
 
 [PR #354](https://github.com/krivonosoff161/agentic-security-harness/pull/354)
-combines the dependency repairs, document-source admission correction, trusted
+merged at `c36679812acf1a64a7095f59b06ce388695813e9` and combines the dependency
+repairs, document-source admission correction, trusted
 coverage expectations (#316), bounded same-operation recovery (#317), and their
-host-owned integration (#343). It does not change the published **1.13.1** package.
+host-owned integration (#343). This is the **1.14.0 source release candidate**,
+not a published 1.14.0 artifact; the package indexes still expose **1.13.1**.
 The [acceptance map](project-tracker.md#research-closure-candidate--pr-354)
 separates verified mechanisms, model-task observations and remaining assumptions.
-Exact-head CI and review status belong to the PR, not to the older release below.
+The 35 successful PR checks verify the earlier reviewed source head, not a 1.14.0
+tag or wheel. New release-subject checks and publication gates remain separate.
 
-## Development candidate — bounded workspace operation recovery
+## 1.14.0 source candidate — bounded workspace operation recovery
 
-The unmerged #343/#317 candidate retains one host-bound create-only operation and
+The merged #343/#317 source retains one host-bound create-only operation and
 its spent permissions across process interruption. A serialized fence prevents
 old supported deliveries after confirmed absence; exact recovered bytes are a
 postcondition, not proof that an interrupted call returned. Partial output remains
 unknown and is not overwritten. See the [candidate API](guarded-workspace-writer.md#development-candidate-recover-the-same-bound-operation).
 Existing document-job recovery remains reviewed data transfer into a new job.
-The candidate now optionally requires exact source restrictions and independently
+The source also optionally requires exact source restrictions and independently
 host-admitted pre-action telemetry before grants and new effects, without making
 telemetry an execution authority. Input, tool-output, memory and handoff kinds
 retain their original restrictions. Bounded native/optional model chains have
 been exercised, with unsuccessful series retained separately. This does not
 establish arbitrary document usefulness, semantic truth or uncaptured host-event
 completeness.
-The candidate also provides one host-owned source-capture factory and a runnable
+The source also provides one host-owned source-capture factory and a runnable
 [two-step installed-package example](guarded-workspace-writer.md#development-candidate-one-capture-call-and-a-two-step-application).
 It joins these APIs without manual telemetry assembly, with a failed-quality
 negative control that prevents the second task. The default generator remains
@@ -40,27 +45,28 @@ Source composition now permits shared ancestry only for identical complete
 original restriction records, matching the existing multi-source contract. Each
 component remains separately bound and captured; six components can share four
 original leaves. Conflicting records still refuse, and no expiry or permission
-is renewed. This is an explicit correction to the unmerged candidate contract,
-not a new semantic guarantee or a change to the published package.
+is renewed. This is an explicit correction to the pre-merge candidate contract,
+not a new semantic guarantee or a change to the published 1.13.1 package.
 
-## Development candidate — checklist source-use review
+## 1.14.0 source candidate — checklist source-use review
 
-The #343 research work adds an exact-byte review requirement before chaining a
+The merged #343 source adds an exact-byte review requirement before chaining a
 checklist-matched draft, including historical `checked` checklist records.
 Literal term matching does not verify the surrounding statements or arithmetic.
 Whole-object host-declared JSON checks remain distinct. The correction addresses
 automatic source admission, not general semantic correctness or content filtering.
 See the [development contract](document-workflow.md#unreleased-correction-checklist-matches-still-need-source-review).
-This candidate is not merged or released; #316/#317/#343 remain open.
+The source is merged but not released. #316/#317/#343 remain open pending checked
+delivery and issue reconciliation; a matching digest is not proof of human review.
 
-## Development candidate — retained telemetry admission
+## 1.14.0 source candidate — retained telemetry admission
 
-The working #316 candidate also composes retained ancestry with existing telemetry
+The merged #316 source also composes retained ancestry with existing telemetry
 contracts. Host-admitted expectations/checkpoints are distinct from producer-supplied
 manifests; captured observations and channels must match, and host pending is
 independent of event count. This observational composition grants no effect authority.
 See the [candidate contract](ancestry-store.md#development-candidate-retained-telemetry-admission-316).
-It remains under development and is not included in the published package below.
+It is not included in the published 1.13.1 package below.
 
 ## Current release — 1.13.1
 

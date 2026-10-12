@@ -106,6 +106,31 @@ def test_verification_workflow_runs_bounded_cross_platform_smokes() -> None:
         assert re.fullmatch(r"[^@\s]+@[0-9a-f]{40}", reference), reference
 
 
+def test_postpublication_admitted_example_is_required_only_since_v1140() -> None:
+    text = _workflow()
+    native = text.split(
+        "      - name: Verify admitted workspace application for releases since 1.14.0\n", 1
+    )[1].split("      - name:", 1)[0]
+    optional = text.split(
+        "      - name: Verify optional embedded boundary from the selected installed release\n", 1
+    )[1]
+    for step in (native, optional):
+        assert '< (1,14,0)' in step
+        assert 'test -f release-example/examples/workspace_admitted_chain.py' in step
+        assert 'app_sha="$(git -C release-example rev-parse HEAD)"' in step
+        assert step.count('--repository-sha "$app_sha"') == 2
+        assert 'r["status"]=="complete"' in step
+        assert 'r["status"]=="quality_blocked"' in step
+        assert 'r["generator_calls"]==1' in step
+        assert 'r["transport_attempts"]==0' in step
+        assert "negative control unexpectedly completed" in step
+        assert "if [ -f release-example/examples/workspace_admitted_chain.py ]; then" not in step
+    assert "if: matrix.python == '3.11'" in optional
+    assert optional.index(
+        "-r release-example/requirements/verification/pydantic-ai-ci-py311.txt"
+    ) < optional.index("--out verified-admitted-pydantic")
+
+
 def _scope_script() -> str:
     step = _workflow().split("- name: Select read-only verification scope", 1)[1]
     body = step.split("python - <<'PY'\n", 1)[1].split("          PY", 1)[0]
