@@ -3,9 +3,10 @@
 ## Unreleased research candidate replay
 
 For [PR #354](https://github.com/krivonosoff161/agentic-security-harness/pull/354),
-record the exact selected commit and build/install its wheel in a fresh isolated
-environment as below. The candidate retains the package version: installing the
-published 1.13.1 wheel by name does **not** reproduce the candidate. Bind source
+merged at `c36679812acf1a64a7095f59b06ce388695813e9`, record the exact
+selected commit and build/install its wheel in a fresh isolated environment as
+below. The subsequent [1.14.0 release candidate](releases/v1.14.0.md) has its own
+version; installing the published 1.13.1 wheel by name does **not** reproduce it. Bind source
 commit, lock hashes, wheel digest and installed import path before comparing runs.
 
 Use the existing [two-step application instructions](guarded-workspace-writer.md#development-candidate-one-capture-call-and-a-two-step-application)

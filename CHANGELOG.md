@@ -6,11 +6,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.14.0] - 2026-10-12
+
+Merged research and integration changes prepared as a release candidate.
+Publication gates are recorded separately in the
+[release record](docs/releases/v1.14.0.md).
+
 - Add a host-bound, create-only workspace operation coordinator with durable
   spent permissions, serialized absence fencing and exact-byte reconciliation.
   Preserve partial files and distinguish recovered postconditions from original
-  writer receipts. This #343/#317 candidate reuses the existing GuardedWorkspace;
-  it does not resume document jobs or close the broader integration obligations.
+  writer receipts. This #343/#317 implementation reuses the existing GuardedWorkspace;
+  it does not resume document jobs or authorize automatic retry of unknown effects.
 
 - Normalize timezone-aware telemetry-window builder inputs to UTC so equivalent
   instants produce identical canonical bytes; supplied noncanonical manifests
@@ -19,23 +25,27 @@ All notable changes to this project are documented here. The format follows
 - Compose existing retained ancestry and telemetry contracts for host-bound
   observation admission: compare exact captured events/channels with independently
   supplied host expectations and checkpoint, and keep host pending separate from
-  event count. This #316 candidate grants no action authority and does not claim
+  event count. This #316 implementation grants no action authority and does not claim
   remote authentication, coordinated rollback resistance or uncaptured event coverage.
 
 - Require exact-byte review before reusing checklist-matched document output,
   including older `checked` checklist records; partial term matches are not
   a whole-result correctness check. Preserve explicit JSON expectations,
   failed-quality refusal, existing stored evidence and file permissions.
-  This is a partial #343 source-use repair, not semantic filtering or closure
-  of the broader #316/#317 research questions.
+  This #343 source-use repair is not semantic filtering. Separate host-bound
+  admission and operation recovery contracts address #316/#317 conditionally.
 
-- Reconcile the optional Pydantic AI maintenance candidate at `1.107.7` across
+- Reconcile optional Pydantic AI maintenance at `1.107.7` across
   package metadata, platform hash locks, availability checks and examples.
   Align its `pydantic-graph` and `genai-prices` constraints and check pin agreement.
   Published 1.13.1 artifacts remain unchanged; this is not a publication claim.
 - Update the development Ruff/mypy toolchain while preserving the explicit
   Windows `colorama` requirement and regenerating source-bound contracts.
   Maintenance evidence is tracked in issue #353, separately from #316/#317/#343.
+- Add host-owned source capture and an installed two-step example that composes
+  restrictions, independent host expectations, admission, quality and guarded
+  writes. A wrong first draft blocks downstream use. An optional model planner
+  selects only a closed query; a valid but wrong query remains a task failure.
 
 ## [1.13.1] - 2026-10-09
 

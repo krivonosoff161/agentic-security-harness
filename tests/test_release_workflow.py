@@ -31,6 +31,26 @@ def test_release_staging_and_readback_cover_installed_optional_boundary() -> Non
     assert "if: matrix.python == '3.11'" in publishing
 
 
+def test_tagged_wheel_runs_admitted_application_and_refused_handoff() -> None:
+    gate = _workflow().split("  garak-exact-wheel:\n", 1)[1]
+    assert "os: [ubuntu-latest, windows-latest]" in gate
+    assert 'app_sha="$(git rev-parse HEAD)"' in gate
+    assert gate.count("examples/workspace_admitted_chain.py --out release-admitted-") == 4
+    assert gate.count('--repository-sha "$app_sha"') == 4
+    for engine in ("native", "pydantic"):
+        assert f"release-admitted-{engine}.json" in gate
+        assert f"release-admitted-{engine}-negative.json" in gate
+        assert f'--out release-admitted-{engine}-negative' in gate
+    assert gate.count('r["status"]=="complete"') == 2
+    assert gate.count('r["status"]=="quality_blocked"') == 2
+    assert gate.count('r["generator_calls"]==1') == 2
+    assert gate.count('r["transport_attempts"]==0') == 4
+    assert "if python -I -B examples/workspace_admitted_chain.py" in gate
+    assert gate.index("-r requirements/verification/pydantic-ai-ci-py311.txt") < gate.index(
+        "--out release-admitted-pydantic"
+    )
+
+
 def test_optional_candidate_gate_exercises_release_style_relative_paths() -> None:
     text = (ROOT / ".github/workflows/ecosystem-integration.yml").read_text(encoding="utf-8")
     assert "--out optional-capture --repetitions 1" in text

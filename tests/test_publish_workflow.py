@@ -103,3 +103,24 @@ def test_promotion_checks_pinned_garak_from_exact_index_wheels() -> None:
             in smoke
         )
         assert "garak-observation.json --require-detector" in smoke
+
+
+def test_staged_and_published_wheels_run_admitted_application_controls() -> None:
+    text = _workflow()
+    staging = text.split("  smoke-testpypi:\n", 1)[1].split("  smoke-pypi:\n", 1)[0]
+    production = text.split("  smoke-pypi:\n", 1)[1]
+    for smoke, prefix in ((staging, "staged"), (production, "published")):
+        assert 'app_sha="$(git rev-parse HEAD)"' in smoke
+        assert smoke.count(f"examples/workspace_admitted_chain.py --out {prefix}-admitted-") == 4
+        assert smoke.count('--repository-sha "$app_sha"') == 4
+        assert smoke.count('r["status"]=="complete"') == 2
+        assert smoke.count('r["status"]=="quality_blocked"') == 2
+        assert smoke.count('r["generator_calls"]==1') == 2
+        assert smoke.count('r["transport_attempts"]==0') == 4
+        assert f"{prefix}-admitted-native-negative.json" in smoke
+        assert f"{prefix}-admitted-pydantic-negative.json" in smoke
+        assert "negative control unexpectedly completed" in smoke
+        assert smoke.index("-r requirements/verification/pydantic-ai-ci-py311.txt") < smoke.index(
+            f"--out {prefix}-admitted-pydantic"
+        )
+    assert "if: matrix.python == '3.11'" in production

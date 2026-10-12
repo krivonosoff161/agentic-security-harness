@@ -1,28 +1,33 @@
 # Project tracker
 
-## Research-closure candidate / PR #354
+<a id="research-closure-candidate--pr-354"></a>
 
-Verified evidence snapshot: 2026-10-12, implementation/test head
-`580af563254c584612a6d5bde8a1a990a0f3f354`. The following documentation reconciliation
-does not change runtime code. [PR #354](https://github.com/krivonosoff161/agentic-security-harness/pull/354)
-is unmerged and unreleased; its latest-head checks are the delivery gate. The
-published package remains **1.13.1**. Parent issues stay open pending review and
-authorized integration; partial research is not automatic issue closure.
+## Merged research source / 1.14.0 release candidate
+
+Verified source evidence snapshot: 2026-10-12, implementation/test head
+`580af563254c584612a6d5bde8a1a990a0f3f354`. The later documentation
+reconciliation did not change runtime code. [PR #354](https://github.com/krivonosoff161/agentic-security-harness/pull/354)
+merged at `c36679812acf1a64a7095f59b06ce388695813e9` with the reviewed source
+tree. The **1.14.0 source candidate is not yet a published release**: 1.13.1
+remains on the package indexes. Release-subject checks, staged publication and
+production promotion are separate gates. Parent issues remain open pending
+checked delivery and issue reconciliation; source merge is not automatic closure.
 
 | Original work | Candidate mechanism and checkable evidence | Remaining boundary |
 |---|---|---|
-| Dependency maintenance (#353; #350/#351/#341) | Optional Pydantic AI 1.107.7 metadata and both platform locks are aligned, with fresh-install and native/optional checks. | Default-branch advisories remain open until a reviewed fix is merged. The optional 2.x proposal #342 is a separate compatibility choice. |
+| Dependency maintenance (#353; #350/#351/#341) | Optional Pydantic AI 1.107.7 metadata and both platform locks are aligned, with fresh-install and native/optional checks in merged source. | Source merge does not establish a published fixed wheel or resolve every alert. The optional 2.x proposal #342 is a separate compatibility choice. |
 | Grok task/content findings (#343) | [Checklist reuse](document-workflow.md#unreleased-correction-checklist-matches-still-need-source-review) requires exact-byte host acknowledgment, even for old `checked` drafts. Failed whole-object requirements cannot be overridden. Defined JSON predicates and verified-byte transfer have separate regression controls. | Literal term matching still does not prove a statement. A digest binds bytes, not actual human review or truth. Source-reading generation can still produce an incorrect draft. |
 | Trusted completeness (#316) | [Retained telemetry admission](ancestry-store.md#development-candidate-retained-telemetry-admission-316) reconstructs captured history against separately host-admitted expectations, checkpoints and manifest anchors; metadata drift and missing/pending observations are tested. | Honest independent host retention is a premise. Uninstrumented events and simultaneous rollback of every anchor cannot be detected from the same local records. Telemetry grants no effect authority. |
 | Ambiguous outcome (#317) | [Same-operation recovery](guarded-workspace-writer.md#development-candidate-recover-the-same-bound-operation) retains spend, fences supported old deliveries and reconciles the exact file postcondition. Actual child exits before and after the writer receipt recover without a second effect. | Partial or different bytes remain unknown. The result is conditional on the supported writer, exclusive target and filesystem locking; not arbitrary-tool exactly-once, cancellation or power-loss safety. |
 | Host integration (#343) | The [installed two-step application](guarded-workspace-writer.md#development-candidate-one-capture-call-and-a-two-step-application) composes four source kinds, original restrictions, source/history admission, useful writes and refused handoffs. Source and installed native/optional Windows/Linux lanes exercise the composition. | Host configuration and task criteria remain trusted. A narrow query planner, a free-text generator and a byte-copy path are different task boundaries. |
 
-At the snapshot above, **35/35 checks passed**. The
+At the pre-merge snapshot above, **35/35 checks passed**. The
 [six-report Windows/Linux aggregate](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/38208358448/job/114678430946)
 confirmed **3245 passing test nodes across 173 modules**. Per-lane skips and earlier
 failed runs remain recorded; this is not a claim that every test ran on every OS.
 Focused assistant composition review found no actionable defect under the stated
-premises. Independent human review (#199/#205) is still separate.
+premises. These checks are not the 1.14.0 release gates. Independent human review
+(#199/#205) is still separate.
 
 Private model studies are bounded observations, not additional CI or a public
 cloud connector: one authorized cloud-model comparison through native/optional

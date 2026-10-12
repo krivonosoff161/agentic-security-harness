@@ -288,6 +288,14 @@ jobs:
           python -I -B -m agentic_security_harness.cli controlled-file-verify --out staged-controlled-files
           python -I -B tools/check_workspace_writer.py --out staged-workspace-writer
           python -I -B tools/check_document_workflow.py --out staged-document-workflow --engine native
+          app_sha="$(git rev-parse HEAD)"
+          python -I -B examples/workspace_admitted_chain.py --out staged-admitted-native --repository-sha "$app_sha" > staged-admitted-native.json
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="complete" and r["generator_calls"]==2 and len(r["stages"])==2 and r["protected_unchanged"] and r["transport_attempts"]==0' staged-admitted-native.json
+          if python -I -B examples/workspace_admitted_chain.py --out staged-admitted-native-negative --repository-sha "$app_sha" --negative-control > staged-admitted-native-negative.json; then
+            echo "negative control unexpectedly completed" >&2
+            exit 1
+          fi
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="quality_blocked" and r["generator_calls"]==1 and len(r["stages"])==1 and r["stages"][0]["quality"]!="checked" and r["protected_unchanged"] and r["transport_attempts"]==0' staged-admitted-native-negative.json
 
       - name: Verify pinned garak detector from exact staged wheel
         shell: bash
@@ -305,6 +313,14 @@ jobs:
           python -m pip check
           python -I -B tools/check_pydantic_ai_guarded_files.py --out staged-embedded-boundary --repetitions 1
           python -I -B tools/check_document_workflow.py --out staged-document-framework --engine pydantic-ai
+          app_sha="$(git rev-parse HEAD)"
+          python -I -B examples/workspace_admitted_chain.py --out staged-admitted-pydantic --repository-sha "$app_sha" --engine pydantic > staged-admitted-pydantic.json
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="complete" and r["engine"]=="pydantic" and r["generator_calls"]==2 and len(r["stages"])==2 and r["protected_unchanged"] and r["transport_attempts"]==0' staged-admitted-pydantic.json
+          if python -I -B examples/workspace_admitted_chain.py --out staged-admitted-pydantic-negative --repository-sha "$app_sha" --engine pydantic --negative-control > staged-admitted-pydantic-negative.json; then
+            echo "negative control unexpectedly completed" >&2
+            exit 1
+          fi
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="quality_blocked" and r["engine"]=="pydantic" and r["generator_calls"]==1 and len(r["stages"])==1 and r["stages"][0]["quality"]!="checked" and r["protected_unchanged"] and r["transport_attempts"]==0' staged-admitted-pydantic-negative.json
           python -I -B tools/export_boundary_seed.py --capture staged-embedded-boundary --out staged-boundary-seed.json
           python -I -B tools/export_boundary_seed.py --check staged-boundary-seed.json --capture staged-embedded-boundary
 
@@ -390,6 +406,14 @@ jobs:
           python -I -B -m agentic_security_harness.cli controlled-file-verify --out published-controlled-files
           python -I -B tools/check_workspace_writer.py --out published-workspace-writer
           python -I -B tools/check_document_workflow.py --out published-document-workflow --engine native
+          app_sha="$(git rev-parse HEAD)"
+          python -I -B examples/workspace_admitted_chain.py --out published-admitted-native --repository-sha "$app_sha" > published-admitted-native.json
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="complete" and r["generator_calls"]==2 and len(r["stages"])==2 and r["protected_unchanged"] and r["transport_attempts"]==0' published-admitted-native.json
+          if python -I -B examples/workspace_admitted_chain.py --out published-admitted-native-negative --repository-sha "$app_sha" --negative-control > published-admitted-native-negative.json; then
+            echo "negative control unexpectedly completed" >&2
+            exit 1
+          fi
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="quality_blocked" and r["generator_calls"]==1 and len(r["stages"])==1 and r["stages"][0]["quality"]!="checked" and r["protected_unchanged"] and r["transport_attempts"]==0' published-admitted-native-negative.json
 
       - name: Verify pinned garak detector from exact published wheel
         run: |
@@ -407,5 +431,13 @@ jobs:
           python -m pip check
           python -I -B tools/check_pydantic_ai_guarded_files.py --out published-embedded-boundary --repetitions 1
           python -I -B tools/check_document_workflow.py --out published-document-framework --engine pydantic-ai
+          app_sha="$(git rev-parse HEAD)"
+          python -I -B examples/workspace_admitted_chain.py --out published-admitted-pydantic --repository-sha "$app_sha" --engine pydantic > published-admitted-pydantic.json
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="complete" and r["engine"]=="pydantic" and r["generator_calls"]==2 and len(r["stages"])==2 and r["protected_unchanged"] and r["transport_attempts"]==0' published-admitted-pydantic.json
+          if python -I -B examples/workspace_admitted_chain.py --out published-admitted-pydantic-negative --repository-sha "$app_sha" --engine pydantic --negative-control > published-admitted-pydantic-negative.json; then
+            echo "negative control unexpectedly completed" >&2
+            exit 1
+          fi
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="quality_blocked" and r["engine"]=="pydantic" and r["generator_calls"]==1 and len(r["stages"])==1 and r["stages"][0]["quality"]!="checked" and r["protected_unchanged"] and r["transport_attempts"]==0' published-admitted-pydantic-negative.json
           python -I -B tools/export_boundary_seed.py --capture published-embedded-boundary --out published-boundary-seed.json
           python -I -B tools/export_boundary_seed.py --check published-boundary-seed.json --capture published-embedded-boundary

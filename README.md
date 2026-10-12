@@ -45,6 +45,13 @@ The current 1.13.1 package is on PyPI. See its [release record](docs/releases/v1
 for exact subjects and the status of each verification gate; model-task quality
 and independent human review are separate from package publication.
 
+**Next release candidate: [1.14.0](docs/releases/v1.14.0.md).**
+The merged changes add host-anchored observation admission, exact-byte reviewed
+source reuse, and fenced recovery for create-only workspace operations. They
+also update the optional Pydantic AI dependency to 1.107.7. Candidate source,
+tagged artifacts and published packages are separate states; the install route
+below remains on the verified published 1.13.1 package until release gates pass.
+
 The [guarded workspace writer](docs/guarded-workspace-writer.md) connects an
 application's agent to real UTF-8 document creation: host-owned configuration,
 named output aliases, deterministic Guard, no overwrite, and content-free receipts.
