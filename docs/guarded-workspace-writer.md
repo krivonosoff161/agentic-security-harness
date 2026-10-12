@@ -16,9 +16,10 @@ be trusted. A permitted document may still contain false or malicious text.
 
 ## First useful output, without a model
 
-For this version-bound guide, verify the published
-[v1.13.1 release record](releases/v1.13.1.md) and package index, then install
-`python -m pip install agentic-security-harness==1.13.1` in your own environment.
+For the current published route, verify the
+[v1.14.0 release record](releases/v1.14.0.md) and package index, then install
+`python -m pip install agentic-security-harness==1.14.0` in your own environment.
+The [1.13.1 record](releases/v1.13.1.md) remains historical.
 The writer first shipped in 1.11.0 and adds no
 extra runtime dependency; it was absent from the historical PyPI 1.10.1 wheel.
 
@@ -148,11 +149,13 @@ Use the focused workspace tests and existing file/Guard regressions when changin
 it. Platform-specific checks require their actual platform; a skipped link test
 is not a pass.
 
-## Development candidate: recover the same bound operation
+<a id="development-candidate-recover-the-same-bound-operation"></a>
 
-The unmerged #343/#317 candidate adds `workspace_operation.WorkspaceOperation` for
+## Recover the same bound operation (1.14.0)
+
+Version 1.14.0 adds `workspace_operation.WorkspaceOperation` for
 an application that must retain one operation's spent permissions across a process
-interruption. It is not part of the published package described above. It wraps
+interruption. It is absent from the historical 1.13.1 package. It wraps
 the existing writer; it does not change its create-only permission or content rules.
 
 The host chooses the original operation ID, policy, alias, exact text and total
@@ -215,10 +218,12 @@ Only hashes and permission metadata are stored in the coordinator, not document 
 
 This is distinct from [document data recovery](document-workflow.md#development-contract-recover-data-without-replaying-an-action),
 which transfers reviewed recovered bytes into a **new** job without resuming the old
-action. Existing `document-run` behavior is unchanged. Broader model-workflow
-acceptance remains tracked in #343.
+action. Existing `document-run` behavior is unchanged. Bounded model-workflow
+acceptance and its remaining limits are recorded in the closed #343.
 
-### Development candidate: require sources and pre-action history
+<a id="development-candidate-require-sources-and-pre-action-history"></a>
+
+### Require sources and pre-action history (1.14.0)
 
 An application can additionally pass a host-created `WorkspaceAdmission` as the
 `admission=` argument to `WorkspaceOperation.create` and `open`. The coordinator
@@ -235,7 +240,7 @@ Component IDs must be unique. An original and its derived outputs may share a
 leaf ID **only when the entire validated original restriction record is identical**;
 that leaf is retained once, with every component's dependency on it retained.
 A repeated ID with different original bytes, labels or time bounds is refused.
-This corrects the development candidate's earlier blanket refusal of shared
+This corrects the earlier pre-merge candidate's blanket refusal of shared
 ancestry; it does not renew TTL, relax restrictions or allow duplicate components.
 `sources.bind_policy(policy)` binds the source restrictions and earliest expiry;
 `sources.input_bytes(bound_policy)` checks current restrictions before returning
@@ -265,7 +270,7 @@ For local source capture, the adapter audit identifies its input model as
 metadata and its projection into canonical observations, not relabel those records
 as Runtime Guard decisions or external producer events. This source-model name
 does not authenticate the host: observations remain unattested and authority-free.
-Older validators without this development source model reject it; they must not be
+Older validators without this 1.14.0 source model reject it; they must not be
 worked around by substituting another producer label. Existing source models and
 their validation rules are unchanged.
 
@@ -281,10 +286,12 @@ A completed operation can still be reopened and its retained result checked afte
 source expiry; that path performs no new write. Snapshot assessment may perform
 the ancestry store's documented local witness recovery. Neither the host context
 nor the coordinator protects against coordinated rollback by its trusted operator.
-The additional composition is a development candidate, not whole-issue closure
-or evidence that generated content is accurate or injection-free.
+The additional composition is an installed 1.14.0 capability. Its bounded issue
+acceptance does not establish that generated content is accurate or injection-free.
 
-### Development candidate: one capture call and a two-step application
+<a id="development-candidate-one-capture-call-and-a-two-step-application"></a>
+
+### One capture call and a two-step application (1.14.0)
 
 `workspace_capture.capture_workspace_sources` assembles the local source capture
 from existing contracts. The caller supplies `sources`, an already source-bound
@@ -304,8 +311,8 @@ durable independent retention or protection against coordinated host rollback.
 The runnable [two-step example](../examples/workspace_admitted_chain.py) composes
 all four source kinds, capture, admission, create-only operations, receipt reopen,
 exact output checks and an untrusted handoff. It changes only a fresh `--out`
-directory. From a checkout of this **unreleased candidate**, with that candidate
-wheel installed in an isolated environment, run:
+directory. From a checkout of the **v1.14.0 tag**, with its verified wheel
+installed in an isolated environment, run:
 
 ```bash
 python -I -B examples/workspace_admitted_chain.py --out admitted-example --repository-sha "$(git rev-parse HEAD)"
@@ -315,10 +322,10 @@ python -I -B examples/workspace_admitted_chain.py --out admitted-negative --repo
 The first command performs two checked writes and exits 0. The negative control
 exits 1: the incorrect draft is saved at the permitted destination, but the next
 generator is never called. Each run requires a different, nonexistent output
-directory. The exact same example can use `--engine pydantic` when the candidate's
+directory. The exact same example can use `--engine pydantic` when 1.14.0's
 optional Pydantic AI dependencies are installed. `-I` makes imports use the
-installed package, not a source-path override. The published 1.13.1 wheel does
-**not** contain this candidate API.
+installed package, not a source-path override. The historical 1.13.1 wheel does
+**not** contain this 1.14.0 API.
 
 The default command's generator is deterministic and makes **zero model or network
 calls**. For your application, pass an existing
@@ -331,7 +338,7 @@ restrictions and expiry survive the checked handoff without gaining authority.
 
 #### Optional local query planner
 
-The same candidate example can make at most two requests to an **already running,
+The same 1.14.0 example can make at most two requests to an **already running,
 local Ollama model**, with explicit opt-in:
 
 ```bash

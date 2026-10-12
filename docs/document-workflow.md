@@ -1,10 +1,11 @@
 # Document jobs: from your source text to a guarded new document
 
-This guide follows the **1.13.1** document-workflow package. The workflow first
-shipped in 1.13.0; see the [v1.13.1 release record](releases/v1.13.1.md) for
-actual build, index and verification status. A source version or this guide
-alone does not prove publication. The patch is now published; the original
-[v1.13.0 record](releases/v1.13.0.md) remains historical evidence.
+This guide covers the document workflow first shipped in 1.13.0 and the
+additional 1.14.0 source-admission and review controls. Check the
+[v1.14.0 release record](releases/v1.14.0.md) and package index before selecting
+an installed version; source metadata or this guide alone does not prove
+publication. The [v1.13.1 record](releases/v1.13.1.md) and
+[v1.13.0 record](releases/v1.13.0.md) remain historical evidence.
 This is a usable workflow around the existing [workspace writer](guarded-workspace-writer.md),
 not a new executor. Its first use case is turning a host-selected UTF-8 document into
 a new summary, checklist or draft. The permission boundary is deterministic and uses
@@ -25,12 +26,13 @@ review-required source, follow the
 
 ## First job
 
-Before installing, verify the published v1.13.1 release record and package
-index, then install the exact patch in a virtual environment.
+Published 1.14.0 passed its tag build and TestPyPI and PyPI publication gates.
+Before installing, verify its [release record](releases/v1.14.0.md) and package
+index, then install that exact version in a virtual environment.
 The base workflow adds no model-framework dependency:
 
 ```sh
-python -m pip install agentic-security-harness==1.13.1
+python -m pip install agentic-security-harness==1.14.0
 ash document-init --dir my-documents --model YOUR_EXISTING_LOCAL_MODEL
 ash document-check --config my-documents/document.json --check-model
 ash document-run --config my-documents/document.json --input notes.txt --task "Make a short action checklist from these notes" --job first
@@ -97,8 +99,8 @@ host-bound [guarded writer](guarded-workspace-writer.md#connect-an-existing-agen
 without another model call. The destination still needs its own host policy.
 Preserve returned source restrictions when present; do not renew their original expiry.
 If the source has none, any new host restrictions apply only to the new context,
-not retroactively to the model run that produced the source. In the development branch,
-the [candidate admission composition](guarded-workspace-writer.md#development-candidate-require-sources-and-pre-action-history)
+not retroactively to the model run that produced the source. In 1.14.0,
+the [source and history admission composition](guarded-workspace-writer.md#development-candidate-require-sources-and-pre-action-history)
 binds source restrictions and a host capture checkpoint to a candidate operation;
 capturing existing bytes does not reconstruct missing history from an earlier run.
 Neither exact transport nor a successful write makes an incorrect original true
@@ -115,7 +117,7 @@ not permission: jobs still use the same source admission and guarded writer.
 The [two-step recipe](../examples/document-plan/jobs.json) extracts owner/day
 fields from a public note and passes the verified first document to a second job.
 Its exact JSON requirements are host-side checks, not answers sent to the model.
-Use an exact 1.13.1 installation after checking the release record. From the checkout root,
+Use an exact 1.14.0 installation after checking the release record. From the checkout root,
 choose a new workspace and an exact already-installed local Ollama model:
 
 ```text
@@ -534,9 +536,11 @@ failed-quality document is still a saved draft, but the CLI exits 2 and it
 cannot be a `--from-job` source. `checked` never proves semantic correctness,
 source reliability or permission safety.
 
-### Unreleased correction: checklist matches still need source review
+<a id="unreleased-correction-checklist-matches-still-need-source-review"></a>
 
-The development candidate requires an exact-byte review digest before using a
+### Checklist matches still need source review (1.14.0)
+
+Version 1.14.0 requires an exact-byte review digest before using a
 checklist-matched draft as `--from-job` data, even when its stored quality says
 `checked`. This also applies to older `declared_checklist_match` records. Matching
 the words `Alice` and `Friday` does not distinguish a correct assignment from
@@ -553,8 +557,8 @@ This change blocks automatic reuse of partially checked content. It does not
 remove instructions from a saved draft, prove that a person reviewed it, or
 establish the truth of free-form text. Requested quotations remain data, not
 instructions to execute. The correction belongs to the work on issue #343;
-it does not close the wider task-faithfulness, #316 or #317 obligations and is
-not yet part of the published 1.13.1 package.
+it does not establish wider task faithfulness, uncaptured-event completeness
+or arbitrary action recovery. It is absent from the historical 1.13.1 package.
 
 ## Repeat use and restart
 
@@ -649,14 +653,14 @@ text and no model or provider calls.
 
 ## One optional framework, not another protection layer
 
-Published 1.13.1 has a `document-agent` extra pinned to `pydantic-ai-slim==1.107.1`.
-The unreleased maintenance candidate uses `1.107.7` and matching platform locks;
-validate that candidate with its matching checkout/environment, not the old wheel.
-The following install command is for **published 1.13.1 only**, not the
-maintenance candidate. Select the framework when creating a **new** workspace:
+Version 1.14.0 has a `document-agent` extra pinned to
+`pydantic-ai-slim==1.107.7` with matching platform locks. Historical 1.13.1
+used 1.107.1; do not mix its lock or wheel with the current extra. Verify
+the published 1.14.0 wheel and matching lock before installing. Select the framework when
+creating a **new** workspace:
 
 ```sh
-python -m pip install "agentic-security-harness[document-agent]==1.13.1"
+python -m pip install "agentic-security-harness[document-agent]==1.14.0"
 ash document-init --dir framework-documents --model YOUR_EXISTING_LOCAL_MODEL --engine pydantic-ai
 ```
 

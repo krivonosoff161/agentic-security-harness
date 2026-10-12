@@ -129,7 +129,7 @@ session: even if a write already happened, later calls cannot silently retry it.
 After closing or failing, the session cannot resume. Its result record describes
 authorization and effects, not the correctness of report counts.
 
-The unreleased maintenance candidate pins `pydantic-ai-slim==1.107.7`, with a separate
+Published Harness 1.14.0 pins `pydantic-ai-slim==1.107.7`, with a separate
 Windows x64 / Python 3.11 hash-locked environment in
 `requirements/verification/pydantic-ai-windows-py311.txt`. It is not a base Harness
 dependency. Pydantic AI is an independent project under the
@@ -149,11 +149,12 @@ digests, decisions and timings, not raw response text. The default commands belo
 still use fixed controls and never start a model. A real model transport and its
 resource/network limits remain explicit responsibilities of the calling application.
 
-For the maintenance candidate, install the matching Harness checkout and optional
-locked dependencies into a fresh environment before using the current example.
-Published Harness 1.13.1 retains its original optional pin `1.107.1`; installing
-that release does not install this candidate repair. Do not combine the current
-checkout example with an older installed Harness/framework environment.
+For the [published 1.14.0 release](releases/v1.14.0.md), install its exact wheel and
+matching optional locked dependencies into a fresh environment before using the
+current example. The optional Pydantic AI pin is `1.107.7`. Historical Harness
+1.13.1 retains its original `1.107.1` pin; installing that immutable release does
+not install this repair. Do not combine the current checkout example with an
+older installed Harness/framework environment.
 
 From the matching checkout/environment:
 
