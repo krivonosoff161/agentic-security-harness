@@ -1,5 +1,35 @@
 # Replaying the 1.13.1 document workflow
 
+## Unreleased research candidate replay
+
+For [PR #354](https://github.com/krivonosoff161/agentic-security-harness/pull/354),
+record the exact selected commit and build/install its wheel in a fresh isolated
+environment as below. The candidate retains the package version: installing the
+published 1.13.1 wheel by name does **not** reproduce the candidate. Bind source
+commit, lock hashes, wheel digest and installed import path before comparing runs.
+
+Use the existing [two-step application instructions](guarded-workspace-writer.md#development-candidate-one-capture-call-and-a-two-step-application)
+for separate positive and failed-quality negative runs, and its optional Pydantic
+engine only with the matching platform lock. The default runs are deterministic,
+with zero model calls. Run the candidate source tests for `trajectory_admission`,
+`workspace_capture`, `workspace_admission`, `workspace_operation` and checklist
+review; the platform CI additionally executes the corresponding installed tests.
+The admitted-operation tests include real owned-child process exits. Do not count
+the example's ordinary receipt reopen as that crash experiment.
+
+Keep permission, task correctness, completeness and recovery as separate results.
+For optional real-model studies, preregister the finite tasks, all attempts,
+expected predicates or review rubric, model/settings and output limits. Keep
+source-reading generation distinct from the task-only query planner. A failed
+task is still failed when writing was permitted; a correct quotation containing
+an instruction is not evidence that the instruction executed. Preserve failed
+attempts, source/response digests, exact readback and timing by stage. Do not infer
+a population rate or semantic guarantee from a small designed replay.
+
+The sections below retain the **published 1.13.1** replay and its historical
+scripted counts. They are not the candidate's acceptance totals. Follow the
+candidate's checked-in CI commands and report actual counts for its exact commit.
+
 This is a reproducibility protocol for the **1.13.1 workflow**, not a claim
 that an outside operator has run it. The published
 [release record](releases/v1.13.1.md) reports actual publication and verification

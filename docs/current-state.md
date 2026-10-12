@@ -1,5 +1,15 @@
 # Current state
 
+## Unmerged research-closure candidate / PR #354
+
+[PR #354](https://github.com/krivonosoff161/agentic-security-harness/pull/354)
+combines the dependency repairs, document-source admission correction, trusted
+coverage expectations (#316), bounded same-operation recovery (#317), and their
+host-owned integration (#343). It does not change the published **1.13.1** package.
+The [acceptance map](project-tracker.md#research-closure-candidate--pr-354)
+separates verified mechanisms, model-task observations and remaining assumptions.
+Exact-head CI and review status belong to the PR, not to the older release below.
+
 ## Development candidate — bounded workspace operation recovery
 
 The unmerged #343/#317 candidate retains one host-bound create-only operation and
@@ -11,8 +21,10 @@ Existing document-job recovery remains reviewed data transfer into a new job.
 The candidate now optionally requires exact source restrictions and independently
 host-admitted pre-action telemetry before grants and new effects, without making
 telemetry an execution authority. Input, tool-output, memory and handoff kinds
-retain their original restrictions. Broader useful model-chain acceptance remains
-open; this does not claim semantic truth or uncaptured host-event completeness.
+retain their original restrictions. Bounded native/optional model chains have
+been exercised, with unsuccessful series retained separately. This does not
+establish arbitrary document usefulness, semantic truth or uncaptured host-event
+completeness.
 The candidate also provides one host-owned source-capture factory and a runnable
 [two-step installed-package example](guarded-workspace-writer.md#development-candidate-one-capture-call-and-a-two-step-application).
 It joins these APIs without manual telemetry assembly, with a failed-quality
