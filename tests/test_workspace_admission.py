@@ -328,8 +328,9 @@ def test_recovery_preserves_context_budget_and_single_effect(tmp_path: Path) -> 
     assert case.reopen().reconcile()["state"] == "DELIVERED_RECEIPT"
 
 
+@pytest.mark.parametrize("phase", ("before_receipt", "after_receipt"))
 def test_admitted_child_crash_after_write_reconciles_without_second_effect(
-    tmp_path: Path,
+    tmp_path: Path, phase: str,
 ) -> None:
     case = host(tmp_path)
     case.operation()
@@ -365,8 +366,10 @@ from agentic_security_harness.workspace_admission import (
     WorkspaceAdmission, WorkspaceSource, WorkspaceSources,
 )
 from agentic_security_harness.workspace_operation import WorkspaceOperation
+from agentic_security_harness._workspace_files import WorkspaceFiles
 from agentic_security_harness.workspace_writer import GuardedWorkspace, WorkspacePolicy
 root = Path(sys.argv[2])
+phase = sys.argv[4]
 inputs = json.loads((root / "child-host.json").read_text(encoding="utf-8"))
 sources = WorkspaceSources.bind(tuple(WorkspaceSource(
     item["kind"], item["source_id"], bytes.fromhex(item["content_hex"]),
@@ -395,28 +398,45 @@ with (root / "child-grant.json").open("x", encoding="utf-8") as file:
     json.dump(grant.__dict__, file)
     file.flush()
     os.fsync(file.fileno())
-original = GuardedWorkspace.submit
-def crash(self, proposal):
-    result = original(self, proposal)
-    if result.get("applied") is not True or result.get("receipt_complete") is not True:
-        raise AssertionError("guarded write did not complete")
-    os._exit(23)
-GuardedWorkspace.submit = crash
+if phase == "before_receipt":
+    original_write = WorkspaceFiles.write_once
+    def crash_before_receipt(self, alias, content):
+        if alias == "result1":
+            if (root / "output" / "summary.md").read_bytes() != sys.argv[3].encode():
+                raise AssertionError("completed file missing before receipt")
+            if len(list((root / "output").glob(".ash-*-intent.json"))) != 1:
+                raise AssertionError("durable intent missing before receipt")
+            os._exit(24)
+        return original_write(self, alias, content)
+    WorkspaceFiles.write_once = crash_before_receipt
+else:
+    original = GuardedWorkspace.submit
+    def crash(self, proposal):
+        result = original(self, proposal)
+        if result.get("applied") is not True or result.get("receipt_complete") is not True:
+            raise AssertionError("guarded write did not complete")
+        os._exit(23)
+    GuardedWorkspace.submit = crash
 op.deliver(grant)
 raise AssertionError("child did not exit")
 """
     child = subprocess.run(
-        [sys.executable, "-I", "-B", "-c", code, str(package_root), str(tmp_path), TEXT],
+        [sys.executable, "-I", "-B", "-c", code, str(package_root), str(tmp_path), TEXT, phase],
         capture_output=True, timeout=30, check=False,
     )
-    assert child.returncode == 23, child.stderr.decode("utf-8", errors="replace")
+    assert child.returncode == (24 if phase == "before_receipt" else 23), (
+        child.stderr.decode("utf-8", errors="replace")
+    )
     assert child.stdout == child.stderr == b""
     old_grant = WorkspacePermission(**json.loads(grant_path.read_text(encoding="utf-8")))
     target = case.policy.output_dir / "summary.md"
     before = target.stat()
     assert target.read_bytes() == TEXT.encode()
+    intents = list(case.policy.output_dir.glob(".ash-*-intent.json"))
+    assert len(intents) == 1 and intents[0].is_file()
     receipts = list(case.policy.output_dir.glob(".ash-*-result.json"))
-    assert len(receipts) == 1 and receipts[0].is_file()
+    assert len(receipts) == (0 if phase == "before_receipt" else 1)
+    assert all(receipt.is_file() for receipt in receipts)
     with pytest.raises(WorkspaceOperationError, match="outcome_less_replay"):
         case.reopen().deliver(old_grant)
     with pytest.raises(WorkspaceOperationError):

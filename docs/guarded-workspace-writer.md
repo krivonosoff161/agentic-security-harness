@@ -196,9 +196,11 @@ After an attempted delivery with no outcome, replay of the same permission refus
 a competing delivery may receive this refusal while the first is still finishing.
 Repeated delivery after a verified completion returns the retained result only.
 
-The [admission regression](../tests/test_workspace_admission.py) also exercises an
-actual child-process exit after the guarded file and receipt are written but
-before the coordinator records the outcome. It retains the four source kinds,
+The [admission regression](../tests/test_workspace_admission.py) also exercises
+actual child-process exits after the guarded file is written, both before and
+after the writer result receipt, but before the coordinator records the outcome.
+The before-receipt case retains the intent without inventing a completed receipt.
+Both cuts retain the four source kinds,
 host profile, checkpoint and manifest anchor. Reopening with those same anchors
 reconciles the postcondition without another file effect; omitting or rebinding
 admission refuses. This tests process interruption, not loss of power or recovery
