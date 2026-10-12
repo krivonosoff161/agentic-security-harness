@@ -1,6 +1,16 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The current package is published as `1.13.1` on
+The current [v1.14.0 release](releases/v1.14.0.md) has an exact-tag build
+(`38304932507`, four jobs passed), TestPyPI staging (`38305530516`, three
+jobs passed), and owner-approved PyPI production (`38307086412`, all five
+applicable jobs passed). Official non-yanked subjects and normalized
+descriptions match across indexes. Separate
+[read-only cross-index run 38307456388](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/38307456388)
+passed all seven subject/index/provenance and Linux/Windows installed-wheel
+jobs with zero skips, without rebuild or re-upload. Production and read-only
+verification remain separate evidence.
+
+The prior package was published as `1.13.1` on
 [PyPI](https://pypi.org/project/agentic-security-harness/1.13.1/).
 The [v1.13.1 release record](releases/v1.13.1.md) binds merged source
 `dfd773f8b77086b7df2cc0dc20aaa86ba84cd598`, passed tag build

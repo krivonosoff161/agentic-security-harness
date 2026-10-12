@@ -1,18 +1,20 @@
-# Replaying the 1.13.1 document workflow
+# Replaying the installed document workflow
 
-## Unreleased research candidate replay
+<a id="unreleased-research-candidate-replay"></a>
 
-For [PR #354](https://github.com/krivonosoff161/agentic-security-harness/pull/354),
-merged at `c36679812acf1a64a7095f59b06ce388695813e9`, record the exact
-selected commit and build/install its wheel in a fresh isolated environment as
-below. The subsequent [1.14.0 release candidate](releases/v1.14.0.md) has its own
-version; installing the published 1.13.1 wheel by name does **not** reproduce it. Bind source
-commit, lock hashes, wheel digest and installed import path before comparing runs.
+## 1.14.0 installed-source replay
+
+For the [v1.14.0 release](releases/v1.14.0.md), record the exact tag commit
+`d25f79d963d07d91486bfbcf869088c27fdd6cc1`, wheel digest and installed
+import path in a fresh isolated environment. [PR #354](https://github.com/krivonosoff161/agentic-security-harness/pull/354)
+merged the underlying source at `c36679812acf1a64a7095f59b06ce388695813e9`;
+the tag also includes release preparation. The historical 1.13.1 wheel does
+**not** reproduce 1.14.0. Bind the matching lock hashes before comparing runs.
 
 Use the existing [two-step application instructions](guarded-workspace-writer.md#development-candidate-one-capture-call-and-a-two-step-application)
 for separate positive and failed-quality negative runs, and its optional Pydantic
 engine only with the matching platform lock. The default runs are deterministic,
-with zero model calls. Run the candidate source tests for `trajectory_admission`,
+with zero model calls. Run the 1.14.0 source tests for `trajectory_admission`,
 `workspace_capture`, `workspace_admission`, `workspace_operation` and checklist
 review; the platform CI additionally executes the corresponding installed tests.
 The admitted-operation tests include real owned-child process exits. Do not count
@@ -28,8 +30,10 @@ attempts, source/response digests, exact readback and timing by stage. Do not in
 a population rate or semantic guarantee from a small designed replay.
 
 The sections below retain the **published 1.13.1** replay and its historical
-scripted counts. They are not the candidate's acceptance totals. Follow the
-candidate's checked-in CI commands and report actual counts for its exact commit.
+scripted counts. They are not 1.14.0 acceptance totals. Follow the 1.14.0 tag's
+checked-in CI commands and report actual counts for that exact commit.
+
+## Historical 1.13.1 replay protocol
 
 This is a reproducibility protocol for the **1.13.1 workflow**, not a claim
 that an outside operator has run it. The published

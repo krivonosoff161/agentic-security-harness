@@ -63,11 +63,13 @@ only the exact ordered ancestor closure for the requested target. It rejects
 missing, extra, reordered, rebound or cyclic candidate records. These are data
 integrity and ancestry checks; they do not establish the truth of payload claims.
 
-## Development candidate: retained telemetry admission (#316)
+<a id="development-candidate-retained-telemetry-admission-316"></a>
 
-The candidate `trajectory_admission` module composes this store with the existing
+## Retained telemetry admission in 1.14.0 (#316)
+
+The 1.14.0 `trajectory_admission` module composes this store with the existing
 coverage profile and telemetry manifest. It does not introduce another writer,
-executor, permission or logging service. It is not in the published 1.13.1 package.
+executor, permission or logging service. It is absent from the historical 1.13.1 package.
 
 The host admits the coverage profile, logical operation and policy before accepting
 producer evidence. Data-only root/event builders bind those values, each captured
@@ -127,9 +129,9 @@ an fsynced temporary witness replaced atomically. Process-crash tests are not
 whole-machine power-loss tests. Filesystem, flush and atomic-replacement
 assumptions must be assessed for the deployment platform.
 
-### Storage and integrity failures (local candidate)
+### Storage and integrity failures
 
-The local candidate classifies OS/SQLite creation failures as `StorageError`, an
+The installed package classifies OS/SQLite creation failures as `StorageError`, an
 `IntegrityError` subclass, with a fixed stage and numeric error codes. It omits
 the underlying error text, which may contain paths. `controlled-file-workflow`
 reports this as `ancestry_storage_unavailable` and exits nonzero; it does not

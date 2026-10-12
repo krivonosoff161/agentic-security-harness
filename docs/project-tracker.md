@@ -2,26 +2,33 @@
 
 <a id="research-closure-candidate--pr-354"></a>
 
-## Merged research source / 1.14.0 release candidate
+## Published 1.14.0 / read-only verified
 
 Verified source evidence snapshot: 2026-10-12, implementation/test head
 `580af563254c584612a6d5bde8a1a990a0f3f354`. The later documentation
 reconciliation did not change runtime code. [PR #354](https://github.com/krivonosoff161/agentic-security-harness/pull/354)
 merged at `c36679812acf1a64a7095f59b06ce388695813e9` with the reviewed source
-tree. The **1.14.0 source candidate is not yet a published release**: 1.13.1
-remains on the package indexes. Release-subject checks, staged publication and
-production promotion are separate gates. Parent issues remain open pending
-checked delivery and issue reconciliation; source merge is not automatic closure.
+tree. Release-preparation PR #355 merged at
+`d25f79d963d07d91486bfbcf869088c27fdd6cc1`; its 35 PR checks and 26
+post-merge checks passed. The [v1.14.0 tag build](releases/v1.14.0.md)
+passed four jobs and TestPyPI staging passed three. Owner-approved PyPI
+production `38307086412` passed all five applicable jobs; official non-yanked
+index subjects match. The current published package is **1.14.0**. Separate
+read-only cross-index run `38307456388` passed all seven jobs with zero
+skips. Bounded acceptance issues #316, #317, #343 and #353 were then closed
+with linked release evidence and explicit residual assumptions. Independent
+human-review issues #199/#205 and optional Pydantic AI 2.x PR #342 remain separate.
+Older release entries below retain their historical release-time status.
 
-| Original work | Candidate mechanism and checkable evidence | Remaining boundary |
+| Original work | Delivered mechanism and checkable evidence | Remaining boundary |
 |---|---|---|
-| Dependency maintenance (#353; #350/#351/#341) | Optional Pydantic AI 1.107.7 metadata and both platform locks are aligned, with fresh-install and native/optional checks in merged source. | Source merge does not establish a published fixed wheel or resolve every alert. The optional 2.x proposal #342 is a separate compatibility choice. |
+| Dependency maintenance (#353; #350/#351/#341) | Optional Pydantic AI 1.107.7 metadata and both platform locks are aligned; the exact 1.14.0 wheel passed installed native/optional release checks and seven read-only cross-index jobs. GitHub reports all 24 Pydantic AI alerts fixed and zero open Dependabot alerts, without dismissal. | The optional 2.x proposal #342 is a separate compatibility choice. |
 | Grok task/content findings (#343) | [Checklist reuse](document-workflow.md#unreleased-correction-checklist-matches-still-need-source-review) requires exact-byte host acknowledgment, even for old `checked` drafts. Failed whole-object requirements cannot be overridden. Defined JSON predicates and verified-byte transfer have separate regression controls. | Literal term matching still does not prove a statement. A digest binds bytes, not actual human review or truth. Source-reading generation can still produce an incorrect draft. |
 | Trusted completeness (#316) | [Retained telemetry admission](ancestry-store.md#development-candidate-retained-telemetry-admission-316) reconstructs captured history against separately host-admitted expectations, checkpoints and manifest anchors; metadata drift and missing/pending observations are tested. | Honest independent host retention is a premise. Uninstrumented events and simultaneous rollback of every anchor cannot be detected from the same local records. Telemetry grants no effect authority. |
 | Ambiguous outcome (#317) | [Same-operation recovery](guarded-workspace-writer.md#development-candidate-recover-the-same-bound-operation) retains spend, fences supported old deliveries and reconciles the exact file postcondition. Actual child exits before and after the writer receipt recover without a second effect. | Partial or different bytes remain unknown. The result is conditional on the supported writer, exclusive target and filesystem locking; not arbitrary-tool exactly-once, cancellation or power-loss safety. |
 | Host integration (#343) | The [installed two-step application](guarded-workspace-writer.md#development-candidate-one-capture-call-and-a-two-step-application) composes four source kinds, original restrictions, source/history admission, useful writes and refused handoffs. Source and installed native/optional Windows/Linux lanes exercise the composition. | Host configuration and task criteria remain trusted. A narrow query planner, a free-text generator and a byte-copy path are different task boundaries. |
 
-At the pre-merge snapshot above, **35/35 checks passed**. The
+At the earlier research pre-merge snapshot, **35/35 checks passed**. The
 [six-report Windows/Linux aggregate](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/38208358448/job/114678430946)
 confirmed **3245 passing test nodes across 173 modules**. Per-lane skips and earlier
 failed runs remain recorded; this is not a claim that every test ran on every OS.
@@ -49,12 +56,12 @@ specified independently, the result stays a draft requiring substantive review;
 relabeling it `checked` would not close that gap. No universal semantic classifier
 or general model-accuracy guarantee is inferred from these experiments.
 
-## Published-route stabilization / 1.13.1
+## Prior published-route stabilization / 1.13.1
 
-Development is focused on making the existing published routes usable end to end,
-not adding connectors, new capabilities, or separate research tracks. The current
-published stabilization patch is [v1.13.1](releases/v1.13.1.md).
-The current published package is **1.13.1**.
+The prior stabilization work focused on making existing published routes usable
+end to end, not adding connectors, capabilities or separate research tracks.
+Its published stabilization patch was [v1.13.1](releases/v1.13.1.md).
+The 1.13.1 package remains published as historical evidence; 1.14.0 is current.
 
 The patch was merged in
 [PR #349](https://github.com/krivonosoff161/agentic-security-harness/pull/349)
@@ -100,7 +107,7 @@ or closure of the open research issues.
 
 ## Prior published document-workflow release / 1.13.0
 
-The 1.13.0 package first shipped this workflow; 1.13.1 is the current patch.
+The 1.13.0 package first shipped this workflow; 1.13.1 is its historical patch.
 
 [Merged PR #347](https://github.com/krivonosoff161/agentic-security-harness/pull/347)
 includes the #344/#346 work; those PRs were closed as superseded with branches
@@ -433,8 +440,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.13.1` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.13.1/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.14.0` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.14.0/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are

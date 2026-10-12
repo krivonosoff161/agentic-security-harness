@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/public_research_release-v1.13.1-blue)
+![Status](https://img.shields.io/badge/public_research_release-v1.14.0-blue)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -41,16 +41,18 @@ permission preview, separate jobs, restart inspection, content-free quality
 status and an optional Pydantic AI bridge around the writer. A verified first
 document can feed a second job only as untrusted data under unchanged host
 policy. Exact host-declared criteria are not a claim of factual correctness.
-The current 1.13.1 package is on PyPI. See its [release record](docs/releases/v1.13.1.md)
+The current 1.14.0 package is on PyPI. See its [release record](docs/releases/v1.14.0.md)
 for exact subjects and the status of each verification gate; model-task quality
 and independent human review are separate from package publication.
 
-**Next release candidate: [1.14.0](docs/releases/v1.14.0.md).**
+**Current release: [1.14.0](docs/releases/v1.14.0.md).**
 The merged changes add host-anchored observation admission, exact-byte reviewed
 source reuse, and fenced recovery for create-only workspace operations. They
-also update the optional Pydantic AI dependency to 1.107.7. Candidate source,
-tagged artifacts and published packages are separate states; the install route
-below remains on the verified published 1.13.1 package until release gates pass.
+also update the optional Pydantic AI dependency to 1.107.7. The 1.14.0 tag
+build, TestPyPI staging and owner-approved PyPI production passed their
+applicable gates. Separate read-only cross-index verification passed all seven
+jobs with zero skips;
+publication does not establish model-task fidelity or independent human review.
 
 The [guarded workspace writer](docs/guarded-workspace-writer.md) connects an
 application's agent to real UTF-8 document creation: host-owned configuration,
@@ -123,9 +125,9 @@ estimate, an autonomous-agent demonstration or an independent human audit.
   The earlier eight-call result is preserved separately in the report.
 
 **Package versus research evidence:** the study used exact installed **1.6.0**
-subjects, while the current published package is **1.13.1**. The prompt helper,
+subjects, while the current published package is **1.14.0**. The prompt helper,
 corpus and observations are repository-owned evidence, not evidence that the
-1.7.0, 1.7.1, 1.8.0, 1.9.0, 1.9.1, 1.10.1, 1.11.0, 1.12.0, 1.13.0 or 1.13.1 wheel
+1.7.0, 1.7.1, 1.8.0, 1.9.0, 1.9.1, 1.10.1, 1.11.0, 1.12.0, 1.13.0, 1.13.1 or 1.14.0 wheel
 was used in those model calls. See
 [release and package status](#release-and-package-status) and
 [current state](docs/current-state.md) for the exact boundary.
@@ -175,10 +177,10 @@ package availability, retained initial smoke failures, and successful read-only
 verification.
 
 Install the exact package version from
-[PyPI](https://pypi.org/project/agentic-security-harness/1.13.1/):
+[PyPI](https://pypi.org/project/agentic-security-harness/1.14.0/):
 
 ```bash
-python -m pip install agentic-security-harness==1.13.1
+python -m pip install agentic-security-harness==1.14.0
 ash quickstart --out reports/quickstart
 ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
@@ -237,12 +239,12 @@ facts. The Harness generates only the cross-project roadmap and compatibility vi
 - [Documentation crosswalk](docs/documentation-map.md)
 - [`component.yaml`](component.yaml) and [`ecosystem/roadmap.yaml`](ecosystem/roadmap.yaml)
 
-Runtime Guard remains private and `contract_only`. Harness version `v1.13.1`
+Runtime Guard remains private and `contract_only`. Harness version `v1.14.0`
 contains the closed [Extension SDK V1](docs/extension-sdk.md) and public passive extras for
 validated observation-to-finding dataflow. It does not auto-load installed packages;
 companion repositories remain optional, separately versioned distributions.
 
-Version `v1.13.1` retains the closed optional-dependency groups introduced in `v1.4.0`:
+Version `v1.14.0` retains the closed optional-dependency groups introduced in `v1.4.0`:
 
 | Extra | Exact companion distributions | Automatic activation |
 |---|---|---|
@@ -257,8 +259,8 @@ The generic PyPI coordinate `llm-router` is intentionally absent because it belo
 another project. CI builds all eight exact wheels from pinned Git SHAs and installs the
 closed local wheelhouse without loading either extension entry point. The public install
 commands are
-`pip install "agentic-security-harness[router]==1.13.1"` or
-`pip install "agentic-security-harness[all]==1.13.1"`. Other companion pins are unchanged;
+`pip install "agentic-security-harness[router]==1.14.0"` or
+`pip install "agentic-security-harness[all]==1.14.0"`. Other companion pins are unchanged;
 installation remains separate from module activation.
 
 For explicit installed extension binding, follow the fresh `--no-compile` environment
@@ -522,13 +524,17 @@ approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install the
 
 ## Release and package status
 
-Release [v1.13.1](docs/releases/v1.13.1.md) is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.13.1/). Its tagged
-build `37904553744`, TestPyPI staging `37926491472`, and production
-`37964360307` passed their applicable jobs; the official non-yanked wheel and
-sdist hashes match the built subjects. Separate
-[read-only run 37966053148](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/37966053148)
-passed all seven exact-subject cross-index jobs. Historical
+Release [v1.14.0](docs/releases/v1.14.0.md) is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.14.0/). Its tagged
+build `38304932507`, TestPyPI staging `38305530516`, and owner-approved
+production `38307086412` passed four, three and five applicable jobs,
+respectively. Official non-yanked wheel/sdist hashes match attested subjects;
+separate [read-only cross-index run 38307456388](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/38307456388)
+passed all seven jobs with zero skips. Historical
+[v1.13.1](docs/releases/v1.13.1.md) retains its own tag build `37904553744`,
+TestPyPI `37926491472`, PyPI `37964360307` and seven-job
+[read-only run 37966053148](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/37966053148).
+Historical
 [v1.13.0](docs/releases/v1.13.0.md) passed its own five applicable production
 jobs and separate [read-only run 37764340666](https://github.com/krivonosoff161/agentic-security-harness/actions/runs/37764340666)
 passed all seven cross-index jobs with zero skips.
