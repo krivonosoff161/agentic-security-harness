@@ -13,6 +13,7 @@ import hashlib
 import importlib.util
 import json
 import math
+import platform
 import sys
 from pathlib import Path
 from typing import Any
@@ -127,15 +128,13 @@ def summarize(values: list[int]) -> dict[str, int]:
     }
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--repetitions", type=int, default=10, choices=range(1, 26))
-    args = parser.parse_args()
-    root = Path(__file__).resolve().parents[1]
-    # Installed package should be selected by the caller's environment. Tests may
-    # explicitly set PYTHONPATH=src, which the receipt makes visible by a hash.
-    loop = asyncio.new_event_loop()
+def install_audit_gate() -> tuple[list[str], list[str]]:
+    """Deny effects while priming only stdlib platform detection, then fail hard.
+
+    CPython's Windows platform probe catches OSError and falls back to native
+    version data. PermissionError denies its shell probes without executing them
+    or patching platform/vendor code. Third-party imports never get this fallback.
+    """
     forbidden = {
         "socket.connect",
         "socket.bind",
@@ -147,13 +146,35 @@ def main() -> int:
         "os.startfile",
     }
     blocked: list[str] = []
+    bootstrap_denied: list[str] = []
+    bootstrapping = True
 
     def audit(event: str, details: tuple[Any, ...]) -> None:
         if event in forbidden:
+            if bootstrapping and event == "subprocess.Popen":
+                bootstrap_denied.append(event)
+                raise PermissionError("stdlib platform subprocess probe denied")
             blocked.append(event)
             raise RuntimeError("audit denied: " + event)
 
     sys.addaudithook(audit)
+    try:
+        platform.system()
+    finally:
+        bootstrapping = False
+    return bootstrap_denied, blocked
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--repetitions", type=int, default=10, choices=range(1, 26))
+    args = parser.parse_args()
+    root = Path(__file__).resolve().parents[1]
+    # Installed package should be selected by the caller's environment. Tests may
+    # explicitly set PYTHONPATH=src, which the receipt makes visible by a hash.
+    loop = asyncio.new_event_loop()
+    bootstrap_denied, blocked = install_audit_gate()
     from agentic_security_harness.controlled_file_workflow import _new_json
     from agentic_security_harness.safe_io import require_atomic_output_destination
 
@@ -186,7 +207,7 @@ def main() -> int:
         "repetitions": args.repetitions,
         "cases_per_repetition": len(example.CASES),
         "model_calls": 0,
-        "framework": "pydantic-ai-slim==1.107.7",
+        "framework": "pydantic-ai-slim==2.54.0",
         "example_sha256": sha(example_path.read_bytes()),
         "checker_sha256": sha(Path(__file__).read_bytes()),
         "corpus_sha256": sha(canonical(example.CASES)),
@@ -195,6 +216,8 @@ def main() -> int:
         "audit": (
             "deny process/network after stdlib event-loop IPC bootstrap, before third-party import"
         ),
+        "platform_bootstrap": "stdlib only; subprocess probes denied with native fallback",
+        "platform_bootstrap_denied_events": bootstrap_denied,
         "latency": "perf_counter_ns; all samples retained; nearest-rank quantiles; no SLA",
         "data_class": "public_synthetic",
         "independent_human_review": False,
@@ -219,6 +242,7 @@ def main() -> int:
         "applied": sum(row["actual"]["applied"] for row in rows),
         "protected_files_unchanged": len(rows),
         "blocked_audit_events": blocked,
+        "platform_bootstrap_denied_events": bootstrap_denied,
         "model_calls": 0,
         "provider_calls": 0,
         "scripted_function_requests": sum(row["agent_usage"]["requests"] for row in rows),

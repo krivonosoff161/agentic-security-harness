@@ -189,19 +189,23 @@ def verify_capture(capture: Path, cases: tuple[dict[str, Any], ...] | None = Non
     receipt = read_json(capture / "verification.json")
     manifest_sha = sha(canonical(manifest))
     source_hashes = {name: sha((SOURCE / name).read_bytes()) for name in SOURCE_NAMES}
+    bootstrap = manifest.get("platform_bootstrap_denied_events")
     if (type(manifest) is not dict or manifest.get("schema") != "PydanticAIExperiment.v1"
             or type(manifest.get("repetitions")) is not int or manifest["repetitions"] != 1
             or type(manifest.get("cases_per_repetition")) is not int
             or manifest["cases_per_repetition"] != 8
             or type(manifest.get("model_calls")) is not int or manifest["model_calls"] != 0
-            or manifest.get("framework") != "pydantic-ai-slim==1.107.7"
+            or manifest.get("framework") != "pydantic-ai-slim==2.54.0"
             or manifest.get("example_sha256") != sha(EXAMPLE.read_bytes())
             or manifest.get("checker_sha256") != sha(CHECKER.read_bytes())
             or manifest.get("corpus_sha256") != sha(canonical(cases))
             or manifest.get("corpus") != list(cases)
             or manifest.get("source_hashes") != source_hashes
             or manifest.get("data_class") != "public_synthetic"
-            or manifest.get("independent_human_review") is not False):
+            or manifest.get("independent_human_review") is not False
+            or type(bootstrap) is not list
+            or len(bootstrap) > 3
+            or any(event != "subprocess.Popen" for event in bootstrap)):
         raise ValueError("capture_manifest_pin")
     if (type(receipt) is not dict or receipt.get("schema") != "PydanticAIExperimentResult.v1"
             or receipt.get("manifest_sha256") != manifest_sha
@@ -211,6 +215,7 @@ def verify_capture(capture: Path, cases: tuple[dict[str, Any], ...] | None = Non
             or type(receipt.get("model_calls")) is not int or receipt["model_calls"] != 0
             or type(receipt.get("provider_calls")) is not int or receipt["provider_calls"] != 0
             or receipt.get("blocked_audit_events") != []
+            or receipt.get("platform_bootstrap_denied_events") != bootstrap
             or type(receipt.get("framework_tool_calls")) is not int
             or receipt["framework_tool_calls"] != 8
             or type(receipt.get("scripted_function_requests")) is not int

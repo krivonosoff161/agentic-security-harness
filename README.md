@@ -54,6 +54,11 @@ applicable gates. Separate read-only cross-index verification passed all seven
 jobs with zero skips;
 publication does not establish model-task fidelity or independent human review.
 
+**Source checkout only:** the unreleased optional Pydantic AI integration now
+targets 2.54.0, with matching verification locks and examples. PyPI 1.14.0 still
+uses 1.107.7. Use files and dependencies from the same revision; installing the
+published package does not install the unreleased migration.
+
 The [guarded workspace writer](docs/guarded-workspace-writer.md) connects an
 application's agent to real UTF-8 document creation: host-owned configuration,
 named output aliases, deterministic Guard, no overwrite, and content-free receipts.

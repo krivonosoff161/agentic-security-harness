@@ -1,5 +1,10 @@
 # Roadmap
 
+Current source maintenance: reconcile the optional Pydantic AI 2.x proposal
+#342 as an exact 2.54.0 compatibility migration, including locks, dispatch and
+installed Windows/Linux verification. No new research surface is part of this
+work. This source change is distinct from the published 1.14.0 release below.
+
 The [1.14.0 release](releases/v1.14.0.md) is published from
 [PR #354](https://github.com/krivonosoff161/agentic-security-harness/pull/354),
 with owner-approved PyPI production and seven-job read-only cross-index

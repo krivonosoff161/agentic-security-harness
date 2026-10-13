@@ -1,5 +1,14 @@
 # Project tracker
 
+## Unreleased Pydantic AI 2.x compatibility — #342
+
+The metadata-only dependency proposal is being reconciled as a complete 2.54.0
+migration: exact framework/graph/pricing locks, lazy factory admission, bounded
+dispatch, deterministic seed and installed native/optional checks. This is
+maintenance of the existing document bridge, not another connector or a new
+model study. Published 1.14.0 evidence remains bound to 1.107.7; independent
+human-review issues #199/#205 are unaffected.
+
 <a id="research-closure-candidate--pr-354"></a>
 
 ## Published 1.14.0 / read-only verified

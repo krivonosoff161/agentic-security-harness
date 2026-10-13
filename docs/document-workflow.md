@@ -653,6 +653,12 @@ text and no model or provider calls.
 
 ## One optional framework, not another protection layer
 
+The unreleased source checkout targets `pydantic-ai-slim==2.54.0` with matching
+platform locks. Its direct factories and engine admission reject other framework
+versions. Use a wheel built from that checkout with its matching lock; the
+published installation command below intentionally describes immutable 1.14.0,
+not the source migration. There is no automatic framework or evidence upgrade.
+
 Version 1.14.0 has a `document-agent` extra pinned to
 `pydantic-ai-slim==1.107.7` with matching platform locks. Historical 1.13.1
 used 1.107.1; do not mix its lock or wheel with the current extra. Verify
@@ -673,6 +679,13 @@ calls. This is a bounded document workflow, not an autonomous planning benchmark
 
 For an existing Pydantic AI application, pass your own model object and guarded submit
 callback to `make_document_agent`; no provider is selected by the factory:
+
+These factories disable automatic framework instrumentation. A caller-supplied
+model or transport remains trusted application code: an explicit instrumented
+model can retain its own telemetry, and a custom generator can perform network
+work. The bounded local helpers construct their own uninstrumented FunctionModel;
+the separately audited offline checker is the no-provider control. None of these
+factories sandboxes arbitrary caller code.
 
 ```python
 from pathlib import Path

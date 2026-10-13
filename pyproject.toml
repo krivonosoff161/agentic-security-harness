@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentic-security-harness"
-version = "1.14.0"
+version = "1.14.1"
 description = "Open-source defensive harness and learning lab for reproducing and measuring agentic AI failure modes with portable traces, attack graphs, scorecards, and data-boundary tests."
 readme = "PACKAGE_README.md"
 requires-python = ">=3.11"
@@ -43,7 +43,7 @@ Changelog = "https://github.com/krivonosoff161/agentic-security-harness/blob/mai
 
 [project.optional-dependencies]
 document-agent = [
-    "pydantic-ai-slim==1.107.7",
+    "pydantic-ai-slim==2.54.0",
 ]
 transfer = [
     "agentic-transfer-verifier==0.2.1",

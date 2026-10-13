@@ -7,11 +7,23 @@ tool for a host-selected destination; the legacy proposal interface remains avai
 from __future__ import annotations
 
 from collections.abc import Callable
+from importlib.metadata import PackageNotFoundError, version
 from typing import Any
+
+
+def _require_supported_framework() -> None:
+    """Keep the optional bridge on its reviewed, exact framework contract."""
+    try:
+        installed = version("pydantic-ai-slim")
+    except PackageNotFoundError as exc:
+        raise RuntimeError("pydantic-ai-slim==2.54.0 is required") from exc
+    if installed != "2.54.0":
+        raise RuntimeError("pydantic-ai-slim==2.54.0 is required")
 
 
 def make_document_agent(model: Any, submit: Callable[[bytes], dict[str, Any]]) -> Any:
     """Create one-tool agent without selecting a provider or importing it eagerly."""
+    _require_supported_framework()
     from pydantic_ai import Agent
 
     agent = Agent(model, retries=0, capabilities=[])
@@ -30,6 +42,7 @@ def make_text_document_agent(model: Any, write_text: Callable[[str], dict[str, A
     Pass ``writer.bind_text_tool(alias)`` rather than an unrestricted file writer.
     This factory selects no provider and imports the optional framework lazily.
     """
+    _require_supported_framework()
     from pydantic_ai import Agent
 
     agent = Agent(model, retries=0, capabilities=[])
@@ -90,6 +103,10 @@ def _run_local_document_agent(
         nonlocal calls, transport_unavailable
         if any(isinstance(part, ToolReturnPart) for message in messages for part in message.parts):
             return ModelResponse(parts=[TextPart(content="Document decision recorded.")])
+        if (len(info.function_tools) != 1
+                or info.function_tools[0].name != "write_document"
+                or info.output_tools or info.model_request_parameters.native_tools):
+            raise RuntimeError("unexpected document tool surface")
         if calls:
             raise RuntimeError("document generator cannot be retried")
         calls += 1

@@ -129,13 +129,13 @@ session: even if a write already happened, later calls cannot silently retry it.
 After closing or failing, the session cannot resume. Its result record describes
 authorization and effects, not the correctness of report counts.
 
-Published Harness 1.14.0 pins `pydantic-ai-slim==1.107.7`, with a separate
+The unreleased source checkout pins `pydantic-ai-slim==2.54.0`, with a separate
 Windows x64 / Python 3.11 hash-locked environment in
 `requirements/verification/pydantic-ai-windows-py311.txt`. It is not a base Harness
 dependency. Pydantic AI is an independent project under the
-[MIT license](https://github.com/pydantic/pydantic-ai/blob/v1.107.7/LICENSE);
+[MIT license](https://github.com/pydantic/pydantic-ai/blob/v2.54.0/LICENSE);
 this example makes no affiliation or upstream-endorsement claim. Its
-[FunctionModel](https://github.com/pydantic/pydantic-ai/blob/v1.107.7/pydantic_ai_slim/pydantic_ai/models/function.py)
+[FunctionModel](https://github.com/pydantic/pydantic-ai/blob/v2.54.0/pydantic_ai_slim/pydantic_ai/models/function.py)
 supplies deterministic tool calls without an LLM or provider. Framework requests
 and provider calls are counted separately.
 
@@ -149,12 +149,13 @@ digests, decisions and timings, not raw response text. The default commands belo
 still use fixed controls and never start a model. A real model transport and its
 resource/network limits remain explicit responsibilities of the calling application.
 
-For the [published 1.14.0 release](releases/v1.14.0.md), install its exact wheel and
-matching optional locked dependencies into a fresh environment before using the
-current example. The optional Pydantic AI pin is `1.107.7`. Historical Harness
-1.13.1 retains its original `1.107.1` pin; installing that immutable release does
-not install this repair. Do not combine the current checkout example with an
-older installed Harness/framework environment.
+Build and install the current checkout wheel with its matching optional locks
+in a fresh environment before using the current 2.54.0 example. For the
+[published 1.14.0 release](releases/v1.14.0.md), instead use the wheel, locks and
+example from tag `v1.14.0`: its optional pin remains `1.107.7`. Historical Harness
+1.13.1 retains `1.107.1`. Installing either immutable release does not install
+this migration. Do not combine checkout examples with a different installed
+Harness/framework revision.
 
 From the matching checkout/environment:
 
@@ -167,7 +168,11 @@ Both output parents must exist and each output directory must be new. The second
 command enables process/network audit-deny before third-party imports and verifies
 file bytes, ancestry, session manifest and per-attempt receipts read-only after
 each run. Windows event-loop IPC is
-initialized first; the audit is a diagnostic boundary, not an OS sandbox. It does
+initialized first. The checker then primes stdlib platform detection with process
+and network effects denied: Windows shell-version probes receive PermissionError
+and the standard library falls back to native version data. Those denied bootstrap
+attempts are reported separately; imports and cases retain strict audit denial.
+The audit is a diagnostic boundary, not an OS sandbox. It does
 not start a model, provider, shell, or other external agent service.
 
 The eight fixed cases include a useful permitted write, a representable protected
