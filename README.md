@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/public_research_release-v1.14.0-blue)
+![Status](https://img.shields.io/badge/public_research_release-v1.14.1-blue)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -41,11 +41,20 @@ permission preview, separate jobs, restart inspection, content-free quality
 status and an optional Pydantic AI bridge around the writer. A verified first
 document can feed a second job only as untrusted data under unchanged host
 policy. Exact host-declared criteria are not a claim of factual correctness.
-The current 1.14.0 package is on PyPI. See its [release record](docs/releases/v1.14.0.md)
+The current 1.14.1 package is on PyPI. See its [release record](docs/releases/v1.14.1.md)
 for exact subjects and the status of each verification gate; model-task quality
 and independent human review are separate from package publication.
 
-**Current release: [1.14.0](docs/releases/v1.14.0.md).**
+**Current release: [1.14.1](docs/releases/v1.14.1.md).**
+It updates the optional Pydantic AI bridge and verification locks to exact
+`pydantic-ai-slim==2.54.0` with matching graph/pricing dependencies. The
+attested files are published on both indexes, and separate read-only
+verification passed all seven cross-index jobs without rebuild or re-upload.
+Initial index-lookup failures and their recovery remain recorded in the
+release evidence. No new model study was performed.
+
+The historical [1.14.0 release](docs/releases/v1.14.0.md) shipped the
+document-source and bounded workspace controls described below.
 The merged changes add host-anchored observation admission, exact-byte reviewed
 source reuse, and fenced recovery for create-only workspace operations. They
 also update the optional Pydantic AI dependency to 1.107.7. The 1.14.0 tag
@@ -54,10 +63,8 @@ applicable gates. Separate read-only cross-index verification passed all seven
 jobs with zero skips;
 publication does not establish model-task fidelity or independent human review.
 
-**Source checkout only:** the unreleased optional Pydantic AI integration now
-targets 2.54.0, with matching verification locks and examples. PyPI 1.14.0 still
-uses 1.107.7. Use files and dependencies from the same revision; installing the
-published package does not install the unreleased migration.
+The current 1.14.1 optional bridge is version-bound to 2.54.0. Historical
+PyPI 1.14.0 uses 1.107.7; use files and dependencies from the same release.
 
 The [guarded workspace writer](docs/guarded-workspace-writer.md) connects an
 application's agent to real UTF-8 document creation: host-owned configuration,
@@ -130,9 +137,9 @@ estimate, an autonomous-agent demonstration or an independent human audit.
   The earlier eight-call result is preserved separately in the report.
 
 **Package versus research evidence:** the study used exact installed **1.6.0**
-subjects, while the current published package is **1.14.0**. The prompt helper,
+subjects, while the current published package is **1.14.1**. The prompt helper,
 corpus and observations are repository-owned evidence, not evidence that the
-1.7.0, 1.7.1, 1.8.0, 1.9.0, 1.9.1, 1.10.1, 1.11.0, 1.12.0, 1.13.0, 1.13.1 or 1.14.0 wheel
+1.7.0, 1.7.1, 1.8.0, 1.9.0, 1.9.1, 1.10.1, 1.11.0, 1.12.0, 1.13.0, 1.13.1, 1.14.0 or 1.14.1 wheel
 was used in those model calls. See
 [release and package status](#release-and-package-status) and
 [current state](docs/current-state.md) for the exact boundary.
@@ -182,10 +189,10 @@ package availability, retained initial smoke failures, and successful read-only
 verification.
 
 Install the exact package version from
-[PyPI](https://pypi.org/project/agentic-security-harness/1.14.0/):
+[PyPI](https://pypi.org/project/agentic-security-harness/1.14.1/):
 
 ```bash
-python -m pip install agentic-security-harness==1.14.0
+python -m pip install agentic-security-harness==1.14.1
 ash quickstart --out reports/quickstart
 ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
@@ -244,12 +251,12 @@ facts. The Harness generates only the cross-project roadmap and compatibility vi
 - [Documentation crosswalk](docs/documentation-map.md)
 - [`component.yaml`](component.yaml) and [`ecosystem/roadmap.yaml`](ecosystem/roadmap.yaml)
 
-Runtime Guard remains private and `contract_only`. Harness version `v1.14.0`
+Runtime Guard remains private and `contract_only`. Harness version `v1.14.1`
 contains the closed [Extension SDK V1](docs/extension-sdk.md) and public passive extras for
 validated observation-to-finding dataflow. It does not auto-load installed packages;
 companion repositories remain optional, separately versioned distributions.
 
-Version `v1.14.0` retains the closed optional-dependency groups introduced in `v1.4.0`:
+Version `v1.14.1` retains the closed optional-dependency groups introduced in `v1.4.0`:
 
 | Extra | Exact companion distributions | Automatic activation |
 |---|---|---|
@@ -264,8 +271,8 @@ The generic PyPI coordinate `llm-router` is intentionally absent because it belo
 another project. CI builds all eight exact wheels from pinned Git SHAs and installs the
 closed local wheelhouse without loading either extension entry point. The public install
 commands are
-`pip install "agentic-security-harness[router]==1.14.0"` or
-`pip install "agentic-security-harness[all]==1.14.0"`. Other companion pins are unchanged;
+`pip install "agentic-security-harness[router]==1.14.1"` or
+`pip install "agentic-security-harness[all]==1.14.1"`. Other companion pins are unchanged;
 installation remains separate from module activation.
 
 For explicit installed extension binding, follow the fresh `--no-compile` environment
@@ -529,7 +536,17 @@ approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install the
 
 ## Release and package status
 
-Release [v1.14.0](docs/releases/v1.14.0.md) is published on
+Release [v1.14.1](docs/releases/v1.14.1.md) is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.14.1/). Its exact
+tag build `38341102704` passed four jobs. Initial TestPyPI `38341625568`
+uploaded but failed overall at Linux index lookup before package execution;
+read-only staging recovery `38342022902` passed all three jobs without
+re-upload. Production `38345333268` uploaded the same verified subjects and
+passed Linux 3.11/3.13 and Windows 3.11 smokes, but failed overall because
+Linux 3.12 could not find the version in the simple index before package
+execution. Separate read-only cross-index run `38345501324` passed all seven
+jobs with zero skips against the unchanged subjects, without rebuild or re-upload.
+Historical release [v1.14.0](docs/releases/v1.14.0.md) is published on
 [PyPI](https://pypi.org/project/agentic-security-harness/1.14.0/). Its tagged
 build `38304932507`, TestPyPI staging `38305530516`, and owner-approved
 production `38307086412` passed four, three and five applicable jobs,

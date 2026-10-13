@@ -1,17 +1,28 @@
 # Project tracker
 
-## Unreleased Pydantic AI 2.x compatibility — #342
+## Published Pydantic AI 2.x compatibility — 1.14.1
 
-The metadata-only dependency proposal is being reconciled as a complete 2.54.0
-migration: exact framework/graph/pricing locks, lazy factory admission, bounded
-dispatch, deterministic seed and installed native/optional checks. This is
-maintenance of the existing document bridge, not another connector or a new
-model study. Published 1.14.0 evidence remains bound to 1.107.7; independent
-human-review issues #199/#205 are unaffected.
+The metadata-only proposal #342 was superseded by checked PR #358: exact
+framework/graph/pricing locks, lazy factory admission, bounded dispatch,
+deterministic seed and installed native/optional checks now ship in
+[1.14.1](releases/v1.14.1.md). PR head `f7855556a95e56aa645bfac234a3bccb8ad5f383`
+passed 35 checks and merged at `6dc2604fce23a4cf9ebc41efb9a6a7083600c4a5`
+with the same tree; 26 post-merge checks passed. The four-job tag build passed.
+Initial TestPyPI upload/Windows smoke passed but Linux index lookup failed
+before package execution; read-only staging recovery passed three jobs without
+re-upload. The exact subjects are on PyPI with official hash/description parity.
+Production passed Linux 3.11/3.13 and Windows 3.11 smokes but failed overall
+at a Linux 3.12 simple-index lookup before package execution. Separate
+read-only cross-index run `38345501324` passed all seven jobs with zero skips
+against unchanged subjects; it does not relabel the production failure.
+This is maintenance of the existing document bridge, not another connector or
+model study. Historical 1.14.0 evidence remains bound to 1.107.7. Independent
+human-review issues #199/#205 and Scorecard alert #17 remain unresolved.
+Delivery and checked publication-documentation reconciliation are tracked in #357.
 
 <a id="research-closure-candidate--pr-354"></a>
 
-## Published 1.14.0 / read-only verified
+## Historical published 1.14.0 / read-only verified
 
 Verified source evidence snapshot: 2026-10-12, implementation/test head
 `580af563254c584612a6d5bde8a1a990a0f3f354`. The later documentation
@@ -22,16 +33,18 @@ tree. Release-preparation PR #355 merged at
 post-merge checks passed. The [v1.14.0 tag build](releases/v1.14.0.md)
 passed four jobs and TestPyPI staging passed three. Owner-approved PyPI
 production `38307086412` passed all five applicable jobs; official non-yanked
-index subjects match. The current published package is **1.14.0**. Separate
+index subjects match. The current published package is **1.14.1**; this 1.14.0
+release retains its own subjects and evidence. Separate
 read-only cross-index run `38307456388` passed all seven jobs with zero
 skips. Bounded acceptance issues #316, #317, #343 and #353 were then closed
 with linked release evidence and explicit residual assumptions. Independent
-human-review issues #199/#205 and optional Pydantic AI 2.x PR #342 remain separate.
+human-review issues #199/#205 remain separate. PR #342 was later superseded by
+the 1.14.1 migration.
 Older release entries below retain their historical release-time status.
 
 | Original work | Delivered mechanism and checkable evidence | Remaining boundary |
 |---|---|---|
-| Dependency maintenance (#353; #350/#351/#341) | Optional Pydantic AI 1.107.7 metadata and both platform locks are aligned; the exact 1.14.0 wheel passed installed native/optional release checks and seven read-only cross-index jobs. GitHub reports all 24 Pydantic AI alerts fixed and zero open Dependabot alerts, without dismissal. | The optional 2.x proposal #342 is a separate compatibility choice. |
+| Dependency maintenance (#353; #350/#351/#341) | Optional Pydantic AI 1.107.7 metadata and both platform locks were aligned for 1.14.0; that exact wheel passed installed native/optional release checks and seven read-only cross-index jobs. GitHub reported all 24 Pydantic AI alerts fixed and zero open Dependabot alerts, without dismissal. | The optional 2.x proposal #342 was separate at this release checkpoint; it was later superseded by the checked 1.14.1 migration. |
 | Grok task/content findings (#343) | [Checklist reuse](document-workflow.md#unreleased-correction-checklist-matches-still-need-source-review) requires exact-byte host acknowledgment, even for old `checked` drafts. Failed whole-object requirements cannot be overridden. Defined JSON predicates and verified-byte transfer have separate regression controls. | Literal term matching still does not prove a statement. A digest binds bytes, not actual human review or truth. Source-reading generation can still produce an incorrect draft. |
 | Trusted completeness (#316) | [Retained telemetry admission](ancestry-store.md#development-candidate-retained-telemetry-admission-316) reconstructs captured history against separately host-admitted expectations, checkpoints and manifest anchors; metadata drift and missing/pending observations are tested. | Honest independent host retention is a premise. Uninstrumented events and simultaneous rollback of every anchor cannot be detected from the same local records. Telemetry grants no effect authority. |
 | Ambiguous outcome (#317) | [Same-operation recovery](guarded-workspace-writer.md#development-candidate-recover-the-same-bound-operation) retains spend, fences supported old deliveries and reconciles the exact file postcondition. Actual child exits before and after the writer receipt recover without a second effect. | Partial or different bytes remain unknown. The result is conditional on the supported writer, exclusive target and filesystem locking; not arbitrary-tool exactly-once, cancellation or power-loss safety. |
@@ -54,7 +67,7 @@ copying failed its one eligible exact-copy task. Four fresh explicit text/quote
 cases later met their frozen rubric in assistant review, with two exact quotation
 lines. These denominators must not be pooled into an attack success or reliability
 rate. Full calculations and raw replies remain private, not independently published
-proof; public code/tests and the [replay route](document-workflow-replay.md#unreleased-research-candidate-replay)
+proof; public code/tests and the [historical replay route](document-workflow-replay.md#1140-installed-source-replay)
 make the implemented mechanisms inspectable.
 
 The research conclusion is not that another warning fixes content injection:
@@ -70,7 +83,8 @@ or general model-accuracy guarantee is inferred from these experiments.
 The prior stabilization work focused on making existing published routes usable
 end to end, not adding connectors, capabilities or separate research tracks.
 Its published stabilization patch was [v1.13.1](releases/v1.13.1.md).
-The 1.13.1 package remains published as historical evidence; 1.14.0 is current.
+The 1.13.1 and 1.14.0 packages remain published as historical evidence;
+1.14.1 is current.
 
 The patch was merged in
 [PR #349](https://github.com/krivonosoff161/agentic-security-harness/pull/349)
@@ -449,8 +463,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.14.0` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.14.0/). Independent standards review
+The technical v1.0 readiness milestone is complete and version `1.14.1` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.14.1/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are

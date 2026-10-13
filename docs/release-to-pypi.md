@@ -1,6 +1,21 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-The current [v1.14.0 release](releases/v1.14.0.md) has an exact-tag build
+The current [v1.14.1 release](releases/v1.14.1.md) has an exact-tag build
+(`38341102704`, four jobs passed). Initial TestPyPI `38341625568` uploaded
+the attested subjects and passed Windows smoke but failed overall at a Linux
+same-version index lookup before package execution. Read-only staging recovery
+`38342022902` passed all three jobs without re-upload. After separate owner
+approval, production `38345333268` uploaded matching subjects; official
+PyPI and TestPyPI each expose two non-yanked files with matching hashes and
+normalized description. Linux 3.11/3.13 and Windows 3.11 smokes passed, but
+Linux 3.12 stopped at simple-index lookup before package execution, so the
+production workflow remains **failed overall**. No upload was repeated.
+Separate read-only cross-index run `38345501324` passed all seven jobs with
+zero skips: subjects/provenance, TestPyPI Linux/Windows 3.11 and PyPI Linux
+3.11–3.13/Windows 3.11 exact-wheel installations. It did not rebuild or
+re-upload subjects and does not turn the initial production run green.
+
+The historical [v1.14.0 release](releases/v1.14.0.md) has an exact-tag build
 (`38304932507`, four jobs passed), TestPyPI staging (`38305530516`, three
 jobs passed), and owner-approved PyPI production (`38307086412`, all five
 applicable jobs passed). Official non-yanked subjects and normalized
