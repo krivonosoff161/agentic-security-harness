@@ -2,7 +2,7 @@
 
 This is deterministic integration evidence, not a model evaluation. The scripted
 FunctionModel supplies untrusted proposal text; only the closure owns file handles.
-Requires the optional, separately pinned pydantic-ai 1.107.7 installation.
+Requires the optional, separately pinned pydantic-ai 2.54.0 installation.
 """
 
 from __future__ import annotations
@@ -50,9 +50,9 @@ def _require_pin() -> None:
     try:
         installed = version("pydantic-ai-slim")
     except PackageNotFoundError as exc:
-        raise RuntimeError("pydantic-ai-slim==1.107.7 is required") from exc
-    if installed != "1.107.7":
-        raise RuntimeError(f"pydantic-ai-slim==1.107.7 is required; found {installed}")
+        raise RuntimeError("pydantic-ai-slim==2.54.0 is required") from exc
+    if installed != "2.54.0":
+        raise RuntimeError(f"pydantic-ai-slim==2.54.0 is required; found {installed}")
 
 
 # Expected outcomes are fixed separately from the submitted proposal strings.
@@ -159,6 +159,10 @@ async def dispatch_proposal_async(
         nonlocal source_calls
         if any(isinstance(part, ToolReturnPart) for message in messages for part in message.parts):
             return ModelResponse(parts=[TextPart(content="Tool result recorded.")])
+        if (len(info.function_tools) != 1
+                or info.function_tools[0].name != "submit_proposal"
+                or info.output_tools or info.model_request_parameters.native_tools):
+            raise RuntimeError("unexpected proposal tool surface")
         if source_calls:
             raise RuntimeError("proposal source cannot be retried")
         source_calls += 1

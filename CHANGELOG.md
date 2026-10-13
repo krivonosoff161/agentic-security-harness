@@ -6,6 +6,23 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.14.1] - 2026-10-13
+
+Optional framework compatibility patch. Publication gates and exact subjects
+are recorded separately in the [release record](docs/releases/v1.14.1.md).
+
+- Migrate the optional document-agent bridge to Pydantic AI 2.54.0, with
+  matching graph/pricing dependencies and hash-locked verification environments.
+  Keep the host-selected tool, disabled automatic instrumentation, bounded framework loop
+  and no-retry behavior; reject unsupported framework versions before dispatch.
+  Regenerate the deterministic boundary seed against the matching example.
+  This supersedes the metadata-only dependency proposal #342, not the immutable
+  1.14.0 package or its historical model observations.
+- Keep the offline checker's process/network denial during a cold optional
+  import on Windows: deny stdlib shell-version probes and use the native
+  fallback before importing the framework. Report denied bootstrap attempts
+  separately from strict import/dispatch audit events.
+
 ## [1.14.0] - 2026-10-12
 
 Merged research and integration changes prepared as a release candidate.

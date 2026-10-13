@@ -1,5 +1,16 @@
 # Current state
 
+## Unreleased optional framework migration — #342
+
+The current source checkout targets Pydantic AI 2.54.0 for the optional
+document-agent bridge. Metadata, graph/pricing dependencies, platform locks,
+engine admission and deterministic example evidence move together. Direct
+factories refuse unsupported framework versions; tool-surface checks retain
+one host-selected function with no native or output tools. The migration does
+not add a provider, model permission, retry or filesystem capability.
+This is not a publication claim: the immutable PyPI 1.14.0 package below uses
+1.107.7. Source, installed-package and CI results must identify their own revision.
+
 <a id="unmerged-research-closure-candidate--pr-354"></a>
 
 ## Current PyPI release — 1.14.0

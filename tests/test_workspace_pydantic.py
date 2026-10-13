@@ -116,6 +116,9 @@ def test_factory_uses_host_selected_function_model(tmp_path: Path) -> None:
     from agentic_security_harness.workspace_pydantic import make_document_agent
 
     async def model(messages: Any, info: Any) -> ModelResponse:
+        assert [tool.name for tool in info.function_tools] == ["write_document"]
+        assert info.output_tools == []
+        assert info.model_request_parameters.native_tools == []
         if any(isinstance(part, ToolReturnPart) for message in messages for part in message.parts):
             return ModelResponse(parts=[TextPart(content="done")])
         return ModelResponse(parts=[ToolCallPart(tool_name="write_document",
@@ -123,6 +126,7 @@ def test_factory_uses_host_selected_function_model(tmp_path: Path) -> None:
 
     with GuardedWorkspace(_policy(tmp_path)) as workspace:
         agent = make_document_agent(FunctionModel(model), workspace.submit)
+        assert agent.instrument is False
         with models.override_allow_model_requests(False):
             result = agent.run_sync("write", usage_limits=UsageLimits(
                 request_limit=2, tool_calls_limit=1))
@@ -143,6 +147,19 @@ def test_base_module_import_does_not_import_optional_framework(
     monkeypatch.setattr(builtins, "__import__", reject_framework)
     sys.modules.pop("agentic_security_harness.workspace_pydantic", None)
     __import__("agentic_security_harness.workspace_pydantic")
+
+
+@pytest.mark.parametrize("installed", ["1.107.7", "2.54.1"])
+def test_direct_factories_refuse_unsupported_framework_before_import(
+    monkeypatch: pytest.MonkeyPatch, installed: str,
+) -> None:
+    from agentic_security_harness import workspace_pydantic
+
+    monkeypatch.setattr(workspace_pydantic, "version", lambda name: installed)
+    with pytest.raises(RuntimeError, match="pydantic-ai-slim==2.54.0 is required"):
+        workspace_pydantic.make_document_agent(object(), lambda raw: {})
+    with pytest.raises(RuntimeError, match="pydantic-ai-slim==2.54.0 is required"):
+        workspace_pydantic.make_text_document_agent(object(), lambda text: {})
 
 
 @pytest.mark.parametrize("content", [
@@ -219,6 +236,9 @@ def test_text_factory_schema_has_no_model_selected_destination(tmp_path: Path) -
 
     async def model(messages: Any, info: Any) -> ModelResponse:
         schema = info.function_tools[0].parameters_json_schema
+        assert [tool.name for tool in info.function_tools] == ["write_document"]
+        assert info.output_tools == []
+        assert info.model_request_parameters.native_tools == []
         assert set(schema["properties"]) == {"content"}
         assert schema["required"] == ["content"]
         assert schema["additionalProperties"] is False
@@ -229,6 +249,7 @@ def test_text_factory_schema_has_no_model_selected_destination(tmp_path: Path) -
 
     with GuardedWorkspace(_policy(tmp_path)) as writer:
         agent = make_text_document_agent(FunctionModel(model), writer.bind_text_tool("draft"))
+        assert agent.instrument is False
         with models.override_allow_model_requests(False):
             agent.run_sync("write", usage_limits=UsageLimits(request_limit=2, tool_calls_limit=1))
     assert (tmp_path / "draft.md").read_bytes() == b"Useful document"

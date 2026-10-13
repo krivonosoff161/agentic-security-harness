@@ -106,17 +106,18 @@ def test_capture_pin_mismatch_stops_before_readback(tmp_path: Path, failure: str
     manifest = {
         "schema": "PydanticAIExperiment.v1", "repetitions": 1,
         "cases_per_repetition": 8, "model_calls": 0,
-        "framework": "pydantic-ai-slim==1.107.7",
+        "framework": "pydantic-ai-slim==2.54.0",
         "example_sha256": seed.sha(seed.EXAMPLE.read_bytes()),
         "checker_sha256": seed.sha(seed.CHECKER.read_bytes()),
         "corpus_sha256": seed.sha(seed.canonical(cases)), "corpus": cases,
         "source_hashes": source_hashes,
         "data_class": "public_synthetic", "independent_human_review": False,
+        "platform_bootstrap_denied_events": [],
     }
     if failure == "source":
         source_hashes[seed.SOURCE_NAMES[0]] = "0" * 64
     else:
-        manifest["framework"] = "pydantic-ai-slim==1.107.1"
+        manifest["framework"] = "pydantic-ai-slim==1.107.7"
     (tmp_path / "manifest.json").write_bytes(seed.canonical(manifest) + b"\n")
     (tmp_path / "verification.json").write_bytes(b"{}\n")
     with pytest.raises(ValueError, match="capture_manifest_pin"):
@@ -147,7 +148,7 @@ def pinned_capture(tmp_path_factory: pytest.TempPathFactory) -> Path:
         installed = version("pydantic-ai-slim")
     except PackageNotFoundError:
         pytest.skip("optional Pydantic AI integration is not installed")
-    if installed != "1.107.7":
+    if installed != "2.54.0":
         pytest.skip("optional Pydantic AI integration pin is unavailable")
     pytest.importorskip("pydantic_ai")
     spec = importlib.util.spec_from_file_location("boundary_seed_example", seed.EXAMPLE)
@@ -163,7 +164,7 @@ def pinned_capture(tmp_path_factory: pytest.TempPathFactory) -> Path:
     manifest = {
         "schema": "PydanticAIExperiment.v1", "repetitions": 1,
         "cases_per_repetition": 8, "model_calls": 0,
-        "framework": "pydantic-ai-slim==1.107.7",
+        "framework": "pydantic-ai-slim==2.54.0",
         "example_sha256": seed.sha(seed.EXAMPLE.read_bytes()),
         "checker_sha256": seed.sha(seed.CHECKER.read_bytes()),
         "corpus_sha256": seed.sha(seed.canonical(cases)),
@@ -171,12 +172,14 @@ def pinned_capture(tmp_path_factory: pytest.TempPathFactory) -> Path:
         "source_hashes": {name: seed.sha((seed.SOURCE / name).read_bytes())
                           for name in seed.SOURCE_NAMES},
         "data_class": "public_synthetic", "independent_human_review": False,
+        "platform_bootstrap_denied_events": [],
     }
     (capture / "manifest.json").write_bytes(seed.canonical(manifest) + b"\n")
     receipt = {
         "schema": "PydanticAIExperimentResult.v1", "verified_rows": 8,
         "protected_files_unchanged": 8, "model_calls": 0, "provider_calls": 0,
         "blocked_audit_events": [], "framework_tool_calls": 8,
+        "platform_bootstrap_denied_events": [],
         "scripted_function_requests": 16, "applied": 2,
         "manifest_sha256": seed.sha(seed.canonical(manifest)),
     }
