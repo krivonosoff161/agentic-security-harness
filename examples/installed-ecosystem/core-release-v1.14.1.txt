@@ -1,0 +1,5 @@
+# Exact universal wheel from published v1.14.1; production smoke recovery and
+# final read-only cross-index evidence are recorded in docs/releases/v1.14.1.md.
+# Runtime and companion dependencies are locked separately under requirements/.
+agentic-security-harness @ https://files.pythonhosted.org/packages/22/85/9b2df8a7e18b176f420e25baa57a0b3558e44221d0e87f1c3353128c02ff/agentic_security_harness-1.14.1-py3-none-any.whl \
+    --hash=sha256:09a5f79ce54ff2faaee0ff34b21c406efb04e2b182ac708f19a290ec91d4938c

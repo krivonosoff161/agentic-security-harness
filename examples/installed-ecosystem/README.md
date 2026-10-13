@@ -1,11 +1,11 @@
 # Installed ecosystem compatibility example
 
 This directory is an explicit, offline operator example, not package auto-discovery.
-Use the current 1.14.0 route below in a fresh environment; historical 1.13.1, 1.13.0, 1.12.0, 1.11.0, 1.10.1, 1.9.1,
+Use the current 1.14.1 route below in a fresh environment; historical 1.14.0, 1.13.1, 1.13.0, 1.12.0, 1.11.0, 1.10.1, 1.9.1,
 1.9.0, 1.8.0, 1.7.1, 1.7.0 and 1.6.0 routes and their immutable locks are retained separately.
 The scripts use installed distributions, not `src/`, and require no API key or model.
 
-For **v1.14.0**, pass `--core-version 1.14.0` explicitly
+For **v1.14.1**, pass `--core-version 1.14.1` explicitly
 to check.py, chain.py, verify_chain.py and check_supplied_input.py. The default and
 core-release.txt remain the immutable published 1.6.0 contour; a reported version
 never selects its own verification policy. The caller-input regression also checks
@@ -16,7 +16,36 @@ The [2026-09-27 generalization report](../../docs/proposal-generalization-202609
 distinguishes four exact useful model proposals from one permitted but semantically
 wrong operation, three rejected useful-task proposals and eight negative controls.
 
-## Current published 1.14.0
+## Current published 1.14.1
+
+The [v1.14.1 release record](../../docs/releases/v1.14.1.md) binds the
+published wheel, retains the initial production Linux 3.12 index-lookup failure,
+and records the separate seven-job read-only cross-index PASS. Confirm its
+digest against the hash lock before use. Create a fresh Python 3.11 environment
+with `python -m venv .venv-v1141`.
+Activate `.venv-v1141\Scripts\Activate.ps1` in PowerShell or
+`source .venv-v1141/bin/activate` in Bash. From the repository root, install
+the exact wheel and hash-locked dependencies, then run the offline checks:
+
+```bash
+python -m pip --isolated install --index-url https://pypi.org/simple --no-compile --only-binary=:all: --require-hashes -r requirements/runtime.txt -r requirements/companions.txt -r examples/installed-ecosystem/core-release-v1.14.1.txt
+python -m pip check
+python -I -B examples/installed-ecosystem/check.py --out result.json --core-version 1.14.1
+python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json --core-version 1.14.1
+python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json --core-version 1.14.1
+python -I -B examples/installed-ecosystem/check_supplied_input.py --out supplied-input.json --core-version 1.14.1
+ash quickstart --out installed-quickstart
+ash validate installed-quickstart
+```
+
+These checks exercise installed distributions with public synthetic inputs;
+they do not replay model studies or establish independent human review. The
+1.14.1 optional document bridge uses Pydantic AI 2.54.0 and matching locks;
+the base installed chain above does not invoke a provider.
+
+<a id="current-published-1140"></a>
+
+## Historical published 1.14.0
 
 The [v1.14.0 release record](../../docs/releases/v1.14.0.md) binds the exact
 tag and published wheel. Confirm its digest against the hash lock before use.
@@ -407,11 +436,11 @@ separate `chain.py` exercises actual installed APIs in a single causally linked
 public-synthetic flow, not just passive imports:
 
 ```bash
-python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json --core-version 1.14.0
-python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json --core-version 1.14.0
+python -I -B examples/installed-ecosystem/chain.py --out functional-chain.json --core-version 1.14.1
+python -I -B examples/installed-ecosystem/verify_chain.py functional-chain.json --core-version 1.14.1
 ```
 
-Run these after the current 1.14.0 exact-wheel installation above; use fresh output
+Run these after the current 1.14.1 exact-wheel installation above; use fresh output
 paths if you already ran that section. For the historical 1.6.0 environment, omit
 `--core-version` (its default stays 1.6.0). The example itself is
 repository-owned and version-bound; it is not a new wheel or a change to the
@@ -460,7 +489,7 @@ admission and are committed into the case digest; they cannot replace the regist
 policy or component bindings. The default 16-case CLI remains unchanged.
 
 ```bash
-python -I -B examples/installed-ecosystem/check_supplied_input.py --out supplied-input.json --core-version 1.14.0
+python -I -B examples/installed-ecosystem/check_supplied_input.py --out supplied-input.json --core-version 1.14.1
 ```
 
 This separate eight-case offline installed check covers a valid key, an unknown key,

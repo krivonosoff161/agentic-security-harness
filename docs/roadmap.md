@@ -1,11 +1,18 @@
 # Roadmap
 
-Current source maintenance: reconcile the optional Pydantic AI 2.x proposal
-#342 as an exact 2.54.0 compatibility migration, including locks, dispatch and
-installed Windows/Linux verification. No new research surface is part of this
-work. This source change is distinct from the published 1.14.0 release below.
+The current [1.14.1 release](releases/v1.14.1.md) publishes the exact optional
+Pydantic AI 2.54.0 compatibility migration, including graph/pricing locks,
+bounded dispatch and installed-package controls. Proposal #342 was superseded
+by the checked source delivery. The attested tag build passed; initial TestPyPI
+upload and Windows smoke passed, while Linux index lookup failed before package
+execution. Read-only staging recovery passed without re-upload. PyPI now has
+the exact subjects. Production passed Linux 3.11/3.13 and Windows 3.11 smokes
+but failed overall at a Linux 3.12 index lookup before package execution.
+Separate final read-only cross-index run `38345501324` passed all seven jobs
+with zero skips against unchanged subjects; it does not relabel the failed
+production workflow. This maintenance adds no new model study or research surface.
 
-The [1.14.0 release](releases/v1.14.0.md) is published from
+The historical [1.14.0 release](releases/v1.14.0.md) is published from
 [PR #354](https://github.com/krivonosoff161/agentic-security-harness/pull/354),
 with owner-approved PyPI production and seven-job read-only cross-index
 verification complete.
@@ -18,7 +25,8 @@ Conditional host, storage and task-correctness limits remain in the
 The four-job tag build, three-job TestPyPI staging, five-job PyPI production
 and seven-job postpublication check passed. The bounded acceptance issues
 #316, #317, #343 and #353 were closed with that evidence. Independent human
-review (#199/#205) and the optional 2.x migration (#342) remain separate.
+review (#199/#205) remains separate; the 2.x migration was subsequently
+delivered in 1.14.1, without changing 1.14.0 evidence.
 
 The prior published [1.13.1 stabilization patch](releases/v1.13.1.md)
 improves first-run instructions, document/workspace refusal diagnostics and

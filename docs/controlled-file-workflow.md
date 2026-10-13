@@ -129,7 +129,7 @@ session: even if a write already happened, later calls cannot silently retry it.
 After closing or failing, the session cannot resume. Its result record describes
 authorization and effects, not the correctness of report counts.
 
-The unreleased source checkout pins `pydantic-ai-slim==2.54.0`, with a separate
+The published 1.14.1 optional bridge pins `pydantic-ai-slim==2.54.0`, with a separate
 Windows x64 / Python 3.11 hash-locked environment in
 `requirements/verification/pydantic-ai-windows-py311.txt`. It is not a base Harness
 dependency. Pydantic AI is an independent project under the
@@ -149,12 +149,14 @@ digests, decisions and timings, not raw response text. The default commands belo
 still use fixed controls and never start a model. A real model transport and its
 resource/network limits remain explicit responsibilities of the calling application.
 
-Build and install the current checkout wheel with its matching optional locks
-in a fresh environment before using the current 2.54.0 example. For the
-[published 1.14.0 release](releases/v1.14.0.md), instead use the wheel, locks and
+Install the published 1.14.1 wheel with its matching optional dependencies in
+a fresh environment, and use the example from the matching `v1.14.1` tag.
+For source development, build the current checkout wheel and use its matching
+locks instead; do not mix revisions. For the
+[historical 1.14.0 release](releases/v1.14.0.md), instead use the wheel, locks and
 example from tag `v1.14.0`: its optional pin remains `1.107.7`. Historical Harness
-1.13.1 retains `1.107.1`. Installing either immutable release does not install
-this migration. Do not combine checkout examples with a different installed
+1.13.1 retains `1.107.1`. Those immutable releases do not install the 2.54.0
+bridge. Do not combine checkout examples with a different installed
 Harness/framework revision.
 
 From the matching checkout/environment:
