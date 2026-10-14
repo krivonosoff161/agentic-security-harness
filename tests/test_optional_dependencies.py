@@ -30,7 +30,7 @@ def test_optional_dependency_groups_are_exact_and_closed() -> None:
     optional = project["optional-dependencies"]
     assert set(optional) == {*EXPECTED, "all", "dev", "document-agent"}
     # Framework integration remains a separate opt-in, not an owned companion.
-    assert optional["document-agent"] == ["pydantic-ai-slim==2.54.0"]
+    assert optional["document-agent"] == ["pydantic-ai-slim==2.55.0"]
     for name, requirements in EXPECTED.items():
         assert set(optional[name]) == requirements
         assert len(optional[name]) == len(requirements)
@@ -54,7 +54,7 @@ def test_document_agent_pin_matches_hashed_verification_locks() -> None:
     document_agent_pin = project["optional-dependencies"]["document-agent"][0]
     expected = {
         document_agent_pin,
-        "pydantic-graph==2.54.0",
+        "pydantic-graph==2.55.0",
         "genai-prices==0.1.9",
     }
     for name in ("pydantic-ai-ci-py311.txt", "pydantic-ai-windows-py311.txt"):
@@ -68,7 +68,7 @@ def test_document_agent_pin_matches_hashed_verification_locks() -> None:
 
 
 def test_document_agent_engine_requires_exact_supported_pin() -> None:
-    for version, available in (("2.54.0", True), ("1.107.7", False), ("2.54.1", False)):
+    for version, available in (("2.55.0", True), ("2.54.0", False), ("2.55.1", False)):
         with patch.object(document_workflow.importlib.metadata, "version", return_value=version):
             assert document_workflow._engine_available("pydantic-ai") is available
 
@@ -88,7 +88,7 @@ def test_multidict_lock_respects_current_aiohttp_upper_bound() -> None:
     lock = (ROOT / "requirements/companions.txt").read_text(encoding="utf-8")
     # This is the reviewed aiohttp release's declared requirement, not a claim
     # that every future aiohttp release keeps the same compatibility bound.
-    assert re.search(r"^aiohttp==3\.14\.3 \\\s*$", lock, re.M)
+    assert re.search(r"^aiohttp==3\.14\.4 \\\s*$", lock, re.M)
     version = re.search(r"^multidict==(\d+\.\d+\.\d+) \\\s*$", lock, re.M)
     assert version is not None
     parts = tuple(int(part) for part in version.group(1).split("."))

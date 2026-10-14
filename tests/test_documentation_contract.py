@@ -46,7 +46,10 @@ def test_version_bound_workflow_guides_use_the_published_patch() -> None:
     assert "python -m pip install agentic-security-harness==1.14.1" in writer
     assert "python -m pip install agentic-security-harness==1.14.1" in guide
     assert 'pip install "agentic-security-harness[document-agent]==1.14.1"' in guide
-    assert "pydantic-ai-slim==2.54.0" in guide
+    published_bridge = guide.split("`pydantic-ai-slim==2.54.0`", 1)
+    assert len(published_bridge) == 2
+    assert "Published 1.14.1" in published_bridge[0][-200:]
+    assert "The unreleased source checkout instead pins `pydantic-ai-slim==2.55.0`" in guide
     assert "1.107.7" in guide  # Immutable v1.14.0 optional route.
     assert "single 1.13.1 wheel" in replay
     for text in (writer, guide, replay):

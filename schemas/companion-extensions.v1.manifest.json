@@ -40,11 +40,11 @@
     },
     "development_requirements_in": {
       "path": "requirements/dev.in",
-      "sha256": "140502ee2c6dcda925fb2dd3ea036adb01132c1a82c99b25eef39dfd70eb24fe"
+      "sha256": "e922b8efad33a58013fa2cc715ca70da4e9a21896f3cfb60a81d20a9c9d4355c"
     },
     "development_requirements_lock": {
       "path": "requirements/dev.txt",
-      "sha256": "b3036f3c9a94a43d57406ebf391f4f592361498a3a9d034c7f04e575cbf08b0c"
+      "sha256": "9bb59d67fb35d5b360595ae0373f44e50b0d9ecdd2083b9d8b8e51159cded2fc"
     },
     "documentation": {
       "path": "docs/ecosystem-integration-candidate.md",
@@ -60,7 +60,7 @@
     },
     "workflow": {
       "path": ".github/workflows/ecosystem-integration.yml",
-      "sha256": "f9665a93abdd144474f261f5f04e59bba48ef1f1da87507cf69d87432991ee60"
+      "sha256": "2c0aa2d5fafd273a37c6b139971148ad8c60cfdf826f9664c35650b09b6c6202"
     }
   },
   "integration_model": "explicit_normalized_digest_bound_outputs",

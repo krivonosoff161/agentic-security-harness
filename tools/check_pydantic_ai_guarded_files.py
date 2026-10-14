@@ -207,7 +207,7 @@ def main() -> int:
         "repetitions": args.repetitions,
         "cases_per_repetition": len(example.CASES),
         "model_calls": 0,
-        "framework": "pydantic-ai-slim==2.54.0",
+        "framework": "pydantic-ai-slim==2.55.0",
         "example_sha256": sha(example_path.read_bytes()),
         "checker_sha256": sha(Path(__file__).read_bytes()),
         "corpus_sha256": sha(canonical(example.CASES)),

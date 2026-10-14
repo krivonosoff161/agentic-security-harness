@@ -656,11 +656,14 @@ text and no model or provider calls.
 
 Published 1.14.1 has a `document-agent` extra pinned to
 `pydantic-ai-slim==2.54.0`, with matching graph/pricing dependencies and platform
-locks. Its direct factories and engine admission reject unsupported framework
+locks. The unreleased source checkout instead pins `pydantic-ai-slim==2.55.0`;
+use its own wheel, examples and locks, not the 1.14.1 publication evidence.
+Its direct factories and engine admission reject unsupported framework
 versions. Version 1.14.0 instead used `1.107.7`, and 1.13.1 used `1.107.1`;
 do not mix their locks, wheels or examples. There is no automatic framework or
-evidence upgrade. Verify the published 1.14.1 wheel and matching lock before
-installing. Select the framework when
+evidence upgrade. Verify the published 1.14.1 wheel against the lock from its
+`v1.14.1` tag before installing; this checkout's lock is for the unreleased
+candidate. Select the framework when
 creating a **new** workspace:
 
 ```sh

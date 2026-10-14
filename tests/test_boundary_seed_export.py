@@ -106,7 +106,7 @@ def test_capture_pin_mismatch_stops_before_readback(tmp_path: Path, failure: str
     manifest = {
         "schema": "PydanticAIExperiment.v1", "repetitions": 1,
         "cases_per_repetition": 8, "model_calls": 0,
-        "framework": "pydantic-ai-slim==2.54.0",
+        "framework": "pydantic-ai-slim==2.55.0",
         "example_sha256": seed.sha(seed.EXAMPLE.read_bytes()),
         "checker_sha256": seed.sha(seed.CHECKER.read_bytes()),
         "corpus_sha256": seed.sha(seed.canonical(cases)), "corpus": cases,
@@ -148,7 +148,7 @@ def pinned_capture(tmp_path_factory: pytest.TempPathFactory) -> Path:
         installed = version("pydantic-ai-slim")
     except PackageNotFoundError:
         pytest.skip("optional Pydantic AI integration is not installed")
-    if installed != "2.54.0":
+    if installed != "2.55.0":
         pytest.skip("optional Pydantic AI integration pin is unavailable")
     pytest.importorskip("pydantic_ai")
     spec = importlib.util.spec_from_file_location("boundary_seed_example", seed.EXAMPLE)
@@ -164,7 +164,7 @@ def pinned_capture(tmp_path_factory: pytest.TempPathFactory) -> Path:
     manifest = {
         "schema": "PydanticAIExperiment.v1", "repetitions": 1,
         "cases_per_repetition": 8, "model_calls": 0,
-        "framework": "pydantic-ai-slim==2.54.0",
+        "framework": "pydantic-ai-slim==2.55.0",
         "example_sha256": seed.sha(seed.EXAMPLE.read_bytes()),
         "checker_sha256": seed.sha(seed.CHECKER.read_bytes()),
         "corpus_sha256": seed.sha(seed.canonical(cases)),
