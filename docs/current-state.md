@@ -18,8 +18,9 @@ passed all seven jobs with zero skips against the unchanged subjects, without
 rebuild or re-upload. The [release record](releases/v1.14.1.md)
 separates these gates and preserves the failed staging run.
 
-The optional document-agent bridge uses Pydantic AI 2.54.0 with matching
-graph/pricing locks. The migration adds no new model study, provider, model
+The published 1.14.1 optional document-agent bridge uses Pydantic AI 2.54.0.
+The unreleased source candidate pins 2.55.0 with matching graph/pricing locks;
+it is not another publication or model study. The migration adds no provider, model
 permission, retry or filesystem capability. It does not close independent
 human-review issues #199/#205 or Scorecard governance alert #17.
 

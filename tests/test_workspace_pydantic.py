@@ -149,16 +149,16 @@ def test_base_module_import_does_not_import_optional_framework(
     __import__("agentic_security_harness.workspace_pydantic")
 
 
-@pytest.mark.parametrize("installed", ["1.107.7", "2.54.1"])
+@pytest.mark.parametrize("installed", ["1.107.7", "2.54.0", "2.55.1"])
 def test_direct_factories_refuse_unsupported_framework_before_import(
     monkeypatch: pytest.MonkeyPatch, installed: str,
 ) -> None:
     from agentic_security_harness import workspace_pydantic
 
     monkeypatch.setattr(workspace_pydantic, "version", lambda name: installed)
-    with pytest.raises(RuntimeError, match="pydantic-ai-slim==2.54.0 is required"):
+    with pytest.raises(RuntimeError, match="pydantic-ai-slim==2.55.0 is required"):
         workspace_pydantic.make_document_agent(object(), lambda raw: {})
-    with pytest.raises(RuntimeError, match="pydantic-ai-slim==2.54.0 is required"):
+    with pytest.raises(RuntimeError, match="pydantic-ai-slim==2.55.0 is required"):
         workspace_pydantic.make_text_document_agent(object(), lambda text: {})
 
 

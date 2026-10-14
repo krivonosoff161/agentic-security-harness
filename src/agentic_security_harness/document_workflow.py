@@ -340,7 +340,7 @@ def _engine_available(engine: str) -> bool:
     if engine == "native":
         return True
     try:
-        return importlib.metadata.version("pydantic-ai-slim") == "2.54.0"
+        return importlib.metadata.version("pydantic-ai-slim") == "2.55.0"
     except importlib.metadata.PackageNotFoundError:
         return False
 

@@ -61,6 +61,8 @@ def test_coupled_action_families_use_one_commit_across_all_workflows() -> None:
     for family in (
         "actions/checkout",
         "actions/setup-python",
+        "actions/upload-artifact",
+        "actions/download-artifact",
         "github/codeql-action/",
     ):
         commits = set(
@@ -78,6 +80,16 @@ def test_dependabot_groups_the_coupled_codeql_action_family() -> None:
         item for item in config["updates"] if item["package-ecosystem"] == "github-actions"
     )
     assert actions["groups"]["codeql-family"]["patterns"] == ["github/codeql-action/*"]
+
+
+def test_dependabot_groups_the_coupled_artifact_actions() -> None:
+    config = yaml.safe_load((ROOT / ".github/dependabot.yml").read_text(encoding="utf-8"))
+    actions = next(
+        item for item in config["updates"] if item["package-ecosystem"] == "github-actions"
+    )
+    assert set(actions["groups"]["artifact-family"]["patterns"]) == {
+        "actions/upload-artifact", "actions/download-artifact",
+    }
 
 
 def test_every_checkout_disables_persisted_credentials() -> None:

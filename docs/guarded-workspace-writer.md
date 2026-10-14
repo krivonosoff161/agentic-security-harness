@@ -323,8 +323,9 @@ python -I -B examples/workspace_admitted_chain.py --out admitted-negative --repo
 The first command performs two checked writes and exits 0. The negative control
 exits 1: the incorrect draft is saved at the permitted destination, but the next
 generator is never called. Each run requires a different, nonexistent output
-directory. The exact same example can use `--engine pydantic` when 1.14.1's
-optional Pydantic AI 2.54.0 dependencies are installed. `-I` makes imports use the
+directory. The exact same example can use `--engine pydantic` with the
+published 1.14.1 optional Pydantic AI 2.54.0 dependencies, or with the
+unreleased source candidate's matching 2.55.0 wheel and locks. `-I` makes imports use the
 installed package, not a source-path override. The historical 1.13.1 wheel does
 **not** contain this 1.14.0 API.
 

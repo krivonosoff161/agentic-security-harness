@@ -16,9 +16,9 @@ def _require_supported_framework() -> None:
     try:
         installed = version("pydantic-ai-slim")
     except PackageNotFoundError as exc:
-        raise RuntimeError("pydantic-ai-slim==2.54.0 is required") from exc
-    if installed != "2.54.0":
-        raise RuntimeError("pydantic-ai-slim==2.54.0 is required")
+        raise RuntimeError("pydantic-ai-slim==2.55.0 is required") from exc
+    if installed != "2.55.0":
+        raise RuntimeError("pydantic-ai-slim==2.55.0 is required")
 
 
 def make_document_agent(model: Any, submit: Callable[[bytes], dict[str, Any]]) -> Any:

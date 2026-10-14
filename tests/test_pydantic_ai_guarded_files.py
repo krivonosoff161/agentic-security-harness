@@ -117,13 +117,13 @@ def test_storage_failure_stops_without_success_result(
     assert not (out / "result.json").exists()
 
 
-@pytest.mark.parametrize("installed", ["1.107.7", "2.54.1"])
+@pytest.mark.parametrize("installed", ["1.107.7", "2.54.0", "2.55.1"])
 def test_wrong_framework_version_stops_before_output_creation(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, installed: str,
 ) -> None:
     monkeypatch.setattr(example, "version", lambda name: installed)
     out = tmp_path / "wrong-version"
-    with pytest.raises(RuntimeError, match="pydantic-ai-slim==2.54.0 is required"):
+    with pytest.raises(RuntimeError, match="pydantic-ai-slim==2.55.0 is required"):
         example.run_example(out)
     assert not out.exists()
 

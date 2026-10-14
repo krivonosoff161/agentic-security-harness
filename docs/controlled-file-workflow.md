@@ -129,13 +129,14 @@ session: even if a write already happened, later calls cannot silently retry it.
 After closing or failing, the session cannot resume. Its result record describes
 authorization and effects, not the correctness of report counts.
 
-The published 1.14.1 optional bridge pins `pydantic-ai-slim==2.54.0`, with a separate
+The published 1.14.1 optional bridge pins `pydantic-ai-slim==2.54.0`. The
+unreleased source checkout pins `pydantic-ai-slim==2.55.0`, with a separate
 Windows x64 / Python 3.11 hash-locked environment in
 `requirements/verification/pydantic-ai-windows-py311.txt`. It is not a base Harness
 dependency. Pydantic AI is an independent project under the
-[MIT license](https://github.com/pydantic/pydantic-ai/blob/v2.54.0/LICENSE);
+[MIT license](https://github.com/pydantic/pydantic-ai/blob/v2.55.0/LICENSE);
 this example makes no affiliation or upstream-endorsement claim. Its
-[FunctionModel](https://github.com/pydantic/pydantic-ai/blob/v2.54.0/pydantic_ai_slim/pydantic_ai/models/function.py)
+[FunctionModel](https://github.com/pydantic/pydantic-ai/blob/v2.55.0/pydantic_ai_slim/pydantic_ai/models/function.py)
 supplies deterministic tool calls without an LLM or provider. Framework requests
 and provider calls are counted separately.
 

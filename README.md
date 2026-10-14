@@ -63,8 +63,10 @@ applicable gates. Separate read-only cross-index verification passed all seven
 jobs with zero skips;
 publication does not establish model-task fidelity or independent human review.
 
-The current 1.14.1 optional bridge is version-bound to 2.54.0. Historical
-PyPI 1.14.0 uses 1.107.7; use files and dependencies from the same release.
+The published 1.14.1 optional bridge remains version-bound to 2.54.0. The
+unreleased source candidate pins 2.55.0 with matching verification locks; it
+is not a published 1.14.1 dependency or new model evidence. Historical PyPI
+1.14.0 uses 1.107.7; use files and dependencies from the same revision.
 
 The [guarded workspace writer](docs/guarded-workspace-writer.md) connects an
 application's agent to real UTF-8 document creation: host-owned configuration,
