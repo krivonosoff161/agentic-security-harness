@@ -6,6 +6,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+- Reconcile follow-up proposals #368/#369: pin Scorecard Action 2.5.0 and
+  aiohttp 3.14.5, and align the reviewed multidict upper bound and Dependabot
+  cap with aiohttp's `<8` requirement. Retain the existing compatible multidict
+  lock and workflow permissions. This source maintenance does not publish a release.
+
 - Reconcile dependency proposals #360–#365 as one checked source update:
   Pydantic 2.14.0, the opt-in Pydantic AI 2.55.0 bridge, aiohttp 3.14.4,
   Ruff 0.17.0 and the reviewed CodeQL/artifact Actions pins. Preserve the
