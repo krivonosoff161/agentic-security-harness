@@ -88,8 +88,8 @@ def test_multidict_lock_respects_current_aiohttp_upper_bound() -> None:
     lock = (ROOT / "requirements/companions.txt").read_text(encoding="utf-8")
     # This is the reviewed aiohttp release's declared requirement, not a claim
     # that every future aiohttp release keeps the same compatibility bound.
-    assert re.search(r"^aiohttp==3\.14\.4 \\\s*$", lock, re.M)
+    assert re.search(r"^aiohttp==3\.14\.5 \\\s*$", lock, re.M)
     version = re.search(r"^multidict==(\d+\.\d+\.\d+) \\\s*$", lock, re.M)
     assert version is not None
     parts = tuple(int(part) for part in version.group(1).split("."))
-    assert (4, 5, 0) <= parts < (7, 0, 0)
+    assert (4, 5, 0) <= parts < (8, 0, 0)

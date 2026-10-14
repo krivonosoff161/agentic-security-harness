@@ -92,6 +92,13 @@ def test_dependabot_groups_the_coupled_artifact_actions() -> None:
     }
 
 
+def test_dependabot_multidict_cap_matches_reviewed_aiohttp_contract() -> None:
+    config = yaml.safe_load((ROOT / ".github/dependabot.yml").read_text(encoding="utf-8"))
+    pip = next(item for item in config["updates"] if item["package-ecosystem"] == "pip")
+    cap = next(item for item in pip["ignore"] if item["dependency-name"] == "multidict")
+    assert cap["versions"] == [">=8"]  # Reviewed aiohttp 3.14.5 requires >=4.5,<8.
+
+
 def test_every_checkout_disables_persisted_credentials() -> None:
     checkout_steps = 0
     expected_checkout_steps = 0
