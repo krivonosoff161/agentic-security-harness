@@ -83,17 +83,17 @@ jobs:
           python -m pip install --require-hashes -r requirements/build.txt
           python -m pip install --no-compile --only-binary=:all: --require-hashes -r requirements/runtime.txt -r requirements/companions.txt
           python -m build --no-isolation --wheel --outdir dist
-          python -m pip install --no-index --no-deps --no-compile dist/agentic_security_harness-1.14.1-py3-none-any.whl
+          python -m pip install --no-index --no-deps --no-compile dist/agentic_security_harness-1.14.2-py3-none-any.whl
           python -m pip check
       - name: Exercise installed positive and negative paths without source imports
         shell: bash
         run: |
           set -euo pipefail
-          python -I -B examples/installed-ecosystem/check.py --out installed-ecosystem-result.json --core-version 1.14.1
-          python -I -B examples/installed-ecosystem/chain.py --out candidate-functional-chain.json --core-version 1.14.1
-          python -I -B examples/installed-ecosystem/verify_chain.py candidate-functional-chain.json --core-version 1.14.1
-          python -I -B examples/installed-ecosystem/check_supplied_input.py --out candidate-supplied-input.json --core-version 1.14.1
-          python -I -B examples/installed-ecosystem/check_ancestry.py --out candidate-ancestry-result.json --core-version 1.14.1
+          python -I -B examples/installed-ecosystem/check.py --out installed-ecosystem-result.json --core-version 1.14.2
+          python -I -B examples/installed-ecosystem/chain.py --out candidate-functional-chain.json --core-version 1.14.2
+          python -I -B examples/installed-ecosystem/verify_chain.py candidate-functional-chain.json --core-version 1.14.2
+          python -I -B examples/installed-ecosystem/check_supplied_input.py --out candidate-supplied-input.json --core-version 1.14.2
+          python -I -B examples/installed-ecosystem/check_ancestry.py --out candidate-ancestry-result.json --core-version 1.14.2
           ash quickstart --out installed-quickstart
           ash validate installed-quickstart
       - name: Preserve content-free candidate-wheel evidence
@@ -169,6 +169,14 @@ jobs:
           path: components/profile
           persist-credentials: false
 
+      - name: Check out exact Action Authority component contract
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: krivonosoff161/agentic-action-authority
+          ref: 4950321cda5c3f71b460cb4d35ec45073bc38449
+          path: components/action-authority
+          persist-credentials: false
+
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
@@ -207,6 +215,7 @@ jobs:
           --component-root components/router
           --component-root components/filter
           --component-root components/profile
+          --component-root components/action-authority
 
       - name: Build install and run exact extension lifecycle plus product contours
         env:
@@ -273,7 +282,7 @@ jobs:
       - name: Build and smoke the Harness package
         run: |
           python -m build --no-isolation --wheel --outdir dist
-          python -m pip install --no-index --no-deps --force-reinstall dist/agentic_security_harness-1.14.1-py3-none-any.whl
+          python -m pip install --no-index --no-deps --force-reinstall dist/agentic_security_harness-1.14.2-py3-none-any.whl
           ash --help
 
   optional-pydantic:

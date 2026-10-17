@@ -18,6 +18,15 @@ one.
 In plain English: it turns “the agent behaved unsafely” into evidence you can replay,
 validate, compare, and review.
 
+The unreleased 1.14.2 source candidate records the
+[optional Action Authority integration](docs/action-authority-integration.md).
+Its approval core is maintained in the separate
+[agentic-action-authority repository](https://github.com/krivonosoff161/agentic-action-authority)
+at merged commit `4950321cda5c3f71b460cb4d35ec45073bc38449`,
+not copied into Harness. Standalone 0.1.0 source is merged but not
+index-published; its optional file adapter was tested with published Harness
+1.14.1. This does not change the current published Harness release below.
+
 ## Document workflow — published in 1.13.0
 
 The [1.13.0 release](docs/releases/v1.13.0.md) consolidates host-bound

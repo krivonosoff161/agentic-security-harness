@@ -1,7 +1,7 @@
 {
   "schema_version": "AgenticSecurityEcosystemComponentsLock.v1",
   "digest_algorithm": "sha256-canonical-json-v1",
-  "roadmap_sha256": "01d533c66355579998800737d45c90afb099b65c9620f49d0269463a5e898a00",
+  "roadmap_sha256": "81fbefaf690bb8ad8a4df6b882760c9a195649e62c543e607b0bbd49353d376d",
   "authority": "none",
   "entries": [
     {"component_id": "agentic-security-harness", "visibility": "public", "repository": "https://github.com/krivonosoff161/agentic-security-harness", "source_ref": "refs/heads/main", "source_commit": "31c1f290f724298e5674a581c0699e6718b89285", "source_tree": "fabb779cb29523ae0d42d346e1249371dc608f71", "manifest_sha256": "9e637801eca4fc7dadd97c94062f2c3af61130b623ee78f0e6a8d8a4f3034ad8", "verification": "exact_public_git", "projection_path": null},
@@ -11,6 +11,7 @@
     {"component_id": "llm-router", "visibility": "public", "repository": "https://github.com/krivonosoff161/llm-router", "source_ref": "refs/heads/main", "source_commit": "2a743af4518985f7d8c51a8870a53f7290886b23", "source_tree": "9c527d0f9377652c41f3e3bb119d3cec3dd95507", "manifest_sha256": "d3b554debefe4deb196206094f4924695102f00345b110b6e1cdaae08a7f6075", "verification": "exact_public_git", "projection_path": null},
     {"component_id": "llm-cheap-filter", "visibility": "public", "repository": "https://github.com/krivonosoff161/llm-cheap-filter", "source_ref": "refs/heads/main", "source_commit": "17f13fd3986a2869686e59ca62123340fd56178b", "source_tree": "5fc988323cada929a5c74846c4e28ddd468d26be", "manifest_sha256": "c9dd234324ee368a591a5e33b9436827fcdf0ff5a45db16711250ca21aa4d529", "verification": "exact_public_git", "projection_path": null},
     {"component_id": "agentic-runtime-guard", "visibility": "private", "repository": null, "source_ref": null, "source_commit": null, "source_tree": null, "manifest_sha256": "837834911d46324f9fc9eba73d863eeb8868534ef8ffe86468013bf56ecca9cc", "verification": "sanitized_projection", "projection_path": "ecosystem/component-projections/agentic-runtime-guard.json"},
-    {"component_id": "krivonosoff161", "visibility": "public", "repository": "https://github.com/krivonosoff161/krivonosoff161", "source_ref": "refs/heads/main", "source_commit": "36ce2be1ac27867cd95fbdb9d1a1027e8a0ed2f2", "source_tree": "56d2069a47280bb80df7426a2c2d2ea29667a5df", "manifest_sha256": "b63a38563a589952aac79c3d93535a63a751c60e4d2a1c11fdd1b6e2880a6507", "verification": "exact_public_git", "projection_path": null}
+    {"component_id": "krivonosoff161", "visibility": "public", "repository": "https://github.com/krivonosoff161/krivonosoff161", "source_ref": "refs/heads/main", "source_commit": "36ce2be1ac27867cd95fbdb9d1a1027e8a0ed2f2", "source_tree": "56d2069a47280bb80df7426a2c2d2ea29667a5df", "manifest_sha256": "b63a38563a589952aac79c3d93535a63a751c60e4d2a1c11fdd1b6e2880a6507", "verification": "exact_public_git", "projection_path": null},
+    {"component_id": "agentic-action-authority", "visibility": "public", "repository": "https://github.com/krivonosoff161/agentic-action-authority", "source_ref": "refs/heads/main", "source_commit": "4950321cda5c3f71b460cb4d35ec45073bc38449", "source_tree": "e15bba5b6406c51a740a3070e6aaa1f0f411d376", "manifest_sha256": "f16108248e7627623fdd9e7cb24ca1cda311df1d1469e21d6bfee7d191644116", "verification": "exact_public_git", "projection_path": null}
   ]
 }

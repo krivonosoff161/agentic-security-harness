@@ -93,9 +93,10 @@ def test_latest_proposal_evidence_is_visible_from_public_entry_points() -> None:
 
 def test_current_onboarding_separates_published_runtime_from_repository_evidence() -> None:
     source_version = tomllib.loads(_read("pyproject.toml"))["project"]["version"]
-    # Publication is separate from immutable model evidence collected on 1.6.0.
+    # Candidate source metadata is distinct from the latest published package
+    # and immutable model evidence collected on 1.6.0.
     version = "1.14.1"  # Published package; old model evidence stays separate.
-    assert source_version == version
+    assert source_version == "1.14.2"
     publication = _read("docs/releases/v1.14.1.md")
     assert "status: published on" in publication.lower()
     assert "38345333268" in publication and "38345501324" in publication
@@ -180,7 +181,7 @@ def test_v1101_publication_preserves_failed_v110_tag_and_model_boundary() -> Non
     assert "not a replay of the six local model replies" in publication
     assert "immutable failed tag" in failed_tag
     assert "No TestPyPI or PyPI upload occurred" in failed_tag
-    assert "Distribution version: **1.14.1**" in description
+    assert "Distribution version: **1.14.2**" in description
     assert "ControlledFileSession" in description
     for path in ("README.md", "docs/getting-started.md"):
         assert "python -m pip install agentic-security-harness==1.14.1" in _read(path)
@@ -223,11 +224,11 @@ def test_v1120_publication_binds_subjects_without_semantic_overclaim() -> None:
                    "exits 2", "untrusted data", "same unchanged configuration"):
         assert marker in guide
     assert "checked` never proves semantic correctness" in guide
-    assert "Distribution version: **1.14.1**" in description
-    assert "agentic-security-harness==1.14.1" in description
+    assert "Distribution version: **1.14.2**" in description
+    assert "agentic-security-harness==1.14.2" in description
     document_link = (
         "https://github.com/krivonosoff161/agentic-security-harness/"
-        "blob/v1.14.1/docs/document-workflow.md"
+        "blob/v1.14.2/docs/document-workflow.md"
     )
     assert document_link in description
     assert "python -m pip install agentic-security-harness==1.14.1" in guide

@@ -1,5 +1,18 @@
 # Current state
 
+## Unreleased 1.14.2 source candidate
+
+The 1.14.2 source metadata prepares an optional
+[Action Authority integration](action-authority-integration.md). The approval
+core remains in the separately owned `agentic-action-authority` repository at
+merged commit `4950321cda5c3f71b460cb4d35ec45073bc38449`; it is not
+copied into Harness. Standalone 0.1.0 source is merged but not index-published.
+Its optional Harness file adapter was tested against the published 1.14.1
+distribution, not an unpublished 1.14.2 wheel. The new ecosystem entry is
+source-locked and does not extend the historical six-component functional chain.
+No 1.14.2 tag, index upload, or release verification is claimed here; the
+[candidate record](releases/v1.14.2.md) lists the pending gates.
+
 ## Current PyPI release — 1.14.1
 
 The current published package is **1.14.1**. Checked [PR #358](https://github.com/krivonosoff161/agentic-security-harness/pull/358)

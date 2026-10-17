@@ -286,6 +286,7 @@ def test_component_lock_binds_public_git_and_bounded_private_projection() -> Non
         "llm-cheap-filter",
         "agentic-runtime-guard",
         "krivonosoff161",
+        "agentic-action-authority",
     ]
     private = lock.entries[6]
     assert private.verification == "sanitized_projection"
@@ -293,6 +294,18 @@ def test_component_lock_binds_public_git_and_bounded_private_projection() -> Non
     assert private.source_ref is None
     assert private.source_commit is None
     assert private.source_tree is None
+
+
+def test_action_authority_is_optional_standalone_and_does_not_extend_historical_chain() -> None:
+    _, roadmap, compatibility = validate_all()
+    assert roadmap.components[-1] == "agentic-action-authority"
+    row = compatibility.rows[-1]
+    assert row.component_id == "agentic-action-authority"
+    assert row.integration_status == "standalone"
+    assert row.harness_api == "optional workspace operation 1.14.1"
+    assert row.supported_platforms == ["linux", "windows"]
+    assert row.tested_platforms == ["linux", "windows"]
+    assert row.extension_python is None
 
 
 def test_component_lock_rejects_private_git_identity() -> None:
@@ -316,10 +329,9 @@ def test_runtime_guard_public_projection_has_no_private_evidence_markers() -> No
         assert marker not in text
 
 
-def test_workflow_public_checkout_pins_match_component_lock() -> None:
-    workflow = (ROOT / ".github" / "workflows" / "ecosystem-docs.yml").read_text(
-        encoding="utf-8"
-    )
+@pytest.mark.parametrize("workflow_name", ["ecosystem-docs.yml", "ecosystem-integration.yml"])
+def test_workflow_public_checkout_pins_match_component_lock(workflow_name: str) -> None:
+    workflow = (ROOT / ".github" / "workflows" / workflow_name).read_text(encoding="utf-8")
     lock = ComponentsLock.model_validate(
         load_contract(ECOSYSTEM / "components.lock.json")
     )
@@ -335,3 +347,4 @@ def test_workflow_public_checkout_pins_match_component_lock() -> None:
             assert f"ref: {entry.source_commit}" in workflow
 
     assert "agentic-runtime-guard" not in workflow
+    assert "--component-root components/action-authority" in workflow

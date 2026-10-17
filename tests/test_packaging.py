@@ -121,20 +121,25 @@ def test_current_release_source_metadata_is_synchronized() -> None:
 
     package_version = re.search(r'^__version__ = "([^"]+)"$', version_text, re.MULTILINE)
     assert package_version is not None
-    assert project["version"] == package_version.group(1) == "1.14.1"
+    assert project["version"] == package_version.group(1) == "1.14.2"
     assert 'Development Status :: 4 - Beta' in project["classifiers"]
-    assert 'version: "1.14.1"' in citation
-    assert "## [1.14.1] - 2026-10-13" in changelog
-    assert "Agentic Security Harness v1.14.1" in release_notes
-    assert "Status: published on PyPI and TestPyPI" in release_notes
+    assert 'version: "1.14.2"' in citation
+    assert "date-released:" not in citation
+    assert "## [1.14.2] - 2026-10-17" in changelog
+    assert "Harness 1.14.2 source candidate" in release_notes
+    assert "Status: **unreleased source candidate**" in release_notes
+    published_1141_notes = (ROOT / "docs/releases/v1.14.1.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Status: published on PyPI and TestPyPI" in published_1141_notes
     for digest in (
         "09a5f79ce54ff2faaee0ff34b21c406efb04e2b182ac708f19a290ec91d4938c",
         "dbfb7eb517b3942374c58f277eaa57fb500097450523ba521dd55d217aafc1cb",
     ):
-        assert digest in release_notes
-    assert "38345501324" in release_notes
-    assert "passed all seven jobs" in release_notes
-    assert "production workflow **failed overall**" in release_notes
+        assert digest in published_1141_notes
+    assert "38345501324" in published_1141_notes
+    assert "passed all seven jobs" in published_1141_notes
+    assert "production workflow **failed overall**" in published_1141_notes
     prior_release_notes = (ROOT / "docs/releases/v1.14.0.md").read_text(encoding="utf-8")
     assert "Status: published on GitHub, TestPyPI and PyPI" in prior_release_notes
     for digest in (
