@@ -12,7 +12,8 @@
     "llm-router",
     "llm-cheap-filter",
     "agentic-runtime-guard",
-    "krivonosoff161"
+    "krivonosoff161",
+    "agentic-action-authority"
   ],
   "phases": [
     {

@@ -1,5 +1,13 @@
 # Roadmap
 
+The unreleased 1.14.2 source candidate registers
+[Action Authority](action-authority-integration.md) as an optional,
+separately owned component. Its approval core is not copied into Harness.
+The merged standalone 0.1.0 source is not index-published, and its optional
+file adapter is verified against published Harness 1.14.1. The existing
+six-component functional chain is unchanged. Publication and independent
+review remain separate future gates.
+
 The current [1.14.1 release](releases/v1.14.1.md) publishes the exact optional
 Pydantic AI 2.54.0 compatibility migration, including graph/pricing locks,
 bounded dispatch and installed-package controls. Proposal #342 was superseded

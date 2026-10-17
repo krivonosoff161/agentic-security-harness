@@ -1,5 +1,15 @@
 # Project tracker
 
+## Unreleased Action Authority integration — 1.14.2 source candidate
+
+The [integration guide](action-authority-integration.md) records the optional
+separately owned approval product at merged source
+`4950321cda5c3f71b460cb4d35ec45073bc38449`. No core code is copied
+into Harness and no new base dependency or functional-chain member is added.
+Standalone 0.1.0 is not index-published; its optional file adapter was tested
+against published Harness 1.14.1. Harness 1.14.2 is source preparation only,
+pending exact-head checks and separate release gates.
+
 ## Published Pydantic AI 2.x compatibility — 1.14.1
 
 The metadata-only proposal #342 was superseded by checked PR #358: exact

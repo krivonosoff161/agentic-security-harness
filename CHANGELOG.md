@@ -4,7 +4,20 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project aims to follow
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.14.2] - 2026-10-17
+
+Source candidate for an optional, separately owned Action Authority integration.
+This section does not attest a tag, index upload, or release gate. See the
+[candidate record](docs/releases/v1.14.2.md).
+
+- Register `agentic-action-authority` as an optional ecosystem component,
+  source-locked to its merged public commit
+  `4950321cda5c3f71b460cb4d35ec45073bc38449`. Its approval core lives
+  in that repository, not in Harness. Its optional file adapter retains the
+  Harness writer and was tested against published Harness 1.14.1; standalone
+  0.1.0 source is merged but not index-published. The historical six-component
+  functional chain is unchanged. See the
+  [integration guide](docs/action-authority-integration.md).
 
 - Reconcile follow-up proposals #368/#369: pin Scorecard Action 2.5.0 and
   aiohttp 3.14.5, and align the reviewed multidict upper bound and Dependabot
