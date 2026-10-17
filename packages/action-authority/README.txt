@@ -15,6 +15,10 @@ Keep the signing secret and its passphrase outside the agent environment. File m
 0600 alone is NOT a Windows isolation policy. Use an operator-controlled account/device
 and appropriate OS permissions. Same-OS administrator compromise and coordinated state
 rollback are outside this candidate. A signature proves key possession, not good judgment.
+The content-only tool boundary applies to model tool calls routed by a trusted host.
+It is not a Python sandbox: arbitrary code running as the host's OS user can bypass
+a callable wrapper or inspect its objects. Do not give an untrusted coding agent the
+host process, state directory, signing account or unrestricted filesystem tools.
 
 Install
 This package is intentionally separate from the main Harness distribution and its
@@ -45,7 +49,7 @@ source and wheel; source is <checkout>/packages/action-authority. These commands
 the installed package, not a source-path import. Each output destination must be new.
   <venv-python> <source>/tools/check_installed_wheel.py --wheel <wheel> --source <source> --out wheel-check.json
   <venv-python> <source>/tools/run_checks.py --source <source> --out checks
-Expected: exact wheel/source/install bytes and 53 tests, no failures/errors/skips.
+Expected: exact wheel/source/install bytes and 61 tests, no failures/errors/skips.
 Test keys and confirmation answers are synthetic; do not confuse them with approval
 by the operator. Four deliberate child-process exits affect only temporary fixtures.
 
@@ -55,12 +59,12 @@ The commands below are templates; the operator alone runs the key and signing co
 Do not paste the private key or passphrase into chat, a model prompt, or command arguments.
 
 1. OPERATOR, outside the agent environment, creates an encrypted dedicated key:
-  python -m ash_action_authority.operator keygen --private operator.pem --public operator.hex
+  <venv-python> -m ash_action_authority.operator keygen --private operator.pem --public operator.hex
    Pass only the public file/fingerprint to the host. The host independently enrolls it;
    possession of an arbitrary public file does not make its signer trusted.
 
 2. HOST prepares one fresh public-source task (no action yet):
-  python -m ash_action_authority.host setup --home new-task --public-key operator.hex --source source.txt --document proposed.txt --host-revision HOST_CODE_COMMIT_SHA --allow-local-source-use
+  <venv-python> -m ash_action_authority.host setup --home new-task --public-key operator.hex --source source.txt --document proposed.txt --host-revision HOST_CODE_COMMIT_SHA --allow-local-source-use
    host-revision is the actual host-selected source revision, not an invented identifier.
    The source MUST be public and authorized for this local reuse. The explicit flag grants
    source use inside this workflow, not network access.
@@ -71,15 +75,15 @@ Do not paste the private key or passphrase into chat, a model prompt, or command
    Source capture is local/unattested; it does not prove discovery of hidden dependencies.
 
 3. OPERATOR receives new-task/request.json AND new-task/document.txt and reviews both:
-  python -m ash_action_authority.operator sign --private operator.pem --request new-task/request.json --content new-task/document.txt --decision approve --out approved.json
+  <venv-python> -m ash_action_authority.operator sign --private operator.pem --request new-task/request.json --content new-task/document.txt --decision approve --out approved.json
    Review displays escaped exact bytes, not an agent summary. Type the requested action
    and digest prefix, then enter the private-key passphrase locally. No --yes bypass.
    The detached decision is not a secret key. Signing does not execute the action.
 
 4. HOST applies the decision, runs, and independently reads back:
-  python -m ash_action_authority.host apply-decision --home new-task --decision approved.json
-  python -m ash_action_authority.host run --home new-task
-  python -m ash_action_authority.host status --home new-task --recover
+  <venv-python> -m ash_action_authority.host apply-decision --home new-task --decision approved.json
+  <venv-python> -m ash_action_authority.host run --home new-task
+  <venv-python> -m ash_action_authority.host status --home new-task --recover
    Exact output is new-task/output/document.md; no overwrite. A repeated run is refused.
    status WITHOUT --recover is explicitly historical; it does not verify current bytes.
    Shell exits:0 for a successful command,1 for a refused request,2 for an uncertain
@@ -89,7 +93,7 @@ Do not paste the private key or passphrase into chat, a model prompt, or command
 Revoke / recover
 Before BEGIN, sign the current request with --decision revoke and apply that decision.
 It invalidates the old challenge. To review a fresh request after revocation:
-  python -m ash_action_authority.host request --home new-task --out next-request.json
+  <venv-python> -m ash_action_authority.host request --home new-task --out next-request.json
 BEGIN is the durable outer EXECUTING commit; it is earlier than physical file I/O.
 A revoke that loses that race returns too_late_or_in_flight. A lock timeout acknowledges
 nothing. Expiry limits admission at BEGIN, not the wall-clock completion of a started I/O.
@@ -112,6 +116,29 @@ Only submit(content) belongs in the agent tool table. Your host must persist and
 the same trusted inputs, as host.py demonstrates. Supply WorkspaceAdmission whenever
 captured-source eligibility/history is a prerequisite. Bare digests are version pins,
 not an automatic live-dependency discovery or freshness system.
+
+For a model tool-call host, copy examples/content_only_dispatch.py into your trusted
+application. It imports the installed candidate; it is an integration example, not
+an extra tool that should be exposed to an agent. After the HOST creates/restores
+the gate with its own policy and enrolls an operator key, the minimal binding is:
+
+  from content_only_dispatch import make_dispatch, tool_descriptor
+  dispatch = make_dispatch(gate)  # gate is retained by the trusted host
+  tools = [tool_descriptor()]    # this descriptor is the entire model tool surface
+  result = dispatch(call_name, parsed_arguments)
+
+The model can request only submit_approved_document with {"content": "exact text"}.
+The dispatcher rejects other names, paths and additional approval fields before
+calling the gate. It neither signs nor applies approvals. The operator workflow
+above is unchanged. Parse bounded provider responses in the host and do not expose
+generic host-function lookup, Python execution or filesystem access alongside it.
+
+The model receives only a fixed outcome/reason. An uncertain result requires host
+recovery/readback; it is not evidence that nothing happened and must not trigger an
+automatic retry. A writer receipt is not a claim of text truth or future durability.
+The installed suite exercises this example with actual temporary-file writes,
+changed-text/replay refusal, forged arguments and a post-write storage failure.
+It proves tool-call routing under the trusted-host premise, not OS account isolation.
 
 Evidence / remaining acceptance
 Finite tests distinguish synthetic approvals, actual child-process termination, real file

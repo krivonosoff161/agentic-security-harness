@@ -38,7 +38,7 @@ jobs:
       - name: Ruff candidate source tests and tools
         shell: pwsh
         run: |
-          python -m ruff check --no-cache --config pyproject.toml --select E,F,I,UP,B packages/action-authority/src packages/action-authority/tests packages/action-authority/tools
+          python -m ruff check --no-cache --config pyproject.toml --select E,F,I,UP,B packages/action-authority
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Build exactly one wheel and bind its digest
         shell: pwsh

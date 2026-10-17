@@ -13,14 +13,30 @@ import time
 import unittest
 from pathlib import Path
 
-EXPECTED_MODULES = frozenset({
-    "test_boundaries", "test_cli", "test_engine", "test_host",
-    "test_native_parity", "test_operator", "test_process", "test_protocol",
-})
-EXPECTED_SOURCE_FILES = frozenset({
-    "__init__.py", "engine.py", "host.py", "operator.py", "protocol.py",
-})
-EXPECTED_TESTS = 53
+EXPECTED_MODULES = frozenset(
+    {
+        "test_boundaries",
+        "test_cli",
+        "test_embedding",
+        "test_engine",
+        "test_host",
+        "test_native_parity",
+        "test_operator",
+        "test_process",
+        "test_protocol",
+    }
+)
+EXPECTED_SOURCE_FILES = frozenset(
+    {
+        "__init__.py",
+        "engine.py",
+        "host.py",
+        "operator.py",
+        "protocol.py",
+    }
+)
+EXPECTED_EXAMPLE_FILES = frozenset({"content_only_dispatch.py"})
+EXPECTED_TESTS = 61
 sys.dont_write_bytecode = True
 
 
@@ -44,8 +60,7 @@ def _cases(suite: unittest.TestSuite):
 
 
 def _bounded_trace(trace: str, source: Path) -> str:
-    for root, label in ((source.parents[1], "<checkout>"),
-                        (Path(sys.prefix).resolve(), "<venv>")):
+    for root, label in ((source.parents[1], "<checkout>"), (Path(sys.prefix).resolve(), "<venv>")):
         raw = str(root)
         trace = trace.replace(raw, label).replace(raw.replace("\\", "/"), label)
     return "\n".join(trace.splitlines()[-40:])[-6000:]
@@ -54,7 +69,9 @@ def _bounded_trace(trace: str, source: Path) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--source", type=Path, required=True,
+        "--source",
+        type=Path,
+        required=True,
         help="packages/action-authority directory, used only for byte inventory and tests",
     )
     parser.add_argument("--out", type=Path, required=True)
@@ -76,12 +93,16 @@ def main() -> int:
     candidate_version = importlib.metadata.version("ash-action-authority-candidate")
     files = sorted((source / "src" / "ash_action_authority").glob("*.py"))
     tests = sorted((source / "tests").glob("test_*.py"))
-    if ({path.stem for path in tests} != EXPECTED_MODULES
-            or {path.name for path in files} != EXPECTED_SOURCE_FILES):
+    examples = sorted((source / "examples").glob("*.py"))
+    if (
+        {path.stem for path in tests} != EXPECTED_MODULES
+        or {path.name for path in files} != EXPECTED_SOURCE_FILES
+        or {path.name for path in examples} != EXPECTED_EXAMPLE_FILES
+    ):
         raise RuntimeError("candidate_test_or_source_inventory_changed")
     hashes = {
         path.relative_to(source).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
-        for path in (*files, *tests)
+        for path in (*files, *tests, *examples)
     }
     loader = unittest.TestLoader()
     suite = loader.discover(str(source / "tests"), pattern="test_*.py")
@@ -93,9 +114,13 @@ def main() -> int:
     started = time.monotonic()
     suite.run(result)
     elapsed = time.monotonic() - started
-    success = (result.wasSuccessful() and result.testsRun == EXPECTED_TESTS
-               and not result.skipped and not result.expectedFailures
-               and not result.unexpectedSuccesses)
+    success = (
+        result.wasSuccessful()
+        and result.testsRun == EXPECTED_TESTS
+        and not result.skipped
+        and not result.expectedFailures
+        and not result.unexpectedSuccesses
+    )
     record = {
         "schema": "action-authority-installed-check-v1",
         "installed_acceptance": True,
@@ -120,18 +145,31 @@ def main() -> int:
         "success": success,
     }
     (args.out / "RESULT.json").write_text(
-        json.dumps(record, sort_keys=True, indent=2, ensure_ascii=True) + "\n", encoding="ascii")
-    log = ["installed synthetic unittest acceptance",
-           f"tests_run={result.testsRun} expected={EXPECTED_TESTS} success={success}"]
-    for label, pairs in (("failure", result.failures), ("error", result.errors),
-                         ("expected_failure", result.expectedFailures)):
+        json.dumps(record, sort_keys=True, indent=2, ensure_ascii=True) + "\n", encoding="ascii"
+    )
+    log = [
+        "installed synthetic unittest acceptance",
+        f"tests_run={result.testsRun} expected={EXPECTED_TESTS} success={success}",
+    ]
+    for label, pairs in (
+        ("failure", result.failures),
+        ("error", result.errors),
+        ("expected_failure", result.expectedFailures),
+    ):
         for case, trace in pairs:
             log.extend((f"{label}={case.id()}", _bounded_trace(trace, source)))
     log.extend(f"skipped={case.id()}" for case, _ in result.skipped)
     log.extend(f"unexpected_success={case.id()}" for case in result.unexpectedSuccesses)
     (args.out / "tests.log").write_text("\n".join(log) + "\n", encoding="utf-8")
-    print(json.dumps({"tests_run": result.testsRun, "success": success,
-                      "synthetic_approvals_are_not_human_consent": True}))
+    print(
+        json.dumps(
+            {
+                "tests_run": result.testsRun,
+                "success": success,
+                "synthetic_approvals_are_not_human_consent": True,
+            }
+        )
+    )
     return 0 if success else 1
 
 
