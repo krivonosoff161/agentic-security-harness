@@ -1,5 +1,18 @@
 # Current state
 
+## Experimental action-authority candidate — separate from the published package
+
+The [action-authority candidate](../packages/action-authority/README.txt) is an
+opt-in, separately built evaluation package. It binds an operator's signature to
+one exact create-only text-file action over published Harness 1.14.1, with
+serialized revocation and recovery without blind replay. It is not included in
+the main Harness wheel and has no package-index release. Dedicated CI checks one
+built wheel on Windows and Linux; synthetic test signatures are not real human
+approval. Host/state/key enrollment remain trusted, and document truth, OS
+containment and arbitrary remote-API exactly-once execution are not claimed.
+Real operator acceptance and independent review remain separate gates.
+The bounded candidate and platform checks are tracked in [#373](https://github.com/krivonosoff161/agentic-security-harness/issues/373).
+
 ## Current PyPI release — 1.14.1
 
 The current published package is **1.14.1**. Checked [PR #358](https://github.com/krivonosoff161/agentic-security-harness/pull/358)

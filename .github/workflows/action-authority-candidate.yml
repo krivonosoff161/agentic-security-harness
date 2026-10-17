@@ -1,0 +1,133 @@
+name: Action authority candidate installed acceptance
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  candidate-wheel:
+    name: Build one candidate wheel
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact PR head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Verify checkout identity
+        shell: pwsh
+        run: |
+          if ((git rev-parse HEAD).Trim() -ne '${{ github.event.pull_request.head.sha }}') {
+            throw 'PR head checkout mismatch'
+          }
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+      - name: Install pinned build and lint tools
+        shell: pwsh
+        run: |
+          python -m pip --isolated install --require-hashes -r requirements/build.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pip --isolated install --require-hashes -r requirements/dev.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Ruff candidate source tests and tools
+        shell: pwsh
+        run: |
+          python -m ruff check --no-cache --config pyproject.toml --select E,F,I,UP,B packages/action-authority/src packages/action-authority/tests packages/action-authority/tools
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build exactly one wheel and bind its digest
+        shell: pwsh
+        run: |
+          python -m build --no-isolation --wheel --outdir candidate-dist packages/action-authority
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $wheels = @(Get-ChildItem -LiteralPath candidate-dist -File -Filter '*.whl')
+          if ($wheels.Count -ne 1) { throw 'Expected exactly one candidate wheel' }
+          (Get-FileHash -LiteralPath $wheels[0].FullName -Algorithm SHA256).Hash.ToLowerInvariant() |
+            Set-Content -LiteralPath candidate-dist/wheel.sha256 -NoNewline -Encoding ascii
+      - name: Retain ephemeral candidate wheel even on failure
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: action-authority-wheel-${{ github.event.pull_request.head.sha }}
+          path: candidate-dist/
+          if-no-files-found: warn
+          retention-days: 3
+
+  installed-acceptance:
+    name: Installed acceptance (${{ matrix.os }})
+    needs: candidate-wheel
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            lock: linux
+          - os: windows-latest
+            lock: windows
+    steps:
+      - name: Check out exact PR head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Verify checkout identity
+        shell: pwsh
+        run: |
+          if ((git rev-parse HEAD).Trim() -ne '${{ github.event.pull_request.head.sha }}') {
+            throw 'PR head checkout mismatch'
+          }
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+      - name: Download the one build-job wheel
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: action-authority-wheel-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/action-authority-wheel
+      - name: Verify artifact digest, install only that wheel, and check installed package
+        shell: pwsh
+        working-directory: ${{ runner.temp }}
+        env:
+          CANDIDATE_CHECKOUT: ${{ github.workspace }}
+          CANDIDATE_LOCK: ${{ matrix.lock }}
+        run: |
+          $wheelDir = Join-Path $env:RUNNER_TEMP 'action-authority-wheel'
+          $wheels = @(Get-ChildItem -LiteralPath $wheelDir -File -Filter '*.whl')
+          if ($wheels.Count -ne 1) { throw 'Expected exactly one downloaded wheel' }
+          $expected = (Get-Content -LiteralPath (Join-Path $wheelDir 'wheel.sha256') -Raw).Trim()
+          $actual = (Get-FileHash -LiteralPath $wheels[0].FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actual -ne $expected) { throw 'Downloaded wheel digest mismatch' }
+          $venv = Join-Path $env:RUNNER_TEMP 'action-authority-venv'
+          python -m venv $venv
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $venvPython = if ($IsWindows) { Join-Path $venv 'Scripts/python.exe' } else { Join-Path $venv 'bin/python' }
+          $lock = Join-Path $env:CANDIDATE_CHECKOUT "packages/action-authority/requirements/$env:CANDIDATE_LOCK.txt"
+          & $venvPython -m pip --isolated install --index-url https://pypi.org/simple --no-compile --only-binary=:all: --require-hashes -r $lock
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & $venvPython -m pip --isolated install --no-index --no-deps --no-compile $wheels[0].FullName
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & $venvPython -m pip check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $source = Join-Path $env:CANDIDATE_CHECKOUT 'packages/action-authority'
+          $results = Join-Path $env:RUNNER_TEMP 'action-authority-results'
+          New-Item -ItemType Directory -Path $results -ErrorAction Stop | Out-Null
+          & $venvPython (Join-Path $source 'tools/check_installed_wheel.py') --wheel $wheels[0].FullName --source $source --out (Join-Path $results 'wheel-check.json')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & $venvPython (Join-Path $source 'tools/run_checks.py') --source $source --out (Join-Path $results 'unittest')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Retain content-free check summaries even on failure
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: action-authority-checks-${{ matrix.lock }}-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/action-authority-results/
+          if-no-files-found: warn
+          retention-days: 3
