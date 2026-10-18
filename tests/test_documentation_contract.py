@@ -39,17 +39,17 @@ def test_version_bound_workflow_guides_use_the_published_patch() -> None:
     replay = _read("docs/document-workflow-replay.md")
 
     for text in (writer, guide):
-        assert "releases/v1.14.1.md" in text
+        assert "releases/v1.14.2.md" in text
     for text in (writer, guide, replay):
         assert "releases/v1.14.0.md" in text
         assert "published" in text.lower()
-    assert "python -m pip install agentic-security-harness==1.14.1" in writer
-    assert "python -m pip install agentic-security-harness==1.14.1" in guide
-    assert 'pip install "agentic-security-harness[document-agent]==1.14.1"' in guide
+    assert "python -m pip install agentic-security-harness==1.14.2" in writer
+    assert "python -m pip install agentic-security-harness==1.14.2" in guide
+    assert 'pip install "agentic-security-harness[document-agent]==1.14.2"' in guide
     published_bridge = guide.split("`pydantic-ai-slim==2.54.0`", 1)
     assert len(published_bridge) == 2
-    assert "Published 1.14.1" in published_bridge[0][-200:]
-    assert "The unreleased source checkout instead pins `pydantic-ai-slim==2.55.0`" in guide
+    assert "Historical 1.14.1" in published_bridge[0][-200:]
+    assert "Published 1.14.2 has a `document-agent` extra pinned to" in guide
     assert "1.107.7" in guide  # Immutable v1.14.0 optional route.
     assert "single 1.13.1 wheel" in replay
     for text in (writer, guide, replay):
@@ -93,13 +93,12 @@ def test_latest_proposal_evidence_is_visible_from_public_entry_points() -> None:
 
 def test_current_onboarding_separates_published_runtime_from_repository_evidence() -> None:
     source_version = tomllib.loads(_read("pyproject.toml"))["project"]["version"]
-    # Candidate source metadata is distinct from the latest published package
-    # and immutable model evidence collected on 1.6.0.
-    version = "1.14.1"  # Published package; old model evidence stays separate.
+    # Current package publication is distinct from immutable 1.6.0 model evidence.
+    version = "1.14.2"
     assert source_version == "1.14.2"
-    publication = _read("docs/releases/v1.14.1.md")
-    assert "status: published on" in publication.lower()
-    assert "38345333268" in publication and "38345501324" in publication
+    publication = _read("docs/releases/v1.14.2.md")
+    assert "status: **published on testpypi and pypi**" in publication.lower()
+    assert "39063481449" in publication and "39063673573" in publication
     assert "failed overall" in publication.lower()
     assert "seven" in publication.lower() and "zero skips" in publication.lower()
     assert "status: published on" in _read("docs/releases/v1.14.0.md").lower()
@@ -125,9 +124,9 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
         assert "repository-owned" in text, path
     status = _read("docs/current-state.md")
     assert f"## Current PyPI release — {version}" in status
-    assert "38345333268" in status and "failed overall" in status
-    assert "38345501324" in status and "passed all seven jobs" in status
-    assert "Last reviewed: 2026-10-13" in status
+    assert "39063481449" in status and "failed overall" in status
+    assert "39063673573" in status and "passed all seven jobs" in status
+    assert "Current release reviewed: 2026-10-18" in status
     assert "46d38200e404ee1106f2f012a753c3d6a11150fc" in status
     assert "37102316728" in status
     assert "dc8c8e74caf4735724ece8abd840edfd68819fc4" in status
@@ -144,6 +143,31 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
     assert "artifacts remain immutable" in changelog
     for number in (300, 301, 303):
         assert f"/pull/{number}" in changelog
+
+
+def test_action_authority_publication_keeps_release_and_current_source_pins_distinct() -> None:
+    front = _read("README.md").split("## Document workflow", 1)[0]
+    assert "agentic-action-authority[harness]==0.1.1" in front
+    assert "agentic-security-harness==1.14.2" in front
+    assert "4950321cda5c3f71b460cb4d35ec45073bc38449" not in front
+    assert "281d4cb9c4620697f33005c6e0d628e41ff20fa0" not in front
+
+    for path in (
+        "docs/releases/v1.14.2.md",
+        "docs/current-state.md",
+        "docs/action-authority-integration.md",
+    ):
+        text = _read(path)
+        assert "4950321cda5c3f71b460cb4d35ec45073bc38449" in text
+        assert "281d4cb9c4620697f33005c6e0d628e41ff20fa0" in text
+
+    guide = _read("docs/action-authority-integration.md")
+    for marker in (
+        "39108172887", "39108172888", "39108339899", "39108500218",
+        "ca9df74f7c935f210cf0d787bde97723d9980f600388e034f29f8dbc93fc3caf",
+        "0.1.0 TestPyPI", "failed Harness production workflow",
+    ):
+        assert marker in guide
 
 
 def test_v1140_publication_binds_exact_subjects_and_bounded_closure() -> None:
@@ -184,7 +208,7 @@ def test_v1101_publication_preserves_failed_v110_tag_and_model_boundary() -> Non
     assert "Distribution version: **1.14.2**" in description
     assert "ControlledFileSession" in description
     for path in ("README.md", "docs/getting-started.md"):
-        assert "python -m pip install agentic-security-harness==1.14.1" in _read(path)
+        assert "python -m pip install agentic-security-harness==1.14.2" in _read(path)
 
 
 def test_v1110_publication_binds_subjects_and_retains_initial_failure() -> None:
@@ -231,8 +255,8 @@ def test_v1120_publication_binds_subjects_without_semantic_overclaim() -> None:
         "blob/v1.14.2/docs/document-workflow.md"
     )
     assert document_link in description
-    assert "python -m pip install agentic-security-harness==1.14.1" in guide
-    assert 'pip install "agentic-security-harness[document-agent]==1.14.1"' in guide
+    assert "python -m pip install agentic-security-harness==1.14.2" in guide
+    assert 'pip install "agentic-security-harness[document-agent]==1.14.2"' in guide
     assert "/path/to/candidate-checkout" not in guide
     for location in (
         "https://github.com/krivonosoff161/agentic-security-harness/releases/tag/v1.12.0",
@@ -242,7 +266,7 @@ def test_v1120_publication_binds_subjects_without_semantic_overclaim() -> None:
         assert location in notes
     readme = _read("README.md")
     assert "1.14.0" in readme
-    assert "current published package is **1.14.1**" in readme
+    assert "current published package is **1.14.2**" in readme
 
 
 def test_v1130_publication_binds_new_subjects_without_rewriting_prior_evidence() -> None:
@@ -1771,9 +1795,9 @@ def test_v151_publication_docs_bind_current_release_and_preserve_failures() -> N
         assert marker in notes
     readme = _read("README.md")
     assert "1.14.0" in readme
-    assert "current published package is **1.14.1**" in readme
-    assert "agentic-security-harness==1.14.1" in readme
-    assert "agentic-security-harness[all]==1.14.1" in readme
+    assert "current published package is **1.14.2**" in readme
+    assert "agentic-security-harness==1.14.2" in readme
+    assert "agentic-security-harness[all]==1.14.2" in readme
     assert "agentic-llm-router==0.2.1" in readme
     assert "agentic-llm-router==0.2.0" not in readme
-    assert "python -m pip install agentic-security-harness==1.14.1" in readme
+    assert "python -m pip install agentic-security-harness==1.14.2" in readme

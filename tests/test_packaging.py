@@ -126,8 +126,10 @@ def test_current_release_source_metadata_is_synchronized() -> None:
     assert 'version: "1.14.2"' in citation
     assert "date-released:" not in citation
     assert "## [1.14.2] - 2026-10-17" in changelog
-    assert "Harness 1.14.2 source candidate" in release_notes
-    assert "Status: **unreleased source candidate**" in release_notes
+    assert "Harness 1.14.2 release" in release_notes
+    assert "Status: **published on TestPyPI and PyPI**" in release_notes
+    assert "39063481449" in release_notes and "39063673573" in release_notes
+    assert "failed overall" in release_notes
     published_1141_notes = (ROOT / "docs/releases/v1.14.1.md").read_text(
         encoding="utf-8"
     )

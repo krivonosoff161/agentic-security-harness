@@ -10,11 +10,13 @@ Goal: from an installed package to your first validated benchmark report in
 
 ## 1. Install
 
-These commands use the published [1.14.1 package](https://pypi.org/project/agentic-security-harness/1.14.1/).
+These commands use the published [1.14.2 package](https://pypi.org/project/agentic-security-harness/1.14.2/).
 Its exact subjects and current verification status are recorded in the
-[release evidence](releases/v1.14.1.md). The initial production workflow failed
-at a Linux 3.12 index lookup after upload; the separate seven-job read-only
-cross-index verification passed without skips. The prior
+[release evidence](releases/v1.14.2.md). The initial production workflow failed
+at a Windows index lookup before execution after upload; the separate seven-job
+read-only cross-index verification passed without skips or re-upload. The prior
+[1.14.1 release](releases/v1.14.1.md) retains its own initial Linux 3.12
+lookup failure and separate seven-job read-only verification. The
 [1.14.0 release](releases/v1.14.0.md) retains its five-job production and
 seven-job read-only verification evidence. The earlier
 [1.13.1 release](releases/v1.13.1.md) retains its own verified subjects. The
@@ -32,7 +34,7 @@ For exact companion binding and negative controls, use the separate
 Installation does not automatically activate companions or grant action authority.
 
 ```bash
-python -m pip install agentic-security-harness==1.14.1
+python -m pip install agentic-security-harness==1.14.2
 ash --help
 ```
 

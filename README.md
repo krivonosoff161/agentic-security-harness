@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml/badge.svg)](https://github.com/krivonosoff161/agentic-security-harness/actions/workflows/codeql.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/public_research_release-v1.14.1-blue)
+![Status](https://img.shields.io/badge/public_research_release-v1.14.2-blue)
 
 **Your AI coding agent reads untrusted repository text. Can it keep data separate from
 instructions and authority?**
@@ -18,14 +18,17 @@ one.
 In plain English: it turns “the agent behaved unsafely” into evidence you can replay,
 validate, compare, and review.
 
-The unreleased 1.14.2 source candidate records the
-[optional Action Authority integration](docs/action-authority-integration.md).
-Its approval core is maintained in the separate
-[agentic-action-authority repository](https://github.com/krivonosoff161/agentic-action-authority)
-at merged commit `4950321cda5c3f71b460cb4d35ec45073bc38449`,
-not copied into Harness. Standalone 0.1.0 source is merged but not
-index-published; its optional file adapter was tested with published Harness
-1.14.1. This does not change the current published Harness release below.
+Current releases are Harness **1.14.2** and separately owned
+[Action Authority **0.1.1**](https://pypi.org/project/agentic-action-authority/0.1.1/).
+Harness provides the defensive benchmark and guarded create-only file writer;
+Action Authority provides exact-action approval with an optional adapter that
+reuses that writer. Install Harness with
+`python -m pip install agentic-security-harness==1.14.2`; an opting-in host can
+install `agentic-action-authority[harness]==0.1.1` separately. Installation
+does not grant approval or activate an operator workflow. See the
+[integration guide](docs/action-authority-integration.md) and
+[Harness release record](docs/releases/v1.14.2.md) for source pins, verification
+and limits.
 
 ## Document workflow — published in 1.13.0
 
@@ -50,17 +53,21 @@ permission preview, separate jobs, restart inspection, content-free quality
 status and an optional Pydantic AI bridge around the writer. A verified first
 document can feed a second job only as untrusted data under unchanged host
 policy. Exact host-declared criteria are not a claim of factual correctness.
-The current 1.14.1 package is on PyPI. See its [release record](docs/releases/v1.14.1.md)
+The current 1.14.2 package is on PyPI. See its [release record](docs/releases/v1.14.2.md)
 for exact subjects and the status of each verification gate; model-task quality
 and independent human review are separate from package publication.
 
-**Current release: [1.14.1](docs/releases/v1.14.1.md).**
-It updates the optional Pydantic AI bridge and verification locks to exact
-`pydantic-ai-slim==2.54.0` with matching graph/pricing dependencies. The
-attested files are published on both indexes, and separate read-only
-verification passed all seven cross-index jobs without rebuild or re-upload.
-Initial index-lookup failures and their recovery remain recorded in the
-release evidence. No new model study was performed.
+**Current release: [1.14.2](docs/releases/v1.14.2.md).**
+Its attested wheel and sdist are on both indexes with matching hashes.
+The tag build and TestPyPI workflow passed; PyPI upload and Linux smokes
+succeeded, but the Windows simple-index lookup failed before package execution,
+so the initial production workflow remains **failed overall**. Separate
+read-only cross-index verification passed all seven jobs without rebuild or
+re-upload. This patch adds no model study or independent human review.
+
+The historical [1.14.1 release](docs/releases/v1.14.1.md) updated the optional
+Pydantic AI bridge and verification locks to exact
+`pydantic-ai-slim==2.54.0` with matching graph/pricing dependencies.
 
 The historical [1.14.0 release](docs/releases/v1.14.0.md) shipped the
 document-source and bounded workspace controls described below.
@@ -73,8 +80,8 @@ jobs with zero skips;
 publication does not establish model-task fidelity or independent human review.
 
 The published 1.14.1 optional bridge remains version-bound to 2.54.0. The
-unreleased source candidate pins 2.55.0 with matching verification locks; it
-is not a published 1.14.1 dependency or new model evidence. Historical PyPI
+1.14.2 package pins 2.55.0 with matching verification locks; it
+is not a change to the 1.14.1 dependency or new model evidence. Historical PyPI
 1.14.0 uses 1.107.7; use files and dependencies from the same revision.
 
 The [guarded workspace writer](docs/guarded-workspace-writer.md) connects an
@@ -148,7 +155,7 @@ estimate, an autonomous-agent demonstration or an independent human audit.
   The earlier eight-call result is preserved separately in the report.
 
 **Package versus research evidence:** the study used exact installed **1.6.0**
-subjects, while the current published package is **1.14.1**. The prompt helper,
+subjects, while the current published package is **1.14.2**. The prompt helper,
 corpus and observations are repository-owned evidence, not evidence that the
 1.7.0, 1.7.1, 1.8.0, 1.9.0, 1.9.1, 1.10.1, 1.11.0, 1.12.0, 1.13.0, 1.13.1, 1.14.0 or 1.14.1 wheel
 was used in those model calls. See
@@ -200,10 +207,10 @@ package availability, retained initial smoke failures, and successful read-only
 verification.
 
 Install the exact package version from
-[PyPI](https://pypi.org/project/agentic-security-harness/1.14.1/):
+[PyPI](https://pypi.org/project/agentic-security-harness/1.14.2/):
 
 ```bash
-python -m pip install agentic-security-harness==1.14.1
+python -m pip install agentic-security-harness==1.14.2
 ash quickstart --out reports/quickstart
 ash agent-host-quickstart --out reports/agent-host-quickstart
 ```
@@ -262,12 +269,12 @@ facts. The Harness generates only the cross-project roadmap and compatibility vi
 - [Documentation crosswalk](docs/documentation-map.md)
 - [`component.yaml`](component.yaml) and [`ecosystem/roadmap.yaml`](ecosystem/roadmap.yaml)
 
-Runtime Guard remains private and `contract_only`. Harness version `v1.14.1`
+Runtime Guard remains private and `contract_only`. Harness version `v1.14.2`
 contains the closed [Extension SDK V1](docs/extension-sdk.md) and public passive extras for
 validated observation-to-finding dataflow. It does not auto-load installed packages;
 companion repositories remain optional, separately versioned distributions.
 
-Version `v1.14.1` retains the closed optional-dependency groups introduced in `v1.4.0`:
+Version `v1.14.2` retains the closed optional-dependency groups introduced in `v1.4.0`:
 
 | Extra | Exact companion distributions | Automatic activation |
 |---|---|---|
@@ -282,8 +289,8 @@ The generic PyPI coordinate `llm-router` is intentionally absent because it belo
 another project. CI builds all eight exact wheels from pinned Git SHAs and installs the
 closed local wheelhouse without loading either extension entry point. The public install
 commands are
-`pip install "agentic-security-harness[router]==1.14.1"` or
-`pip install "agentic-security-harness[all]==1.14.1"`. Other companion pins are unchanged;
+`pip install "agentic-security-harness[router]==1.14.2"` or
+`pip install "agentic-security-harness[all]==1.14.2"`. Other companion pins are unchanged;
 installation remains separate from module activation.
 
 For explicit installed extension binding, follow the fresh `--no-compile` environment
@@ -547,7 +554,15 @@ approval lifecycle on Ubuntu and Windows; it does not bundle or auto-install the
 
 ## Release and package status
 
-Release [v1.14.1](docs/releases/v1.14.1.md) is published on
+Release [v1.14.2](docs/releases/v1.14.2.md) is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.14.2/). Its
+tag build `39062758733` passed four jobs and TestPyPI `39063210754`
+passed three. PyPI `39063481449` uploaded the matching subjects and passed
+Linux 3.11–3.13, but Windows failed at simple-index lookup before execution;
+that workflow remains **failed overall**. Separate read-only
+`39063673573` passed all seven exact-subject cross-index jobs without
+rebuild or re-upload.
+Historical release [v1.14.1](docs/releases/v1.14.1.md) is published on
 [PyPI](https://pypi.org/project/agentic-security-harness/1.14.1/). Its exact
 tag build `38341102704` passed four jobs. Initial TestPyPI `38341625568`
 uploaded but failed overall at Linux index lookup before package execution;

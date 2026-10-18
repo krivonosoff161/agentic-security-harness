@@ -70,17 +70,19 @@ def test_versioned_onboarding_pin_matches_latest_published_version() -> None:
     readme = re.search(pattern, (ROOT / "README.md").read_text(encoding="utf-8"))
     onboarding = re.search(pattern, (ROOT / "docs/getting-started.md").read_text(encoding="utf-8"))
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
-    assert readme and onboarding and readme.group(1) == onboarding.group(1) == "1.14.1"
-    assert project["version"] == "1.14.2"  # Candidate is not published evidence.
-    notes = (ROOT / "docs/releases/v1.14.1.md").read_text(encoding="utf-8")
-    assert "Status: published on PyPI and TestPyPI" in notes
-    assert "https://pypi.org/project/agentic-security-harness/1.14.1/" in notes
+    assert readme and onboarding and readme.group(1) == onboarding.group(1) == "1.14.2"
+    assert project["version"] == "1.14.2"
+    notes = (ROOT / "docs/releases/v1.14.2.md").read_text(encoding="utf-8")
+    assert "Status: **published on TestPyPI and PyPI**" in notes
+    assert "https://pypi.org/project/agentic-security-harness/1.14.2/" in (
+        ROOT / "docs/getting-started.md"
+    ).read_text(encoding="utf-8")
     assert "Status: published on GitHub, TestPyPI and PyPI" in (
         ROOT / "docs/releases/v1.14.0.md"
     ).read_text(encoding="utf-8")
     assert (ROOT / "docs/releases/v1.13.0.md").is_file()
     pilot = (ROOT / "docs/external-pilot.md").read_text(encoding="utf-8")
-    assert "current published 1.14.1" in pilot
+    assert "separately version-bound 1.14.1 installed example" in pilot
     assert pilot.count("--core-version 1.14.1") == 3
     assert "--core-version 1.7.1" not in pilot
 

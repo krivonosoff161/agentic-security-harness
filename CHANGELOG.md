@@ -6,23 +6,30 @@ All notable changes to this project are documented here. The format follows
 
 ## [1.14.2] - 2026-10-17
 
-Source candidate for an optional, separately owned Action Authority integration.
-This section does not attest a tag, index upload, or release gate. See the
-[candidate record](docs/releases/v1.14.2.md).
+Published patch with an optional, separately owned Action Authority integration.
+The [release record](docs/releases/v1.14.2.md) separates successful tag build,
+TestPyPI and PyPI upload from the failed initial Windows production lookup and
+passing seven-job read-only cross-index verification.
 
 - Register `agentic-action-authority` as an optional ecosystem component,
-  source-locked to its merged public commit
-  `4950321cda5c3f71b460cb4d35ec45073bc38449`. Its approval core lives
+  source-locked in the immutable 1.14.2 tag to public commit
+  `4950321cda5c3f71b460cb4d35ec45073bc38449`. Later current-main
+  reconciliation advances the lock to
+  `281d4cb9c4620697f33005c6e0d628e41ff20fa0` without changing the
+  published wheel. Its approval core lives
   in that repository, not in Harness. Its optional file adapter retains the
-  Harness writer and was tested against published Harness 1.14.1; standalone
-  0.1.0 source is merged but not index-published. The historical six-component
+  Harness writer and passed separate installed core 28 / adapter 72 checks
+  on Windows and Linux against published Harness 1.14.2 at 0.1.0. Standalone
+  0.1.1 was subsequently published on both indexes with passing installed
+  core and adapter checks; that later event does not change the Harness tag.
+  The historical six-component
   functional chain is unchanged. See the
   [integration guide](docs/action-authority-integration.md).
 
 - Reconcile follow-up proposals #368/#369: pin Scorecard Action 2.5.0 and
   aiohttp 3.14.5, and align the reviewed multidict upper bound and Dependabot
   cap with aiohttp's `<8` requirement. Retain the existing compatible multidict
-  lock and workflow permissions. This source maintenance does not publish a release.
+  lock and workflow permissions. This maintenance adds no model-run evidence.
 
 - Reconcile dependency proposals #360–#365 as one checked source update:
   Pydantic 2.14.0, the opt-in Pydantic AI 2.55.0 bridge, aiohttp 3.14.4,
@@ -31,7 +38,7 @@ This section does not attest a tag, index upload, or release gate. See the
   manifest instead of bypassing its integrity checks. Group the coupled
   artifact Actions for future Dependabot updates.
   Published 1.14.1 packages and their 2.54.0 framework evidence remain unchanged;
-  this maintenance does not publish a package or add model-run evidence.
+  this maintenance adds no model-run evidence.
 
 ## [1.14.1] - 2026-10-13
 

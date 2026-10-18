@@ -2,7 +2,7 @@
 
 This guide covers the document workflow first shipped in 1.13.0 and the
 additional 1.14.0 source-admission and review controls. Check the current
-[v1.14.1 release record](releases/v1.14.1.md) and package index before selecting
+[v1.14.2 release record](releases/v1.14.2.md) and package index before selecting
 an installed version; source metadata or this guide alone does not prove
 publication. The [v1.14.0 record](releases/v1.14.0.md),
 [v1.13.1 record](releases/v1.13.1.md) and
@@ -27,13 +27,13 @@ review-required source, follow the
 
 ## First job
 
-Published 1.14.1 is the current route. Before installing, verify its
-[release record](releases/v1.14.1.md) and package
+Published 1.14.2 is the current route. Before installing, verify its
+[release record](releases/v1.14.2.md) and package
 index, then install that exact version in a virtual environment.
 The base workflow adds no model-framework dependency:
 
 ```sh
-python -m pip install agentic-security-harness==1.14.1
+python -m pip install agentic-security-harness==1.14.2
 ash document-init --dir my-documents --model YOUR_EXISTING_LOCAL_MODEL
 ash document-check --config my-documents/document.json --check-model
 ash document-run --config my-documents/document.json --input notes.txt --task "Make a short action checklist from these notes" --job first
@@ -118,7 +118,7 @@ not permission: jobs still use the same source admission and guarded writer.
 The [two-step recipe](../examples/document-plan/jobs.json) extracts owner/day
 fields from a public note and passes the verified first document to a second job.
 Its exact JSON requirements are host-side checks, not answers sent to the model.
-Use an exact 1.14.1 installation after checking the release record. From the checkout root,
+Use an exact 1.14.2 installation after checking the release record. From the checkout root,
 choose a new workspace and an exact already-installed local Ollama model:
 
 ```text
@@ -654,20 +654,19 @@ text and no model or provider calls.
 
 ## One optional framework, not another protection layer
 
-Published 1.14.1 has a `document-agent` extra pinned to
-`pydantic-ai-slim==2.54.0`, with matching graph/pricing dependencies and platform
-locks. The unreleased source checkout instead pins `pydantic-ai-slim==2.55.0`;
-use its own wheel, examples and locks, not the 1.14.1 publication evidence.
+Published 1.14.2 has a `document-agent` extra pinned to
+`pydantic-ai-slim==2.55.0`, with matching graph/pricing dependencies and platform
+locks. Historical 1.14.1 instead pins `pydantic-ai-slim==2.54.0`;
+use each version's own wheel, examples and locks.
 Its direct factories and engine admission reject unsupported framework
 versions. Version 1.14.0 instead used `1.107.7`, and 1.13.1 used `1.107.1`;
 do not mix their locks, wheels or examples. There is no automatic framework or
-evidence upgrade. Verify the published 1.14.1 wheel against the lock from its
-`v1.14.1` tag before installing; this checkout's lock is for the unreleased
-candidate. Select the framework when
+evidence upgrade. Verify the published 1.14.2 wheel against the lock from its
+`v1.14.2` tag before installing. Select the framework when
 creating a **new** workspace:
 
 ```sh
-python -m pip install "agentic-security-harness[document-agent]==1.14.1"
+python -m pip install "agentic-security-harness[document-agent]==1.14.2"
 ash document-init --dir framework-documents --model YOUR_EXISTING_LOCAL_MODEL --engine pydantic-ai
 ```
 

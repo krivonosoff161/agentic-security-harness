@@ -1,13 +1,16 @@
 # Releasing (PyPI, Docker, devcontainer)
 
-Harness 1.14.2 is an unreleased source candidate. Its
-[Action Authority integration](action-authority-integration.md) is optional,
-source-locked and separately owned; neither the merged standalone 0.1.0
-source nor this Harness candidate is established as an index publication by
-this guide. The [candidate record](releases/v1.14.2.md) tracks the scope
-and pending gates. Follow the gates below before making any release claim.
+Harness 1.14.2 is published; its [release record](releases/v1.14.2.md)
+separates successful tag build `39062758733` and TestPyPI `39063210754`,
+the PyPI upload with failed initial Windows lookup `39063481449`, and the
+passing read-only seven-job verification `39063673573`. No upload was
+repeated. Its [Action Authority integration](action-authority-integration.md)
+is optional, source-locked and separately owned. Standalone 0.1.1 was
+subsequently [published](action-authority-integration.md) with its own
+successful TestPyPI/PyPI and installed-adapter evidence; that does not alter
+the earlier Harness release runs or their outcomes.
 
-The current [v1.14.1 release](releases/v1.14.1.md) has an exact-tag build
+The historical [v1.14.1 release](releases/v1.14.1.md) has an exact-tag build
 (`38341102704`, four jobs passed). Initial TestPyPI `38341625568` uploaded
 the attested subjects and passed Windows smoke but failed overall at a Linux
 same-version index lookup before package execution. Read-only staging recovery

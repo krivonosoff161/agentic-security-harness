@@ -1,14 +1,23 @@
 # Project tracker
 
-## Unreleased Action Authority integration — 1.14.2 source candidate
+## Published 1.14.2 and optional Action Authority integration
 
+The current published package is **1.14.2**.
 The [integration guide](action-authority-integration.md) records the optional
-separately owned approval product at merged source
-`4950321cda5c3f71b460cb4d35ec45073bc38449`. No core code is copied
+separately owned approval product. The immutable 1.14.2 tag locked
+`4950321cda5c3f71b460cb4d35ec45073bc38449`; the later current-main
+source lock advances to merged `281d4cb9c4620697f33005c6e0d628e41ff20fa0`
+without altering published bytes. No core code is copied
 into Harness and no new base dependency or functional-chain member is added.
-Standalone 0.1.0 is not index-published; its optional file adapter was tested
-against published Harness 1.14.1. Harness 1.14.2 is source preparation only,
-pending exact-head checks and separate release gates.
+Standalone 0.1.1 is published on both indexes with the same wheel hash;
+its optional file adapter passed installed core 28 / adapter 72 checks on
+Windows and Linux against published Harness 1.14.2 in the successful
+TestPyPI `39108339899` and PyPI `39108500218` runs. The older 0.1.0
+TestPyPI failure remains historical. Harness tag build `39062758733` and TestPyPI
+`39063210754` passed; PyPI `39063481449` uploaded exact subjects but
+Windows lookup failed before execution, leaving production failed overall.
+Separate read-only `39063673573` passed seven cross-index jobs without
+rebuild or re-upload. See the [release record](releases/v1.14.2.md).
 
 ## Published Pydantic AI 2.x compatibility — 1.14.1
 
@@ -94,7 +103,7 @@ The prior stabilization work focused on making existing published routes usable
 end to end, not adding connectors, capabilities or separate research tracks.
 Its published stabilization patch was [v1.13.1](releases/v1.13.1.md).
 The 1.13.1 and 1.14.0 packages remain published as historical evidence;
-1.14.1 is current.
+1.14.1 is historical; 1.14.2 is current.
 
 The patch was merged in
 [PR #349](https://github.com/krivonosoff161/agentic-security-harness/pull/349)
@@ -473,8 +482,8 @@ another broad research expansion:
   and first-ten-minute documentation are delivered by
   [PR 201](https://github.com/krivonosoff161/agentic-security-harness/pull/201).
 
-The technical v1.0 readiness milestone is complete and version `1.14.1` is published on
-[PyPI](https://pypi.org/project/agentic-security-harness/1.14.1/). Independent standards review
+The technical v1.0 readiness milestone is complete and current version `1.14.2` is published on
+[PyPI](https://pypi.org/project/agentic-security-harness/1.14.2/). Independent standards review
 [remains public](https://github.com/krivonosoff161/agentic-security-harness/issues/199), as
 does the durable second-reviewer governance task
 [in GitHub](https://github.com/krivonosoff161/agentic-security-harness/issues/205). They are
