@@ -17,8 +17,8 @@ be trusted. A permitted document may still contain false or malicious text.
 ## First useful output, without a model
 
 For the current published route, verify the
-[v1.14.1 release record](releases/v1.14.1.md) and package index, then install
-`python -m pip install agentic-security-harness==1.14.1` in your own environment.
+[v1.14.2 release record](releases/v1.14.2.md) and package index, then install
+`python -m pip install agentic-security-harness==1.14.2` in your own environment.
 The [1.14.0 record](releases/v1.14.0.md) and
 [1.13.1 record](releases/v1.13.1.md) remain historical.
 The writer first shipped in 1.11.0 and adds no
@@ -312,7 +312,7 @@ durable independent retention or protection against coordinated host rollback.
 The runnable [two-step example](../examples/workspace_admitted_chain.py) composes
 all four source kinds, capture, admission, create-only operations, receipt reopen,
 exact output checks and an untrusted handoff. It changes only a fresh `--out`
-directory. From a checkout of the **v1.14.1 tag**, with its verified wheel
+directory. From a checkout of the **v1.14.2 tag**, with its verified wheel
 installed in an isolated environment, run:
 
 ```bash
@@ -324,8 +324,8 @@ The first command performs two checked writes and exits 0. The negative control
 exits 1: the incorrect draft is saved at the permitted destination, but the next
 generator is never called. Each run requires a different, nonexistent output
 directory. The exact same example can use `--engine pydantic` with the
-published 1.14.1 optional Pydantic AI 2.54.0 dependencies, or with the
-unreleased source candidate's matching 2.55.0 wheel and locks. `-I` makes imports use the
+published 1.14.2 optional Pydantic AI 2.55.0 dependencies and matching locks.
+Historical 1.14.1 uses 2.54.0. `-I` makes imports use the
 installed package, not a source-path override. The historical 1.13.1 wheel does
 **not** contain this 1.14.0 API.
 

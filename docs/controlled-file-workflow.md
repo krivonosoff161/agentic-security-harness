@@ -129,11 +129,11 @@ session: even if a write already happened, later calls cannot silently retry it.
 After closing or failing, the session cannot resume. Its result record describes
 authorization and effects, not the correctness of report counts.
 
-The published 1.14.1 optional bridge pins `pydantic-ai-slim==2.54.0`. The
-unreleased source checkout pins `pydantic-ai-slim==2.55.0`, with a separate
+The published 1.14.2 optional bridge pins `pydantic-ai-slim==2.55.0`, with a separate
 Windows x64 / Python 3.11 hash-locked environment in
 `requirements/verification/pydantic-ai-windows-py311.txt`. It is not a base Harness
-dependency. Pydantic AI is an independent project under the
+dependency. Historical 1.14.1 pins 2.54.0 and retains its own locks.
+Pydantic AI is an independent project under the
 [MIT license](https://github.com/pydantic/pydantic-ai/blob/v2.55.0/LICENSE);
 this example makes no affiliation or upstream-endorsement claim. Its
 [FunctionModel](https://github.com/pydantic/pydantic-ai/blob/v2.55.0/pydantic_ai_slim/pydantic_ai/models/function.py)
@@ -150,8 +150,8 @@ digests, decisions and timings, not raw response text. The default commands belo
 still use fixed controls and never start a model. A real model transport and its
 resource/network limits remain explicit responsibilities of the calling application.
 
-Install the published 1.14.1 wheel with its matching optional dependencies in
-a fresh environment, and use the example from the matching `v1.14.1` tag.
+Install the published 1.14.2 wheel with its matching optional dependencies in
+a fresh environment, and use the example from the matching `v1.14.2` tag.
 For source development, build the current checkout wheel and use its matching
 locks instead; do not mix revisions. For the
 [historical 1.14.0 release](releases/v1.14.0.md), instead use the wheel, locks and

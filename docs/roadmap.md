@@ -1,14 +1,22 @@
 # Roadmap
 
-The unreleased 1.14.2 source candidate registers
+The published [1.14.2 release](releases/v1.14.2.md) registers
 [Action Authority](action-authority-integration.md) as an optional,
 separately owned component. Its approval core is not copied into Harness.
-The merged standalone 0.1.0 source is not index-published, and its optional
-file adapter is verified against published Harness 1.14.1. The existing
-six-component functional chain is unchanged. Publication and independent
-review remain separate future gates.
+The release tag locked Action Authority source
+`4950321cda5c3f71b460cb4d35ec45073bc38449`; the later current-main
+integration lock advances to `281d4cb9c4620697f33005c6e0d628e41ff20fa0`
+without changing published bytes.
+Standalone 0.1.1 is published on TestPyPI and PyPI; its optional file adapter
+passed index-installed core 28 / adapter 72 checks on Windows and Linux against
+published Harness 1.14.2. The existing six-component
+functional chain is unchanged. Harness tag build and TestPyPI passed; the
+initial PyPI upload succeeded but Windows lookup failed before execution, so
+the production workflow remains failed overall. Seven-job read-only
+cross-index verification passed without rebuild or re-upload. Independent
+review remains a separate future gate.
 
-The current [1.14.1 release](releases/v1.14.1.md) publishes the exact optional
+The historical [1.14.1 release](releases/v1.14.1.md) publishes the exact optional
 Pydantic AI 2.54.0 compatibility migration, including graph/pricing locks,
 bounded dispatch and installed-package controls. Proposal #342 was superseded
 by the checked source delivery. The attested tag build passed; initial TestPyPI

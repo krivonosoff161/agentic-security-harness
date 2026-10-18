@@ -14,8 +14,8 @@ scope and the remaining independent-human gates.
 
 No credentials, customer data, private repositories, model access, real tools or
 production targets are required. Use a fresh Python 3.11 environment and the exact
-release's fixed example and locks. The current published 1.14.1 baseline is documented in
-[Getting started](getting-started.md); its installed example is at
+release's fixed example and locks. [Getting started](getting-started.md) now
+uses published 1.14.2; the separately version-bound 1.14.1 installed example is at
 [examples/installed-ecosystem](../examples/installed-ecosystem/README.md#current-published-1141).
 That page provides a hash-locked PyPI route with no local package build required.
 For the explicit extension path, follow the example's `--no-compile` installation in

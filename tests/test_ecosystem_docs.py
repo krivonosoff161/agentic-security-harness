@@ -302,7 +302,7 @@ def test_action_authority_is_optional_standalone_and_does_not_extend_historical_
     row = compatibility.rows[-1]
     assert row.component_id == "agentic-action-authority"
     assert row.integration_status == "standalone"
-    assert row.harness_api == "optional workspace operation 1.14.1"
+    assert row.harness_api == "optional workspace operation 1.14.2"
     assert row.supported_platforms == ["linux", "windows"]
     assert row.tested_platforms == ["linux", "windows"]
     assert row.extension_python is None
