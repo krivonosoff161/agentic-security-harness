@@ -132,7 +132,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: krivonosoff161/agentic-action-authority
-          ref: 281d4cb9c4620697f33005c6e0d628e41ff20fa0
+          ref: d5462692c2e4788364788ebc3fc11458c5abaf1c
           path: components/action-authority
           persist-credentials: false
 

@@ -5,11 +5,12 @@ The published [1.14.2 release](releases/v1.14.2.md) registers
 separately owned component. Its approval core is not copied into Harness.
 The release tag locked Action Authority source
 `4950321cda5c3f71b460cb4d35ec45073bc38449`; the later current-main
-integration lock advances to `281d4cb9c4620697f33005c6e0d628e41ff20fa0`
+integration lock advances to `d5462692c2e4788364788ebc3fc11458c5abaf1c`
 without changing published bytes.
-Standalone 0.1.1 is published on TestPyPI and PyPI; its optional file adapter
-passed index-installed core 28 / adapter 72 checks on Windows and Linux against
-published Harness 1.14.2. The existing six-component
+Standalone 0.2.0 is published on TestPyPI and PyPI; it adds the public
+`DocumentHost` onboarding facade while its optional file adapter continues to
+reuse the Harness 1.14.2 guarded writer. Index-installed core 29 / adapter 93
+checks passed on Windows and Linux with zero skips. The existing six-component
 functional chain is unchanged. Harness tag build and TestPyPI passed; the
 initial PyPI upload succeeded but Windows lookup failed before execution, so
 the production workflow remains failed overall. Seven-job read-only

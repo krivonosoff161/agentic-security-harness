@@ -15,15 +15,17 @@ subjects and preserves this distinction.
 The optional [Action Authority integration](action-authority-integration.md)
 remains separately owned. The published Harness 1.14.2 tag locked
 `4950321cda5c3f71b460cb4d35ec45073bc38449`; this later current-main
-source-lock reconciliation advances to merged
-`281d4cb9c4620697f33005c6e0d628e41ff20fa0` without changing the
-published wheel. No approval core is copied into Harness. Its optional adapter
-passed installed core 28 / adapter 72 checks on Windows and Linux with
-Harness 1.14.2 at published 0.1.1. Its tag build `39108172887` passed five
-jobs; TestPyPI `39108339899` and PyPI `39108500218` each passed seven,
-including four installed lanes, against one non-yanked wheel hash. The 0.1.0
-TestPyPI verifier failure and separate PR #5 source checks remain historical;
-see the [integration evidence](action-authority-integration.md).
+source-lock reconciliation advances to the separate Action Authority 0.2.0 tag
+`d5462692c2e4788364788ebc3fc11458c5abaf1c` without changing the
+published Harness wheel. No approval core is copied into Harness. Action
+Authority 0.2.0 adds the public `DocumentHost` onboarding facade; the optional
+file adapter still reuses the Harness 1.14.2 guarded writer. Its exact tag
+build `39116791967` supplied the wheel with SHA-256
+`e4e87e764bca9232bae74b66cef78d45d8c0eb03809442e0bc9bb2bd3955e328`.
+TestPyPI `39203686111` and PyPI `39203940701` each passed seven jobs,
+including installed core 29 / adapter 93 checks on Windows and Linux with
+zero skips. The prior 0.1.1 publication and 0.1.0 TestPyPI verifier failure
+remain historical; see the [integration evidence](action-authority-integration.md).
 The historical six-component functional chain is unchanged.
 
 ## Historical PyPI release — 1.14.1

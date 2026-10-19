@@ -147,27 +147,36 @@ def test_current_onboarding_separates_published_runtime_from_repository_evidence
 
 def test_action_authority_publication_keeps_release_and_current_source_pins_distinct() -> None:
     front = _read("README.md").split("## Document workflow", 1)[0]
-    assert "agentic-action-authority[harness]==0.1.1" in front
+    assert "agentic-action-authority[harness]==0.2.0" in front
     assert "agentic-security-harness==1.14.2" in front
     assert "4950321cda5c3f71b460cb4d35ec45073bc38449" not in front
     assert "281d4cb9c4620697f33005c6e0d628e41ff20fa0" not in front
+    assert "d5462692c2e4788364788ebc3fc11458c5abaf1c" not in front
+
+    release = _read("docs/releases/v1.14.2.md")
+    assert "4950321cda5c3f71b460cb4d35ec45073bc38449" in release
+    assert "281d4cb9c4620697f33005c6e0d628e41ff20fa0" in release
+    assert "d5462692c2e4788364788ebc3fc11458c5abaf1c" not in release
 
     for path in (
-        "docs/releases/v1.14.2.md",
         "docs/current-state.md",
         "docs/action-authority-integration.md",
+        "docs/project-tracker.md",
+        "docs/roadmap.md",
     ):
         text = _read(path)
         assert "4950321cda5c3f71b460cb4d35ec45073bc38449" in text
-        assert "281d4cb9c4620697f33005c6e0d628e41ff20fa0" in text
+        assert "d5462692c2e4788364788ebc3fc11458c5abaf1c" in text
 
     guide = _read("docs/action-authority-integration.md")
     for marker in (
-        "39108172887", "39108172888", "39108339899", "39108500218",
-        "ca9df74f7c935f210cf0d787bde97723d9980f600388e034f29f8dbc93fc3caf",
-        "0.1.0 TestPyPI", "failed Harness production workflow",
+        "39116791967", "39203686111", "39203940701",
+        "e4e87e764bca9232bae74b66cef78d45d8c0eb03809442e0bc9bb2bd3955e328",
+        "core 29", "adapter 93", "0.1.0 TestPyPI",
+        "failed Harness production workflow",
     ):
         assert marker in guide
+    assert "39108339899" in guide and "39108500218" in guide
 
 
 def test_v1140_publication_binds_exact_subjects_and_bounded_closure() -> None:
