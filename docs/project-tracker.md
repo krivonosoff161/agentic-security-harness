@@ -6,15 +6,16 @@ The current published package is **1.14.2**.
 The [integration guide](action-authority-integration.md) records the optional
 separately owned approval product. The immutable 1.14.2 tag locked
 `4950321cda5c3f71b460cb4d35ec45073bc38449`; the later current-main
-source lock advances to merged `281d4cb9c4620697f33005c6e0d628e41ff20fa0`
+source lock advances to tagged `d5462692c2e4788364788ebc3fc11458c5abaf1c`
 without altering published bytes. No core code is copied
 into Harness and no new base dependency or functional-chain member is added.
-Standalone 0.1.1 is published on both indexes with the same wheel hash;
-its optional file adapter passed installed core 28 / adapter 72 checks on
+Standalone 0.2.0 is published on both indexes with the same wheel hash;
+its optional file adapter passed installed core 29 / adapter 93 checks on
 Windows and Linux against published Harness 1.14.2 in the successful
-TestPyPI `39108339899` and PyPI `39108500218` runs. The older 0.1.0
-TestPyPI failure remains historical. Harness tag build `39062758733` and TestPyPI
-`39063210754` passed; PyPI `39063481449` uploaded exact subjects but
+TestPyPI `39203686111` and PyPI `39203940701` runs. The 0.1.1 publication
+and older 0.1.0 TestPyPI failure remain historical. Harness tag build
+`39062758733` and TestPyPI `39063210754` passed; PyPI `39063481449`
+uploaded exact subjects but
 Windows lookup failed before execution, leaving production failed overall.
 Separate read-only `39063673573` passed seven cross-index jobs without
 rebuild or re-upload. See the [release record](releases/v1.14.2.md).

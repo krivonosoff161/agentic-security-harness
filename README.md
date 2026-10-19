@@ -19,12 +19,12 @@ In plain English: it turns “the agent behaved unsafely” into evidence you ca
 validate, compare, and review.
 
 Current releases are Harness **1.14.2** and separately owned
-[Action Authority **0.1.1**](https://pypi.org/project/agentic-action-authority/0.1.1/).
+[Action Authority **0.2.0**](https://pypi.org/project/agentic-action-authority/0.2.0/).
 Harness provides the defensive benchmark and guarded create-only file writer;
 Action Authority provides exact-action approval with an optional adapter that
 reuses that writer. Install Harness with
 `python -m pip install agentic-security-harness==1.14.2`; an opting-in host can
-install `agentic-action-authority[harness]==0.1.1` separately. Installation
+install `agentic-action-authority[harness]==0.2.0` separately. Installation
 does not grant approval or activate an operator workflow. See the
 [integration guide](docs/action-authority-integration.md) and
 [Harness release record](docs/releases/v1.14.2.md) for source pins, verification
